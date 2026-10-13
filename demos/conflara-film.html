@@ -1,0 +1,615 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Conflara Matter Journey</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:ital,wght@0,500;0,600;1,500&display=swap">
+<style>
+/* Layout: a 1280x720 film stage (app window above, solid caption band below) scaled to the page width, player bar under it. */
+:root {
+  --page: #f4f5f7; --page-ink: #1b2130; --page-ink-2: #4d5568; --page-line: #d8dce5; --page-surface: #ffffff;
+  /* Film palette: one fixed look in both themes, from the product's own tokens. */
+  --night: #10172b; --night-2: #1a2440; --band: #070b16; --navy: #2b4a8b; --navy-soft: #e3e9f6; --paper: #f4f5f7; --white: #ffffff;
+  --ink: #1b2130; --ink-2: #4d5568; --ink-3: #7a8296; --line: #d8dce5; --surface-2: #eceef3;
+  --high: #b3261e; --high-soft: #fbe7e5; --med: #8a5a00; --med-soft: #fbf0d9; --low: #2f6b48; --low-soft: #e2f1e8;
+  --spark: #8a5a00; --spark-soft: #fbf0d9; --glow: #a9bdf0; --eyebrow: #f2c86b;
+  --serif: 'IBM Plex Serif', Georgia, 'Times New Roman', serif;
+  --sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --page: #12151c; --page-ink: #e8ebf2; --page-ink-2: #b2b9c9; --page-line: #313849; --page-surface: #1a1e28; color-scheme: dark; } }
+:root[data-theme="dark"] { --page: #12151c; --page-ink: #e8ebf2; --page-ink-2: #b2b9c9; --page-line: #313849; --page-surface: #1a1e28; color-scheme: dark; }
+
+body { background: var(--page); color: var(--page-ink); font-family: var(--sans); }
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: 16px; padding-block: 24px 40px; display: grid; gap: 14px; }
+.head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; }
+.head h1 { font-family: var(--serif); font-weight: 600; font-size: 1.35rem; margin: 0; text-wrap: balance; }
+.head p { margin: 0; color: var(--page-ink-2); font-size: 0.9rem; }
+.frame { position: relative; width: 100%; aspect-ratio: 16 / 9; max-width: 100%; overflow: hidden; border-radius: 8px; background: var(--night); box-shadow: 0 10px 40px rgba(16,23,43,.25); }
+#stage { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; transform-origin: 0 0; overflow: hidden; background: var(--night); font-family: var(--sans); color: var(--white); }
+.player { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; }
+.player button { font: 500 0.9rem var(--sans); color: var(--page-ink); background: var(--page-surface); border: 1px solid var(--page-line); border-radius: 6px; padding: 7px 14px; cursor: pointer; min-width: 84px; }
+.player button:focus-visible, #scrub:focus-visible, .chips button:focus-visible { outline: 2px solid #5b7fd6; outline-offset: 2px; }
+#scrub { flex: 1 1 200px; min-width: 0; accent-color: #2b4a8b; }
+#clock { font: 0.85rem var(--mono); color: var(--page-ink-2); font-variant-numeric: tabular-nums; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips button { font: 400 0.8rem var(--sans); color: var(--page-ink-2); background: transparent; border: 1px solid var(--page-line); border-radius: 999px; padding: 4px 10px; cursor: pointer; }
+.chips button.on { color: var(--page-ink); border-color: var(--page-ink-2); font-weight: 600; }
+.note { color: var(--page-ink-2); font-size: 0.85rem; margin: 0; max-width: 72ch; }
+.rendering .wrap { padding: 0; max-width: none; display: block; }
+.rendering .frame { border-radius: 0; box-shadow: none; width: 1280px; }
+.rendering .player, .rendering .head, .rendering .note, .rendering .chips { display: none; }
+
+/* ---------- caption band: solid, large, high contrast ---------- */
+#band { position: absolute; left: 0; right: 0; top: 566px; height: 154px; background: var(--band); border-top: 1px solid #222b45; display: grid; grid-template-rows: auto auto 1fr; padding: 12px 56px 0; gap: 6px; z-index: 30; }
+#prog { display: grid; grid-template-columns: repeat(12, 1fr); gap: 5px; }
+#prog i { height: 4px; border-radius: 2px; background: #283152; }
+#prog i.done { background: #5f7fca; }
+#prog i.now { background: var(--eyebrow); }
+#eyebrow { font: 600 17px var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--eyebrow); min-height: 22px; }
+#capt { font: 500 31px/1.32 var(--sans); color: #ffffff; max-width: 1170px; text-wrap: balance; }
+
+/* ---------- app window ---------- */
+#app { position: absolute; left: 40px; top: 22px; width: 1200px; height: 524px; background: var(--paper); border-radius: 10px; color: var(--ink); overflow: hidden; display: grid; grid-template-columns: 196px 1fr; box-shadow: 0 24px 70px rgba(0,0,0,.5); }
+.rail { background: var(--white); border-right: 1px solid var(--line); padding: 16px 12px; display: flex; flex-direction: column; gap: 2px; }
+.logo { display: flex; align-items: center; gap: 8px; font: 600 20px var(--serif); color: var(--navy); margin: 0 0 12px 6px; }
+.logo svg { width: 24px; height: 24px; }
+.rail .item { font: 500 15px var(--sans); color: var(--ink-2); padding: 7px 10px; border-radius: 6px; }
+.rail .item.on { background: var(--navy-soft); color: var(--navy); }
+.rail .who { margin-top: auto; font: 400 13px var(--sans); color: var(--ink-3); padding: 0 10px; }
+.rail .who b { display: block; color: var(--ink); font-weight: 600; font-size: 14px; }
+#main { position: relative; min-width: 0; }
+.pane { position: absolute; inset: 0; padding: 20px 28px; display: flex; flex-direction: column; gap: 12px; opacity: 0; visibility: hidden; }
+.pane h3 { margin: 0; font: 600 24px var(--serif); color: var(--ink); }
+.pane h3 small { font: 400 15px var(--sans); color: var(--ink-3); margin-left: 10px; }
+.row2 { display: grid; grid-template-columns: 1.35fr 1fr; gap: 20px; min-height: 0; }
+.card { background: var(--white); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.card h4 { margin: 0; font: 600 12px var(--sans); text-transform: uppercase; letter-spacing: .1em; color: var(--ink-3); }
+.muted { color: var(--ink-3); }
+.mono { font-family: var(--mono); }
+.spark { display: inline-flex; align-items: center; gap: 4px; font: 500 12px var(--sans); color: var(--spark); background: var(--spark-soft); border-radius: 999px; padding: 2px 9px; white-space: nowrap; }
+.pill { font: 600 11px var(--sans); border-radius: 999px; padding: 3px 9px; letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; }
+.pill.high { color: var(--high); background: var(--high-soft); }
+.pill.med { color: var(--med); background: var(--med-soft); }
+.pill.low { color: var(--low); background: var(--low-soft); }
+.pill.info { color: var(--navy); background: var(--navy-soft); }
+.btn { display: inline-block; font: 500 15px var(--sans); border: 1px solid var(--line); background: var(--white); color: var(--ink); border-radius: 6px; padding: 8px 14px; white-space: nowrap; }
+.btn.primary, .btn.chosen { background: var(--navy); color: var(--white); border-color: var(--navy); }
+.btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.ok { color: var(--low); font-weight: 600; }
+.line { display: flex; justify-content: space-between; align-items: center; gap: 12px; font: 400 15px var(--sans); color: var(--ink-2); border-bottom: 1px solid var(--line); padding-bottom: 7px; }
+.line:last-child { border-bottom: 0; }
+.line b { color: var(--ink); font-weight: 600; }
+.tick { display: inline-block; width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--line); color: transparent; font: 700 13px/18px var(--sans); text-align: center; }
+.tick.done { background: var(--low); border-color: var(--low); color: #fff; }
+
+/* fields */
+.fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; }
+.field { display: grid; gap: 4px; }
+.field label { font: 500 13px var(--sans); color: var(--ink-2); display: flex; gap: 6px; align-items: center; }
+.field .box { height: 38px; border: 1px solid var(--line); background: var(--white); border-radius: 6px; padding: 0 10px; display: flex; align-items: center; font: 400 16px var(--sans); white-space: nowrap; overflow: hidden; }
+.field.ai .box { border-color: #e2c37a; background: #fffcf3; }
+.mail { font: 400 14px/1.5 var(--sans); color: var(--ink-2); }
+.mail b { color: var(--ink); }
+.stepper { display: flex; gap: 8px; }
+.step { flex: 1; font: 500 13px var(--sans); color: var(--ink-3); border-top: 4px solid var(--line); padding-top: 6px; }
+.step.on { color: var(--navy); border-color: var(--navy); }
+
+/* table-ish rows */
+.rows { display: grid; gap: 6px; }
+.r { display: grid; grid-template-columns: 1.3fr 1.2fr auto; align-items: center; gap: 12px; background: var(--white); border: 1px solid var(--line); border-radius: 6px; padding: 9px 14px; font: 500 16px var(--sans); }
+.r .why { font: 400 14px var(--sans); color: var(--ink-2); }
+.r.dim { opacity: .45; }
+.r.sel { box-shadow: 0 0 0 2px var(--navy); }
+.stat { font: 500 14px var(--mono); color: var(--navy); }
+
+/* buckets */
+.buckets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.bucket { background: var(--white); border: 1px solid var(--line); border-radius: 8px; padding: 18px; display: grid; gap: 6px; }
+.bucket .n { font: 600 56px/1 var(--serif); font-variant-numeric: tabular-nums; }
+.bucket .t { font: 500 16px var(--sans); color: var(--ink-2); }
+.notice { display: flex; align-items: center; gap: 10px; background: var(--spark-soft); color: #5c3d00; border-radius: 8px; padding: 12px 16px; font: 500 16px var(--sans); }
+
+/* hit card */
+.hit { background: var(--white); border: 1px solid var(--line); border-left: 6px solid var(--high); border-radius: 8px; padding: 16px 20px; display: grid; gap: 10px; }
+.hit .whoh { display: flex; align-items: center; gap: 10px; font: 600 19px var(--sans); flex-wrap: wrap; }
+.hit p { margin: 0; font: 400 18px/1.5 var(--serif); color: var(--ink); }
+.stack { display: grid; }
+.stack > * { grid-area: 1 / 1; align-self: start; }
+.prior { font: 400 14px var(--sans); color: var(--ink-2); background: var(--surface-2); border-radius: 6px; padding: 8px 12px; }
+
+/* timeline */
+.tl { display: grid; gap: 0; }
+.tl .ev { display: grid; grid-template-columns: 110px 26px 1fr; gap: 12px; align-items: start; padding-bottom: 14px; }
+.tl .d { font: 500 14px var(--mono); color: var(--ink-3); padding-top: 2px; }
+.tl .dot { width: 16px; height: 16px; border-radius: 50%; background: var(--line); margin-top: 3px; }
+.tl .dot.done { background: var(--low); }
+.tl .dot.warn { background: #c98a12; }
+.tl .tx { font: 400 16px/1.4 var(--sans); color: var(--ink); }
+.tl .tx small { display: block; color: var(--ink-3); font-size: 14px; }
+
+/* letter */
+.doc { background: var(--white); border: 1px solid var(--line); border-radius: 4px; padding: 20px 26px; font: 400 14px/1.6 var(--serif); color: var(--ink); display: grid; gap: 8px; box-shadow: 0 6px 20px rgba(27,33,48,.08); }
+.doc h5 { margin: 0; font: 600 18px var(--serif); }
+.doc .hl { background: #fff4cf; }
+.bigno { font: 600 54px/1 var(--mono); color: var(--navy); letter-spacing: .02em; }
+.log { font: 400 13.5px/1.75 var(--mono); color: var(--ink-2); }
+.log b { color: var(--ink); font-weight: 500; }
+
+/* title + end */
+.full { position: absolute; inset: 0 0 154px 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 16px; opacity: 0; visibility: hidden; z-index: 20; background: var(--night); }
+.full .word { font: 600 104px/1 var(--serif); }
+.full .tag { font: 500 36px/1.25 var(--serif); font-style: italic; color: #e8ecf8; max-width: 980px; }
+.full .sub { font: 400 22px var(--sans); color: var(--glow); }
+.full .cta { font: 600 22px var(--sans); background: var(--white); color: var(--navy); padding: 12px 28px; border-radius: 8px; }
+.full svg { width: 96px; height: 96px; }
+
+.cursor { position: absolute; left: 0; top: 0; width: 24px; height: 24px; z-index: 25; pointer-events: none; opacity: 0; }
+.cursor::after { content: ''; position: absolute; left: -15px; top: -15px; width: 52px; height: 52px; border-radius: 50%; background: rgba(43,74,139,.3); transform: scale(var(--click, 0)); }
+</style>
+
+<div class="wrap">
+  <div class="head">
+    <h1>Conflara: one matter, start to finish</h1>
+    <p>Animated walkthrough · 2 min 32 s · fictional firm, clients and matter</p>
+  </div>
+
+  <div class="frame" id="frame">
+    <div id="stage" role="img" aria-label="Animated walkthrough of a new matter moving through Conflara, from intake to closing">
+
+      <!-- Title card -->
+      <div class="full" id="title" data-from="0" data-to="6">
+        <svg viewBox="0 0 120 120" aria-hidden="true"><rect x="10" y="10" width="100" height="100" rx="22" fill="none" stroke="#a9bdf0" stroke-width="6" pathLength="1" stroke-dasharray="1" data-draw="0.3 1.4"></rect><path d="M36 62 L54 80 L86 42" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" pathLength="1" stroke-dasharray="1" data-draw="1.1 1.8"></path></svg>
+        <div class="word brand" data-in="1.2">Conflara</div>
+        <div class="tag" data-in="2.2">One new matter, from the first call to the closing file.</div>
+        <div class="sub" data-in="3.0">Ashford &amp; Vale LLP · Harborline Logistics v. Pellmark Freight · all fictional</div>
+      </div>
+
+      <div id="app">
+        <div class="rail">
+          <div class="logo"><svg viewBox="0 0 120 120" aria-hidden="true"><rect x="10" y="10" width="100" height="100" rx="22" fill="#2b4a8b"></rect><path d="M36 62 L54 80 L86 42" fill="none" stroke="#fff" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"></path></svg><span class="brand">Conflara</span></div>
+          <div class="item" data-rail="0">New intake</div>
+          <div class="item" data-rail="1">Conflicts search</div>
+          <div class="item" data-rail="2">Hits to review</div>
+          <div class="item" data-rail="3">Lawyer replies</div>
+          <div class="item" data-rail="4">Waivers</div>
+          <div class="item" data-rail="5">Ethical walls</div>
+          <div class="item" data-rail="6">Approvals</div>
+          <div class="item" data-rail="7">Letters</div>
+          <div class="item" data-rail="8">Matters</div>
+          <div class="item" data-rail="9">Audit &amp; reports</div>
+          <div class="who" id="who"><b id="whoName">Amara Lindqvist</b><span id="whoRole">Partner, Real Estate</span></div>
+        </div>
+
+        <div id="main">
+          <!-- 1. Intake -->
+          <div class="pane" data-from="6" data-to="20">
+            <h3>New business intake <small>Request NBI-2611</small></h3>
+            <div class="stepper"><div class="step on">1 · Client</div><div class="step" data-cls="12.5:on">2 · Parties</div><div class="step" data-cls="15.5:on">3 · Matter</div><div class="step">4 · Review</div></div>
+            <div class="row2">
+              <div class="fields">
+                <div class="field"><label>Client</label><div class="box" data-type="9.0 9.8" data-text="Harborline Logistics, Inc."></div></div>
+                <div class="field"><label>Responsible partner</label><div class="box" data-type="9.4 9.9" data-text="Amara Lindqvist"></div></div>
+                <div class="field ai" data-in="10.2"><label>Adverse party <span class="spark">✦ AI suggested, check</span></label><div class="box" data-type="10.4 10.8" data-text="Pellmark Freight Co."></div></div>
+                <div class="field ai" data-in="10.6"><label>Related person <span class="spark">✦ AI suggested, check</span></label><div class="box" data-type="10.8 11.2" data-text="Jo Danvers (CEO, Harborline)"></div></div>
+                <div class="field"><label>Matter</label><div class="box" data-type="15.6 16.4" data-text="Warehouse lease dispute"></div></div>
+                <div class="field"><label>Estimated fees</label><div class="box" data-type="16.4 16.9" data-text="$85,000 · hourly"></div></div>
+              </div>
+              <div style="display:grid;gap:12px;align-content:start;min-width:0">
+                <div class="card mail">
+                  <h4>Client email · dropped into step 1</h4>
+                  <div><b>From:</b> Jo Danvers, Harborline Logistics</div>
+                  <div>“Our landlord, Pellmark Freight Co., is trying to end our warehouse lease early. Can your firm help?”</div>
+                  <div class="btns"><span class="btn" id="readBtn" data-cls="8.6:chosen">✦ Suggest parties with local AI</span></div>
+                </div>
+                <div class="card" data-in="13.2" style="border-color:#e6b7b2">
+                  <h4>Live check while you type</h4>
+                  <div class="line"><span>Pellmark Freight Co.</span><span class="pill high">2 possible</span></div>
+                  <div class="line"><span>Harborline Logistics, Inc.</span><span class="pill info">Existing client</span></div>
+                  <div class="line"><span>Jo Danvers</span><span class="pill low">No match</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Search -->
+          <div class="pane" data-from="20" data-to="32">
+            <h3>Conflicts search <small>NBI-2611 · run on submit</small></h3>
+            <div class="stat" data-in="20.8">Searched 5,214 parties, 2,031 matters and 38 open requests in 41 ms</div>
+            <div class="rows">
+              <div class="r" data-in="21.4"><span>Pellmark Freight Co.</span><span class="why">The party itself, spelled “Pelmark Frieght” in 2019</span><span class="pill high">High</span></div>
+              <div class="r" data-in="21.8"><span>Pellmark Holdings LLC</span><span class="why">Parent company · former client</span><span class="pill high">High</span></div>
+              <div class="r" data-in="22.2"><span>Pellmark Freightways</span><span class="why">Former name of the party</span><span class="pill med">Medium</span></div>
+              <div class="r" data-in="22.6"><span>P. Mark Freight Services</span><span class="why">Sounds alike · different state</span><span class="pill low">Low</span></div>
+              <div class="r" data-in="23.0"><span>Harborline Logistics, Inc.</span><span class="why">Existing client 010587 · 3 matters</span><span class="pill info">Client</span></div>
+            </div>
+            <div class="card" data-in="27.0" style="grid-auto-flow:column;justify-content:space-between;align-items:center">
+              <span><b>Sanctions check</b> <span class="muted">· 3 parties checked against the firm's loaded lists</span></span><span class="pill low">No match</span>
+            </div>
+            <div class="muted" data-in="28.2" style="font-size:15px">+ 20 lower-scoring hits from shared names and addresses</div>
+          </div>
+
+          <!-- 3. AI pre-sort -->
+          <div class="pane" data-from="32" data-to="42">
+            <h3>Hits to review <small>25 hits · NBI-2611</small></h3>
+            <div class="notice" data-in="32.5">✦ Pre-sorted by the local model on the firm's server. These are suggestions; an analyst confirms every hit.</div>
+            <div class="buckets">
+              <div class="bucket" data-in="33.3"><span class="pill low" style="justify-self:start">Suggested</span><div class="n" data-count="33.6 36.2 0 19">0</div><div class="t">Probably not the same entity</div></div>
+              <div class="bucket" data-in="33.6"><span class="pill med" style="justify-self:start">Suggested</span><div class="n" data-count="33.9 36.2 0 4">0</div><div class="t">Worth a closer look</div></div>
+              <div class="bucket" data-in="33.9"><span class="pill high" style="justify-self:start">Suggested</span><div class="n" data-count="34.2 36.2 0 2">0</div><div class="t">Likely conflict, review first</div></div>
+            </div>
+            <div class="card" data-in="37.5"><div class="line"><span>Model</span><b>ministral-3 · 8B · on-premises</b></div><div class="line"><span>Data sent outside the firm</span><b>None</b></div></div>
+          </div>
+
+          <!-- 4. Analyst review -->
+          <div class="pane" data-from="42" data-to="56">
+            <h3>Hits to review <small>Dana Whitfield, conflicts analyst</small></h3>
+            <div class="stack"><div class="rows" data-out="48.6">
+              <div class="r sel" data-cls="45.6:dim"><span>19 hits · probably not the same entity</span><span class="why">Shared surname, different state or industry</span><span class="btn primary" id="bulkBtn">Confirm 19 as not the same</span></div>
+              <div class="r"><span>4 hits · worth a closer look</span><span class="why">Former names and shared addresses</span><span class="pill med">Open</span></div>
+              <div class="r"><span>2 hits · likely conflict</span><span class="why">Parent company and party itself</span><span class="pill high">Open</span></div>
+              <div class="stat" data-in="45.8">19 confirmed by D. Whitfield · 14 Oct 2026, 9:12 am</div>
+            </div>
+            <div class="hit" data-in="49.0">
+              <div class="whoh">Pellmark Holdings LLC <span class="pill high">High</span><span class="spark">✦ AI draft explanation · analyst to confirm</span></div>
+              <p data-type="49.4 52.0" data-text="The firm represented Pellmark Holdings, the parent of the adverse party, in a lease matter that closed in 2024. This may be a former-client conflict. The responsible lawyer should be asked before deciding."></p>
+              <div class="prior">Earlier decision on this party: <b>waiver obtained</b> for NBI-1874 in 2022 · D. Whitfield</div>
+              <div class="btns"><span class="btn">Clear</span><span class="btn" id="askBtn" data-cls="54.4:chosen">Ask the lawyer</span><span class="btn">Escalate to GC</span></div>
+            </div></div>
+          </div>
+
+          <!-- 5. Lawyer clearance -->
+          <div class="pane" data-from="56" data-to="66">
+            <h3>Lawyer replies <small>Signed in as R. Okafor</small></h3>
+            <div class="card" data-in="56.4" style="gap:12px">
+              <h4>Clearance request from the conflicts team</h4>
+              <div style="font:400 18px/1.5 var(--serif)">We have a new matter, <b>Harborline Logistics v. Pellmark Freight</b> (warehouse lease). You handled matter 010023.0004 for Pellmark Holdings, the parent. Do you object to the firm taking it?</div>
+              <div class="btns"><span class="btn">No objection</span><span class="btn">Objection</span><span class="btn" id="waivBtn" data-cls="60.6:chosen">No objection if a waiver is obtained</span></div>
+              <div class="prior" data-in="61.2" data-type="61.4 63.2" data-text="Note: Pellmark Holdings is a former client and the matters are unrelated. Please get written consent before opening."></div>
+              <div class="stat" data-in="64.0">Answered in the lawyer's inbox · logged to NBI-2611</div>
+            </div>
+          </div>
+
+          <!-- 6. Waiver -->
+          <div class="pane" data-from="66" data-to="76">
+            <h3>Waivers <small>W-0412 · Pellmark Holdings LLC</small></h3>
+            <div class="row2">
+              <div class="card">
+                <h4>Waiver record</h4>
+                <div class="line"><span>Consenting party</span><b>Pellmark Holdings LLC</b></div>
+                <div class="line"><span>Type</span><b>Specific, informed written consent</b></div>
+                <div class="line"><span>Linked request</span><b>NBI-2611</b></div>
+                <div class="line"><span>Status</span><b data-txt="66:Requested|71.2:Received">Requested</b></div>
+                <div class="line" data-in="72.0"><span>Signed consent</span><b class="mono" style="font-size:14px">pellmark-consent-signed.pdf</b></div>
+              </div>
+              <div class="card">
+                <h4>History</h4>
+                <div class="tl">
+                  <div class="ev" data-in="66.6"><span class="d">14 Oct</span><span class="dot done"></span><span class="tx">Consent letter drafted from the template<small>by D. Whitfield</small></span></div>
+                  <div class="ev" data-in="67.6"><span class="d">14 Oct</span><span class="dot done"></span><span class="tx">Sent to Pellmark Holdings general counsel</span></div>
+                  <div class="ev" data-in="70.6"><span class="d">16 Oct</span><span class="dot" data-cls="71.2:done"></span><span class="tx">Signed consent received and attached</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 7. Ethical wall -->
+          <div class="pane" data-from="76" data-to="88">
+            <h3>Ethical walls <small>Wall EW-0097</small></h3>
+            <div class="row2">
+              <div class="card">
+                <h4>Screened from NBI-2611</h4>
+                <div class="line"><span>R. Okafor · partner</span><span><span class="tick" data-cls="79.8:done">✓</span></span></div>
+                <div class="line"><span>M. Chen · associate</span><span><span class="tick" data-cls="80.8:done">✓</span></span></div>
+                <div class="line"><span>S. Ruiz · paralegal</span><span><span class="tick" data-cls="81.8:done">✓</span></span></div>
+                <div class="stat" data-txt="76:Acknowledged 0 of 3|79.8:Acknowledged 1 of 3|80.8:Acknowledged 2 of 3|81.8:Acknowledged 3 of 3">Acknowledged 0 of 3</div>
+              </div>
+              <div class="card">
+                <h4>Wall controls</h4>
+                <div class="line" data-in="82.6"><span>Created from</span><b>Hit decision, NBI-2611</b></div>
+                <div class="line" data-in="83.2"><span>Fee exclusion recorded</span><span class="ok">Yes</span></div>
+                <div class="line" data-in="83.8"><span>Deny list for document system</span><span class="ok">Exported</span></div>
+                <div class="line" data-in="84.4"><span>Re-acknowledgment</span><b>Every 6 months</b></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 8. Approvals -->
+          <div class="pane" data-from="88" data-to="100">
+            <h3>Approvals <small>NBI-2611</small></h3>
+            <div class="notice" data-in="88.4" style="background:var(--navy-soft);color:var(--navy)">Routing rule: fees over $50,000 with a high-risk hit adds General Counsel</div>
+            <div class="card">
+              <div class="line"><span><span class="tick done">✓</span> &nbsp;Conflicts analyst · D. Whitfield</span><b>Approved 14 Oct</b></div>
+              <div class="line"><span><span class="tick" data-cls="91.0:done">✓</span> &nbsp;Responsible partner · A. Lindqvist</span><b data-txt="88:Due 15 Oct|91.0:Approved 15 Oct">Due 15 Oct</b></div>
+              <div class="line"><span><span class="tick" data-cls="93.0:done">✓</span> &nbsp;Finance · credit check and retainer</span><b data-txt="88:Due 16 Oct|93.0:Approved 16 Oct">Due 16 Oct</b></div>
+              <div class="line"><span><span class="tick" data-cls="96.0:done">✓</span> &nbsp;General Counsel · P. Natarajan</span><b data-txt="88:Waiting|94.4:Due 17 Oct|96.0:Approved 17 Oct">Waiting</b></div>
+            </div>
+            <div class="stat" data-in="94.6">Each approver sees this in their task list with a due date</div>
+          </div>
+
+          <!-- 9. Letter -->
+          <div class="pane" data-from="100" data-to="112">
+            <h3>Letters <small>Engagement letter · NBI-2611</small></h3>
+            <div class="row2">
+              <div class="doc">
+                <h5>Engagement Letter</h5>
+                <div>Harborline Logistics, Inc. · Attn: Jo Danvers</div>
+                <div data-in="100.8">Re: <span class="hl">Warehouse lease dispute with Pellmark Freight Co.</span></div>
+                <div data-in="101.4">Fees: hourly, as set out in Schedule A. Responsible partner: <span class="hl">Amara Lindqvist</span>.</div>
+                <div data-in="102.0">Conflicts: the firm previously represented <span class="hl">Pellmark Holdings LLC</span>, which has consented in writing.</div>
+              </div>
+              <div class="card">
+                <h4>Checks before sending</h4>
+                <div class="line" data-in="103.4"><span>Written fee agreement terms (CA B&amp;P 6148)</span><span class="ok">✓</span></div>
+                <div class="line" data-in="104.0"><span>Waiver referenced</span><span class="ok">✓</span></div>
+                <div class="line" data-in="104.6"><span>Scope and parties match intake</span><span class="ok">✓</span></div>
+                <div class="line" data-in="106.4"><span>Signature</span><b data-txt="100:Not sent|106.6:Sent 17 Oct|109.2:Signed 18 Oct">Not sent</b></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 10. Opening -->
+          <div class="pane" data-from="112" data-to="124">
+            <h3>Matters <small>Opened 18 Oct 2026</small></h3>
+            <div class="row2">
+              <div class="card" style="gap:12px">
+                <h4>Client and matter number</h4>
+                <div class="bigno" data-type="112.6 113.6" data-text="010587.0004"></div>
+                <div class="muted" style="font-size:15px">Client 010587 Harborline Logistics · fourth matter</div>
+                <div class="line" data-in="118.4"><span>Billing system import file</span><span class="ok">Ready</span></div>
+                <div class="line" data-in="119.0"><span>Approvals, waiver and letter</span><span class="ok">Attached</span></div>
+              </div>
+              <div class="card">
+                <h4>Added to the conflicts database</h4>
+                <div class="line" data-in="114.8"><span>Harborline Logistics, Inc.</span><span class="pill info">Client</span></div>
+                <div class="line" data-in="115.3"><span>Pellmark Freight Co.</span><span class="pill high">Adverse</span></div>
+                <div class="line" data-in="115.8"><span>Jo Danvers</span><span class="pill low">Related</span></div>
+                <div class="stat" data-in="116.6">Searchable in the next check</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 11. During and closing -->
+          <div class="pane" data-from="124" data-to="136">
+            <h3>Matter 010587.0004 <small>Timeline</small></h3>
+            <div class="card">
+              <div class="tl">
+                <div class="ev"><span class="d">Oct 2026</span><span class="dot done"></span><span class="tx">Matter opened</span></div>
+                <div class="ev" data-in="124.8"><span class="d">Mar 2027</span><span class="dot warn"></span><span class="tx">New party added: Ridgeway Mutual Insurance (insurer)<small>Conflicts check run again on the updated party list</small></span></div>
+                <div class="ev" data-in="127.4"><span class="d">Mar 2027</span><span class="dot done"></span><span class="tx">No conflict found · earlier decisions kept<small>Confirmed by D. Whitfield</small></span></div>
+                <div class="ev" data-in="130.6"><span class="d">Nov 2027</span><span class="dot done"></span><span class="tx">Matter closed · closing letter sent<small>Final wall certification filed for EW-0097</small></span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 12. Audit and reports -->
+          <div class="pane" data-from="136" data-to="146">
+            <h3>Audit &amp; reports</h3>
+            <div class="row2">
+              <div class="card">
+                <h4>Audit log · NBI-2611</h4>
+                <div class="log">
+                  <div data-in="136.4">14 Oct 08:41 <b>A. Lindqvist</b> submitted intake</div>
+                  <div data-in="136.7">14 Oct 08:41 <b>System</b> searched 3 parties · 25 hits</div>
+                  <div data-in="137.0">14 Oct 08:43 <b>Local model</b> suggested groupings</div>
+                  <div data-in="137.3">14 Oct 09:12 <b>D. Whitfield</b> confirmed 19 hits</div>
+                  <div data-in="137.6">14 Oct 11:05 <b>R. Okafor</b> answered clearance</div>
+                  <div data-in="137.9">16 Oct 15:30 <b>D. Whitfield</b> attached waiver W-0412</div>
+                  <div data-in="138.2">17 Oct 10:02 <b>P. Natarajan</b> approved</div>
+                  <div data-in="138.5">18 Oct 09:15 <b>System</b> opened 010587.0004</div>
+                </div>
+              </div>
+              <div class="card">
+                <h4>Ethics and insurer pack</h4>
+                <div class="line" data-in="141.4"><span>Conflicts searches</span><b>Exported</b></div>
+                <div class="line" data-in="141.8"><span>Waivers and consents</span><b>Exported</b></div>
+                <div class="line" data-in="142.2"><span>Ethical walls and acknowledgments</span><b>Exported</b></div>
+                <div class="line" data-in="142.6"><span>Approvals and overrides</span><b>Exported</b></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- End card -->
+      <div class="full" id="end" data-from="146" data-to="152.1">
+        <div class="word brand" data-in="146.3">Conflara</div>
+        <div class="tag" data-in="147.0">Intake, conflicts, waivers, walls and approvals in one record.</div>
+        <div class="sub" data-in="147.8">Private local AI that suggests and helps draft. Your people decide.</div>
+        <div class="cta" data-in="148.6">Book a demo</div>
+      </div>
+
+      <svg class="cursor" id="cursor" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 2 L3 20 L8 15 L11.5 22 L14.5 20.5 L11 14 L18 14 Z" fill="#fff" stroke="#1b2130" stroke-width="1.5"></path></svg>
+
+      <div id="band">
+        <div id="prog"></div>
+        <div id="eyebrow"></div>
+        <div id="capt"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="player">
+    <button id="play" type="button">Pause</button>
+    <button id="replay" type="button">Replay</button>
+    <button id="sound" type="button" aria-pressed="false">Sound on</button>
+    <input id="scrub" type="range" min="0" max="152" step="0.05" value="0" aria-label="Position in the walkthrough">
+    <span id="clock">0:00 / 2:32</span>
+    <audio id="music" src="journey-score.mp3" preload="auto"></audio>
+  </div>
+  <div class="chips" id="chips" aria-label="Jump to a step"></div>
+  <p class="note">Every firm, person, client and matter shown is fictional. The music is an original score made for this walkthrough.</p>
+</div>
+
+<script>
+const BRAND = 'Conflara';
+document.querySelectorAll('.brand').forEach(e => e.textContent = BRAND);
+
+const DUR = 152;
+const $ = id => document.getElementById(id);
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const ease = p => 1 - Math.pow(1 - clamp(p), 3);
+const seg = (t, a, b) => ease((t - a) / (b - a));
+const lin = (t, a, b) => clamp((t - a) / (b - a));
+
+// Chapters: start, end, rail item, who is signed in, eyebrow.
+const CH = [
+  { a: 6, b: 20, rail: 0, who: ['Amara Lindqvist', 'Partner, Real Estate'], name: 'New business intake' },
+  { a: 20, b: 32, rail: 1, who: ['Dana Whitfield', 'Conflicts analyst'], name: 'Conflicts search' },
+  { a: 32, b: 42, rail: 2, who: ['Dana Whitfield', 'Conflicts analyst'], name: 'Private AI pre-sort' },
+  { a: 42, b: 56, rail: 2, who: ['Dana Whitfield', 'Conflicts analyst'], name: 'Analyst review' },
+  { a: 56, b: 66, rail: 3, who: ['R. Okafor', 'Partner, Litigation'], name: 'Ask the lawyer' },
+  { a: 66, b: 76, rail: 4, who: ['Dana Whitfield', 'Conflicts analyst'], name: 'Waiver' },
+  { a: 76, b: 88, rail: 5, who: ['Dana Whitfield', 'Conflicts analyst'], name: 'Ethical wall' },
+  { a: 88, b: 100, rail: 6, who: ['Priya Natarajan', 'General Counsel'], name: 'Approvals' },
+  { a: 100, b: 112, rail: 7, who: ['Amara Lindqvist', 'Partner, Real Estate'], name: 'Engagement letter' },
+  { a: 112, b: 124, rail: 8, who: ['Dana Whitfield', 'Conflicts analyst'], name: 'Matter opening' },
+  { a: 124, b: 136, rail: 8, who: ['Dana Whitfield', 'Conflicts analyst'], name: 'During the matter and closing' },
+  { a: 136, b: 146, rail: 9, who: ['Firm administrator', 'Risk team'], name: 'Audit and reports' },
+];
+const CAPS = [
+  [0, 6, 'Follow one new matter through Conflara, from the first call to the closing file.'],
+  [6, 13, 'Amara starts an intake. Local AI reads the client’s email and suggests parties, marked ✦ for her to check.'],
+  [13, 20, 'While she types, a live check shows possible conflicts before the request is even sent.'],
+  [20, 26.5, 'Submitting runs a full search across parties, past matters and requests still in progress.'],
+  [26.5, 32, 'It catches typos, former names and parent companies, and runs a sanctions check on every party.'],
+  [32, 37, 'The local AI pre-sorts the 25 hits on the firm’s own server. Nothing leaves the building.'],
+  [37, 42, 'The groupings are only suggestions. An analyst reviews and decides every hit.'],
+  [42, 48.6, 'Dana, the conflicts analyst, checks the easy group and confirms it in one step.'],
+  [48.6, 56, 'Serious hits come with a plain-English explanation and the earlier decisions on the same party.'],
+  [56, 61, 'One click asks the lawyer who handled the earlier Pellmark matter.'],
+  [61, 66, 'The answer comes straight from the lawyer’s inbox: no objection, if a waiver is obtained.'],
+  [66, 71, 'The waiver is a tracked record: who must consent, when it was asked for, and its status.'],
+  [71, 76, 'When the signed consent comes back, it is attached to the request.'],
+  [76, 82, 'An ethical wall screens the people who worked on the earlier Pellmark matter.'],
+  [82, 88, 'Each person acknowledges it. Fee exclusion is recorded and a deny list goes to your document system.'],
+  [88, 94, 'Routing rules decide who signs. This one needs General Counsel because of its size and risk.'],
+  [94, 100, 'Every approver gets the step in their task list, with a due date.'],
+  [100, 106, 'The engagement letter is filled in from the intake, with the waiver already referenced.'],
+  [106, 112, 'Built-in checks flag missing fee-agreement terms, and signature status is tracked.'],
+  [112, 118, 'The matter opens under the client’s number, using the firm’s own numbering.'],
+  [118, 124, 'Its parties join the conflicts database, and the billing system gets an import file.'],
+  [124, 130, 'Months later an insurer joins the case. Add the party and the check runs again.'],
+  [130, 136, 'At closing, the letter and the final wall certification stay with the matter.'],
+  [136, 141, 'Every search, suggestion, decision and signature is in the audit log.'],
+  [141, 146, 'When an insurer or auditor asks, the ethics pack is ready to export.'],
+  [146, 152.1, 'Conflara. Book a demo to see it with your own firm’s data.'],
+];
+// Cursor stops: time, target selector, click?
+const CUR = [
+  [8.6, '#readBtn', 1],
+  [45.4, '#bulkBtn', 1],
+  [54.4, '#askBtn', 1],
+  [60.6, '#waivBtn', 1],
+];
+
+// ---------- build ----------
+const prog = $('prog');
+CH.forEach(() => prog.appendChild(document.createElement('i')));
+const chips = $('chips');
+CH.forEach((c, i) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = `${i + 1}. ${c.name}`; b.onclick = () => { t = c.a + 0.01; last = null; sync(); syncAudio(); }; chips.appendChild(b); });
+
+const Q = sel => [...document.querySelectorAll(sel)];
+const ins = Q('[data-in]').map(el => [el, +el.dataset.in]);
+const outs = Q('[data-out]').map(el => [el, +el.dataset.out]);
+const types = Q('[data-type]').map(el => [el, ...el.dataset.type.split(' ').map(Number), el.dataset.text]);
+const clss = Q('[data-cls]').map(el => [el, el.dataset.cls.split(' ').map(s => { const [tt, c] = s.split(':'); return [+tt, c]; })]);
+const txts = Q('[data-txt]').map(el => [el, el.dataset.txt.split('|').map(s => { const i = s.indexOf(':'); return [+s.slice(0, i), s.slice(i + 1)]; })]);
+const counts = Q('[data-count]').map(el => [el, ...el.dataset.count.split(' ').map(Number)]);
+const panes = Q('[data-from]').map(el => [el, +el.dataset.from, +el.dataset.to]);
+const draws = Q('[data-draw]').map(el => [el, ...el.dataset.draw.split(' ').map(Number)]);
+const rails = Q('[data-rail]');
+
+function render(t) {
+  for (const [el, a, b] of panes) {
+    const on = t >= a && t < b;
+    const p = Math.min(a === 0 ? 1 : lin(t, a, a + 0.45), b >= DUR ? 1 : 1 - lin(t, b - 0.35, b));
+    el.style.opacity = on ? p : 0;
+    el.style.visibility = on ? 'visible' : 'hidden';
+  }
+  for (const [el, a] of ins) { const p = seg(t, a, a + 0.5); el.style.opacity = p; el.style.transform = `translateY(${(1 - p) * 14}px)`; }
+  for (const [el, a] of outs) el.style.opacity = 1 - seg(t, a - 0.4, a);
+  for (const [el, a, b, s] of types) el.textContent = s.slice(0, Math.round(lin(t, a, b) * s.length));
+  for (const [el, list] of clss) for (const [tt, c] of list) el.classList.toggle(c, t >= tt);
+  for (const [el, list] of txts) { let v = list[0][1]; for (const [tt, s] of list) if (t >= tt) v = s; el.textContent = v; }
+  for (const [el, a, b, f, to] of counts) el.textContent = Math.round(f + (to - f) * lin(t, a, b));
+  for (const [el, a, b] of draws) el.style.strokeDashoffset = 1 - seg(t, a, b);
+
+  // app window enters after the title card
+  const app = $('app');
+  const ap = seg(t, 5.6, 6.6);
+  app.style.opacity = t < 5.6 ? 0 : (t >= 146 ? 1 - lin(t, 145.6, 146) : ap);
+  app.style.transform = `translateY(${(1 - ap) * 40}px)`;
+
+  // chapter state
+  const ci = CH.findIndex(c => t >= c.a && t < c.b);
+  const ch = CH[ci];
+  rails.forEach(r => r.classList.toggle('on', !!ch && +r.dataset.rail === ch.rail));
+  if (ch) { $('whoName').textContent = ch.who[0]; $('whoRole').textContent = ch.who[1]; }
+  [...prog.children].forEach((el, i) => { el.className = t >= 146 || i < ci ? 'done' : i === ci ? 'now' : ''; });
+  $('eyebrow').textContent = ch ? `Step ${ci + 1} of ${CH.length} · ${ch.name}` : (t < 6 ? 'A walkthrough' : 'Conflara');
+  [...chips.children].forEach((el, i) => el.classList.toggle('on', i === ci));
+
+  const cap = CAPS.find(([a, b]) => t >= a && t < b);
+  const ce = $('capt');
+  if (cap) { if (ce.textContent !== cap[2]) ce.textContent = cap[2]; ce.style.opacity = Math.min(1, lin(t, cap[0], cap[0] + 0.25) + (cap[0] === 0 ? 1 : 0)); }
+
+  // cursor
+  const cur = $('cursor');
+  let vis = 0, x = 0, y = 0, click = 0;
+  for (let i = 0; i < CUR.length; i++) {
+    const [ct, sel, c] = CUR[i];
+    if (t >= ct - 1.3 && t <= ct + 0.9) {
+      const tgt = centerOf(sel);
+      const start = { x: tgt.x + 120, y: tgt.y + 110 };
+      const p = seg(t, ct - 1.2, ct - 0.1);
+      x = start.x + (tgt.x - start.x) * p; y = start.y + (tgt.y - start.y) * p;
+      vis = Math.min(lin(t, ct - 1.3, ct - 1.0), 1 - lin(t, ct + 0.6, ct + 0.9));
+      if (c && t >= ct && t < ct + 0.45) click = Math.sin(lin(t, ct, ct + 0.45) * Math.PI);
+    }
+  }
+  cur.style.opacity = vis;
+  cur.style.transform = `translate(${x}px, ${y}px)`;
+  cur.style.setProperty('--click', click);
+}
+function centerOf(sel) {
+  const el = document.querySelector(sel), st = $('stage');
+  const s = st.getBoundingClientRect(), r = el.getBoundingClientRect(), k = s.width / 1280;
+  return { x: (r.left - s.left + r.width * 0.55) / k, y: (r.top - s.top + r.height * 0.6) / k };
+}
+
+// ---------- player ----------
+let t = 0, playing = true, last = null, soundOn = false;
+const music = $('music');
+function fit() { $('stage').style.transform = `scale(${$('frame').clientWidth / 1280})`; }
+const fmt = s => { s = Math.floor(s); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+function sync() { render(t); $('scrub').value = t; $('clock').textContent = `${fmt(t)} / 2:32`; $('play').textContent = playing ? 'Pause' : 'Play'; }
+function syncAudio() {
+  if (!soundOn) { music.pause(); return; }
+  if (Math.abs(music.currentTime - t) > 0.2) { try { music.currentTime = t; } catch (e) {} }
+  if (playing && t < DUR) { const p = music.play(); if (p) p.catch(() => {}); } else music.pause();
+}
+function tick(now) {
+  if (playing) {
+    if (soundOn && !music.paused) t = Math.min(DUR, music.currentTime);
+    else if (last != null) t = Math.min(DUR, t + (now - last) / 1000);
+    if (t >= DUR) playing = false;
+    sync();
+  }
+  last = now;
+  requestAnimationFrame(tick);
+}
+$('play').onclick = () => { if (t >= DUR) t = 0; playing = !playing; last = null; sync(); syncAudio(); };
+$('replay').onclick = () => { t = 0; playing = true; last = null; sync(); syncAudio(); };
+$('scrub').oninput = e => { t = +e.target.value; sync(); syncAudio(); };
+$('sound').onclick = () => { soundOn = !soundOn; $('sound').textContent = soundOn ? 'Sound off' : 'Sound on'; $('sound').setAttribute('aria-pressed', soundOn); syncAudio(); };
+addEventListener('resize', fit);
+if (window.ResizeObserver) new ResizeObserver(fit).observe($('frame'));
+fit();
+if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) { playing = false; t = 8; }
+sync();
+requestAnimationFrame(tick);
+
+window.__seek = s => { playing = false; soundOn = false; music.pause(); t = s; render(s); };
+window.__renderMode = () => { document.documentElement.classList.add('rendering'); fit(); };
+</script>
+
+</body></html>

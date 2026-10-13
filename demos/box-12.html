@@ -1,0 +1,311 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found]){display:none!important}</style></head><body>
+<title>Box 12 Field Guide</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,400;0,600;0,700;1,400&family=Archivo+Narrow:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --paper:#F1F3EE; --paper-2:#FFFFFF; --bar:#E4EBE0; --rule:#C7CFC2; --rule-soft:#DDE3D8;
+  --ink:#161A15; --ink-2:#454C42; --ink-3:#6E766A;
+  --oxide:#A5322A; --oxide-soft:#F4E2DF;
+  --good:#1F5D3C; --good-soft:#DFEDE4;
+  --stop:#8A3A12; --stop-soft:#F6E6DA;
+  --focus:#2C5D8F;
+  --shadow:0 1px 0 rgba(22,26,21,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#14170F; --paper-2:#1B1F18; --bar:#212619; --rule:#3A4234; --rule-soft:#2A3124;
+    --ink:#EDF0E8; --ink-2:#B6BFAF; --ink-3:#8B9484;
+    --oxide:#E88A7E; --oxide-soft:#3A211D;
+    --good:#7FCFA1; --good-soft:#17301F;
+    --stop:#E0A277; --stop-soft:#33200F;
+    --focus:#8FBEEB;
+    --shadow:0 1px 0 rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#14170F; --paper-2:#1B1F18; --bar:#212619; --rule:#3A4234; --rule-soft:#2A3124;
+  --ink:#EDF0E8; --ink-2:#B6BFAF; --ink-3:#8B9484;
+  --oxide:#E88A7E; --oxide-soft:#3A211D;
+  --good:#7FCFA1; --good-soft:#17301F;
+  --stop:#E0A277; --stop-soft:#33200F;
+  --focus:#8FBEEB;
+  --shadow:0 1px 0 rgba(0,0,0,.4);
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:"Public Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px 72px}
+h1,h2,h3{text-wrap:balance;margin:0}
+.lbl{font-family:"Archivo Narrow","Arial Narrow",Arial,sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.09em;font-size:11px;color:var(--ink-3)}
+.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-variant-numeric:tabular-nums}
+
+/* masthead built like the top of a payroll form */
+header.mast{border-bottom:2px solid var(--ink);margin-bottom:28px;padding-top:30px}
+.mast-grid{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:end;padding-bottom:14px}
+.mast h1{font-family:"Archivo Narrow","Arial Narrow",Arial,sans-serif;font-size:clamp(30px,5.4vw,46px);line-height:1.02;font-weight:700;letter-spacing:-.01em}
+.mast .sub{color:var(--ink-2);max-width:62ch;margin-top:10px;font-size:15.5px}
+.stamp{border:1.5px solid var(--oxide);color:var(--oxide);padding:7px 11px;font-family:"Archivo Narrow","Arial Narrow",Arial,sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.1em;font-size:11px;line-height:1.3;text-align:center;white-space:nowrap}
+
+section{margin-top:44px}
+.sec-head{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--rule);padding-bottom:8px;margin-bottom:20px;flex-wrap:wrap}
+.sec-head h2{font-family:"Archivo Narrow","Arial Narrow",Arial,sans-serif;font-size:23px;font-weight:700;letter-spacing:.005em}
+.sec-head .note{color:var(--ink-3);font-size:13.5px;margin-left:auto}
+
+/* the W-2 box motif: ruled cell with a corner box-number */
+.boxfield{position:relative;border:1px solid var(--rule);background:var(--paper-2);padding:22px 14px 12px;min-height:74px}
+.boxfield>.bn{position:absolute;top:5px;left:8px;font-family:"Archivo Narrow","Arial Narrow",Arial,sans-serif;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.boxfield .val{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;font-size:20px;font-weight:500}
+
+.panel{background:var(--paper-2);border:1px solid var(--rule);box-shadow:var(--shadow)}
+.calc{display:grid;grid-template-columns:1.15fr .85fr;gap:0}
+@media(max-width:760px){.calc{grid-template-columns:1fr}}
+.calc-in{padding:20px;border-right:1px solid var(--rule)}
+@media(max-width:760px){.calc-in{border-right:0;border-bottom:1px solid var(--rule)}}
+.calc-out{padding:20px;background:var(--bar)}
+
+.seg{display:flex;border:1px solid var(--rule);background:var(--paper);margin:10px 0 18px;flex-wrap:wrap}
+.seg button{flex:1 1 33%;min-width:120px;appearance:none;background:transparent;border:0;border-right:1px solid var(--rule);padding:9px 8px;cursor:pointer;font-family:"Archivo Narrow","Arial Narrow",Arial,sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:.06em;font-size:11.5px;color:var(--ink-2)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.seg button:focus-visible,input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--focus);outline-offset:1px}
+
+.fields{display:grid;gap:12px}
+.field{display:grid;grid-template-columns:1fr 130px;gap:10px;align-items:center}
+.field label{font-size:14px;color:var(--ink-2)}
+.field input{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;font-size:15px;padding:7px 9px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);text-align:right;width:100%}
+.hint{font-size:13px;color:var(--ink-3);margin-top:12px;padding-top:12px;border-top:1px dashed var(--rule-soft)}
+
+.res-row{display:flex;justify-content:space-between;gap:14px;padding:7px 0;border-bottom:1px solid var(--rule-soft);font-size:14px}
+.res-row:last-of-type{border-bottom:0}
+.res-row .k{color:var(--ink-2)}
+.res-row .v{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+.excl{color:var(--stop)}
+.headline-fig{font-family:"IBM Plex Mono",monospace;font-size:30px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+
+.verdict{display:inline-flex;align-items:center;gap:8px;padding:6px 11px;font-family:"Archivo Narrow","Arial Narrow",Arial,sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.07em;font-size:11.5px;border:1px solid}
+.v-good{background:var(--good-soft);color:var(--good);border-color:var(--good)}
+.v-stop{background:var(--stop-soft);color:var(--stop);border-color:var(--stop)}
+.v-part{background:var(--oxide-soft);color:var(--oxide);border-color:var(--oxide)}
+
+.choices{display:grid;gap:8px;margin:4px 0 16px}
+.choice{display:flex;gap:10px;align-items:flex-start;padding:11px 12px;border:1px solid var(--rule);background:var(--paper);cursor:pointer;font-size:14.5px;line-height:1.45}
+.choice:hover{border-color:var(--ink-3)}
+.choice input{margin-top:3px;accent-color:var(--oxide);flex:none}
+.choice[data-on="1"]{border-color:var(--ink);background:var(--paper-2);box-shadow:inset 3px 0 0 var(--oxide)}
+
+.search{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.search input[type=search]{flex:1 1 260px;font-size:15px;padding:9px 11px;border:1px solid var(--rule);background:var(--paper-2);color:var(--ink);font-family:inherit}
+.search select{font-size:14px;padding:9px 10px;border:1px solid var(--rule);background:var(--paper-2);color:var(--ink);font-family:inherit}
+.tablewrap{overflow-x:auto;border:1px solid var(--rule);background:var(--paper-2)}
+table{border-collapse:collapse;width:100%;min-width:660px;font-size:14px}
+thead th{position:sticky;top:0;background:var(--ink);color:var(--paper);font-family:"Archivo Narrow","Arial Narrow",Arial,sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:.07em;font-size:11px;text-align:left;padding:8px 12px;white-space:nowrap}
+tbody tr:nth-child(odd){background:var(--bar)}     /* greenbar ledger banding */
+tbody td{padding:10px 12px;vertical-align:top;border-bottom:1px solid var(--rule-soft)}
+tbody td.c{font-family:"IBM Plex Mono",monospace;font-weight:600;white-space:nowrap}
+tbody td.t{font-weight:600;min-width:170px}
+tbody td.g{color:var(--ink-2);white-space:nowrap;font-size:13px}
+tbody td.d{color:var(--ink-2);min-width:280px;font-size:13.5px}
+tbody td.x{color:var(--ink-3);font-size:13px;min-width:170px}
+mark{background:var(--oxide-soft);color:inherit;padding:0 1px}
+.count{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--ink-3);margin-top:10px}
+.empty{padding:26px 14px;text-align:center;color:var(--ink-3);font-size:14.5px}
+
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.bound{border-left:3px solid var(--oxide);padding:2px 0 2px 15px;color:var(--ink-2);font-size:14.5px;max-width:70ch}
+footer{margin-top:52px;border-top:2px solid var(--ink);padding-top:16px;color:var(--ink-3);font-size:13px}
+footer a{color:var(--oxide)}
+a{color:var(--oxide)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+<header class="mast">
+  <div class="mast-grid">
+    <div>
+      <div class="lbl" style="margin-bottom:9px">Form W-2 &middot; Tax year 2026 &middot; First mandatory year</div>
+      <h1>Box 12 Field Guide</h1>
+      <p class="sub">Three free tools for the 2026 Form W&#8209;2 changes: work out the qualified overtime premium for <span class="mono">code&nbsp;TT</span>, tell a tip from a service charge for <span class="mono">code&nbsp;TP</span>, and find the Treasury Tipped Occupation Code for <span class="mono">Box&nbsp;14b</span>.</p>
+    </div>
+    <div class="stamp">No separate<br>reporting was<br>required for 2025</div>
+  </div>
+</header>
+
+<section>
+  <div class="sec-head">
+    <div class="lbl">Tool 01</div>
+    <h2>Qualified overtime premium</h2>
+    <div class="note">Box 12, code TT</div>
+  </div>
+  <div class="panel calc">
+    <div class="calc-in">
+      <div class="lbl">Which figure do you actually have?</div>
+      <div class="seg" role="group" aria-label="Calculation method">
+        <button type="button" id="m-a" aria-pressed="true">Hours &amp; rate</button>
+        <button type="button" id="m-b" aria-pressed="false">Total OT dollars</button>
+        <button type="button" id="m-c" aria-pressed="false">Premium already</button>
+      </div>
+      <div class="fields" id="fields"></div>
+      <div class="hint" id="hint"></div>
+    </div>
+    <div class="calc-out">
+      <div class="lbl">Result</div>
+      <div class="boxfield" style="margin:10px 0 14px">
+        <span class="bn">12a &mdash; code TT</span>
+        <div class="val headline-fig" id="tt-out">$0.00</div>
+      </div>
+      <div class="res-row"><span class="k">Full overtime wages paid</span><span class="v" id="r-total">$0.00</span></div>
+      <div class="res-row"><span class="k">Base portion &mdash; not reported here</span><span class="v excl" id="r-base">$0.00</span></div>
+      <div class="res-row"><span class="k">Qualifying premium</span><span class="v" id="r-prem">$0.00</span></div>
+      <p style="font-size:13px;color:var(--ink-2);margin:14px 0 0">Only the amount <em>above</em> the regular rate qualifies &mdash; the &ldquo;half&rdquo; of time&#8209;and&#8209;a&#8209;half. State&#8209;only overtime (California daily hours, double time, seventh&#8209;day premiums) is not FLSA overtime and is excluded.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head">
+    <div class="lbl">Tool 02</div>
+    <h2>Tip, or service charge?</h2>
+    <div class="note">Box 12, code TP</div>
+  </div>
+  <div class="panel" style="padding:20px">
+    <p style="margin:0 0 14px;color:var(--ink-2);font-size:15px;max-width:70ch">A tip is voluntary: the customer sets the amount and can leave nothing. Anything mandatory is a service charge &mdash; wages, not tips &mdash; even when every cent goes to staff. Pick what happened at the till.</p>
+    <div class="choices" id="choices"></div>
+    <div id="tip-verdict"></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head">
+    <div class="lbl">Tool 03</div>
+    <h2>Tipped occupation codes</h2>
+    <div class="note">Box 14b &middot; all 71 from 26 CFR 1.224-1(h)</div>
+  </div>
+  <div class="search">
+    <input type="search" id="q" placeholder="Search a job title &mdash; barber, busser, dog groomer, plumber, DJ&hellip;" aria-label="Search occupations">
+    <select id="cat" aria-label="Filter by category"></select>
+  </div>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>TTOC</th><th>Occupation</th><th>Category</th><th>Description</th><th>Examples</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+  <div class="count" id="count"></div>
+  <p style="font-size:13.5px;color:var(--ink-2);margin-top:14px;max-width:72ch">Eligibility follows the occupation performed when the tip was received, not the employer&rsquo;s industry. An occupation absent from this table does not qualify, however customary tipping is in that job. Amounts a manager or supervisor takes out of a tip pool are not qualified tips.</p>
+</section>
+
+<section>
+  <div class="sec-head"><div class="lbl">Scope</div><h2>What this page will not do</h2></div>
+  <div class="cols">
+    <p class="bound">It does not calculate anyone&rsquo;s deduction. That is settled on the employee&rsquo;s own return, against caps and income limits.</p>
+    <p class="bound">It does not decide whether an occupation qualifies. It reproduces the table so you can read it yourself.</p>
+    <p class="bound">It is not tax, legal or payroll advice. Confirm the current Form W&#8209;2 instructions before filing.</p>
+  </div>
+</section>
+
+<footer>
+  <p style="margin:0 0 6px"><strong style="color:var(--ink-2)">Sources.</strong> Occupation table: 26 CFR 1.224&#8209;1(h), table 1, final rule published 13 April 2026, effective 12 June 2026, applying to tax years 2025&#8211;2028. Premium rule: Fair Labor Standards Act &sect;7 and IRS guidance on the qualified overtime deduction. Checked 8 September 2026.</p>
+  <p style="margin:0">Free reference tool. Built by Myles Parslow.</p>
+</footer>
+</div>
+
+<script>
+const TTOC = [{"c":101,"t":"Bartenders","g":"Beverage and Food Service","d":"Mix and serve drinks or other refreshments to patrons, directly or through waitstaff","x":"Barkeep, mixologist, taproom attendant, sommelier","s":"35-3011"},{"c":102,"t":"Wait Staff","g":"Beverage and Food Service","d":"Take orders and serve food and beverages to patrons at tables in dining establishments or at catered events","x":"Cocktail waitress, dining car server, banquet staff","s":"35-3031"},{"c":103,"t":"Food or Beverage Servers, Non-restaurant","g":"Beverage and Food Service","d":"Serve food or beverages to individuals outside of a restaurant environment, such as in hotel rooms, residential care facilities, or cars","x":"Room service food server, boat hop, beer cart server","s":"35-3041"},{"c":104,"t":"Dining Room and Cafeteria Attendants and Bartender Helpers","g":"Beverage and Food Service","d":"Facilitate food service. Clean tables; remove dirty dishes; replace soiled table linens; set tables; replenish supply of clean linens, silverware, glassware, and dishes; supply service bar with food; and serve items such as water, condiments, and coffee to patrons","x":"Bar back, bar helper, busser","s":"35-9011"},{"c":105,"t":"Chefs and Cooks","g":"Beverage and Food Service","d":"Direct and may participate in the preparation, seasoning, and cooking of salads, soups, fish, meats, vegetables, desserts, or other foods","x":"Executive chef, pastry chef, sous chef, fast food cook, private chef, restaurant cook, saucier, food truck cook, banquet cook, caterer, chocolatier, confectioner","s":"35-1011, 35-2011, 35-2013, 35-2014, 35-2019"},{"c":106,"t":"Food Preparation Workers","g":"Beverage and Food Service","d":"Perform a variety of food preparation duties other than cooking, such as preparing cold foods and shellfish, slicing meat, and brewing coffee or tea","x":"Salad maker, sandwich maker, fruit and vegetable parer, kitchen steward","s":"35-1012, 35-2021, 35-9099"},{"c":107,"t":"Fast Food and Counter Workers","g":"Beverage and Food Service","d":"Serve customers at counter or from a steam table. Perform duties such as taking orders and serving food and beverages. May take payment. May prepare food and beverages","x":"Barista, ice cream server, cafeteria server","s":"35-3023"},{"c":108,"t":"Dishwashers","g":"Beverage and Food Service","d":"Clean dishes, kitchen, food preparation equipment, or utensils","x":"Dish room worker, silverware cleaner","s":"35-9021"},{"c":109,"t":"Host Staff, Restaurant, Lounge, and Coffee Shop","g":"Beverage and Food Service","d":"Welcome patrons, seat them at tables or in lounge, and help ensure quality of facilities and service","x":"Maître d'hôtel, dining room host","s":"35-9031"},{"c":110,"t":"Bakers","g":"Beverage and Food Service","d":"Mix and bake ingredients to produce breads, rolls, cookies, cakes, pies, pastries, or other baked goods","x":"Bread baker, cake baker, bagel baker, pastry finisher","s":"51-3011"},{"c":201,"t":"Gambling Dealers","g":"Entertainment and Events","d":"Operate gambling games. Stand or sit behind table and operate games of chance by dispensing the appropriate number of cards or blocks to players or operating other gambling equipment. Distribute winnings or collect players' money or chips. May compare the house's hand against players' hands","x":"Blackjack dealer, craps dealer, poker dealer, roulette dealer, pit clerk","s":"39-3011, 39-1013"},{"c":202,"t":"Gambling Change Persons and Booth Cashiers","g":"Entertainment and Events","d":"Exchange coins, tokens, and chips for patrons' money. May issue payoffs and obtain customer's signature on receipt. May operate a booth in the slot machine area and furnish change persons with money bank at the start of the shift, or count and audit money in drawers","x":"Slot attendant, mutuel teller","s":"41-2012"},{"c":203,"t":"Gambling Cage Workers","g":"Entertainment and Events","d":"In a gambling establishment, conduct financial transactions for patrons. Accept patron's credit application and verify credit references to provide check-cashing authorization or to establish house credit accounts. May reconcile daily summaries of transactions to balance books. May sell gambling chips, tokens, or tickets to patrons, or to other workers for resale to patrons. May convert gambling chips, tokens, or tickets to currency upon patron's request. May use a cash register or computer to record transaction","x":"Casino cashier, cage cashier","s":"43-3041"},{"c":204,"t":"Gambling and Sports Book Writers and Runners","g":"Entertainment and Events","d":"Post information enabling patrons to wager on various races and sporting events. Assist in the operation of games such as keno and bingo. May operate random number-generating equipment and announce the numbers for patrons. Receive, verify, and record patrons' wagers. Scan and process winning tickets presented by patrons and pay out winnings for those wagers","x":"Betting runner, bingo worker, keno runner, race book writer","s":"39-3012"},{"c":205,"t":"Dancers","g":"Entertainment and Events","d":"Perform dances","x":"Club dancer, dance artist","s":"27-2031"},{"c":206,"t":"Musicians and Singers","g":"Entertainment and Events","d":"Play one or more musical instruments or sing","x":"Instrumentalist, accompanist, lounge singer","s":"27-2042"},{"c":207,"t":"Disc Jockeys, Except Radio","g":"Entertainment and Events","d":"Play prerecorded music for live audiences at venues or events such as clubs, parties, or wedding receptions. May use techniques such as mixing, cutting, or sampling to manipulate recordings. May also perform as emcee (master of ceremonies)","x":"Deejay, club DJ","s":"27-2091"},{"c":208,"t":"Entertainers and Performers","g":"Entertainment and Events","d":"Entertain audiences with artistic expression","x":"Comedian, clown, magician, street performer","s":"27-2099"},{"c":209,"t":"Digital Content Creators","g":"Entertainment and Events","d":"Produce and publish on digital platforms original entertainment and personality-driven content, such as live streams, short-form videos, or podcasts","x":"Streamer, online video creator, social media influencer, podcaster","s":"27-2099"},{"c":210,"t":"Ushers, Lobby Attendants, and Ticket Takers","g":"Entertainment and Events","d":"Assist patrons at entertainment events by performing duties, such as collecting admission tickets and passes from patrons, assisting in finding seats, searching for lost articles, and helping patrons locate such facilities as restrooms and telephones","x":"Ticket collector, theater usher","s":"39-3031"},{"c":211,"t":"Locker Room, Coatroom, and Dressing Room Attendants","g":"Entertainment and Events","d":"Provide personal items to patrons or customers in locker rooms, dressing rooms, or coatrooms","x":"Coat checker, washroom attendant, bathhouse attendant","s":"39-3093"},{"c":301,"t":"Baggage Porters and Bellhops","g":"Hospitality and Guest Services","d":"Handle baggage for travelers at transportation terminals or for guests at hotels or similar establishments","x":"Hotel baggage handler, curbside airport check-in assistant, doorman","s":"39-6011"},{"c":302,"t":"Concierges","g":"Hospitality and Guest Services","d":"Assist patrons at hotels or apartment buildings with personal services. May take messages; arrange or give advice on transportation, business services, or entertainment; or monitor guest requests for housekeeping and maintenance","x":"Hotel guest service agent, activities concierge","s":"39-6012"},{"c":303,"t":"Hotel, Motel, and Resort Desk Clerks","g":"Hospitality and Guest Services","d":"Accommodate hotel, motel, and resort patrons by registering and assigning rooms to guests, issuing room keys or cards, transmitting and receiving messages, keeping records of occupied rooms and guests' accounts, making and confirming reservations, and presenting statements to and collecting payments from departing guests","x":"Front desk clerk, registration clerk","s":"43-4081"},{"c":304,"t":"Maids and Housekeeping Cleaners","g":"Hospitality and Guest Services","d":"Perform any combination of light cleaning duties to maintain commercial establishments, such as hotels, in a clean and orderly manner. Duties may include making beds, replenishing linens, cleaning rooms and halls, and vacuuming","x":"Hotel maid, housekeeping staff","s":"37-2012"},{"c":401,"t":"Home Maintenance and Repair Workers","g":"Home Services","d":"Perform work to keep machines, mechanical equipment, or the structure of a building in repair. May maintain and repair musical instruments, furniture, antiques, and non-fixtures","x":"Handyman, roofer, window repairer, house painter (interior or exterior), flooring installer, piano tuner, furniture restorer, antique repairer","s":"49-9071, 49-9098, 49-9099, 49-9063, 49-2097, 51-7021"},{"c":402,"t":"Home Landscaping and Groundskeeping Workers","g":"Home Services","d":"Landscape or maintain grounds of property using hand or power tools or equipment. Workers typically perform a variety of tasks, which may include any combination of the following: sod laying, mowing, trimming, planting, watering, fertilizing, digging, raking, sprinkler installation, and installation of mortarless segmental concrete masonry wall units","x":"Lawn mower, gardener, tree trimmer, weed sprayer","s":"37-3011"},{"c":403,"t":"Home Electricians","g":"Home Services","d":"Install, maintain, and repair electrical wiring, equipment, and fixtures. Ensure that work is in accordance with relevant codes. May install or service exterior lights, intercom systems, or electrical control systems","x":"Electrician","s":"47-2111"},{"c":404,"t":"Home Plumbers","g":"Home Services","d":"Assemble, install, alter, and repair pipelines or pipe systems that carry water, steam, air, or other liquids or gases. May install heating and cooling equipment and mechanical control systems","x":"Plumber, pipefitter, steamfitter, sprinkler installer","s":"47-2152"},{"c":405,"t":"Home Heating and Air Conditioning Mechanics and Installers","g":"Home Services","d":"Install or repair heating, central air conditioning, HVAC, or refrigeration systems, including oil burners, hot-air furnaces, and heating stoves","x":"Air conditioning repairer, heating system installer, chimney sweep","s":"49-9021"},{"c":406,"t":"Home Appliance Installers and Repairers","g":"Home Services","d":"Repair, adjust, or install all types of electric or gas household appliances, such as refrigerators, washers, dryers, and ovens","x":"Washing machine installer, dishwasher repairer","s":"49-9031"},{"c":407,"t":"Home Cleaning Service Workers","g":"Home Services","d":"Perform any combination of light cleaning duties to maintain private households in a clean and orderly manner. Duties may include making beds, replenishing linens, cleaning rooms and halls, and vacuuming","x":"House cleaner, pool cleaner, carpet cleaner, window washer","s":"37-2012"},{"c":408,"t":"Locksmiths","g":"Home Services","d":"Repair and open locks, make keys, change locks and safe combinations, and install and repair safes","x":"Safe installer, key maker","s":"49-9094"},{"c":409,"t":"Roadside Assistance Workers","g":"Home Services","d":"Provide on-road assistance to drivers whose vehicles have broken down","x":"Tow truck driver, car battery technician, tire repairer, tire changer, car fuel deliverer","s":"49-3023, 53-3032"},{"c":501,"t":"Personal Care and Service Workers","g":"Personal Services","d":"Provide personalized assistance to individuals with disabilities or illness who require help with personal care and activities of daily living support (for example, feeding, bathing, dressing, grooming, toileting, and ambulation). May also provide help with tasks such as preparing meals, doing light housekeeping, and doing laundry. Work is performed in various settings depending on the needs of the care recipient and may include locations such as their home, place of work, out in the community, at a daytime nonresidential facility, or a residential facility","x":"Elderly companion, personal care aide, butler, house sitter, personal valet","s":"31-1122, 39-9099"},{"c":502,"t":"Private Event Planners","g":"Personal Services","d":"Coordinate activities of staff or clients to make arrangements for private events. May provide creative design for décor and invitations","x":"Wedding planner, party planner","s":"13-1121"},{"c":503,"t":"Private Event and Portrait Photographers","g":"Personal Services","d":"Photograph people, landscapes, or other subjects. May use lighting equipment to enhance a subject's appearance. May use editing software to produce finished images and prints","x":"Wedding photographer, headshot photographer","s":"27-4021"},{"c":504,"t":"Private Event Videographers","g":"Personal Services","d":"Operate video or film camera to record images or scenes of private events","x":"Wedding videographer","s":"27-4031"},{"c":505,"t":"Event Officiants","g":"Personal Services","d":"Lead and facilitate the ceremony for life events such as weddings or funerals. Ceremonies may be religious or civil services","x":"Wedding officiant, funeral celebrant, clergy, vow renewal officiant","s":"21-2011"},{"c":506,"t":"Pet and Show Animal Caretakers","g":"Personal Services","d":"Feed, water, groom, bathe, exercise, or otherwise provide care to promote and maintain the well-being of pets or show animals","x":"Pet groomer, pet sitter, pet walker, kennel worker, pet trainer, horse groomer","s":"39-2021"},{"c":507,"t":"Tutors","g":"Personal Services","d":"Instruct individual students or small groups of students in academic subjects to supplement formal class instruction or to prepare students for standardized or admissions tests. May provide instruction in person or remotely","x":"Reading tutor, math tutor, language tutor","s":"25-3041"},{"c":508,"t":"Nannies and Babysitters","g":"Personal Services","d":"Attend to children at businesses and private households. Perform a variety of tasks, such as dressing, feeding, bathing, and overseeing play","x":"Au pair, child sitter at hotels and gyms","s":"39-9011"},{"c":509,"t":"Visual Artists","g":"Personal Services","d":"Create original visual artwork using any of a wide variety of media and techniques","x":"Ice sculptor, caricature sketch artist","s":"27-1013"},{"c":510,"t":"Floral Designers","g":"Personal Services","d":"Design, cut, and arrange live, dried, or artificial flowers and foliage","x":"Corsage maker, florist, flower arranger, event florist","s":"27-1023"},{"c":601,"t":"Skincare Specialists","g":"Personal Appearance and Wellness","d":"Provide skincare treatments to face and body to enhance an individual's appearance","x":"Facialist, electrologist, spa esthetician","s":"39-5094"},{"c":602,"t":"Massage Therapists","g":"Personal Appearance and Wellness","d":"Perform therapeutic massages of soft tissues and joints. May assist in the assessment of range of motion and muscle strength or propose client therapy plans","x":"Masseuse, deep tissue massage therapist, sports massage therapist","s":"31-9011"},{"c":603,"t":"Barbers, Hairdressers, Hairstylists, and Cosmetologists","g":"Personal Appearance and Wellness","d":"Provide beauty or barbering services, such as cutting, coloring, and styling hair, massaging and treating scalps, trimming beards or giving shaves","x":"Wig stylist, beautician, hair colorist, hair cutter","s":"39-5012, 39-5011"},{"c":604,"t":"Shampooers","g":"Personal Appearance and Wellness","d":"Shampoo and rinse customers' hair","x":"Scalp treatment specialist, shampoo assistant","s":"39-5093"},{"c":605,"t":"Manicurists and Pedicurists","g":"Personal Appearance and Wellness","d":"Clean and shape customers' fingernails and toenails. May polish or decorate nails","x":"Nail technician, fingernail sculptor, nail painter","s":"39-5092"},{"c":606,"t":"Eyebrow and Eyelash Technicians","g":"Personal Appearance and Wellness","d":"Enhance and maintain clients' eyebrows using techniques such as threading, waxing, or tweezing. Enhance clients' eyelashes using techniques such as tinting or applying extensions","x":"Eyebrow waxer","s":"39-5012"},{"c":607,"t":"Makeup Artists","g":"Personal Appearance and Wellness","d":"Design and apply makeup looks","x":"Wedding makeup artist, party makeup artist","s":"39-5091"},{"c":608,"t":"Exercise Trainers and Group Fitness Instructors","g":"Personal Appearance and Wellness","d":"Instruct or coach groups or individuals in exercise activities for the primary purpose of personal fitness. Demonstrate techniques and form, observe participants, and explain to them corrective measures necessary to improve their skills. Develop and implement individualized approaches to exercise","x":"Aerobics trainer, yoga instructor, personal trainer","s":"39-9031"},{"c":609,"t":"Tattoo Artists and Piercers","g":"Personal Appearance and Wellness","d":"Design and execute tattoos on a client's skin, often using a needle and ink. Create openings in the human body for the insertion of jewelry. May consult clients on aftercare to promote healing and prevent infection","x":"Tattoo artist, ear piercer, nose piercer","s":"27-1019"},{"c":610,"t":"Tailors","g":"Personal Appearance and Wellness","d":"Design, make, alter, repair, or fit garments","x":"Tailor, seamstress, clothing alterations worker","s":"51-6052"},{"c":611,"t":"Shoe and Leather Workers and Repairers","g":"Personal Appearance and Wellness","d":"Construct, decorate, or repair leather and leather-like products, such as luggage, shoes, and saddles. May use hand tools","x":"Cobbler, shoe shiner","s":"51-6041"},{"c":701,"t":"Golf Caddies","g":"Recreation and Instruction","d":"Assist a golfer during a round of golf by providing practical support and strategic advice. May carry the golfer's bag, manage their clubs, offer guidance on club selection or course strategy","x":"Golf caddie, golf cart attendant","s":"39-3091"},{"c":702,"t":"Self-Enrichment Teachers","g":"Recreation and Instruction","d":"Teach or instruct individuals or groups for the primary purpose of self-enrichment, rather than for an occupational objective, educational attainment, competition, or fitness","x":"Knitting instructor, piano teacher, art instructor, dance teacher","s":"25-3021"},{"c":703,"t":"Recreational and Tour Pilots","g":"Recreation and Instruction","d":"Pilot and navigate the flight of fixed-wing aircraft, helicopters, or other airborne vehicle for recreational or touring purposes. Excludes regional national, and international airline pilots, and emergency services pilots","x":"Helicopter tour pilot, hot air balloon aeronaut, skydiving pilot","s":"53-2012"},{"c":704,"t":"Tour Guides","g":"Recreation and Instruction","d":"Guide individuals or groups on sightseeing tours or through places of interest, such as industrial establishments, public buildings, and art galleries","x":"Museum guide, sightseeing guide","s":"39-7011"},{"c":705,"t":"Travel Guides","g":"Recreation and Instruction","d":"Plan, organize, and conduct long-distance travel, tours, and expeditions for individuals and groups (covering both indoor and outdoor locations)","x":"Cruise director, river expedition guide","s":"39-7012"},{"c":706,"t":"Sports and Recreation Instructors","g":"Recreation and Instruction","d":"Teach or instruct individuals or groups for the primary purpose of recreation, rather than for an occupational objective, educational attainment, competition, or fitness","x":"Diving instructor, ski instructor, tennis teacher, surfing instructor","s":"25-3021"},{"c":801,"t":"Parking and Valet Attendants","g":"Transportation and Delivery","d":"Park vehicles or issue tickets for customers in a parking lot or garage. May park or tend vehicles in environments such as a hotel or restaurant. May collect fee","x":"Parking garage attendant, valet parker","s":"53-6021"},{"c":802,"t":"Taxi and Rideshare Drivers and Chauffeurs","g":"Transportation and Delivery","d":"Drive a motor vehicle to transport passengers on a planned or unplanned basis","x":"Cab driver, personal driver, platform/app-based rideshare driver","s":"53-3054"},{"c":803,"t":"Shuttle Drivers","g":"Transportation and Delivery","d":"Drive a motor vehicle to transport passengers on a planned route and scheduled basis. May collect a fare. Excludes taxi and rideshare drivers, chauffeurs, municipal bus drivers, and school bus drivers","x":"Airport shuttle driver, hotel shuttle driver, rental car shuttle driver","s":"53-3053"},{"c":804,"t":"Goods Delivery People","g":"Transportation and Delivery","d":"Drive truck or other vehicle to deliver goods, such as food products, appliances, or furniture, or pick up or deliver packages. May also take orders or collect payment at point of delivery","x":"Pizza delivery driver, grocery delivery driver, floral delivery, bicycle courier, package delivery person, appliance delivery driver, furniture delivery person, app/platform-based delivery person","s":"53-3031"},{"c":805,"t":"Personal Vehicle and Equipment Cleaners","g":"Transportation and Delivery","d":"Wash or otherwise clean personal vehicles, machinery, and other equipment. Use such materials as water, cleaning agents, brushes, cloths, and hoses","x":"Car wash attendant, auto detailer, boat waxer","s":"53-7061"},{"c":806,"t":"Private and Charter Bus Drivers","g":"Transportation and Delivery","d":"Drive bus or motor coach for charters or private carriage. May assist passengers with baggage","x":"Motor coach bus driver, tour bus driver","s":"53-3052"},{"c":807,"t":"Water Taxi Operators and Charter Boat Workers","g":"Transportation and Delivery","d":"Operate water taxi boats or provide services to passengers on private charter boats. May assist in navigational activities","x":"Water taxi captain, air boat operator, charter boat deckhand, charter boat steward","s":"53-5022"},{"c":808,"t":"Rickshaw, Pedicab, and Carriage Drivers","g":"Transportation and Delivery","d":"Operate rickshaw, pedicab, or carriage to transport passengers","x":"Horse drawn carriage driver, bike taxi driver","s":"53-6099"},{"c":809,"t":"Home Movers","g":"Transportation and Delivery","d":"Manually move furniture, music instruments, art, antiques, boxes, luggage, or other materials to or from a home or dwelling","x":"Furniture mover, packer, piano mover, art mover","s":"53-7062"},{"c":810,"t":"Gas Pump Attendant","g":"Transportation and Delivery","d":"Pump gas for customers at a gas station. May also clean the windshield, check the oil level, or check the tire pressure of the customer's car in conjunction with the car being refueled","x":"Gas pumper","s":"53-6031"}];
+const money = (n)=> (n<0?"-$":"$") + Math.abs(n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+const el = (id)=>document.getElementById(id);
+
+/* ---- Tool 01: premium ---- */
+let method="a";
+const state={hours:6,rate:18,total:162,prem:54,mult:1.5};
+const FIELDSETS={
+  a:[["hours","Overtime hours worked"],["rate","Regular rate of pay ($)"]],
+  b:[["total","Total overtime dollars paid ($)"]],
+  c:[["prem","Premium figure from payroll ($)"]]
+};
+const HINTS={
+  a:"The standard reconstruction: hours \u00d7 0.5 \u00d7 the regular rate. Use the regular rate, which includes non-discretionary bonuses and shift differentials \u2014 not just the base wage.",
+  b:"If overtime was paid at time-and-a-half, the qualifying premium is exactly one third of the overtime dollars \u2014 at any rate, for any number of hours.",
+  c:"If your provider already reports a premium-only figure, enter it and cross-check it against method one. If it looks like your whole overtime cost, it is the wrong number."
+};
+function renderFields(){
+  el("fields").innerHTML = FIELDSETS[method].map(([k,label])=>
+    '<div class="field"><label for="f-'+k+'">'+label+'</label><input id="f-'+k+'" type="number" min="0" step="0.01" value="'+state[k]+'"></div>'
+  ).join("");
+  FIELDSETS[method].forEach(([k])=>{
+    el("f-"+k).addEventListener("input",(e)=>{ state[k]=parseFloat(e.target.value)||0; compute(); });
+  });
+  el("hint").textContent = HINTS[method];
+}
+function compute(){
+  let prem=0,total=0;
+  if(method==="a"){ prem = state.hours*0.5*state.rate; total = state.hours*1.5*state.rate; }
+  else if(method==="b"){ total = state.total; prem = state.total/3; }
+  else { prem = state.prem; total = state.prem*3; }
+  prem=Math.round(prem*100)/100; total=Math.round(total*100)/100;
+  el("tt-out").textContent = money(prem);
+  el("r-total").textContent = money(total);
+  el("r-base").textContent = money(Math.round((total-prem)*100)/100);
+  el("r-prem").textContent = money(prem);
+}
+["a","b","c"].forEach(m=>{
+  el("m-"+m).addEventListener("click",()=>{
+    method=m;
+    ["a","b","c"].forEach(x=>el("m-"+x).setAttribute("aria-pressed", String(x===m)));
+    renderFields(); compute();
+  });
+});
+renderFields(); compute();
+
+/* ---- Tool 02: tip vs service charge ---- */
+const SCENARIOS=[
+  {id:"free", t:"The customer wrote in any amount they liked, and could have left nothing.",
+   v:"good", h:"Qualified tip", b:"Voluntary, customer-determined, no consequence for leaving nothing. Report in Box 12 code TP, with a TTOC in Box 14b."},
+  {id:"auto", t:"An automatic gratuity was added to the bill \u2014 say 18% on parties of six \u2014 with no option to change it.",
+   v:"stop", h:"Service charge", b:"Not a tip, even if all of it is handed to staff. It is wages: Box 1, and nowhere near Box 12 code TP."},
+  {id:"sugg", t:"A suggested amount was printed on the bill, but the customer could reduce it to zero.",
+   v:"good", h:"Qualified tip", b:"The option to disregard or modify it, including down to zero, is what makes it voluntary. The amount actually paid is the tip."},
+  {id:"forced", t:"The card terminal forced a choice of 15%, 18% or 20% with no zero option, and they picked 20%.",
+   v:"part", h:"Partly a tip", b:"The lowest forced option (15%) is not voluntary and is a service charge. Only the 5% above that floor is a qualified tip."},
+  {id:"contract", t:"A gratuity was written into the catering or service contract before the work was done.",
+   v:"stop", h:"Service charge", b:"Agreed in advance as a condition of the service, so it was never voluntary. Wages."}
+];
+el("choices").innerHTML = SCENARIOS.map((s,i)=>
+  '<label class="choice" data-on="'+(i===0?1:0)+'" for="sc-'+s.id+'"><input type="radio" name="sc" id="sc-'+s.id+'" value="'+s.id+'"'+(i===0?" checked":"")+'><span>'+s.t+'</span></label>'
+).join("");
+function renderVerdict(){
+  const id=document.querySelector('input[name="sc"]:checked').value;
+  const s=SCENARIOS.find(x=>x.id===id);
+  document.querySelectorAll(".choice").forEach(c=>c.setAttribute("data-on", c.getAttribute("for")==="sc-"+id?"1":"0"));
+  el("tip-verdict").innerHTML =
+    '<div class="boxfield" style="padding-top:24px"><span class="bn">Box 12a &mdash; code TP</span>'+
+    '<div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap">'+
+    '<span class="verdict v-'+s.v+'">'+s.h+'</span>'+
+    '<span style="flex:1 1 300px;font-size:14.5px;color:var(--ink-2);line-height:1.5">'+s.b+'</span></div></div>';
+}
+document.querySelectorAll('input[name="sc"]').forEach(r=>r.addEventListener("change",renderVerdict));
+renderVerdict();
+
+/* ---- Tool 03: code finder ---- */
+const cats=[...new Set(TTOC.map(r=>r.g))];
+el("cat").innerHTML='<option value="">All 8 categories</option>'+cats.map(c=>'<option value="'+c+'">'+c+'</option>').join("");
+const esc=(s)=>s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+function hl(s,q){
+  const e=esc(s); if(!q) return e;
+  try{ return e.replace(new RegExp("("+q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")","ig"),"<mark>$1</mark>"); }catch(_){ return e; }
+}
+function draw(){
+  const q=el("q").value.trim(), c=el("cat").value, lq=q.toLowerCase();
+  const hits=TTOC.filter(r=>{
+    if(c && r.g!==c) return false;
+    if(!lq) return true;
+    return (r.t+" "+r.x+" "+r.d+" "+r.c).toLowerCase().includes(lq);
+  });
+  el("rows").innerHTML = hits.length ? hits.map(r=>
+    '<tr><td class="c">'+r.c+'</td><td class="t">'+hl(r.t,q)+'</td><td class="g">'+esc(r.g)+'</td><td class="d">'+hl(r.d,q)+'</td><td class="x">'+hl(r.x,q)+'</td></tr>'
+  ).join("") : '<tr><td colspan="5" class="empty">No listed occupation matches \u201c'+esc(q)+'\u201d. An occupation absent from the table does not qualify, however customary tipping is in that job.</td></tr>';
+  el("count").textContent = hits.length+" of "+TTOC.length+" occupations shown";
+}
+el("q").addEventListener("input",draw); el("cat").addEventListener("change",draw);
+draw();
+</script>
+
+</body></html>

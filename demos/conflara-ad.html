@@ -1,0 +1,486 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Conflara 60-Second Ad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:ital,wght@0,500;0,600;1,500&display=swap">
+<style>
+/* Layout: a fixed 1280x720 film stage scaled to the page width, with a player bar under it. */
+:root {
+  --page: #f4f5f7; --page-ink: #1b2130; --page-ink-2: #4d5568; --page-line: #d8dce5; --page-surface: #ffffff;
+  /* Film palette: one deliberate look, identical in both themes, taken from the product's tokens. */
+  --night: #10172b; --night-2: #1a2440; --navy: #2b4a8b; --navy-soft: #e3e9f6; --paper: #f4f5f7; --white: #ffffff;
+  --ink: #1b2130; --ink-2: #4d5568; --ink-3: #7a8296; --line: #d8dce5;
+  --high: #b3261e; --high-soft: #fbe7e5; --med: #8a5a00; --med-soft: #fbf0d9; --low: #2f6b48; --low-soft: #e2f1e8;
+  --spark: #b07d12; --spark-soft: #fbf3dc; --glow: #8fa9e8;
+  --serif: 'IBM Plex Serif', Georgia, 'Times New Roman', serif;
+  --sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --page: #12151c; --page-ink: #e8ebf2; --page-ink-2: #b2b9c9; --page-line: #313849; --page-surface: #1a1e28; color-scheme: dark; } }
+:root[data-theme="dark"] { --page: #12151c; --page-ink: #e8ebf2; --page-ink-2: #b2b9c9; --page-line: #313849; --page-surface: #1a1e28; color-scheme: dark; }
+
+body { background: var(--page); color: var(--page-ink); font-family: var(--sans); }
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: 16px; padding-block: 24px 40px; display: grid; gap: 14px; }
+.head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; }
+.head h1 { font-family: var(--serif); font-weight: 600; font-size: 1.35rem; margin: 0; text-wrap: balance; }
+.head p { margin: 0; color: var(--page-ink-2); font-size: 0.9rem; }
+
+.frame { position: relative; width: 100%; aspect-ratio: 16 / 9; max-width: 100%; overflow: hidden; border-radius: 8px; background: var(--night); box-shadow: 0 10px 40px rgba(16,23,43,.25); }
+#stage { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; transform-origin: 0 0; overflow: hidden; background: var(--night); font-family: var(--sans); color: var(--white); }
+.scene { position: absolute; inset: 0; opacity: 0; }
+
+.player { display: flex; align-items: center; gap: 12px; }
+.player button { font: 500 0.9rem var(--sans); color: var(--page-ink); background: var(--page-surface); border: 1px solid var(--page-line); border-radius: 6px; padding: 7px 14px; cursor: pointer; min-width: 84px; }
+.player button:focus-visible, #scrub:focus-visible { outline: 2px solid #5b7fd6; outline-offset: 2px; }
+#scrub { flex: 1; min-width: 0; accent-color: #2b4a8b; }
+#clock { font: 0.85rem var(--mono); color: var(--page-ink-2); font-variant-numeric: tabular-nums; }
+.note { color: var(--page-ink-2); font-size: 0.85rem; margin: 0; max-width: 70ch; }
+
+/* ---------- caption strip ---------- */
+#cap { position: absolute; left: 0; right: 0; bottom: 34px; display: flex; justify-content: center; z-index: 50; pointer-events: none; }
+#cap span { font: 500 26px/1.3 var(--sans); background: rgba(10,14,28,.82); color: #fff; padding: 10px 22px; border-radius: 6px; max-width: 1000px; text-align: center; }
+
+/* ---------- shared film pieces ---------- */
+.serif { font-family: var(--serif); }
+.center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 18px; }
+.app { position: absolute; left: 90px; top: 50px; width: 1100px; height: 540px; background: var(--paper); border-radius: 10px; color: var(--ink); overflow: hidden; display: grid; grid-template-columns: 190px 1fr; box-shadow: 0 30px 80px rgba(0,0,0,.45); }
+.rail { background: var(--white); border-right: 1px solid var(--line); padding: 18px 14px; display: flex; flex-direction: column; gap: 4px; }
+.rail .logo { display: flex; align-items: center; gap: 8px; font: 600 19px var(--serif); color: var(--navy); margin-bottom: 14px; }
+.rail .item { font: 500 15px var(--sans); color: var(--ink-2); padding: 8px 10px; border-radius: 6px; }
+.rail .item.on { background: var(--navy-soft); color: var(--navy); }
+.main { padding: 22px 30px; display: flex; flex-direction: column; gap: 14px; min-width: 0; position: relative; }
+.main h3 { margin: 0; font: 600 24px var(--serif); color: var(--ink); }
+.muted { color: var(--ink-3); }
+.mark { width: 26px; height: 26px; }
+.spark { display: inline-flex; align-items: center; gap: 5px; font: 500 12px var(--sans); color: var(--spark); background: var(--spark-soft); border-radius: 999px; padding: 2px 9px; }
+.pill { font: 600 12px var(--sans); border-radius: 999px; padding: 3px 10px; letter-spacing: .04em; text-transform: uppercase; }
+.pill.high { color: var(--high); background: var(--high-soft); }
+.pill.med { color: var(--med); background: var(--med-soft); }
+.pill.low { color: var(--low); background: var(--low-soft); }
+.cursor { position: absolute; width: 22px; height: 22px; z-index: 40; pointer-events: none; }
+.cursor::after { content: ''; position: absolute; left: -14px; top: -14px; width: 50px; height: 50px; border-radius: 50%; background: rgba(43,74,139,.25); transform: scale(var(--click, 0)); }
+
+/* S1 */
+#s1 .l1 { font: 400 30px var(--sans); color: var(--glow); letter-spacing: .02em; }
+#s1 .l2 { font: 500 70px/1.1 var(--serif); max-width: 1000px; }
+#s1 .clock { font: 500 22px var(--mono); color: rgba(255,255,255,.55); letter-spacing: .1em; }
+
+/* S2 */
+.mess { position: absolute; background: var(--white); color: var(--ink); border-radius: 6px; padding: 14px 18px; font: 400 18px var(--sans); box-shadow: 0 12px 30px rgba(0,0,0,.4); width: 360px; }
+.mess b { display: block; font: 600 14px var(--mono); color: var(--ink-3); margin-bottom: 6px; }
+.mess.sticky { background: #f6e58d; width: 260px; font: 500 22px var(--serif); font-style: italic; }
+.mess.wait { background: var(--high-soft); color: var(--high); font: 600 22px var(--sans); width: 380px; }
+
+/* S3 */
+#s3 .word { font: 600 120px var(--serif); letter-spacing: -.01em; }
+#s3 .tag { font: 400 30px var(--sans); color: var(--glow); }
+#s3 svg { width: 130px; height: 130px; }
+
+/* S4 */
+.stepper { display: flex; gap: 10px; }
+.step { flex: 1; font: 500 14px var(--sans); color: var(--ink-3); border-top: 4px solid var(--line); padding-top: 8px; }
+.step.on { color: var(--navy); border-color: var(--navy); }
+.step.done { color: var(--low); border-color: var(--low); }
+.fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 22px; }
+.field { display: grid; gap: 6px; }
+.field label { font: 500 13px var(--sans); color: var(--ink-2); display: flex; gap: 8px; align-items: center; }
+.field .box { height: 42px; border: 1px solid var(--line); background: var(--white); border-radius: 6px; padding: 0 12px; display: flex; align-items: center; font: 400 17px var(--sans); }
+.field.ai .box { border-color: #e2c37a; background: #fffcf3; }
+.mail { position: absolute; right: 30px; top: 22px; width: 300px; background: var(--white); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; font: 400 13px/1.45 var(--sans); color: var(--ink-2); }
+.mail b { color: var(--ink); }
+
+/* S5 */
+.search { height: 56px; border: 2px solid var(--navy); border-radius: 8px; background: var(--white); display: flex; align-items: center; padding: 0 16px; gap: 12px; font: 400 24px var(--sans); }
+.caret { width: 2px; height: 28px; background: var(--navy); }
+.stat { font: 500 15px var(--mono); color: var(--navy); }
+.rows { display: grid; gap: 8px; }
+.row { display: grid; grid-template-columns: 1fr 220px 90px; align-items: center; gap: 14px; background: var(--white); border: 1px solid var(--line); border-radius: 6px; padding: 12px 16px; font: 500 18px var(--sans); }
+.row .why { font: 400 14px var(--sans); color: var(--ink-2); }
+.row .pill { justify-self: end; }
+
+/* S6 */
+.hit { background: var(--white); border: 1px solid var(--line); border-left: 6px solid var(--high); border-radius: 8px; padding: 22px 26px; display: grid; gap: 14px; }
+.hit .who { display: flex; align-items: center; gap: 12px; font: 600 22px var(--sans); }
+.hit p { margin: 0; font: 400 21px/1.5 var(--serif); color: var(--ink); max-width: 760px; }
+.btns { display: flex; gap: 10px; }
+.btn { font: 500 16px var(--sans); border: 1px solid var(--line); background: var(--white); color: var(--ink); border-radius: 6px; padding: 9px 16px; }
+.btn.chosen { background: var(--navy); color: var(--white); border-color: var(--navy); }
+.stamp { position: absolute; right: 70px; bottom: 60px; font: 600 26px var(--sans); color: var(--low); border: 3px solid var(--low); border-radius: 8px; padding: 8px 18px; transform: rotate(-6deg); letter-spacing: .04em; text-transform: uppercase; }
+
+/* S7 */
+.firm { position: absolute; left: 140px; top: 120px; width: 600px; height: 400px; border: 2px solid var(--glow); border-radius: 14px; background: var(--night-2); }
+.firm .lbl { position: absolute; left: 20px; top: -16px; background: var(--night); padding: 0 10px; font: 500 18px var(--mono); color: var(--glow); letter-spacing: .08em; }
+.node { position: absolute; background: var(--white); color: var(--ink); border-radius: 8px; padding: 14px 18px; font: 600 18px var(--sans); display: grid; gap: 4px; }
+.node small { font: 400 14px var(--sans); color: var(--ink-2); }
+.cloud { position: absolute; right: 110px; top: 220px; width: 250px; height: 130px; border: 2px dashed rgba(255,255,255,.35); border-radius: 70px; display: flex; align-items: center; justify-content: center; font: 500 20px var(--sans); color: rgba(255,255,255,.6); }
+.block { position: absolute; right: 395px; top: 255px; font: 700 54px var(--sans); color: #f2867c; }
+.meter { position: absolute; left: 180px; top: 440px; width: 520px; display: grid; gap: 8px; font: 500 16px var(--mono); color: var(--glow); }
+.meter .bar { height: 10px; background: rgba(255,255,255,.15); border-radius: 6px; overflow: hidden; }
+.meter .fill { height: 100%; background: var(--glow); width: 0; }
+
+/* S8 */
+.panels { position: absolute; left: 80px; right: 80px; top: 120px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+.panel { background: var(--paper); color: var(--ink); border-radius: 10px; padding: 24px; display: grid; gap: 12px; align-content: start; min-height: 360px; }
+.panel h4 { margin: 0; font: 600 13px var(--sans); text-transform: uppercase; letter-spacing: .1em; color: var(--ink-3); }
+.panel .big { font: 600 26px/1.25 var(--serif); }
+.panel .line { font: 400 16px var(--sans); color: var(--ink-2); display: flex; justify-content: space-between; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+.panel .num { font: 600 64px var(--serif); color: var(--navy); font-variant-numeric: tabular-nums; }
+.check { color: var(--low); font-weight: 600; }
+
+/* S9 */
+#s9 .word { font: 600 96px var(--serif); }
+#s9 .tag { font: 500 40px/1.2 var(--serif); font-style: italic; max-width: 900px; }
+#s9 .sub { font: 400 22px var(--sans); color: var(--glow); }
+#s9 .cta { font: 600 22px var(--sans); background: var(--white); color: var(--navy); padding: 14px 30px; border-radius: 8px; margin-top: 10px; }
+#s9 .fine { position: absolute; bottom: 14px; left: 0; right: 0; text-align: center; font: 400 13px var(--sans); color: rgba(255,255,255,.4); }
+
+.rendering .wrap { padding: 0; max-width: none; display: block; }
+.rendering .frame { border-radius: 0; box-shadow: none; width: 1280px; }
+.rendering .player, .rendering .head, .rendering .note { display: none; }
+@media (prefers-reduced-motion: reduce) { .cursor::after { display: none; } }
+</style>
+
+<div class="wrap" id="wrap">
+  <div class="head">
+    <h1>Conflara, in sixty seconds</h1>
+    <p>Animated advertisement · captions on screen · fictional demo data</p>
+  </div>
+
+  <div class="frame" id="frame">
+    <div id="stage" aria-label="Animated advertisement for Conflara" role="img">
+
+      <!-- S1: the question -->
+      <div class="scene" id="s1">
+        <div class="center">
+          <div class="clock" id="s1clock">4:55 PM</div>
+          <div class="l1" id="s1a">A prospective client is on the line.</div>
+          <div class="l2" id="s1b">Can the firm take the matter?</div>
+        </div>
+      </div>
+
+      <!-- S2: the old way -->
+      <div class="scene" id="s2">
+        <div class="mess" id="m1" style="left:90px;top:80px"><b>Conflicts_check_FINAL_v3.xlsx</b>Sheet 4 of 9 · 2,311 rows · last edited by ???</div>
+        <div class="mess" id="m2" style="left:520px;top:60px"><b>RE: RE: FW: new matter?</b>Has anyone represented Pellmark before? Copying the whole floor.</div>
+        <div class="mess sticky" id="m3" style="left:860px;top:250px">ask Dana re Pellmark parent co??</div>
+        <div class="mess" id="m4" style="left:150px;top:300px"><b>Billing system · search</b>No results for “Pelmark Frieght”.</div>
+        <div class="mess wait" id="m5" style="left:470px;top:400px">Waiting on approval: 2 days, 4 hrs</div>
+      </div>
+
+      <!-- S3: brand reveal -->
+      <div class="scene" id="s3">
+        <div class="center">
+          <svg viewBox="0 0 120 120" aria-hidden="true">
+            <rect x="10" y="10" width="100" height="100" rx="22" fill="none" stroke="#8fa9e8" stroke-width="6" id="s3box" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"></rect>
+            <path d="M36 62 L54 80 L86 42" fill="none" stroke="#ffffff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" id="s3tick" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"></path>
+          </svg>
+          <div class="word brand" id="s3w">Conflara</div>
+          <div class="tag" id="s3t">Conflicts and new business intake, in one place.</div>
+        </div>
+      </div>
+
+      <!-- S4: guided intake -->
+      <div class="scene" id="s4">
+        <div class="app" id="s4app">
+          <div class="rail">
+            <div class="logo"><svg class="mark" viewBox="0 0 120 120"><rect x="10" y="10" width="100" height="100" rx="22" fill="#2b4a8b"></rect><path d="M36 62 L54 80 L86 42" fill="none" stroke="#fff" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"></path></svg><span class="brand">Conflara</span></div>
+            <div class="item on">New intake</div><div class="item">Search</div><div class="item">Hits to review</div><div class="item">Ethical walls</div><div class="item">My queue</div><div class="item">Reports</div>
+          </div>
+          <div class="main">
+            <h3>New business intake</h3>
+            <div class="stepper"><div class="step" id="st1">1 · Client</div><div class="step" id="st2">2 · Parties</div><div class="step" id="st3">3 · Matter</div><div class="step" id="st4">4 · Review</div></div>
+            <div class="fields">
+              <div class="field"><label>Client</label><div class="box" id="f1"></div></div>
+              <div class="field"><label>Responsible partner</label><div class="box" id="f2"></div></div>
+              <div class="field ai" id="fa3"><label>Adverse party <span class="spark">✦ AI suggestion · please check</span></label><div class="box" id="f3"></div></div>
+              <div class="field ai" id="fa4"><label>Related person <span class="spark">✦ AI suggestion · please check</span></label><div class="box" id="f4"></div></div>
+              <div class="field"><label>Matter</label><div class="box" id="f5"></div></div>
+              <div class="field"><label>Estimated fees</label><div class="box" id="f6"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S5: search -->
+      <div class="scene" id="s5">
+        <div class="app">
+          <div class="rail">
+            <div class="logo"><svg class="mark" viewBox="0 0 120 120"><rect x="10" y="10" width="100" height="100" rx="22" fill="#2b4a8b"></rect><path d="M36 62 L54 80 L86 42" fill="none" stroke="#fff" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"></path></svg><span class="brand">Conflara</span></div>
+            <div class="item">New intake</div><div class="item on">Search</div><div class="item">Hits to review</div><div class="item">Ethical walls</div><div class="item">My queue</div><div class="item">Reports</div>
+          </div>
+          <div class="main">
+            <h3>Conflicts search</h3>
+            <div class="search"><span id="q"></span><span class="caret" id="caret"></span></div>
+            <div class="stat" id="stat">4 matches in 38 ms across 5,214 parties</div>
+            <div class="rows">
+              <div class="row" id="r1"><span>Pellmark Freight Co.</span><span class="why">Same name, two typos</span><span class="pill high">High</span></div>
+              <div class="row" id="r2"><span>Pellmark Holdings LLC</span><span class="why">Parent company of the party</span><span class="pill high">High</span></div>
+              <div class="row" id="r3"><span>Pellmark Freightways (former name)</span><span class="why">Former name of the party</span><span class="pill med">Medium</span></div>
+              <div class="row" id="r4"><span>P. Mark Freight Services</span><span class="why">Sounds alike</span><span class="pill low">Low</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S6: plain-English hit -->
+      <div class="scene" id="s6">
+        <div class="app">
+          <div class="rail">
+            <div class="logo"><svg class="mark" viewBox="0 0 120 120"><rect x="10" y="10" width="100" height="100" rx="22" fill="#2b4a8b"></rect><path d="M36 62 L54 80 L86 42" fill="none" stroke="#fff" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"></path></svg><span class="brand">Conflara</span></div>
+            <div class="item">New intake</div><div class="item">Search</div><div class="item on">Hits to review</div><div class="item">Ethical walls</div><div class="item">My queue</div><div class="item">Reports</div>
+          </div>
+          <div class="main">
+            <h3>Hit 2 of 4 · Pellmark Freight Co.</h3>
+            <div class="hit" id="hitcard">
+              <div class="who">Pellmark Holdings LLC <span class="pill high">High</span> <span class="spark">✦ AI draft · analyst to confirm</span></div>
+              <p id="hitp"></p>
+              <div class="muted" style="font:400 14px var(--mono)">Matter 010023.0004 · closed 14 Mar 2024 · responsible partner R. Okafor</div>
+              <div class="btns"><span class="btn" id="b1">Clear</span><span class="btn" id="b2">Waiver needed</span><span class="btn" id="b3">Escalate to GC</span></div>
+            </div>
+          </div>
+          <div class="stamp" id="stamp">Waiver requested</div>
+        </div>
+        <svg class="cursor" id="cur6" viewBox="0 0 24 24"><path d="M3 2 L3 20 L8 15 L11.5 22 L14.5 20.5 L11 14 L18 14 Z" fill="#fff" stroke="#1b2130" stroke-width="1.5"></path></svg>
+      </div>
+
+      <!-- S7: private local AI -->
+      <div class="scene" id="s7">
+        <div class="firm" id="firm"><span class="lbl">YOUR FIRM'S SERVER</span></div>
+        <div class="node" id="n1" style="left:190px;top:170px">Conflicts database<small>5,214 parties · 2,031 matters</small></div>
+        <div class="node" id="n2" style="left:450px;top:290px">✦ Local model<small>Helps sort hits and draft memos</small></div>
+        <div class="cloud" id="cloud">Public AI chatbots</div>
+        <div class="block" id="blk">✕</div>
+        <div class="meter" id="meter"><span id="mtxt">AI pre-sort: 0 of 25 hits ready for analyst review</span><div class="bar"><div class="fill" id="mfill"></div></div></div>
+      </div>
+
+      <!-- S8: walls, queues, approvals -->
+      <div class="scene" id="s8">
+        <div class="panels">
+          <div class="panel" id="p1"><h4>Ethical wall</h4><div class="big">Pellmark matters</div><div class="line"><span>Lawyers screened</span><span>3</span></div><div class="line"><span>Acknowledged</span><span class="check" id="ack">0 of 3</span></div><div class="line"><span>Documents locked</span><span class="check">Yes</span></div></div>
+          <div class="panel" id="p2"><h4>Analyst queue</h4><div class="num" id="qnum">12</div><div class="line"><span>Hits to review</span><span id="qhits">9</span></div><div class="line"><span>Waiting on a lawyer</span><span>2</span></div><div class="line"><span>Oldest item</span><span id="qold">3 days</span></div></div>
+          <div class="panel" id="p3"><h4>Approval</h4><div class="line"><span>Conflicts analyst</span><span class="check" id="a1">✓</span></div><div class="line"><span>Responsible partner</span><span class="check" id="a2">✓</span></div><div class="line"><span>General counsel</span><span class="check" id="a3">✓</span></div><div class="big" id="rep">Conflicts report ready.<br>Matter 010587.0001 open.</div></div>
+        </div>
+      </div>
+
+      <!-- S9: end card -->
+      <div class="scene" id="s9">
+        <div class="center">
+          <div class="word brand" id="s9w">Conflara</div>
+          <div class="tag" id="s9t">Clear conflicts in minutes, not days.</div>
+          <div class="sub" id="s9s">Bring your history from Aderant, Clio or any spreadsheet.</div>
+          <div class="cta" id="s9c">Book a demo</div>
+        </div>
+        <div class="fine">All names, matters and figures shown are fictional.</div>
+      </div>
+
+      <div id="cap"><span id="capt"></span></div>
+    </div>
+  </div>
+
+  <div class="player">
+    <button id="play" type="button">Pause</button>
+    <button id="replay" type="button">Replay</button>
+    <button id="sound" type="button" aria-pressed="false">Sound on</button>
+    <audio id="music" src="score.mp3" preload="auto"></audio>
+    <input id="scrub" type="range" min="0" max="60" step="0.05" value="0" aria-label="Position in the ad">
+    <span id="clock">0:00 / 1:00</span>
+  </div>
+  <p class="note">Scenes are timed to one minute. The music is an original score made for this ad; turn it on with Sound on. Every client, party and matter in the film is invented for the demo.</p>
+</div>
+
+<script>
+// Change the product name in one place.
+const BRAND = 'Conflara';
+document.querySelectorAll('.brand').forEach(e => e.textContent = BRAND);
+document.title = BRAND + ' 60-Second Ad';
+
+const DUR = 60;
+const $ = id => document.getElementById(id);
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const ease = p => 1 - Math.pow(1 - clamp(p), 3);
+const seg = (t, a, b) => ease((t - a) / (b - a));
+const lin = (t, a, b) => clamp((t - a) / (b - a));
+const show = (el, p, dy = 24) => { el.style.opacity = p; el.style.transform = `translateY(${(1 - p) * dy}px)`; };
+const type = (el, str, p) => { el.textContent = str.slice(0, Math.round(clamp(p) * str.length)); };
+
+const SCENES = [
+  ['s1', 0, 6], ['s2', 6, 13], ['s3', 13, 19], ['s4', 19, 28], ['s5', 28, 36],
+  ['s6', 36, 43], ['s7', 43, 49], ['s8', 49, 55], ['s9', 55, 60],
+];
+const CAPS = [
+  [0.4, 6, 'Every new matter starts with one question.'],
+  [6.2, 13, 'Most firms answer it with spreadsheets, email chains and a two-day wait.'],
+  [14.5, 19, `Meet ${BRAND}.`],
+  [19.3, 28, 'Guided intake gathers every party. Local AI helps draft the rest, and you check it.'],
+  [28.3, 36, 'Search finds typos, former names and parent companies in milliseconds.'],
+  [36.3, 43, 'Each hit comes with a plain-English explanation. Your analyst makes the call.'],
+  [43.3, 49, 'The AI runs on your own server, so client data stays inside the firm.'],
+  [49.3, 55, 'Ethical walls, work queues and approvals keep everyone moving.'],
+];
+
+const HIT = 'The firm represented Pellmark Holdings, the parent of the adverse party, in a lease matter that closed in 2024. This may be a former-client conflict. An analyst should confirm whether written consent is needed.';
+const FIELDS = [
+  ['f1', 'Harborline Logistics, Inc.', 19.9, 20.9],
+  ['f2', 'Amara Lindqvist', 20.9, 21.7],
+  ['f3', 'Pellmark Freight Co.', 22.6, 23.0],
+  ['f4', 'Jo Danvers (CEO, Pellmark)', 23.0, 23.4],
+  ['f5', 'Warehouse lease dispute', 24.4, 25.4],
+  ['f6', '$85,000', 25.4, 26.0],
+];
+
+function render(t) {
+  for (const [id, a, b] of SCENES) {
+    const el = $(id);
+    const fin = a === 0 ? 1 : lin(t, a, a + 0.5);
+    const fout = b === DUR ? 1 : 1 - lin(t, b - 0.5, b);
+    const on = t >= a && t < b + 0.01;
+    el.style.opacity = on ? Math.min(fin, fout) : 0;
+    el.style.visibility = on ? 'visible' : 'hidden';
+  }
+  // background tone: dark film, slightly lifted while the product is on screen
+  $('stage').style.background = t >= 19 && t < 43 ? '#1a2440' : '#10172b';
+
+  // captions
+  const cap = CAPS.find(([a, b]) => t >= a && t < b);
+  const ce = $('capt');
+  if (cap) { ce.textContent = cap[2]; ce.parentElement.style.opacity = Math.min(lin(t, cap[0], cap[0] + 0.3), 1 - lin(t, cap[1] - 0.3, cap[1])); ce.style.visibility = 'visible'; }
+  else { ce.style.visibility = 'hidden'; }
+
+  // S1
+  if (t < 6.1) {
+    show($('s1clock'), seg(t, 0.2, 1));
+    show($('s1a'), seg(t, 0.6, 1.6));
+    show($('s1b'), seg(t, 2.2, 3.4), 40);
+    $('s1clock').textContent = t < 3.5 ? '4:55 PM' : '4:56 PM';
+  }
+  // S2: the mess piles up, then gets swept away
+  if (t >= 6 && t < 13.1) {
+    ['m1', 'm2', 'm3', 'm4', 'm5'].forEach((id, i) => {
+      const p = seg(t, 6.3 + i * 0.9, 7.1 + i * 0.9);
+      const sweep = seg(t, 12.0, 12.9);
+      const rot = [-4, 3, 6, -2, 1][i];
+      const el = $(id);
+      el.style.opacity = p * (1 - sweep);
+      el.style.transform = `translate(${sweep * (i % 2 ? 500 : -500)}px, ${(1 - p) * -120}px) rotate(${rot + Math.sin(t * 3 + i) * (t > 10.5 ? 1.2 : 0)}deg) scale(${0.9 + 0.1 * p})`;
+    });
+  }
+  // S3: mark draws, word rises
+  if (t >= 13 && t < 19.1) {
+    $('s3box').style.strokeDashoffset = 1 - seg(t, 13.3, 14.6);
+    $('s3tick').style.strokeDashoffset = 1 - seg(t, 14.2, 15.0);
+    show($('s3w'), seg(t, 14.6, 15.6), 30);
+    show($('s3t'), seg(t, 15.6, 16.6), 20);
+  }
+  // S4: intake
+  if (t >= 19 && t < 28.1) {
+    $('s4app').style.transform = `translateY(${(1 - seg(t, 19, 19.8)) * 60}px)`;
+    const stepAt = [19.3, 22.2, 24.2, 26.3];
+    stepAt.forEach((s, i) => {
+      const el = $('st' + (i + 1));
+      el.className = 'step' + (t >= (stepAt[i + 1] ?? 99) ? ' done' : t >= s ? ' on' : '');
+    });
+    for (const [id, str, a, b] of FIELDS) type($(id), str, lin(t, a, b));
+    $('fa3').style.opacity = t >= 22.4 ? 1 : 0.35;
+    $('fa4').style.opacity = t >= 22.4 ? 1 : 0.35;
+    if (t >= 26.3) { $('st4').className = 'step on'; }
+  }
+  // S5: search
+  if (t >= 28 && t < 36.1) {
+    type($('q'), 'Pelmark Frieght', lin(t, 28.6, 30.2));
+    $('caret').style.opacity = (Math.floor(t * 2) % 2 || t < 30.2) ? 1 : 0;
+    show($('stat'), seg(t, 30.5, 30.9), 6);
+    ['r1', 'r2', 'r3', 'r4'].forEach((id, i) => show($(id), seg(t, 30.6 + i * 0.25, 31.1 + i * 0.25), 16));
+    $('r2').style.boxShadow = t > 33.2 ? '0 0 0 3px #2b4a8b' : 'none';
+  }
+  // S6: hit explained, cursor picks a decision
+  if (t >= 36 && t < 43.1) {
+    type($('hitp'), HIT, lin(t, 36.6, 39.6));
+    const c = $('cur6');
+    const p = seg(t, 39.8, 40.9);
+    c.style.left = (700 + (520 - 700) * p) + 'px';
+    c.style.top = (650 + (460 - 650) * p) + 'px';
+    const click = t > 41.0 && t < 41.5 ? Math.sin(lin(t, 41.0, 41.5) * Math.PI) : 0;
+    c.style.setProperty('--click', click);
+    $('b2').className = 'btn' + (t >= 41.1 ? ' chosen' : '');
+    const sp = seg(t, 41.4, 41.8);
+    $('stamp').style.opacity = sp;
+    $('stamp').style.transform = `rotate(-6deg) scale(${1.6 - 0.6 * sp})`;
+  }
+  // S7: local AI
+  if (t >= 43 && t < 49.1) {
+    show($('firm'), seg(t, 43.2, 43.9), 20);
+    show($('n1'), seg(t, 43.6, 44.2), 14);
+    show($('n2'), seg(t, 43.9, 44.5), 14);
+    $('n2').style.boxShadow = `0 0 ${20 + 18 * Math.sin(t * 4)}px rgba(143,169,232,.6)`;
+    show($('cloud'), seg(t, 44.6, 45.2), 0);
+    const bp = seg(t, 45.3, 45.6);
+    $('blk').style.opacity = bp; $('blk').style.transform = `scale(${1.8 - 0.8 * bp})`;
+    show($('meter'), seg(t, 45.6, 46), 10);
+    const n = Math.round(25 * lin(t, 46, 48.4));
+    $('mtxt').textContent = `AI pre-sort: ${n} of 25 hits ready for analyst review`;
+    $('mfill').style.width = (n / 25 * 100) + '%';
+  }
+  // S8: walls, queue, approvals
+  if (t >= 49 && t < 55.1) {
+    ['p1', 'p2', 'p3'].forEach((id, i) => show($(id), seg(t, 49.2 + i * 0.3, 49.9 + i * 0.3), 40));
+    $('ack').textContent = Math.min(3, Math.floor(lin(t, 50.3, 52.3) * 4)) + ' of 3';
+    const q = Math.round(12 - 9 * lin(t, 50.5, 53.5));
+    $('qnum').textContent = q;
+    $('qhits').textContent = Math.max(0, q - 3);
+    $('qold').textContent = t > 52.5 ? 'Today' : '3 days';
+    ['a1', 'a2', 'a3'].forEach((id, i) => { $(id).style.opacity = t > 51 + i * 0.6 ? 1 : 0.1; });
+    show($('rep'), seg(t, 53, 53.5), 10);
+  }
+  // S9: end card
+  if (t >= 55) {
+    show($('s9w'), seg(t, 55.2, 56), 20);
+    show($('s9t'), seg(t, 55.8, 56.6), 20);
+    show($('s9s'), seg(t, 56.6, 57.3), 14);
+    show($('s9c'), seg(t, 57.3, 58), 10);
+  }
+}
+
+// ----- player -----
+let t = 0, playing = true, last = null;
+const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+function fit() { const f = $('frame'); $('stage').style.transform = `scale(${f.clientWidth / 1280})`; }
+function fmt(s) { s = Math.floor(s); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; }
+function sync() { render(t); $('scrub').value = t; $('clock').textContent = `${fmt(t)} / 1:00`; $('play').textContent = playing ? 'Pause' : (t >= DUR ? 'Play' : 'Play'); }
+function tick(now) {
+  if (playing) {
+    if (soundOn && !music.paused) t = Math.min(DUR, music.currentTime);
+    else if (last != null) t = Math.min(DUR, t + (now - last) / 1000);
+    if (t >= DUR) playing = false;
+    sync();
+  }
+  last = now;
+  requestAnimationFrame(tick);
+}
+const music = $('music');
+let soundOn = false;
+function syncAudio() {
+  if (!soundOn) { music.pause(); return; }
+  if (Math.abs(music.currentTime - t) > 0.2) { try { music.currentTime = t; } catch (e) {} }
+  if (playing && t < DUR) { const p = music.play(); if (p) p.catch(() => {}); } else music.pause();
+}
+$('play').onclick = () => { if (t >= DUR) t = 0; playing = !playing; last = null; sync(); syncAudio(); };
+$('replay').onclick = () => { t = 0; playing = true; last = null; sync(); syncAudio(); };
+$('scrub').oninput = e => { t = +e.target.value; sync(); syncAudio(); };
+$('sound').onclick = () => {
+  soundOn = !soundOn;
+  $('sound').textContent = soundOn ? 'Sound off' : 'Sound on';
+  $('sound').setAttribute('aria-pressed', soundOn);
+  syncAudio();
+};
+addEventListener('resize', fit);
+if (window.ResizeObserver) new ResizeObserver(fit).observe($('frame'));
+fit();
+if (reduce) { playing = false; t = 57.5; }
+sync();
+requestAnimationFrame(tick);
+
+// Used by the offline renderer: freeze the clock and draw a given second.
+window.__seek = s => { playing = false; soundOn = false; music.pause(); t = s; render(s); };
+window.__renderMode = () => { document.documentElement.classList.add('rendering'); };
+</script>
+
+</body></html>
