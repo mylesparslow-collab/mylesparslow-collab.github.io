@@ -1,0 +1,23 @@
+name: Deploy Ravens site to Cloudflare Pages
+
+on:
+  push:
+    branches: [main]
+    paths: ['ravens/**']
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-ravens
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy ravens/ to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy ravens --project-name=ravens-nest --branch=main --commit-dirty=true
