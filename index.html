@@ -194,9 +194,9 @@ footer { border-top: 1px solid var(--rule); padding-top: 1.25rem; display: flex;
     <dl class="stats">
       <div><dt>Firm roles modelled</dt><dd>7</dd></div>
       <div><dt>Approval routing rules</dt><dd>9</dd></div>
-      <div><dt>Synthetic parties / matters</dt><dd>5,000 / 2,000</dd></div>
+      <div><dt>Tests (66 files)</dt><dd>932</dd></div>
+      <div><dt>Synthetic parties benchmarked</dt><dd>3,000,000</dd></div>
       <div><dt>Competitors researched</dt><dd>14+</dd></div>
-      <div><dt>Gaps ranked</dt><dd>21</dd></div>
       <div><dt>Films made in code (60 s and 2:32)</dt><dd>2</dd></div>
     </dl>
 
@@ -244,6 +244,51 @@ footer { border-top: 1px solid var(--rule); padding-top: 1.25rem; display: flex;
         <div><h4>Speed for the analyst</h4><p>J and K move between hits, 1 to 5 record a decision, Enter accepts the suggestion, and earlier decisions on the same party appear inline.</p></div>
       </div>
     </section>
+
+    <section class="block">
+      <h3>Since then: scale, outside data and a private model</h3>
+      <p>Conflara now has about 110,000 lines of TypeScript, 932 tests across 66 files and 140 commits, with roughly 40 of those commits and 13 merged pull requests landing in a single day. It runs two ways from the same code: a browser-only demo on fictional data, or a firm server with its own database, single sign-on, email and an AI model on the firm's own hardware.</p>
+      <div class="grid3">
+        <div><h4>Built for a firm with millions of names</h4><p>Row-level storage, incremental sync and server-side search replaced loading everything into the browser. A repeatable benchmark on synthetic firms (invented names only) goes up to 3,000,000 parties, with a written account of what limited a large firm and what changed.</p></div>
+        <div><h4>Outside entity data, watched nightly</h4><p>A party can be linked to its public-register record: legal-entity data and SEC filings, including subsidiaries read from the latest annual report. A person chooses which names and parents or subsidiaries to add. A nightly job lists what changed for a person to accept or set aside, and cleared requests are flagged for another look. The docs say plainly which sources are built, tested against recorded answers, or only stubbed.</p></div>
+        <div><h4>Search that is honest about itself</h4><p>Every search gets a number and shows what it covered and where its limits are. An empty or missing source is never shown as clearance, hits carry plain labels such as "likely same entity" instead of scores, and a no-match result is neutral, not green.</p></div>
+        <div><h4>Faster hit review</h4><p>A compact hit list with sticky party headers, identity review kept apart from the conflict assessment, and follow-ups tracked until resolved. The suggested order is learned locally from the firm's own past decisions, shows its factors and counts, is off by default, and never hides a hit or records a decision. An offline evaluation of the ranking is written up in the repo.</p></div>
+        <div><h4>Confidentiality and lateral hires</h4><p>Confidential matters are searched in batch without being revealed: the user is told there is a confidential match and nothing more. Lateral hires get a pre-start checklist with distinct pending, blocked, not-applicable and complete states, each backed by evidence.</p></div>
+        <div><h4>Compliance records</h4><p>Required documents per request, a summary of each conflict, and tracking for business-associate agreements, joint-representation consents and founder acknowledgements.</p></div>
+      </div>
+    </section>
+
+    <div class="cols">
+      <section class="block">
+        <h3>Measured, not claimed</h3>
+        <ul>
+          <li><strong>Name search</strong> (median): 77 ms to 1.3 ms at 50,000 parties; 535 ms to 5.3 ms at 250,000.</li>
+          <li><strong>Submitting an intake:</strong> 1.5 s to 37 ms at 50,000; 8.0 s to 20 ms at 250,000.</li>
+          <li><strong>After a colleague's change,</strong> a browser downloads 1 KB instead of reloading 200 KB.</li>
+          <li><strong>Server memory</strong> at 250,000 parties: 5.4 GB down to 1.8 GB.</li>
+        </ul>
+        <p>All figures come from a benchmark script run on synthetic firms with invented names.</p>
+      </section>
+      <section class="block">
+        <h3>A model that stays on the firm's hardware</h3>
+        <p>The AI runs through Ollama or any OpenAI-compatible local server, so client names never leave the building. It triages hits with a short reason, finds parties in a matter description or pasted email (any name that is not in the text is discarded), drafts a conflicts memo from the recorded decisions only, and suggests column mapping for imports. Every use is written to the audit log with the model name. The ranking model is a separate local statistical fit that uses no AI provider.</p>
+      </section>
+    </div>
+
+    <div class="cols">
+      <section class="block">
+        <h3>Teaching and testing inside the app</h3>
+        <ul>
+          <li><strong>Role-based walkthroughs</strong> (open a matter, prepare a request, approve, clear, get your firm live) that point at things but never click, submit or decide.</li>
+          <li><strong>A first-week checklist</strong> that ticks itself off from what the person actually does, with tests that limited roles are never shown a step for a page they can't open.</li>
+          <li><strong>A test environment</strong> on a fictional firm, marked by a striped banner on every page. It never writes to live data, sends email or calls an outside AI provider.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>Support without sharing firm data</h3>
+        <p>An administrator builds a support bundle of counts, settings switches, versions and error messages with names replaced by placeholders, reads it, then saves it. Nothing is sent automatically, and saving is written to the audit trail. To see a problem happen, support uses a test firm of made-up records at the same size and shape. The live app opens empty, with no sample data, and the desktop app ships for Windows, macOS and Linux with a first-run setup.</p>
+      </section>
+    </div>
 
     <div class="cols">
       <section class="block">
