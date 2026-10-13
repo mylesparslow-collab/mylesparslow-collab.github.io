@@ -1,0 +1,662 @@
+<title>The Nest · Ravens HQ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=Barlow:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: stadium-scoreboard hero over a purple field, then a two-column grid of "boards" with a sticky section rail. Dark-first (night game), light = day game. */
+:root{
+  --bg:#0d0a1a; --bg2:#130e26; --surface:#19132f; --surface2:#211a3d; --line:#2e2652;
+  --fg:#efebf9; --muted:#a59dc4; --faint:#6f6893;
+  --purple:#7b5cf0; --purple-deep:#241773; --gold:#d1ad45; --gold-soft:rgba(209,173,69,.14);
+  --win:#43c486; --loss:#ea5f66; --warn:#e7a93b;
+  --display:"Big Shoulders Display","Oswald","Arial Narrow",Impact,sans-serif;
+  --body:"Barlow","Helvetica Neue",Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:10px;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){ :root:not([data-theme="dark"]){
+  --bg:#f5f3fa; --bg2:#ebe7f6; --surface:#ffffff; --surface2:#f3f0fa; --line:#dcd5ee;
+  --fg:#18112f; --muted:#564e78; --faint:#8a83a8;
+  --purple:#3b25a8; --purple-deep:#241773; --gold:#8c6c0b; --gold-soft:rgba(158,124,12,.12);
+  --win:#1b8650; --loss:#b72f39; --warn:#a66a06; color-scheme:light } }
+:root[data-theme="light"]{
+  --bg:#f5f3fa; --bg2:#ebe7f6; --surface:#ffffff; --surface2:#f3f0fa; --line:#dcd5ee;
+  --fg:#18112f; --muted:#564e78; --faint:#8a83a8;
+  --purple:#3b25a8; --purple-deep:#241773; --gold:#8c6c0b; --gold-soft:rgba(158,124,12,.12);
+  --win:#1b8650; --loss:#b72f39; --warn:#a66a06; color-scheme:light }
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15.5px;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:4px}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:20px}
+@media (max-width:520px){.wrap{padding-inline:16px}}
+.num{font-variant-numeric:tabular-nums}
+.label{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+h1,h2,h3{font-family:var(--display);font-weight:800;line-height:1;margin:0;text-wrap:balance;letter-spacing:.01em}
+h2{font-size:clamp(28px,3.4vw,38px);text-transform:uppercase}
+h3{font-size:21px;text-transform:uppercase;letter-spacing:.03em}
+p{margin:0}
+
+/* top bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.bar .wrap{display:flex;align-items:center;gap:18px;height:56px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;flex:none}
+.brand svg{width:30px;height:30px}
+.brand b{font-family:var(--display);font-weight:900;font-size:24px;letter-spacing:.04em;text-transform:uppercase}
+.nav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;min-width:0;flex:1}
+.nav::-webkit-scrollbar{display:none}
+.nav a{flex:none;text-decoration:none;font-weight:600;font-size:14px;color:var(--muted);padding:7px 11px;border-radius:999px;transition:color .15s,background .15s}
+.nav a:hover,.nav a.on{color:var(--fg);background:var(--surface2)}
+.theme-btn{flex:none;background:none;border:1px solid var(--line);color:var(--muted);border-radius:999px;width:34px;height:34px;cursor:pointer;display:grid;place-items:center}
+.theme-btn:hover{color:var(--fg)}
+
+/* hero scoreboard */
+.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line);background:
+  radial-gradient(120% 90% at 85% 0%,color-mix(in srgb,var(--purple) 38%,transparent),transparent 60%),
+  linear-gradient(180deg,var(--bg2),var(--bg))}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background:repeating-linear-gradient(90deg,transparent 0 calc(10% - 1px),color-mix(in srgb,var(--fg) 6%,transparent) calc(10% - 1px) 10%)}
+.hero .wrap{position:relative;padding-block:34px 30px;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:28px;align-items:stretch}
+@media (max-width:900px){.hero .wrap{grid-template-columns:1fr}}
+.eyebrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:999px;border:1px solid var(--line);color:var(--muted);background:var(--surface)}
+.pill.gold{color:var(--gold);border-color:color-mix(in srgb,var(--gold) 45%,transparent);background:var(--gold-soft)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--win);box-shadow:0 0 0 3px color-mix(in srgb,var(--win) 25%,transparent)}
+.matchup{margin-top:18px;display:flex;align-items:center;gap:clamp(12px,3vw,28px);flex-wrap:wrap}
+.team{display:flex;flex-direction:column;gap:2px}
+.team .abbr{font-family:var(--display);font-weight:900;font-size:clamp(64px,10vw,116px);line-height:.85;letter-spacing:.01em}
+.team .abbr.us{color:var(--fg);text-shadow:0 0 40px color-mix(in srgb,var(--purple) 55%,transparent)}
+.team .abbr.them{color:var(--faint)}
+.team .rec{font-family:var(--mono);font-size:13px;color:var(--muted)}
+.at{font-family:var(--display);font-size:34px;color:var(--gold);font-weight:800}
+.gameinfo{margin-top:18px;display:flex;flex-wrap:wrap;gap:8px 22px;color:var(--muted);font-weight:500}
+.gameinfo b{color:var(--fg);font-weight:600}
+.clock{margin-top:22px;display:flex;gap:10px}
+.clock div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px 6px;min-width:70px;text-align:center}
+.clock span{display:block;font-family:var(--display);font-weight:800;font-size:38px;line-height:1;font-variant-numeric:tabular-nums}
+.clock small{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+.board-side{background:color-mix(in srgb,var(--surface) 92%,transparent);border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.bigrec{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.bigrec .r{font-family:var(--display);font-weight:900;font-size:72px;line-height:.9}
+.bigrec .d{color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:.05em;font-size:14px}
+.form{display:flex;gap:6px}
+.form i{font-style:normal;width:30px;height:30px;display:grid;place-items:center;border-radius:6px;font-family:var(--display);font-weight:800;font-size:17px}
+.form i.W{background:color-mix(in srgb,var(--win) 20%,transparent);color:var(--win)}
+.form i.L{background:color-mix(in srgb,var(--loss) 20%,transparent);color:var(--loss)}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.kpi{border-top:1px solid var(--line);padding-top:10px}
+.kpi b{display:block;font-family:var(--display);font-weight:800;font-size:30px;line-height:1}
+.kpi small{color:var(--muted);font-size:12.5px}
+.last{border-top:1px solid var(--line);padding-top:12px;font-size:14.5px;color:var(--muted)}
+.last b{color:var(--fg)}
+
+/* sections */
+main{padding-block:12px 60px}
+section{padding-top:44px;scroll-margin-top:70px}
+.sec-head{display:flex;align-items:end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px;padding-bottom:12px;border-bottom:2px solid var(--purple-deep);position:relative}
+.sec-head::after{content:"";position:absolute;left:0;bottom:-2px;width:64px;height:2px;background:var(--gold)}
+.sec-head p{color:var(--muted);max-width:60ch}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g-73{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)}
+@media (max-width:900px){.g2,.g3,.g-73{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;min-width:0}
+.card h3{margin-bottom:12px}
+.src{margin-top:12px;font-size:12.5px;color:var(--faint)}
+.src a{color:var(--muted)}
+
+/* schedule */
+.sched{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.gm{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--surface);display:flex;flex-direction:column;gap:4px;min-height:92px;position:relative}
+.gm .top{display:flex;justify-content:space-between;align-items:center}
+.gm .wk{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.08em}
+.gm .opp{font-family:var(--display);font-weight:800;font-size:21px;text-transform:uppercase;line-height:1}
+.gm .opp em{font-style:normal;color:var(--faint);font-size:15px;margin-right:4px}
+.gm .meta{font-size:12.5px;color:var(--muted)}
+.gm .res{font-family:var(--display);font-weight:800;font-size:17px}
+.gm.W{border-left:4px solid var(--win)} .gm.W .res{color:var(--win)}
+.gm.L{border-left:4px solid var(--loss)} .gm.L .res{color:var(--loss)}
+.gm.next{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset;background:var(--gold-soft)}
+.gm.next .res{color:var(--gold)}
+.gm.bye{opacity:.6;justify-content:center;align-items:center;border-style:dashed}
+.tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+
+/* tables */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:right;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{text-align:right;padding:9px 8px;border-bottom:1px solid color-mix(in srgb,var(--line) 60%,transparent);white-space:nowrap}
+th:first-child,td:first-child{text-align:left;padding-left:0}
+td.p{font-weight:600}
+td.p small{color:var(--faint);font-weight:500;margin-left:6px;font-family:var(--mono);font-size:11px}
+tr.us td{color:var(--fg);font-weight:700}
+tr.us td:first-child{box-shadow:inset 3px 0 0 var(--gold);padding-left:10px}
+
+/* chart */
+.chart svg{width:100%;height:auto;display:block}
+.chart text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
+.chart .lbl{fill:var(--fg);font-size:11px}
+.legend{display:flex;gap:16px;font-size:13px;color:var(--muted);margin-bottom:8px;flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+
+/* leaders */
+.leader{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:9px 0;border-bottom:1px solid color-mix(in srgb,var(--line) 60%,transparent)}
+.leader:last-child{border-bottom:0}
+.leader .n{font-weight:600;min-width:0}
+.leader .n small{display:block;font-size:12.5px;color:var(--muted);font-weight:500}
+.leader .v{font-family:var(--display);font-weight:800;font-size:26px;line-height:1;flex:none}
+.leader .v small{font-family:var(--mono);font-size:11px;color:var(--muted);font-weight:500;margin-left:4px}
+.meter{height:4px;background:var(--surface2);border-radius:2px;margin-top:6px;overflow:hidden}
+.meter i{display:block;height:100%;background:linear-gradient(90deg,var(--purple),var(--gold))}
+
+/* injuries */
+.inj{display:grid;gap:10px}
+.inj-row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;padding:12px 0;border-bottom:1px solid color-mix(in srgb,var(--line) 60%,transparent)}
+.inj-row:last-child{border-bottom:0}
+.st{grid-row:span 2;align-self:start;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;padding:4px 8px;border-radius:4px;white-space:nowrap;border:1px solid}
+.st.q{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 50%,transparent);background:color-mix(in srgb,var(--warn) 12%,transparent)}
+.st.ok{color:var(--win);border-color:color-mix(in srgb,var(--win) 50%,transparent);background:color-mix(in srgb,var(--win) 12%,transparent)}
+.st.ir{color:var(--loss);border-color:color-mix(in srgb,var(--loss) 50%,transparent);background:color-mix(in srgb,var(--loss) 12%,transparent)}
+.inj-row b{font-weight:700}
+.inj-row b small{color:var(--muted);font-weight:500;font-family:var(--mono);font-size:11px;margin-left:6px}
+.inj-row p{font-size:14px;color:var(--muted)}
+
+/* news */
+.news{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.story{display:flex;flex-direction:column;gap:6px;text-decoration:none;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;transition:border-color .15s,transform .15s}
+.story:hover{border-color:var(--purple);transform:translateY(-2px)}
+.story .label{display:flex;justify-content:space-between}
+.story h4{margin:0;font-size:17px;line-height:1.3;font-weight:700;text-wrap:balance}
+.story p{font-size:14px;color:var(--muted)}
+.story.lead{grid-column:span 2;background:linear-gradient(135deg,var(--purple-deep),color-mix(in srgb,var(--purple-deep) 40%,var(--surface)));border-color:transparent;color:#fff}
+.story.lead h4{font-family:var(--display);font-size:32px;font-weight:800;text-transform:uppercase;line-height:1.02}
+.story.lead p,.story.lead .label{color:rgba(255,255,255,.78)}
+@media (max-width:600px){.story.lead{grid-column:auto}}
+.quick{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-size:13.5px;font-weight:600;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg)}
+.chip:hover{border-color:var(--gold);color:var(--gold)}
+
+/* fantasy */
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--surface2)}
+.seg button{border:0;background:none;color:var(--muted);font:600 13px var(--body);padding:6px 12px;border-radius:999px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--purple);color:#fff}
+.take{display:grid;gap:10px}
+.take div{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:start}
+.verdict{font-family:var(--display);font-weight:800;font-size:14px;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px;min-width:62px;text-align:center}
+.verdict.s{background:color-mix(in srgb,var(--win) 18%,transparent);color:var(--win)}
+.verdict.f{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+.verdict.w{background:color-mix(in srgb,var(--purple) 22%,transparent);color:var(--purple)}
+.take p{font-size:14.5px;color:var(--muted)}
+.take p b{color:var(--fg)}
+
+/* film vault */
+.vault{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.reel{display:grid;grid-template-columns:62px minmax(0,1fr);gap:14px;text-decoration:none;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;transition:border-color .15s}
+.reel:hover{border-color:var(--gold)}
+.reel .yr{font-family:var(--display);font-weight:900;font-size:30px;line-height:.9;color:var(--gold);border-right:1px solid var(--line);padding-right:10px}
+.reel .yr small{display:block;font-family:var(--mono);font-size:10px;color:var(--faint);font-weight:500;margin-top:6px;letter-spacing:.06em}
+.reel h4{margin:0 0 3px;font-size:16px;font-weight:700;line-height:1.25}
+.reel p{font-size:13.5px;color:var(--muted)}
+.reel .score{font-family:var(--mono);font-size:12px;color:var(--fg);margin-top:6px;display:flex;align-items:center;gap:6px}
+.play{width:16px;height:16px;flex:none}
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+
+/* history */
+.banners{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+@media (max-width:600px){.banners{grid-template-columns:1fr}}
+.banner{position:relative;border-radius:var(--r);padding:22px 20px 20px;color:#fff;background:linear-gradient(160deg,#2b1c86,#120b3d);overflow:hidden;border:1px solid color-mix(in srgb,#d1ad45 40%,transparent)}
+.banner::after{content:"";position:absolute;right:-30px;bottom:-30px;width:140px;height:140px;border-radius:50%;border:18px solid rgba(209,173,69,.16)}
+.banner .sb{font-family:var(--display);font-weight:900;font-size:54px;line-height:.85;color:#e2c063}
+.banner .t{font-family:var(--display);font-weight:800;font-size:22px;text-transform:uppercase;margin-top:6px}
+.banner p{color:rgba(255,255,255,.78);font-size:14px;margin-top:6px;max-width:42ch;position:relative;z-index:1}
+.timeline{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.timeline li{display:grid;grid-template-columns:64px minmax(0,1fr);gap:14px;padding:11px 0;border-bottom:1px solid color-mix(in srgb,var(--line) 60%,transparent)}
+.timeline li:last-child{border-bottom:0}
+.timeline .y{font-family:var(--display);font-weight:800;font-size:24px;line-height:1;color:var(--purple)}
+.timeline p{font-size:14.5px;color:var(--muted)}
+.timeline p b{color:var(--fg)}
+.hof{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.hof div{border:1px solid var(--line);border-radius:8px;padding:12px;background:var(--surface2)}
+.hof b{display:block;font-family:var(--display);font-weight:800;font-size:19px;text-transform:uppercase;line-height:1.05}
+.hof small{color:var(--muted);font-size:12.5px}
+.hof .cls{font-family:var(--mono);font-size:11px;color:var(--gold);margin-top:4px;display:block}
+blockquote{margin:16px 0 0;padding:14px 16px;border-left:3px solid var(--gold);background:var(--gold-soft);border-radius:0 8px 8px 0;font-style:italic;color:var(--fg)}
+blockquote cite{display:block;font-style:normal;color:var(--muted);font-size:13px;margin-top:6px}
+
+/* ask */
+.ask{display:grid;gap:12px}
+.ask form{display:flex;gap:8px;flex-wrap:wrap}
+.ask input{flex:1 1 260px;min-width:0;font:500 15px var(--body);padding:12px 14px;border-radius:8px;border:1px solid var(--line);background:var(--surface2);color:var(--fg)}
+.btn{font:700 14px var(--body);letter-spacing:.03em;text-transform:uppercase;padding:12px 18px;border-radius:8px;border:0;background:var(--gold);color:#1a1233;cursor:pointer}
+.btn:disabled{opacity:.5;cursor:default}
+.answer{white-space:pre-wrap;font-size:15px;line-height:1.6;min-height:1.6em;color:var(--fg)}
+.answer.muted{color:var(--muted)}
+.sugg{display:flex;flex-wrap:wrap;gap:6px}
+.sugg button{font:500 13px var(--body);padding:6px 11px;border-radius:999px;border:1px solid var(--line);background:none;color:var(--muted);cursor:pointer}
+.sugg button:hover{color:var(--fg);border-color:var(--purple)}
+
+footer{border-top:1px solid var(--line);padding-block:26px;color:var(--faint);font-size:13px}
+footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+footer a{color:var(--muted)}
+</style>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="The Nest home">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path fill="var(--purple)" d="M3 19c4-1 7-4 9-8 1 3 0 5-1 7 3-1 6-4 8-8l2 3c2-1 4-1 6 0-2 0-3 1-4 2l4 2-5 0c-1 4-5 7-10 8 2-1 3-3 3-5-4 2-8 2-12-1z"/><circle cx="23.5" cy="13.6" r="1.1" fill="var(--gold)"/></svg>
+      <b>The Nest</b>
+    </a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#lamar">Lamar</a><a href="#season">Season</a><a href="#stats">Stats</a><a href="#news">News</a><a href="#fantasy">Fantasy</a><a href="#film">Film vault</a><a href="#history">History</a><a href="#ask">Ask</a>
+    </nav>
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="Switch light or dark theme" title="Day game / night game">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v3M12 20v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M1 12h3M20 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>
+    </button>
+  </div>
+</header>
+
+<div class="hero" id="top">
+  <div class="wrap">
+    <div>
+      <div class="eyebrow"><span class="pill gold" id="nextWeek">Week 6 · Next up</span><span class="pill"><span class="dot"></span><span id="asof"></span></span></div>
+      <div class="matchup" id="matchup"></div>
+      <div class="gameinfo" id="gameinfo"></div>
+      <div class="clock" id="clock" aria-live="off"></div>
+    </div>
+    <aside class="board-side" aria-label="Season at a glance">
+      <div class="label"><span id="seasonLbl"></span> season</div>
+      <div class="bigrec"><span class="r num" id="bigrec"></span><span class="d" id="divpos"></span></div>
+      <div class="form" id="form" aria-label="Results so far"></div>
+      <div class="kpis" id="kpis"></div>
+      <p class="last" id="last"></p>
+    </aside>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <section id="lamar">
+    <div class="sec-head"><h2>Lamar updates</h2><p>The daily check on No. 8. Newest first.</p></div>
+    <div class="grid g-73">
+      <div class="card">
+        <div class="label" id="lamarDate"></div>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:8px 0 6px"><span class="st q" id="lamarStatus"></span></div>
+        <h3 id="lamarHead" style="margin-bottom:10px"></h3>
+        <p style="color:var(--muted)" id="lamarSeason"></p>
+      </div>
+      <div class="card"><h3>Log</h3><ul class="timeline" id="lamarLog"></ul></div>
+    </div>
+  </section>
+
+  <section id="season">
+    <div class="sec-head"><h2>The 2026 Season</h2><p id="staffLine"></p></div>
+    <div class="sched" id="sched"></div>
+    <div class="grid g-73" style="margin-top:16px">
+      <div class="card chart">
+        <h3>Points by game</h3>
+        <div class="legend"><span><i style="background:var(--purple)"></i>Ravens</span><span><i style="background:var(--faint)"></i>Opponent</span><span><i style="background:var(--gold)"></i>Margin</span></div>
+        <div id="chart"></div>
+      </div>
+      <div class="card">
+        <h3>AFC North</h3>
+        <div class="tbl-wrap"><table id="standings"><thead><tr><th>Team</th><th>W-L</th><th>PF</th><th>PA</th><th>Diff</th></tr></thead><tbody></tbody></table></div>
+        <p class="src">Source: <a href="https://www.pro-football-reference.com/years/2026/" target="_blank" rel="noopener">Pro Football Reference</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="stats">
+    <div class="sec-head"><h2>Stat leaders</h2><p>Season totals through Week 5.</p></div>
+    <div class="grid g3">
+      <div class="card"><h3>Passing</h3><div id="ldPass"></div></div>
+      <div class="card"><h3>Rushing</h3><div id="ldRush"></div></div>
+      <div class="card"><h3>Receiving</h3><div id="ldRec"></div></div>
+    </div>
+    <div class="grid g2" style="margin-top:16px">
+      <div class="card"><h3>Defense</h3><div class="grid g3" id="ldDef" style="gap:18px"></div></div>
+      <div class="card"><h3>Injury report</h3><div class="inj" id="inj"></div>
+        <p class="src">Per Jesse Minter's Monday update · <a href="https://www.baltimoreravens.com/news/news-notes-injury-updates-lamar-jackson-cam-jurgens-trey-hendrickson-jakobi-lane-mike-green-vega-ioane" target="_blank" rel="noopener">Ravens.com</a></p></div>
+    </div>
+    <p class="src">Stats: <a href="https://www.pro-football-reference.com/teams/rav/2026.htm" target="_blank" rel="noopener">Pro Football Reference, 2026 Ravens</a></p>
+  </section>
+
+  <section id="news">
+    <div class="sec-head"><h2>Latest news</h2><p>Headlines open at the source.</p></div>
+    <div class="news" id="newsList"></div>
+    <div class="quick">
+      <a class="chip" href="https://www.baltimoreravens.com/news/" target="_blank" rel="noopener">Ravens.com news</a>
+      <a class="chip" href="https://www.baltimoreravens.com/video/" target="_blank" rel="noopener">Ravens.com video</a>
+      <a class="chip" href="https://www.baltimoresun.com/sports/nfl/baltimore-ravens/" target="_blank" rel="noopener">Baltimore Sun</a>
+      <a class="chip" href="https://www.thebaltimorebanner.com/sports/ravens/" target="_blank" rel="noopener">Baltimore Banner</a>
+      <a class="chip" href="https://www.espn.com/nfl/team/_/name/bal/baltimore-ravens" target="_blank" rel="noopener">ESPN</a>
+      <a class="chip" href="https://www.nfl.com/teams/baltimore-ravens/" target="_blank" rel="noopener">NFL.com</a>
+      <a class="chip" href="https://www.reddit.com/r/ravens/" target="_blank" rel="noopener">r/ravens</a>
+    </div>
+  </section>
+
+  <section id="fantasy">
+    <div class="sec-head"><h2>Fantasy corner</h2>
+      <div class="seg" role="group" aria-label="Scoring format">
+        <button type="button" data-ppr="0" aria-pressed="false">Standard</button>
+        <button type="button" data-ppr="0.5" aria-pressed="true">Half PPR</button>
+        <button type="button" data-ppr="1" aria-pressed="false">PPR</button>
+      </div>
+    </div>
+    <div class="grid g-73">
+      <div class="card">
+        <h3>Season fantasy points</h3>
+        <div class="tbl-wrap"><table id="fant"><thead><tr><th>Player</th><th>Pass</th><th>Rush</th><th>Rec</th><th>TD</th><th>Pts</th><th>Per game*</th></tr></thead><tbody></tbody></table></div>
+        <p class="src">Scoring: 1 pt per 25 pass yds, 4 per pass TD, −2 per INT, 1 per 10 rush/rec yds, 6 per rush/rec TD, plus your reception bonus. *Per team game (5); players who missed games read low.</p>
+      </div>
+      <div class="card">
+        <h3 id="takeTitle">Week 6 at Cleveland</h3>
+        <div class="take" id="take"></div>
+        <p class="src">Claude's read from the numbers above, not expert advice. Check Wednesday's practice report for Lamar.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="film">
+    <div class="sec-head"><h2>Film vault</h2><p>This season's highlights and the classics. Each opens a YouTube search for the game's footage.</p>
+      <div class="filters seg" role="group" aria-label="Filter film">
+        <button type="button" data-f="all" aria-pressed="true">All</button>
+        <button type="button" data-f="2026" aria-pressed="false">2026</button>
+        <button type="button" data-f="classic" aria-pressed="false">Classics</button>
+      </div>
+    </div>
+    <div class="vault" id="vault"></div>
+    <div class="quick">
+      <a class="chip" href="https://www.nfl.com/plus/" target="_blank" rel="noopener">Full game replays on NFL+</a>
+      <a class="chip" href="https://www.youtube.com/results?search_query=NFL+Films+Baltimore+Ravens" target="_blank" rel="noopener">NFL Films: Ravens</a>
+      <a class="chip" href="https://www.youtube.com/results?search_query=Baltimore+Ravens+full+game" target="_blank" rel="noopener">Search full games</a>
+    </div>
+  </section>
+
+  <section id="history">
+    <div class="sec-head"><h2>Ravens history</h2><p>Thirty-one seasons in Baltimore.</p></div>
+    <div class="banners">
+      <div class="banner"><div class="sb">XXXV</div><div class="t">Ravens 34, Giants 7</div><p>Jan. 28, 2001 in Tampa. The 2000 defense allowed 165 points, a record for a 16-game season, and Ray Lewis was Super Bowl MVP.</p></div>
+      <div class="banner"><div class="sb">XLVII</div><div class="t">Ravens 34, 49ers 31</div><p>Feb. 3, 2013 in New Orleans. Joe Flacco was MVP, Jacoby Jones went 108 yards on a kickoff, and Ray Lewis rode off a champion.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="card"><h3>Timeline</h3><ul class="timeline" id="timeline"></ul></div>
+      <div class="card">
+        <h3>Hall of Famers</h3>
+        <div class="hof" id="hof"></div>
+        <blockquote>Quoth the Raven, "Nevermore."<cite>Edgar Allan Poe, The Raven (1845). Fans chose the team name in 1996 to honor Poe, who is buried in Baltimore.</cite></blockquote>
+      </div>
+    </div>
+  </section>
+
+  <section id="ask">
+    <div class="sec-head"><h2>Ask the Nest</h2><p>Trivia, history, or this season's numbers. Claude answers from the data on this page plus its own football knowledge.</p></div>
+    <div class="card ask">
+      <form id="askForm">
+        <label for="q" class="label" style="flex-basis:100%">Your question</label>
+        <input id="q" name="q" autocomplete="off" placeholder="Who caught the Mile High Miracle?" maxlength="300">
+        <button class="btn" id="askBtn" type="submit">Ask</button>
+      </form>
+      <div class="sugg" id="sugg"></div>
+      <div class="answer muted" id="answer" aria-live="polite">Answers appear here.</div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>The Nest · a fan-made Ravens page, not affiliated with the team or the NFL.</span>
+    <span id="foot"></span>
+  </div>
+</footer>
+
+<script id="ravens-data" type="application/json">{"asOf": "2026-10-13", "asOfLabel": "Tue, Oct 13, 2026 · after Week 5", "season": 2026, "coach": "Jesse Minter", "coordinators": {"oc": "Declan Doyle", "dc": "Anthony Weaver", "gm": "Eric DeCosta"}, "record": {"w": 4, "l": 1, "t": 0, "division": "1st in AFC North", "pf": 146, "pa": 119, "pfRank": 6, "paRank": 19}, "nextGame": {"week": 6, "opponent": "Cleveland Browns", "abbr": "CLE", "home": false, "kickoff": "2026-10-18T13:00:00-04:00", "tv": "FOX", "venue": "Huntington Bank Field, Cleveland", "oppRecord": "3-2", "oppCoach": "Todd Monken", "oppQB": "Deshaun Watson", "oppNotes": ["Browns score 18.6 points a game (27th) and allow 22.4 (14th).", "Watson: 1,010 pass yds, 7 TD, 2 INT. Rookie WR Denzel Boston leads with 330 yds and 3 TD.", "Cleveland lost 17-12 at the Jets in Week 5."]}, "schedule": [{"wk": 1, "date": "2026-09-13", "opp": "Colts", "abbr": "IND", "home": false, "res": "W", "us": 41, "them": 23, "tv": "CBS", "note": ""}, {"wk": 2, "date": "2026-09-20", "opp": "Saints", "abbr": "NO", "home": true, "res": "L", "us": 17, "them": 24, "tv": "CBS", "note": ""}, {"wk": 3, "date": "2026-09-27", "opp": "Cowboys", "abbr": "DAL", "home": false, "res": "W", "us": 34, "them": 31, "tv": "CBS", "note": "Rio de Janeiro"}, {"wk": 4, "date": "2026-10-04", "opp": "Titans", "abbr": "TEN", "home": true, "res": "W", "us": 24, "them": 18, "tv": "CBS", "note": ""}, {"wk": 5, "date": "2026-10-11", "opp": "Falcons", "abbr": "ATL", "home": false, "res": "W", "us": 30, "them": 23, "tv": "NBC", "note": "OT"}, {"wk": 6, "date": "2026-10-18", "time": "1:00 PM", "opp": "Browns", "abbr": "CLE", "home": false, "tv": "FOX"}, {"wk": 7, "date": "2026-10-25", "time": "1:00 PM", "opp": "Bengals", "abbr": "CIN", "home": true, "tv": "CBS"}, {"wk": 8, "date": "2026-11-01", "time": "1:00 PM", "opp": "Bills", "abbr": "BUF", "home": false, "tv": "CBS"}, {"wk": 9, "date": "2026-11-05", "time": "8:15 PM", "opp": "Jaguars", "abbr": "JAX", "home": true, "tv": "Prime Video", "note": "Thursday"}, {"wk": 10, "date": "2026-11-16", "time": "8:15 PM", "opp": "Chargers", "abbr": "LAC", "home": true, "tv": "ESPN", "note": "Monday"}, {"wk": 11, "date": "2026-11-22", "time": "1:00 PM", "opp": "Panthers", "abbr": "CAR", "home": false, "tv": "FOX"}, {"wk": 12, "date": "2026-11-29", "time": "1:00 PM", "opp": "Texans", "abbr": "HOU", "home": false, "tv": "CBS"}, {"wk": 13, "bye": true}, {"wk": 14, "date": "2026-12-13", "time": "1:00 PM", "opp": "Buccaneers", "abbr": "TB", "home": true, "tv": "FOX"}, {"wk": 15, "date": "2026-12-20", "time": "1:00 PM", "opp": "Steelers", "abbr": "PIT", "home": false, "tv": "CBS"}, {"wk": 16, "date": "2026-12-27", "time": "1:00 PM", "opp": "Browns", "abbr": "CLE", "home": true, "tv": "CBS"}, {"wk": 17, "date": "2026-12-31", "time": "8:15 PM", "opp": "Bengals", "abbr": "CIN", "home": false, "tv": "Prime Video", "note": "Thursday"}, {"wk": 18, "date": "2027-01-10", "time": "TBD", "opp": "Steelers", "abbr": "PIT", "home": true, "tv": "TBD", "note": "Date TBD (Jan 9 or 10)"}], "standings": [{"team": "Ravens", "abbr": "BAL", "w": 4, "l": 1, "pf": 146, "pa": 119, "us": true}, {"team": "Steelers", "abbr": "PIT", "w": 3, "l": 2, "pf": 111, "pa": 109}, {"team": "Browns", "abbr": "CLE", "w": 3, "l": 2, "pf": 93, "pa": 112}, {"team": "Bengals", "abbr": "CIN", "w": 3, "l": 2, "pf": 128, "pa": 109}], "passing": [{"name": "Lamar Jackson", "pos": "QB", "cmp": 68, "att": 96, "yds": 967, "td": 6, "int": 1, "rate": 119.6}, {"name": "Tyler Huntley", "pos": "QB", "cmp": 32, "att": 41, "yds": 264, "td": 2, "int": 0, "rate": 109.8}], "rushing": [{"name": "Derrick Henry", "pos": "RB", "att": 113, "yds": 476, "td": 7}, {"name": "Lamar Jackson", "pos": "QB", "att": 19, "yds": 144, "td": 1}, {"name": "Justice Hill", "pos": "RB", "att": 18, "yds": 133, "td": 0}, {"name": "Tyler Huntley", "pos": "QB", "att": 10, "yds": 36, "td": 1}, {"name": "Zay Flowers", "pos": "WR", "att": 2, "yds": 33, "td": 0}], "receiving": [{"name": "Zay Flowers", "pos": "WR", "rec": 26, "yds": 405, "td": 2}, {"name": "Rashod Bateman", "pos": "WR", "rec": 16, "yds": 233, "td": 1}, {"name": "Mark Andrews", "pos": "TE", "rec": 22, "yds": 177, "td": 1}, {"name": "Devontez Walker", "pos": "WR", "rec": 4, "yds": 75, "td": 1}, {"name": "Matthew Hibner", "pos": "TE", "rec": 5, "yds": 70, "td": 1}, {"name": "Derrick Henry", "pos": "RB", "rec": 8, "yds": 62, "td": 1}], "defense": {"sacks": [["Tavius Robinson", 3], ["Mike Green", 2], ["Roquan Smith", 1], ["Trey Hendrickson", 1], ["Malaki Starks", 1], ["Trenton Simpson", 1], ["Ethan Burke", 1]], "tackles": [["Roquan Smith", 42], ["Kyle Hamilton", 39], ["Trenton Simpson", 33], ["Malaki Starks", 33]], "ints": [["Kyle Hamilton", 1], ["Trenton Simpson", 1], ["Roquan Smith", 1]]}, "injuries": [{"name": "Lamar Jackson", "pos": "QB", "injury": "Ankle", "status": "Questionable", "note": "Improving. Minter wasn't sure he'd practice Wednesday; clarity expected midweek. Tyler Huntley started Week 5."}, {"name": "Trey Hendrickson", "pos": "OLB", "injury": "Finger", "status": "Possible return", "note": "Missed the last two games; could return at Cleveland."}, {"name": "Ja'Kobi Lane", "pos": "WR", "injury": "Wrist", "status": "IR, eligible", "note": "Rookie has missed four games and is eligible to come off injured reserve."}, {"name": "Cam Jurgens", "pos": "C", "injury": "Concussion", "status": "Final stages", "note": "In the finishing stages of the protocol; could make his Ravens debut. Vega Ioane would slide back to right guard."}], "lamar": {"status": "Ankle, improving", "statusLevel": "q", "headline": "Week 6 status unclear; Minter expects more clarity midweek", "season": "68/96, 967 yds, 6 TD, 1 INT, 119.6 rating. 19 rushes for 144 yds and a TD.", "entries": [{"date": "2026-10-12", "text": "Jesse Minter says Lamar's ankle is improving but he isn't sure whether Lamar will practice Wednesday. He expects more clarity mid-week.", "url": "https://www.baltimoreravens.com/news/news-notes-injury-updates-lamar-jackson-cam-jurgens-trey-hendrickson-jakobi-lane-mike-green-vega-ioane", "src": "Ravens.com"}, {"date": "2026-10-11", "text": "Lamar sits out the 30-23 overtime win at Atlanta. Tyler Huntley starts (24-of-32, 201 yds, three total TDs) and wins it with a QB sneak.", "url": "https://www.baltimoreravens.com/news/game-recap-ravens-defeat-falcons-nfl-week-5", "src": "Ravens.com"}, {"date": "2026-10-09", "text": "Ravens preview the Falcons game with Lamar out with the ankle injury and Huntley set to start.", "url": "https://www.baltimoreravens.com/news/ravens-falcons-game-preview-week-5-2026-lamar-jackson-ankle-tyler-huntley-bijan-robinson", "src": "Ravens.com"}]}, "news": [{"date": "2026-10-12", "title": "Injury updates on Lamar Jackson and several teammates", "blurb": "Minter owns the third-down defense, and Mike Green and Vega Ioane draw praise.", "url": "https://www.baltimoreravens.com/news/news-notes-injury-updates-lamar-jackson-cam-jurgens-trey-hendrickson-jakobi-lane-mike-green-vega-ioane", "src": "Ravens.com"}, {"date": "2026-10-12", "title": "Game recap: Ravens rise late, defeat Falcons in overtime", "blurb": "Huntley's QB sneak caps a 14-play, 68-yard OT drive; Henry runs for 102.", "url": "https://www.baltimoreravens.com/news/game-recap-ravens-defeat-falcons-nfl-week-5", "src": "Ravens.com"}, {"date": "2026-10-12", "title": "Sweet Home Atlanta: Kyle Hamilton seals the overtime win", "blurb": "Hamilton's interception ended Atlanta's last chance.", "url": "https://www.baltimoreravens.com/news/kyle-hamilton-ravens-falcons-overtime-win-interception-2026", "src": "Ravens.com"}, {"date": "2026-10-12", "title": "Derrick Henry broke out the receipts after the win in Atlanta", "blurb": "Henry answered everyone who picked against Baltimore without Lamar.", "url": "https://www.baltimoreravens.com/news/derrick-henry-receipts-ravens-falcons-overtime-upset-win-atlanta-2026", "src": "Ravens.com"}, {"date": "2026-10-12", "title": "Tyler Huntley delivers (again) with the faith of his teammates", "blurb": "11 straight completions across the final two scoring drives.", "url": "https://www.baltimoreravens.com/news/tyler-huntley-smile-faith-teammates-atlanta-overtime-win-ravens-falcons-2026", "src": "Ravens.com"}, {"date": "2026-10-12", "title": "Grades & snap counts: Calais Campbell shows he's still got it", "blurb": "Malaki Starks and Vega Ioane also stood out.", "url": "https://www.baltimoreravens.com/news/grades-snap-counts-ravens-falcons-calais-campbell-malaki-starks-nick-vannett-tyler-huntley-vega-ioane", "src": "Ravens.com"}, {"date": "2026-10-12", "title": "The Breakdown: resilient Ravens have a great vibe going", "blurb": "Why Atlanta could be a turning point.", "url": "https://www.baltimoreravens.com/news/ravens-resilient-atlanta-win-could-be-turning-point-ravens-falcons-sunday-night-week-5", "src": "Ravens.com"}, {"date": "2026-10-12", "title": "Around the AFC North: Schwesinger could play vs. Ravens", "blurb": "Bengals on bye before visiting Baltimore in Week 7.", "url": "https://www.baltimoreravens.com/news/injured-carson-schwesinger-could-face-ravens-week-6-todd-monken-bengals-have-bye-before-facing-ravens-around-afc-north", "src": "Ravens.com"}, {"date": "2026-10-11", "title": "Ravens 30, Falcons 23 (OT): ESPN recap", "blurb": "Box score and play-by-play.", "url": "https://www.espn.com/nfl/recap/_/gameId/401872993", "src": "ESPN"}]}</script>
+<script>
+(function(){
+const D = JSON.parse(document.getElementById('ravens-data').textContent);
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const yt = q => 'https://www.youtube.com/results?search_query=' + encodeURIComponent(q);
+const fmtDate = (iso, opts) => new Date(iso + 'T12:00:00').toLocaleDateString('en-US', opts || {month:'short', day:'numeric'});
+
+/* theme toggle */
+const root = document.documentElement;
+try { const t = localStorage.getItem('nest-theme'); if (t) root.setAttribute('data-theme', t); } catch(e){}
+$('#themeBtn').addEventListener('click', () => {
+  const cur = root.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  const nxt = cur === 'light' ? 'dark' : 'light';
+  root.setAttribute('data-theme', nxt);
+  try { localStorage.setItem('nest-theme', nxt); } catch(e){}
+});
+
+/* hero */
+const N = D.nextGame, R = D.record;
+$('#asof').textContent = 'Updated ' + D.asOfLabel;
+$('#nextWeek').textContent = 'Week ' + N.week + ' · Next up';
+$('#matchup').innerHTML = `
+  <div class="team"><span class="abbr us">BAL</span><span class="rec num">Ravens · ${R.w}-${R.l}</span></div>
+  <span class="at">${N.home ? 'VS' : '@'}</span>
+  <div class="team"><span class="abbr them">${esc(N.abbr)}</span><span class="rec num">${esc(N.opponent.split(' ').pop())} · ${esc(N.oppRecord)}</span></div>`;
+const ko = new Date(N.kickoff);
+$('#gameinfo').innerHTML = `<span><b>${ko.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}</b> · ${ko.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZone:'America/New_York'})} ET</span><span>TV <b>${esc(N.tv)}</b></span><span>${esc(N.venue)}</span>`;
+function tick(){
+  let ms = ko - Date.now();
+  if (ms <= 0) { $('#clock').innerHTML = `<div style="min-width:auto;padding:10px 14px"><span style="font-size:28px">${ms > -4*3600e3 ? 'Game on' : 'Final soon'}</span><small>Kickoff passed</small></div>`; return; }
+  const d = Math.floor(ms/864e5), h = Math.floor(ms/36e5)%24, m = Math.floor(ms/6e4)%60, s = Math.floor(ms/1e3)%60;
+  $('#clock').innerHTML = [[d,'days'],[h,'hrs'],[m,'min'],[s,'sec']].map(([v,l]) => `<div><span>${String(v).padStart(2,'0')}</span><small>${l}</small></div>`).join('');
+}
+tick(); setInterval(tick, 1000);
+
+$('#seasonLbl').textContent = D.season;
+$('#bigrec').textContent = R.w + '-' + R.l + (R.t ? '-' + R.t : '');
+$('#divpos').textContent = R.division;
+const played = D.schedule.filter(g => g.res);
+$('#form').innerHTML = played.map(g => `<i class="${g.res}" title="Wk ${g.wk} ${g.home?'vs':'@'} ${esc(g.opp)} ${g.us}-${g.them}">${g.res}</i>`).join('');
+const ppg = (R.pf / played.length).toFixed(1), papg = (R.pa / played.length).toFixed(1);
+$('#kpis').innerHTML = `
+  <div class="kpi"><b class="num">${ppg}</b><small>Pts/game · ${ordinal(R.pfRank)}</small></div>
+  <div class="kpi"><b class="num">${papg}</b><small>Allowed · ${ordinal(R.paRank)}</small></div>
+  <div class="kpi"><b class="num">${R.pf - R.pa > 0 ? '+' : ''}${R.pf - R.pa}</b><small>Point diff</small></div>`;
+const lg = played[played.length-1];
+$('#last').innerHTML = `<b>Last time out:</b> ${lg.res === 'W' ? 'Beat' : 'Lost to'} the ${esc(lg.opp)} ${lg.us}-${lg.them}${lg.note==='OT'?' in overtime':''} (Wk ${lg.wk}). Tyler Huntley's QB sneak won it, Kyle Hamilton's pick sealed it.`;
+function ordinal(n){ const s=['th','st','nd','rd'], v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]); }
+
+/* schedule */
+$('#staffLine').textContent = `Year one under head coach ${D.coach}. OC ${D.coordinators.oc}, DC ${D.coordinators.dc}, GM ${D.coordinators.gm}.`;
+let markedNext = false;
+$('#sched').innerHTML = D.schedule.map(g => {
+  if (g.bye) return `<div class="gm bye"><span class="wk">WK ${g.wk}</span><span class="opp">Bye</span></div>`;
+  let cls = g.res || '', res;
+  if (g.res) res = `${g.res} ${g.us}-${g.them}${g.note==='OT'?' OT':''}`;
+  else { res = `${g.time} ET`; if (!markedNext) { cls = 'next'; markedNext = true; } }
+  const note = g.note && g.note !== 'OT' ? `<span class="tag">${esc(g.note.replace(/ \(.*\)/,''))}</span>` : (g.res ? '' : `<span class="tag">${esc(g.tv)}</span>`);
+  return `<div class="gm ${cls}"><div class="top"><span class="wk">WK ${g.wk} · ${fmtDate(g.date)}</span>${note}</div>
+    <span class="opp"><em>${g.home?'vs':'@'}</em>${esc(g.opp)}</span><span class="res num">${res}</span></div>`;
+}).join('');
+
+/* chart */
+(function(){
+  const W = 560, H = 230, pl = 30, pr = 10, pt = 14, pb = 36;
+  const max = Math.ceil(Math.max(...played.flatMap(g => [g.us, g.them])) / 10) * 10;
+  const y = v => pt + (H - pt - pb) * (1 - v / max);
+  const gw = (W - pl - pr) / played.length, bw = Math.min(26, gw / 3.4);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Ravens points scored and allowed in each game">`;
+  for (let v = 0; v <= max; v += 10) s += `<line x1="${pl}" x2="${W-pr}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="${v?0.6:1}"/><text x="${pl-6}" y="${y(v)+4}" text-anchor="end">${v}</text>`;
+  played.forEach((g, i) => {
+    const cx = pl + gw * i + gw / 2;
+    s += `<rect x="${cx - bw - 2}" y="${y(g.us)}" width="${bw}" height="${y(0)-y(g.us)}" rx="2" fill="var(--purple)"/>`;
+    s += `<rect x="${cx + 2}" y="${y(g.them)}" width="${bw}" height="${y(0)-y(g.them)}" rx="2" fill="var(--faint)" opacity=".75"/>`;
+    s += `<text class="lbl" x="${cx - bw/2 - 2}" y="${y(g.us)-4}" text-anchor="middle">${g.us}</text>`;
+    s += `<text x="${cx + bw/2 + 2}" y="${y(g.them)-4}" text-anchor="middle">${g.them}</text>`;
+    const m = g.us - g.them;
+    s += `<text x="${cx}" y="${H-20}" text-anchor="middle">${g.abbr}</text><text x="${cx}" y="${H-6}" text-anchor="middle" style="fill:var(${m>0?'--gold':'--loss'})">${m>0?'+':''}${m}</text>`;
+  });
+  $('#chart').innerHTML = s + '</svg>';
+})();
+
+/* standings */
+$('#standings tbody').innerHTML = D.standings.slice().sort((a,b)=> (b.w-a.w) || ((b.pf-b.pa)-(a.pf-a.pa))).map(t => {
+  const d = t.pf - t.pa;
+  return `<tr class="${t.us?'us':''}"><td>${esc(t.team)}</td><td>${t.w}-${t.l}</td><td>${t.pf}</td><td>${t.pa}</td><td>${d>0?'+':''}${d}</td></tr>`;
+}).join('');
+
+/* leaders */
+const leaderRows = (rows, val, sub, unit) => { const mx = Math.max(...rows.map(val)); return rows.map(r => `
+  <div class="leader"><div class="n" style="flex:1">${esc(r.name)}<small>${sub(r)}</small><div class="meter"><i style="width:${Math.max(4, val(r)/mx*100)}%"></i></div></div><span class="v num">${val(r).toLocaleString()}<small>${unit}</small></span></div>`).join(''); };
+$('#ldPass').innerHTML = leaderRows(D.passing, r => r.yds, r => `${r.cmp}/${r.att} · ${r.td} TD · ${r.int} INT · ${r.rate} rtg`, 'yds');
+$('#ldRush').innerHTML = leaderRows(D.rushing.slice(0,4), r => r.yds, r => `${r.att} att · ${(r.yds/r.att).toFixed(1)} avg · ${r.td} TD`, 'yds');
+$('#ldRec').innerHTML = leaderRows(D.receiving.slice(0,4), r => r.yds, r => `${r.rec} rec · ${r.td} TD`, 'yds');
+const defCol = (title, arr, unit) => `<div><div class="label" style="margin-bottom:4px">${title}</div>${arr.slice(0,3).map(([n,v]) => `<div class="leader"><span class="n">${esc(n)}</span><span class="v num" style="font-size:22px">${v}</span></div>`).join('')}</div>`;
+$('#ldDef').innerHTML = defCol('Sacks', D.defense.sacks) + defCol('Tackles', D.defense.tackles) + defCol('Interceptions', D.defense.ints);
+
+/* injuries */
+$('#inj').innerHTML = D.injuries.map(p => {
+  const c = /IR/.test(p.status) ? 'ir' : /Possible|Final/.test(p.status) ? 'ok' : 'q';
+  return `<div class="inj-row"><span class="st ${c}">${esc(p.status)}</span><b>${esc(p.name)}<small>${esc(p.pos)} · ${esc(p.injury)}</small></b><p>${esc(p.note)}</p></div>`;
+}).join('');
+
+/* lamar */
+(function(){
+  const L = D.lamar, e0 = L.entries[0];
+  $('#lamarDate').textContent = 'Latest · ' + fmtDate(e0.date, {weekday:'short', month:'short', day:'numeric'});
+  const st = $('#lamarStatus'); st.textContent = L.status; st.className = 'st ' + (L.statusLevel || 'q');
+  $('#lamarHead').textContent = L.headline;
+  $('#lamarSeason').innerHTML = '<b>2026 so far:</b> ' + esc(L.season);
+  $('#lamarLog').innerHTML = L.entries.map(e => `<li><span class="y" style="font-size:18px;color:var(--gold)">${fmtDate(e.date)}</span><p>${esc(e.text)} <a href="${esc(e.url)}" target="_blank" rel="noopener" style="color:var(--muted)">${esc(e.src)}</a></p></li>`).join('');
+})();
+
+/* news */
+$('#newsList').innerHTML = D.news.map((n, i) => `
+  <a class="story ${i===0?'lead':''}" href="${esc(n.url)}" target="_blank" rel="noopener">
+    <span class="label"><span>${esc(n.src)}</span><span>${fmtDate(n.date)}</span></span>
+    <h4>${esc(n.title)}</h4><p>${esc(n.blurb)}</p></a>`).join('');
+
+/* fantasy */
+const players = {};
+const P = n => players[n] || (players[n] = {name:n, py:0, ptd:0, int:0, ry:0, rtd:0, rec:0, recy:0, rectd:0, pos:''});
+D.passing.forEach(r => Object.assign(P(r.name), {py:r.yds, ptd:r.td, int:r.int, pos:r.pos}));
+D.rushing.forEach(r => Object.assign(P(r.name), {ry:r.yds, rtd:r.td, pos:P(r.name).pos || r.pos}));
+D.receiving.forEach(r => Object.assign(P(r.name), {rec:r.rec, recy:r.yds, rectd:r.td, pos:P(r.name).pos || r.pos}));
+function renderFantasy(ppr){
+  const rows = Object.values(players).map(p => {
+    const pass = p.py/25 + p.ptd*4 - p.int*2, rush = p.ry/10 + p.rtd*6, rec = p.recy/10 + p.rectd*6 + p.rec*ppr;
+    return {...p, pass, rush, recp: rec, pts: pass + rush + rec, td: p.ptd + p.rtd + p.rectd};
+  }).sort((a,b) => b.pts - a.pts);
+  const f = v => v ? v.toFixed(1) : '–';
+  $('#fant tbody').innerHTML = rows.map(r => `<tr><td class="p">${esc(r.name)}<small>${r.pos}</small></td><td>${f(r.pass)}</td><td>${f(r.rush)}</td><td>${f(r.recp)}</td><td>${r.td}</td><td><b>${r.pts.toFixed(1)}</b></td><td>${(r.pts/played.length).toFixed(1)}</td></tr>`).join('');
+}
+document.querySelectorAll('#fantasy .seg button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('#fantasy .seg button').forEach(x => x.setAttribute('aria-pressed', x === b));
+  renderFantasy(+b.dataset.ppr);
+  try { localStorage.setItem('nest-ppr', b.dataset.ppr); } catch(e){}
+}));
+let ppr0 = '0.5'; try { ppr0 = localStorage.getItem('nest-ppr') || '0.5'; } catch(e){}
+document.querySelector(`#fantasy .seg button[data-ppr="${ppr0}"]`)?.click();
+
+$('#takeTitle').textContent = `Week ${N.week} ${N.home?'vs':'at'} ${N.opponent.split(' ').pop()}`;
+const takes = [
+  ['s','Start','<b>Derrick Henry.</b> 7 rushing TDs in five games and 102 yards on 24 carries in Atlanta. Workhorse volume either way at QB.'],
+  ['s','Start','<b>Zay Flowers.</b> 405 yards leads the team by 172. He was a game-time call last week and played.'],
+  ['f','Flex','<b>Lamar Jackson</b> is a QB1 if he practices fully. If <b>Tyler Huntley</b> starts, he is a superflex or 2-QB play only (201 yds, 3 total TD last week).'],
+  ['f','Flex','<b>Mark Andrews.</b> 22 catches but 8.0 yards per catch. Touchdown-dependent tight end this week.'],
+  ['w','Stream','<b>Ravens D/ST.</b> Cleveland scores 18.6 a game, 27th in the league, and Trey Hendrickson may be back.'],
+  ['w','Watch','<b>Ja\'Kobi Lane.</b> Rookie WR eligible to return from IR. Stash in deep leagues only.']
+];
+$('#take').innerHTML = takes.map(([c,v,t]) => `<div><span class="verdict ${c}">${v}</span><p>${t}</p></div>`).join('');
+
+/* film vault */
+const film = [
+  ...played.slice().reverse().map(g => ({cat:'2026', yr:'WK '+g.wk, sub:fmtDate(g.date), t:`${g.home?'vs':'at'} ${g.opp}`, d: g.note==='OT' ? 'Overtime thriller' : (g.note || (g.res==='W'?'Ravens win':'Ravens loss')), score:`${g.res} ${g.us}-${g.them}`, q:`Ravens vs ${g.opp} 2026 week ${g.wk} highlights`})),
+  {cat:'classic', yr:'2013', sub:'FEB 3', t:'Super Bowl XLVII', d:'The Harbaugh Bowl. Jacoby Jones 108-yard kickoff return, the blackout, the goal-line stand.', score:'W 34-31 vs SF', q:'Super Bowl XLVII Ravens 49ers full game highlights'},
+  {cat:'classic', yr:'2013', sub:'JAN 12', t:'The Mile High Miracle', d:'Flacco to Jacoby Jones, 70 yards, 31 seconds left. Won in double overtime at Denver.', score:'W 38-35 2OT at DEN', q:'Mile High Miracle Flacco Jacoby Jones Ravens Broncos 2013'},
+  {cat:'classic', yr:'2001', sub:'JAN 28', t:'Super Bowl XXXV', d:'The greatest defense ever assembled finishes the job in Tampa. Ray Lewis, MVP.', score:'W 34-7 vs NYG', q:'Super Bowl XXXV Ravens Giants highlights'},
+  {cat:'classic', yr:'2001', sub:'JAN 14', t:'AFC Championship at Oakland', d:'Shannon Sharpe\'s 96-yard catch-and-run and a defense that gave up three points.', score:'W 16-3 at OAK', q:'Ravens Raiders 2000 AFC Championship Shannon Sharpe 96 yard touchdown'},
+  {cat:'classic', yr:'2013', sub:'JAN 20', t:'AFC Championship at New England', d:'Flacco outduels Brady in Foxborough to send Ray Lewis to his last Super Bowl.', score:'W 28-13 at NE', q:'Ravens Patriots 2012 AFC Championship highlights'},
+  {cat:'classic', yr:'2012', sub:'NOV 25', t:'Hey Diddle Diddle: 4th and 29', d:'Ray Rice turns a dump-off into a first down at San Diego, and the Ravens win in OT.', score:'W 16-13 OT at SD', q:'Ray Rice 4th and 29 Ravens Chargers'},
+  {cat:'classic', yr:'2008', sub:'NOV 23', t:'Ed Reed goes 107', d:'Reed picks off Kevin Kolb in his own end zone and takes it the length of the field.', score:'W 36-7 vs PHI', q:'Ed Reed 107 yard interception return Eagles 2008'},
+  {cat:'classic', yr:'2021', sub:'SEP 26', t:'Tucker from 66', d:'Justin Tucker banks one off the crossbar as time expires in Detroit, an NFL record at the time.', score:'W 19-17 at DET', q:'Justin Tucker 66 yard field goal Lions'},
+  {cat:'classic', yr:'2019', sub:'SEP 8', t:'Lamar\'s MVP opener', d:'"Not bad for a running back." Five TD passes and a perfect passer rating in Miami.', score:'W 59-10 at MIA', q:'Lamar Jackson Dolphins 2019 week 1 highlights not bad for a running back'},
+  {cat:'classic', yr:'2015', sub:'JAN 3', t:'Wild Card at Pittsburgh', d:'The Ravens\' first playoff win at Heinz Field. Terrell Suggs\' between-the-legs interception.', score:'W 30-17 at PIT', q:'Ravens Steelers 2014 wild card highlights Suggs interception'},
+  {cat:'classic', yr:'2024', sub:'JAN 20', t:'Divisional vs Houston', d:'Lamar runs for two scores in the second half and the Ravens pull away in Baltimore.', score:'W 34-10 vs HOU', q:'Ravens Texans divisional round 2024 highlights'}
+];
+const playIcon = '<svg class="play" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7.5" fill="none" stroke="var(--gold)"/><path d="M6.4 5v6l4.8-3z" fill="var(--gold)"/></svg>';
+function renderFilm(f){
+  $('#vault').innerHTML = film.filter(x => f==='all' || x.cat===f).map(x => `
+    <a class="reel" href="${yt(x.q)}" target="_blank" rel="noopener"><span class="yr">${x.yr}<small>${esc(x.sub)}</small></span>
+    <span><h4>${esc(x.t)}</h4><p>${esc(x.d)}</p><span class="score">${playIcon}${esc(x.score)}</span></span></a>`).join('');
+}
+document.querySelectorAll('#film .seg button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('#film .seg button').forEach(x => x.setAttribute('aria-pressed', x === b)); renderFilm(b.dataset.f);
+}));
+renderFilm('all');
+
+/* history */
+const tl = [
+  ['1996','<b>Baltimore gets football back.</b> The Ravens play their first season after the franchise moves from Cleveland. First draft: Jonathan Ogden and Ray Lewis.'],
+  ['1998','The Ravens move into their new downtown stadium, today M&amp;T Bank Stadium.'],
+  ['2000','<b>The defense allows 165 points</b>, a 16-game record, and Baltimore wins Super Bowl XXXV under Brian Billick.'],
+  ['2004','Steve Bisciotti becomes majority owner.'],
+  ['2008','John Harbaugh is hired and Joe Flacco is drafted. Five straight playoff trips follow.'],
+  ['2012','<b>Super Bowl XLVII champions.</b> Ray Lewis retires on top after 17 seasons.'],
+  ['2018','Lamar Jackson is drafted 32nd overall.'],
+  ['2019','<b>Lamar is the unanimous MVP</b>; the Ravens go 14-2 and set the NFL record for team rushing yards.'],
+  ['2023','Lamar wins his second MVP as Baltimore takes the AFC\'s top seed.'],
+  ['2026','<b>The Jesse Minter era begins</b> after 18 seasons under Harbaugh.']
+];
+$('#timeline').innerHTML = tl.map(([y,t]) => `<li><span class="y">${y}</span><p>${t}</p></li>`).join('');
+const hof = [
+  ['Jonathan Ogden','LT · 1996-2007','Class of 2013'],
+  ['Ray Lewis','LB · 1996-2012','Class of 2018'],
+  ['Ed Reed','S · 2002-2012','Class of 2019'],
+  ['Rod Woodson','DB · 1998-2001','Class of 2009'],
+  ['Shannon Sharpe','TE · 2000-2001','Class of 2011'],
+  ['Deion Sanders','CB · 2004-2005','Class of 2011'],
+  ['Ozzie Newsome','GM · 1996-2018','Class of 1999 (as a player)']
+];
+$('#hof').innerHTML = hof.map(([n,r,c]) => `<div><b>${n}</b><small>${r}</small><span class="cls">${c}</span></div>`).join('');
+
+/* foot */
+$('#foot').innerHTML = `Data as of ${esc(D.asOfLabel)} · <a href="https://www.pro-football-reference.com/teams/rav/2026.htm" target="_blank" rel="noopener">PFR</a> · <a href="https://www.baltimoreravens.com/" target="_blank" rel="noopener">Ravens.com</a>`;
+
+/* nav highlight */
+const links = [...document.querySelectorAll('.nav a')];
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + e.target.id)); }), {rootMargin:'-40% 0px -55% 0px'});
+document.querySelectorAll('main section').forEach(s => io.observe(s));
+
+/* ask the nest */
+const suggestions = ['Who caught the Mile High Miracle?','How good was the 2000 defense?','Who leads the team in receiving this year?','What happened in the Falcons game?','Best Ravens draft picks ever?'];
+$('#sugg').innerHTML = suggestions.map(s => `<button type="button">${esc(s)}</button>`).join('');
+let sampler = null, busy = null;
+const ans = $('#answer');
+async function getSampler(){
+  if (sampler !== null) return sampler;
+  try { sampler = window.claude && window.claude.use ? await window.claude.use('sample') : null; } catch(e) { sampler = null; }
+  return sampler;
+}
+getSampler().then(s => { if (!s) { $('#ask').hidden = true; const a = document.querySelector('.nav a[href="#ask"]'); if (a) a.hidden = true; } });
+async function ask(q){
+  q = q.trim(); if (!q) return;
+  const s = await getSampler(); if (!s) return;
+  if (busy) busy.abort();
+  busy = new AbortController();
+  ans.classList.remove('muted'); ans.textContent = 'Thinking…'; $('#askBtn').disabled = true;
+  const ctx = JSON.stringify({asOf:D.asOf, coach:D.coach, staff:D.coordinators, record:D.record, nextGame:D.nextGame, schedule:D.schedule, standings:D.standings, passing:D.passing, rushing:D.rushing, receiving:D.receiving, defense:D.defense, injuries:D.injuries, news:D.news.map(n=>n.title+': '+n.blurb)});
+  const prompt = `You are "The Nest", a knowledgeable, friendly Baltimore Ravens fan-site assistant. Answer the fan's question in under 130 words, plain text, no markdown headers. Use the 2026 season data below for anything about this season (it is current as of ${D.asOf}); use your own knowledge for history. If the data doesn't cover something current, say you don't have it yet rather than guessing. Never invent stats.\n\n2026 DATA:\n${ctx}\n\nFAN'S QUESTION: ${q}`;
+  try {
+    const r = await s(prompt, {signal: busy.signal, onText: ({text}) => { ans.textContent = text; }});
+    ans.textContent = r.text;
+  } catch(e) {
+    if (e && e.name === 'AbortError') return;
+    ans.classList.add('muted');
+    ans.textContent = e && e.code === 'not_granted' ? 'Ask the Nest needs your permission to ask Claude. Allow it from the page\'s permissions to use it.'
+      : e && e.code === 'rate_limited' ? 'Too many questions at once. Try again in a minute.' : 'That question didn\'t go through. Try again.';
+  } finally { $('#askBtn').disabled = false; }
+}
+$('#askForm').addEventListener('submit', e => { e.preventDefault(); ask($('#q').value); });
+$('#sugg').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { $('#q').value = b.textContent; ask(b.textContent); } });
+})();
+</script>
