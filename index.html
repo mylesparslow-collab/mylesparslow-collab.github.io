@@ -1,0 +1,669 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Products, writing and playful builds Myles Parslow made with Claude, and how they were made.">
+<title>Myles Parslow Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: an eggshell sheet by default, with a colour picker for two other schemes. Each section is a shelf of pieces; every piece pairs a screenshot with "what it is" and "how it was made". Brown carries links and labels; gold marks emphasis. All schemes are light by request. */
+:root {
+  color-scheme: light;
+  /* Eggshell (default): black ink, brown links and labels, gold emphasis */
+  --bg: #f2eee3;
+  --surface: #fbf9f3;
+  --rule: #ddd3bf;
+  --ink: #15120f;
+  --muted: #5f4e40;
+  --accent: #6b3f22;
+  --mark: #a9822f;
+  --mark-soft: #ede1c1;
+  --display: "Bricolage Grotesque", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+  --body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+/* Original: the first draft's pale green-grey with pine green */
+:root[data-scheme="pine"] {
+  --bg: #f4f6f4; --surface: #ffffff; --rule: #d5ddd8; --ink: #18201c; --muted: #56625b;
+  --accent: #23593f; --mark: #23593f; --mark-soft: #e2ece6;
+}
+/* Baby blue with ruby */
+:root[data-scheme="sky"] {
+  --bg: #e8f3fb; --surface: #ffffff; --rule: #c6e0f3; --ink: #192838; --muted: #4c6073;
+  --accent: #9b111e; --mark: #9b111e; --mark-soft: #f7e1e4;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 1.0625rem; line-height: 1.62; margin: 0; }
+.wrap { max-width: 72rem; margin: 0 auto; padding-inline: 1.25rem; padding-block: 3.5rem 4rem; display: grid; gap: 5rem; }
+a { color: var(--accent); text-underline-offset: 0.18em; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; line-height: 1.08; margin: 0; }
+p { margin: 0; }
+.eyebrow { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+
+/* Colour picker */
+.topbar { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.75rem 1.5rem; }
+.picker { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0; padding: 0; border: 0; }
+.picker legend { float: left; margin-right: 0.25rem; font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.swatch { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.3rem 0.7rem 0.3rem 0.35rem; border-radius: 999px; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); font-family: var(--display); font-size: 0.85rem; font-weight: 500; cursor: pointer; }
+.swatch:hover { border-color: var(--muted); }
+.swatch[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.swatch i { width: 1.15rem; height: 1.15rem; border-radius: 50%; flex: none; border: 1px solid rgba(0,0,0,0.15); }
+.swatch[data-pick="eggshell"] i { background: linear-gradient(135deg, #f2eee3 0 45%, #6b3f22 45% 70%, #a9822f 70%); }
+.swatch[data-pick="pine"] i { background: linear-gradient(135deg, #f4f6f4 0 50%, #23593f 50%); }
+.swatch[data-pick="sky"] i { background: linear-gradient(135deg, #e8f3fb 0 50%, #9b111e 50%); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* Intro */
+.intro { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 2.5rem; align-items: end; }
+.intro-text { display: grid; gap: 1.25rem; }
+.intro h1 { font-size: clamp(2.6rem, 6.4vw, 4.4rem); font-weight: 800; letter-spacing: -0.025em; }
+.intro h1 em { font-style: normal; color: var(--mark); }
+.lede { font-size: 1.22rem; max-width: 38rem; }
+.toc { display: grid; gap: 0; border-top: 2px solid var(--ink); }
+.toc a { display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: baseline; padding: 0.7rem 0; border-bottom: 1px solid var(--rule); text-decoration: none; color: var(--ink); font-family: var(--display); font-weight: 700; font-size: 1.15rem; }
+.toc a span { font-family: var(--mono); font-weight: 400; font-size: 0.8rem; color: var(--muted); }
+.toc a:hover { color: var(--accent); }
+
+/* Sections */
+.shelf { display: grid; gap: 2.5rem; scroll-margin-top: 1.5rem; }
+.shelf-head { display: grid; gap: 0.5rem; border-top: 2px solid var(--ink); padding-top: 1rem; }
+.shelf-head h2 { font-size: clamp(2rem, 4.2vw, 2.8rem); font-weight: 800; letter-spacing: -0.02em; }
+.shelf-head p { color: var(--muted); max-width: 44rem; }
+
+/* A piece */
+.piece { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 2rem 2.75rem; align-items: start; }
+.piece.flip > figure { order: 2; }
+.piece-text { display: grid; gap: 1rem; min-width: 0; }
+.piece h3 { font-size: 1.85rem; font-weight: 700; letter-spacing: -0.01em; }
+.tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.tag { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.04em; padding: 0.15rem 0.5rem; border-radius: 999px; background: var(--surface); border: 1px solid var(--rule); color: var(--muted); }
+.tag.hot { background: var(--mark-soft); border-color: transparent; color: var(--accent); }
+.made { border-left: 3px solid var(--mark); padding-left: 0.9rem; display: grid; gap: 0.3rem; }
+.made b { font-family: var(--mono); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+.facts { display: flex; flex-wrap: wrap; gap: 0.3rem 1.4rem; font-family: var(--mono); font-size: 0.8rem; color: var(--muted); }
+.facts strong { color: var(--ink); font-weight: 500; }
+figure { margin: 0; display: grid; gap: 0.5rem; min-width: 0; }
+figure img { display: block; width: 100%; max-width: 100%; height: auto; border-radius: 6px; border: 1px solid var(--rule); background: var(--surface); box-shadow: 0 10px 30px -18px rgba(40, 28, 16, 0.4); }
+figcaption { font-size: 0.85rem; color: var(--muted); }
+
+/* Writing cards (no screenshots: they are manuscripts) */
+.books { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
+.book { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 1.5rem 1.4rem; display: grid; gap: 0.9rem; align-content: start; min-width: 0; }
+.book .kind { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+.book h3 { font-size: 1.5rem; }
+.book .logline { font-style: italic; }
+.book .note { font-size: 0.85rem; color: var(--muted); }
+
+/* Smaller items */
+.more { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem 2.5rem; }
+.more div { display: grid; gap: 0.35rem; align-content: start; border-top: 1px solid var(--rule); padding-top: 0.9rem; }
+.more h3 { font-size: 1.2rem; }
+.more p { color: var(--muted); font-size: 0.98rem; }
+
+/* Case studies */
+.tally { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin: 0; border-top: 1px solid var(--rule); padding-top: 1.25rem; }
+.tally div, .stats div { display: grid; gap: 0.2rem; align-content: start; }
+.tally dt, .stats dt { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); order: 2; }
+.tally dd, .stats dd { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(1.6rem, 3.4vw, 2.4rem); color: var(--accent); letter-spacing: -0.02em; line-height: 1.05; }
+.case { display: grid; gap: 2.5rem; scroll-margin-top: 1.5rem; }
+.case .sum { font-size: 1.15rem; color: var(--ink); max-width: 46rem; }
+.stats { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1rem; margin: 0; background: var(--mark-soft); border-radius: 6px; padding: 1.1rem 1.25rem; }
+.stats dd { font-size: clamp(1.1rem, 2vw, 1.5rem); color: var(--ink); }
+.cols, .shots { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem 2.5rem; align-items: start; }
+.block { display: grid; gap: 0.8rem; align-content: start; min-width: 0; }
+.block h3 { font-size: 1.35rem; }
+.block ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.55rem; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem 2rem; }
+.grid3 > div { display: grid; gap: 0.35rem; align-content: start; border-top: 1px solid var(--rule); padding-top: 0.8rem; }
+.grid3 h4 { margin: 0; font-family: var(--display); font-size: 1.05rem; }
+.grid3 p { color: var(--muted); font-size: 0.96rem; }
+.book .count { font-family: var(--mono); font-size: 0.85rem; color: var(--accent); }
+
+.gallery { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.25rem; }
+.gallery figcaption { font-size: 0.85rem; }
+.links { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; margin-top: 0.35rem; font-family: var(--mono); font-size: 0.85rem; }
+.links a { color: var(--accent); }
+.links span { color: var(--muted); }
+/* Method */
+.rules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem 2.5rem; }
+.rules div { display: grid; gap: 0.4rem; align-content: start; }
+.rules h3 { font-size: 1.15rem; }
+.rules p { color: var(--muted); font-size: 0.98rem; }
+
+footer { border-top: 1px solid var(--rule); padding-top: 1.25rem; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 2rem; font-family: var(--mono); font-size: 0.8rem; color: var(--muted); }
+
+@media (max-width: 820px) {
+  .intro, .piece, .books, .more, .rules, .cols, .shots, .grid3 { grid-template-columns: minmax(0, 1fr); }
+  .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tally, .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .piece.flip > figure { order: 0; }
+  .wrap { gap: 3.5rem; padding-block: 2.5rem 3rem; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .toc a { transition: color 0.15s ease; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="intro">
+    <div class="topbar">
+      <span class="eyebrow">Portfolio · October 2026</span>
+      <fieldset class="picker" aria-label="Colour scheme">
+        <legend>Colours</legend>
+        <button type="button" class="swatch" id="pick-eggshell" data-pick="eggshell" aria-pressed="true"><i></i>Eggshell</button>
+        <button type="button" class="swatch" id="pick-pine" data-pick="pine" aria-pressed="false"><i></i>Original</button>
+        <button type="button" class="swatch" id="pick-sky" data-pick="sky" aria-pressed="false"><i></i>Sky &amp; ruby</button>
+      </fieldset>
+    </div>
+    <div class="intro-text">
+      <h1>Myles Parslow makes things <em>with Claude</em>.</h1>
+      <p class="lede">Software for real businesses, novels and screenplays, games and reference works, and the workflows behind them. Each piece below shows what was made and how Claude and I made it.</p>
+    </div>
+    <nav class="toc" aria-label="Sections">
+      <a href="#conflara">Case study: Conflara <span>legal software</span></a>
+      <a href="#rsc">Case study: RSC Tool <span>small business</span></a>
+      <a href="#byzantium">Case study: Byzantium <span>mosaic atlas</span></a>
+      <a href="#catgpt">Case study: CatGPT <span>local AI + 9 games</span></a>
+      <a href="#writing">Writing &amp; workflows <span>299k words</span></a>
+      <a href="#research">Research <span>2 reports</span></a>
+    </nav>
+    <dl class="tally">
+      <div><dt>Words of fiction and screenwriting</dt><dd>298,692</dd></div>
+      <div><dt>Lines of Python in one shipped app</dt><dd>9,408</dd></div>
+      <div><dt>Dated map snapshots in one atlas</dt><dd>200</dd></div>
+      <div><dt>Trivia questions behind three pixel cats</dt><dd>53,648</dd></div>
+    </dl>
+  </header>
+
+  <!-- CONFLARA -->
+  <article class="case" id="conflara">
+    <div class="shelf-head">
+      <span class="eyebrow">Case study 01 · Legal software</span>
+      <h2>Conflara</h2>
+      <p class="sum">A conflicts-check and new-matter intake system for US law firms of 10 to 150 lawyers, carried from a working product through research, pricing, a pilot plan and two films.</p>
+          <p class="links"><a href="https://claude.ai/artifact/7bspEJgtrxzGEUEEd9JdHS">Try the demo</a><a href="https://claude.ai/artifact/6Tb5J3rmgvhhDugifGtCiL">Watch the 60-second ad</a><a href="https://claude.ai/artifact/QW27qDBSDYnCez6vcu5ZxD">Watch the walkthrough film</a><a href="https://github.com/mylesparslow-collab/conflicts-desk">Prototype code</a></p>
+    </div>
+
+    <dl class="stats">
+      <div><dt>Firm roles modelled</dt><dd>7</dd></div>
+      <div><dt>Approval routing rules</dt><dd>9</dd></div>
+      <div><dt>Synthetic parties / matters</dt><dd>5,000 / 2,000</dd></div>
+      <div><dt>Competitors researched</dt><dd>14+</dd></div>
+      <div><dt>Gaps ranked</dt><dd>21</dd></div>
+      <div><dt>Films made in code (60 s and 2:32)</dt><dd>2</dd></div>
+    </dl>
+
+    <figure class="wide">
+      <img src="assets/conflara-hits.jpg" alt="Hit review for a litigation request: a California Rule 1.7(b) lawyer-relationship disclosure, then two high-risk hits on the adverse party, each with a plain-English meaning, the rule, a suggested decision, the matters it matched and an advisory AI note." width="1280" height="800" loading="lazy">
+      <figcaption>Hit review. Each hit says what it means in plain English, cites the rule, suggests a decision and shows the matters behind it. The AI note is marked as advisory. All firm data is invented.</figcaption>
+    </figure>
+
+    <div class="cols">
+      <section class="block">
+        <h3>The problem</h3>
+        <p>Before a firm takes a matter, it must check every party against everyone it has represented or opposed. Mid-size firms usually search their billing system letter for letter, so they miss parent companies, former names, nicknames and misspellings. Intake is a web form nobody connects to the search, and the enterprise tools are quote-only and installed by consultants.</p>
+        <p>The people involved have different needs. An associate submits the request, a conflicts analyst reviews the hits, practice leaders and general counsel approve, and finance opens the matter. Conflara gives each of seven roles its own view.</p>
+      </section>
+      <section class="block">
+        <h3>How the matching works</h3>
+        <ul>
+          <li>Names are normalized: corporate suffixes stripped, abbreviations expanded, initials collapsed so "A.B.C. Holdings" finds "ABC Holdings".</li>
+          <li>Three scorers combine: a phonetic key (Smith and Smyth), Jaro-Winkler for typos, and trigram overlap for spacing. Rare words weigh more than common ones.</li>
+          <li>People match on surname first, then first name with 30+ nickname pairs (Kate and Katherine), aliases and former names.</li>
+          <li>Strong matches expand two hops through corporate families and one hop through personal links such as spouses and officers.</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="shots">
+      <figure>
+        <img src="assets/conflara-search.jpg" alt="Conflicts search for Kate Okafor finding a pending intake, Katherine A. Okafor via a known alias, and a company where she is an officer." width="1280" height="800" loading="lazy">
+        <figcaption>"Kate Okafor" finds the alias "Katherine A. Okafor" and, one hop out, a company where she is an officer that is a current client.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/conflara-walls.jpg" alt="Ethical walls page with compliance counts for active walls, acknowledgments outstanding and re-acknowledgments due, and export buttons for a deny list." width="1280" height="800" loading="lazy">
+        <figcaption>Ethical walls: who is screened, who still owes an acknowledgment, and a deny list to export to the document system and time entry.</figcaption>
+      </figure>
+    </div>
+
+    <section class="block">
+      <h3>Decisions that come from knowing the work</h3>
+      <div class="grid3">
+        <div><h4>Risk follows the relationship</h4><p>A name match alone means little. Being adverse to a current client on an open matter is high risk; a closed matter is medium; a match only through a personal link is capped below high. Related parties with no matter history are dropped as noise.</p></div>
+        <div><h4>Rules are built in</h4><p>Former clients point to Rule 1.9, prospective clients to Rule 1.18, lawyer relationships to California Rule 1.7(b) and (c) disclosures. Lateral hires get the 1.10, 1.11 and 1.12 analysis, and engagement letters check the California fee-agreement statutes.</p></div>
+        <div><h4>Lawyers decide, software suggests</h4><p>The local AI pre-sorts hits and drafts memos, but every AI-filled field carries a mark until a person confirms it. Restricted and walled data never reaches the model, and accepting a suggestion never decides a hit.</p></div>
+        <div><h4>Least privilege by role</h4><p>Approvers see a summary and a sign-off. Requesters see no firm records while they type. Walls are enforced in what the server sends each user, and every blocked attempt is logged.</p></div>
+        <div><h4>An audit trail that proves itself</h4><p>The log is append-only with a hash chain and a "Chain intact" check, and database triggers refuse edits. Matters cannot close until the final bill is issued and trust is at zero.</p></div>
+        <div><h4>Speed for the analyst</h4><p>J and K move between hits, 1 to 5 record a decision, Enter accepts the suggestion, and earlier decisions on the same party appear inline.</p></div>
+      </div>
+    </section>
+
+    <div class="cols">
+      <section class="block">
+        <h3>Taking it to market</h3>
+        <ul>
+          <li><strong>Research.</strong> 14+ competitors compared from public sources, 21 gaps ranked, and an opening found: nothing credible is priced between about $250 a year and an enterprise quote.</li>
+          <li><strong>Pricing.</strong> Published per-lawyer tiers at $25 and $45 a month, with staff users free. A 30-lawyer firm on the higher tier comes to $16,200 a year.</li>
+          <li><strong>Pilot.</strong> Five firms over 90 days in four phases, measured on intake-to-cleared time, analyst hours per check and hits the old system missed.</li>
+          <li><strong>Honesty.</strong> A security table that says what is built and tested, built but untested, documented only, and not started.</li>
+        </ul>
+      </section>
+      <figure>
+        <img src="assets/ad.jpg" alt="Frame from the Conflara ad: spreadsheet, email and billing-search cards scattered on a dark background with the caption 'Most firms answer it with spreadsheets, email chains and a two-day wait.'" width="1280" height="800" loading="lazy">
+        <figcaption>Conflara in sixty seconds: nine scenes, typed text, a logo that draws itself and an original score, all in HTML, CSS and JavaScript. A 12-chapter, 2 min 32 s walkthrough film runs on the same engine.</figcaption>
+      </figure>
+    </div>
+
+    <div class="made"><b>How Claude was used</b><p>It began as the <a href="https://github.com/mylesparslow-collab/conflicts-desk">Conflicts Desk</a> prototype in Claude Code, with tests and CI, and grew into Conflara. I supplied the domain: how conflicts departments actually run, which rules apply, and where existing tools fall short. Claude built the search engine, the synthetic firm and every screen. It then helped research competitors, price the product, write the pilot pack and script and code both films.</p></div>
+  </article>
+
+  <!-- RSC -->
+  <article class="case" id="rsc">
+    <div class="shelf-head">
+      <span class="eyebrow">Case study 02 · Small business</span>
+      <h2>RSC Tool</h2>
+      <p class="sum">An operations app for a small family remodeling business. It runs entirely on one Mac, reads the business inbox with a local AI model, and never touches the books without the owner's approval.</p>
+          <p class="links"><span>No public demo yet: it runs on the owner's Mac with real client data</span></p>
+    </div>
+
+    <dl class="stats">
+      <div><dt>Lines of Python, 2,361 of them tests</dt><dd>9,408</dd></div>
+      <div><dt>Tests passing</dt><dd>207</dd></div>
+      <div><dt>Pages / routes</dt><dd>34 / 80</dd></div>
+      <div><dt>Local AI models</dt><dd>3</dd></div>
+      <div><dt>Tabs before / after redesign</dt><dd>14 / 5</dd></div>
+      <div><dt>Cloud AI calls</dt><dd>0</dd></div>
+    </dl>
+
+    <div class="cols">
+      <section class="block">
+        <h3>The problem</h3>
+        <p>Jobs, phased payments and expenses lived in a spreadsheet. Receipts, client payments and new leads arrived by email. Estimates, contracts and change orders were written by hand, and nobody could say what a job had cost in labor until it was over.</p>
+        <p>The constraints shaped everything. The owner is not a programmer, client data had to stay on his computer, and nothing could reach the books or a client without his say.</p>
+      </section>
+      <figure>
+        <img src="assets/room.jpg" alt="Room Modeler with typed measurements for a porch and mudroom on the left and a dimensioned floor plan with doors and windows on the right." width="1280" height="800" loading="lazy">
+        <figcaption>The Room Modeler parses feet and inches as typed ("14'6&quot;", "174", "6 1/2"), validates every opening, and draws a dimensioned plan and a 3D view. Sample rooms.</figcaption>
+      </figure>
+    </div>
+
+    <div class="shots">
+      <figure>
+        <img src="assets/rsc-home.jpg" alt="RSC Tool home page with five navigation groups and a Needs your attention list: finish setup, 3 to review, 2 late invoices, and estimates to write." width="1280" height="800" loading="lazy">
+        <figcaption>Home lists only what needs doing next, across the five groups that replaced 14 tabs. Every business, client and figure in these screenshots is made up.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/rsc-review.jpg" alt="To review page: a Home Depot receipt read from email, matched to job 1002-CHE because the job number is in the email, with editable fields and an Add expense button, followed by a new lead card." width="1280" height="800" loading="lazy">
+        <figcaption>The inbox, read by the local model. Each card says why it matched a job, and nothing is added until the owner presses the green button.</figcaption>
+      </figure>
+    </div>
+
+    <section class="block">
+      <h3>What it does</h3>
+      <div class="grid3">
+        <div><h4>Inbox to books</h4><p>Every 30 minutes a local model reads the inbox read-only and returns a fixed JSON shape at temperature 0. Plain code then matches each receipt, payment or lead to a job: a job ID in the email first, then a unique street address, then a unique client surname. If two jobs fit, it asks.</p></div>
+        <div><h4>Labor cost per job</h4><p>Labor per crew-hour is computed from the estimate's own crew and duration lines, with part-timers counted as half. It warns below the floor rate, compares spend with the estimate's budget, and switches to logged hours once they pass the guess.</p></div>
+        <div><h4>Money that adds up</h4><p>Job IDs, payment IDs and change-order IDs follow one scheme and double as invoice numbers. Payment schedules are generated by rule and tested to the cent. A change order signed with a finger on a phone updates the contract and schedule together.</p></div>
+        <div><h4>Hands-free input</h4><p>Any big text box takes speech through a local Whisper model of about 150 MB. Receipt photos and insurance certificates are read by a local vision model, with the job picked by the same rules as email.</p></div>
+        <div><h4>Runs itself</h4><p>A double-click installer needs no admin password, sizes the models to the Mac's memory, and sets up five background jobs: the app, the mail check, a Monday report, a 6 AM crew sheet and the model server. Daily backups keep 30 copies, and a doctor command checks everything.</p></div>
+        <div><h4>Built from research</h4><p>A market study of the local remodeling trade set the pricing checks: industry margins imply a 43% materials markup rather than 20%, and the crew-hour floor comes from local wage and billing data.</p></div>
+      </div>
+    </section>
+
+    <div class="shots">
+      <figure>
+        <img src="assets/rsc-payments.jpg" alt="Payment schedule for job 1001-ALV with four payment IDs that double as QuickBooks invoice numbers, each marked Paid, Invoiced or Not yet." width="1280" height="800" loading="lazy">
+        <figcaption>A payment schedule. Each payment ID is also the QuickBooks invoice number, and the page confirms the schedule adds up to the contract.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/rsc-owed.jpg" alt="Money owed page showing $9,980 waiting in the 14 to 29 day bucket, with a Write a reminder button for each invoice." width="1280" height="800" loading="lazy">
+        <figcaption>Money owed, grouped by age. Reminders are drafted for the owner to send himself.</figcaption>
+      </figure>
+    </div>
+
+    <div class="cols">
+      <section class="block">
+        <h3>Decisions behind it</h3>
+        <ul>
+          <li><strong>The model drafts, code decides.</strong> Prices, totals, dates, IDs and job matching are computed in code. If a model's draft drops a required fact, the app falls back to a plain template.</li>
+          <li><strong>Fewer fields.</strong> A sentence like "Home Depot 109.91 studs for Smith" fills in an expense. Every page keeps a by-hand form for when the model is off.</li>
+          <li><strong>Nothing sent for him.</strong> Emails open in his mail app to read and send. Reminders never mention fees or lawyers.</li>
+          <li><strong>Readable by design.</strong> The redesign cut 14 tabs to 5 groups, set text at 18px with nothing under 15px, and made every control at least 48px tall.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>Where it goes next</h3>
+        <p>A productizing plan finds about 70% of the app is generic, with the owner-specific parts being configuration rather than architecture. The plan is to treat this business as customer number one, then offer done-for-you setups to three to five local remodelers, with a pilot kit and sales sheet ready.</p>
+      </section>
+    </div>
+
+    <div class="made"><b>How Claude was used</b><p>Built in Claude Code from the owner's real estimates, contract terms and tracker. Claude wrote the code and tests within rules I set. The repo also carries a guide written for the next Claude session on the owner's Mac. It sets out how to explain changes in plain words, back up before any change, keep database migrations additive, test on a copy, and never edit contract text without review.</p></div>
+  </article>
+
+  <!-- BYZANTIUM -->
+  <article class="case" id="byzantium">
+    <div class="shelf-head">
+      <span class="eyebrow">Case study 03 · Reference work</span>
+      <h2>Byzantium</h2>
+      <p class="sum">An illustrated encyclopedia of the Eastern Roman Empire, 324 to 1453, built around a mosaic atlas you can drag through 1,129 years and watch the borders move.</p>
+          <p class="links"><span>No public demo yet: runs locally</span></p>
+    </div>
+
+    <dl class="stats">
+      <div><dt>Dated territory snapshots</dt><dd>200</dd></div>
+      <div><dt>Map features</dt><dd>11,850</dd></div>
+      <div><dt>Encyclopedia entries</dt><dd>464</dd></div>
+      <div><dt>Licensed images</dt><dd>1,174</dd></div>
+      <div><dt>Podcast episodes indexed</dt><dd>440</dd></div>
+      <div><dt>Invalid geometries / overlaps</dt><dd>0 / 0</dd></div>
+    </dl>
+
+    <figure class="wide">
+      <img src="assets/byz-atlas-1025.jpg" alt="The Byzantium atlas set to the year 1025: the empire laid out in purple mosaic tiles edged in gold, a blue tessera sea, a year slider with dynasty bands, and a panel describing what was happening in 1025." width="1600" height="1000" loading="lazy">
+      <figcaption>The atlas at 1025, near the empire's height. Every tile is a tessera; the panel says who was on the throne and who held what that year.</figcaption>
+    </figure>
+
+    <section class="block">
+      <h3>The atlas</h3>
+      <div class="grid3">
+        <div><h4>Drawn as a mosaic</h4><p>Territory is one fixed grid of tesserae, each slightly varied in shade, with grout between them. The empire is imperial purple edged in gold; the sea is blue tile. A Borders mode switches to clean outlines, and light and dark themes each have their own palette.</p></div>
+        <div><h4>Conquest you can watch</h4><p>When borders change, only the tiles that changed owner turn over, in a wave that starts from the conqueror's side, so territory is taken rather than repainted. Cities that change hands send out a ripple.</p></div>
+        <div><h4>Built for scrubbing</h4><p>Drag, click or use the keyboard; play at 1 to 50 years a second; or press Next change to jump to the next year the map moves. Ownership is cached per snapshot and neighbours precomputed, so fast scrubbing stays smooth.</p></div>
+        <div><h4>Honest about the record</h4><p>Overlapping claims of more than about 500 km² become hatched contested land instead of being handed to one side. Five places where the source disagrees with history, from Manzikert to 1453, are corrected and explained on the map.</p></div>
+        <div><h4>Checked, not assumed</h4><p>An automated check confirms zero invalid geometries and zero overlaps across all 200 snapshots, and ten key years match the source to within 1% of land area. Five other map sources were evaluated and rejected, each with a written reason.</p></div>
+        <div><h4>More ways in</h4><p>Compare two years side by side with a draggable divider, switch to a table of powers, toggle cities, battles and campaign routes, and share any view by its URL. Patterns stand in for colour, and reduced motion swaps flips for fades.</p></div>
+      </div>
+    </section>
+
+    <div class="shots">
+      <figure>
+        <img src="assets/byz-atlas-compare.jpg" alt="Atlas compare mode: two years of the empire side by side, split by a draggable divider." width="1600" height="1000" loading="lazy">
+        <figcaption>Compare mode: two years side by side with a divider you can drag or move by keyboard.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/byz-atlas-1204.jpg" alt="The atlas in dark mode at 1204, with former imperial land hatched as contested after the Fourth Crusade." width="1600" height="1000" loading="lazy">
+        <figcaption>1204 in dark mode: after the Fourth Crusade the empire's land is hatched as contested rather than simply recoloured.</figcaption>
+      </figure>
+    </div>
+
+    <div class="cols">
+      <section class="block">
+        <h3>The encyclopedia around it</h3>
+        <ul>
+          <li><strong>464 entries</strong> pinned to fixed Wikipedia revisions with restored footnotes, plus 168 original introductions labelled as such.</li>
+          <li><strong>1,174 Commons images</strong> with author and licence; 41 were left out because their licence couldn't be confirmed.</li>
+          <li><strong>A guide to all 440 episodes</strong> of <em>The History of Byzantium</em> podcast. The build fails if any 12-word run matches the podcast's pages.</li>
+          <li><strong>87 battle entries</strong>, a people index of 1,765, a gazetteer, coins, a primary-source reader for Procopius and Anna Komnene, and a timeline that shares its playhead with the atlas.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>Built and verified</h3>
+        <p>React, TypeScript and d3-geo, with Python pipelines for the map geometry: borders from the Seshat Cliopatria dataset, coastlines from Natural Earth, and 96 cities and 71 battles from Wikidata. It ships with 20 slider tests, 60 screenshot checks across phone and desktop, and Lighthouse mobile scores of 93 to 96.</p>
+      </section>
+    </div>
+
+    <div class="made"><b>How Claude was used</b><p>One long Claude Code session took it from an empty folder to a verified site. Claude evaluated map sources and their licences, built three data pipelines and the renderer, and wrote its own reports on what failed, what was skipped and where the sources disagree, for me to review.</p></div>
+  </article>
+
+  <!-- CATGPT -->
+  <article class="case" id="catgpt">
+    <div class="shelf-head">
+      <span class="eyebrow">Case study 04 · Local AI</span>
+      <h2>CatGPT</h2>
+      <p class="sum">A control panel for the AI models running on my Mac that grew into a cat-themed home for chat, creative tools and games, hosted by three pixel-art cats: Newton, Skippy and Simba.</p>
+          <p class="links"><a href="https://claude.ai/artifact/N49igBaL5AwKwU3rEwU1Hn">Play Kitty Trivia</a><span>The full app runs locally</span></p>
+    </div>
+
+    <dl class="stats">
+      <div><dt>Lines of code</dt><dd>22,500</dd></div>
+      <div><dt>npm dependencies</dt><dd>0</dd></div>
+      <div><dt>Tabs</dt><dd>26</dd></div>
+      <div><dt>Local models installed</dt><dd>25</dd></div>
+      <div><dt>Chat characters</dt><dd>39</dd></div>
+      <div><dt>Games</dt><dd>9</dd></div>
+    </dl>
+
+    <figure class="wide">
+      <img src="assets/catgpt-models.jpg" alt="CatGPT's model manager: a pixel-art cat room across the top, a sidebar of backends, and a table of local models with size, quantization and a memory-fit badge, plus chat, load, info and delete buttons." width="1280" height="800" loading="lazy">
+      <figcaption>The model manager. Each model shows whether it fits in memory, and the sidebar lists every local backend it can talk to.</figcaption>
+    </figure>
+
+    <section class="block">
+      <h3>What the local models do</h3>
+      <div class="grid3">
+        <div><h4>Model manager</h4><p>Pull, load, unload and inspect models from Ollama or any OpenAI-compatible local server. Idle models unload themselves, and a Mac Health page logs memory every minute so you can see what filled it.</p></div>
+        <div><h4>Chat and compare</h4><p>Stream any model with full controls and tokens per second, drop in PDFs or Word files, or send one prompt to several models side by side. A scoreboard tracks speed and thumbs up or down for each model.</p></div>
+        <div><h4>Shared memory</h4><p>One store of facts that every AI app on the Mac can read, reached through a small MCP server written for it, with per-app permissions. A local embedding model flags duplicates and conflicts using measured thresholds.</p></div>
+        <div><h4>Ask your chats</h4><p>Keyword search over every saved conversation, then a local model answers from the best passages.</p></div>
+        <div><h4>Voice, images and songs</h4><p>Replies read aloud with local voice cloning, speech input through whisper.cpp, pictures through local Stable Diffusion, and a Song Studio where a local model writes lyrics that another model sings.</p></div>
+        <div><h4>The Agent Factory</h4><p>A pixel-art factory floor where you hire cat agents, give each a model, prompt and tools, and chain them on a conveyor belt, such as research, then write, then edit.</p></div>
+      </div>
+    </section>
+
+    <div class="gallery">
+      <figure>
+        <img src="assets/catgpt-running.jpg" alt="Running page listing loaded models with GPU share, context size and the auto-unload setting." width="1280" height="800" loading="lazy">
+        <figcaption>Running now: what is loaded, its GPU share and the auto-unload timer.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/catgpt-health.jpg" alt="Mac Health page with memory, processor, disk and battery bars and a free-up-memory button." width="1280" height="800" loading="lazy">
+        <figcaption>Mac Health: memory, processor and disk at a glance, with one button to free memory.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/catgpt-scores.jpg" alt="Model scoreboard with tokens per second, time to first word, reply count and likes per model." width="1280" height="800" loading="lazy">
+        <figcaption>The scoreboard: speed and thumbs up or down for every model.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/catgpt-compare.jpg" alt="Compare page sending one prompt to two local models side by side." width="1280" height="800" loading="lazy">
+        <figcaption>Compare: one prompt, two models, side by side.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/catgpt-factory.jpg" alt="The Agent Factory: a pixel-art factory floor with a hiring desk, control panel, tool shed, memory vault and cat agents." width="1280" height="800" loading="lazy">
+        <figcaption>The Agent Factory: hire cat agents and chain them on a conveyor belt.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/catgpt-songs.jpg" alt="Song Studio form where a local model writes the title, style, tags and lyrics for a song." width="1280" height="800" loading="lazy">
+        <figcaption>Song Studio: a local model writes the lyrics and another sings them.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/catgpt-images.jpg" alt="Image studio showing two generated paintings made with local Stable Diffusion." width="1280" height="800" loading="lazy">
+        <figcaption>Image studio, running on local Stable Diffusion.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/catgpt-daw.jpg" alt="Cat Beats beat maker with a step sequencer, sample browser, pads and a Cat Producer tab." width="1280" height="800" loading="lazy">
+        <figcaption>Cat Beats: a step sequencer, sample pads and a local-model producer.</figcaption>
+      </figure>
+    </div>
+
+    <section class="block">
+      <h3>The games</h3>
+      <p>Nine games, all original code and pixel art: Kitty Trivia, Cat Care (feed and dress the cats; 24 accessories so far), Fish Tank (each species breeds the way it really does), BalCatro (a poker roguelike), Nine Lives (a dungeon crawler), Purrimeter (tower defence), Duck Pounce, Krillion (a daily word game) and CatGPT Radio. There's also Cat Beats, a beat maker with a step sequencer, piano roll and mixer, where a local model can produce a beat for you.</p>
+    </section>
+
+    <div class="gallery">
+      <figure>
+        <img src="assets/catgpt-tank.jpg" alt="Fish Tank game with a busy aquarium, several tanks and a breeding panel." width="1280" height="800" loading="lazy">
+        <figcaption>Fish Tank: each species breeds the way it really does.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/catgpt-pets.jpg" alt="Cat Care page with Newton in a cowboy hat, stat bars, daily quests, food and hats." width="1280" height="800" loading="lazy">
+        <figcaption>Cat Care: feed, pet and dress the cats.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/catgpt-balcatro.jpg" alt="BalCatro blind picker showing Small Blind, Big Blind and The Cucumber." width="1280" height="800" loading="lazy">
+        <figcaption>BalCatro, a poker roguelike with cat jokers.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/catgpt-td.jpg" alt="Purrimeter tower defence map with cat towers, a laser pointer and catnip." width="1280" height="800" loading="lazy">
+        <figcaption>Purrimeter: cats defend their wet food.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/catgpt-dungeon.jpg" alt="Nine Lives choose-your-cat screen with Newton, Skippy and Simba and their skills." width="1280" height="800" loading="lazy">
+        <figcaption>Nine Lives: pick a cat and crawl the dungeon.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/catgpt-krillion.jpg" alt="Krillion word game with a cat fishing over a deep-water gauge." width="1280" height="800" loading="lazy">
+        <figcaption>Krillion: rarer answers drop the line deeper.</figcaption>
+      </figure>
+    </div>
+
+    <article class="piece">
+      <figure>
+        <img src="assets/kitty.jpg" alt="Kitty Trivia: three pixel-art cats in costumes beside a speech bubble, above six game modes, 29 categories with question counts, and a Start the Show button." width="1280" height="800" loading="lazy">
+        <figcaption>Newton, Skippy and Simba host. Each cat has its own walk cycle, blinks, yawns and lines.</figcaption>
+      </figure>
+      <div class="piece-text">
+        <div class="tags"><span class="tag hot">Featured game</span><span class="tag">Pixel animation</span><span class="tag">Game design</span></div>
+        <h3>Featured game: Kitty Trivia</h3>
+        <div class="facts"><span><strong>53,648</strong> questions</span><span><strong>29</strong> categories</span><span><strong>6</strong> game modes</span><span><strong>~80</strong> pixel outfits</span></div>
+        <p>An 8-bit trivia game show hosted by three hand-pixeled animated cats, each with a personality, a talking mouth and grooming animations. Modes run from Classic and Daily Ten to Lightning Rush, Sudden Death, Cat Ladder and Grand Tour.</p>
+        <div class="made"><b>How it was made</b><p>The cats are hand-pixeled sprites animated in code, each with its own lines and moods. The questions come from two open trivia databases, sorted into categories and difficulty levels.</p></div>
+        <p><a href="https://claude.ai/artifact/N49igBaL5AwKwU3rEwU1Hn">Play Kitty Trivia</a></p>
+      </div>
+    </article>
+
+    <div class="made"><b>How Claude was used</b><p>Built with Claude Code as plain Node.js and browser code with no build step. The repo holds an efficiency rulebook that tells coding agents to read narrowly, batch their calls and report in a sentence or two.</p></div>
+  </article>
+
+  <!-- MONEY DESK -->
+  <section class="shelf" id="money">
+    <div class="shelf-head">
+      <span class="eyebrow">Sister app · Local AI</span>
+      <h2>Money Desk</h2>
+      <p>A workbench for finding and doing paid work with local models. It never posts, messages or signs up anywhere on its own: every output is a draft I check and send myself, and its prompts forbid inventing facts, prices or results.</p>
+          <p class="links"><span>No public demo yet: runs locally</span></p>
+    </div>
+    <dl class="stats">
+      <div><dt>Lines of code</dt><dd>9,800</dd></div>
+      <div><dt>Studio tools</dt><dd>11</dd></div>
+      <div><dt>Sales pipelines</dt><dd>5</dd></div>
+      <div><dt>Assist stages</dt><dd>5</dd></div>
+      <div><dt>Coach characters</dt><dd>29</dd></div>
+      <div><dt>Starter prompts</dt><dd>48</dd></div>
+    </dl>
+    <div class="more">
+      <div><h3>Research and ideas</h3><p>Ideas scored on demand, competition, effort and speed, with a skeptical-investor critique. Research briefs from web search mark which facts came from sources and which are guesses.</p></div>
+      <div><h3>Gig Hunter and RFP Hunter</h3><p>Every few hours it reads public job boards, scores what's left against ten skills and drafts replies. A separate tool ranks public government bids by fit, profit and complexity.</p></div>
+      <div><h3>A five-stage assist chain</h3><p>Brainstormer, Assessor, Planner, Executor and Content Creator, each seeing everything earlier stages produced, with prompts editable in the app.</p></div>
+      <div><h3>Model choice and resilience</h3><p>It picks the best installed model, retries without the reasoning flag for models that lack it, uses a vision model for photo listings, and runs long jobs on the server so a closed tab never loses a result.</p></div>
+    </div>
+  </section>
+
+  <!-- WRITING -->
+  <section class="shelf" id="writing">
+    <div class="shelf-head">
+      <span class="eyebrow">Writing &amp; workflows</span>
+      <h2>298,692 words of fiction, and the systems that write it</h2>
+      <p>A novel, a historical series and a screenplay package, each built with a process I can repeat: a story bible or system prompt first, then drafting and revision.</p>
+          <p class="links"><a href="https://claude.ai/artifact/7spoBSaMPTfLSYUHPgCpHs">Read the screenwriter system prompt</a><a href="https://claude.ai/artifact/QGYfptKPxFk6vrPnRQsSaU">Read CORPUS</a><a href="https://claude.ai/artifact/EtVDrJ3LwV1f7xD8sjuTyN">Read the FINE-TUNED pitch</a></p>
+    </div>
+
+    <div class="books">
+      <article class="book">
+        <span class="kind">Series · Historical fiction</span>
+        <h3>No Ear Cut Twice</h3>
+        <p class="count">94,828 words</p>
+        <p class="logline">On an island where perjurers lose their ears, a plasterer hides that his are prosthetic stucco, and a single lie blooms into a herd of thousands.</p>
+        <p>Set on Ischia and in Naples across three parts: The Lie (34,187 words), The Herd (19,492) and The Collection (41,149). 32 chapters and an interlude.</p>
+        <div class="made"><b>How it was made</b><p>Written part by part, then carried to launch with a 3,159-word marketing pack holding a master prompt, 14 image prompts and a bank of copy.</p></div>
+      </article>
+      <article class="book">
+        <span class="kind">Novel · Literary science fiction</span>
+        <h3>Thalweg</h3>
+        <p class="count">189,962 words</p>
+        <p class="logline">A surveyor re-measures her lost father's survey stations inside a vast alien object and finds a span that breathes.</p>
+        <p>34 chapters and 6 interludes in seven parts, with chapters running from 4,176 to 8,701 words. The prose uses real surveying technique.</p>
+        <div class="made"><b>How it was made</b><p>A 4,982-word story bible came first and kept the book consistent across its length. Chapters went through many rounds of revision.</p></div>
+      </article>
+      <article class="book">
+        <span class="kind">Workflow · Screenplay</span>
+        <h3>Horror screenwriting pipeline</h3>
+        <p class="count">13,902 words across 3 documents</p>
+        <p>A 4,642-word system prompt in 16 sections turns Claude into a senior horror screenwriter and script doctor, with a fear-mechanics toolkit, structure rules, a cliché list and a self-review checklist.</p>
+        <p class="logline">CORPUS: a novelist leaks a cursed 1349 manuscript into his homemade AI's training data.</p>
+        <div class="made"><b>How it was made</b><p>The prompt produced CORPUS, a 5,351-word development package with a 15-beat sheet, 7 characters and 9 set pieces chosen from 64 brainstormed. FINE-TUNED is the 3,909-word pitch with 18 beats over three acts. Side by side, they show prompt design as a tool.</p></div>
+        <p class="note">Content note: horror, with gore.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- RESEARCH -->
+  <section class="shelf" id="research">
+    <div class="shelf-head">
+      <span class="eyebrow">Research</span>
+      <h2>Questions answered with data</h2>
+          <p class="links"><a href="https://claude.ai/artifact/FormbtcfnYisxmMoy7E1de">Read Two Hypotheses</a><a href="https://claude.ai/artifact/8GQjSCmDbdeNXwgTnhrrkf">Open the Box 12 Field Guide</a></p>
+    </div>
+    <div class="more">
+      <div>
+        <h3>Two Hypotheses</h3>
+        <div class="facts"><span><strong>17</strong> futures</span><span><strong>111,201</strong> instrument-days</span><span><strong>2000–2026</strong></span></div>
+        <p>Do two published market effects, 12-month momentum and 5-day reversal, show up in futures data? Both hypotheses were registered before looking, with costs and a randomization test included. Momentum held (Sharpe 0.43, t = 2.29); reversal did not (Sharpe 0.03). The report says plainly that the result is not tradeable on its own.</p>
+      </div>
+      <div>
+        <h3>Box 12 Field Guide</h3>
+        <div class="facts"><span><strong>71</strong> occupation codes</span><span><strong>3</strong> tools</span></div>
+        <p>A free interactive guide to the new 2026 W-2 codes for overtime premium and tips: an overtime-premium calculator, a tip-or-service-charge decision aid, and a searchable table of every qualifying occupation code from the federal regulation. Its key point: only one third of time-and-a-half pay counts as the premium.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- METHOD -->
+  <section class="shelf" id="method">
+    <div class="shelf-head">
+      <span class="eyebrow">How I work with Claude</span>
+      <h2>Rules I bring to every project</h2>
+    </div>
+    <div class="rules">
+      <div>
+        <h3>Write the system before the thing</h3>
+        <p>A story bible before the novel, a 16-section prompt before the screenplay, a walkthrough of how the work is really done before the app. The system is what makes the result repeatable.</p>
+      </div>
+      <div>
+        <h3>The model drafts, code decides</h3>
+        <p>In business software the AI reads and suggests, while prices, totals and matching are computed in code, and a person approves every change.</p>
+      </div>
+      <div>
+        <h3>Ship the whole arc</h3>
+        <p>A product is not done at the demo. Tests, a walkthrough, a pilot pack, an honest list of what is not built yet, and notes for the next Claude session all ship with it.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>Myles Parslow · Made with Claude</span>
+    <a href="https://github.com/mylesparslow-collab">github.com/mylesparslow-collab</a>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var KEY = 'portfolio-scheme';
+  var root = document.documentElement;
+  var buttons = document.querySelectorAll('.swatch');
+  function apply(name) {
+    if (name !== 'pine' && name !== 'sky') name = 'eggshell';
+    if (name === 'eggshell') root.removeAttribute('data-scheme'); else root.setAttribute('data-scheme', name);
+    buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.pick === name)); });
+    return name;
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  apply(saved);
+  buttons.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var name = apply(b.dataset.pick);
+      try { localStorage.setItem(KEY, name); } catch (e) {}
+    });
+  });
+})();
+</script>
+</body>
+</html>
