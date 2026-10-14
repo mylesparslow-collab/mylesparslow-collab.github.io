@@ -94,6 +94,18 @@ p{margin:0}
 .last{border-top:1px solid var(--line);padding-top:12px;font-size:14.5px;color:var(--muted)}
 .last b{color:var(--fg)}
 
+
+/* daily greeting + quote */
+.greet{font-family:var(--display);font-weight:900;font-size:clamp(30px,4.4vw,52px);line-height:1;text-transform:uppercase;letter-spacing:.01em;margin:0 0 18px;max-width:22ch;text-wrap:balance}
+.greet em{font-style:normal;color:var(--gold)}
+.quote-strip{margin-top:22px;display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px;align-items:start;padding:18px 20px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+.quote-strip .lab{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);white-space:nowrap;padding-top:4px}
+.quote-strip blockquote{margin:0;padding:0;border:0;background:none;border-radius:0;font-style:normal}
+.quote-strip q{display:block;quotes:none;font-family:var(--display);font-weight:700;font-size:clamp(21px,2.6vw,28px);line-height:1.2;letter-spacing:.01em;text-wrap:balance}
+.quote-strip cite{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px;font-style:normal;font-size:14px;color:var(--muted)}
+.quote-strip .tag{margin-left:0}
+@media (max-width:640px){.quote-strip{grid-template-columns:1fr;gap:6px}}
+
 /* sections */
 main{padding-block:12px 60px}
 section{padding-top:44px;scroll-margin-top:70px}
@@ -263,6 +275,7 @@ footer a{color:var(--muted)}
 <div class="hero" id="top">
   <div class="wrap">
     <div>
+      <h1 class="greet" id="greet"></h1>
       <div class="eyebrow"><span class="pill gold" id="nextWeek">Week 6 · Next up</span><span class="pill"><span class="dot"></span><span id="asof"></span></span></div>
       <div class="matchup" id="matchup"></div>
       <div class="gameinfo" id="gameinfo"></div>
@@ -276,6 +289,13 @@ footer a{color:var(--muted)}
       <p class="last" id="last"></p>
     </aside>
   </div>
+</div>
+
+<div class="wrap">
+  <aside class="quote-strip" aria-label="Quote of the day">
+    <span class="lab">Quote of the day</span>
+    <blockquote><q id="qText"></q><cite><span id="qWho"></span><span class="tag" id="qTag"></span></cite></blockquote>
+  </aside>
 </div>
 
 <main class="wrap">
@@ -618,6 +638,80 @@ const hof = [
   ['Ozzie Newsome','GM · 1996-2018','Class of 1999 (as a player)']
 ];
 $('#hof').innerHTML = hof.map(([n,r,c]) => `<div><b>${n}</b><small>${r}</small><span class="cls">${c}</span></div>`).join('');
+
+
+/* daily greeting + quote (rotates by local calendar day) */
+(function(){
+  const NAME = 'Jalen';
+  const greetings = [
+    `Welcome back to the Nest, ${NAME}.`,
+    `What's good, ${NAME}? The Flock is ready.`,
+    `${NAME}, it's a good day to be a Ravens fan.`,
+    `Rise and fly, ${NAME}.`,
+    `${NAME} is in the building. Let's talk Ravens.`,
+    `Good to see you, ${NAME}. The Flock has been waiting.`,
+    `Another day, another reason to say Nevermore, ${NAME}.`,
+    `Hey ${NAME}, here's your daily dose of purple.`,
+    `Ravens report for ${NAME}, coming in hot.`,
+    `${NAME}, grab a seat. The film room is open.`,
+    `Welcome home, ${NAME}. Baltimore is calling.`,
+    `Big day for the Flock, ${NAME}.`,
+    `${NAME}, you're locked in. So are we.`,
+    `Look who's here. Hey, ${NAME}.`,
+    `Purple and black all day, ${NAME}.`,
+    `The Nest is yours today, ${NAME}.`,
+    `Check the injury report, ${NAME}. Then check your fantasy lineup.`,
+    `Hello, ${NAME}. Time to talk football.`,
+    `${NAME}, the Flock never sleeps.`,
+    `Let's get after it, ${NAME}.`,
+    `Another day closer to Sunday, ${NAME}.`,
+    `${NAME}, bring the energy. Baltimore is watching.`,
+    `Good to have you back, ${NAME}. Here's what's new.`,
+    `Hey ${NAME}, ready for some purple-and-black football?`,
+    `${NAME}, Charm City is glad you're here.`
+  ];
+  // Categories: B = Baltimore, P = philosopher, A = athlete. Listed in rotation order.
+  const quotes = [
+    ['If there is no struggle, there is no progress.', 'Frederick Douglass', 'B', 'Baltimore'],
+    ['The unexamined life is not worth living.', 'Socrates', 'P', 'Philosopher'],
+    ['I missed more than 9,000 shots in my career. I have lost almost 300 games. I have failed over and over and over again in my life. And that is why I succeed.', 'Michael Jordan', 'A', 'Athlete'],
+    ['Power concedes nothing without a demand. It never did and it never will.', 'Frederick Douglass', 'B', 'Baltimore'],
+    ['The journey of a thousand miles begins with a single step.', 'Lao Tzu', 'P', 'Philosopher'],
+    ['Start where you are. Use what you have. Do what you can.', 'Arthur Ashe', 'A', 'Athlete'],
+    ['You can’t put a limit on anything. The more you dream, the farther you get.', 'Michael Phelps', 'B', 'Baltimore'],
+    ['What stands in the way becomes the way.', 'Marcus Aurelius', 'P', 'Philosopher'],
+    ['You miss 100 percent of the shots you don’t take.', 'Wayne Gretzky', 'A', 'Athlete'],
+    ['All that we see or seem is but a dream within a dream.', 'Edgar Allan Poe', 'B', 'Baltimore'],
+    ['That which does not kill us makes us stronger.', 'Friedrich Nietzsche', 'P', 'Philosopher'],
+    ['A life is not important except in the impact it has on other lives.', 'Jackie Robinson', 'A', 'Athlete'],
+    ['In recognizing the humanity of our fellow beings, we pay ourselves the highest tribute.', 'Thurgood Marshall', 'B', 'Baltimore'],
+    ['He who has a why to live can bear almost any how.', 'Friedrich Nietzsche', 'P', 'Philosopher'],
+    ['Perfection is not attainable, but if we chase perfection we can catch excellence.', 'Vince Lombardi', 'A', 'Athlete'],
+    ['I would unite with anybody to do right and with nobody to do wrong.', 'Frederick Douglass', 'B', 'Baltimore'],
+    ['Waste no more time arguing about what a good man should be. Be one.', 'Marcus Aurelius', 'P', 'Philosopher'],
+    ['My motto was always to keep swinging. Whether I was in a slump or feeling badly or having trouble off the field, the only thing to do was keep swinging.', 'Hank Aaron', 'A', 'Athlete'],
+    ['Those who dream by day are cognizant of many things which escape those who dream only by night.', 'Edgar Allan Poe', 'B', 'Baltimore'],
+    ['Life can only be understood backwards; but it must be lived forwards.', 'Søren Kierkegaard', 'P', 'Philosopher'],
+    ['Pressure is a privilege.', 'Billie Jean King', 'A', 'Athlete'],
+    ['Where you see wrong or inequality or injustice, speak out, because this is your country.', 'Thurgood Marshall', 'B', 'Baltimore'],
+    ['We suffer more often in imagination than in reality.', 'Seneca', 'P', 'Philosopher'],
+    ['Luck has nothing to do with it, because I have spent many, many hours, countless hours, on the court working for my one moment in time.', 'Serena Williams', 'A', 'Athlete'],
+    ['I prefer to be true to myself, even at the hazard of incurring the ridicule of others, rather than to be false, and incur my own abhorrence.', 'Frederick Douglass', 'B', 'Baltimore'],
+    ['Men are disturbed not by things, but by the views which they take of them.', 'Epictetus', 'P', 'Philosopher'],
+    ['The measure of who we are is what we do with what we have.', 'Vince Lombardi', 'A', 'Athlete'],
+    ['The beginning is the most important part of the work.', 'Plato', 'P', 'Philosopher'],
+    ['I hated every minute of training, but I said, “Don’t quit. Suffer now and live the rest of your life as a champion.”', 'Muhammad Ali', 'A', 'Athlete'],
+    ['We are what we repeatedly do. Excellence, then, is not an act, but a habit.', 'Will Durant, summing up Aristotle', 'P', 'Philosopher']
+  ];
+  const d = new Date();
+  const dayNum = Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 864e5);
+  const g = greetings[dayNum % greetings.length];
+  const q = quotes[dayNum % quotes.length];
+  $('#greet').innerHTML = esc(g).replace(NAME, '<em>' + NAME + '</em>');
+  $('#qText').textContent = '“' + q[0] + '”';
+  $('#qWho').textContent = '— ' + q[1];
+  $('#qTag').textContent = q[3];
+})();
 
 /* foot */
 $('#foot').innerHTML = `Data as of ${esc(D.asOfLabel)} · <a href="https://www.pro-football-reference.com/teams/rav/2026.htm" target="_blank" rel="noopener">PFR</a> · <a href="https://www.baltimoreravens.com/" target="_blank" rel="noopener">Ravens.com</a>`;
