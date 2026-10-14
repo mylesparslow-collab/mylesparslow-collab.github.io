@@ -147,9 +147,6 @@ footer { border-top: 1px solid var(--rule); padding-top: 1.25rem; display: flex;
   .toc a { transition: color 0.15s ease; }
 }
 span.note { font-style: italic; color: var(--muted); }
-.toc-more { margin: 0; padding: 0.7rem 0; border-bottom: 1px solid var(--rule); font-size: 0.95rem; line-height: 1.7; }
-.toc-more span { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-right: 0.35rem; }
-.toc .toc-more a { display: inline; padding: 0; border: 0; font-family: var(--display); font-weight: 500; font-size: inherit; color: var(--accent); text-decoration: underline; text-decoration-thickness: 1px; }
 </style>
 </head>
 <body>
@@ -176,11 +173,11 @@ span.note { font-style: italic; color: var(--muted); }
       <a href="#byzantium">Case study: Byzantium <span>mosaic atlas</span></a>
       <a href="#catgpt">Case study: CatGPT <span>local AI + 9 games</span></a>
       <a href="#songs">Case study: Cat songs &amp; videos <span>Suno + animation</span></a>
+      <a href="#xray">Case study: Argument X-ray <span>reading tool</span></a>
+      <a href="#boardroom">Case study: Boardroom of One <span>decision tool</span></a>
       <a href="#writing">Writing &amp; workflows <span>299k words</span></a>
       <a href="#research">Research <span>2 reports</span></a>
       <a href="#tools">Which AI for what <span>by project</span></a>
-      <a href="guide/">Prompting field guide <span>45 prompts + resources</span></a>
-      <p class="toc-more"><span>More guides</span> <a href="guide/tool-chooser/">AI Tool Chooser</a> · <a href="guide/local-ai/">Local AI Starter</a> · <a href="guide/coding-agents/">Coding Agents</a> · <a href="guide/writing/">Writing With AI</a> · <a href="guide/ai-music/">AI Music Handbook</a> · <a href="guide/ai-safety/">AI Safety and Privacy</a> · <a href="guide/glossary/">AI Glossary</a></p>
     </nav>
     <dl class="tally">
       <div><dt>Words of fiction and screenwriting</dt><dd>298,692</dd></div>
@@ -196,7 +193,7 @@ span.note { font-style: italic; color: var(--muted); }
       <span class="eyebrow">Case study 01 · Legal software</span>
       <h2>Conflara</h2>
       <p class="sum">A conflicts-check and new-matter intake system for US law firms of 10 to 150 lawyers, carried from a working product through research, pricing, a pilot plan and two films.</p>
-          <p class="links"><a href="demos/conflara.html">Try the demo</a><a href="demos/conflara-ad.html">Watch the 1-minute promo</a><a href="demos/conflara-film.html">Watch the 2:30 walkthrough</a><a href="https://github.com/mylesparslow-collab/conflicts-desk">Prototype code</a></p>
+          <p class="links"><a href="demos/conflara.html">Try the demo</a><a href="demos/conflara-ad.html">Watch the 60-second ad</a><a href="demos/conflara-film.html">Watch the walkthrough film</a><a href="https://github.com/mylesparslow-collab/conflicts-desk">Prototype code</a></p>
     </div>
 
     <dl class="stats">
@@ -309,8 +306,8 @@ span.note { font-style: italic; color: var(--muted); }
         </ul>
       </section>
       <figure>
-        <img src="assets/ad.jpg" alt="Frame from the Conflara promo: the headline 'Every hit says why it matched.' beside a conflicts review screen showing a high-risk hit with its rule and suggested decision." width="1280" height="720" loading="lazy">
-        <figcaption>Conflara in one minute: real screens from the current app, short headlines and an original score, all in HTML, CSS and JavaScript. A 14-step, 2 min 30 s captioned walkthrough runs on the same engine.</figcaption>
+        <img src="assets/ad.jpg" alt="Frame from the Conflara ad: spreadsheet, email and billing-search cards scattered on a dark background with the caption 'Most firms answer it with spreadsheets, email chains and a two-day wait.'" width="1280" height="800" loading="lazy">
+        <figcaption>Conflara in sixty seconds: nine scenes, typed text, a logo that draws itself and an original score, all in HTML, CSS and JavaScript. A 12-chapter, 2 min 32 s walkthrough film runs on the same engine.</figcaption>
       </figure>
     </div>
 
@@ -678,6 +675,72 @@ span.note { font-style: italic; color: var(--muted); }
     </div>
   </article>
 
+  <!-- ARGUMENT X-RAY -->
+  <article class="case" id="xray">
+    <div class="shelf-head">
+      <span class="eyebrow">Case study 06 · Reading tool</span>
+      <h2>Argument X-ray</h2>
+      <p class="sum">Persuasive writing hides its structure. This tool maps a text into its thesis, claims, evidence, unstated assumptions and objections, then flags the weak links so you can see what is actually supported.</p>
+      <p class="links"><a href="demos/argument-xray.html" target="_blank" rel="noopener">Open Argument X-ray</a></p>
+    </div>
+
+    <dl class="stats">
+      <div><dt>Worked examples</dt><dd>4</dd></div>
+      <div><dt>Hand-written rules in the browser</dt><dd>45</dd></div>
+      <div><dt>Text types covered</dt><dd>op-ed, memo, contract, letter</dd></div>
+    </dl>
+
+    <div class="cols">
+      <section class="block">
+        <h3>What it does</h3>
+        <ul>
+          <li><strong>A clickable map</strong> of each text: thesis, reasons, evidence, unstated assumptions, objections and replies. Selecting a box highlights its passage, and selecting a passage selects its box.</li>
+          <li><strong>A verdict</strong> with a grade, the weak points ranked by how serious they are, and suggested fixes. Typical findings are false dilemmas, one-off costs passed off as yearly ones, and contract clauses that conflict.</li>
+          <li><strong>A rule-based scan beside it,</strong> so you can see what plain pattern matching catches and what takes real reading.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>How honest the demo is</h3>
+        <p>The four examples are texts I had Claude write, with every person, place and number invented, and Claude's analysis of each is written in advance. Text you paste into the copy on this site is scanned by 45 hand-written rules running in your browser; no AI is involved in that mode. A version of the page that runs on a viewer's own Claude account can map pasted text live, but that button is hidden on this site.</p>
+      </section>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>Claude Code wrote the page, the sample texts and each analysis. The look is deliberately separate from this portfolio: a dark radiology light box, where the examples are plates and the fixes are recommendations.</p></div>
+  </article>
+
+  <!-- BOARDROOM OF ONE -->
+  <article class="case" id="boardroom">
+    <div class="shelf-head">
+      <span class="eyebrow">Case study 07 · Decision tool</span>
+      <h2>Boardroom of One</h2>
+      <p class="sum">Ask one AI for advice and you tend to get one balanced, agreeable answer that hides the real disagreement. This tool seats five advisers with fixed temperaments and lets them argue your decision, then vote.</p>
+      <p class="links"><a href="demos/boardroom-of-one.html" target="_blank" rel="noopener">Open Boardroom of One</a></p>
+    </div>
+
+    <dl class="stats">
+      <div><dt>Advisers</dt><dd>5</dd></div>
+      <div><dt>Example decisions</dt><dd>4</dd></div>
+      <div><dt>Vote scale</dt><dd>5 points</dd></div>
+    </dl>
+
+    <div class="cols">
+      <section class="block">
+        <h3>How a meeting runs</h3>
+        <ul>
+          <li><strong>Five temperaments:</strong> Skeptic, Optimist, CFO, Future You and Contrarian, each with a different worldview.</li>
+          <li><strong>Openings, cross-examination and a vote</strong> on a five-point scale, which you can replay turn by turn around an animated table.</li>
+          <li><strong>The chair's resolution:</strong> the crux, the tradeoffs, when to say yes or no, and a first step for this week.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>How honest the demo is</h3>
+        <p>The four examples (a bakery, an agency client, a move to a small town, an app rewrite) are full debates that Claude wrote in advance. "Bring your own" on this site asks guided questions and builds the debate from templates, for example by comparing the money you have set aside with how long it will take to know whether the decision is working. No AI is involved in that mode. A version that runs on a viewer's own Claude account has Claude play all five advisers live, but that button is hidden on this site.</p>
+      </section>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>Claude Code built the page and wrote the four example debates. It has its own look, an after-hours boardroom with a brass-nameplate table and a chair's resolution sealed in wax, so it reads as a separate product.</p></div>
+  </article>
+
   <!-- MONEY DESK -->
   <section class="shelf" id="money">
     <div class="shelf-head">
@@ -775,6 +838,8 @@ span.note { font-style: italic; color: var(--muted); }
       <div><h4>CatGPT</h4><p><strong>Built with:</strong> Claude Code.<br><strong>Runs on:</strong> local models through Ollama or any OpenAI-compatible server, whisper.cpp for speech input, local voice cloning, local Stable Diffusion for pictures, and a local embedding model for shared memory.</p></div>
       <div><h4>Money Desk</h4><p><strong>Built with:</strong> Claude Code.<br><strong>Runs on:</strong> local models, with a vision model for photo listings.</p></div>
       <div><h4>Cat songs and music videos</h4><p><strong>Songs:</strong> Suno, with the written workflow above. Lyrics: ChatGPT.<br><strong>Studio and animation:</strong> ChatGPT and Codex for the code and production documents, Whisper small.en and stable-ts for alignment, p5.js for the animation.</p></div>
+      <div><h4>Argument X-ray</h4><p><strong>Built with:</strong> Claude Code, which also wrote the examples and analyses.<br><strong>Runs on:</strong> no live AI on this site: worked examples plus 45 browser rules. The Claude-account version maps pasted text live.</p></div>
+      <div><h4>Boardroom of One</h4><p><strong>Built with:</strong> Claude Code, which also wrote the four example debates.<br><strong>Runs on:</strong> no live AI on this site: written examples plus templates. The Claude-account version runs the five advisers live.</p></div>
       <div><h4>Horror screenwriting</h4><p><strong>Built with:</strong> Claude, driven by a 16-section system prompt that produced the CORPUS package and the FINE-TUNED pitch.</p></div>
       <div><h4>Novels</h4><p><strong>Drafted with:</strong> Claude, working from plans, outlines and research documents produced by ChatGPT.</p></div>
       <div><h4>Research reports</h4><p><strong>Built with:</strong> Claude.</p></div>
