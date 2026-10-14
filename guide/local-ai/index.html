@@ -1,0 +1,684 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="A starter guide to running Qwen, Gemma, gpt-oss and Llama on your own computer: memory and quantization maths, tools compared, models by hardware tier, and when local beats cloud.">
+<title>Local AI Starter Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Same sheet, tokens and colour picker as the portfolio home page, so a chosen scheme carries over. */
+:root {
+  color-scheme: light;
+  --bg: #f2eee3; --surface: #fbf9f3; --rule: #ddd3bf; --ink: #15120f; --muted: #5f4e40;
+  --accent: #6b3f22; --mark: #a9822f; --mark-soft: #ede1c1;
+  --display: "Bricolage Grotesque", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+  --body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+:root[data-scheme="pine"] {
+  --bg: #f4f6f4; --surface: #ffffff; --rule: #d5ddd8; --ink: #18201c; --muted: #56625b;
+  --accent: #23593f; --mark: #23593f; --mark-soft: #e2ece6;
+}
+:root[data-scheme="sky"] {
+  --bg: #e8f3fb; --surface: #ffffff; --rule: #c6e0f3; --ink: #192838; --muted: #4c6073;
+  --accent: #9b111e; --mark: #9b111e; --mark-soft: #f7e1e4;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 1.0625rem; line-height: 1.62; margin: 0; }
+.wrap { max-width: 72rem; margin: 0 auto; padding-inline: 1.25rem; padding-block: 3.5rem 4rem; display: grid; gap: 5rem; }
+a { color: var(--accent); text-underline-offset: 0.18em; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+h1, h2, h3, h4 { font-family: var(--display); text-wrap: balance; line-height: 1.12; margin: 0; }
+p { margin: 0; }
+code { font-family: var(--mono); font-size: 0.86em; background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; padding: 0.05em 0.3em; }
+.eyebrow { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+
+/* Top bar and picker */
+.topbar { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.75rem 1.5rem; }
+.topbar .back { font-family: var(--mono); font-size: 0.8rem; }
+.picker { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0; padding: 0; border: 0; }
+.picker legend { float: left; margin-right: 0.25rem; font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.swatch { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.3rem 0.7rem 0.3rem 0.35rem; border-radius: 999px; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); font-family: var(--display); font-size: 0.85rem; font-weight: 500; cursor: pointer; }
+.swatch:hover { border-color: var(--muted); }
+.swatch[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.swatch i { width: 1.15rem; height: 1.15rem; border-radius: 50%; flex: none; border: 1px solid rgba(0,0,0,0.15); }
+.swatch[data-pick="eggshell"] i { background: linear-gradient(135deg, #f2eee3 0 45%, #6b3f22 45% 70%, #a9822f 70%); }
+.swatch[data-pick="pine"] i { background: linear-gradient(135deg, #f4f6f4 0 50%, #23593f 50%); }
+.swatch[data-pick="sky"] i { background: linear-gradient(135deg, #e8f3fb 0 50%, #9b111e 50%); }
+
+/* Intro */
+.intro { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 2.5rem; align-items: start; }
+.intro-text { display: grid; gap: 1.25rem; align-content: start; }
+.intro h1 { font-size: clamp(2.6rem, 6.4vw, 4.4rem); font-weight: 800; letter-spacing: -0.025em; line-height: 1.04; }
+.intro h1 em { font-style: normal; color: var(--mark); }
+.lede { font-size: 1.22rem; max-width: 38rem; }
+.toc { display: grid; border-top: 2px solid var(--ink); counter-reset: toc; }
+.toc a { display: grid; grid-template-columns: 2.2rem 1fr auto; gap: 0.5rem; align-items: baseline; padding: 0.55rem 0; border-bottom: 1px solid var(--rule); text-decoration: none; color: var(--ink); font-family: var(--display); font-weight: 700; font-size: 1.05rem; }
+.toc a::before { counter-increment: toc; content: counter(toc, decimal-leading-zero); font-family: var(--mono); font-weight: 400; font-size: 0.75rem; color: var(--muted); }
+.toc a span { font-family: var(--mono); font-weight: 400; font-size: 0.75rem; color: var(--muted); text-align: right; }
+.toc a:hover { color: var(--accent); }
+.tally { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin: 0; border-top: 1px solid var(--rule); padding-top: 1.25rem; }
+.tally div { display: grid; gap: 0.2rem; align-content: start; }
+.tally dt { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); order: 2; }
+.tally dd { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(1.6rem, 3.4vw, 2.4rem); color: var(--accent); letter-spacing: -0.02em; line-height: 1.05; }
+
+/* Sections */
+.shelf { display: grid; gap: 2.25rem; scroll-margin-top: 1.5rem; }
+.shelf-head { display: grid; gap: 0.5rem; border-top: 2px solid var(--ink); padding-top: 1rem; }
+.shelf-head h2 { font-size: clamp(2rem, 4.2vw, 2.8rem); font-weight: 800; letter-spacing: -0.02em; }
+.shelf-head p { color: var(--muted); max-width: 46rem; }
+.sub { display: grid; gap: 1rem; }
+.sub > h3 { font-size: 1.5rem; }
+.sub > p { max-width: 48rem; }
+
+/* Numbered rules */
+.short { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem 2.5rem; counter-reset: r; }
+.short li { counter-increment: r; display: grid; grid-template-columns: 2.4rem 1fr; gap: 0.2rem 0.6rem; border-top: 1px solid var(--rule); padding-top: 0.8rem; }
+.short li::before { content: counter(r, decimal-leading-zero); grid-row: span 2; font-family: var(--display); font-weight: 800; font-size: 1.4rem; color: var(--mark); line-height: 1.1; }
+.short h3 { font-size: 1.12rem; }
+.short p { color: var(--muted); font-size: 0.98rem; }
+
+/* Card grids */
+.grid2, .grid3 { display: grid; gap: 1.5rem 2.25rem; }
+.grid2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.item { display: grid; gap: 0.4rem; align-content: start; border-top: 1px solid var(--rule); padding-top: 0.85rem; min-width: 0; }
+.item h4 { font-size: 1.08rem; }
+.item p { font-size: 0.98rem; }
+.item .why { color: var(--muted); }
+.item .cite { font-family: var(--mono); font-size: 0.74rem; color: var(--muted); }
+.item ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.35rem; font-size: 0.98rem; }
+
+/* Anatomy */
+.anatomy { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0.75rem; }
+.anatomy div { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 0.9rem; display: grid; gap: 0.35rem; align-content: start; }
+.anatomy b { font-family: var(--mono); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.anatomy p { font-size: 0.92rem; color: var(--muted); }
+.versus { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: 1.25rem; align-items: start; }
+.versus .label { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.35rem; }
+.versus .label.good { color: var(--accent); }
+
+/* Code blocks */
+.code { position: relative; min-width: 0; }
+pre { margin: 0; font-family: var(--mono); font-size: 0.8rem; line-height: 1.55; background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 0.9rem 1rem; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--ink); }
+.copy { position: absolute; top: 0.45rem; right: 0.45rem; font-family: var(--mono); font-size: 0.72rem; padding: 0.2rem 0.55rem; border-radius: 999px; border: 1px solid var(--rule); background: var(--bg); color: var(--accent); cursor: pointer; }
+.copy:hover { border-color: var(--accent); }
+.copy + pre { padding-top: 2rem; }
+
+/* Tables */
+.table-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; min-width: 46rem; }
+th, td { text-align: left; vertical-align: top; padding: 0.65rem 0.8rem; border-bottom: 1px solid var(--rule); }
+th { font-family: var(--mono); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); background: var(--mark-soft); }
+td:first-child { font-family: var(--display); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+.verdict { font-family: var(--mono); font-size: 0.72rem; padding: 0.1rem 0.45rem; border-radius: 999px; background: var(--mark-soft); color: var(--accent); white-space: nowrap; }
+
+/* Model cards */
+.model { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 1.25rem 1.3rem; display: grid; gap: 0.7rem; align-content: start; min-width: 0; }
+.model .kind { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+.model h3 { font-size: 1.45rem; }
+.model ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.45rem; font-size: 0.97rem; }
+.model .links { font-family: var(--mono); font-size: 0.78rem; display: flex; flex-wrap: wrap; gap: 0.3rem 1rem; }
+.callout { border-left: 3px solid var(--mark); padding-left: 0.9rem; display: grid; gap: 0.3rem; max-width: 50rem; }
+.callout b { font-family: var(--mono); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+
+/* Prompt library */
+.filters { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.chip { font-family: var(--display); font-size: 0.88rem; font-weight: 500; padding: 0.3rem 0.75rem; border-radius: 999px; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); cursor: pointer; }
+.chip span { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); margin-left: 0.15rem; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.chip[aria-pressed="true"] span { color: var(--bg); }
+.prompts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem 2.25rem; align-items: start; }
+.prompt { display: grid; gap: 0.6rem; min-width: 0; border-top: 1px solid var(--rule); padding-top: 0.9rem; scroll-margin-top: 1.5rem; }
+.prompt[hidden] { display: none; }
+.prompt .kind { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.prompt h3 { font-size: 1.25rem; margin-top: 0.2rem; }
+.prompt .src, .prompt .after { font-size: 0.88rem; color: var(--muted); }
+
+/* Resources */
+.rnav { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; font-family: var(--mono); font-size: 0.82rem; }
+.rgroup { display: grid; gap: 0.9rem; scroll-margin-top: 1.5rem; }
+.rgroup h3 { font-size: 1.5rem; }
+.rintro { color: var(--muted); max-width: 46rem; }
+.rlist { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem 2rem; }
+.rlist li { display: grid; gap: 0.3rem; align-content: start; border-top: 1px solid var(--rule); padding-top: 0.75rem; min-width: 0; }
+.rname { font-family: var(--display); font-weight: 700; font-size: 1.02rem; overflow-wrap: anywhere; }
+.rhost { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.rlist p { font-size: 0.94rem; }
+.rlist .caution { font-size: 0.84rem; color: var(--muted); font-style: italic; }
+
+.small { font-size: 0.9rem; color: var(--muted); }
+.srcs { columns: 2; column-gap: 2.5rem; font-size: 0.86rem; margin: 0; padding-left: 1.1rem; }
+.srcs li { break-inside: avoid; margin-bottom: 0.35rem; overflow-wrap: anywhere; }
+
+footer { border-top: 1px solid var(--rule); padding-top: 1.25rem; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 2rem; font-family: var(--mono); font-size: 0.8rem; color: var(--muted); }
+
+@media (max-width: 980px) {
+  .anatomy { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .rlist, .grid3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 820px) {
+  .intro, .short, .grid2, .grid3, .prompts, .rlist, .versus { grid-template-columns: minmax(0, 1fr); }
+  .anatomy { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tally { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .srcs { columns: 1; }
+  .wrap { gap: 3.5rem; padding-block: 2.5rem 3rem; }
+}
+.plain { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.5rem; max-width: 50rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="intro">
+    <div class="topbar">
+      <a class="back" href="../../">← Myles Parslow portfolio</a>
+      <fieldset class="picker" aria-label="Colour scheme">
+        <legend>Colours</legend>
+        <button type="button" class="swatch" data-pick="eggshell" aria-pressed="true"><i></i>Eggshell</button>
+        <button type="button" class="swatch" data-pick="pine" aria-pressed="false"><i></i>Original</button>
+        <button type="button" class="swatch" data-pick="sky" aria-pressed="false"><i></i>Sky &amp; ruby</button>
+      </fieldset>
+    </div>
+    <div class="intro-text">
+      <span class="eyebrow">Field guide · October 2026</span>
+      <h1>Run AI <em>on your own machine</em>, and know what to expect.</h1>
+      <p class="lede">A starter guide to running open models such as Qwen, Gemma, gpt-oss and Llama on an ordinary desktop or laptop. It covers how much memory you need, which tools to install, which models to try, and when a local model is the right choice and when it isn’t.</p>
+      <p class="small">Figures come from the llama.cpp project, Hugging Face model repos, tool documentation and published benchmarks, each linked where it is used. Anything calculated rather than measured is marked as an estimate. This space moves quickly, so check version-specific details before relying on them.</p>
+    </div>
+    <nav class="toc" aria-label="Sections">
+      <a href="#short">The short version <span>8 rules</span></a>
+      <a href="#fit">Will it fit? <span>memory maths</span></a>
+      <a href="#speed">How fast will it be? <span>bandwidth</span></a>
+      <a href="#tools">Tools <span>12 compared</span></a>
+      <a href="#start">First run <span>copy-paste</span></a>
+      <a href="#models">Models by hardware <span>4 tiers</span></a>
+      <a href="#choose">Choosing a model <span>where to look</span></a>
+      <a href="#cloud">Local or cloud? <span>honest tradeoffs</span></a>
+      <a href="#jobs">Jobs that suit local <span>5 examples</span></a>
+      <a href="#connect">Connect your apps <span>Open WebUI, VS Code</span></a>
+      <a href="#sources">Sources <span>and what is unverified</span></a>
+    </nav>
+    <dl class="tally">
+      <div><dt>Tools compared</dt><dd>12</dd></div>
+      <div><dt>Quantization levels measured</dt><dd>6</dd></div>
+      <div><dt>Hardware tiers</dt><dd>4</dd></div>
+      <div><dt>Linked sources</dt><dd>50+</dd></div>
+    </dl>
+  </header>
+
+  <!-- SHORT -->
+  <section class="shelf" id="short">
+    <div class="shelf-head">
+      <span class="eyebrow">01 · The short version</span>
+      <h2>Eight things to know before you install anything</h2>
+      <p>Each is explained, with sources, further down.</p>
+    </div>
+    <ol class="short">
+      <li><h3>Memory decides what fits</h3><p>A model’s file size is roughly the memory its weights need. Add room for context and a gigabyte or two of overhead.</p></li>
+      <li><h3>Memory bandwidth decides how fast</h3><p>Each generated word reads the active weights once, so speed tracks bandwidth more than raw compute.</p></li>
+      <li><h3>Start at 4-bit</h3><p>Q4_K_M is the usual default: about a third of the size of 16-bit with a small, measured quality cost. Below 4-bit, quality drops quickly.</p></li>
+      <li><h3>Start with Ollama or LM Studio</h3><p>Both get a model chatting in minutes and offer a local API your other apps can call. Move to llama.cpp when you want control.</p></li>
+      <li><h3>Mixture-of-experts models are the CPU-friendly ones</h3><p>A 30B model with 3B active generates like a small model but still needs the full file in memory.</p></li>
+      <li><h3>Check the licence</h3><p>Qwen, Gemma 4, gpt-oss, Ministral and Granite are Apache 2.0. Llama uses its own community licence with conditions.</p></li>
+      <li><h3>Local trails the frontier by months</h3><p>Epoch AI measures the best open models at about four months behind closed ones, and models that fit one consumer GPU lag more.</p></li>
+      <li><h3>Local is strongest for private, repeatable, narrow jobs</h3><p>Extraction, classification, search over your own documents and offline use are where it earns its place.</p></li>
+    </ol>
+  </section>
+
+  <!-- FIT -->
+  <section class="shelf" id="fit">
+    <div class="shelf-head">
+      <span class="eyebrow">02 · Will it fit?</span>
+      <h2>The memory maths, without the jargon</h2>
+      <p>Three numbers add up: the weights, the context cache, and a little overhead. Quantization is how you shrink the first one.</p>
+    </div>
+
+    <div class="sub">
+      <h3>Weights: parameters × bits ÷ 8</h3>
+      <p>A model with 8 billion parameters at 16 bits per weight needs about 16 GB. Quantization stores each weight in fewer bits. The llama.cpp project says memory and disk requirements are currently the same, so the size of the downloaded file is about the memory the weights will occupy (<a href="https://github.com/ggml-org/llama.cpp/blob/master/tools/quantize/README.md">llama.cpp quantize README</a>). Rule of thumb: add 1 to 2 GB on top.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Quantization</th><th>Bits per weight</th><th>Size of an 8B model</th><th>Quality vs full precision</th></tr></thead>
+          <tbody>
+            <tr><td>Q8_0</td><td>8.50</td><td>7.95 GiB</td><td>Practically identical (same top token 97.7% of the time)</td></tr>
+            <tr><td>Q6_K</td><td>6.56</td><td>6.14 GiB</td><td>Near-lossless (96.0%)</td></tr>
+            <tr><td>Q5_K_M</td><td>5.70</td><td>5.33 GiB</td><td>Very close</td></tr>
+            <tr><td>Q4_K_M</td><td>4.89</td><td>4.58 GiB</td><td>Small loss (91.9%). The usual default.</td></tr>
+            <tr><td>Q3_K_M</td><td>4.00</td><td>3.74 GiB</td><td>Noticeable: error roughly triples versus Q4_K_M</td></tr>
+            <tr><td>Q2_K</td><td>3.16</td><td>2.95 GiB</td><td>Poor (71.1%). Only if nothing else fits.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="small">Sizes and bits per weight are from the <a href="https://github.com/ggml-org/llama.cpp/blob/master/tools/quantize/README.md">llama.cpp quantize README</a> (Llama 3.1 8B). Quality figures are agreement with the full-precision model on Llama 3 8B from the <a href="https://github.com/ggml-org/llama.cpp/blob/master/tools/perplexity/README.md">llama.cpp perplexity README</a>, which warns they are not comparable across different models. AMD’s FAQ suggests at least Q6 for coding and Q8 where you want near-lossless results (<a href="https://www.amd.com/en/blogs/2025/faqs-amd-variable-graphics-memory-vram-ai-model-sizes-quantization-mcp-more.html">AMD</a>).</p>
+    </div>
+
+    <div class="sub">
+      <h3>Real download sizes</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Model</th><th>Q4_K_M</th><th>Q8_0</th><th>Source</th></tr></thead>
+          <tbody>
+            <tr><td>Qwen3 4B</td><td>2.50 GB</td><td>4.28 GB</td><td><a href="https://huggingface.co/bartowski/Qwen_Qwen3-4B-GGUF">bartowski/Qwen_Qwen3-4B-GGUF</a></td></tr>
+            <tr><td>Llama 3.1 8B</td><td>4.92 GB</td><td>8.54 GB</td><td><a href="https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF">bartowski/Meta-Llama-3.1-8B-Instruct-GGUF</a></td></tr>
+            <tr><td>Qwen3 14B</td><td>9.00 GB</td><td>15.70 GB</td><td><a href="https://huggingface.co/bartowski/Qwen_Qwen3-14B-GGUF">bartowski/Qwen_Qwen3-14B-GGUF</a></td></tr>
+            <tr><td>Qwen3 32B</td><td>19.76 GB</td><td>34.82 GB</td><td><a href="https://huggingface.co/bartowski/Qwen_Qwen3-32B-GGUF">bartowski/Qwen_Qwen3-32B-GGUF</a></td></tr>
+            <tr><td>Qwen3 30B-A3B (MoE)</td><td>18.63 GB</td><td>32.48 GB</td><td><a href="https://huggingface.co/bartowski/Qwen_Qwen3-30B-A3B-GGUF">bartowski/Qwen_Qwen3-30B-A3B-GGUF</a></td></tr>
+            <tr><td>Llama 3.3 70B</td><td>42.52 GB</td><td>74.98 GB</td><td><a href="https://huggingface.co/bartowski/Llama-3.3-70B-Instruct-GGUF">bartowski/Llama-3.3-70B-Instruct-GGUF</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="callout"><b>Sizing advice from a quantizer</b>Bartowski, a widely used GGUF uploader, suggests choosing a file 1 to 2 GB smaller than your GPU’s VRAM. For maximum quality, add system RAM and VRAM together and apply the same rule (<a href="https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF">model card</a>).</p>
+    </div>
+
+    <div class="sub">
+      <h3>Context: the part that grows with long chats</h3>
+      <p>The model keeps a cache of everything in the conversation so far. Its size is 2 × layers × KV heads × head size × context length × bytes per value. For Llama 3.1 8B at full precision that is about 0.5 GB at 4K context, 4 GB at 32K and 16 GB at 128K, worked out in <a href="https://insiderllm.com/guides/kv-cache-optimization-guide/">this write-up</a> (a secondary source; the arithmetic checks out).</p>
+      <ul class="plain">
+        <li>Ollama can store the cache at 8-bit (about half the memory, “very small loss in precision”) or 4-bit (about a quarter, “small-medium loss”) by setting <code>OLLAMA_KV_CACHE_TYPE</code>. It needs Flash Attention, which Ollama enables where supported (<a href="https://docs.ollama.com/faq">Ollama FAQ</a>).</li>
+        <li>Ollama’s default context depends on your VRAM: 4K under 24 GiB, 32K from 24 to 48 GiB, 256K above that (<a href="https://docs.ollama.com/context-length">docs</a>). If a long document seems to be “forgotten”, the default context is the first thing to check.</li>
+        <li>In llama.cpp the flags are <code>--cache-type-k</code> and <code>--cache-type-v</code>.</li>
+      </ul>
+    </div>
+
+    <div class="sub">
+      <h3>Mixture-of-experts: fast, but not small</h3>
+      <p>A mixture-of-experts (MoE) model contains many specialist sub-networks and uses only a few for each word. Qwen3-30B-A3B has 30.5B parameters but 3.3B active, with 8 of 128 experts used per token (<a href="https://huggingface.co/Qwen/Qwen3-30B-A3B">model card</a>). gpt-oss-20b has 21B total and 3.6B active and runs within 16 GB; gpt-oss-120b has 117B total and 5.1B active and fits on one 80 GB GPU (<a href="https://huggingface.co/openai/gpt-oss-20b">model card</a>). Speed follows the active parameters, but all of them must be stored, so Qwen3-30B-A3B at Q4_K_M is still an 18.6 GB file.</p>
+      <p>Because so few parameters are active, MoE models are the best fit for machines without a big GPU. llama.cpp can keep the always-used layers on the GPU and put the experts in system RAM with <code>--cpu-moe</code> or <code>--n-cpu-moe N</code> (<a href="https://huggingface.co/blog/Doctor-Shotgun/llamacpp-moe-offload-guide">offload guide</a>).</p>
+    </div>
+
+    <div class="sub">
+      <h3>What fits where</h3>
+      <p class="small">These pairings are my estimates from the sizes above plus 1 to 2 GB of headroom, not benchmarks.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Your memory</th><th>Comfortable</th><th>Stretch</th></tr></thead>
+          <tbody>
+            <tr><td>8 GB VRAM</td><td>7–8B at Q4_K_M (about 5 GB), or a 4B at Q8</td><td>9B at Q4 with short context</td></tr>
+            <tr><td>12 GB VRAM</td><td>8B at Q8, or 14B at Q4_K_M (9 GB)</td><td>gpt-oss-20b with offloading</td></tr>
+            <tr><td>16 GB VRAM</td><td>14B at Q6 or Q8, or gpt-oss-20b</td><td>24B at Q4</td></tr>
+            <tr><td>24 GB VRAM</td><td>32B at Q4_K_M (19.8 GB) or a 30B-A3B MoE</td><td>Long context on the 32B</td></tr>
+            <tr><td>32 GB VRAM</td><td>32B at Q5 or Q6</td><td>Longer context at Q4</td></tr>
+            <tr><td>64 GB Mac</td><td>70B at Q4_K_M (42.5 GB) once the GPU limit is raised</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>On Apple Silicon the GPU can use about 75% of unified memory by default, so roughly 48 GB of a 64 GB Mac; the limit can be raised with <code>sudo sysctl iogpu.wired_limit_mb=&lt;MB&gt;</code> and resets on reboot (<a href="https://stencel.io/posts/apple-silicon-limitations-with-usage-on-local-llm%20.html">write-up</a>, <a href="https://github.com/ivanopcode/devnote-override-macos-metal-vram-cap">notes</a>). Older systems reportedly used about 65%.</p>
+    </div>
+  </section>
+
+  <!-- SPEED -->
+  <section class="shelf" id="speed">
+    <div class="shelf-head">
+      <span class="eyebrow">03 · How fast will it be?</span>
+      <h2>Speed follows memory bandwidth</h2>
+      <p>Generating each word means reading the active weights from memory once. Peak speed is roughly bandwidth divided by the bytes read per word, and real numbers come in lower (<a href="https://akash.network/the-bid/what-actually-determines-llm-inference-speed-2026/">explainer</a>). Reading your prompt, by contrast, is bound by compute.</p>
+    </div>
+    <div class="grid2">
+      <div class="sub">
+        <h3>Apple Silicon</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Chip</th><th>Bandwidth</th><th>Tokens/s</th></tr></thead>
+            <tbody>
+              <tr><td>M1</td><td>68 GB/s</td><td>14</td></tr>
+              <tr><td>M4</td><td>120 GB/s</td><td>24</td></tr>
+              <tr><td>M4 Pro</td><td>273 GB/s</td><td>~50</td></tr>
+              <tr><td>M3 Max</td><td>400 GB/s</td><td>66</td></tr>
+              <tr><td>M4 Max</td><td>546 GB/s</td><td>83</td></tr>
+              <tr><td>M2/M3 Ultra</td><td>800 GB/s</td><td>~90</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="small">Llama 7B at Q4_0, generation speed, from the <a href="https://github.com/ggml-org/llama.cpp/discussions/4167">llama.cpp benchmark thread</a>. Newer chips are listed there too, from different builds, so they aren’t strictly comparable.</p>
+      </div>
+      <div class="sub">
+        <h3>NVIDIA GPUs</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>GPU</th><th>Tokens/s</th></tr></thead>
+            <tbody>
+              <tr><td>RTX 4060 Ti 8 GB</td><td>64</td></tr>
+              <tr><td>RTX 3060 12 GB</td><td>77</td></tr>
+              <tr><td>RTX 4070 Ti Super 16 GB</td><td>133</td></tr>
+              <tr><td>RTX 3090 24 GB</td><td>162</td></tr>
+              <tr><td>RTX 4090 24 GB</td><td>189</td></tr>
+              <tr><td>RTX 5090 32 GB</td><td>300</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="small">Llama 2 7B at Q4_0, from the <a href="https://github.com/ggml-org/llama.cpp/discussions/15013">llama.cpp CUDA thread</a>. The newer 4060 Ti is slower than the 3060 because it has less memory bandwidth.</p>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="item">
+        <h4>CPU only</h4>
+        <p>Usable for small models. One aggregator reports about 5–8 tokens/s for a 7B at Q4 on dual-channel DDR4 and 11–13 on DDR5, and 3–4 on a laptop (<a href="https://localaimaster.com/blog/run-llm-cpu-only">source</a>, a lower-quality secondary site, so treat these as rough ranges). A MoE model is the best choice here.</p>
+      </div>
+      <div class="item">
+        <h4>Big unified-memory machines</h4>
+        <p>AMD’s Ryzen AI Max+ 395 and NVIDIA’s DGX Spark both offer 128 GB of unified memory (256 and 273 GB/s respectively). Hardware Corner measured gpt-oss-120b at 34.1 tokens/s on Strix Halo and 38.6 on a Spark, against 70.8 on an M3 Ultra, and priced them at roughly $1,500–2,000 and $4,000+ (<a href="https://www.hardware-corner.net/first-dgx-spark-llm-benchmarks/">benchmarks</a>, <a href="https://docs.nvidia.com/dgx/dgx-spark/hardware.html">NVIDIA specs</a>).</p>
+      </div>
+      <div class="item">
+        <h4>AMD and Intel GPUs</h4>
+        <p>llama.cpp supports CUDA, AMD HIP, Vulkan, Intel SYCL and Apple Metal (<a href="https://github.com/ggml-org/llama.cpp">README</a>). Ollama needs ROCm v7 for AMD cards, with Linux support broader than Windows, and also offers Vulkan for other GPUs (<a href="https://docs.ollama.com/gpu">GPU docs</a>). Unsupported AMD cards can sometimes work through an override variable, but that is unofficial. NVIDIA remains the smoothest path.</p>
+      </div>
+      <div class="item">
+        <h4>What is “good enough”?</h4>
+        <p>Reading speed is about 5 tokens a second, so anything above 10 feels live in chat. Agents and long documents are where slow hardware hurts, because the model reads far more than it writes.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOOLS -->
+  <section class="shelf" id="tools">
+    <div class="shelf-head">
+      <span class="eyebrow">04 · Tools</span>
+      <h2>Twelve ways to run a model, compared</h2>
+      <p>Most of these are an engine, an app on top of an engine, or a web interface that talks to either. Nearly all can serve an OpenAI-compatible API, so the apps you build later don’t care which you choose.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Tool</th><th>What it is</th><th>Licence</th><th>Local API</th><th>Choose it for</th></tr></thead>
+        <tbody>
+          <tr><td><a href="https://github.com/ollama/ollama">Ollama</a></td><td>CLI, desktop app and server. Pull models by name. Also offers optional cloud models.</td><td>MIT</td><td><code>localhost:11434</code> (<code>/v1</code> is OpenAI-compatible)</td><td>The easiest start, and the most widely supported by other tools</td></tr>
+          <tr><td><a href="https://lmstudio.ai/">LM Studio</a></td><td>Desktop app with model browser, chat, and a headless CLI. Runs GGUF and, on Mac, MLX.</td><td>Closed source, free for work since July 2025 (<a href="https://lmstudio.ai/blog/free-for-work">announcement</a>)</td><td><code>127.0.0.1:1234</code>; MCP host</td><td>A friendly GUI, easy to try many models</td></tr>
+          <tr><td><a href="https://github.com/ggml-org/llama.cpp">llama.cpp</a></td><td>The C/C++ engine most others build on. CLI, server and built-in web UI.</td><td>MIT</td><td>OpenAI and Anthropic styles; recent docs say port 9931 (<a href="https://raw.githubusercontent.com/ggml-org/llama.cpp/master/tools/server/README.md">server README</a>)</td><td>Maximum control, newest features first, MoE offloading</td></tr>
+          <tr><td><a href="https://github.com/janhq/jan">Jan</a></td><td>Open-source desktop app that bundles llama.cpp. Supports MCP.</td><td>Apache 2.0</td><td><code>localhost:1337</code></td><td>An open-source alternative to LM Studio</td></tr>
+          <tr><td><a href="https://github.com/open-webui/open-webui">Open WebUI</a></td><td>A self-hosted web interface for Ollama or any OpenAI-compatible server, with RAG and voice.</td><td>Custom licence with a branding requirement, so not plain open source</td><td>Is a client, not an engine</td><td>A ChatGPT-style interface for a household or team</td></tr>
+          <tr><td><a href="https://github.com/Mintplex-Labs/anything-llm">AnythingLLM</a></td><td>All-in-one app for chatting with your documents, plus agents. Desktop or Docker.</td><td>MIT</td><td>Uses Ollama, LM Studio and others</td><td>Document question-answering without writing code</td></tr>
+          <tr><td><a href="https://github.com/LostRuins/koboldcpp">KoboldCpp</a></td><td>Single executable with a launcher and web UI. Text, image and speech models.</td><td>AGPL-3.0</td><td><code>localhost:5001/v1</code></td><td>Roleplay and creative writing, no install</td></tr>
+          <tr><td><a href="https://github.com/mozilla-ai/llamafile">llamafile</a></td><td>A model and its engine in one downloadable file.</td><td>Apache 2.0</td><td><code>localhost:8080</code></td><td>The simplest possible demo and sharing a model as one file</td></tr>
+          <tr><td><a href="https://github.com/ml-explore/mlx-lm">mlx-lm</a></td><td>Python package for Apple Silicon using Apple’s MLX framework.</td><td>MIT</td><td><code>mlx_lm.server</code> (docs say not for production)</td><td>Squeezing speed from a Mac, scripting in Python</td></tr>
+          <tr><td><a href="https://github.com/mudler/LocalAI">LocalAI</a></td><td>A server that loads backends (llama.cpp, vLLM, MLX, whisper) on demand.</td><td>MIT</td><td>OpenAI, Anthropic and Ollama styles</td><td>A drop-in OpenAI replacement on a server</td></tr>
+          <tr><td><a href="https://docs.vllm.ai/">vLLM</a></td><td>A production serving engine for GPUs, Linux first.</td><td>Apache 2.0</td><td><code>localhost:8000</code></td><td>Serving many users from a GPU server, not a laptop</td></tr>
+          <tr><td><a href="https://github.com/nomic-ai/gpt4all">GPT4All</a></td><td>Desktop app and Python client.</td><td>Open source</td><td><code>localhost:4891/v1</code></td><td>Probably skip: its last release was February 2025</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small">Ports and licences are from each project’s own README or docs, checked October 2026. Docker Model Runner, AMD Lemonade and Microsoft Foundry Local are also worth a look; I couldn’t confirm their details against official docs.</p>
+
+    <div class="grid2">
+      <div class="item">
+        <h4>Things that changed recently</h4>
+        <ul>
+          <li><b>llama.cpp has a new <code>llama</code> command and installer</b> in its README, alongside the older <code>llama-server</code> binary (<a href="https://llama.app">llama.app</a>).</li>
+          <li><b>llama-server’s documented default port is now 9931</b>, not 8080. Docker examples still map 8080, and third-party guides still say 8080, so read the line it prints at startup.</li>
+          <li><b>Ollama on Apple Silicon can run on MLX</b>, announced as a preview in March 2026 and needing more than 32 GB of unified memory (<a href="https://registry.ollama.ai/blog/mlx">Ollama</a>).</li>
+          <li><b>Continue.dev was discontinued</b> after Cursor acquired it in June 2026 (<a href="https://github.com/continuedev/continue">repo</a>). VS Code now has its own bring-your-own-model feature (see below).</li>
+        </ul>
+      </div>
+      <div class="item">
+        <h4>Beware</h4>
+        <ul>
+          <li>KoboldCpp’s README warns that <code>koboldcpp.com</code> is a phishing site. Use the GitHub releases page.</li>
+          <li>Ollama’s optional <code>:cloud</code> models run on Ollama’s servers, not your machine. If privacy is the point, avoid those tags (a local-only mode exists: <code>OLLAMA_NO_CLOUD=1</code>, see the <a href="https://docs.ollama.com/faq">FAQ</a>).</li>
+          <li>Open WebUI’s licence is not an OSI open-source licence. Fine for most uses, but read it before you build a product on it.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- START -->
+  <section class="shelf" id="start">
+    <div class="shelf-head">
+      <span class="eyebrow">05 · First run</span>
+      <h2>A model chatting in five minutes</h2>
+      <p>Two routes. Pick the first unless you already know you want the second.</p>
+    </div>
+    <div class="grid2">
+      <div class="sub">
+        <h3>Ollama</h3>
+        <p>Install from <a href="https://ollama.com/download">ollama.com</a>, or on macOS and Linux:</p>
+        <div class="code"><button type="button" class="copy" data-copy="c-ollama" aria-label="Copy the Ollama commands">Copy</button><pre id="c-ollama">curl -fsSL https://ollama.com/install.sh | sh
+ollama pull gemma4:e2b
+ollama run gemma4:e2b</pre></div>
+        <p class="small">Type <code>/bye</code> to exit. The model is served at <code>http://localhost:11434</code>, and <code>http://localhost:11434/v1/</code> speaks the OpenAI API (any API key will do locally). Steps from the <a href="https://docs.ollama.com/quickstart">quickstart</a>; the <a href="https://docs.ollama.com/api/openai-compatibility">compatibility page</a> lists what is supported.</p>
+      </div>
+      <div class="sub">
+        <h3>llama.cpp</h3>
+        <p>Install with the project’s script, Homebrew or winget, then let it download a model from Hugging Face:</p>
+        <div class="code"><button type="button" class="copy" data-copy="c-llama" aria-label="Copy the llama.cpp commands">Copy</button><pre id="c-llama">curl -LsSf https://llama.app/install.sh | sh
+llama cli -hf ggml-org/Qwen3.5-0.8B-GGUF
+llama serve -hf ggml-org/Qwen3.5-0.8B-GGUF</pre></div>
+        <p class="small">The last line starts a server with a web UI (port 9931 per the current docs). Alternatives: <code>brew install llama.cpp</code> or <code>winget install llama.cpp</code>, then the classic <code>llama-server -m model.gguf</code>. From the <a href="https://raw.githubusercontent.com/ggml-org/llama.cpp/master/README.md">README</a> and <a href="https://raw.githubusercontent.com/ggml-org/llama.cpp/master/docs/install.md">install guide</a>. I haven’t confirmed that <code>llama-server -hf</code> behaves identically to <code>llama serve -hf</code>.</p>
+      </div>
+    </div>
+    <p class="callout"><b>Try a tiny model first</b>A 1–4B model downloads in a minute and proves your setup works. Then move up a size at a time until speed or memory stops you.</p>
+  </section>
+
+  <!-- MODELS -->
+  <section class="shelf" id="models">
+    <div class="shelf-head">
+      <span class="eyebrow">06 · Models by hardware</span>
+      <h2>What to try at each size</h2>
+      <p>The families that matter in October 2026, with licence and the Ollama tag. Sizes are Ollama download sizes; add room for context. The tier suggestions are my synthesis, not a sourced ranking.</p>
+    </div>
+    <div class="grid2">
+      <div class="model"><span class="kind">About 8 GB</span><h3>Small and quick</h3>
+        <ul>
+          <li><code>qwen3.5:4b</code> (3.3–4 GB): multimodal, 201 languages, Apache 2.0.</li>
+          <li><code>gemma4:e4b</code> (6.6–9.5 GB): built for phones and edge devices, runs offline.</li>
+          <li><code>ministral-3:8b</code> (6 GB): vision and tool calling, Apache 2.0.</li>
+          <li><code>granite4.1:8b</code> (5.3 GB): tuned for RAG, extraction and classification.</li>
+        </ul>
+      </div>
+      <div class="model"><span class="kind">About 16 GB</span><h3>The sweet spot for a laptop</h3>
+        <ul>
+          <li><code>gpt-oss:20b</code> (14 GB): OpenAI’s open model, reasoning and tools, Apache 2.0.</li>
+          <li><code>qwen3.5:9b</code> (6.6–7.6 GB) and <code>gemma4:12b</code> (7.7–8 GB).</li>
+          <li><code>ministral-3:14b</code> (9.1 GB) and <code>phi4:14b</code> (9.1 GB, MIT, English-focused, 16K context).</li>
+        </ul>
+      </div>
+      <div class="model"><span class="kind">24–32 GB</span><h3>Serious local work</h3>
+        <ul>
+          <li><code>qwen3.8:27b</code> (18 GB): the newest Qwen, vision, thinking, 256K context, Apache 2.0.</li>
+          <li><code>qwen3.6:35b</code> (23–24 GB): a MoE with 3B active, aimed at agentic coding.</li>
+          <li><code>gemma4:26b</code> / <code>31b</code> (16–20 GB, 256K context).</li>
+          <li><code>devstral-small-2:24b</code> (15 GB) and <code>qwen3-coder:30b</code> (19 GB) for coding.</li>
+        </ul>
+      </div>
+      <div class="model"><span class="kind">64 GB and up</span><h3>Workstations and big Macs</h3>
+        <ul>
+          <li><code>gpt-oss:120b</code> (65 GB): fits one 80 GB GPU.</li>
+          <li><code>qwen3.5:122b</code> (81 GB) and <code>llama4:16x17b</code> (67 GB, Llama 4 Community License).</li>
+          <li><code>llama3.3:70b</code>: 42.5 GB at Q4_K_M.</li>
+        </ul>
+      </div>
+    </div>
+    <p>Sources: the Ollama library pages for <a href="https://ollama.com/library/qwen3.8">Qwen3.8</a>, <a href="https://ollama.com/library/qwen3.5">Qwen3.5</a>, <a href="https://ollama.com/library/gemma4">Gemma 4</a>, <a href="https://ollama.com/library/gpt-oss">gpt-oss</a>, <a href="https://ollama.com/library/ministral-3">Ministral 3</a>, <a href="https://ollama.com/library/granite4.1">Granite 4.1</a>, <a href="https://ollama.com/library/devstral-small-2">Devstral Small 2</a> and <a href="https://ollama.com/library/llama4">Llama 4</a>. Licences from the model cards: <a href="https://huggingface.co/Qwen/Qwen3.8-27B/blob/main/LICENSE">Qwen3.8</a>, <a href="https://huggingface.co/microsoft/phi-4">Phi-4</a>, <a href="https://mistral.ai/news/devstral-2-vibe-cli/">Devstral</a>. Gemma 4 moved to Apache 2.0 according to a <a href="https://datanorth.ai/news/google-releases-gemma-4-open-models">secondary report</a>; confirm on the model card before shipping anything.</p>
+    <p class="small">Huge open models exist (DeepSeek V4 is 284B to 1.6T parameters) but are not practical on consumer hardware. I left out releases I could only find in a single secondary source.</p>
+  </section>
+
+  <!-- CHOOSE -->
+  <section class="shelf" id="choose">
+    <div class="shelf-head">
+      <span class="eyebrow">07 · Choosing a model</span>
+      <h2>Where to look and what to check</h2>
+    </div>
+    <div class="grid3">
+      <div class="item"><h4>Where to browse</h4><p>The <a href="https://ollama.com/library">Ollama library</a> shows tags, sizes, context and capability badges (vision, tools, thinking). <a href="https://lmstudio.ai/models">LM Studio’s catalog</a> filters GGUF and MLX but doesn’t show RAM needs. <a href="https://huggingface.co/docs/hub/gguf">Hugging Face</a> lets you filter for GGUF files.</p></div>
+      <div class="item"><h4>Read the model card</h4><p>Check the licence, context length, languages and intended use. Phi-4’s card, for example, says it is “not designed for multilingual use”. Llama’s custom terms are the main licence trap: they require attribution and restrict very large companies (<a href="https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct">Llama 3.1 terms</a>).</p></div>
+      <div class="item"><h4>Pick instruct, not base</h4><p>Base models complete text; instruct (chat) models follow instructions. Beginners want instruct. Prefer official uploads, then well-known quantizers such as Unsloth, whose docs also warn that quants below UD-Q2_K_XL aren’t suitable for tool calling (<a href="https://unsloth.ai/docs/basics/unsloth-dynamic-2.0-ggufs">Unsloth</a>).</p></div>
+      <div class="item"><h4>Leaderboards</h4><p><a href="https://arena.ai/leaderboard">LMArena</a> ranks by human votes, and <a href="https://www.artificialanalysis.ai/articles/recent-open-weight-model-launches">Artificial Analysis</a> publishes open-versus-closed comparisons. Treat any ranking as a shortlist: a model that wins on general benchmarks may still lose on your task.</p></div>
+      <div class="item"><h4>Test on your own task</h4><p>Collect 10 to 20 real examples and run them through two or three candidates. Hamel Husain’s <a href="https://hamel.dev/blog/posts/evals-faq/">evals FAQ</a> is a good guide to doing this properly.</p></div>
+      <div class="item"><h4>Mind the context setting</h4><p>A model advertising 256K context will not use it unless your tool allows it, and each extra token costs memory (see section 02).</p></div>
+    </div>
+  </section>
+
+  <!-- CLOUD -->
+  <section class="shelf" id="cloud">
+    <div class="shelf-head">
+      <span class="eyebrow">08 · Local or cloud?</span>
+      <h2>When local wins, and when it doesn’t</h2>
+      <p>Local models are not a cheaper copy of the frontier. They are a different tool.</p>
+    </div>
+    <div class="grid2">
+      <div class="sub">
+        <h3>Local tends to win on</h3>
+        <ul class="plain">
+          <li><b>Privacy.</b> Ollama states it doesn’t see your prompts or data when you run locally, and by default it listens only on your own machine (<a href="https://docs.ollama.com/faq">FAQ</a>). For confidential material this keeps data off third-party servers. It does not replace professional duties: the ABA’s Formal Opinion 512 warns about disclosure risks of AI tools and says informed consent can’t come from boilerplate in an engagement letter (<a href="https://www.americanbar.org/groups/litigation/resources/newsletters/ethics-professionalism/generative-ai-lawyers-part-2-maintaining-confidentiality/">ABA</a>).</li>
+          <li><b>Offline use.</b> Gemma 4’s smallest models are designed to run offline on phones and small boards (<a href="https://deepmind.google/models/gemma/gemma-4/">Google DeepMind</a>).</li>
+          <li><b>Repeatable volume.</b> Once you own the hardware, a thousand classification calls cost electricity, not tokens.</li>
+          <li><b>Control.</b> You keep the weights. Nobody retires the model you tuned your prompts against.</li>
+        </ul>
+      </div>
+      <div class="sub">
+        <h3>Cloud tends to win on</h3>
+        <ul class="plain">
+          <li><b>Raw capability.</b> Epoch AI estimates the best open-weight models trail closed frontier models by about four months on average since January 2026 (<a href="https://epoch.ai/data-insights/open-closed-eci-gap">Epoch AI</a>). Models that fit on one consumer GPU lag by roughly 6 to 12 months (<a href="https://epoch.ai/data-insights/consumer-gpu-model-gap">Epoch AI, 2025</a>).</li>
+          <li><b>The hardest tasks.</b> Artificial Analysis’s April 2026 comparison puts the best open models at 54 on its index against 60 for GPT-5.5, with wider gaps on the hardest evaluations and more hallucination on its knowledge test. It also finds open models hold most of the best price-for-performance spots, but the top ones are far too large to run at home (<a href="https://www.artificialanalysis.ai/articles/recent-open-weight-model-launches">Artificial Analysis</a>).</li>
+          <li><b>Long context and big agents.</b> Memory cost makes both expensive locally.</li>
+          <li><b>No setup.</b> No hardware to buy, tune or keep updated.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="callout"><b>A practical split</b>Use a cloud model for the hard thinking and a local model for anything private, repetitive or offline. Many tools let you point the same app at either by changing a base URL.</p>
+    <p class="small">I couldn’t find a credible source for electricity or total hardware cost comparisons, so this guide makes no claim about when local is cheaper overall.</p>
+  </section>
+
+  <!-- JOBS -->
+  <section class="shelf" id="jobs">
+    <div class="shelf-head">
+      <span class="eyebrow">09 · Jobs that suit local models</span>
+      <h2>Small, narrow and repeated</h2>
+      <p>A local model is at its best doing one defined job reliably. Here is what that looks like, including two projects on this portfolio.</p>
+    </div>
+    <div class="grid3">
+      <div class="item"><h4>Classification and extraction</h4><p>Sort emails, pull fields from documents, return a fixed JSON shape. Granite 4.1 lists classification, extraction, summarization and RAG as targets (<a href="https://ollama.com/library/granite4.1">Ollama</a>). Both Ollama and LM Studio support structured output (<a href="https://docs.ollama.com/capabilities/structured-outputs">Ollama</a>).</p></div>
+      <div class="item"><h4>Search your own documents</h4><p>Convert text to embeddings locally, then retrieve the best passages before asking a model. Options on Ollama include <a href="https://ollama.com/library/nomic-embed-text">nomic-embed-text</a> (274 MB) and <a href="https://ollama.com/library/qwen3-embedding">qwen3-embedding</a> (0.6B to 8B, 100+ languages).</p></div>
+      <div class="item"><h4>Code completion</h4><p>Granite 4.1 supports fill-in-the-middle completion, and <code>qwen2.5-coder</code> comes in sizes from 0.5B to 32B. Note VS Code’s own local-model feature doesn’t cover inline completions.</p></div>
+      <div class="item"><h4>Translation and OCR</h4><p>Ollama lists <code>translategemma</code> (4B, 12B, 27B) and document-OCR models such as <code>glm-ocr</code> (<a href="https://ollama.com/library">library</a>).</p></div>
+      <div class="item"><h4>Conflara</h4><p>A legal conflicts-search workbench built with Claude Code. It runs a model on the firm’s own hardware, so client names never leave the building. <a href="../../#conflara">Read the case study</a>.</p></div>
+      <div class="item"><h4>RSC Tool</h4><p>A small-business workbench that uses compact local models to read an inbox and return structured results on a modest desktop. <a href="../../#rsc">Read the case study</a>.</p></div>
+    </div>
+  </section>
+
+  <!-- CONNECT -->
+  <section class="shelf" id="connect">
+    <div class="shelf-head">
+      <span class="eyebrow">10 · Connect your apps</span>
+      <h2>Point the tools you already use at your own server</h2>
+    </div>
+    <div class="grid2">
+      <div class="sub">
+        <h3>Open WebUI</h3>
+        <div class="code"><button type="button" class="copy" data-copy="c-webui" aria-label="Copy the Open WebUI commands">Copy</button><pre id="c-webui">pip install open-webui
+open-webui serve</pre></div>
+        <p class="small">Opens at <code>http://localhost:8080</code> (needs Python 3.11); a Docker command is in the <a href="https://raw.githubusercontent.com/open-webui/open-webui/main/README.md">README</a>. Then go to Admin &gt; Settings &gt; Connections. For Ollama use <code>http://host.docker.internal:11434</code> when Open WebUI runs in Docker. For other servers choose Add Connection and enter the URL ending in <code>/v1</code>, such as <code>http://localhost:1234/v1</code> for LM Studio; the key can be blank. Inside Docker replace <code>localhost</code> with <code>host.docker.internal</code>. See the <a href="https://docs.openwebui.com/getting-started/quick-start/connect-a-provider/starting-with-openai-compatible">connection guide</a>.</p>
+      </div>
+      <div class="sub">
+        <h3>VS Code</h3>
+        <p>VS Code can use your own models without a Copilot plan: open the Command Palette and run <b>Chat: Manage Language Models</b>. For Ollama install the official Ollama provider extension. For other servers choose Add Models, then Custom Endpoint, and set a URL like <code>http://localhost:&lt;port&gt;/v1/chat/completions</code> with tool calling enabled (<a href="https://code.visualstudio.com/docs/copilot/language-models">docs</a>, <a href="https://code.visualstudio.com/blogs/2026/06/18/byok-vscode">announcement</a>).</p>
+        <p class="small">Continue, which many older tutorials use, was discontinued in 2026.</p>
+      </div>
+    </div>
+    <div class="sub">
+      <h3>From your own code</h3>
+      <p>Any OpenAI client library works if you change the base URL and pass any placeholder key.</p>
+      <div class="code"><button type="button" class="copy" data-copy="c-py" aria-label="Copy the Python example">Copy</button><pre id="c-py">from openai import OpenAI
+
+client = OpenAI(base_url="http://localhost:11434/v1", api_key="local")
+reply = client.chat.completions.create(
+    model="gemma4:e2b",
+    messages=[{"role": "user", "content": "Summarise this in one line: ..."}],
+)
+print(reply.choices[0].message.content)</pre></div>
+    </div>
+  </section>
+
+  <!-- SOURCES -->
+  <section class="shelf" id="sources">
+    <div class="shelf-head">
+      <span class="eyebrow">11 · Sources</span>
+      <h2>How this guide was made</h2>
+      <p>Researched in October 2026 with Claude: separate research passes read each tool’s documentation, model cards, the llama.cpp project and published benchmarks, and each linked claim was checked against the page. Numbers I calculated myself are labelled as estimates.</p>
+    </div>
+    <div class="sub">
+      <h3>Not fully verified</h3>
+      <ul class="plain">
+        <li>Gemma 4’s Apache 2.0 licence comes from a secondary report; Google’s page doesn’t state it.</li>
+        <li>Sizes for 12B and 24B models are calculated, not read from a repo.</li>
+        <li>CPU-only speeds come from a single aggregator site.</li>
+        <li>I found no primary source for “two-thirds of RAM” as a macOS GPU default; the commonly reported figure is about 75%.</li>
+        <li>I did not verify default ports for Docker Model Runner or Lemonade.</li>
+        <li>Reports of Llama 4.5, Mistral Large 4 open weights and Mistral Small 4’s release date rest on single secondary sources, so they are left out.</li>
+      </ul>
+    </div>
+    <div class="sub">
+      <h3>Main sources</h3>
+      <ul class="srcs">
+        <li><a href="https://github.com/ggml-org/llama.cpp">llama.cpp</a>, its <a href="https://github.com/ggml-org/llama.cpp/blob/master/tools/quantize/README.md">quantize</a> and <a href="https://github.com/ggml-org/llama.cpp/blob/master/tools/perplexity/README.md">perplexity</a> READMEs</li>
+        <li><a href="https://github.com/ggml-org/llama.cpp/discussions/4167">llama.cpp Apple Silicon benchmarks</a></li>
+        <li><a href="https://github.com/ggml-org/llama.cpp/discussions/15013">llama.cpp CUDA benchmarks</a></li>
+        <li><a href="https://github.com/ggml-org/llama.cpp/discussions/16578">llama.cpp DGX Spark and Strix Halo numbers</a></li>
+        <li><a href="https://docs.ollama.com/faq">Ollama FAQ</a>, <a href="https://docs.ollama.com/gpu">GPU</a>, <a href="https://docs.ollama.com/context-length">context length</a>, <a href="https://docs.ollama.com/quickstart">quickstart</a></li>
+        <li><a href="https://lmstudio.ai/docs/app">LM Studio docs</a> and <a href="https://lmstudio.ai/blog/free-for-work">free-for-work notice</a></li>
+        <li><a href="https://huggingface.co/bartowski">Bartowski GGUF repos</a></li>
+        <li><a href="https://huggingface.co/blog/Doctor-Shotgun/llamacpp-moe-offload-guide">llama.cpp MoE offload guide</a></li>
+        <li><a href="https://www.amd.com/en/blogs/2025/faqs-amd-variable-graphics-memory-vram-ai-model-sizes-quantization-mcp-more.html">AMD: VRAM, model sizes and quantization FAQ</a></li>
+        <li><a href="https://www.hardware-corner.net/first-dgx-spark-llm-benchmarks/">Hardware Corner: DGX Spark benchmarks</a></li>
+        <li><a href="https://epoch.ai/data-insights/open-closed-eci-gap">Epoch AI: open vs closed gap</a></li>
+        <li><a href="https://www.artificialanalysis.ai/articles/recent-open-weight-model-launches">Artificial Analysis: open-weight launches</a></li>
+        <li><a href="https://www.americanbar.org/groups/litigation/resources/newsletters/ethics-professionalism/generative-ai-lawyers-part-2-maintaining-confidentiality/">ABA: confidentiality and generative AI</a></li>
+        <li><a href="https://ollama.com/library">Ollama model library</a></li>
+        <li><a href="https://code.visualstudio.com/docs/copilot/language-models">VS Code: language models</a></li>
+        <li><a href="https://docs.openwebui.com/">Open WebUI docs</a></li>
+      </ul>
+    </div>
+    <p class="small">Companion guide: <a href="../">How to talk to AI so it does good work</a> (prompting).</p>
+  </section>
+
+  <footer>
+    <span>Myles Parslow · Researched and built with Claude · October 2026</span>
+    <a href="../../">Back to the portfolio</a>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var KEY = 'portfolio-scheme';
+  var root = document.documentElement;
+  var buttons = document.querySelectorAll('.swatch');
+  function apply(name) {
+    if (name !== 'pine' && name !== 'sky') name = 'eggshell';
+    if (name === 'eggshell') root.removeAttribute('data-scheme'); else root.setAttribute('data-scheme', name);
+    buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.pick === name)); });
+    return name;
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  apply(saved);
+  buttons.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var name = apply(b.dataset.pick);
+      try { localStorage.setItem(KEY, name); } catch (e) {}
+    });
+  });
+
+  // Copy buttons
+  document.querySelectorAll('.copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var el = document.getElementById(btn.dataset.copy);
+      if (!el) return;
+      var text = el.textContent;
+      function done(ok) { btn.textContent = ok ? 'Copied' : 'Select & copy'; setTimeout(function () { btn.textContent = 'Copy'; }, 1600); }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(false); });
+      } else {
+        var r = document.createRange(); r.selectNodeContents(el);
+        var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+        try { done(document.execCommand('copy')); } catch (e) { done(false); }
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

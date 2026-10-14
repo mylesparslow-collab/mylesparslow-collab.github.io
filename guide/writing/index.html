@@ -1,0 +1,776 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="A how-to for writing novels and screenplays with AI: planning, a story bible, chapter-by-chapter drafting, continuity checks and revision, with 17 copy-paste prompts and cited research.">
+<title>Writing With AI Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Same sheet, tokens and colour picker as the portfolio home page, so a chosen scheme carries over. */
+:root {
+  color-scheme: light;
+  --bg: #f2eee3; --surface: #fbf9f3; --rule: #ddd3bf; --ink: #15120f; --muted: #5f4e40;
+  --accent: #6b3f22; --mark: #a9822f; --mark-soft: #ede1c1;
+  --display: "Bricolage Grotesque", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+  --body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+:root[data-scheme="pine"] {
+  --bg: #f4f6f4; --surface: #ffffff; --rule: #d5ddd8; --ink: #18201c; --muted: #56625b;
+  --accent: #23593f; --mark: #23593f; --mark-soft: #e2ece6;
+}
+:root[data-scheme="sky"] {
+  --bg: #e8f3fb; --surface: #ffffff; --rule: #c6e0f3; --ink: #192838; --muted: #4c6073;
+  --accent: #9b111e; --mark: #9b111e; --mark-soft: #f7e1e4;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 1.0625rem; line-height: 1.62; margin: 0; }
+.wrap { max-width: 72rem; margin: 0 auto; padding-inline: 1.25rem; padding-block: 3.5rem 4rem; display: grid; gap: 5rem; }
+a { color: var(--accent); text-underline-offset: 0.18em; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+h1, h2, h3, h4 { font-family: var(--display); text-wrap: balance; line-height: 1.12; margin: 0; }
+p { margin: 0; }
+code { font-family: var(--mono); font-size: 0.86em; background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; padding: 0.05em 0.3em; }
+.eyebrow { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+
+/* Top bar and picker */
+.topbar { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.75rem 1.5rem; }
+.topbar .back { font-family: var(--mono); font-size: 0.8rem; }
+.picker { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0; padding: 0; border: 0; }
+.picker legend { float: left; margin-right: 0.25rem; font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.swatch { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.3rem 0.7rem 0.3rem 0.35rem; border-radius: 999px; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); font-family: var(--display); font-size: 0.85rem; font-weight: 500; cursor: pointer; }
+.swatch:hover { border-color: var(--muted); }
+.swatch[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.swatch i { width: 1.15rem; height: 1.15rem; border-radius: 50%; flex: none; border: 1px solid rgba(0,0,0,0.15); }
+.swatch[data-pick="eggshell"] i { background: linear-gradient(135deg, #f2eee3 0 45%, #6b3f22 45% 70%, #a9822f 70%); }
+.swatch[data-pick="pine"] i { background: linear-gradient(135deg, #f4f6f4 0 50%, #23593f 50%); }
+.swatch[data-pick="sky"] i { background: linear-gradient(135deg, #e8f3fb 0 50%, #9b111e 50%); }
+
+/* Intro */
+.intro { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 2.5rem; align-items: start; }
+.intro-text { display: grid; gap: 1.25rem; align-content: start; }
+.intro h1 { font-size: clamp(2.6rem, 6.4vw, 4.4rem); font-weight: 800; letter-spacing: -0.025em; line-height: 1.04; }
+.intro h1 em { font-style: normal; color: var(--mark); }
+.lede { font-size: 1.22rem; max-width: 38rem; }
+.toc { display: grid; border-top: 2px solid var(--ink); counter-reset: toc; }
+.toc a { display: grid; grid-template-columns: 2.2rem 1fr auto; gap: 0.5rem; align-items: baseline; padding: 0.55rem 0; border-bottom: 1px solid var(--rule); text-decoration: none; color: var(--ink); font-family: var(--display); font-weight: 700; font-size: 1.05rem; }
+.toc a::before { counter-increment: toc; content: counter(toc, decimal-leading-zero); font-family: var(--mono); font-weight: 400; font-size: 0.75rem; color: var(--muted); }
+.toc a span { font-family: var(--mono); font-weight: 400; font-size: 0.75rem; color: var(--muted); text-align: right; }
+.toc a:hover { color: var(--accent); }
+.tally { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin: 0; border-top: 1px solid var(--rule); padding-top: 1.25rem; }
+.tally div { display: grid; gap: 0.2rem; align-content: start; }
+.tally dt { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); order: 2; }
+.tally dd { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(1.6rem, 3.4vw, 2.4rem); color: var(--accent); letter-spacing: -0.02em; line-height: 1.05; }
+
+/* Sections */
+.shelf { display: grid; gap: 2.25rem; scroll-margin-top: 1.5rem; }
+.shelf-head { display: grid; gap: 0.5rem; border-top: 2px solid var(--ink); padding-top: 1rem; }
+.shelf-head h2 { font-size: clamp(2rem, 4.2vw, 2.8rem); font-weight: 800; letter-spacing: -0.02em; }
+.shelf-head p { color: var(--muted); max-width: 46rem; }
+.sub { display: grid; gap: 1rem; }
+.sub > h3 { font-size: 1.5rem; }
+.sub > p { max-width: 48rem; }
+
+/* Numbered rules */
+.short { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem 2.5rem; counter-reset: r; }
+.short li { counter-increment: r; display: grid; grid-template-columns: 2.4rem 1fr; gap: 0.2rem 0.6rem; border-top: 1px solid var(--rule); padding-top: 0.8rem; }
+.short li::before { content: counter(r, decimal-leading-zero); grid-row: span 2; font-family: var(--display); font-weight: 800; font-size: 1.4rem; color: var(--mark); line-height: 1.1; }
+.short h3 { font-size: 1.12rem; }
+.short p { color: var(--muted); font-size: 0.98rem; }
+
+/* Card grids */
+.grid2, .grid3 { display: grid; gap: 1.5rem 2.25rem; }
+.grid2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.item { display: grid; gap: 0.4rem; align-content: start; border-top: 1px solid var(--rule); padding-top: 0.85rem; min-width: 0; }
+.item h4 { font-size: 1.08rem; }
+.item p { font-size: 0.98rem; }
+.item .why { color: var(--muted); }
+.item .cite { font-family: var(--mono); font-size: 0.74rem; color: var(--muted); }
+.item ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.35rem; font-size: 0.98rem; }
+
+/* Anatomy */
+.anatomy { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0.75rem; }
+.anatomy div { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 0.9rem; display: grid; gap: 0.35rem; align-content: start; }
+.anatomy b { font-family: var(--mono); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.anatomy p { font-size: 0.92rem; color: var(--muted); }
+.versus { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: 1.25rem; align-items: start; }
+.versus .label { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.35rem; }
+.versus .label.good { color: var(--accent); }
+
+/* Code blocks */
+.code { position: relative; min-width: 0; }
+pre { margin: 0; font-family: var(--mono); font-size: 0.8rem; line-height: 1.55; background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 0.9rem 1rem; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--ink); }
+.copy { position: absolute; top: 0.45rem; right: 0.45rem; font-family: var(--mono); font-size: 0.72rem; padding: 0.2rem 0.55rem; border-radius: 999px; border: 1px solid var(--rule); background: var(--bg); color: var(--accent); cursor: pointer; }
+.copy:hover { border-color: var(--accent); }
+.copy + pre { padding-top: 2rem; }
+
+/* Tables */
+.table-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; min-width: 46rem; }
+th, td { text-align: left; vertical-align: top; padding: 0.65rem 0.8rem; border-bottom: 1px solid var(--rule); }
+th { font-family: var(--mono); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); background: var(--mark-soft); }
+td:first-child { font-family: var(--display); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+.verdict { font-family: var(--mono); font-size: 0.72rem; padding: 0.1rem 0.45rem; border-radius: 999px; background: var(--mark-soft); color: var(--accent); white-space: nowrap; }
+
+/* Model cards */
+.model { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 1.25rem 1.3rem; display: grid; gap: 0.7rem; align-content: start; min-width: 0; }
+.model .kind { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+.model h3 { font-size: 1.45rem; }
+.model ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.45rem; font-size: 0.97rem; }
+.model .links { font-family: var(--mono); font-size: 0.78rem; display: flex; flex-wrap: wrap; gap: 0.3rem 1rem; }
+.callout { border-left: 3px solid var(--mark); padding-left: 0.9rem; display: grid; gap: 0.3rem; max-width: 50rem; }
+.callout b { font-family: var(--mono); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+
+/* Prompt library */
+.filters { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.chip { font-family: var(--display); font-size: 0.88rem; font-weight: 500; padding: 0.3rem 0.75rem; border-radius: 999px; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); cursor: pointer; }
+.chip span { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); margin-left: 0.15rem; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.chip[aria-pressed="true"] span { color: var(--bg); }
+.prompts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem 2.25rem; align-items: start; }
+.prompt { display: grid; gap: 0.6rem; min-width: 0; border-top: 1px solid var(--rule); padding-top: 0.9rem; scroll-margin-top: 1.5rem; }
+.prompt[hidden] { display: none; }
+.prompt .kind { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.prompt h3 { font-size: 1.25rem; margin-top: 0.2rem; }
+.prompt .src, .prompt .after { font-size: 0.88rem; color: var(--muted); }
+
+/* Resources */
+.rnav { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; font-family: var(--mono); font-size: 0.82rem; }
+.rgroup { display: grid; gap: 0.9rem; scroll-margin-top: 1.5rem; }
+.rgroup h3 { font-size: 1.5rem; }
+.rintro { color: var(--muted); max-width: 46rem; }
+.rlist { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem 2rem; }
+.rlist li { display: grid; gap: 0.3rem; align-content: start; border-top: 1px solid var(--rule); padding-top: 0.75rem; min-width: 0; }
+.rname { font-family: var(--display); font-weight: 700; font-size: 1.02rem; overflow-wrap: anywhere; }
+.rhost { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.rlist p { font-size: 0.94rem; }
+.rlist .caution { font-size: 0.84rem; color: var(--muted); font-style: italic; }
+
+.small { font-size: 0.9rem; color: var(--muted); }
+.srcs { columns: 2; column-gap: 2.5rem; font-size: 0.86rem; margin: 0; padding-left: 1.1rem; }
+.srcs li { break-inside: avoid; margin-bottom: 0.35rem; overflow-wrap: anywhere; }
+
+footer { border-top: 1px solid var(--rule); padding-top: 1.25rem; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 2rem; font-family: var(--mono); font-size: 0.8rem; color: var(--muted); }
+
+@media (max-width: 980px) {
+  .anatomy { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .rlist, .grid3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 820px) {
+  .intro, .short, .grid2, .grid3, .prompts, .rlist, .versus { grid-template-columns: minmax(0, 1fr); }
+  .anatomy { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tally { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .srcs { columns: 1; }
+  .wrap { gap: 3.5rem; padding-block: 2.5rem 3rem; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="intro">
+    <div class="topbar">
+      <a class="back" href="../../">← Myles Parslow portfolio</a>
+      <fieldset class="picker" aria-label="Colour scheme">
+        <legend>Colours</legend>
+        <button type="button" class="swatch" data-pick="eggshell" aria-pressed="true"><i></i>Eggshell</button>
+        <button type="button" class="swatch" data-pick="pine" aria-pressed="false"><i></i>Original</button>
+        <button type="button" class="swatch" data-pick="sky" aria-pressed="false"><i></i>Sky &amp; ruby</button>
+      </fieldset>
+    </div>
+    <div class="intro-text">
+      <span class="eyebrow">Field guide · Writing with AI · October 2026</span>
+      <h1>Write the <em>system</em> before the story.</h1>
+      <p class="lede">A how-to for writing novels and screenplays with AI: plan the book, build a story bible, draft one chapter at a time, check continuity against the bible, and revise like an editor. It is the workflow behind about 300,000 words of my fiction and screenwriting, set beside what the research says.</p>
+      <p class="small">The AI drafts, but the choices stay with you. Every claim about research or policy links to its source. My own manuscripts are not quoted here; the screenplay documents are linked where they are already public.</p>
+    </div>
+    <nav class="toc" aria-label="Sections">
+      <a href="#short">The short version <span>10 rules</span></a>
+      <a href="#pipeline">The pipeline <span>6 stages</span></a>
+      <a href="#plan">Plan and outline <span>stage 1–2</span></a>
+      <a href="#bible">The story bible <span>stage 3</span></a>
+      <a href="#draft">Drafting <span>stage 4</span></a>
+      <a href="#continuity">Continuity <span>stage 5</span></a>
+      <a href="#revise">Revision <span>stage 6</span></a>
+      <a href="#screen">Screenplays <span>a worked case</span></a>
+      <a href="#library">Prompt library <span>17 prompts</span></a>
+      <a href="#limits">Limits, rights and disclosure <span>read before publishing</span></a>
+      <a href="#sources">Sources <span>18 links</span></a>
+    </nav>
+    <dl class="tally">
+      <div><dt>Words of fiction and screenwriting made this way</dt><dd>298,692</dd></div>
+      <div><dt>Story bible behind a 190,000-word novel</dt><dd>4,982</dd></div>
+      <div><dt>Copy-paste prompts</dt><dd>17</dd></div>
+      <div><dt>Studies and policies cited</dt><dd>18</dd></div>
+    </dl>
+  </header>
+
+  <!-- SHORT -->
+  <section class="shelf" id="short">
+    <div class="shelf-head">
+      <span class="eyebrow">01 · The short version</span>
+      <h2>Ten rules for long-form writing with AI</h2>
+      <p>If you read nothing else. Each rule is backed further down.</p>
+    </div>
+    <ol class="short">
+      <li><h3>Decide what it is about before it is written</h3><p>A one-line logline and a one-line theme. Without them the model writes something that sounds like a book and is about nothing.</p></li>
+      <li><h3>Outline in levels, and review each one</h3><p>Sentence, paragraph, page, scene list. Each review is where your taste enters. Research systems that plan in more detail stay more coherent.</p></li>
+      <li><h3>Keep one story bible and paste it every time</h3><p>Characters, world rules, timeline and a style sheet. It is the model’s only memory of your book between sessions.</p></li>
+      <li><h3>Use one AI to plan and another to draft</h3><p>A second model reads the plan cold, so gaps in it show up. In my workflow ChatGPT writes plans, outlines and research; Claude drafts from them.</p></li>
+      <li><h3>Draft one chapter at a time</h3><p>Ask for a single chapter or a 10 to 15 page sequence, with a hand-off note after it. Long runs drift.</p></li>
+      <li><h3>Material first, instruction last</h3><p>Put the bible and outline at the top and the request at the bottom. Anthropic measured up to 30% better answers on long inputs.</p></li>
+      <li><h3>Check continuity with quotes</h3><p>Ask the checker to quote the line and the bible entry it contradicts. A quote can be verified; a vague worry cannot.</p></li>
+      <li><h3>Diagnose before you rewrite</h3><p>Get editor’s notes first, decide what to fix, then revise. “Make it better” just gives you a different draft.</p></li>
+      <li><h3>Edit out the AI habits by hand</h3><p>Clichés, over-explaining, purple prose and vague detail. Professional writers preferred human edits to the AI’s own fixes.</p></li>
+      <li><h3>Know the rules before you publish</h3><p>Prompts alone don’t earn copyright in the US, and Amazon KDP requires you to declare AI-generated text.</p></li>
+    </ol>
+  </section>
+
+  <!-- PIPELINE -->
+  <section class="shelf" id="pipeline">
+    <div class="shelf-head">
+      <span class="eyebrow">02 · The pipeline</span>
+      <h2>Six stages, each with its own document</h2>
+      <p>Every stage ends in a document that the next stage reads. That is what makes a 190,000-word novel consistent across months of sessions: nothing important lives only in a chat history. The order is the one I use for novels and that my screenwriter prompt enforces for scripts.</p>
+    </div>
+    <div class="anatomy">
+      <div><b>1 · Premise</b><p>The idea interrogated until it has a protagonist, a want, a wound and a theme. Ends in a logline.</p></div>
+      <div><b>2 · Outline</b><p>Grown one level at a time to a beat sheet and a scene list, each level reviewed by you.</p></div>
+      <div><b>3 · Story bible</b><p>Characters, world rules, places, timeline, style sheet and voice samples. The source of truth.</p></div>
+      <div><b>4 · Draft</b><p>One chapter or sequence per request, from the bible and that chapter’s outline, ending in a hand-off note.</p></div>
+      <div><b>5 · Continuity</b><p>Each chapter checked against the bible and a running log. The log is updated before the next chapter.</p></div>
+      <div><b>6 · Revision</b><p>Notes first, then structural, scene and line passes, then your own edit in your own voice.</p></div>
+    </div>
+    <div class="grid3">
+      <div class="item"><h4>What the planning AI does</h4><p>Asks questions, proposes options, expands outlines, writes research briefs and the bible. In my workflow this is ChatGPT.</p></div>
+      <div class="item"><h4>What the drafting AI does</h4><p>Writes prose from the documents, one chapter at a time, and reports what it set up or invented. In my workflow this is Claude.</p></div>
+      <div class="item"><h4>What you do</h4><p>Choose at every fork, approve each outline level, settle every continuity conflict, and make the final edit. The book is the sum of those choices.</p></div>
+    </div>
+    <div class="callout"><b>Why it works</b><p>This is the same shape researchers converged on. Re3 plans, drafts, rewrites and edits in separate steps; DOC showed that a more detailed outline made stories more coherent (judged better on plot coherence 67.6% to 45.1%); DeepMind’s Dramatron builds a screenplay down from a logline to characters, beats, locations and dialogue. <a href="#sources">Sources</a></p></div>
+  </section>
+
+  <!-- PLAN -->
+  <section class="shelf" id="plan">
+    <div class="shelf-head">
+      <span class="eyebrow">03 · Plan and outline</span>
+      <h2>Make the decisions while they are cheap</h2>
+      <p>Changing a sentence in an outline costs a minute. Changing the same decision in chapter 20 means rewriting chapters 3 to 19. Do the thinking here.</p>
+    </div>
+    <div class="grid2">
+      <div class="item">
+        <h4>Start by being interrogated, not by generating</h4>
+        <p>The first prompt should make the AI ask you questions and attack the premise, not write story. Your answers become the raw material only you can supply. Models default to familiar tropes; professionals working with Dramatron called its output “provocations” rather than finished work, and noticed predictable tropes and bias.</p>
+      </div>
+      <div class="item">
+        <h4>Grow the outline one level at a time</h4>
+        <p>Randy Ingermanson’s Snowflake Method is a good scaffold for this: one sentence, then a paragraph with three disasters and an ending, then a page, then character sheets, then a scene list. Ask the AI to expand exactly one level and mark what it invented with <code>[NEW]</code>, so nothing slips in unreviewed.</p>
+      </div>
+      <div class="item">
+        <h4>Pin structure to length</h4>
+        <p>A beat sheet with word or page targets shows a sagging middle before it is written. Blake Snyder’s fifteen Save the Cat beats are a common default for both novels and scripts. Use them as a checklist of turns, not a formula.</p>
+      </div>
+      <div class="item">
+        <h4>Research once, as its own document</h4>
+        <p>If the book needs expertise (my novel’s prose uses real surveying technique), have the planning AI write a research brief for a fiction writer, with uncertain facts marked to verify. You check those yourself; the drafting AI only reads the checked version.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- BIBLE -->
+  <section class="shelf" id="bible">
+    <div class="shelf-head">
+      <span class="eyebrow">04 · The story bible</span>
+      <h2>The model’s only memory of your book</h2>
+      <p>A model starts every session knowing nothing about your book. The bible is what you paste so it knows. For my novel <em>Thalweg</em> (34 chapters and 6 interludes, 189,962 words), a 4,982-word bible came first and kept the book consistent across its length. Short enough to paste every time is the point.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Section</th><th>What goes in</th><th>Why the AI needs it</th></tr></thead>
+        <tbody>
+          <tr><td>Pitch and theme</td><td>One paragraph and one sentence</td><td>Every scene choice gets measured against what the book is about</td></tr>
+          <tr><td>Characters</td><td>Role, want, wound, how they talk with sample lines, what they know and when</td><td>Stops voices merging and characters knowing things too early</td></tr>
+          <tr><td>World rules</td><td>What is possible, impossible, and what it costs</td><td>Inconsistent rules feel arbitrary, and readers notice</td></tr>
+          <tr><td>Places</td><td>Each with a few concrete sensory details</td><td>Gives the model specifics in place of generic description</td></tr>
+          <tr><td>Timeline</td><td>Numbered or dated events, backstory included</td><td>Ages, travel times and seasons stay consistent</td></tr>
+          <tr><td>Style sheet</td><td>Point of view, tense, chapter length, banned words and habits, voice samples</td><td>The voice is defined by you, not by the model’s default</td></tr>
+          <tr><td>Open questions</td><td>Decisions not yet made</td><td>The model flags them instead of quietly inventing answers</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="grid3">
+      <div class="item"><h4>Keep it living</h4><p>After each chapter, update a separate continuity log and fold settled facts into the bible. If the two disagree, you choose which wins.</p></div>
+      <div class="item"><h4>Where to keep it</h4><p>A Claude Project or a ChatGPT Project holds it as a file every chat in the project can read. Writing tools build the same idea in: Sudowrite calls it a Story Bible, Novelcrafter a Codex.</p></div>
+      <div class="item"><h4>Write it for the AI</h4><p>Plain statements beat atmosphere. “Mara never swears; she says ‘fine’ when she is furious” is usable. A mood paragraph is not.</p></div>
+    </div>
+  </section>
+
+  <!-- DRAFT -->
+  <section class="shelf" id="draft">
+    <div class="shelf-head">
+      <span class="eyebrow">05 · Drafting</span>
+      <h2>One chapter per request, with a hand-off note</h2>
+      <p>The drafting prompt carries the bible, this chapter’s outline, and the end of the previous chapter. It asks for one chapter and stops. Then it asks for a short note outside the prose about what the chapter changed.</p>
+    </div>
+    <div class="versus">
+      <div>
+        <p class="label">What goes in, in this order</p>
+        <ol class="small" style="margin:0;padding-left:1.1rem;display:grid;gap:0.35rem">
+          <li>The story bible</li>
+          <li>The scene list for this chapter only</li>
+          <li>The last hand-off note and the previous chapter’s final paragraphs</li>
+          <li>The request: which chapter, how long, where to stop</li>
+        </ol>
+      </div>
+      <div class="callout"><b>Why this order</b><p>Anthropic’s guidance for long inputs is to put the documents first and the question last, which it measured at up to 30% better answers. Research also finds models use information at the start and end of a long input better than the middle, so a short, focused paste beats the whole manuscript.</p></div>
+    </div>
+    <div class="grid2">
+      <div class="item"><h4>Size each request</h4><p>A chapter of a few thousand words, or 10 to 15 screenplay pages, is a unit you can actually read and judge. My novel’s chapters ran from 4,176 to 8,701 words.</p></div>
+      <div class="item"><h4>Ask for the hand-off note</h4><p>Word count, what was set up, any new fact, and anything invented that the bible did not cover. My screenwriter prompt requires this after every sequence. It is the input to the continuity stage.</p></div>
+      <div class="item"><h4>Lock the voice with samples</h4><p>Paste two or three passages in the voice you want and have the model turn them into rules. Without samples you get the model’s house style, and more writers end up sounding alike.</p></div>
+      <div class="item"><h4>Start fresh, not long</h4><p>Long, corrected chats get worse. A new chat per chapter, fed from the documents, keeps quality steady and is why the documents matter.</p></div>
+    </div>
+  </section>
+
+  <!-- CONTINUITY -->
+  <section class="shelf" id="continuity">
+    <div class="shelf-head">
+      <span class="eyebrow">06 · Continuity</span>
+      <h2>A running log, checked chapter by chapter</h2>
+      <p>Continuity errors are the most fixable problem in AI fiction, if you catch them per chapter. My screenwriter prompt keeps “a running continuity log of rules established, objects planted and characters alive”; the same log works for novels.</p>
+    </div>
+    <div class="grid3">
+      <div class="item"><h4>What the log tracks</h4><ul><li>Rules established, and when</li><li>Objects and clues planted, and whether they are paid off</li><li>Injuries, deaths, who is where</li><li>What each character knows</li><li>Dates and elapsed time</li></ul></div>
+      <div class="item"><h4>How to check</h4><p>Paste the bible, the log and one chapter. Ask for each problem as a quote from the chapter, the conflicting entry, and a severity. Tell it to say “nothing found” rather than invent issues.</p></div>
+      <div class="item"><h4>What to check across the book</h4><p>Build a timeline table from chapter summaries, not the full text, and ask where someone acts on information they could not have had yet. Summaries fit; whole manuscripts get skimmed.</p></div>
+    </div>
+    <div class="callout"><b>Don’t outsource the judgement</b><p>A checker model can miss things and can invent them. The quote requirement lets you verify each flag in seconds, and you decide every conflict between the log and the bible.</p></div>
+  </section>
+
+  <!-- REVISE -->
+  <section class="shelf" id="revise">
+    <div class="shelf-head">
+      <span class="eyebrow">07 · Revision</span>
+      <h2>Notes first, then passes from big to small</h2>
+      <p>Revise the way an editor works: a diagnosis, then structure, then scenes, then lines. My novel’s chapters went through many rounds of this. The last pass is always yours.</p>
+    </div>
+    <div class="grid3">
+      <div class="item"><h4>1 · Notes, no rewriting</h4><p>The big picture in three sentences, scene by scene turns, character logic, the worst lines quoted, and five prioritized fixes. This is the script doctor structure from my screenwriter prompt.</p></div>
+      <div class="item"><h4>2 · Structural and scene passes</h4><p>Fix what the notes found, in order. Re-run continuity after any change that moves a fact.</p></div>
+      <div class="item"><h4>3 · Line pass, by hand</h4><p>Use the AI to flag, not to rewrite. Accept edits one by one and reject any that sound more generic than what you had.</p></div>
+    </div>
+    <div class="sub">
+      <h3>The seven habits to edit out</h3>
+      <p>In the LAMP study, professional writers edited 1,057 paragraphs written by GPT-4o, Claude 3.5 Sonnet and Llama 3.1 70B, and agreed on seven kinds of problem. The pattern was similar across all three models, and experts still preferred human edits to the models’ own fixes.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Habit</th><th>What it looks like</th><th>Share of edits</th></tr></thead>
+          <tbody>
+            <tr><td>Awkward word choice</td><td>Misused words, unclear pronouns, needless passive voice</td><td><span class="verdict">28%</span></td></tr>
+            <tr><td>Poor sentence structure</td><td>Run-ons and loosely joined clauses</td><td><span class="verdict">20%</span></td></tr>
+            <tr><td>Unnecessary exposition</td><td>Explaining what the scene already showed</td><td><span class="verdict">18%</span></td></tr>
+            <tr><td>Cliché</td><td>Stock phrases and images that no longer land</td><td><span class="verdict">17%</span></td></tr>
+            <tr><td>Purple prose</td><td>Ornate writing that calls attention to itself</td><td>smaller share</td></tr>
+            <tr><td>Lack of specificity</td><td>General description where a concrete detail belongs</td><td>smaller share</td></tr>
+            <tr><td>Tense inconsistency</td><td>Unintended slips between tenses</td><td>smaller share</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCREEN -->
+  <section class="shelf" id="screen">
+    <div class="shelf-head">
+      <span class="eyebrow">08 · Screenplays: a worked case</span>
+      <h2>A 16-section system prompt as the bible</h2>
+      <p>For screenwriting, the system prompt plays the bible’s role for the craft, and the project brief plays it for the story. My horror screenwriter prompt is 4,642 words in 16 sections and turns Claude into a senior screenwriter and script doctor.</p>
+      <p class="links" style="font-family:var(--mono);font-size:0.82rem;display:flex;flex-wrap:wrap;gap:0.3rem 1.2rem"><a href="../../demos/screenwriter-prompt.html">Read the system prompt</a><a href="../../demos/corpus.html">Read the CORPUS package</a><a href="../../demos/fine-tuned.html">Read the FINE-TUNED pitch</a></p>
+    </div>
+    <div class="grid2">
+      <div class="item">
+        <h4>What the prompt holds</h4>
+        <p>Role and philosophy, a fear-mechanics toolkit, subgenre conventions, structure with page targets, character and dialogue rules, format, production awareness, content limits, a cliché list, a staged workflow with templates, a script doctor mode, a self-review checklist, and a project brief to fill in.</p>
+      </div>
+      <div class="item">
+        <h4>The staged workflow it enforces</h4>
+        <p>Logline and theme, then threat bible, characters, beat sheet, step outline, pages in 10 to 15 page sequences with a continuity log, then revision against the checklist. It stops to confirm between stages.</p>
+      </div>
+      <div class="item">
+        <h4>Breadth, then a hard cut</h4>
+        <p>CORPUS is a 5,351-word development package with a 15-beat sheet, 7 characters, and 9 set pieces chosen from 64 brainstormed. Generating many options and keeping few is where AI helps most; choosing is the human part.</p>
+      </div>
+      <div class="item">
+        <h4>Same story, different deliverable</h4>
+        <p>FINE-TUNED is the 3,909-word pitch for the same idea, in 18 beats over three acts. Read side by side, the two show how the brief’s “deliverable” line changes what the same prompt produces.</p>
+      </div>
+    </div>
+    <div class="callout"><b>Format tip</b><p>Ask for pages in Fountain, a plain-text screenplay format that screenwriting apps open directly, so drafts need no reformatting.</p></div>
+  </section>
+
+  <!-- LIBRARY -->
+  <section class="shelf" id="library">
+    <div class="shelf-head">
+      <span class="eyebrow">09 · Prompt library</span>
+      <h2>17 prompts for every stage</h2>
+      <p>They work in Claude, ChatGPT, Gemini or a local model. Replace the <code>{{placeholders}}</code> and keep the parts that say where to stop. For general prompting advice, see the <a href="../">Prompting Field Guide</a>.</p>
+    </div>
+    <div class="filters" role="group" aria-label="Filter prompts">
+<button type="button" class="chip" data-f="all" aria-pressed="true">All <span>17</span></button>
+<button type="button" class="chip" data-f="plan" aria-pressed="false">Plan &amp; outline <span>4</span></button>
+<button type="button" class="chip" data-f="bible" aria-pressed="false">Story bible <span>2</span></button>
+<button type="button" class="chip" data-f="draft" aria-pressed="false">Drafting <span>3</span></button>
+<button type="button" class="chip" data-f="continuity" aria-pressed="false">Continuity <span>3</span></button>
+<button type="button" class="chip" data-f="revise" aria-pressed="false">Revision <span>3</span></button>
+<button type="button" class="chip" data-f="screen" aria-pressed="false">Screenplay <span>2</span></button>
+</div>
+    <div class="prompts">
+<article class="prompt" data-cat="plan" id="p1">
+  <div class="prompt-head"><span class="kind">Plan &amp; outline · 01</span><h3>Interrogate my premise</h3></div>
+  <p class="src">Before any outline, find out whether the idea can carry a book.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p1-t" aria-label="Copy prompt: Interrogate my premise">Copy</button><pre id="p1-t">Here is a story idea I want to develop into a {{novel / screenplay}}:
+
+&lt;premise&gt;
+{{two or three sentences}}
+&lt;/premise&gt;
+
+Act as a demanding development editor. Do not write any story yet.
+1. Say in one sentence what this story is really about underneath the plot.
+2. Name the protagonist&#x27;s want and wound, or say that they are missing.
+3. List the three weakest points of the premise, most serious first.
+4. Ask me up to five questions whose answers would change the story the most.
+Be blunt. If the idea is generic, say what would make it specific.</pre></div>
+  <p class="after">Answer the questions in your own words. Those answers are the first real material of the book.</p>
+</article>
+<article class="prompt" data-cat="plan" id="p2">
+  <div class="prompt-head"><span class="kind">Plan &amp; outline · 02</span><h3>Five loglines, then pick</h3></div>
+  <p class="src">Forces a one-sentence spine before the outline grows.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p2-t" aria-label="Copy prompt: Five loglines, then pick">Copy</button><pre id="p2-t">Using my premise and answers above, write five different loglines in this shape:
+
+When {{protagonist with a specific wound}} {{inciting incident}}, they must {{goal}} before {{stakes}}, but {{complication that turns the wound into the weapon}}.
+
+Make the five genuinely different: change the protagonist, the stakes or the genre blend, not just the wording. Under each, add one line on what kind of book it implies. Then tell me which one you would bet on and why.</pre></div>
+  <p class="after">The template is the one from my horror screenwriter prompt; it works for novels too.</p>
+</article>
+<article class="prompt" data-cat="plan" id="p3">
+  <div class="prompt-head"><span class="kind">Plan &amp; outline · 03</span><h3>Expand the outline one level at a time</h3></div>
+  <p class="src">Snowflake-style growth: sentence, paragraph, page, scene list.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p3-t" aria-label="Copy prompt: Expand the outline one level at a time">Copy</button><pre id="p3-t">Here is the approved logline and the one-paragraph summary:
+
+&lt;logline&gt;{{logline}}&lt;/logline&gt;
+&lt;summary&gt;{{paragraph: setup, three disasters, ending}}&lt;/summary&gt;
+
+Expand each sentence of the summary into its own paragraph, so the whole story is about one page. Keep every turn I already decided. Mark anything you invented with [NEW] so I can accept or reject it. Do not go further than one page; we will expand again after I review.</pre></div>
+  <p class="after">Repeat at each level: one page, then four, then a scene list. Each review is where you steer.</p>
+</article>
+<article class="prompt" data-cat="plan" id="p4">
+  <div class="prompt-head"><span class="kind">Plan &amp; outline · 04</span><h3>Beat sheet with page or word targets</h3></div>
+  <p class="src">Pins the structure to a length, so the middle cannot sag unnoticed.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p4-t" aria-label="Copy prompt: Beat sheet with page or word targets">Copy</button><pre id="p4-t">Turn the one-page outline into a beat sheet for a {{novel of about 90,000 words / feature screenplay of about 95 pages}}.
+
+For each beat give:
+BEAT NAME (target position: {{word count or page}})
+What happens: one or two sentences.
+What it does: the dramatic or thematic function.
+What changes: how the situation is different at the end.
+
+Flag any stretch longer than {{10% of the length}} where nothing turns.</pre></div>
+  <p class="after">Save the Cat&#x27;s fifteen beats are a common default; use them as a checklist, not a cage.</p>
+</article>
+<article class="prompt" data-cat="bible" id="p5">
+  <div class="prompt-head"><span class="kind">Story bible · 05</span><h3>Build the story bible</h3></div>
+  <p class="src">The single document every drafting session reads first.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p5-t" aria-label="Copy prompt: Build the story bible">Copy</button><pre id="p5-t">From everything we have agreed (premise, logline, outline, character notes), write a story bible in Markdown with these sections:
+
+1. One-paragraph pitch and the theme in one sentence
+2. Characters: for each, role, want, wound, how they talk (with two sample lines), what they know and when
+3. World rules: what is possible, what is not, and what it costs
+4. Places: each with a few concrete sensory details
+5. Timeline: dated or numbered events, including backstory
+6. Style sheet: point of view, tense, chapter length, banned words and habits, three short passages showing the voice
+7. Open questions I have not decided
+
+Use only what we decided. Where something is missing, list it under Open questions instead of inventing it.</pre></div>
+  <p class="after">Keep it short enough to paste every time. A few thousand words can hold a long novel.</p>
+</article>
+<article class="prompt" data-cat="bible" id="p6">
+  <div class="prompt-head"><span class="kind">Story bible · 06</span><h3>Research document for a technical world</h3></div>
+  <p class="src">When the book needs real expertise, gather it once and cite it.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p6-t" aria-label="Copy prompt: Research document for a technical world">Copy</button><pre id="p6-t">My novel needs a believable grounding in {{field, for example surveying, 14th-century Naples, plastering}}.
+
+Write a research brief for a fiction writer, not a textbook:
+- the 15 to 25 facts, tools and terms a practitioner would actually use, each with a one-line plain explanation
+- how the work feels day to day: sounds, smells, frustrations, slang
+- common mistakes outsiders make when writing about it
+- sources I should check myself for anything a plot point depends on
+Mark anything you are not sure of as [VERIFY].</pre></div>
+  <p class="after">Check every [VERIFY] item yourself before it reaches the manuscript.</p>
+</article>
+<article class="prompt" data-cat="draft" id="p7">
+  <div class="prompt-head"><span class="kind">Drafting · 07</span><h3>The drafting brief</h3></div>
+  <p class="src">One chapter or sequence at a time, with everything the model needs and nothing else.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p7-t" aria-label="Copy prompt: The drafting brief">Copy</button><pre id="p7-t">&lt;story_bible&gt;
+{{paste the bible}}
+&lt;/story_bible&gt;
+
+&lt;outline_for_this_chapter&gt;
+{{the scene list for chapter N only}}
+&lt;/outline_for_this_chapter&gt;
+
+&lt;previous_chapter&gt;
+{{hand-off note from chapter N-1, plus its last two or three paragraphs}}
+&lt;/previous_chapter&gt;
+
+Write chapter {{N}}, about {{4,000 to 6,000}} words, following the outline exactly. Match the voice in the style sheet. End the chapter where the outline ends; do not start the next one.
+
+After the chapter, outside the prose, add a hand-off note: word count, what this chapter set up, any new fact about a character, place or rule, and anything you had to invent that the bible did not cover.</pre></div>
+  <p class="after">Long material goes first and the instruction last, as Anthropic recommends for long inputs.</p>
+</article>
+<article class="prompt" data-cat="draft" id="p8">
+  <div class="prompt-head"><span class="kind">Drafting · 08</span><h3>Voice lock from a sample</h3></div>
+  <p class="src">Hands the model your voice rather than its own.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p8-t" aria-label="Copy prompt: Voice lock from a sample">Copy</button><pre id="p8-t">Here are three passages written in the voice I want:
+
+&lt;voice_samples&gt;
+{{passage 1}}
+{{passage 2}}
+{{passage 3}}
+&lt;/voice_samples&gt;
+
+Describe this voice in ten concrete rules (sentence length, rhythm, metaphor habits, what it never does, how dialogue is tagged). Then rewrite the paragraph below to follow the rules, changing as little of the content as possible:
+
+&lt;paragraph&gt;{{draft paragraph}}&lt;/paragraph&gt;</pre></div>
+  <p class="after">Save the ten rules into the style sheet in your bible.</p>
+</article>
+<article class="prompt" data-cat="draft" id="p9">
+  <div class="prompt-head"><span class="kind">Drafting · 09</span><h3>Three ways into a scene</h3></div>
+  <p class="src">Use when a scene is flat; pick a direction before any prose.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p9-t" aria-label="Copy prompt: Three ways into a scene">Copy</button><pre id="p9-t">The next scene in the outline is: {{scene summary}}.
+
+Before writing it, give me three different ways to stage it. For each: where it is set, whose point of view, what the scene is really about underneath the dialogue, and the image it ends on. Make at least one of them the option a careful writer would not reach for first. Stop and wait for me to choose.</pre></div>
+  <p class="after">The CORPUS package came from this pattern at scale: 64 set pieces brainstormed, 9 kept.</p>
+</article>
+<article class="prompt" data-cat="continuity" id="p10">
+  <div class="prompt-head"><span class="kind">Continuity · 10</span><h3>Continuity check against the bible</h3></div>
+  <p class="src">Quote first, then judge, so the check is grounded in the text.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p10-t" aria-label="Copy prompt: Continuity check against the bible">Copy</button><pre id="p10-t">&lt;story_bible&gt;
+{{bible}}
+&lt;/story_bible&gt;
+
+&lt;continuity_log&gt;
+{{running log: rules established, objects planted, injuries, who knows what, dates}}
+&lt;/continuity_log&gt;
+
+&lt;chapter&gt;
+{{chapter N}}
+&lt;/chapter&gt;
+
+Check the chapter for continuity errors against the bible and the log. For each possible problem, first quote the exact sentence from the chapter, then quote the bible or log entry it conflicts with, then say how serious it is (breaks the plot / reader would notice / minor). Do not report style issues. If you find nothing, say so; do not invent problems.</pre></div>
+  <p class="after">Run it one chapter at a time. Facts buried in the middle of a very long paste get missed.</p>
+</article>
+<article class="prompt" data-cat="continuity" id="p11">
+  <div class="prompt-head"><span class="kind">Continuity · 11</span><h3>Update the bible and the log</h3></div>
+  <p class="src">Keeps the source of truth current after every chapter.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p11-t" aria-label="Copy prompt: Update the bible and the log">Copy</button><pre id="p11-t">Here is the current continuity log and the hand-off note from chapter {{N}}:
+
+&lt;continuity_log&gt;{{log}}&lt;/continuity_log&gt;
+&lt;handoff&gt;{{hand-off note}}&lt;/handoff&gt;
+
+Return the updated log only. Add new facts with the chapter number. Mark any fact that changed with CHANGED and the old value. List under &quot;Decide&quot; anything that contradicts the story bible, so I can choose which one wins.</pre></div>
+  <p class="after">You decide every conflict. The model only lists them.</p>
+</article>
+<article class="prompt" data-cat="continuity" id="p12">
+  <div class="prompt-head"><span class="kind">Continuity · 12</span><h3>Timeline and knowledge audit</h3></div>
+  <p class="src">Catches the errors readers love to find: who knew what, and when.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p12-t" aria-label="Copy prompt: Timeline and knowledge audit">Copy</button><pre id="p12-t">Across the chapter summaries below, build a table with one row per scene: chapter, in-story date or day, characters present, and what each character newly learns.
+
+&lt;summaries&gt;{{one paragraph per chapter}}&lt;/summaries&gt;
+
+Then list every place where a character acts on information they could not have had yet, and every place where time does not add up (travel, ages, seasons, injuries healing).</pre></div>
+  <p class="after">Feed it summaries, not the whole manuscript, so the table fits and stays accurate.</p>
+</article>
+<article class="prompt" data-cat="revise" id="p13">
+  <div class="prompt-head"><span class="kind">Revision · 13</span><h3>Notes before rewrites</h3></div>
+  <p class="src">Diagnose first. A rewrite without a diagnosis just produces a different draft.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p13-t" aria-label="Copy prompt: Notes before rewrites">Copy</button><pre id="p13-t">Read this chapter as an editor would. Do not rewrite anything.
+
+&lt;chapter&gt;{{chapter}}&lt;/chapter&gt;
+
+Give notes in this order:
+1. The big picture in three sentences: what the chapter is trying to do, whether it gets there, and the single most important fix.
+2. Scene by scene: does each scene turn? Where does tension drop?
+3. Character: are choices believable and motivated?
+4. Line level: the five worst sentences, quoted, with what is wrong with each.
+5. The five changes that would improve the chapter most, in order.
+Praise only what works and say why.</pre></div>
+  <p class="after">This is the script doctor structure from my screenwriter prompt, adapted for prose.</p>
+</article>
+<article class="prompt" data-cat="revise" id="p14">
+  <div class="prompt-head"><span class="kind">Revision · 14</span><h3>AI-tell edit pass</h3></div>
+  <p class="src">Targets the seven habits professional writers flagged in AI prose.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p14-t" aria-label="Copy prompt: AI-tell edit pass">Copy</button><pre id="p14-t">Edit the passage below for these seven problems only: clichés; unnecessary or repeated exposition; purple prose; poor sentence structure; vague, unspecific description; awkward word choice; tense slips.
+
+&lt;passage&gt;{{passage}}&lt;/passage&gt;
+
+Return a table: original phrase, problem type, suggested edit. Do not rewrite the whole passage, and do not touch sentences that have none of these problems. Keep my voice: if an edit makes it sound more like generic AI prose, leave the original.</pre></div>
+  <p class="after">The categories come from the LAMP study, where professional writers edited 1,057 AI paragraphs.</p>
+</article>
+<article class="prompt" data-cat="revise" id="p15">
+  <div class="prompt-head"><span class="kind">Revision · 15</span><h3>Read-aloud dialogue pass</h3></div>
+  <p class="src">Finds lines nobody would say, and characters who sound alike.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p15-t" aria-label="Copy prompt: Read-aloud dialogue pass">Copy</button><pre id="p15-t">Here is a scene. List each character&#x27;s lines separately, then:
+- flag any line a real person would not say aloud, and why
+- flag any two characters who sound interchangeable, with an example
+- flag dialogue that explains what the reader already knows
+Suggest a fix only for the flagged lines, in each character&#x27;s voice as described in the bible.
+
+&lt;scene&gt;{{scene}}&lt;/scene&gt;</pre></div>
+  <p class="after">Then read the flagged lines aloud yourself. Your ear is the real test.</p>
+</article>
+<article class="prompt" data-cat="screen" id="p16">
+  <div class="prompt-head"><span class="kind">Screenplay · 16</span><h3>Brief for the screenwriter system prompt</h3></div>
+  <p class="src">The first message after pasting a genre system prompt.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p16-t" aria-label="Copy prompt: Brief for the screenwriter system prompt">Copy</button><pre id="p16-t">PROJECT BRIEF
+Working title:
+Logline (if you have one):
+Subgenre(s):
+Tone and comparable films:
+What it is really about (theme):
+Protagonist (who, want, wound):
+The threat or antagonist (what it is, what it wants):
+Known rules:
+Setting and primary locations:
+Budget tier (micro / low / mid / studio):
+Target rating and page count:
+Ending type (bleak / ambiguous / triumphant / undecided):
+Things to avoid:
+Deliverable for this session (logline / bible / beat sheet / step outline / pages X–Y / notes on attached pages):</pre></div>
+  <p class="after">Trimmed from the brief template at the end of my horror screenwriter prompt. Blank fields are fine.</p>
+</article>
+<article class="prompt" data-cat="screen" id="p17">
+  <div class="prompt-head"><span class="kind">Screenplay · 17</span><h3>Step outline in Fountain-ready form</h3></div>
+  <p class="src">Every scene numbered, with the turn and the plants, before a single page.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p17-t" aria-label="Copy prompt: Step outline in Fountain-ready form">Copy</button><pre id="p17-t">From the approved beat sheet, write a step outline. For each scene:
+
+#. INT./EXT. LOCATION - DAY/NIGHT
+Who: characters present.
+What happens: two or three sentences.
+The turn: how the situation is different at the end.
+Plants or payoffs: rules, objects or lines set up or paid off.
+
+Flag any scene with no turn, and any payoff with no plant.</pre></div>
+  <p class="after">When you draft pages, ask for Fountain format so the text drops straight into screenwriting apps.</p>
+</article>
+    </div>
+  </section>
+
+  <!-- LIMITS -->
+  <section class="shelf" id="limits">
+    <div class="shelf-head">
+      <span class="eyebrow">10 · Limits, rights and disclosure</span>
+      <h2>What AI cannot do for you, and what you owe readers</h2>
+      <p>This is a summary of public research and policy, not legal advice. Check the current rules for your publisher and country.</p>
+    </div>
+    <div class="grid2">
+      <div class="item"><h4>Raw AI fiction still falls short</h4><p>In a CHI 2024 study, ten creative writers judged 48 stories against 14 tests of creative writing. Stories written by LLMs passed 3 to 10 times fewer tests than stories by professionals, and no model’s ratings matched the experts’. The workflow exists to close that gap with your judgement.</p></div>
+      <div class="item"><h4>AI ideas make stories more alike</h4><p>In a study of 300 writers, AI ideas raised the novelty of individual stories (most for less creative writers), but stories that used an AI idea were 10.7% more similar to each other. Protect what is specific to you: your premise, your research, your voice samples.</p></div>
+      <div class="item"><h4>Copyright needs human authorship</h4><p>The US Copyright Office’s January 2025 report says prompts alone are not enough for protection. Human-authored expression that is perceptible in the work, and creative selection, arrangement or modification of AI output, can be protected, and using AI to assist does not bar copyright.</p></div>
+      <div class="item"><h4>Amazon KDP wants a declaration</h4><p>KDP requires you to declare AI-generated text, images and translations, even if you edited them heavily. AI-assisted work, where you wrote it and used AI to edit, refine or check it, does not need declaring.</p></div>
+      <div class="item"><h4>Authors Guild best practice</h4><p>Keep the ideas and wording yours if you claim authorship, disclose substantial AI use to readers and your publisher, check your contract’s originality warranty, and don’t use AI to imitate another living writer’s style.</p></div>
+      <div class="item"><h4>Screenwriters under the WGA</h4><p>Under the 2023 WGA agreement, AI is not a writer and its output is not literary or source material. A company can’t require a writer to use AI, must disclose AI-generated material it hands over, and a writer may use AI with the company’s consent.</p></div>
+    </div>
+  </section>
+
+  <!-- SOURCES -->
+  <section class="shelf" id="sources">
+    <div class="shelf-head">
+      <span class="eyebrow">11 · Sources</span>
+      <h2>Where the claims come from</h2>
+      <p>The workflow sections describe my own process and the published screenplay documents. Everything else is from the sources below, checked in October 2026.</p>
+    </div>
+    <ul class="srcs">
+<li><a href="https://arxiv.org/abs/2209.14958">Mirowski et al.: Co-writing screenplays and theatre scripts with language models (Dramatron)</a></li>
+<li><a href="https://arxiv.org/abs/2210.06774">Yang et al.: Re3, generating longer stories with recursive reprompting and revision</a></li>
+<li><a href="https://arxiv.org/abs/2212.10077">Yang et al.: DOC, improving long story coherence with detailed outline control</a></li>
+<li><a href="https://arxiv.org/abs/2409.14509">Chakrabarty et al.: Can AI writing be salvaged? (LAMP edits)</a></li>
+<li><a href="https://arxiv.org/abs/2309.14556">Chakrabarty et al.: Art or artifice? LLMs and the false promise of creativity</a></li>
+<li><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11244532">Doshi and Hauser: Generative AI enhances individual creativity but reduces collective diversity (Science Advances)</a></li>
+<li><a href="https://arxiv.org/abs/2307.03172">Liu et al.: Lost in the middle, how language models use long contexts</a></li>
+<li><a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/long-context-tips">Anthropic: Long context prompting tips</a></li>
+<li><a href="https://support.claude.com/en/articles/9517075-what-are-projects">Anthropic: What are Projects?</a></li>
+<li><a href="https://www.advancedfictionwriting.com/articles/snowflake-method/">Ingermanson: The Snowflake Method</a></li>
+<li><a href="https://savethecat.com/">Save the Cat (Blake Snyder’s beat sheet)</a></li>
+<li><a href="https://fountain.io/">Fountain: plain-text screenplay markup</a></li>
+<li><a href="https://docs.sudowrite.com/using-sudowrite/1ow1qkGqof9rtcyGnrWUBS/what-is-story-bible/jmWepHcQdJetNrE991fjJC">Sudowrite: Story Bible</a></li>
+<li><a href="https://www.novelcrafter.com/features/codex">Novelcrafter: Codex</a></li>
+<li><a href="https://blogs.loc.gov/copyright/2025/02/inside-the-copyright-offices-report-copyright-and-artificial-intelligence-part-2-copyrightability/">US Copyright Office: Copyright and AI, Part 2 on copyrightability (Jan 2025), explained</a></li>
+<li><a href="https://kdp.amazon.com/en_US/help/topic/G200672390">Amazon KDP content guidelines (AI-generated vs AI-assisted)</a></li>
+<li><a href="https://authorsguild.org/resource/ai-best-practices-for-authors/">Authors Guild: AI best practices for authors</a></li>
+<li><a href="https://www.wga.org/contracts/know-your-rights/artificial-intelligence">Writers Guild of America: AI provisions of the 2023 MBA</a></li>
+    </ul>
+  </section>
+
+  <footer>
+    <span>Myles Parslow · Researched and built with Claude · October 2026</span>
+    <span><a href="../">Prompting Field Guide</a> · <a href="../../">Back to the portfolio</a></span>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var KEY = 'portfolio-scheme';
+  var root = document.documentElement;
+  var buttons = document.querySelectorAll('.swatch');
+  function apply(name) {
+    if (name !== 'pine' && name !== 'sky') name = 'eggshell';
+    if (name === 'eggshell') root.removeAttribute('data-scheme'); else root.setAttribute('data-scheme', name);
+    buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.pick === name)); });
+    return name;
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  apply(saved);
+  buttons.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var name = apply(b.dataset.pick);
+      try { localStorage.setItem(KEY, name); } catch (e) {}
+    });
+  });
+
+  // Prompt filters
+  var chips = document.querySelectorAll('.chip');
+  var cards = document.querySelectorAll('.prompt');
+  chips.forEach(function (c) {
+    c.addEventListener('click', function () {
+      var f = c.dataset.f;
+      chips.forEach(function (x) { x.setAttribute('aria-pressed', String(x === c)); });
+      cards.forEach(function (card) { card.hidden = !(f === 'all' || card.dataset.cat === f); });
+    });
+  });
+
+  // Copy buttons
+  document.querySelectorAll('.copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var el = document.getElementById(btn.dataset.copy);
+      if (!el) return;
+      var text = el.textContent;
+      function done(ok) { btn.textContent = ok ? 'Copied' : 'Select & copy'; setTimeout(function () { btn.textContent = 'Copy'; }, 1600); }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(false); });
+      } else {
+        var r = document.createRange(); r.selectNodeContents(el);
+        var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+        try { done(document.execCommand('copy')); } catch (e) { done(false); }
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

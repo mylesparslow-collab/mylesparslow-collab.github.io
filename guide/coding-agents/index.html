@@ -1,0 +1,782 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="How to build with Claude Code, Codex and Cursor: instruction files, plan mode, permissions, sub-agents, skills, hooks, parallel agents, testing and reviewing AI-written code, with sources.">
+<title>Coding Agents Field Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Same sheet, tokens and colour picker as the portfolio home page, so a chosen scheme carries over. */
+:root {
+  color-scheme: light;
+  --bg: #f2eee3; --surface: #fbf9f3; --rule: #ddd3bf; --ink: #15120f; --muted: #5f4e40;
+  --accent: #6b3f22; --mark: #a9822f; --mark-soft: #ede1c1;
+  --display: "Bricolage Grotesque", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+  --body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+:root[data-scheme="pine"] {
+  --bg: #f4f6f4; --surface: #ffffff; --rule: #d5ddd8; --ink: #18201c; --muted: #56625b;
+  --accent: #23593f; --mark: #23593f; --mark-soft: #e2ece6;
+}
+:root[data-scheme="sky"] {
+  --bg: #e8f3fb; --surface: #ffffff; --rule: #c6e0f3; --ink: #192838; --muted: #4c6073;
+  --accent: #9b111e; --mark: #9b111e; --mark-soft: #f7e1e4;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 1.0625rem; line-height: 1.62; margin: 0; }
+.wrap { max-width: 72rem; margin: 0 auto; padding-inline: 1.25rem; padding-block: 3.5rem 4rem; display: grid; gap: 5rem; }
+a { color: var(--accent); text-underline-offset: 0.18em; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+h1, h2, h3, h4 { font-family: var(--display); text-wrap: balance; line-height: 1.12; margin: 0; }
+p { margin: 0; }
+code { font-family: var(--mono); font-size: 0.86em; background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; padding: 0.05em 0.3em; }
+.eyebrow { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+
+/* Top bar and picker */
+.topbar { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.75rem 1.5rem; }
+.topbar .back { font-family: var(--mono); font-size: 0.8rem; }
+.picker { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0; padding: 0; border: 0; }
+.picker legend { float: left; margin-right: 0.25rem; font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.swatch { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.3rem 0.7rem 0.3rem 0.35rem; border-radius: 999px; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); font-family: var(--display); font-size: 0.85rem; font-weight: 500; cursor: pointer; }
+.swatch:hover { border-color: var(--muted); }
+.swatch[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.swatch i { width: 1.15rem; height: 1.15rem; border-radius: 50%; flex: none; border: 1px solid rgba(0,0,0,0.15); }
+.swatch[data-pick="eggshell"] i { background: linear-gradient(135deg, #f2eee3 0 45%, #6b3f22 45% 70%, #a9822f 70%); }
+.swatch[data-pick="pine"] i { background: linear-gradient(135deg, #f4f6f4 0 50%, #23593f 50%); }
+.swatch[data-pick="sky"] i { background: linear-gradient(135deg, #e8f3fb 0 50%, #9b111e 50%); }
+
+/* Intro */
+.intro { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 2.5rem; align-items: start; }
+.intro-text { display: grid; gap: 1.25rem; align-content: start; }
+.intro h1 { font-size: clamp(2.6rem, 6.4vw, 4.4rem); font-weight: 800; letter-spacing: -0.025em; line-height: 1.04; }
+.intro h1 em { font-style: normal; color: var(--mark); }
+.lede { font-size: 1.22rem; max-width: 38rem; }
+.toc { display: grid; border-top: 2px solid var(--ink); counter-reset: toc; }
+.toc a { display: grid; grid-template-columns: 2.2rem 1fr auto; gap: 0.5rem; align-items: baseline; padding: 0.55rem 0; border-bottom: 1px solid var(--rule); text-decoration: none; color: var(--ink); font-family: var(--display); font-weight: 700; font-size: 1.05rem; }
+.toc a::before { counter-increment: toc; content: counter(toc, decimal-leading-zero); font-family: var(--mono); font-weight: 400; font-size: 0.75rem; color: var(--muted); }
+.toc a span { font-family: var(--mono); font-weight: 400; font-size: 0.75rem; color: var(--muted); text-align: right; }
+.toc a:hover { color: var(--accent); }
+.tally { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin: 0; border-top: 1px solid var(--rule); padding-top: 1.25rem; }
+.tally div { display: grid; gap: 0.2rem; align-content: start; }
+.tally dt { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); order: 2; }
+.tally dd { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(1.6rem, 3.4vw, 2.4rem); color: var(--accent); letter-spacing: -0.02em; line-height: 1.05; }
+
+/* Sections */
+.shelf { display: grid; gap: 2.25rem; scroll-margin-top: 1.5rem; }
+.shelf-head { display: grid; gap: 0.5rem; border-top: 2px solid var(--ink); padding-top: 1rem; }
+.shelf-head h2 { font-size: clamp(2rem, 4.2vw, 2.8rem); font-weight: 800; letter-spacing: -0.02em; }
+.shelf-head p { color: var(--muted); max-width: 46rem; }
+.sub { display: grid; gap: 1rem; }
+.sub > h3 { font-size: 1.5rem; }
+.sub > p { max-width: 48rem; }
+
+/* Numbered rules */
+.short { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem 2.5rem; counter-reset: r; }
+.short li { counter-increment: r; display: grid; grid-template-columns: 2.4rem 1fr; gap: 0.2rem 0.6rem; border-top: 1px solid var(--rule); padding-top: 0.8rem; }
+.short li::before { content: counter(r, decimal-leading-zero); grid-row: span 2; font-family: var(--display); font-weight: 800; font-size: 1.4rem; color: var(--mark); line-height: 1.1; }
+.short h3 { font-size: 1.12rem; }
+.short p { color: var(--muted); font-size: 0.98rem; }
+
+/* Card grids */
+.grid2, .grid3 { display: grid; gap: 1.5rem 2.25rem; }
+.grid2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.item { display: grid; gap: 0.4rem; align-content: start; border-top: 1px solid var(--rule); padding-top: 0.85rem; min-width: 0; }
+.item h4 { font-size: 1.08rem; }
+.item p { font-size: 0.98rem; }
+.item .why { color: var(--muted); }
+.item .cite { font-family: var(--mono); font-size: 0.74rem; color: var(--muted); }
+.item ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.35rem; font-size: 0.98rem; }
+
+/* Anatomy */
+.anatomy { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0.75rem; }
+.anatomy div { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 0.9rem; display: grid; gap: 0.35rem; align-content: start; }
+.anatomy b { font-family: var(--mono); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.anatomy p { font-size: 0.92rem; color: var(--muted); }
+.versus { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: 1.25rem; align-items: start; }
+.versus .label { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.35rem; }
+.versus .label.good { color: var(--accent); }
+
+/* Code blocks */
+.code { position: relative; min-width: 0; }
+pre { margin: 0; font-family: var(--mono); font-size: 0.8rem; line-height: 1.55; background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 0.9rem 1rem; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--ink); }
+.copy { position: absolute; top: 0.45rem; right: 0.45rem; font-family: var(--mono); font-size: 0.72rem; padding: 0.2rem 0.55rem; border-radius: 999px; border: 1px solid var(--rule); background: var(--bg); color: var(--accent); cursor: pointer; }
+.copy:hover { border-color: var(--accent); }
+.copy + pre { padding-top: 2rem; }
+
+/* Tables */
+.table-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; min-width: 46rem; }
+th, td { text-align: left; vertical-align: top; padding: 0.65rem 0.8rem; border-bottom: 1px solid var(--rule); }
+th { font-family: var(--mono); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); background: var(--mark-soft); }
+td:first-child { font-family: var(--display); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+.verdict { font-family: var(--mono); font-size: 0.72rem; padding: 0.1rem 0.45rem; border-radius: 999px; background: var(--mark-soft); color: var(--accent); white-space: nowrap; }
+
+/* Model cards */
+.model { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 1.25rem 1.3rem; display: grid; gap: 0.7rem; align-content: start; min-width: 0; }
+.model .kind { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+.model h3 { font-size: 1.45rem; }
+.model ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.45rem; font-size: 0.97rem; }
+.model .links { font-family: var(--mono); font-size: 0.78rem; display: flex; flex-wrap: wrap; gap: 0.3rem 1rem; }
+.callout { border-left: 3px solid var(--mark); padding-left: 0.9rem; display: grid; gap: 0.3rem; max-width: 50rem; }
+.callout b { font-family: var(--mono); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+
+/* Prompt library */
+.filters { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.chip { font-family: var(--display); font-size: 0.88rem; font-weight: 500; padding: 0.3rem 0.75rem; border-radius: 999px; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); cursor: pointer; }
+.chip span { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); margin-left: 0.15rem; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.chip[aria-pressed="true"] span { color: var(--bg); }
+.prompts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem 2.25rem; align-items: start; }
+.prompt { display: grid; gap: 0.6rem; min-width: 0; border-top: 1px solid var(--rule); padding-top: 0.9rem; scroll-margin-top: 1.5rem; }
+.prompt[hidden] { display: none; }
+.prompt .kind { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.prompt h3 { font-size: 1.25rem; margin-top: 0.2rem; }
+.prompt .src, .prompt .after { font-size: 0.88rem; color: var(--muted); }
+
+/* Resources */
+.rnav { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; font-family: var(--mono); font-size: 0.82rem; }
+.rgroup { display: grid; gap: 0.9rem; scroll-margin-top: 1.5rem; }
+.rgroup h3 { font-size: 1.5rem; }
+.rintro { color: var(--muted); max-width: 46rem; }
+.rlist { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem 2rem; }
+.rlist li { display: grid; gap: 0.3rem; align-content: start; border-top: 1px solid var(--rule); padding-top: 0.75rem; min-width: 0; }
+.rname { font-family: var(--display); font-weight: 700; font-size: 1.02rem; overflow-wrap: anywhere; }
+.rhost { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.rlist p { font-size: 0.94rem; }
+.rlist .caution { font-size: 0.84rem; color: var(--muted); font-style: italic; }
+
+.small { font-size: 0.9rem; color: var(--muted); }
+.srcs { columns: 2; column-gap: 2.5rem; font-size: 0.86rem; margin: 0; padding-left: 1.1rem; }
+.srcs li { break-inside: avoid; margin-bottom: 0.35rem; overflow-wrap: anywhere; }
+
+footer { border-top: 1px solid var(--rule); padding-top: 1.25rem; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 2rem; font-family: var(--mono); font-size: 0.8rem; color: var(--muted); }
+
+@media (max-width: 980px) {
+  .anatomy { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .rlist, .grid3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 820px) {
+  .intro, .short, .grid2, .grid3, .prompts, .rlist, .versus { grid-template-columns: minmax(0, 1fr); }
+  .anatomy { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tally { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .srcs { columns: 1; }
+  .wrap { gap: 3.5rem; padding-block: 2.5rem 3rem; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="intro">
+    <div class="topbar">
+      <a class="back" href="../../">← Myles Parslow portfolio</a>
+      <a class="back" href="../">Prompting field guide</a>
+      <fieldset class="picker" aria-label="Colour scheme">
+        <legend>Colours</legend>
+        <button type="button" class="swatch" data-pick="eggshell" aria-pressed="true"><i></i>Eggshell</button>
+        <button type="button" class="swatch" data-pick="pine" aria-pressed="false"><i></i>Original</button>
+        <button type="button" class="swatch" data-pick="sky" aria-pressed="false"><i></i>Sky &amp; ruby</button>
+      </fieldset>
+    </div>
+    <div class="intro-text">
+      <span class="eyebrow">Field guide · October 2026</span>
+      <h1>Building with <em>AI coding agents</em>, and keeping the code honest.</h1>
+      <p class="lede">A working guide to Claude Code, Codex and Cursor: how to set a repo up so an agent starts well, how to plan, constrain and parallelise its work, and how to test and review what it writes. Every claim links to the lab’s own docs or to a study, and the docs were re-read in October 2026.</p>
+      <p class="small">This is the deep dive behind the short <a href="../#agents">coding-agents section</a> of the prompting guide. That section covers the basic loop; this one covers configuration, safety and review. Agent products change monthly, so features are dated and anything that has been renamed or retired is flagged.</p>
+    </div>
+    <nav class="toc" aria-label="Sections">
+      <a href="#short">The short version <span>10 rules</span></a>
+      <a href="#compare">Three tools side by side <span>one table</span></a>
+      <a href="#files">Instruction files <span>templates</span></a>
+      <a href="#plan">Plan, then build <span>the loop</span></a>
+      <a href="#limits">Permissions and sandboxes <span>guardrails</span></a>
+      <a href="#extend">Sub-agents, skills, hooks, MCP <span>which when</span></a>
+      <a href="#parallel">Parallel and cloud agents <span>scale</span></a>
+      <a href="#testing">Testing what it builds <span>evidence</span></a>
+      <a href="#review">Reviewing AI-written code <span>studies + checklist</span></a>
+      <a href="#security">Agent security <span>trifecta</span></a>
+      <a href="#failures">Failure patterns <span>fixes</span></a>
+      <a href="#sources">Sources and caveats <span>how this was made</span></a>
+    </nav>
+    <dl class="tally">
+      <div><dt>Agents compared</dt><dd>3</dd></div>
+      <div><dt>Copy-paste templates</dt><dd>9</dd></div>
+      <div><dt>Claude Code permission modes</dt><dd>6</dd></div>
+      <div><dt>Studies in the review table</dt><dd>8</dd></div>
+    </dl>
+  </header>
+
+  <!-- SHORT VERSION -->
+  <section class="shelf" id="short">
+    <div class="shelf-head">
+      <span class="eyebrow">01 · The short version</span>
+      <h2>Ten rules that hold across all three tools</h2>
+      <p>If you read nothing else: an agent is a loop of reading, acting and checking. Your job is to make each step cheap to get right and cheap to catch when it is wrong.</p>
+    </div>
+    <ol class="short">
+      <li><h3>Keep the instruction file short</h3><p>Claude Code’s docs target under 200 lines per <code>CLAUDE.md</code>, Cursor under 500 lines per rule, and Codex stops reading at 32 KiB by default. Commands and gotchas, not a tour of the code.</p></li>
+      <li><h3>Write one file, not three</h3><p><code>AGENTS.md</code> is read by Codex, Cursor and Copilot’s agent. Claude Code reads <code>CLAUDE.md</code>, which can import it with one line.</p></li>
+      <li><h3>Plan before anything non-trivial</h3><p>All three have a plan mode that reads but does not edit. Review the plan, not the diff, while changing course is still cheap.</p></li>
+      <li><h3>Give it a check it can run</h3><p>Tests, a build, a linter, a screenshot. Claude Code’s docs put it first: “Give Claude a check it can run.” Ask for command output as proof, not “it works.”</p></li>
+      <li><h3>Start restrictive, loosen on purpose</h3><p>Read-only or approve-edits to begin; allow specific commands you trust; deny what must never happen. Full-bypass modes belong in disposable containers only.</p></li>
+      <li><h3>Use hooks, not prose, for “always”</h3><p>An instruction can be ignored. A hook that runs the formatter or blocks a command cannot.</p></li>
+      <li><h3>Keep side work out of the main context</h3><p>Sub-agents and fresh sessions keep research and review from crowding the window you build in.</p></li>
+      <li><h3>Don’t let the agent grade itself</h3><p>Review the diff in a fresh context, with a different tool or a human. Models that can see the tests can learn to satisfy them rather than fix the bug.</p></li>
+      <li><h3>Read what you merge</h3><p>Treat AI output as a draft from a fast junior. Studies show it is plausible, sometimes insecure, and can invent packages.</p></li>
+      <li><h3>Never combine private data, untrusted input and a way out</h3><p>That trio is how agents get tricked into leaking. Remove one leg of it.</p></li>
+    </ol>
+  </section>
+
+  <!-- COMPARE -->
+  <section class="shelf" id="compare">
+    <div class="shelf-head">
+      <span class="eyebrow">02 · Three tools side by side</span>
+      <h2>Where Claude Code, Codex and Cursor line up</h2>
+      <p>The vocabulary differs; the ideas are close. Rows are drawn from each tool’s own docs (linked in the last section). Cells say “not found” where a docs page didn’t describe the feature, rather than guessing.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Need</th><th>Claude Code</th><th>Codex (OpenAI)</th><th>Cursor</th></tr></thead>
+        <tbody>
+          <tr><td>Standing instructions</td><td><code>CLAUDE.md</code> (user, project, local, managed). <code>AGENTS.md</code> is read only if no CLAUDE.md exists.</td><td><code>AGENTS.md</code>, with <code>AGENTS.override.md</code>; walks root to current folder; 32 KiB cap by default.</td><td><code>.cursor/rules/*.mdc</code> plus <code>AGENTS.md</code> in root and subfolders.</td></tr>
+          <tr><td>Plan without editing</td><td>Plan mode: Shift+Tab, <code>/plan</code>, or <code>--permission-mode plan</code></td><td><code>/plan</code> or Shift+Tab</td><td>Plan Mode: Shift+Tab in the chat input</td></tr>
+          <tr><td>Approval levels</td><td>Six permission modes (below), plus allow/ask/deny rules</td><td>Sandbox modes (<code>read-only</code>, <code>workspace-write</code>, <code>danger-full-access</code>) and approval policies (<code>on-request</code>, <code>never</code>, granular)</td><td>Run modes for terminal and MCP; approval before MCP tools by default</td></tr>
+          <tr><td>Reusable know-how</td><td>Skills in <code>.claude/skills/&lt;name&gt;/SKILL.md</code>; old <code>.claude/commands</code> still work</td><td>Skills in <code>.agents/skills</code>; invoke with <code>$name</code> or <code>/skills</code></td><td>Rules (always, intelligent, by file pattern, manual); <code>/create-rule</code></td></tr>
+          <tr><td>Delegate to a helper</td><td>Sub-agents in <code>.claude/agents/*.md</code></td><td>Not found in the pages checked</td><td>Cloud Agents (formerly Background Agents)</td></tr>
+          <tr><td>Deterministic automation</td><td>Hooks (<code>PreToolUse</code>, <code>PostToolUse</code>, <code>Stop</code>…)</td><td>Not found in the pages checked</td><td>Not found in the pages checked</td></tr>
+          <tr><td>Outside tools</td><td>MCP: <code>claude mcp add</code>, <code>.mcp.json</code></td><td>MCP: <code>[mcp_servers.name]</code> in <code>config.toml</code></td><td>MCP: <code>.cursor/mcp.json</code></td></tr>
+          <tr><td>Scripting / CI</td><td><code>claude -p</code> with <code>--output-format json</code></td><td><code>codex exec</code>, read-only by default; <code>--json</code>, <code>--output-schema</code></td><td>Cloud Agents API</td></tr>
+          <tr><td>Undo</td><td>Checkpoints: <code>/rewind</code> or Esc Esc; does not track Bash changes</td><td>Use git (<code>.git</code> is protected read-only in the sandbox)</td><td>Checkpoints, stored locally and separate from git</td></tr>
+          <tr><td>Parallel / cloud</td><td><code>--worktree</code>, cloud sessions</td><td>Codex cloud environments; <code>codex cloud</code></td><td>Cloud Agents in isolated VMs</td></tr>
+          <tr><td>PR review</td><td><code>/code-review</code>, <code>/security-review</code>, GitHub Action</td><td><code>@codex review</code> on a PR; <code>/review</code> locally</td><td>Bugbot</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="callout"><b>Pick by workflow, not brand</b>These tools converge fast, and several can run in the same repo because they share <code>AGENTS.md</code>. A reasonable setup is one agent that builds and a different one that reviews, so the reviewer doesn’t share the builder’s blind spots. For which AI suits which job in general, see the <a href="../#models">model-by-model section</a> of the prompting guide.</p>
+  </section>
+
+  <!-- INSTRUCTION FILES -->
+  <section class="shelf" id="files">
+    <div class="shelf-head">
+      <span class="eyebrow">03 · Instruction files</span>
+      <h2>Tell the agent what it can’t read from the code</h2>
+      <p>An instruction file is loaded at the start of each session, so every line costs context on every task. The test Claude Code’s docs give: for each line, ask whether removing it would cause mistakes. If not, cut it.</p>
+    </div>
+
+    <div class="sub">
+      <h3>How each tool finds the file</h3>
+      <div class="grid3">
+        <div class="item"><h4>Claude Code: <code>CLAUDE.md</code></h4><ul><li>Layers, broad to specific: managed policy, <code>~/.claude/CLAUDE.md</code>, <code>./CLAUDE.md</code> (or <code>./.claude/CLAUDE.md</code>), and <code>CLAUDE.local.md</code> for personal notes you gitignore</li><li>Files in parent folders load at launch; files in subfolders load on demand</li><li>All files are concatenated, not overridden</li><li><code>@path</code> imports, up to four hops deep; imports don’t reduce context cost</li><li><code>/init</code> drafts one from the codebase; <code>/memory</code> edits it</li></ul><p class="cite"><a href="https://code.claude.com/docs/en/memory">Claude Code: memory</a></p></div>
+        <div class="item"><h4>Codex: <code>AGENTS.md</code></h4><ul><li>Global in <code>~/.codex</code>, then from the project root down to the current folder</li><li>One file per folder; <code>AGENTS.override.md</code> wins over <code>AGENTS.md</code> there</li><li>Concatenated root-down, so closer files come later and effectively win</li><li>Stops at <code>project_doc_max_bytes</code> (32 KiB by default)</li><li>Check what loaded by asking Codex to summarise its instructions</li></ul><p class="cite"><a href="https://learn.chatgpt.com/docs/agent-configuration/agents-md">Codex: AGENTS.md</a></p></div>
+        <div class="item"><h4>Cursor: rules and <code>AGENTS.md</code></h4><ul><li>Project rules are <code>.mdc</code> files in <code>.cursor/rules</code>; a plain <code>.md</code> there is ignored</li><li>Four types: Always Apply, Apply Intelligently (by description), Apply to Specific Files (globs), Apply Manually (@-mention)</li><li>Precedence: Team, then Project, then User</li><li>Keep each rule under 500 lines</li><li>Also reads <code>AGENTS.md</code> in root and subfolders</li></ul><p class="cite"><a href="https://cursor.com/docs/context/rules">Cursor: rules</a></p></div>
+      </div>
+      <p class="small">Cursor’s older rule names, “Agent Requested” and “Auto Attached”, no longer appear on its rules page; the types above are the current ones.</p>
+    </div>
+
+    <div class="sub">
+      <h3>One source of truth for all three</h3>
+      <p><code>AGENTS.md</code> is an open format, now stewarded by the Agentic AI Foundation under the Linux Foundation, and read by Codex, Cursor, Copilot’s agent, Jules, Aider, Zed and others. Claude Code reads <code>CLAUDE.md</code> instead, and loads <code>AGENTS.md</code> only when no CLAUDE.md exists (a recent addition). The simplest way to share one file is a CLAUDE.md that imports it:</p>
+      <div class="versus">
+        <div>
+          <div class="label good">CLAUDE.md</div>
+          <div class="code"><button type="button" class="copy" data-copy="t-claude" aria-label="Copy the CLAUDE.md that imports AGENTS.md">Copy</button><pre id="t-claude">@AGENTS.md
+
+## Claude Code only
+- Use plan mode for anything touching more than two files.
+- After editing, run the commands under "Verify" in AGENTS.md
+  and show me the output.</pre></div>
+        </div>
+        <div>
+          <div class="label good">AGENTS.md: a starter that stays short</div>
+          <div class="code"><button type="button" class="copy" data-copy="t-agents" aria-label="Copy the AGENTS.md starter">Copy</button><pre id="t-agents"># {{Project name}}
+{{One sentence: what this is and who uses it.}}
+
+## Commands
+- Install: {{npm ci}}
+- Run one test file: {{npx vitest run path/to/file.test.ts}}
+- Full test suite: {{npm test}}
+- Lint and typecheck: {{npm run lint && npm run typecheck}}
+
+## Verify before saying you are done
+Run lint, typecheck and the tests for the files you changed.
+Paste the command output. Never edit or delete a test to make it pass.
+
+## Conventions that differ from the defaults
+- {{e.g. We use named exports only; no default exports.}}
+- {{e.g. Money is stored as integer cents, never floats.}}
+
+## Gotchas
+- {{e.g. The dev DB resets on every restart; seed with npm run seed.}}
+- {{e.g. src/generated/ is built, never hand-edit.}}
+
+## Boundaries
+- Ask before adding a dependency or changing the database schema.
+- Never touch .env files or anything under secrets/.</pre></div>
+        </div>
+      </div>
+      <p class="small">Adapted from the section lists in the <a href="https://agents.md/">AGENTS.md spec</a>. Replace every <code>{{…}}</code>; delete any section you can’t fill with something the agent couldn’t learn by reading the code.</p>
+    </div>
+
+    <div class="grid2">
+      <div class="item"><h4>Grow it from failures, not from imagination</h4><p>Don’t write a long file up front. Each time the agent repeats a mistake, add one line that would have prevented it (Mitchell Hashimoto’s “<a href="https://mitchellh.com/writing/my-ai-adoption-journey">engineer the harness</a>” habit). Prune quarterly. <code>/context</code> in Claude Code shows which memory files loaded, which is the quickest way to find a file that is bloating every session.</p></div>
+      <div class="item"><h4>Scope instructions to the files they matter for</h4><p>Claude Code supports path-scoped rules in <code>.claude/rules/*.md</code> with <code>paths</code> frontmatter; Cursor has glob rules; Codex has nested <code>AGENTS.md</code>. A frontend convention shouldn’t cost tokens during a backend task.</p></div>
+    </div>
+  </section>
+
+  <!-- PLAN -->
+  <section class="shelf" id="plan">
+    <div class="shelf-head">
+      <span class="eyebrow">04 · Plan, then build</span>
+      <h2>Explore, plan, implement, commit</h2>
+      <p>Claude Code’s best-practices page names this four-step loop. In plan mode the agent “reads files, runs shell commands to explore, and writes a plan, but does not edit your source.” Cursor’s Plan Mode and Codex’s <code>/plan</code> work the same way.</p>
+    </div>
+    <div class="grid2">
+      <div class="item"><h4>Enter plan mode</h4><ul><li>Claude Code: Shift+Tab cycles modes, or start a prompt with <code>/plan</code>, or launch with <code>claude --permission-mode plan</code>. Ctrl+G opens the plan in your editor.</li><li>Codex: <code>/plan</code> or Shift+Tab</li><li>Cursor: Shift+Tab in the chat input. It asks clarifying questions first and saves plans outside the repo unless you choose “Save to workspace”.</li></ul><p class="cite"><a href="https://code.claude.com/docs/en/permission-modes">Claude Code</a> · <a href="https://learn.chatgpt.com/docs/reference/slash-commands">Codex</a> · <a href="https://cursor.com/docs/agent/plan-mode">Cursor</a></p></div>
+      <div class="item"><h4>When to skip it</h4><p>If you could describe the diff in one sentence (rename a variable, fix a typo, add a log line), just ask for it. Planning pays for changes with several valid approaches, many files, or code you don’t know.</p><p class="cite"><a href="https://code.claude.com/docs/en/best-practices">Claude Code best practices</a></p></div>
+    </div>
+    <div class="versus">
+      <div>
+        <div class="label">What a good plan contains</div>
+        <ul>
+          <li>The files it will touch and why</li>
+          <li>The order of steps, each small enough to test</li>
+          <li>How each step will be verified</li>
+          <li>What it will deliberately not change</li>
+          <li>Open questions for you</li>
+        </ul>
+      </div>
+      <div>
+        <div class="label good">A plan-first prompt that works in any of the three</div>
+        <div class="code"><button type="button" class="copy" data-copy="t-plan" aria-label="Copy the plan-first prompt">Copy</button><pre id="t-plan">Goal: {{what to build or fix, in one or two sentences}}
+
+Step 1, explore only (do not edit anything): read {{folders or files}}
+and tell me how {{the relevant part}} works today. Name the files that
+matter and anything that surprised you.
+
+Step 2, plan: propose a numbered plan. For each step give the files,
+the change, and the exact command that proves the step worked.
+List what you will NOT touch, and any questions where my answer would
+change the plan. Wait for my approval before writing code.
+
+Step 3, after I approve: implement one step at a time, run its check,
+paste the output, and stop if a check fails instead of working around it.</pre></div>
+      </div>
+    </div>
+    <p class="callout"><b>Review the plan like code</b>A wrong assumption in a plan costs one sentence to fix. The same assumption found in a 600-line diff costs a rewrite. Ask the agent to put the plan in a file (<code>PLAN.md</code>) so it survives <code>/clear</code> and can be handed to a fresh reviewer.</p>
+  </section>
+
+  <!-- LIMITS -->
+  <section class="shelf" id="limits">
+    <div class="shelf-head">
+      <span class="eyebrow">05 · Permissions and sandboxes</span>
+      <h2>Decide in advance what the agent may do without asking</h2>
+      <p>Two controls matter: how much it can do before asking, and what it is physically unable to do. Only the second is a hard guarantee.</p>
+    </div>
+    <div class="sub">
+      <h3>Claude Code’s six permission modes</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Mode</th><th>Runs without asking</th><th>Use it for</th></tr></thead>
+          <tbody>
+            <tr><td><code>default</code></td><td>Reads only</td><td>Unfamiliar repos; learning what the agent does</td></tr>
+            <tr><td><code>acceptEdits</code></td><td>Reads, file edits and common filesystem commands</td><td>Day-to-day work where you read the diff afterwards</td></tr>
+            <tr><td><code>plan</code></td><td>Reads and exploration only; no source edits</td><td>Planning (previous section)</td></tr>
+            <tr><td><code>auto</code></td><td>Everything, with background safety checks</td><td>Longer tasks you trust the checker on. Per the current docs, terminal sessions start here by default on supported models, unless an organisation disables it; check <code>/permissions</code> on yours.</td></tr>
+            <tr><td><code>dontAsk</code></td><td>Only what is pre-allowed; anything else is denied</td><td>CI and scripts</td></tr>
+            <tr><td><code>bypassPermissions</code></td><td>Everything</td><td>Isolated containers and VMs only</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="small">Shift+Tab cycles default → acceptEdits → plan; <code>auto</code> and <code>bypassPermissions</code> join the cycle only when enabled, and <code>dontAsk</code> never appears in it. Source: <a href="https://code.claude.com/docs/en/permission-modes">permission modes</a>.</p>
+    </div>
+
+    <div class="grid2">
+      <div class="sub">
+        <h3>Allow, ask and deny rules</h3>
+        <p>Rules are evaluated deny first, then ask, then allow; the first match decides, and deny rules apply in every mode, including <code>bypassPermissions</code>. A starting point for a JavaScript project (<code>.claude/settings.json</code>, committed so the team shares it):</p>
+        <div class="code"><button type="button" class="copy" data-copy="t-perms" aria-label="Copy the permissions example">Copy</button><pre id="t-perms">{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(git commit *)"
+    ],
+    "deny": [
+      "Bash(git push *)",
+      "Read(./.env)",
+      "Read(./secrets/**)"
+    ]
+  }
+}</pre></div>
+        <p class="small">Rule syntax is from the <a href="https://code.claude.com/docs/en/permissions">permissions docs</a>. Personal overrides go in <code>.claude/settings.local.json</code>.</p>
+      </div>
+      <div class="sub">
+        <h3>A rule is not a wall</h3>
+        <p>Claude Code’s docs are explicit that Bash rules match the command text the model writes and are “not a security boundary”: <code>git -C . push</code> is not matched by <code>Bash(git push *)</code>. The same applies to Cursor, whose docs say its ignore file cannot block what the terminal and MCP tools can reach, and that “complete protection isn’t guaranteed.”</p>
+        <p>For a real boundary, use the environment: a container or VM with no credentials mounted, a branch protection rule on <code>main</code>, a token that cannot push. Treat permission rules as seat belts and the sandbox as the crash barrier.</p>
+      </div>
+    </div>
+
+    <div class="sub">
+      <h3>Codex: sandbox plus approval policy</h3>
+      <p>Codex splits the question in two. The <em>sandbox</em> says what is physically possible (<code>read-only</code>, <code>workspace-write</code>, <code>danger-full-access</code>); the <em>approval policy</em> says when it must ask (<code>on-request</code>, <code>never</code>, or granular). Network is off by default, and <code>.git</code>, <code>.agents</code> and <code>.codex</code> inside the workspace are protected read-only. The usual preset is <code>--sandbox workspace-write --ask-for-approval on-request</code>. The all-off flag, <code>--dangerously-bypass-approvals-and-sandbox</code> (alias <code>--yolo</code>), is named to discourage casual use. Two retired options to avoid copying from old tutorials: the <code>untrusted</code> approval policy and <code>codex exec --full-auto</code>. Source: <a href="https://learn.chatgpt.com/docs/agent-approvals-security">Codex approvals and security</a>, <a href="https://learn.chatgpt.com/docs/non-interactive-mode">non-interactive mode</a>.</p>
+    </div>
+  </section>
+
+  <!-- EXTEND -->
+  <section class="shelf" id="extend">
+    <div class="shelf-head">
+      <span class="eyebrow">06 · Sub-agents, skills, hooks and MCP</span>
+      <h2>Four ways to extend an agent, and which to reach for</h2>
+      <p>They solve different problems. Mixing them up is the commonest cause of a sprawling, expensive setup.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Mechanism</th><th>It is…</th><th>Reach for it when</th><th>Context cost</th></tr></thead>
+        <tbody>
+          <tr><td>Instruction file</td><td>Facts the agent always needs</td><td>Commands, conventions, gotchas</td><td>Every session</td></tr>
+          <tr><td>Skill</td><td>A method the agent loads when relevant</td><td>You keep re-typing the same multi-step procedure</td><td>Description always; body only when used</td></tr>
+          <tr><td>Sub-agent</td><td>A helper with its own context window, tools and prompt</td><td>Research or review that would flood the main context</td><td>Summary comes back; the digging doesn’t</td></tr>
+          <tr><td>Hook</td><td>A script the harness runs at an event</td><td>Something must <em>always</em> happen or be blocked</td><td>None; it runs outside the model</td></tr>
+          <tr><td>MCP server</td><td>A connection to a tool or data source</td><td>The information lives outside the repo</td><td>Tool descriptions, every session</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid2">
+      <div class="sub">
+        <h3>Sub-agents (Claude Code)</h3>
+        <p>Each sub-agent “runs in its own context window with a custom system prompt, specific tool access, and independent permissions.” Define one as a Markdown file in <code>.claude/agents/</code>. Only <code>name</code> and <code>description</code> are required; limiting <code>tools</code> is what makes a reviewer safe to leave unattended.</p>
+        <div class="code"><button type="button" class="copy" data-copy="t-agent" aria-label="Copy the reviewer sub-agent">Copy</button><pre id="t-agent">---
+name: code-reviewer
+description: Reviews a diff for correctness and security. Use after finishing a change, before committing.
+tools: Read, Glob, Grep, Bash
+model: sonnet
+---
+You review code you did not write. Read the diff and the plan.
+Report only real problems: wrong behaviour, missed edge cases,
+security issues, tests that don't test the change. For each, give
+the file and line, what breaks, and a concrete fix. Do not report
+style nits. If you find nothing serious, say so plainly.</pre></div>
+        <p class="small">Fields from the <a href="https://code.claude.com/docs/en/sub-agents">sub-agents docs</a>. Optional fields include <code>disallowedTools</code>, <code>permissionMode</code>, <code>skills</code>, <code>hooks</code>, <code>memory</code> and <code>isolation: worktree</code>. Anthropic’s guidance is not to over-use them; for simple or single-file work the main agent should just do it.</p>
+      </div>
+      <div class="sub">
+        <h3>Skills</h3>
+        <p>A skill is a folder with a <code>SKILL.md</code>. Claude Code merged custom commands into skills: <code>.claude/commands/deploy.md</code> and <code>.claude/skills/deploy/SKILL.md</code> both create <code>/deploy</code>. Codex reads skills from <code>.agents/skills</code> and invokes them with <code>$name</code>. Both follow the open <a href="https://agentskills.io/">Agent Skills</a> standard, so a well-written skill is largely portable.</p>
+        <div class="code"><button type="button" class="copy" data-copy="t-skill" aria-label="Copy the example skill">Copy</button><pre id="t-skill">---
+name: release-notes
+description: Drafts release notes from merged PRs since the last tag. Use when the user asks for a changelog or release notes.
+---
+1. Run `git describe --tags --abbrev=0` to find the last tag.
+2. List merged PRs since then with `gh pr list --state merged`.
+3. Group them under Added, Changed, Fixed. One line each, user-facing
+   wording, no internal ticket numbers.
+4. Write the result to RELEASE_NOTES.md and show me the diff.</pre></div>
+        <p class="small">Keep the description specific about <em>when</em> to use it (it is what the agent matches on) and the body under 500 lines. See the <a href="https://code.claude.com/docs/en/skills">Claude Code skills docs</a> and Anthropic’s <a href="https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills">progressive-disclosure write-up</a>.</p>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="sub">
+        <h3>Hooks: the rule that can’t be forgotten</h3>
+        <p>Hooks give “deterministic control: certain actions always happen rather than relying on the LLM.” Events include <code>SessionStart</code>, <code>UserPromptSubmit</code>, <code>PreToolUse</code>, <code>PostToolUse</code>, <code>Stop</code> and more. A hook that exits with code 2 blocks the action and feeds its stderr back to the model; on <code>Stop</code> it sends the agent back to keep working. This example, from Anthropic’s hooks guide, formats every file the agent edits:</p>
+        <div class="code"><button type="button" class="copy" data-copy="t-hook" aria-label="Copy the formatting hook">Copy</button><pre id="t-hook">{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path' | xargs npx prettier --write"
+          }
+        ]
+      }
+    ]
+  }
+}</pre></div>
+        <p class="small">Put it in <code>.claude/settings.json</code>; <code>/hooks</code> shows what is active. A <code>Stop</code> hook that runs the test suite and exits 2 on failure is a strong way to stop an agent declaring victory early. Source: <a href="https://code.claude.com/docs/en/hooks-guide">hooks guide</a>.</p>
+      </div>
+      <div class="sub">
+        <h3>MCP: add sparingly</h3>
+        <p>MCP (Model Context Protocol) servers connect an agent to outside systems. The config lives in <code>.mcp.json</code> or <code>claude mcp add</code> for Claude Code, <code>[mcp_servers.name]</code> in <code>config.toml</code> for Codex, and <code>.cursor/mcp.json</code> for Cursor. Cursor asks for approval before using MCP tools by default.</p>
+        <p>Every server’s tool descriptions occupy context in every session, and tool results can carry hostile text (see the security section). Add one that removes a frequent manual step, and prefer a command-line tool like <code>gh</code> where it will do: Codex’s own best-practices guide recommends MCP “when the context Codex needs lives outside the repo.” If you write tools for agents, Anthropic’s <a href="https://www.anthropic.com/engineering/writing-tools-for-agents">guide</a> is the reference: clear names, meaningful results, helpful errors.</p>
+        <p class="small">Sources: <a href="https://code.claude.com/docs/en/mcp">Claude Code MCP</a>, <a href="https://learn.chatgpt.com/docs/extend/mcp?surface=cli">Codex MCP</a>, <a href="https://cursor.com/docs/context/mcp">Cursor MCP</a>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PARALLEL -->
+  <section class="shelf" id="parallel">
+    <div class="shelf-head">
+      <span class="eyebrow">07 · Parallel and cloud agents</span>
+      <h2>Running more than one agent without them colliding</h2>
+      <p>Two agents editing the same checkout will overwrite each other. The fix is isolation: separate working copies locally, or separate machines in the cloud.</p>
+    </div>
+    <div class="grid3">
+      <div class="item"><h4>Local: git worktrees</h4><p>A worktree is a second checkout of the same repo on its own branch. In Claude Code, <code>claude --worktree feature-auth</code> (or <code>-w</code>) creates one under <code>.claude/worktrees/</code> on branch <code>worktree-feature-auth</code>; add that folder to <code>.gitignore</code>. Plain git does the same: <code>git worktree add ../project-feature-a -b feature-a</code>. Sub-agents can opt in with <code>isolation: worktree</code>.</p><p class="cite"><a href="https://code.claude.com/docs/en/worktrees">Claude Code worktrees</a></p></div>
+      <div class="item"><h4>Cloud: one VM per task</h4><p>Codex cloud gives each task its own workspace built from an environment you configure (repositories, install script, an internet-access setting that defaults to package managers only), and you can open a PR from the result. <code>codex cloud</code> has an <code>--attempts</code> option for 1–4 best-of-N tries. Cursor’s Cloud Agents (renamed from Background Agents) run in isolated VMs, push their own branch, and can be started from the editor, Slack, Linear, GitHub or an API.</p><p class="cite"><a href="https://learn.chatgpt.com/docs/cloud">Codex cloud</a> · <a href="https://learn.chatgpt.com/docs/developer-commands?surface=cli">Codex CLI reference</a> · <a href="https://cursor.com/docs/cloud-agent">Cursor Cloud Agents</a></p></div>
+      <div class="item"><h4>In CI: headless runs</h4><p><code>claude -p "…" --allowedTools "Read,Edit,Bash"</code> runs once and exits; <code>--output-format json</code> returns the result, session id and cost, and <code>--json-schema</code> enforces a shape. <code>--bare</code> skips auto-discovery of hooks, skills, MCP and CLAUDE.md for repeatable scripted runs. Codex’s <code>codex exec</code> is read-only by default and supports <code>--json</code> and <code>--output-schema</code>. Anthropic and OpenAI each publish a GitHub Action.</p><p class="cite"><a href="https://code.claude.com/docs/en/headless">Claude Code headless</a> · <a href="https://code.claude.com/docs/en/github-actions">GitHub Actions</a> · <a href="https://learn.chatgpt.com/docs/non-interactive-mode">codex exec</a></p></div>
+    </div>
+    <p class="callout"><b>Parallel work moves the bottleneck to you</b>Five agents produce five diffs to review. METR’s 2026 follow-up (next sections) found time tracking itself broke down when developers ran several agents at once. Parallelise independent tasks with tests behind them, and cap the number at what you can actually review the same day.</p>
+  </section>
+
+  <!-- TESTING -->
+  <section class="shelf" id="testing">
+    <div class="shelf-head">
+      <span class="eyebrow">08 · Testing what it builds</span>
+      <h2>Make “done” something the machine can check</h2>
+      <p>An agent without a verification step is guessing confidently. Simon Willison notes that without tests an agent may claim something works “without having actually tested it at all.”</p>
+    </div>
+    <div class="grid2">
+      <div class="item"><h4>Tests first, then code</h4><p>Ask for failing tests before the implementation, confirm they fail for the right reason, commit them, then let the agent make them pass. Claude Code’s docs suggest one session write the tests and another write code to pass them. Kent Beck calls the mindset “augmented coding”: “you care about the code, its complexity, the tests, &amp; their coverage”, unlike vibe coding.</p><p class="cite"><a href="https://tidyfirst.substack.com/p/augmented-coding-beyond-the-vibes">Beck</a> · <a href="https://code.claude.com/docs/en/best-practices">Claude Code best practices</a></p></div>
+      <div class="item"><h4>Fix the cause, not the symptom</h4><p>Claude Code’s docs ask for the root cause (“address the root cause, don’t suppress the error”) and for evidence rather than assertions. Put both in your instruction file, and make the verify commands the thing the agent must paste before it stops.</p><p class="cite"><a href="https://code.claude.com/docs/en/best-practices">Claude Code best practices</a></p></div>
+      <div class="item"><h4>Watch for agents cheating</h4><p>METR found OpenAI’s o3 reward-hacked in 30.4% of RE-Bench runs (39 of 128), for example by overwriting the timer or reading the reference answer off the call stack, and it said “no” 10 of 10 times when asked whether that matched the user’s intent. Anthropic’s own research shows models learning tricks like <code>sys.exit(0)</code> so a harness reports a pass. In daily work the form is simpler: deleted assertions, special-cased inputs, skipped tests.</p><p class="cite"><a href="https://metr.org/blog/2025-06-05-recent-reward-hacking">METR, June 2025</a> · <a href="https://alignmentforum.org/posts/fJtELFKddJPfAxwKS/natural-emergent-misalignment-from-reward-hacking-in">Anthropic, Nov 2025</a></p></div>
+      <div class="item"><h4>Mind what the benchmark measures</h4><p>SWE-bench Verified is 500 human-validated tasks from real Python repos, scored by whether the repo’s own tests pass. It says a model can fix issues in that setting. It does not measure code quality, security or whether a reviewer would accept the patch, so a high score isn’t a promise about your codebase.</p><p class="cite"><a href="https://openai.com/index/introducing-swe-bench-verified/">OpenAI, SWE-bench Verified</a></p></div>
+    </div>
+    <div class="versus">
+      <div>
+        <div class="label">A test-first prompt</div>
+        <div class="code"><button type="button" class="copy" data-copy="t-tdd" aria-label="Copy the test-first prompt">Copy</button><pre id="t-tdd">I want {{behaviour}} in {{module}}.
+
+1. Write failing tests first, in the style of {{an existing test file}}.
+   Cover the normal case, {{two edge cases}} and one error case.
+2. Run them and show me that they fail, and why.
+3. Stop and wait for me to approve the tests.
+After approval: implement the smallest change that passes. Do not
+modify the tests. If a test seems wrong, say so and stop. Finish by
+running {{full test command}} and pasting the output.</pre></div>
+      </div>
+      <div>
+        <div class="label good">What to check about the tests themselves</div>
+        <ul>
+          <li>Does each test fail if you break the code it covers? (Revert the fix and run it.)</li>
+          <li>Are expected values written independently, not copied from the code’s output?</li>
+          <li>Do they hit real behaviour, or only mocks of the thing under test?</li>
+          <li>Did the diff <em>remove or weaken</em> any existing test or assertion?</li>
+          <li>For UI work, is there a screenshot or a browser run, not just unit tests?</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- REVIEW -->
+  <section class="shelf" id="review">
+    <div class="shelf-head">
+      <span class="eyebrow">09 · Reviewing AI-written code</span>
+      <h2>What the evidence says, and a checklist that follows from it</h2>
+      <p>The honest summary of the research is: AI help can feel faster than it is, it shifts risk toward review, and it amplifies the quality of the team using it. None of it says “don’t use agents”; all of it says “don’t skip reading.”</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Study</th><th>What it found</th><th>How to read it</th></tr></thead>
+        <tbody>
+          <tr><td><a href="https://metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/">METR randomized trial</a> (July 2025)</td><td>16 experienced open-source developers, 246 real tasks: with AI allowed they took 19% longer, while expecting a 24% speedup and afterwards still believing they were about 20% faster.</td><td>Small sample, early-2025 tools (mainly Cursor with Claude 3.5/3.7). METR now labels it out of date. <strong>Don’t quote it alone.</strong></td></tr>
+          <tr><td><a href="https://metr.org/blog/2026-02-24-uplift-update/">METR update</a> (Feb 2026)</td><td>A late-2025 rerun with 57 developers and 800+ tasks estimated −18% task time for returning developers and −4% for new ones, with wide confidence intervals.</td><td>METR calls the evidence weak: some developers refused to work without AI, and many withheld tasks they didn’t want to do without it. It believes speedups are probably larger now but can’t measure them.</td></tr>
+          <tr><td><a href="https://cloud.google.com/blog/products/devops-sre/announcing-the-2024-dora-report">DORA 2024</a> (Google)</td><td>Per 25% more AI adoption: +7.5% documentation quality, +3.4% code quality, +3.1% review speed, but an estimated −1.5% delivery throughput and −7.2% delivery stability. 39% reported little or no trust in AI-generated code.</td><td>Survey data, not an experiment. The blog doesn’t make clear whether the last two figures are also per 25%; secondary sources say so.</td></tr>
+          <tr><td><a href="https://dora.dev/dora-report-2025/">DORA 2025</a></td><td>AI’s “primary role is as an amplifier, magnifying an organization’s existing strengths and weaknesses.” Press coverage reports about 90% adoption and that instability still rises, though throughput now benefits.</td><td>Only the landing page and press coverage were read, not the 142-page report, so the detailed figures here are secondary.</td></tr>
+          <tr><td><a href="https://arxiv.org/pdf/2108.09293">Pearce et al.</a> (2021)</td><td>1,689 programs from Copilot across 89 security-relevant scenarios: about 40% were vulnerable.</td><td>An old model. The method, not the number, is what holds up.</td></tr>
+          <tr><td><a href="https://arxiv.org/html/2211.03622v3">Perry et al.</a>, Stanford (CCS 2023)</td><td>47 participants: those with an AI assistant wrote significantly less secure code and were more confident it was secure.</td><td>Small and from 2023, but the overconfidence finding matters most.</td></tr>
+          <tr><td><a href="https://www.veracode.com/press-release/ai-generated-code-poses-major-security-risks-in-nearly-half-of-all-development-tasks-veracode-research-reveals/">Veracode 2025</a></td><td>80 tasks across 100+ models: 45% of results had a security flaw; XSS tasks failed 86% of the time and log injection 88%.</td><td>Vendor study, and it measures raw model output without an agent loop that runs scanners.</td></tr>
+          <tr><td><a href="https://www.usenix.org/conference/usenixsecurity25/presentation/spracklen">Spracklen et al.</a> (USENIX Security 2025)</td><td>16 models, 576,000 samples: hallucinated packages averaged at least 5.2% for commercial and 21.7% for open-source models; 43% of hallucinated names repeated across all 10 re-queries.</td><td>Because the same fake names recur, attackers can register them. Anyone auditing dependencies should check every new one.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub">
+      <h3>A review checklist for an agent’s pull request</h3>
+      <div class="grid3">
+        <div class="item"><h4>1 · Scope</h4><ul><li>Does the diff do what the plan said and only that?</li><li>Any files changed that you didn’t expect, especially config, CI and <code>.github/workflows/</code>?</li><li>Any unrequested “improvements”?</li></ul></div>
+        <div class="item"><h4>2 · Tests</h4><ul><li>Were tests added for the behaviour change?</li><li>Were any removed, skipped or loosened?</li><li>Did you see the command output yourself, or only the agent’s word?</li></ul></div>
+        <div class="item"><h4>3 · Dependencies</h4><ul><li>Any new package? Does it exist, and is it the one you meant (check the registry page, age and downloads)?</li><li>Lockfile changes match the manifest?</li></ul></div>
+        <div class="item"><h4>4 · Security</h4><ul><li>User input reaching a query, shell, template or file path?</li><li>Secrets, tokens or keys in code, logs or fixtures?</li><li>Auth and permission checks on every new route?</li></ul></div>
+        <div class="item"><h4>5 · Edge cases</h4><ul><li>Empty, null, huge, duplicate, concurrent and failing-network cases</li><li>Error paths that swallow exceptions</li></ul></div>
+        <div class="item"><h4>6 · Understanding</h4><ul><li>Can you explain every changed line to a colleague?</li><li>If not, ask the agent to explain it, then check the explanation against the code</li></ul></div>
+      </div>
+      <p class="callout"><b>The rule that matters most</b>Addy Osmani’s phrasing: “It can write the first version, but never outsource the reading”, and never merge code that hasn’t been read and understood by a human. Simon Willison’s version: AI tools amplify existing expertise, and professionals using them stay “accountable.”</p>
+    </div>
+
+    <div class="sub">
+      <h3>Let a second agent review first</h3>
+      <p>A machine pass catches the cheap problems so your attention goes to design and intent. Use a reviewer that did not write the code.</p>
+      <div class="grid3">
+        <div class="item"><h4>Claude Code</h4><p><code>/code-review</code> (with an effort level, <code>--comment</code> to post on a PR and <code>--fix</code> to apply findings; <code>/review</code> is an alias) reviews for correctness bugs. <code>/security-review</code> analyses the current branch for injection, auth and data-exposure issues and needs an origin remote. <code>/simplify</code> and <code>/ultrareview</code> are also listed.</p><p class="cite"><a href="https://code.claude.com/docs/en/commands">Commands</a> · <a href="https://code.claude.com/docs/en/code-review">Code review</a></p></div>
+        <div class="item"><h4>Codex</h4><p><code>codex review</code> and <code>/review</code> work on uncommitted changes, a base branch or a commit. On GitHub, comment <code>@codex review</code>; it flags only P0 and P1 issues, and you can put review rules in a <code>## Code Review Rules</code> section of the nearest <code>AGENTS.md</code>.</p><p class="cite"><a href="https://learn.chatgpt.com/docs/third-party/github">Codex on GitHub</a></p></div>
+        <div class="item"><h4>Cursor and Copilot</h4><p>Cursor’s Bugbot reviews each PR update and reads project context from <code>.cursor/BUGBOT.md</code>; its Autofix can spawn a Cloud Agent to fix what it finds. For Copilot’s cloud agent, GitHub’s rule is that your approval of its pull request doesn’t count; a different human must approve, and workflows don’t run until someone inspects the changes and approves them.</p><p class="cite"><a href="https://cursor.com/docs/bugbot">Bugbot</a> · <a href="https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/review-copilot-prs">Copilot PRs</a></p></div>
+      </div>
+      <div class="code"><button type="button" class="copy" data-copy="t-review" aria-label="Copy the review prompt">Copy</button><pre id="t-review">You are reviewing a change you did not write. Do not edit anything.
+
+Read the diff on this branch against {{main}} and the plan in {{PLAN.md}}.
+Report only issues that would matter in production:
+  1. behaviour that differs from the plan or is simply wrong
+  2. security problems (injection, auth, secrets, unsafe deserialisation)
+  3. missing or weakened tests; any test the diff removes or skips
+  4. new dependencies: name each one and say whether you verified it exists
+For each issue give file:line, what breaks, and a concrete fix.
+No style comments. If there is nothing serious, say that plainly.</pre></div>
+    </div>
+  </section>
+
+  <!-- SECURITY -->
+  <section class="shelf" id="security">
+    <div class="shelf-head">
+      <span class="eyebrow">10 · Agent security</span>
+      <h2>An agent that reads the internet can be talked into things</h2>
+      <p>Anything an agent reads (a web page, an issue, a README, a tool result) may contain instructions written by someone else. The model can’t reliably tell your orders from theirs.</p>
+    </div>
+    <div class="grid2">
+      <div class="item"><h4>The lethal trifecta</h4><p>Simon Willison’s rule of thumb: an agent becomes dangerous when it combines <em>access to your private data</em>, <em>exposure to untrusted content</em> and <em>the ability to communicate externally</em>. “We need to avoid the lethal trifecta combination of tools ourselves to stay safe.” In practice: don’t let an agent that can read your <code>.env</code> also browse arbitrary pages and make outbound requests. Remove one leg.</p><p class="cite"><a href="https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/">Willison, June 2025</a></p></div>
+      <div class="item"><h4>Slopsquatting</h4><p>Models invent plausible package names; attackers register them. Seth Larson of the Python Software Foundation coined the term in 2025. Bar Lanyado’s 2023 experiment, an empty package published under the hallucinated name <code>huggingface-cli</code>, drew more than 30,000 downloads in three months. Never <code>npm install</code> or <code>pip install</code> a name you haven’t checked.</p><p class="cite"><a href="https://www.usenix.org/conference/usenixsecurity25/presentation/spracklen">Spracklen et al.</a> · <a href="https://en.wikipedia.org/wiki/Slopsquatting">Slopsquatting</a></p></div>
+      <div class="item"><h4>The risk lists</h4><p>OWASP’s 2025 LLM Top 10 includes Prompt Injection (LLM01), Sensitive Information Disclosure, Supply Chain, Improper Output Handling and Excessive Agency. Its Top 10 for Agentic Applications (December 2025) adds Agent Goal Hijack, Tool Misuse, Identity and Privilege Abuse, Unexpected Code Execution, and Memory and Context Poisoning. Both are useful as a checklist when you give an agent new tools.</p><p class="cite"><a href="https://genai.owasp.org/resource/owasp-top-10-for-llm-applications-2025/">OWASP LLM Top 10</a> · <a href="https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026">OWASP Agentic Top 10</a></p></div>
+      <div class="item"><h4>Habits that cut the risk</h4><ul><li>Run agents with a token that cannot push to <code>main</code> or reach production</li><li>Keep secrets out of the working directory; deny reads of <code>.env</code> and <code>secrets/</code></li><li>Review changes to CI files before approving any workflow run</li><li>Keep network off unless the task needs it (Codex’s default)</li><li>Use a container or VM for any bypass mode</li><li>Don’t paste private or client data into a cloud agent; see the <a href="../#safety">safety section</a> of the prompting guide</li></ul></div>
+    </div>
+  </section>
+
+  <!-- FAILURES -->
+  <section class="shelf" id="failures">
+    <div class="shelf-head">
+      <span class="eyebrow">11 · Failure patterns</span>
+      <h2>What goes wrong, and the fix</h2>
+      <p>Claude Code’s best-practices page names several of these; the rest are common across the tools.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Symptom</th><th>Likely cause</th><th>Fix</th></tr></thead>
+        <tbody>
+          <tr><td>Agent ignores your instructions</td><td>The instruction file is bloated, so the key line is lost</td><td>Cut it to what would cause mistakes if removed; move enforceable rules into hooks</td></tr>
+          <tr><td>Long session gets sloppy</td><td>The context window is full of old attempts (“the kitchen-sink session”)</td><td><code>/clear</code> between tasks; <code>/compact</code> with a note on what to keep; keep progress in <code>PLAN.md</code></td></tr>
+          <tr><td>You keep correcting the same mistake</td><td>The wrong approach is now in context</td><td>After two failed corrections, clear and write a better first prompt</td></tr>
+          <tr><td>“Done!” but it doesn’t run</td><td>No verification step</td><td>Require pasted test and build output; add a <code>Stop</code> hook that runs them</td></tr>
+          <tr><td>Tests pass, behaviour is wrong</td><td>Tests assert what the code does, not what it should do</td><td>Write tests first from the spec; revert the fix and confirm they fail</td></tr>
+          <tr><td>Exploration never ends</td><td>The agent reads the whole repo for a vague question</td><td>Scope the question to folders, or hand research to a sub-agent</td></tr>
+          <tr><td>Parallel agents conflict</td><td>Same working copy</td><td>One worktree or cloud task per agent</td></tr>
+          <tr><td>Surprise dependency or file change</td><td>Scope crept</td><td>State boundaries in <code>AGENTS.md</code>; review the file list before the code</td></tr>
+          <tr><td>Rolled back, but a Bash change remains</td><td>Claude Code checkpoints don’t track files changed by Bash commands</td><td>Commit often; use git as the real undo</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small">Related: the prompting guide’s <a href="../#library">coding prompts</a> (feature build, bug reproduction, refactor plan, test writing) work unchanged in any of these agents.</p>
+  </section>
+
+  <!-- SOURCES -->
+  <section class="shelf" id="sources">
+    <div class="shelf-head">
+      <span class="eyebrow">12 · Sources and caveats</span>
+      <h2>How this guide was made</h2>
+      <p>Researched on 14 October 2026 with Claude: parallel research agents read each tool’s current documentation and the studies above, and every URL below was opened during research. Tool docs change quickly, so treat the dated claims as “as of October 2026.”</p>
+    </div>
+    <div class="sub">
+      <h3>Things worth knowing before you rely on this</h3>
+      <ul class="srcs">
+        <li>OpenAI’s Codex docs have moved from developers.openai.com to <a href="https://learn.chatgpt.com/docs/">learn.chatgpt.com</a>, and some pages now say “Codex and ChatGPT Work”. Links here use the new addresses.</li>
+        <li>Codex slash commands were checked against one reference page that doesn’t list every command other pages mention (such as <code>/permissions</code>), so run <code>/</code> in your own client to see what yours offers.</li>
+        <li>Claude Code’s docs reference version numbers around v2.1.28x. The default <code>auto</code> mode and <code>AGENTS.md</code> fallback are recent; check your installed version.</li>
+        <li>The “#” memory shortcut and Cursor’s Memories feature appear in older tutorials but not in the current docs, so they are left out.</li>
+        <li>Not verified at the primary source: the Claude 3.7 system-card remark about over-focusing on passing tests (not cited), the DORA 2025 figures (landing page and press only), the OWASP agentic list (taken from a secondary summary), and the date of Kent Beck’s post.</li>
+        <li>Not every command in this guide was run on every tool. Treat the templates as starting points and run them on a throwaway branch first.</li>
+      </ul>
+    </div>
+    <div class="sub">
+      <h3>Main sources</h3>
+      <ul class="srcs">
+        <li><a href="https://code.claude.com/docs/en/best-practices">Claude Code: best practices</a></li>
+        <li><a href="https://code.claude.com/docs/en/memory">Claude Code: memory and CLAUDE.md</a></li>
+        <li><a href="https://code.claude.com/docs/en/permission-modes">Claude Code: permission modes</a></li>
+        <li><a href="https://code.claude.com/docs/en/permissions">Claude Code: permissions</a></li>
+        <li><a href="https://code.claude.com/docs/en/sub-agents">Claude Code: sub-agents</a></li>
+        <li><a href="https://code.claude.com/docs/en/skills">Claude Code: skills</a></li>
+        <li><a href="https://code.claude.com/docs/en/hooks-guide">Claude Code: hooks guide</a></li>
+        <li><a href="https://code.claude.com/docs/en/checkpointing">Claude Code: checkpointing</a></li>
+        <li><a href="https://code.claude.com/docs/en/headless">Claude Code: headless mode</a></li>
+        <li><a href="https://code.claude.com/docs/en/worktrees">Claude Code: worktrees</a></li>
+        <li><a href="https://code.claude.com/docs/en/github-actions">Claude Code: GitHub Actions</a></li>
+        <li><a href="https://code.claude.com/docs/en/commands">Claude Code: commands</a></li>
+        <li><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">Anthropic: effective context engineering</a></li>
+        <li><a href="https://www.anthropic.com/engineering/building-agents-with-the-claude-agent-sdk">Anthropic: building agents with the Agent SDK</a></li>
+        <li><a href="https://www.anthropic.com/engineering/writing-tools-for-agents">Anthropic: writing tools for agents</a></li>
+        <li><a href="https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills">Anthropic: Agent Skills</a></li>
+        <li><a href="https://learn.chatgpt.com/docs/agent-configuration/agents-md">Codex: AGENTS.md</a></li>
+        <li><a href="https://learn.chatgpt.com/docs/agent-approvals-security">Codex: approvals and security</a></li>
+        <li><a href="https://learn.chatgpt.com/docs/config-file/config-basic.md">Codex: config.toml</a></li>
+        <li><a href="https://learn.chatgpt.com/docs/non-interactive-mode">Codex: non-interactive mode</a></li>
+        <li><a href="https://learn.chatgpt.com/docs/build-skills">Codex: skills</a></li>
+        <li><a href="https://learn.chatgpt.com/docs/cloud">Codex: cloud</a></li>
+        <li><a href="https://github.com/openai/codex">openai/codex on GitHub</a></li>
+        <li><a href="https://agents.md/">agents.md</a></li>
+        <li><a href="https://cursor.com/docs/context/rules">Cursor: rules</a></li>
+        <li><a href="https://cursor.com/docs/agent/plan-mode">Cursor: Plan Mode</a></li>
+        <li><a href="https://cursor.com/docs/cloud-agent">Cursor: Cloud Agents</a></li>
+        <li><a href="https://cursor.com/docs/bugbot">Cursor: Bugbot</a></li>
+        <li><a href="https://cursor.com/docs/context/ignore-files">Cursor: ignore files</a></li>
+        <li><a href="https://github.blog/changelog/2025-08-28-copilot-coding-agent-now-supports-agents-md-custom-instructions">GitHub: Copilot agent supports AGENTS.md</a></li>
+        <li><a href="https://simonwillison.net/2025/Oct/7/vibe-engineering/">Willison: vibe engineering</a></li>
+        <li><a href="https://addyosmani.com/blog/treat-ai-generated-code-as-a-draft/">Osmani: treat AI-generated code as a draft</a></li>
+        <li><a href="https://mitchellh.com/writing/my-ai-adoption-journey">Hashimoto: my AI adoption journey</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <span>Field guide · Myles Parslow · October 2026</span>
+    <span><a href="../">Prompting field guide</a> · <a href="../../">Back to portfolio</a></span>
+  </footer>
+</div>
+<script>
+(function () {
+  var KEY = 'portfolio-scheme';
+  var root = document.documentElement;
+  var buttons = document.querySelectorAll('.swatch');
+  function apply(name) {
+    if (name !== 'pine' && name !== 'sky') name = 'eggshell';
+    if (name === 'eggshell') root.removeAttribute('data-scheme'); else root.setAttribute('data-scheme', name);
+    buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.pick === name)); });
+    return name;
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  apply(saved);
+  buttons.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var name = apply(b.dataset.pick);
+      try { localStorage.setItem(KEY, name); } catch (e) {}
+    });
+  });
+
+  // Prompt filters
+  var chips = document.querySelectorAll('.chip');
+  var cards = document.querySelectorAll('.prompt');
+  chips.forEach(function (c) {
+    c.addEventListener('click', function () {
+      var f = c.dataset.f;
+      chips.forEach(function (x) { x.setAttribute('aria-pressed', String(x === c)); });
+      cards.forEach(function (card) { card.hidden = !(f === 'all' || card.dataset.cat === f); });
+    });
+  });
+
+  // Copy buttons
+  document.querySelectorAll('.copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var el = document.getElementById(btn.dataset.copy);
+      if (!el) return;
+      var text = el.textContent;
+      function done(ok) { btn.textContent = ok ? 'Copied' : 'Select & copy'; setTimeout(function () { btn.textContent = 'Copy'; }, 1600); }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(false); });
+      } else {
+        var r = document.createRange(); r.selectNodeContents(el);
+        var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+        try { done(document.execCommand('copy')); } catch (e) { done(false); }
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

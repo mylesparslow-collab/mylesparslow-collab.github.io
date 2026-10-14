@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Which AI to use for which job: writing, coding, research, images, video, music and local models, with current prices, honest tradeoffs and sources.">
+<title>AI Tool Chooser</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Same sheet, tokens and colour picker as the portfolio home page, so a chosen scheme carries over. */
+:root {
+  color-scheme: light;
+  --bg: #f2eee3; --surface: #fbf9f3; --rule: #ddd3bf; --ink: #15120f; --muted: #5f4e40;
+  --accent: #6b3f22; --mark: #a9822f; --mark-soft: #ede1c1;
+  --display: "Bricolage Grotesque", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+  --body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+:root[data-scheme="pine"] {
+  --bg: #f4f6f4; --surface: #ffffff; --rule: #d5ddd8; --ink: #18201c; --muted: #56625b;
+  --accent: #23593f; --mark: #23593f; --mark-soft: #e2ece6;
+}
+:root[data-scheme="sky"] {
+  --bg: #e8f3fb; --surface: #ffffff; --rule: #c6e0f3; --ink: #192838; --muted: #4c6073;
+  --accent: #9b111e; --mark: #9b111e; --mark-soft: #f7e1e4;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 1.0625rem; line-height: 1.62; margin: 0; }
+.wrap { max-width: 72rem; margin: 0 auto; padding-inline: 1.25rem; padding-block: 3.5rem 4rem; display: grid; gap: 5rem; }
+a { color: var(--accent); text-underline-offset: 0.18em; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+h1, h2, h3, h4 { font-family: var(--display); text-wrap: balance; line-height: 1.12; margin: 0; }
+p { margin: 0; }
+code { font-family: var(--mono); font-size: 0.86em; background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; padding: 0.05em 0.3em; }
+.eyebrow { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+
+/* Top bar and picker */
+.topbar { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.75rem 1.5rem; }
+.topbar .back { font-family: var(--mono); font-size: 0.8rem; }
+.picker { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0; padding: 0; border: 0; }
+.picker legend { float: left; margin-right: 0.25rem; font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.swatch { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.3rem 0.7rem 0.3rem 0.35rem; border-radius: 999px; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); font-family: var(--display); font-size: 0.85rem; font-weight: 500; cursor: pointer; }
+.swatch:hover { border-color: var(--muted); }
+.swatch[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.swatch i { width: 1.15rem; height: 1.15rem; border-radius: 50%; flex: none; border: 1px solid rgba(0,0,0,0.15); }
+.swatch[data-pick="eggshell"] i { background: linear-gradient(135deg, #f2eee3 0 45%, #6b3f22 45% 70%, #a9822f 70%); }
+.swatch[data-pick="pine"] i { background: linear-gradient(135deg, #f4f6f4 0 50%, #23593f 50%); }
+.swatch[data-pick="sky"] i { background: linear-gradient(135deg, #e8f3fb 0 50%, #9b111e 50%); }
+
+/* Intro */
+.intro { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 2.5rem; align-items: start; }
+.intro-text { display: grid; gap: 1.25rem; align-content: start; }
+.intro h1 { font-size: clamp(2.6rem, 6.4vw, 4.4rem); font-weight: 800; letter-spacing: -0.025em; line-height: 1.04; }
+.intro h1 em { font-style: normal; color: var(--mark); }
+.lede { font-size: 1.22rem; max-width: 38rem; }
+.toc { display: grid; border-top: 2px solid var(--ink); counter-reset: toc; }
+.toc a { display: grid; grid-template-columns: 2.2rem 1fr auto; gap: 0.5rem; align-items: baseline; padding: 0.55rem 0; border-bottom: 1px solid var(--rule); text-decoration: none; color: var(--ink); font-family: var(--display); font-weight: 700; font-size: 1.05rem; }
+.toc a::before { counter-increment: toc; content: counter(toc, decimal-leading-zero); font-family: var(--mono); font-weight: 400; font-size: 0.75rem; color: var(--muted); }
+.toc a span { font-family: var(--mono); font-weight: 400; font-size: 0.75rem; color: var(--muted); text-align: right; }
+.toc a:hover { color: var(--accent); }
+.tally { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin: 0; border-top: 1px solid var(--rule); padding-top: 1.25rem; }
+.tally div { display: grid; gap: 0.2rem; align-content: start; }
+.tally dt { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); order: 2; }
+.tally dd { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(1.6rem, 3.4vw, 2.4rem); color: var(--accent); letter-spacing: -0.02em; line-height: 1.05; }
+
+/* Sections */
+.shelf { display: grid; gap: 2.25rem; scroll-margin-top: 1.5rem; }
+.shelf-head { display: grid; gap: 0.5rem; border-top: 2px solid var(--ink); padding-top: 1rem; }
+.shelf-head h2 { font-size: clamp(2rem, 4.2vw, 2.8rem); font-weight: 800; letter-spacing: -0.02em; }
+.shelf-head p { color: var(--muted); max-width: 46rem; }
+.sub { display: grid; gap: 1rem; }
+.sub > h3 { font-size: 1.5rem; }
+.sub > p { max-width: 48rem; }
+
+/* Numbered rules */
+.short { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem 2.5rem; counter-reset: r; }
+.short li { counter-increment: r; display: grid; grid-template-columns: 2.4rem 1fr; gap: 0.2rem 0.6rem; border-top: 1px solid var(--rule); padding-top: 0.8rem; }
+.short li::before { content: counter(r, decimal-leading-zero); grid-row: span 2; font-family: var(--display); font-weight: 800; font-size: 1.4rem; color: var(--mark); line-height: 1.1; }
+.short h3 { font-size: 1.12rem; }
+.short p { color: var(--muted); font-size: 0.98rem; }
+
+/* Card grids */
+.grid2, .grid3 { display: grid; gap: 1.5rem 2.25rem; }
+.grid2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.item { display: grid; gap: 0.4rem; align-content: start; border-top: 1px solid var(--rule); padding-top: 0.85rem; min-width: 0; }
+.item h4 { font-size: 1.08rem; }
+.item p { font-size: 0.98rem; }
+.item .why { color: var(--muted); }
+.item .cite { font-family: var(--mono); font-size: 0.74rem; color: var(--muted); }
+.item ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.35rem; font-size: 0.98rem; }
+
+/* Anatomy */
+.anatomy { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0.75rem; }
+.anatomy div { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 0.9rem; display: grid; gap: 0.35rem; align-content: start; }
+.anatomy b { font-family: var(--mono); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.anatomy p { font-size: 0.92rem; color: var(--muted); }
+.versus { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: 1.25rem; align-items: start; }
+.versus .label { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.35rem; }
+.versus .label.good { color: var(--accent); }
+
+/* Code blocks */
+.code { position: relative; min-width: 0; }
+pre { margin: 0; font-family: var(--mono); font-size: 0.8rem; line-height: 1.55; background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 0.9rem 1rem; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--ink); }
+.copy { position: absolute; top: 0.45rem; right: 0.45rem; font-family: var(--mono); font-size: 0.72rem; padding: 0.2rem 0.55rem; border-radius: 999px; border: 1px solid var(--rule); background: var(--bg); color: var(--accent); cursor: pointer; }
+.copy:hover { border-color: var(--accent); }
+.copy + pre { padding-top: 2rem; }
+
+/* Tables */
+.table-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; min-width: 46rem; }
+th, td { text-align: left; vertical-align: top; padding: 0.65rem 0.8rem; border-bottom: 1px solid var(--rule); }
+th { font-family: var(--mono); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); background: var(--mark-soft); }
+td:first-child { font-family: var(--display); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+.verdict { font-family: var(--mono); font-size: 0.72rem; padding: 0.1rem 0.45rem; border-radius: 999px; background: var(--mark-soft); color: var(--accent); white-space: nowrap; }
+
+/* Model cards */
+.model { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 1.25rem 1.3rem; display: grid; gap: 0.7rem; align-content: start; min-width: 0; }
+.model .kind { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+.model h3 { font-size: 1.45rem; }
+.model ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.45rem; font-size: 0.97rem; }
+.model .links { font-family: var(--mono); font-size: 0.78rem; display: flex; flex-wrap: wrap; gap: 0.3rem 1rem; }
+.callout { border-left: 3px solid var(--mark); padding-left: 0.9rem; display: grid; gap: 0.3rem; max-width: 50rem; }
+.callout b { font-family: var(--mono); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+
+/* Prompt library */
+.filters { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.chip { font-family: var(--display); font-size: 0.88rem; font-weight: 500; padding: 0.3rem 0.75rem; border-radius: 999px; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); cursor: pointer; }
+.chip span { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); margin-left: 0.15rem; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.chip[aria-pressed="true"] span { color: var(--bg); }
+.prompts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem 2.25rem; align-items: start; }
+.prompt { display: grid; gap: 0.6rem; min-width: 0; border-top: 1px solid var(--rule); padding-top: 0.9rem; scroll-margin-top: 1.5rem; }
+.prompt[hidden] { display: none; }
+.prompt .kind { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.prompt h3 { font-size: 1.25rem; margin-top: 0.2rem; }
+.prompt .src, .prompt .after { font-size: 0.88rem; color: var(--muted); }
+
+/* Resources */
+.rnav { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; font-family: var(--mono); font-size: 0.82rem; }
+.rgroup { display: grid; gap: 0.9rem; scroll-margin-top: 1.5rem; }
+.rgroup h3 { font-size: 1.5rem; }
+.rintro { color: var(--muted); max-width: 46rem; }
+.rlist { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem 2rem; }
+.rlist li { display: grid; gap: 0.3rem; align-content: start; border-top: 1px solid var(--rule); padding-top: 0.75rem; min-width: 0; }
+.rname { font-family: var(--display); font-weight: 700; font-size: 1.02rem; overflow-wrap: anywhere; }
+.rhost { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.rlist p { font-size: 0.94rem; }
+.rlist .caution { font-size: 0.84rem; color: var(--muted); font-style: italic; }
+
+.small { font-size: 0.9rem; color: var(--muted); }
+.srcs { columns: 2; column-gap: 2.5rem; font-size: 0.86rem; margin: 0; padding-left: 1.1rem; }
+.srcs li { break-inside: avoid; margin-bottom: 0.35rem; overflow-wrap: anywhere; }
+
+footer { border-top: 1px solid var(--rule); padding-top: 1.25rem; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 2rem; font-family: var(--mono); font-size: 0.8rem; color: var(--muted); }
+
+@media (max-width: 980px) {
+  .anatomy { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .rlist, .grid3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 820px) {
+  .intro, .short, .grid2, .grid3, .prompts, .rlist, .versus { grid-template-columns: minmax(0, 1fr); }
+  .anatomy { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tally { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .srcs { columns: 1; }
+  .wrap { gap: 3.5rem; padding-block: 2.5rem 3rem; }
+}
+.model .links a { white-space: nowrap; }
+td a { font-family: var(--mono); font-size: 0.72rem; margin-left: 0.2rem; }
+.item .cite a { white-space: normal; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="intro">
+    <div class="topbar">
+      <a class="back" href="../../">← Myles Parslow portfolio</a>
+      <fieldset class="picker" aria-label="Colour scheme">
+        <legend>Colours</legend>
+        <button type="button" class="swatch" data-pick="eggshell" aria-pressed="true"><i></i>Eggshell</button>
+        <button type="button" class="swatch" data-pick="pine" aria-pressed="false"><i></i>Original</button>
+        <button type="button" class="swatch" data-pick="sky" aria-pressed="false"><i></i>Sky &amp; ruby</button>
+      </fieldset>
+    </div>
+    <div class="intro-text">
+      <span class="eyebrow">Field guide · October 2026 · <a href="../">Companion to the prompting guide</a></span>
+      <h1>Which <em>AI</em> for which job.</h1>
+      <p class="lede">There is no single best AI. There is a best fit for each job, and it changes every few months. This guide matches common jobs (writing, coding, research, images, video, music, private work) to the tools worth trying, with current prices, honest tradeoffs and a source for each claim.</p>
+      <p class="small">Everything was checked against official pages and independent leaderboards on 14 October 2026. Prices and model names move fast; each section says what was verified and what was not. Where a judgement is mine rather than a measurement, the guide says so.</p>
+    </div>
+    <nav class="toc" aria-label="Sections">
+      <a href="#jobs">Pick by job <span>quick table</span></a>
+      <a href="#rules">How to choose <span>6 rules</span></a>
+      <a href="#chat">General assistants <span>8 compared</span></a>
+      <a href="#coding">Coding tools <span>2 kinds</span></a>
+      <a href="#research">Research and sources <span>accuracy</span></a>
+      <a href="#media">Images, video, music, voice <span>creative</span></a>
+      <a href="#local">Local models <span>hardware</span></a>
+      <a href="#privacy">Privacy defaults <span>opt-outs</span></a>
+      <a href="#leaderboards">Reading leaderboards <span>caveats</span></a>
+      <a href="#mine">What I use <span>portfolio</span></a>
+      <a href="#sources">Sources <span>and gaps</span></a>
+    </nav>
+    <dl class="tally">
+      <div><dt>Jobs matched to tools</dt><dd>16</dd></div>
+      <div><dt>General assistants compared</dt><dd>8</dd></div>
+      <div><dt>Coding tools compared</dt><dd>14</dd></div>
+      <div><dt>Claims left marked unverified</dt><dd>see §11</dd></div>
+    </dl>
+  </header>
+
+  <!-- JOBS -->
+  <section class="shelf" id="jobs">
+    <div class="shelf-head">
+      <span class="eyebrow">01 · Pick by job</span>
+      <h2>Start here: the job, a first try, and what to watch</h2>
+      <p>“First try” means where I would start, not a ranking. Most people do best with one general assistant they know well, plus one specialist for any job they do often. The picks mix leaderboard evidence, official features and third-party reviews; sections below show which is which.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Job</th><th>First try</th><th>Also look at</th><th>Watch out for</th></tr></thead>
+        <tbody>
+          <tr><td>Everyday questions, brainstorming</td><td>The free tier of ChatGPT, Gemini or Claude</td><td>Copilot if you live in Microsoft 365</td><td>Free tiers get smaller models and tight limits.</td></tr>
+          <tr><td>Long writing and editing</td><td>Claude</td><td>ChatGPT, Gemini</td><td>“Best writer” is taste. A September 2026 review rates Claude best for writing and nuance; no leaderboard measures that cleanly.</td></tr>
+          <tr><td>Coding in a real codebase</td><td>Claude Code or Codex</td><td>Cursor, GitHub Copilot, Antigravity, Cline</td><td>Code needs review. A 2025 randomised trial found experienced developers slower with AI.</td></tr>
+          <tr><td>An app prototype, no coding skill</td><td>Replit, Lovable, Bolt or v0</td><td>The free tiers first</td><td>Credits run out while debugging; security and upkeep are on you.</td></tr>
+          <tr><td>Quick research with links</td><td>Perplexity, or the assistant’s search mode</td><td>Deep research in ChatGPT, Claude, Gemini</td><td>AI search misattributes sources often. Open the links.</td></tr>
+          <tr><td>Questions about your own documents</td><td>Gemini Notebook (was NotebookLM)</td><td>Claude or ChatGPT Projects</td><td>Answers are grounded in your sources, but still check the passage it cites.</td></tr>
+          <tr><td>Academic papers</td><td>Elicit, Consensus</td><td>A librarian, and the papers themselves</td><td>Fabricated references are a documented problem.</td></tr>
+          <tr><td>Images with readable text, precise edits</td><td>ChatGPT Images</td><td>Nano Banana 2.1 in Gemini, Ideogram</td><td>Leads two preference arenas; not a measure of your taste.</td></tr>
+          <tr><td>A distinctive art style</td><td>Midjourney</td><td>FLUX, local image models</td><td>Its reputation for style is common opinion; it is not on either arena’s top ten.</td></tr>
+          <tr><td>Images for commercial work</td><td>Adobe Firefly’s own models</td><td>Check each tool’s licence</td><td>Adobe’s “commercially safe” claim covers its own models, not the partner models in the same app.</td></tr>
+          <tr><td>Short video</td><td>Gemini Omni in Flow, Runway, Kling, Luma</td><td>FLUX 3 Video (early access)</td><td>Sora is shut down. Do not build on it.</td></tr>
+          <tr><td>Songs with vocals</td><td>Suno</td><td>ElevenLabs Music for cleared commercial use</td><td>Free-tier songs are non-commercial; major-label lawsuits continue.</td></tr>
+          <tr><td>Voice and narration</td><td>ElevenLabs</td><td>OpenAI voice models (API)</td><td>Cloning someone’s voice needs their consent.</td></tr>
+          <tr><td>Sensitive or private material</td><td>A local model (Ollama, LM Studio, Jan)</td><td>A business plan with no-training terms</td><td>Local models trail the frontier; the hardware limits which ones run.</td></tr>
+          <tr><td>Office documents and email</td><td>Copilot in Microsoft 365</td><td>Gemini in Google Workspace</td><td>Outside the Office apps it trails the others, per one review.</td></tr>
+          <tr><td>Live reaction to news on X</td><td>Grok</td><td>—</td><td>Grok 3 was wrong on 94% of citation queries in the Columbia study.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- RULES -->
+  <section class="shelf" id="rules">
+    <div class="shelf-head">
+      <span class="eyebrow">02 · How to choose</span>
+      <h2>Six rules that outlast any product name</h2>
+      <p>The model names in this guide will be stale within months. These habits will not.</p>
+    </div>
+    <ol class="short">
+      <li><h3>Match the tool to the failure you can afford</h3><p>A bad brainstorm costs nothing. A wrong citation, a wrong line of code in production or a leaked document can cost a lot. Spend your caution, and your money, where mistakes are expensive.</p></li>
+      <li><h3>Try your own task, not the benchmark</h3><p>Every leaderboard has blind spots (section 9). Run two or three candidates on a real piece of your own work and compare the results.</p></li>
+      <li><h3>Start free, upgrade for one reason</h3><p>Free tiers of Claude, ChatGPT and Gemini are enough to compare. Pay when you hit a specific limit: a model you need, a feature such as deep research, or a coding agent.</p></li>
+      <li><h3>Prefer a few tools you know well</h3><p>The prompting guide’s advice carries across tools, and so does your skill. Switching constantly costs more than the small gains from the newest model.</p></li>
+      <li><h3>Check the data terms before you paste</h3><p>Consumer chats can be used for training by default on several services (section 8). Business plans and local models change that.</p></li>
+      <li><h3>Treat brand names and prices as snapshots</h3><p>This year alone Sora shut down, NotebookLM was renamed, Cursor changed its plans after an acquisition and Gemini CLI was folded into another product. Recheck before you subscribe.</p></li>
+    </ol>
+  </section>
+
+  <!-- CHAT -->
+  <section class="shelf" id="chat">
+    <div class="shelf-head">
+      <span class="eyebrow">03 · General assistants</span>
+      <h2>Eight assistants, compared on 14 October 2026</h2>
+      <p>Prices are US dollars per month. “Official” means the vendor’s own page; anything else is marked as third-party. Strengths and weaknesses come from leaderboards, independent studies or a named review, and are labelled that way.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Assistant</th><th>Plans (US, monthly)</th><th>Models you get</th><th>Distinct strength</th><th>Distinct weakness</th></tr></thead>
+        <tbody>
+          <tr><td>Claude (Anthropic)</td><td>Free; Pro $20; Max $100 or $200; Team $25 or $125 a seat <a href="https://claude.com/pricing">official</a></td><td>Free: Sonnet and Haiku. Pro adds Opus. Current names: Fable 5.1, Opus 5.5, Sonnet 5.5, Haiku 5.5</td><td>Top three on the Artificial Analysis Intelligence Index (Opus 5.5 scores 58); #3 on Arena text. Claude Code comes with paid plans.</td><td>No image or video generation on the pricing page. A review notes web search arrived late.</td></tr>
+          <tr><td>ChatGPT (OpenAI)</td><td>Free; Go $8; Plus $20; Pro $100, $200 or $500, in flux <a href="https://chatgpt.com/pricing">official</a></td><td>Free and Go: GPT-6 Luna and a mini thinking model. Plus: GPT-6.1 Sol, GPT-6 Astra and others</td><td>Broadest feature set: voice, images, deep research, memory, Codex included from Plus up. One review: best all-rounder.</td><td>A review calls the model picker “a mess”. Go “may include ads”. No OpenAI model is in the Arena text top 15.</td></tr>
+          <tr><td>Gemini (Google)</td><td>Free; AI Plus $4.99; AI Pro $19.99; AI Ultra $99.99 or $199.99 <a href="https://gemini.google/subscriptions/">official</a></td><td>Free mostly Flash-Lite via Auto. Pro: Gemini 4 Argon, rolling out from 13 Oct</td><td>#1 on Arena text (1525). Generous free tier: deep research, image generation and Gemini Notebook.</td><td>The free tier excludes the strongest models. In an EBU/BBC news study, 76% of its answers had significant issues (older version).</td></tr>
+          <tr><td>Microsoft Copilot</td><td>Free; Microsoft 365 Premium $19.99 <a href="https://www.microsoft.com/en-us/microsoft-365/premium">official</a></td><td>OpenAI models; exact current model unverified</td><td>Built into Word, Excel, PowerPoint and Outlook.</td><td>Outside Office it trails ChatGPT and Claude, per one review.</td></tr>
+          <tr><td>Grok (xAI)</td><td>Free; SuperGrok about $30; higher tiers to about $300 (third-party only)</td><td>Grok 4.6 in consumer plans</td><td>Search across the web and X with citations; image and short video generation.</td><td>Best Grok is #61 on Arena text. Worst in the Columbia citation study (older Grok 3).</td></tr>
+          <tr><td>Le Chat (Mistral)</td><td>Free; Pro $14.99; Team $24.99 a user <a href="https://mistral.ai/pricing">official</a></td><td>Current model unverified</td><td>European provider; enterprise can be self-hosted or EU-deployed (third-party).</td><td>Trails the leaders on hard reasoning and coding (review; Arena rank around #112).</td></tr>
+          <tr><td>Perplexity</td><td>Free; Pro about $20 (third-party); Max $200 <a href="https://www.perplexity.ai/help-center/en/articles/11680686-perplexity-max">official</a></td><td>Choice of models from several vendors on Pro</td><td>The most accurate of eight AI search tools in the Columbia study, built around cited answers.</td><td>Still wrong 37% of the time in that test. Weak for creative drafting.</td></tr>
+          <tr><td>Meta AI</td><td>Free app; Muse agent tiers at $0, $20 and $100 (US)</td><td>Muse Spark; Muse Wonder ranks high on benchmarks</td><td>Inside WhatsApp, Instagram and smart glasses.</td><td>TechCrunch flags trust and privacy concerns about the agent. Which model the free app uses is unverified.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="grid2">
+      <div class="item"><h4>Two leaderboards disagree</h4><p>On 13 October 2026 Arena’s text board (crowd votes) put Gemini 4 Argon first, Meta’s Muse Wonder second and Claude Opus 5.5 third. Artificial Analysis (aggregated evaluations) put Claude Opus 5.5 first at 58, with GPT-6 Astra and Gemini 4 Argon at 53. Neither is wrong; they measure different things (section 9).</p><p class="cite"><a href="https://arena.ai/leaderboard/chat/text">Arena text</a> · <a href="https://artificialanalysis.ai/leaderboards/models">Artificial Analysis</a></p></div>
+      <div class="item"><h4>ChatGPT’s top tier is changing</h4><p>OpenAI’s help page lists Pro at $100 and $200 and says new $200 sign-ups were paused on 10 September. News coverage of DevDay (29 September) reports a $500 tier and a smaller allowance on the $200 plan from 30 October. The help page had not caught up when checked, so confirm before buying.</p><p class="cite"><a href="https://help.openai.com/en/articles/9793128">OpenAI help</a> · <a href="https://thenextweb.com/news/openai-devday-pro-200-usage-cut-pro-500-plan">The Next Web</a></p></div>
+      <div class="item"><h4>What the reviews say, in one line each</h4><p>Claude: writing, coding, nuance. ChatGPT: all-round versatility. Gemini: free use and research. Copilot: people who live in Office. Perplexity: research with citations. Grok: real-time takes from X. Le Chat: privacy-minded EU users. These are one reviewer’s verdicts, not measurements.</p><p class="cite"><a href="https://dupple.com/learn/best-ai-chatbots">Dupple, September 2026</a></p></div>
+      <div class="item"><h4>Pick one subscription, not four</h4><p>My advice, not a finding: if you pay for one, choose by the extra you will use weekly. Claude Pro for Claude Code and Research, ChatGPT Plus for voice, images and Codex, Gemini AI Pro for Google Workspace and its large context window.</p></div>
+    </div>
+  </section>
+
+  <!-- CODING -->
+  <section class="shelf" id="coding">
+    <div class="shelf-head">
+      <span class="eyebrow">04 · Coding tools</span>
+      <h2>Two different kinds of tool</h2>
+      <p>The biggest mistake is picking the wrong kind. <strong>App builders</strong> make a working app from a description and host it; they suit people who do not code. <strong>Agents for existing code</strong> read your repository, run commands and produce changes for you to review; they assume you can judge what they hand back.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Tool</th><th>Kind</th><th>Price (monthly, as checked)</th><th>Honest strength</th><th>Honest weakness</th></tr></thead>
+        <tbody>
+          <tr><td>Claude Code</td><td>Agent: terminal, IDE, desktop, web</td><td>Included with Pro $20, Max from $100, Team seats. No free plan <a href="https://claude.com/pricing">pricing</a></td><td>Deep workflow for large repos: hooks, skills, sub-agents. Claude Code entries top Scale’s SWE-Bench Pro V2 board.</td><td>Claude models only; heavy use pushes toward the $100 plans.</td></tr>
+          <tr><td>OpenAI Codex</td><td>Agent: app, CLI, IDE, cloud</td><td>Included from ChatGPT Free upward (Free and Go only in the desktop app); CLI is open source <a href="https://learn.chatgpt.com/docs/pricing">pricing</a></td><td>Bundled with a subscription many already pay for. Real free tier.</td><td>OpenAI models only; limits are given as rough estimates.</td></tr>
+          <tr><td>Cursor</td><td>Agent in an AI-first editor</td><td>Free; Plus $8 (Grok models only); Premium $30; Super $100; Ultra $200. Claude and GPT usage is billed extra <a href="https://cursor.com/pricing">pricing</a></td><td>Polished editor with strong tab completion.</td><td>SpaceX bought Cursor in 2026 and the plans changed. Recheck before subscribing.</td></tr>
+          <tr><td>GitHub Copilot</td><td>IDE assistant plus cloud agent that opens PRs</td><td>Free; Pro $10; Pro+ $39; Max $100, billed in AI credits <a href="https://github.com/features/copilot/plans">plans</a></td><td>Cheapest paid entry, widest model list, native GitHub issue-to-PR flow.</td><td>Cloud agent works only on GitHub repositories, with a session time limit.</td></tr>
+          <tr><td>Antigravity (Google)</td><td>Agent: IDE, CLI, app</td><td>Free for individuals with weekly limits; more with AI Pro and Ultra <a href="https://antigravity.google/pricing">pricing</a></td><td>The most generous free tier of the big three.</td><td>Gemini CLI was replaced by Antigravity CLI for many users on 18 June 2026; the product line keeps shifting.</td></tr>
+          <tr><td>Windsurf / Devin</td><td>Editor plus cloud agent</td><td>Free; Pro $20; Max $200 <a href="https://devin.ai/pricing">pricing</a></td><td>One plan covers an editor and an autonomous cloud agent.</td><td>Brand churn; the pricing page names no models.</td></tr>
+          <tr><td>Aider, Cline</td><td>Open-source agents</td><td>Free; you pay your model provider <a href="https://github.com/Aider-AI/aider">Aider</a> · <a href="https://github.com/cline/cline">Cline</a></td><td>Model freedom, including local models.</td><td>Uncapped API bills; Aider’s docs are dated.</td></tr>
+          <tr><td>Replit, Lovable, Bolt, v0</td><td>App builders</td><td>Replit Core $20; Lovable from $25; Bolt Pro $25; v0 Plus $30. Each has a limited free tier <a href="https://replit.com/pricing">Replit</a> · <a href="https://lovable.dev/pricing">Lovable</a> · <a href="https://bolt.new/pricing">Bolt</a> · <a href="https://v0.app/pricing">v0</a></td><td>Fast path from idea to a hosted prototype with no coding.</td><td>Credits or tokens burn quickly in debugging loops; maintainability and security are your problem.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="grid2">
+      <div class="item"><h4>Benchmarks: use with care</h4><p>OpenAI stopped reporting SWE-bench Verified on 23 February 2026, saying 59.4% of the hard problems it audited had flawed tests and that every frontier model showed contamination. On Scale’s SWE-Bench Pro V2 (22 September 2026) the top entries were Opus 5 in Claude Code at 98.0, Fable 5.1 in Claude Code at 92.2 and GPT-6 Astra in Codex at 90.2. The harness changes scores as much as the model does, so these numbers rank a model plus its tool together.</p><p class="cite"><a href="https://openai.com/index/why-we-no-longer-evaluate-swe-bench-verified/">OpenAI</a> · <a href="https://labs.scale.com/leaderboard/swe_bench_pro_public_v2">Scale Labs</a></p></div>
+      <div class="item"><h4>Does AI make developers faster?</h4><p>In METR’s 2025 trial, 16 experienced open-source developers took 19% longer with AI, while believing they were about 20% faster. A February 2026 follow-up measured roughly 18% faster for the original developers and 4% for new recruits; METR calls it “very weak evidence” and likely understated, because developers refused to work without AI. Google’s DORA 2025 report found 90% adoption and that AI amplifies a team’s existing habits, good or bad.</p><p class="cite"><a href="https://metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/">METR 2025</a> · <a href="https://blog.google/technology/developers/dora-report-2025/">DORA 2025</a></p></div>
+      <div class="item"><h4>How to pick</h4><ul><li>Never coded: try an app builder’s free tier on a throwaway idea.</li><li>Code for work: start with the agent that comes with a subscription you already have (Claude Code or Codex).</li><li>Team on GitHub: Copilot’s issue-to-PR flow.</li><li>Want to control cost or models: Cline or Aider with your own key.</li></ul></div>
+      <div class="item"><h4>How to work with them</h4><p>The habits that matter most (context files, plan first, give it a check it can run, review in a fresh context) are in the <a href="../#agents">coding agents section of the prompting guide</a>.</p></div>
+    </div>
+  </section>
+
+  <!-- RESEARCH -->
+  <section class="shelf" id="research">
+    <div class="shelf-head">
+      <span class="eyebrow">05 · Research and sources</span>
+      <h2>AI search is useful and unreliable at the same time</h2>
+      <p>For research, the question is less “which tool” than “how will I check it”. The evidence below is why.</p>
+    </div>
+    <div class="grid3">
+      <div class="item"><h4>Deep research modes</h4><p>ChatGPT, Claude (Pro and up), Gemini and Perplexity each run a multi-step web investigation and return a cited report. Gemini and ChatGPT let you edit the plan first. OpenAI’s own advice is to use plain search for quick facts and deep research for depth, and to check that citations support the claims.</p><p class="cite"><a href="https://help.openai.com/en/articles/10500283-deepresearch-faq">OpenAI</a> · <a href="https://support.claude.com/en/articles/11088861-use-research-on-claude.md">Claude</a></p></div>
+      <div class="item"><h4>Gemini Notebook (was NotebookLM)</h4><p>Renamed on 16 July 2026. You load your own sources and answers cite passages from them. Limits per source are 500,000 words or 200MB; free notebooks hold 50 sources. It also makes spoken Audio Overviews. Citations may be missing when a source is very short.</p><p class="cite"><a href="https://notebook.google/">Google</a> · <a href="https://support.google.com/notebooklm/answer/16213268?hl=en">limits</a></p></div>
+      <div class="item"><h4>Elicit and Consensus</h4><p>Built for academic papers. Elicit is free, $12 or $49 a month. Consensus can only read full text of open-access papers; paywalled ones are read by title and abstract. A detailed independent review warns its yes/no “meter” is essentially vote-counting and ignores sample size.</p><p class="cite"><a href="https://support.elicit.com/en/articles/2431873">Elicit</a> · <a href="https://aarontay.substack.com/p/a-2025-deep-dive-of-consensus-promises">Aaron Tay review</a></p></div>
+    </div>
+    <div class="grid2">
+      <div class="item"><h4>Citation accuracy, measured</h4><ul><li>Columbia Tow Center (March 2025): across eight AI search tools, over 60% of answers were wrong. Perplexity 37%, Grok 3 94%. Premium tiers were “more confidently wrong”.</li><li>EBU and BBC (October 2025): 45% of answers from ChatGPT, Copilot, Gemini and Perplexity had a significant issue.</li><li>Both tested older model versions. Treat them as the shape of the risk, not today’s scores.</li></ul><p class="cite"><a href="https://www.cjr.org/tow_center/we-compared-eight-ai-search-engines-theyre-all-bad-at-citing-news.php">CJR</a> · <a href="https://www.infodocket.com/2025/10/22/bbc-largest-study-of-its-kind-shows-ai-assistants-misrepresent-news-content-45-of-the-time-regardless-of-language-or-territory/">EBU/BBC</a></p></div>
+      <div class="item"><h4>Made-up references</h4><ul><li>A February 2025 test of eight free chatbots found 39.8% of 400 requested references wrong or fabricated (these were free versions without deep research).</li><li>A May 2026 Lancet letter auditing about 2.5 million PubMed papers estimated 1 in 277 early-2026 papers cites a non-existent paper, up from 1 in 2,828 in 2023.</li><li>Vectara’s leaderboard measures a narrow thing, unsupported additions when summarising a document; frontier models scored 7% to 13.6% there in May 2026.</li></ul><p class="cite"><a href="https://arxiv.org/pdf/2505.18059">arXiv 2505.18059</a> · <a href="https://github.com/vectara/hallucination-leaderboard">Vectara</a></p></div>
+    </div>
+    <div class="callout"><b>Rule of thumb</b><p>Use AI to find and summarise; use the source to confirm. Open every link that supports a claim you will repeat, and search the exact title of any paper you cannot find.</p></div>
+  </section>
+
+  <!-- MEDIA -->
+  <section class="shelf" id="media">
+    <div class="shelf-head">
+      <span class="eyebrow">06 · Images, video, music and voice</span>
+      <h2>Creative tools, and who owns what you make</h2>
+      <p>Arena and Artificial Analysis run blind preference votes for images and video. They show which output people pick, not which is right for your project.</p>
+    </div>
+    <div class="grid2">
+      <div class="model"><span class="kind">Images</span><h3>ChatGPT Images, Nano Banana, then the specialists</h3>
+        <ul>
+          <li><b>Leaders on both arenas:</b> OpenAI’s GPT Image 2.5 models are first and second, with Google’s Nano Banana 2.1 the closest rival (Arena, updated 7 October; Artificial Analysis, no date shown). Midjourney, Firefly, Ideogram and FLUX are outside both top tens.</li>
+          <li><b>Midjourney</b> V8.2 is the default since 24 July. Plans run $10, $30, $60 and $120 a month; companies earning over $1M a year must buy Pro or Mega.</li>
+          <li><b>Adobe Firefly</b> says its own models are trained on licensed Adobe Stock and public-domain content. The app also offers GPT Image, Nano Banana and FLUX, which that claim does not cover. Indemnification terms were not verified.</li>
+          <li><b>Ideogram</b> (Free, $20, $60) targets text in logos and posters; version 4.0 has open weights, with commercial use needing a paid licence.</li>
+        </ul>
+        <div class="links"><a href="https://arena.ai/leaderboard/image/text-to-image">Arena images</a><a href="https://artificialanalysis.ai/text-to-image/arena/leaderboard-text">Artificial Analysis</a><a href="https://docs.midjourney.com/hc/en-us/articles/32199405667853-Version">Midjourney</a><a href="https://www.adobe.com/products/firefly.html">Firefly</a><a href="https://ideogram.ai/pricing">Ideogram</a></div>
+      </div>
+      <div class="model"><span class="kind">Video</span><h3>Sora is gone; Google leads the arena</h3>
+        <ul>
+          <li><b>Sora:</b> OpenAI announced its shutdown on 24 March 2026. The app closed on 26 April and the API was scheduled to close on 24 September. ChatGPT does not generate video.</li>
+          <li><b>Gemini Omni in Flow</b> holds the top two places on Arena’s text-to-video board (page dated 21 September). Plans: AI Plus $4.99, Pro $19.99, Ultra from $99.99; Veo 3.1 is on Ultra.</li>
+          <li><b>Runway</b> ($15, $35, $95), <b>Kling 3.0</b> and <b>Luma</b> ($30 to $300) are the independent options. Kling and Luma pricing was only partly verified; Runway’s own models are not in the arena’s top ten.</li>
+        </ul>
+        <div class="links"><a href="https://arena.ai/leaderboard/video/text-to-video">Arena video</a><a href="https://techcrunch.com/2026/03/24/openais-sora-was-the-creepiest-app-on-your-phone-now-its-shutting-down/">Sora shutdown</a><a href="https://runway.com/pricing">Runway</a></div>
+      </div>
+      <div class="model"><span class="kind">Music</span><h3>Suno, with eyes open on rights</h3>
+        <ul>
+          <li><b>Suno v6</b> launched around 9 September, built with licensed partners Warner Music Group, BMG and Believe. Free $0 (no downloads, non-commercial), Pro $8, Premier $24.</li>
+          <li><b>Ownership:</b> on Pro and Premier, Suno assigns its rights in outputs to you, but does not promise any copyright exists. The US Copyright Office says prompts alone do not make you the author; human selection, arrangement and modification can be protected.</li>
+          <li><b>Lawsuits:</b> Universal and Sony have not settled and filed a second suit on 18 September 2026.</li>
+          <li><b>Udio</b> has downloads disabled since October 2025, so it cannot supply files to release elsewhere. <b>ElevenLabs Music</b> says tracks are cleared for commercial use on paid tiers (Starter $6).</li>
+        </ul>
+        <div class="links"><a href="https://suno.com/pricing">Suno pricing</a><a href="https://suno.com/terms">Suno terms</a><a href="https://www.digitalmusicnews.com/2026/09/18/universal-music-suno-lawsuit-second/">Second lawsuit</a><a href="https://elevenlabs.io/music">ElevenLabs Music</a></div>
+      </div>
+      <div class="model"><span class="kind">Voice and copyright</span><h3>ElevenLabs for voices, a cautious reading of the law</h3>
+        <ul>
+          <li><b>ElevenLabs</b> launched Eleven v4 for expressive voice and v4 Turbo for real-time on 29 September (third-party report; the pricing page shows the v4 banner). Paid plans from $6 include a commercial licence.</li>
+          <li><b>OpenAI</b> voice models for developers: GPT-Realtime-2 (7 May) and 2.1 (6 July).</li>
+          <li><b>US law:</b> the Supreme Court declined to hear Thaler v. Perlmutter on 2 March 2026, leaving the rule that copyright needs a human author. This is information, not legal advice.</li>
+        </ul>
+        <div class="links"><a href="https://elevenlabs.io/pricing">ElevenLabs</a><a href="https://www.copyright.gov/ai/Copyright-and-Artificial-Intelligence-Part-2-Copyrightability-Report.pdf">Copyright Office report</a><a href="https://www.scotusblog.com/cases/thaler-v-perlmutter/">SCOTUSblog</a></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LOCAL -->
+  <section class="shelf" id="local">
+    <div class="shelf-head">
+      <span class="eyebrow">07 · Local models</span>
+      <h2>Running AI on your own machine</h2>
+      <p>Local models keep your prompts on your device, cost nothing per question and work offline. The tradeoff is quality: the gap to the best cloud models is real, and the biggest open models are too large for a home computer.</p>
+    </div>
+    <div class="grid2">
+      <div class="item"><h4>The quality gap, measured</h4><ul><li>Artificial Analysis Index (read 14 October 2026): top proprietary model, Claude Opus 5.5, scores 58; top open-weights model, MiMo-V2.6-Pro, scores 46. The page shows no date.</li><li>Epoch AI (29 May 2026): open models trail the closed frontier by about four months.</li><li>Those gaps are for the biggest open models. Epoch puts models that fit one consumer GPU 6 to 12 months behind (August 2025 analysis).</li></ul><p class="cite"><a href="https://artificialanalysis.ai/models">Artificial Analysis</a> · <a href="https://epoch.ai/data-insights/open-closed-eci-gap">Epoch</a> · <a href="https://epoch.ai/data-insights/consumer-gpu-model-gap">Epoch consumer GPU</a></p></div>
+      <div class="item"><h4>What actually runs on a normal computer</h4><p>The strongest open models (Kimi K3 at 2.8 trillion parameters, DeepSeek V4 Pro at 1.6 trillion) need datacentre hardware. Realistic desktop choices are Gemma 4 (now Apache 2.0), Qwen 3.5, 3.6 and 3.8 up to about 27B, OpenAI’s gpt-oss-20b and Mistral Small 24B. Meta’s newest flagship, Muse Spark, is closed; Llama 4’s licence is custom, not open source.</p><p class="cite"><a href="https://the-decoder.com/googles-gemma-4-is-now-available-with-apache-2-0-licensing-for-the-first-time/">Gemma 4</a> · <a href="https://github.com/QwenLM/Qwen3.8">Qwen3.8</a> · <a href="https://lmstudio.ai/models/gpt-oss">gpt-oss</a> · <a href="https://huggingface.co/meta-llama/Llama-4-Scout-17B-16E">Llama 4 licence</a></p></div>
+    </div>
+    <h3>Rough hardware guide at 4-bit quantisation</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Memory</th><th>What fits (estimates)</th></tr></thead>
+        <tbody>
+          <tr><td>8 GB</td><td>About 3B to 8B models: Gemma 4 E2B and E4B, Qwen3.5 4B and 9B (the 9B is about 5.5 GB).</td></tr>
+          <tr><td>16 GB</td><td>Up to about 14B comfortably; gpt-oss-20b needs roughly 12 to 16 GB.</td></tr>
+          <tr><td>24 GB</td><td>About 27B to 32B dense models: Qwen 27B (about 17 GB), Gemma 4 31B, Mistral Small 24B.</td></tr>
+          <tr><td>32 GB</td><td>30B-class models with longer context, such as a 35B mixture-of-experts model (about 22 GB).</td></tr>
+          <tr><td>64 GB</td><td>A 70B dense model (about 42 GB). gpt-oss-120b is borderline here and better at 80 GB or more.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small">These figures are my estimates from a rule of thumb (about 0.6 GB per billion parameters at 4-bit, which includes overhead) and vendor model sizes. Longer context needs more memory, and mixture-of-experts models need room for all their parameters. On Apple Silicon only part of unified memory is usable by the GPU; the commonly quoted 75% is an unofficial forum figure. <a href="https://modal.com/blog/how-much-vram-need-inference">Modal’s sizing note</a>.</p>
+    <div class="grid3">
+      <div class="item"><h4>Ollama</h4><p>MIT-licensed; a command line and a local API on macOS, Windows and Linux. Good for connecting models to other tools.</p><p class="cite"><a href="https://github.com/ollama/ollama">github.com/ollama/ollama</a></p></div>
+      <div class="item"><h4>LM Studio</h4><p>A desktop app with a model browser, using llama.cpp and Apple’s MLX engines, plus an OpenAI-compatible local API. Free for home and work use.</p><p class="cite"><a href="https://lmstudio.ai/blog/free-for-work">lmstudio.ai</a></p></div>
+      <div class="item"><h4>Jan, llama.cpp, MLX</h4><p>Jan is an open-source chat app that runs offline after the download. llama.cpp is the engine under many apps. MLX is Apple’s framework for Apple Silicon.</p><p class="cite"><a href="https://www.jan.ai/post/offline-chatgpt-alternative">Jan</a> · <a href="https://github.com/ml-explore/mlx-lm">mlx-lm</a></p></div>
+    </div>
+    <div class="callout"><b>When local is the right call</b><p>Documents you cannot send to a third party, repetitive batch jobs where per-query cost matters, and offline work. A small local model with a narrow job, and a person checking the output, is a sound design. For open-ended hard reasoning, a frontier cloud model is still better.</p></div>
+  </section>
+
+  <!-- PRIVACY -->
+  <section class="shelf" id="privacy">
+    <div class="shelf-head">
+      <span class="eyebrow">08 · Privacy defaults</span>
+      <h2>Is your chat used to train the model?</h2>
+      <p>For consumer accounts, often yes unless you opt out. Business and API terms differ. Policies change, so check the linked page before relying on this table.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Service</th><th>Default for consumer chats</th><th>How to opt out</th></tr></thead>
+        <tbody>
+          <tr><td>Claude</td><td>Users choose (since 28 August 2025). Opt in: data kept 5 years; otherwise 30 days. Whether the toggle is pre-set to on was not verified.</td><td>Settings, Privacy, “Help improve our AI models”. Incognito chats are never used. <a href="https://privacy.claude.com/en/articles/10023580-is-my-data-used-for-model-training">Policy</a></td></tr>
+          <tr><td>ChatGPT</td><td>On by default.</td><td>Settings, Data controls, turn off “Improve the model for everyone”. Temporary Chats are not used for training. <a href="https://help.openai.com/en/articles/7730893-data-controls-faq">FAQ</a></td></tr>
+          <tr><td>Gemini</td><td>With “Keep Activity” on, chats may train models and some are read by human reviewers. The official page does not state the default.</td><td>Turn off Keep Activity, or use temporary chats. <a href="https://support.google.com/gemini/answer/13594961">Help</a></td></tr>
+          <tr><td>Copilot</td><td>On by default for consumer conversations, with exclusions for some regions and account types.</td><td>Copilot settings. <a href="https://support.microsoft.com/en-us/topic/privacy-faq-for-microsoft-copilot-27b3a435-8dc9-4b55-9a4b-58eeb9647a7f">Privacy FAQ</a></td></tr>
+          <tr><td>Grok</td><td>xAI may use your content for training. The default is not stated officially.</td><td>Settings, Data, turn off “Improve the Model”; Private Chat is not used. <a href="https://x.ai/legal/faq">xAI FAQ</a></td></tr>
+          <tr><td>Meta AI, Perplexity, Le Chat</td><td>Not researched for this guide.</td><td>Read each service’s privacy settings.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout"><b>Beyond the toggle</b><p>Opting out of training does not make a chat private from the provider, and some chats are retained for days or years. For client files, medical details and credentials, use a business plan with no-training terms, a local model, or leave them out. The prompting guide’s <a href="../#safety">safety section</a> covers prompt injection.</p></div>
+  </section>
+
+  <!-- LEADERBOARDS -->
+  <section class="shelf" id="leaderboards">
+    <div class="shelf-head">
+      <span class="eyebrow">09 · Reading leaderboards</span>
+      <h2>What the rankings can and cannot tell you</h2>
+      <p>Leaderboards are the fastest evidence you can get and they all mislead a little. Know what each one measures.</p>
+    </div>
+    <div class="grid2">
+      <div class="item"><h4>Arena (formerly LMArena)</h4><p>Anonymous head-to-head votes from users, turned into ratings. It measures crowd preference, not correctness. Its own FAQ warns that prompts may be shared in public datasets or with providers, so do not paste sensitive data. A 2025 paper, “The Leaderboard Illusion”, found providers could privately test many variants and publish only the best.</p><p class="cite"><a href="https://arena.ai/faq">Arena FAQ</a> · <a href="https://arxiv.org/abs/2504.20879v2">arXiv 2504.20879</a></p></div>
+      <div class="item"><h4>Artificial Analysis and Epoch AI</h4><p>Aggregate scores from many evaluations, with price and speed alongside. The index version changes over time, so scores from different months are not comparable. Epoch notes that open models may tune harder for benchmarks, which can understate their gap.</p><p class="cite"><a href="https://artificialanalysis.ai/models">Artificial Analysis</a> · <a href="https://epoch.ai/eci">Epoch ECI</a></p></div>
+      <div class="item"><h4>Task benchmarks</h4><p>SWE-Bench Pro and Terminal-Bench test coding agents. Vendors report many of the numbers themselves, and the harness matters as much as the model. Top scores often sit within a few points of each other.</p></div>
+      <div class="item"><h4>A method that holds up</h4><ul><li>Use Arena for “what do people prefer”.</li><li>Use Artificial Analysis or Epoch for overall capability, price and speed.</li><li>Use task benchmarks for coding.</li><li>Then test two or three candidates on your own real work.</li></ul></div>
+    </div>
+  </section>
+
+  <!-- MINE -->
+  <section class="shelf" id="mine">
+    <div class="shelf-head">
+      <span class="eyebrow">10 · What I use</span>
+      <h2>How this played out on my own projects</h2>
+      <p>This is my practice, not a recommendation for everyone. Each pairing is in the <a href="../">portfolio</a>.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Job</th><th>Tool I used</th><th>My reason</th></tr></thead>
+        <tbody>
+          <tr><td>Building software (Conflara, RSC Tool, Byzantium, CatGPT, Money Desk)</td><td>Claude Code</td><td>Works across a whole repository and runs its own checks.</td></tr>
+          <tr><td>Running AI on private business data</td><td>Local models (Conflara runs one on the firm’s own hardware)</td><td>Client material stays on site.</td></tr>
+          <tr><td>Song lyrics and the songs themselves</td><td>ChatGPT for lyrics, Suno for the music</td><td>Split the writing from the sound.</td></tr>
+          <tr><td>Cat Music Video Studio</td><td>ChatGPT and Codex</td><td>A second toolchain, built with ChatGPT and Codex rather than Claude.</td></tr>
+          <tr><td>Novels from plans and outlines</td><td>ChatGPT planned; Claude drafted</td><td>Using one tool to plan and another to write.</td></tr>
+          <tr><td>Research reports</td><td>Claude</td><td>Sourced, cross-checked write-ups.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- SOURCES -->
+  <section class="shelf" id="sources">
+    <div class="shelf-head">
+      <span class="eyebrow">11 · Sources and gaps</span>
+      <h2>How this guide was made, and what is not verified</h2>
+      <p>Research was done on 14 October 2026 by reading each cited page, using official pages where they exist. Strengths and weaknesses are labelled as benchmark, study, review or my judgement.</p>
+    </div>
+    <div class="grid2">
+      <div class="item"><h4>Not verified</h4><ul>
+        <li>Grok prices, Perplexity Pro and ChatGPT Business prices (third-party pages only).</li>
+        <li>Exact models behind consumer Copilot, Le Chat and Perplexity.</li>
+                <li>Per-plan deep-research quotas and the Codex free-tier limits.</li>
+        <li>Kling’s plan prices, Ideogram 4.5 details, and Firefly’s indemnification terms.</li>
+        <li>Meta AI’s opt-out and whether Claude’s training toggle is pre-selected.</li>
+        <li>“Best for writing” rests on one review and taste; no measurement backs it.</li>
+      </ul></div>
+      <div class="item"><h4>Check before you buy</h4><p>Cursor’s plans changed after its acquisition; ChatGPT Pro is changing on 30 October; Suno and Udio rights are tied up in lawsuits; Gemini 4 Argon was still rolling out on Pro. Treat every price here as dated 14 October 2026.</p></div>
+    </div>
+    <div class="item">
+      <h4>Main sources</h4>
+      <ul class="srcs">
+        <li><a href="https://claude.com/pricing">Claude pricing</a></li>
+        <li><a href="https://chatgpt.com/pricing">ChatGPT pricing</a></li>
+        <li><a href="https://gemini.google/subscriptions/">Gemini plans</a></li>
+        <li><a href="https://arena.ai/leaderboard/chat/text">Arena text leaderboard</a></li>
+        <li><a href="https://artificialanalysis.ai/leaderboards/models">Artificial Analysis models</a></li>
+        <li><a href="https://epoch.ai/benchmarks">Epoch AI benchmarks</a></li>
+        <li><a href="https://labs.scale.com/leaderboard/swe_bench_pro_public_v2">Scale SWE-Bench Pro V2</a></li>
+        <li><a href="https://snorkel.ai/leaderboard/terminal-bench-2-0/">Terminal-Bench 2.0</a></li>
+        <li><a href="https://metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/">METR 2025 study</a></li>
+        <li><a href="https://www.cjr.org/tow_center/we-compared-eight-ai-search-engines-theyre-all-bad-at-citing-news.php">Columbia Tow Center</a></li>
+        <li><a href="https://arxiv.org/pdf/2505.18059">Reference accuracy test</a></li>
+        <li><a href="https://github.com/vectara/hallucination-leaderboard">Vectara hallucination leaderboard</a></li>
+        <li><a href="https://www.copyright.gov/ai/Copyright-and-Artificial-Intelligence-Part-2-Copyrightability-Report.pdf">US Copyright Office, Part 2</a></li>
+        <li><a href="https://dupple.com/learn/best-ai-chatbots">Dupple: best AI chatbots</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <span>Myles Parslow · Researched and built with Claude · October 2026</span>
+    <a href="../../">Back to the portfolio</a>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var KEY = 'portfolio-scheme';
+  var root = document.documentElement;
+  var buttons = document.querySelectorAll('.swatch');
+  function apply(name) {
+    if (name !== 'pine' && name !== 'sky') name = 'eggshell';
+    if (name === 'eggshell') root.removeAttribute('data-scheme'); else root.setAttribute('data-scheme', name);
+    buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.pick === name)); });
+    return name;
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  apply(saved);
+  buttons.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var name = apply(b.dataset.pick);
+      try { localStorage.setItem(KEY, name); } catch (e) {}
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,996 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="A plain-English AI glossary: 69 terms from tokens and context windows to RAG, agents, MCP and quantization, each with what it means in practice and a source. Plus a one-page printable cheat sheet.">
+<title>AI Glossary</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Same sheet, tokens and colour picker as the portfolio home page and the prompting guide, so a chosen scheme carries over. */
+:root {
+  color-scheme: light;
+  --bg: #f2eee3; --surface: #fbf9f3; --rule: #ddd3bf; --ink: #15120f; --muted: #5f4e40;
+  --accent: #6b3f22; --mark: #a9822f; --mark-soft: #ede1c1;
+  --display: "Bricolage Grotesque", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+  --body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+:root[data-scheme="pine"] {
+  --bg: #f4f6f4; --surface: #ffffff; --rule: #d5ddd8; --ink: #18201c; --muted: #56625b;
+  --accent: #23593f; --mark: #23593f; --mark-soft: #e2ece6;
+}
+:root[data-scheme="sky"] {
+  --bg: #e8f3fb; --surface: #ffffff; --rule: #c6e0f3; --ink: #192838; --muted: #4c6073;
+  --accent: #9b111e; --mark: #9b111e; --mark-soft: #f7e1e4;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 1.0625rem; line-height: 1.62; margin: 0; }
+.wrap { max-width: 72rem; margin: 0 auto; padding-inline: 1.25rem; padding-block: 3.5rem 4rem; display: grid; gap: 5rem; }
+a { color: var(--accent); text-underline-offset: 0.18em; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+h1, h2, h3, h4 { font-family: var(--display); text-wrap: balance; line-height: 1.12; margin: 0; }
+p { margin: 0; }
+code { font-family: var(--mono); font-size: 0.86em; background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; padding: 0.05em 0.3em; }
+.eyebrow { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+
+/* Top bar and picker */
+.topbar { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.75rem 1.5rem; }
+.topbar .back { font-family: var(--mono); font-size: 0.8rem; }
+.picker { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0; padding: 0; border: 0; }
+.picker legend { float: left; margin-right: 0.25rem; font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.swatch { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.3rem 0.7rem 0.3rem 0.35rem; border-radius: 999px; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); font-family: var(--display); font-size: 0.85rem; font-weight: 500; cursor: pointer; }
+.swatch:hover { border-color: var(--muted); }
+.swatch[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.swatch i { width: 1.15rem; height: 1.15rem; border-radius: 50%; flex: none; border: 1px solid rgba(0,0,0,0.15); }
+.swatch[data-pick="eggshell"] i { background: linear-gradient(135deg, #f2eee3 0 45%, #6b3f22 45% 70%, #a9822f 70%); }
+.swatch[data-pick="pine"] i { background: linear-gradient(135deg, #f4f6f4 0 50%, #23593f 50%); }
+.swatch[data-pick="sky"] i { background: linear-gradient(135deg, #e8f3fb 0 50%, #9b111e 50%); }
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 1.0625rem; line-height: 1.62; margin: 0; }
+.wrap { max-width: 72rem; margin: 0 auto; padding-inline: 1.25rem; padding-block: 3.5rem 4rem; display: grid; gap: 5rem; }
+a { color: var(--accent); text-underline-offset: 0.18em; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+h1, h2, h3, h4 { font-family: var(--display); text-wrap: balance; line-height: 1.12; margin: 0; }
+p { margin: 0; }
+code { font-family: var(--mono); font-size: 0.86em; background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; padding: 0.05em 0.3em; }
+.eyebrow { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+
+/* Top bar and picker */
+.topbar { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.75rem 1.5rem; }
+.topbar .back { font-family: var(--mono); font-size: 0.8rem; }
+.picker { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0; padding: 0; border: 0; }
+.picker legend { float: left; margin-right: 0.25rem; font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.swatch { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.3rem 0.7rem 0.3rem 0.35rem; border-radius: 999px; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); font-family: var(--display); font-size: 0.85rem; font-weight: 500; cursor: pointer; }
+.swatch:hover { border-color: var(--muted); }
+.swatch[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.swatch i { width: 1.15rem; height: 1.15rem; border-radius: 50%; flex: none; border: 1px solid rgba(0,0,0,0.15); }
+.swatch[data-pick="eggshell"] i { background: linear-gradient(135deg, #f2eee3 0 45%, #6b3f22 45% 70%, #a9822f 70%); }
+.swatch[data-pick="pine"] i { background: linear-gradient(135deg, #f4f6f4 0 50%, #23593f 50%); }
+.swatch[data-pick="sky"] i { background: linear-gradient(135deg, #e8f3fb 0 50%, #9b111e 50%); }
+
+
+
+/* Intro */
+.intro { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 2.5rem; align-items: start; }
+.intro-text { display: grid; gap: 1.25rem; align-content: start; }
+.intro h1 { font-size: clamp(2.6rem, 6.4vw, 4.4rem); font-weight: 800; letter-spacing: -0.025em; line-height: 1.04; }
+.intro h1 em { font-style: normal; color: var(--mark); }
+.lede { font-size: 1.22rem; max-width: 38rem; }
+.small { font-size: 0.9rem; color: var(--muted); }
+.toc { display: grid; border-top: 2px solid var(--ink); counter-reset: toc; }
+.toc a { display: grid; grid-template-columns: 2.2rem 1fr auto; gap: 0.5rem; align-items: baseline; padding: 0.55rem 0; border-bottom: 1px solid var(--rule); text-decoration: none; color: var(--ink); font-family: var(--display); font-weight: 700; font-size: 1.05rem; }
+.toc a::before { counter-increment: toc; content: counter(toc, decimal-leading-zero); font-family: var(--mono); font-weight: 400; font-size: 0.75rem; color: var(--muted); }
+.toc a span { font-family: var(--mono); font-weight: 400; font-size: 0.75rem; color: var(--muted); text-align: right; }
+.toc a:hover { color: var(--accent); }
+.tally { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin: 0; border-top: 1px solid var(--rule); padding-top: 1.25rem; }
+.tally div { display: grid; gap: 0.2rem; align-content: start; }
+.tally dt { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); order: 2; }
+.tally dd { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(1.6rem, 3.4vw, 2.4rem); color: var(--accent); letter-spacing: -0.02em; line-height: 1.05; }
+
+/* Sections */
+.shelf { display: grid; gap: 2rem; scroll-margin-top: 1.5rem; }
+.shelf-head { display: grid; gap: 0.5rem; border-top: 2px solid var(--ink); padding-top: 1rem; }
+.shelf-head h2 { font-size: clamp(2rem, 4.2vw, 2.8rem); font-weight: 800; letter-spacing: -0.02em; }
+.shelf-head p { color: var(--muted); max-width: 46rem; }
+
+/* Search and filters */
+.finder { position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 0.85rem 0 0.75rem; border-bottom: 1px solid var(--rule); display: grid; gap: 0.7rem; }
+.search { display: flex; align-items: center; gap: 0.6rem; background: var(--surface); border: 1px solid var(--rule); border-radius: 999px; padding: 0.15rem 0.4rem 0.15rem 1rem; }
+.search:focus-within { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.search svg { flex: none; color: var(--muted); }
+.search input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--ink); font-family: var(--display); font-size: 1.05rem; padding: 0.55rem 0; outline: none; }
+.search input::placeholder { color: var(--muted); }
+.search button { font-family: var(--mono); font-size: 0.72rem; padding: 0.3rem 0.65rem; border-radius: 999px; border: 1px solid var(--rule); background: var(--bg); color: var(--accent); cursor: pointer; }
+.search button[hidden] { display: none; }
+.filters { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.chip { font-family: var(--display); font-size: 0.88rem; font-weight: 500; padding: 0.3rem 0.75rem; border-radius: 999px; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); cursor: pointer; }
+.chip span { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); margin-left: 0.15rem; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.chip[aria-pressed="true"] span { color: var(--bg); }
+.az { display: flex; flex-wrap: wrap; gap: 0.15rem 0.2rem; font-family: var(--mono); font-size: 0.8rem; }
+.az a { text-decoration: none; padding: 0.1rem 0.4rem; border-radius: 4px; }
+.az a:hover { background: var(--mark-soft); }
+.az a.off { color: var(--rule); pointer-events: none; }
+.status { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); }
+
+/* Terms */
+.terms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.75rem 2.25rem; align-items: start; }
+.letter { grid-column: 1 / -1; font-family: var(--display); font-weight: 800; font-size: 2rem; color: var(--mark); border-bottom: 1px solid var(--rule); padding-bottom: 0.2rem; scroll-margin-top: 11rem; }
+.letter[hidden], .term[hidden] { display: none; }
+.term { display: grid; gap: 0.5rem; align-content: start; min-width: 0; scroll-margin-top: 11rem; padding: 0.2rem 0; }
+.term:target { background: var(--mark-soft); box-shadow: 0 0 0 0.7rem var(--mark-soft); border-radius: 2px; }
+.term-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.25rem 0.75rem; }
+.term h4 { font-size: 1.3rem; }
+.term h4 a { color: var(--ink); text-decoration: none; }
+.term h4 a:hover { color: var(--accent); }
+.tag { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.aka { font-family: var(--mono); font-size: 0.76rem; color: var(--muted); }
+.term .short { font-family: var(--display); font-weight: 500; font-size: 1.05rem; line-height: 1.4; border-left: 3px solid var(--mark); padding-left: 0.7rem; }
+.term p { font-size: 0.98rem; }
+.practice b { font-family: var(--mono); font-weight: 500; font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-right: 0.35rem; }
+.meta { display: grid; gap: 0.2rem; font-family: var(--mono); font-size: 0.74rem; color: var(--muted); }
+.meta a { overflow-wrap: anywhere; }
+mark { background: var(--mark-soft); color: inherit; border-radius: 2px; padding: 0 0.05em; }
+.empty { grid-column: 1 / -1; color: var(--muted); }
+.empty[hidden] { display: none; }
+
+/* Cheat sheet */
+.sheet-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+.btn { font-family: var(--display); font-weight: 700; font-size: 0.95rem; padding: 0.55rem 1.1rem; border-radius: 999px; border: 1px solid var(--ink); background: var(--ink); color: var(--bg); cursor: pointer; }
+.btn:hover { background: var(--accent); border-color: var(--accent); }
+.sheet { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 1.6rem 1.7rem; display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 1.4rem 2.2rem; }
+.sheet-title { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0.3rem 1rem; border-bottom: 2px solid var(--ink); padding-bottom: 0.5rem; }
+.sheet-title h3 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.01em; }
+.sheet-title span { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); }
+.sheet h4 { font-family: var(--mono); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.5rem; }
+.sheet-col { display: grid; gap: 1.3rem; align-content: start; min-width: 0; }
+.defs { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.32rem; font-size: 0.88rem; line-height: 1.38; }
+.defs b { font-family: var(--display); font-weight: 700; margin-right: 0.3rem; }
+.nums { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 0.3rem 0.8rem; font-size: 0.88rem; line-height: 1.38; }
+.nums dt { font-family: var(--display); font-weight: 800; color: var(--accent); white-space: nowrap; }
+.nums dd { margin: 0; }
+.fix { width: 100%; border-collapse: collapse; font-size: 0.85rem; line-height: 1.35; }
+.fix th, .fix td { text-align: left; vertical-align: top; padding: 0.32rem 0.4rem 0.32rem 0; border-bottom: 1px solid var(--rule); }
+.fix th { font-family: var(--mono); font-weight: 500; font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.fix td:last-child { font-family: var(--display); font-weight: 700; }
+.rules { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.3rem; font-size: 0.88rem; line-height: 1.38; }
+.sheet-foot { grid-column: 1 / -1; font-family: var(--mono); font-size: 0.7rem; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 0.5rem; }
+
+.srcs { columns: 2; column-gap: 2.5rem; font-size: 0.86rem; margin: 0; padding-left: 1.1rem; }
+.srcs li { break-inside: avoid; margin-bottom: 0.35rem; overflow-wrap: anywhere; }
+footer { border-top: 1px solid var(--rule); padding-top: 1.25rem; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 2rem; font-family: var(--mono); font-size: 0.8rem; color: var(--muted); }
+
+@media (max-width: 820px) {
+  .intro, .terms, .sheet { grid-template-columns: minmax(0, 1fr); }
+  .tally { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .srcs { columns: 1; }
+  .wrap { gap: 3.5rem; padding-block: 2.5rem 3rem; }
+  .sheet { padding: 1.1rem 1rem; }
+  .finder { position: static; }
+  .term, .letter { scroll-margin-top: 1rem; }
+}
+
+/* Print: the cheat sheet only, on one page, in its own colours. */
+@page { size: auto; margin: 11mm; }
+@media print {
+  :root { --bg: #fff; --surface: #fff; --ink: #000; }
+  body { background: #fff; font-size: 10pt; }
+  .wrap { display: block; padding: 0; max-width: none; }
+  .wrap > *:not(#cheatsheet) { display: none !important; }
+  #cheatsheet > .shelf-head, #cheatsheet .sheet-actions { display: none; }
+  .sheet { border: 0; padding: 0; gap: 3.2mm 7mm; grid-template-columns: 1.15fr 1fr; break-inside: avoid; }
+  .sheet-title h3 { font-size: 17pt; }
+  .defs, .nums, .rules { font-size: 8.4pt; gap: 1.1mm; line-height: 1.28; }
+  .fix { font-size: 8.1pt; }
+  .fix th, .fix td { padding: 0.7mm 1.5mm 0.7mm 0; }
+  .sheet-col { gap: 3.6mm; }
+  .sheet h4 { margin-bottom: 1.2mm; font-size: 7pt; }
+  .sheet-foot { font-size: 6.8pt; }
+  a { color: inherit; text-decoration: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="intro">
+    <div class="topbar">
+      <a class="back" href="../../">← Myles Parslow portfolio</a>
+      <fieldset class="picker" aria-label="Colour scheme">
+        <legend>Colours</legend>
+        <button type="button" class="swatch" data-pick="eggshell" aria-pressed="true"><i></i>Eggshell</button>
+        <button type="button" class="swatch" data-pick="pine" aria-pressed="false"><i></i>Original</button>
+        <button type="button" class="swatch" data-pick="sky" aria-pressed="false"><i></i>Sky &amp; ruby</button>
+      </fieldset>
+    </div>
+    <div class="intro-text">
+      <span class="eyebrow">Glossary · October 2026</span>
+      <h1>The words behind AI, in <em>plain English</em>.</h1>
+      <p class="lede">69 terms you will meet when using, building or buying AI: what each one means, what to do about it, and where the definition comes from. Search it, filter it, or print the one-page cheat sheet.</p>
+      <p class="small">Definitions were checked against lab documentation, standards bodies and the original papers, and every entry links its sources. Fast-moving areas such as model sizes and data policies change quickly, so the entries describe ideas, not product specs. A companion to the <a href="../">Prompting Field Guide</a>.</p>
+    </div>
+    <nav class="toc" aria-label="Sections">
+      <a href="#glossary">The glossary <span>69 terms</span></a>
+      <a href="#cheatsheet">One-page cheat sheet <span>print it</span></a>
+      <a href="#sources">Sources <span>47 links</span></a>
+    </nav>
+    <dl class="tally">
+      <div><dt>Terms defined</dt><dd>69</dd></div>
+      <div><dt>Topic groups</dt><dd>5</dd></div>
+      <div><dt>Linked sources</dt><dd>47</dd></div>
+      <div><dt>Page to print</dt><dd>1</dd></div>
+    </dl>
+  </header>
+
+  <section class="shelf" id="glossary">
+    <div class="shelf-head">
+      <span class="eyebrow">01 · The glossary</span>
+      <h2>Look a term up</h2>
+      <p>Each entry has a one-line definition, a fuller explanation, an “in practice” tip, related terms and sources. Click a term’s name to get a link straight to it.</p>
+    </div>
+    <div class="finder">
+      <div class="search" role="search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input id="q" type="search" placeholder="Search terms, e.g. RAG, tokens, memory…" aria-label="Search the glossary" autocomplete="off" spellcheck="false">
+        <button type="button" id="clear" hidden>Clear</button>
+      </div>
+      <div class="filters" role="group" aria-label="Filter by topic"><button type="button" class="chip" data-f="all" aria-pressed="true">All <span>69</span></button><button type="button" class="chip" data-f="basics" aria-pressed="false">How models work <span>20</span></button><button type="button" class="chip" data-f="using" aria-pressed="false">Using AI day to day <span>18</span></button><button type="button" class="chip" data-f="building" aria-pressed="false">Building with AI <span>15</span></button><button type="button" class="chip" data-f="local" aria-pressed="false">Running models yourself <span>7</span></button><button type="button" class="chip" data-f="risk" aria-pressed="false">Risk, safety and trust <span>9</span></button></div>
+      <nav class="az" id="az" aria-label="Jump to letter"><a href="#l-A">A</a><a href="#l-B">B</a><a href="#l-C">C</a><a href="#l-D">D</a><a href="#l-E">E</a><a href="#l-F">F</a><a href="#l-G">G</a><a href="#l-H">H</a><a href="#l-I">I</a><a href="#l-J">J</a><a href="#l-K">K</a><a href="#l-L">L</a><a href="#l-M">M</a><a href="#l-N">N</a><a href="#l-O">O</a><a href="#l-P">P</a><a href="#l-Q">Q</a><a href="#l-R">R</a><a href="#l-S">S</a><a href="#l-T">T</a><a href="#l-V">V</a><a href="#l-W">W</a><a href="#l-Z">Z</a></nav>
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+    </div>
+    <div class="terms" id="terms">
+<h3 class="letter" id="l-A">A</h3>
+<article class="term" id="agent" data-cat="building" data-hay="agent ai agent, agentic a model that works in a loop: plan, use tools, check results, repeat until the task is done. anthropic draws a useful line: workflows follow predefined code paths, while agents let the model direct its own process and tool use. coding agents such as claude code and codex read files, run commands and fix their own mistakes over many steps. start with the simplest thing that works. a single well-prompted call or a fixed workflow is easier to trust than an open-ended agent.">
+  <div class="term-head"><h4><a class="self" href="#agent">Agent</a></h4><span class="tag">Building with AI</span></div>
+  <p class="aka">Also: AI agent, agentic</p>
+  <p class="short">A model that works in a loop: plan, use tools, check results, repeat until the task is done.</p>
+  <p>Anthropic draws a useful line: workflows follow predefined code paths, while agents let the model direct its own process and tool use. Coding agents such as Claude Code and Codex read files, run commands and fix their own mistakes over many steps.</p>
+  <p class="practice"><b>In practice</b> Start with the simplest thing that works. A single well-prompted call or a fixed workflow is easier to trust than an open-ended agent.</p>
+  <p class="meta"><span>See also: <a href="#tool-use">Tool use</a>, <a href="#workflow">Workflow</a>, <a href="#subagent">Sub-agent</a>, <a href="#mcp">MCP</a></span><span>Source: <a href="https://www.anthropic.com/engineering/building-effective-agents">Anthropic: Building effective agents</a></span></p>
+</article>
+<article class="term" id="alignment" data-cat="risk" data-hay="alignment hhh, helpful honest harmless making ai systems pursue the goals and values their designers and users actually intend. alignment covers both everyday behaviour (being helpful, honest and harmless) and the long-term research question of keeping far more capable systems safe. techniques include rlhf, constitutional ai and interpretability research into what is happening inside models. day to day, alignment is why models decline some requests and why they try to follow both your words and your intent.">
+  <div class="term-head"><h4><a class="self" href="#alignment">Alignment</a></h4><span class="tag">Risk, safety and trust</span></div>
+  <p class="aka">Also: HHH, helpful honest harmless</p>
+  <p class="short">Making AI systems pursue the goals and values their designers and users actually intend.</p>
+  <p>Alignment covers both everyday behaviour (being helpful, honest and harmless) and the long-term research question of keeping far more capable systems safe. Techniques include RLHF, Constitutional AI and interpretability research into what is happening inside models.</p>
+  <p class="practice"><b>In practice</b> Day to day, alignment is why models decline some requests and why they try to follow both your words and your intent.</p>
+  <p class="meta"><span>See also: <a href="#rlhf">RLHF</a>, <a href="#interpretability">Interpretability</a>, <a href="#sycophancy">Sycophancy</a></span><span>Source: <a href="https://www.anthropic.com/research/constitutional-ai-harmlessness-from-ai-feedback">Anthropic: Constitutional AI</a> · <a href="https://platform.claude.com/docs/en/about-claude/glossary">Anthropic: Glossary</a></span></p>
+</article>
+<article class="term" id="api" data-cat="using" data-hay="api  a way for software to call a model directly, paying per token, rather than chatting in an app. an application programming interface lets developers send prompts and receive replies from code. the api exposes settings the chat apps hide, such as temperature, max tokens and the system prompt, and is how most ai-powered products are built. chat subscriptions and api usage are usually billed separately, and data policies can differ between them.">
+  <div class="term-head"><h4><a class="self" href="#api">API</a></h4><span class="tag">Using AI day to day</span></div>
+  
+  <p class="short">A way for software to call a model directly, paying per token, rather than chatting in an app.</p>
+  <p>An application programming interface lets developers send prompts and receive replies from code. The API exposes settings the chat apps hide, such as temperature, max tokens and the system prompt, and is how most AI-powered products are built.</p>
+  <p class="practice"><b>In practice</b> Chat subscriptions and API usage are usually billed separately, and data policies can differ between them.</p>
+  <p class="meta"><span>See also: <a href="#token">Token</a>, <a href="#system-prompt">System prompt</a>, <a href="#data-retention">Data retention and training on your data</a></span><span>Source: <a href="https://platform.claude.com/docs/en/api/messages">Anthropic: Messages API reference</a></span></p>
+</article>
+<article class="term" id="ai" data-cat="basics" data-hay="artificial intelligence (ai)  the broad field of making computers do tasks that normally need human judgment. an umbrella term, not a specific technology. it covers everything from chess engines and spam filters to the chatbots people mean when they say “ai” today. most of what this glossary describes sits inside one corner of it: machine learning, and within that, large language models. when someone says “we use ai”, ask which kind. a rules engine, a trained classifier and a chatbot have very different strengths and failure modes.">
+  <div class="term-head"><h4><a class="self" href="#ai">Artificial intelligence (AI)</a></h4><span class="tag">How models work</span></div>
+  
+  <p class="short">The broad field of making computers do tasks that normally need human judgment.</p>
+  <p>An umbrella term, not a specific technology. It covers everything from chess engines and spam filters to the chatbots people mean when they say “AI” today. Most of what this glossary describes sits inside one corner of it: machine learning, and within that, large language models.</p>
+  <p class="practice"><b>In practice</b> When someone says “we use AI”, ask which kind. A rules engine, a trained classifier and a chatbot have very different strengths and failure modes.</p>
+  <p class="meta"><span>See also: <a href="#ml">Machine learning</a>, <a href="#llm">Large language model</a>, <a href="#genai">Generative AI</a></span><span>Source: <a href="https://developers.google.com/machine-learning/glossary">Google: Machine Learning Glossary</a></span></p>
+</article>
+<article class="term" id="attention" data-cat="basics" data-hay="attention  the mechanism that lets a model decide which earlier words matter most for the next one. for each token, attention scores how relevant every other token in the context is, then blends their information accordingly. that is how a model knows that “it” in a sentence refers to a noun three lines back. attention is not perfect over very long inputs. models tend to use information at the start and end of a long prompt better than the middle, so put key instructions where they will be noticed.">
+  <div class="term-head"><h4><a class="self" href="#attention">Attention</a></h4><span class="tag">How models work</span></div>
+  
+  <p class="short">The mechanism that lets a model decide which earlier words matter most for the next one.</p>
+  <p>For each token, attention scores how relevant every other token in the context is, then blends their information accordingly. That is how a model knows that “it” in a sentence refers to a noun three lines back.</p>
+  <p class="practice"><b>In practice</b> Attention is not perfect over very long inputs. Models tend to use information at the start and end of a long prompt better than the middle, so put key instructions where they will be noticed.</p>
+  <p class="meta"><span>See also: <a href="#transformer">Transformer</a>, <a href="#context-window">Context window</a>, <a href="#context-rot">Context rot</a></span><span>Source: <a href="https://arxiv.org/abs/1706.03762">Vaswani et al. (2017): Attention Is All You Need</a> · <a href="https://arxiv.org/abs/2307.03172">Liu et al. (2023): Lost in the middle</a></span></p>
+</article>
+<h3 class="letter" id="l-B">B</h3>
+<article class="term" id="benchmark" data-cat="building" data-hay="benchmark  a standard public test used to compare models, such as maths, coding or knowledge exams. labs report benchmark scores when they release models. they are useful for broad comparison but can be gamed, can leak into training data, and may not reflect the tasks you care about. treat benchmark tables as a shortlist, then test the candidates on your own work.">
+  <div class="term-head"><h4><a class="self" href="#benchmark">Benchmark</a></h4><span class="tag">Building with AI</span></div>
+  
+  <p class="short">A standard public test used to compare models, such as maths, coding or knowledge exams.</p>
+  <p>Labs report benchmark scores when they release models. They are useful for broad comparison but can be gamed, can leak into training data, and may not reflect the tasks you care about.</p>
+  <p class="practice"><b>In practice</b> Treat benchmark tables as a shortlist, then test the candidates on your own work.</p>
+  <p class="meta"><span>See also: <a href="#evals">Evals</a></span><span>Source: <a href="https://platform.claude.com/docs/en/test-and-evaluate/develop-tests">Anthropic: Create strong empirical evaluations</a></span></p>
+</article>
+<article class="term" id="bias" data-cat="risk" data-hay="bias  systematic slants in a model’s outputs, inherited from its training data or design. models learn from human-written text, including its stereotypes and blind spots. bias can show up in hiring screens, image generation, translations or whose viewpoint an answer assumes. nist lists harmful bias among the main risks of generative ai. don’t let a model make or rank decisions about people without human review, and test outputs across different groups.">
+  <div class="term-head"><h4><a class="self" href="#bias">Bias</a></h4><span class="tag">Risk, safety and trust</span></div>
+  
+  <p class="short">Systematic slants in a model’s outputs, inherited from its training data or design.</p>
+  <p>Models learn from human-written text, including its stereotypes and blind spots. Bias can show up in hiring screens, image generation, translations or whose viewpoint an answer assumes. NIST lists harmful bias among the main risks of generative AI.</p>
+  <p class="practice"><b>In practice</b> Don’t let a model make or rank decisions about people without human review, and test outputs across different groups.</p>
+  <p class="meta"><span>See also: <a href="#alignment">Alignment</a>, <a href="#training">Training</a></span><span>Source: <a href="https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf">NIST AI 600-1: Generative AI Profile</a></span></p>
+</article>
+<h3 class="letter" id="l-C">C</h3>
+<article class="term" id="cot" data-cat="using" data-hay="chain of thought cot, step by step having a model work through intermediate steps before giving its final answer. a 2022 google paper showed that prompting a model with worked, step-by-step examples sharply improved its accuracy on maths and logic. today many models do this reasoning on their own; see reasoning model. with a reasoning model, turn up its thinking or effort setting rather than writing “think step by step”. with a fast model, asking it to reason first can still help on multi-step problems.">
+  <div class="term-head"><h4><a class="self" href="#cot">Chain of thought</a></h4><span class="tag">Using AI day to day</span></div>
+  <p class="aka">Also: CoT, step by step</p>
+  <p class="short">Having a model work through intermediate steps before giving its final answer.</p>
+  <p>A 2022 Google paper showed that prompting a model with worked, step-by-step examples sharply improved its accuracy on maths and logic. Today many models do this reasoning on their own; see reasoning model.</p>
+  <p class="practice"><b>In practice</b> With a reasoning model, turn up its thinking or effort setting rather than writing “think step by step”. With a fast model, asking it to reason first can still help on multi-step problems.</p>
+  <p class="meta"><span>See also: <a href="#reasoning-model">Reasoning model</a>, <a href="#prompt">Prompt</a></span><span>Source: <a href="https://arxiv.org/abs/2201.11903">Wei et al. (2022): Chain-of-thought prompting</a></span></p>
+</article>
+<article class="term" id="chunking" data-cat="building" data-hay="chunking  splitting long documents into smaller passages so they can be embedded and retrieved. a whole book is too big to embed as one vector, so it is cut into chunks, often a few hundred tokens each, sometimes overlapping. chunk size is a trade-off: too small loses context, too large dilutes relevance. split on natural boundaries such as headings and paragraphs, and keep the document title with each chunk.">
+  <div class="term-head"><h4><a class="self" href="#chunking">Chunking</a></h4><span class="tag">Building with AI</span></div>
+  
+  <p class="short">Splitting long documents into smaller passages so they can be embedded and retrieved.</p>
+  <p>A whole book is too big to embed as one vector, so it is cut into chunks, often a few hundred tokens each, sometimes overlapping. Chunk size is a trade-off: too small loses context, too large dilutes relevance.</p>
+  <p class="practice"><b>In practice</b> Split on natural boundaries such as headings and paragraphs, and keep the document title with each chunk.</p>
+  <p class="meta"><span>See also: <a href="#rag">RAG</a>, <a href="#embedding">Embedding</a></span><span>Source: <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">Anthropic: Effective context engineering for AI agents</a></span></p>
+</article>
+<article class="term" id="context-engineering" data-cat="building" data-hay="context engineering  deciding what goes into a model’s context, and what stays out, at every step of a task. as agents run for many steps, the bigger question shifts from wording one prompt to curating everything the model sees: instructions, tool results, retrieved documents, memory and history. anthropic frames it as finding the smallest set of high-signal tokens that gets the job done. clear stale history, summarise long tool output, and give the model the files it needs instead of everything you have.">
+  <div class="term-head"><h4><a class="self" href="#context-engineering">Context engineering</a></h4><span class="tag">Building with AI</span></div>
+  
+  <p class="short">Deciding what goes into a model’s context, and what stays out, at every step of a task.</p>
+  <p>As agents run for many steps, the bigger question shifts from wording one prompt to curating everything the model sees: instructions, tool results, retrieved documents, memory and history. Anthropic frames it as finding the smallest set of high-signal tokens that gets the job done.</p>
+  <p class="practice"><b>In practice</b> Clear stale history, summarise long tool output, and give the model the files it needs instead of everything you have.</p>
+  <p class="meta"><span>See also: <a href="#context-window">Context window</a>, <a href="#context-rot">Context rot</a>, <a href="#rag">RAG</a>, <a href="#subagent">Sub-agent</a></span><span>Source: <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">Anthropic: Effective context engineering for AI agents</a></span></p>
+</article>
+<article class="term" id="context-file" data-cat="building" data-hay="context file (claude.md, agents.md)  a file in a project that a coding agent reads automatically for standing instructions about that project. claude code reads claude.md; codex and many other agents read agents.md. these files hold build commands, conventions, project structure and gotchas, so you don’t repeat them in every session. keep it short and specific. write what the agent would otherwise get wrong, not a general description of good coding.">
+  <div class="term-head"><h4><a class="self" href="#context-file">Context file (CLAUDE.md, AGENTS.md)</a></h4><span class="tag">Building with AI</span></div>
+  
+  <p class="short">A file in a project that a coding agent reads automatically for standing instructions about that project.</p>
+  <p>Claude Code reads CLAUDE.md; Codex and many other agents read AGENTS.md. These files hold build commands, conventions, project structure and gotchas, so you don’t repeat them in every session.</p>
+  <p class="practice"><b>In practice</b> Keep it short and specific. Write what the agent would otherwise get wrong, not a general description of good coding.</p>
+  <p class="meta"><span>See also: <a href="#system-prompt">System prompt</a>, <a href="#agent">Agent</a>, <a href="#skill">Skill</a></span><span>Source: <a href="https://code.claude.com/docs/en/memory">Anthropic: Claude Code memory (CLAUDE.md)</a> · <a href="https://agents.md/">AGENTS.md</a></span></p>
+</article>
+<article class="term" id="context-rot" data-cat="using" data-hay="context rot lost in the middle the tendency for answer quality to drop as the context gets longer or more cluttered. research has found that models use information at the start and end of a long input better than information in the middle, and that performance falls as irrelevant material piles up. anthropic describes context as a finite resource with diminishing returns. in long chats, start fresh with a clean summary when answers start drifting. in documents, put the question last and the key facts where they stand out.">
+  <div class="term-head"><h4><a class="self" href="#context-rot">Context rot</a></h4><span class="tag">Using AI day to day</span></div>
+  <p class="aka">Also: lost in the middle</p>
+  <p class="short">The tendency for answer quality to drop as the context gets longer or more cluttered.</p>
+  <p>Research has found that models use information at the start and end of a long input better than information in the middle, and that performance falls as irrelevant material piles up. Anthropic describes context as a finite resource with diminishing returns.</p>
+  <p class="practice"><b>In practice</b> In long chats, start fresh with a clean summary when answers start drifting. In documents, put the question last and the key facts where they stand out.</p>
+  <p class="meta"><span>See also: <a href="#context-window">Context window</a>, <a href="#context-engineering">Context engineering</a>, <a href="#attention">Attention</a></span><span>Source: <a href="https://arxiv.org/abs/2307.03172">Liu et al. (2023): Lost in the middle</a> · <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">Anthropic: Effective context engineering for AI agents</a></span></p>
+</article>
+<article class="term" id="context-window" data-cat="using" data-hay="context window  how much text a model can consider at once: your prompt, files, the conversation so far and its reply. the context window is the model’s working memory, measured in tokens. everything outside it is invisible to the model. windows have grown from a few thousand tokens to hundreds of thousands or a million, enough for whole books or codebases. a bigger window is not a reason to paste everything. relevant, well-organised context beats a pile of loosely related files.">
+  <div class="term-head"><h4><a class="self" href="#context-window">Context window</a></h4><span class="tag">Using AI day to day</span></div>
+  
+  <p class="short">How much text a model can consider at once: your prompt, files, the conversation so far and its reply.</p>
+  <p>The context window is the model’s working memory, measured in tokens. Everything outside it is invisible to the model. Windows have grown from a few thousand tokens to hundreds of thousands or a million, enough for whole books or codebases.</p>
+  <p class="practice"><b>In practice</b> A bigger window is not a reason to paste everything. Relevant, well-organised context beats a pile of loosely related files.</p>
+  <p class="meta"><span>See also: <a href="#token">Token</a>, <a href="#context-rot">Context rot</a>, <a href="#context-engineering">Context engineering</a>, <a href="#rag">RAG</a></span><span>Source: <a href="https://platform.claude.com/docs/en/about-claude/glossary">Anthropic: Glossary</a></span></p>
+</article>
+<h3 class="letter" id="l-D">D</h3>
+<article class="term" id="data-retention" data-cat="risk" data-hay="data retention and training on your data privacy, data use whether a provider stores your conversations, for how long, and whether it may train models on them. policies differ by provider, product and plan, and they change. consumer apps often have settings to opt in or out of training; business and api plans usually have stricter defaults. anything you paste may be stored for some period. read the current data settings for the tool you use, and follow your employer’s policy. keep confidential client data out of tools your organisation hasn’t approved, or use a local model.">
+  <div class="term-head"><h4><a class="self" href="#data-retention">Data retention and training on your data</a></h4><span class="tag">Risk, safety and trust</span></div>
+  <p class="aka">Also: privacy, data use</p>
+  <p class="short">Whether a provider stores your conversations, for how long, and whether it may train models on them.</p>
+  <p>Policies differ by provider, product and plan, and they change. Consumer apps often have settings to opt in or out of training; business and API plans usually have stricter defaults. Anything you paste may be stored for some period.</p>
+  <p class="practice"><b>In practice</b> Read the current data settings for the tool you use, and follow your employer’s policy. Keep confidential client data out of tools your organisation hasn’t approved, or use a local model.</p>
+  <p class="meta"><span>See also: <a href="#local-model">Local model</a>, <a href="#api">API</a></span><span>Source: <a href="https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf">NIST AI 600-1: Generative AI Profile</a></span></p>
+</article>
+<article class="term" id="diffusion" data-cat="basics" data-hay="diffusion model  the approach behind most image generators: start from noise and remove it step by step into a picture. a diffusion model is trained by adding noise to images and learning to reverse it. to generate, it starts from random noise and repeatedly denoises it, guided by your text prompt, until an image appears. stable diffusion and many video models work this way. image models respond to what you name, so describe what you want to see. writing “no text” can make text more likely to appear.">
+  <div class="term-head"><h4><a class="self" href="#diffusion">Diffusion model</a></h4><span class="tag">How models work</span></div>
+  
+  <p class="short">The approach behind most image generators: start from noise and remove it step by step into a picture.</p>
+  <p>A diffusion model is trained by adding noise to images and learning to reverse it. To generate, it starts from random noise and repeatedly denoises it, guided by your text prompt, until an image appears. Stable Diffusion and many video models work this way.</p>
+  <p class="practice"><b>In practice</b> Image models respond to what you name, so describe what you want to see. Writing “no text” can make text more likely to appear.</p>
+  <p class="meta"><span>See also: <a href="#genai">Generative AI</a>, <a href="#multimodal">Multimodal</a></span><span>Source: <a href="https://arxiv.org/abs/2006.11239">Ho et al. (2020): Denoising diffusion probabilistic models</a></span></p>
+</article>
+<article class="term" id="distillation" data-cat="local" data-hay="distillation  training a small “student” model to imitate a large “teacher” model. instead of learning only from raw data, the student learns from the teacher’s outputs, which carry richer information about what the teacher thinks is likely. the idea was popularised by hinton and colleagues in 2015. many small open models are distilled from bigger ones. distilled models can punch above their size on the tasks they were distilled for, but may be weaker outside them.">
+  <div class="term-head"><h4><a class="self" href="#distillation">Distillation</a></h4><span class="tag">Running models yourself</span></div>
+  
+  <p class="short">Training a small “student” model to imitate a large “teacher” model.</p>
+  <p>Instead of learning only from raw data, the student learns from the teacher’s outputs, which carry richer information about what the teacher thinks is likely. The idea was popularised by Hinton and colleagues in 2015. Many small open models are distilled from bigger ones.</p>
+  <p class="practice"><b>In practice</b> Distilled models can punch above their size on the tasks they were distilled for, but may be weaker outside them.</p>
+  <p class="meta"><span>See also: <a href="#slm">Small language model</a>, <a href="#fine-tuning">Fine-tuning</a></span><span>Source: <a href="https://arxiv.org/abs/1503.02531">Hinton et al. (2015): Distilling the knowledge in a neural network</a> · <a href="https://developers.google.com/machine-learning/glossary/generative">Google: Machine Learning Glossary, generative AI terms</a></span></p>
+</article>
+<h3 class="letter" id="l-E">E</h3>
+<article class="term" id="embedding" data-cat="building" data-hay="embedding vector a list of numbers that represents the meaning of a piece of text, so similar meanings sit close together. an embedding model turns text (or images) into a vector, often hundreds or thousands of numbers long. texts with similar meaning end up with similar vectors, even if they share no words, so “car insurance” lands near “auto coverage”. embeddings power semantic search, recommendations, clustering and rag.">
+  <div class="term-head"><h4><a class="self" href="#embedding">Embedding</a></h4><span class="tag">Building with AI</span></div>
+  <p class="aka">Also: vector</p>
+  <p class="short">A list of numbers that represents the meaning of a piece of text, so similar meanings sit close together.</p>
+  <p>An embedding model turns text (or images) into a vector, often hundreds or thousands of numbers long. Texts with similar meaning end up with similar vectors, even if they share no words, so “car insurance” lands near “auto coverage”.</p>
+  <p class="practice"><b>In practice</b> Embeddings power semantic search, recommendations, clustering and RAG.</p>
+  <p class="meta"><span>See also: <a href="#vector-db">Vector database</a>, <a href="#semantic-search">Semantic search</a>, <a href="#rag">RAG</a></span><span>Source: <a href="https://developers.openai.com/api/docs/guides/embeddings">OpenAI: Embeddings guide</a> · <a href="https://developers.google.com/machine-learning/glossary">Google: Machine Learning Glossary</a></span></p>
+</article>
+<article class="term" id="evals" data-cat="building" data-hay="evals evaluations tests that measure how well a model or prompt performs on your actual task. an eval is a set of inputs with a way to judge the outputs: exact answers, code that checks the result, or a rubric scored by a person or another model. evals let you compare prompts or models with evidence instead of impressions. twenty real examples from your own work, scored consistently, tell you more than any public leaderboard.">
+  <div class="term-head"><h4><a class="self" href="#evals">Evals</a></h4><span class="tag">Building with AI</span></div>
+  <p class="aka">Also: evaluations</p>
+  <p class="short">Tests that measure how well a model or prompt performs on your actual task.</p>
+  <p>An eval is a set of inputs with a way to judge the outputs: exact answers, code that checks the result, or a rubric scored by a person or another model. Evals let you compare prompts or models with evidence instead of impressions.</p>
+  <p class="practice"><b>In practice</b> Twenty real examples from your own work, scored consistently, tell you more than any public leaderboard.</p>
+  <p class="meta"><span>See also: <a href="#benchmark">Benchmark</a>, <a href="#prompt">Prompt</a></span><span>Source: <a href="https://platform.claude.com/docs/en/test-and-evaluate/develop-tests">Anthropic: Create strong empirical evaluations</a></span></p>
+</article>
+<h3 class="letter" id="l-F">F</h3>
+<article class="term" id="fine-tuning" data-cat="basics" data-hay="fine-tuning  extra training on a smaller, focused dataset to specialise a model or change its behaviour. fine-tuning starts from a trained model and continues training on examples of the behaviour you want, such as a house writing style or a particular output format. it changes the model’s weights, unlike prompting, which only changes the input. try better prompts, examples and retrieval first. fine-tuning is worth it when you need consistent behaviour at scale and have hundreds or thousands of good examples.">
+  <div class="term-head"><h4><a class="self" href="#fine-tuning">Fine-tuning</a></h4><span class="tag">How models work</span></div>
+  
+  <p class="short">Extra training on a smaller, focused dataset to specialise a model or change its behaviour.</p>
+  <p>Fine-tuning starts from a trained model and continues training on examples of the behaviour you want, such as a house writing style or a particular output format. It changes the model’s weights, unlike prompting, which only changes the input.</p>
+  <p class="practice"><b>In practice</b> Try better prompts, examples and retrieval first. Fine-tuning is worth it when you need consistent behaviour at scale and have hundreds or thousands of good examples.</p>
+  <p class="meta"><span>See also: <a href="#lora">LoRA</a>, <a href="#rlhf">RLHF</a>, <a href="#rag">RAG</a>, <a href="#few-shot">Zero-shot and few-shot</a></span><span>Source: <a href="https://platform.claude.com/docs/en/about-claude/glossary">Anthropic: Glossary</a> · <a href="https://developers.google.com/machine-learning/glossary">Google: Machine Learning Glossary</a></span></p>
+</article>
+<article class="term" id="foundation" data-cat="basics" data-hay="foundation model  a large model trained on broad data that can be adapted to many different tasks. the term was coined by stanford researchers in 2021 for models like gpt-3 and bert that serve as a base for many applications. one foundation model can be prompted, fine-tuned or wrapped in tools to do customer support, coding, translation and more. most ai products are built on a handful of foundation models. knowing which one sits underneath tells you a lot about a product’s strengths and limits.">
+  <div class="term-head"><h4><a class="self" href="#foundation">Foundation model</a></h4><span class="tag">How models work</span></div>
+  
+  <p class="short">A large model trained on broad data that can be adapted to many different tasks.</p>
+  <p>The term was coined by Stanford researchers in 2021 for models like GPT-3 and BERT that serve as a base for many applications. One foundation model can be prompted, fine-tuned or wrapped in tools to do customer support, coding, translation and more.</p>
+  <p class="practice"><b>In practice</b> Most AI products are built on a handful of foundation models. Knowing which one sits underneath tells you a lot about a product’s strengths and limits.</p>
+  <p class="meta"><span>See also: <a href="#llm">Large language model</a>, <a href="#fine-tuning">Fine-tuning</a>, <a href="#pretraining">Pre-training</a></span><span>Source: <a href="https://arxiv.org/abs/2108.07258">Bommasani et al. (2021): On the opportunities and risks of foundation models</a></span></p>
+</article>
+<h3 class="letter" id="l-G">G</h3>
+<article class="term" id="genai" data-cat="basics" data-hay="generative ai  ai that creates new content, such as text, images, audio, video or code, rather than only classifying or predicting. older ml systems mostly sorted things: spam or not spam, fraud or not fraud. generative models produce new material that resembles what they were trained on. chatbots, image generators like midjourney and music tools like suno are all generative ai. generated content can look finished before it is right. treat it as a strong first draft that still needs a human check.">
+  <div class="term-head"><h4><a class="self" href="#genai">Generative AI</a></h4><span class="tag">How models work</span></div>
+  
+  <p class="short">AI that creates new content, such as text, images, audio, video or code, rather than only classifying or predicting.</p>
+  <p>Older ML systems mostly sorted things: spam or not spam, fraud or not fraud. Generative models produce new material that resembles what they were trained on. Chatbots, image generators like Midjourney and music tools like Suno are all generative AI.</p>
+  <p class="practice"><b>In practice</b> Generated content can look finished before it is right. Treat it as a strong first draft that still needs a human check.</p>
+  <p class="meta"><span>See also: <a href="#llm">Large language model</a>, <a href="#diffusion">Diffusion model</a>, <a href="#multimodal">Multimodal</a></span><span>Source: <a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/glossary-genai">Google Cloud: Generative AI glossary</a> · <a href="https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf">NIST AI 600-1: Generative AI Profile</a></span></p>
+</article>
+<article class="term" id="gguf" data-cat="local" data-hay="gguf  the common file format for quantized models that run in llama.cpp, ollama and lm studio. a single gguf file bundles a model’s weights and the information needed to run it. file names show the quantization level, for example q4_k_m (about 4-bit) or q8_0 (8-bit). hugging face hosts thousands of them. when downloading, pick the largest quantization that fits in your memory with room to spare for context.">
+  <div class="term-head"><h4><a class="self" href="#gguf">GGUF</a></h4><span class="tag">Running models yourself</span></div>
+  
+  <p class="short">The common file format for quantized models that run in llama.cpp, Ollama and LM Studio.</p>
+  <p>A single GGUF file bundles a model’s weights and the information needed to run it. File names show the quantization level, for example Q4_K_M (about 4-bit) or Q8_0 (8-bit). Hugging Face hosts thousands of them.</p>
+  <p class="practice"><b>In practice</b> When downloading, pick the largest quantization that fits in your memory with room to spare for context.</p>
+  <p class="meta"><span>See also: <a href="#quantization">Quantization</a>, <a href="#ollama">Ollama and llama.cpp</a>, <a href="#local-model">Local model</a></span><span>Source: <a href="https://huggingface.co/docs/hub/gguf">Hugging Face: GGUF</a></span></p>
+</article>
+<article class="term" id="grounding" data-cat="using" data-hay="grounding  tying a model’s answer to specific trusted sources, such as your documents or a web search. a grounded answer is based on supplied material rather than the model’s memory alone, and can usually cite where each claim came from. retrieval, web search and pasting documents into the prompt are all ways to ground a model. ask the model to quote the passage that supports each claim. quotes are easy to check; paraphrases are not.">
+  <div class="term-head"><h4><a class="self" href="#grounding">Grounding</a></h4><span class="tag">Using AI day to day</span></div>
+  
+  <p class="short">Tying a model’s answer to specific trusted sources, such as your documents or a web search.</p>
+  <p>A grounded answer is based on supplied material rather than the model’s memory alone, and can usually cite where each claim came from. Retrieval, web search and pasting documents into the prompt are all ways to ground a model.</p>
+  <p class="practice"><b>In practice</b> Ask the model to quote the passage that supports each claim. Quotes are easy to check; paraphrases are not.</p>
+  <p class="meta"><span>See also: <a href="#rag">RAG</a>, <a href="#hallucination">Hallucination</a></span><span>Source: <a href="https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/reduce-hallucinations">Anthropic: Reduce hallucinations</a> · <a href="https://arxiv.org/abs/2005.11401">Lewis et al. (2020): Retrieval-Augmented Generation</a></span></p>
+</article>
+<article class="term" id="guardrails" data-cat="risk" data-hay="guardrails  checks around a model that block or correct unsafe, off-topic or malformed inputs and outputs. guardrails can be rules in code, a second model that screens content, limits on which tools an agent may use, or a human approval step before risky actions. they sit outside the model, so they still work when the model is fooled. for any agent that can spend money, send messages or delete things, require a human confirmation step.">
+  <div class="term-head"><h4><a class="self" href="#guardrails">Guardrails</a></h4><span class="tag">Risk, safety and trust</span></div>
+  
+  <p class="short">Checks around a model that block or correct unsafe, off-topic or malformed inputs and outputs.</p>
+  <p>Guardrails can be rules in code, a second model that screens content, limits on which tools an agent may use, or a human approval step before risky actions. They sit outside the model, so they still work when the model is fooled.</p>
+  <p class="practice"><b>In practice</b> For any agent that can spend money, send messages or delete things, require a human confirmation step.</p>
+  <p class="meta"><span>See also: <a href="#jailbreak">Jailbreak</a>, <a href="#prompt-injection">Prompt injection</a>, <a href="#agent">Agent</a></span><span>Source: <a href="https://genai.owasp.org/llmrisk/llm01-prompt-injection/">OWASP: LLM01:2025 Prompt Injection</a> · <a href="https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf">NIST AI 600-1: Generative AI Profile</a></span></p>
+</article>
+<h3 class="letter" id="l-H">H</h3>
+<article class="term" id="hallucination" data-cat="risk" data-hay="hallucination confabulation when a model states something false or made up as if it were true. because llms generate plausible text, they sometimes invent facts, quotes, citations, statistics or code functions that don’t exist. nist’s generative ai profile calls this confabulation. it is more likely on obscure topics, precise numbers and questions beyond the model’s knowledge. ask for sources and check them, let the model say “i don’t know”, give it the documents to work from, and verify anything you will act on or publish.">
+  <div class="term-head"><h4><a class="self" href="#hallucination">Hallucination</a></h4><span class="tag">Risk, safety and trust</span></div>
+  <p class="aka">Also: confabulation</p>
+  <p class="short">When a model states something false or made up as if it were true.</p>
+  <p>Because LLMs generate plausible text, they sometimes invent facts, quotes, citations, statistics or code functions that don’t exist. NIST’s generative AI profile calls this confabulation. It is more likely on obscure topics, precise numbers and questions beyond the model’s knowledge.</p>
+  <p class="practice"><b>In practice</b> Ask for sources and check them, let the model say “I don’t know”, give it the documents to work from, and verify anything you will act on or publish.</p>
+  <p class="meta"><span>See also: <a href="#grounding">Grounding</a>, <a href="#rag">RAG</a>, <a href="#cutoff">Knowledge cutoff</a>, <a href="#sycophancy">Sycophancy</a></span><span>Source: <a href="https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf">NIST AI 600-1: Generative AI Profile</a> · <a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/glossary-genai">Google Cloud: Generative AI glossary</a> · <a href="https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/reduce-hallucinations">Anthropic: Reduce hallucinations</a></span></p>
+</article>
+<h3 class="letter" id="l-I">I</h3>
+<article class="term" id="inference" data-cat="basics" data-hay="inference  running a trained model to get an answer. every chat message is an inference request. training builds the model once; inference uses it, over and over. inference cost depends on model size and on how many tokens go in and come out, which is why api pricing is quoted per million input and output tokens. long prompts, long documents and long answers all cost inference. trimming what you send is the simplest way to make ai faster and cheaper.">
+  <div class="term-head"><h4><a class="self" href="#inference">Inference</a></h4><span class="tag">How models work</span></div>
+  
+  <p class="short">Running a trained model to get an answer. Every chat message is an inference request.</p>
+  <p>Training builds the model once; inference uses it, over and over. Inference cost depends on model size and on how many tokens go in and come out, which is why API pricing is quoted per million input and output tokens.</p>
+  <p class="practice"><b>In practice</b> Long prompts, long documents and long answers all cost inference. Trimming what you send is the simplest way to make AI faster and cheaper.</p>
+  <p class="meta"><span>See also: <a href="#token">Token</a>, <a href="#latency">Latency</a>, <a href="#training">Training</a></span><span>Source: <a href="https://developers.google.com/machine-learning/glossary/generative">Google: Machine Learning Glossary, generative AI terms</a></span></p>
+</article>
+<article class="term" id="interpretability" data-cat="risk" data-hay="interpretability explainability, mechanistic interpretability research into what is actually happening inside a model when it produces an answer. models are not programmed line by line, so even their makers can’t simply read off why they did something. interpretability researchers trace the internal features and circuits a model uses, to find errors, hidden reasoning and safety problems. a model’s explanation of its own reasoning is not guaranteed to match what happened internally. judge answers by checking them, not by how convincing the explanation sounds.">
+  <div class="term-head"><h4><a class="self" href="#interpretability">Interpretability</a></h4><span class="tag">Risk, safety and trust</span></div>
+  <p class="aka">Also: explainability, mechanistic interpretability</p>
+  <p class="short">Research into what is actually happening inside a model when it produces an answer.</p>
+  <p>Models are not programmed line by line, so even their makers can’t simply read off why they did something. Interpretability researchers trace the internal features and circuits a model uses, to find errors, hidden reasoning and safety problems.</p>
+  <p class="practice"><b>In practice</b> A model’s explanation of its own reasoning is not guaranteed to match what happened internally. Judge answers by checking them, not by how convincing the explanation sounds.</p>
+  <p class="meta"><span>See also: <a href="#alignment">Alignment</a>, <a href="#cot">Chain of thought</a></span><span>Source: <a href="https://www.anthropic.com/research/tracing-thoughts-language-model">Anthropic: Tracing the thoughts of a large language model</a></span></p>
+</article>
+<h3 class="letter" id="l-J">J</h3>
+<article class="term" id="jailbreak" data-cat="risk" data-hay="jailbreak  a prompt crafted to get a model to ignore its safety rules. jailbreaks use role-play, hypotheticals, obfuscation or long manipulative setups to talk a model past its guardrails. owasp treats jailbreaking as a form of prompt injection. labs patch known jailbreaks, and new ones keep appearing. if you build on a model, don’t rely on the model’s refusals alone to protect anything important. add checks in your own code.">
+  <div class="term-head"><h4><a class="self" href="#jailbreak">Jailbreak</a></h4><span class="tag">Risk, safety and trust</span></div>
+  
+  <p class="short">A prompt crafted to get a model to ignore its safety rules.</p>
+  <p>Jailbreaks use role-play, hypotheticals, obfuscation or long manipulative setups to talk a model past its guardrails. OWASP treats jailbreaking as a form of prompt injection. Labs patch known jailbreaks, and new ones keep appearing.</p>
+  <p class="practice"><b>In practice</b> If you build on a model, don’t rely on the model’s refusals alone to protect anything important. Add checks in your own code.</p>
+  <p class="meta"><span>See also: <a href="#prompt-injection">Prompt injection</a>, <a href="#guardrails">Guardrails</a>, <a href="#alignment">Alignment</a></span><span>Source: <a href="https://genai.owasp.org/llmrisk/llm01-prompt-injection/">OWASP: LLM01:2025 Prompt Injection</a></span></p>
+</article>
+<h3 class="letter" id="l-K">K</h3>
+<article class="term" id="cutoff" data-cat="using" data-hay="knowledge cutoff training data cutoff the date after which a model’s training data stops, so it knows nothing newer on its own. a model only knows what was in its training data. events, prices, product versions and research after the cutoff are unknown unless the app gives the model web search or you paste the information in. for anything recent, turn on web search or supply the source. a model may confidently describe an outdated version of something.">
+  <div class="term-head"><h4><a class="self" href="#cutoff">Knowledge cutoff</a></h4><span class="tag">Using AI day to day</span></div>
+  <p class="aka">Also: training data cutoff</p>
+  <p class="short">The date after which a model’s training data stops, so it knows nothing newer on its own.</p>
+  <p>A model only knows what was in its training data. Events, prices, product versions and research after the cutoff are unknown unless the app gives the model web search or you paste the information in.</p>
+  <p class="practice"><b>In practice</b> For anything recent, turn on web search or supply the source. A model may confidently describe an outdated version of something.</p>
+  <p class="meta"><span>See also: <a href="#pretraining">Pre-training</a>, <a href="#grounding">Grounding</a>, <a href="#rag">RAG</a></span><span>Source: <a href="https://platform.claude.com/docs/en/about-claude/models/overview">Anthropic: Models overview</a></span></p>
+</article>
+<h3 class="letter" id="l-L">L</h3>
+<article class="term" id="llm" data-cat="basics" data-hay="large language model (llm)  a very large neural network trained on huge amounts of text to predict what comes next. an llm learns to predict the next token in a sequence by reading a vast amount of text. that simple objective, at enormous scale, produces models that can write, summarise, translate, reason through problems and write code. claude, gpt, gemini, llama and qwen are all llms. because an llm generates what is plausible, not what is checked, fluent output is not proof of correct output. verify facts that matter.">
+  <div class="term-head"><h4><a class="self" href="#llm">Large language model (LLM)</a></h4><span class="tag">How models work</span></div>
+  
+  <p class="short">A very large neural network trained on huge amounts of text to predict what comes next.</p>
+  <p>An LLM learns to predict the next token in a sequence by reading a vast amount of text. That simple objective, at enormous scale, produces models that can write, summarise, translate, reason through problems and write code. Claude, GPT, Gemini, Llama and Qwen are all LLMs.</p>
+  <p class="practice"><b>In practice</b> Because an LLM generates what is plausible, not what is checked, fluent output is not proof of correct output. Verify facts that matter.</p>
+  <p class="meta"><span>See also: <a href="#token">Token</a>, <a href="#transformer">Transformer</a>, <a href="#pretraining">Pre-training</a>, <a href="#hallucination">Hallucination</a></span><span>Source: <a href="https://platform.claude.com/docs/en/about-claude/glossary">Anthropic: Glossary</a> · <a href="https://developers.google.com/machine-learning/glossary">Google: Machine Learning Glossary</a></span></p>
+</article>
+<article class="term" id="latency" data-cat="using" data-hay="latency ttft, time to first token how long you wait for a response. often measured as time to first token. latency depends on model size, prompt length, how much the model thinks and how busy the service is. time to first token is how quickly text starts streaming; total time depends on reply length. for interactive tools, a smaller or faster model with a tight prompt often feels better than a bigger model that is slightly smarter.">
+  <div class="term-head"><h4><a class="self" href="#latency">Latency</a></h4><span class="tag">Using AI day to day</span></div>
+  <p class="aka">Also: TTFT, time to first token</p>
+  <p class="short">How long you wait for a response. Often measured as time to first token.</p>
+  <p>Latency depends on model size, prompt length, how much the model thinks and how busy the service is. Time to first token is how quickly text starts streaming; total time depends on reply length.</p>
+  <p class="practice"><b>In practice</b> For interactive tools, a smaller or faster model with a tight prompt often feels better than a bigger model that is slightly smarter.</p>
+  <p class="meta"><span>See also: <a href="#inference">Inference</a>, <a href="#reasoning-model">Reasoning model</a></span><span>Source: <a href="https://platform.claude.com/docs/en/about-claude/glossary">Anthropic: Glossary</a></span></p>
+</article>
+<article class="term" id="local-model" data-cat="local" data-hay="local model self-hosted, on-device a model that runs entirely on your own computer, so your data never leaves it. with an open-weight model and a tool like ollama, lm studio or llama.cpp, you can run a capable assistant offline. local models are smaller than frontier cloud models, so they trade some capability for privacy, control and zero per-token cost. a strong choice for confidential documents, offline use and repetitive jobs. expect to test which model size your hardware runs comfortably.">
+  <div class="term-head"><h4><a class="self" href="#local-model">Local model</a></h4><span class="tag">Running models yourself</span></div>
+  <p class="aka">Also: self-hosted, on-device</p>
+  <p class="short">A model that runs entirely on your own computer, so your data never leaves it.</p>
+  <p>With an open-weight model and a tool like Ollama, LM Studio or llama.cpp, you can run a capable assistant offline. Local models are smaller than frontier cloud models, so they trade some capability for privacy, control and zero per-token cost.</p>
+  <p class="practice"><b>In practice</b> A strong choice for confidential documents, offline use and repetitive jobs. Expect to test which model size your hardware runs comfortably.</p>
+  <p class="meta"><span>See also: <a href="#open-weight">Open-weight model</a>, <a href="#quantization">Quantization</a>, <a href="#vram">VRAM</a>, <a href="#ollama">Ollama and llama.cpp</a></span><span>Source: <a href="https://ollama.com/">Ollama</a> · <a href="https://github.com/ggml-org/llama.cpp">llama.cpp</a></span></p>
+</article>
+<article class="term" id="lora" data-cat="local" data-hay="lora qlora, adapter a cheap way to fine-tune a model by training a small add-on instead of all its weights. low-rank adaptation freezes the original model and trains a small set of extra weights. microsoft’s 2021 paper reported cutting trainable parameters by up to 10,000 times for gpt-3 with comparable quality. lora files are small and can be swapped in and out. lora makes fine-tuning possible on a single consumer gpu. it is also widely used to teach image models a style or character.">
+  <div class="term-head"><h4><a class="self" href="#lora">LoRA</a></h4><span class="tag">Running models yourself</span></div>
+  <p class="aka">Also: QLoRA, adapter</p>
+  <p class="short">A cheap way to fine-tune a model by training a small add-on instead of all its weights.</p>
+  <p>Low-Rank Adaptation freezes the original model and trains a small set of extra weights. Microsoft’s 2021 paper reported cutting trainable parameters by up to 10,000 times for GPT-3 with comparable quality. LoRA files are small and can be swapped in and out.</p>
+  <p class="practice"><b>In practice</b> LoRA makes fine-tuning possible on a single consumer GPU. It is also widely used to teach image models a style or character.</p>
+  <p class="meta"><span>See also: <a href="#fine-tuning">Fine-tuning</a>, <a href="#parameters">Parameters</a></span><span>Source: <a href="https://arxiv.org/abs/2106.09685">Hu et al. (2021): LoRA</a></span></p>
+</article>
+<h3 class="letter" id="l-M">M</h3>
+<article class="term" id="ml" data-cat="basics" data-hay="machine learning (ml)  software that learns patterns from examples instead of following hand-written rules. instead of a programmer writing every rule, a machine learning system is shown many examples and adjusts itself until its outputs match them. the result is a model: a file of learned numbers that can make predictions on new inputs it has never seen. machine learning is only as good as its examples. gaps or bias in the training data show up as gaps or bias in the answers.">
+  <div class="term-head"><h4><a class="self" href="#ml">Machine learning (ML)</a></h4><span class="tag">How models work</span></div>
+  
+  <p class="short">Software that learns patterns from examples instead of following hand-written rules.</p>
+  <p>Instead of a programmer writing every rule, a machine learning system is shown many examples and adjusts itself until its outputs match them. The result is a model: a file of learned numbers that can make predictions on new inputs it has never seen.</p>
+  <p class="practice"><b>In practice</b> Machine learning is only as good as its examples. Gaps or bias in the training data show up as gaps or bias in the answers.</p>
+  <p class="meta"><span>See also: <a href="#model">Model</a>, <a href="#training">Training</a>, <a href="#neural-net">Neural network</a></span><span>Source: <a href="https://developers.google.com/machine-learning/glossary">Google: Machine Learning Glossary</a></span></p>
+</article>
+<article class="term" id="max-tokens" data-cat="using" data-hay="max tokens output limit the cap you set on how long a model’s reply can be. an api setting that stops generation after a given number of output tokens. it protects against runaway costs, but if it is set too low a reply is cut off mid-sentence. if answers end abruptly, check max tokens before rewriting your prompt.">
+  <div class="term-head"><h4><a class="self" href="#max-tokens">Max tokens</a></h4><span class="tag">Using AI day to day</span></div>
+  <p class="aka">Also: output limit</p>
+  <p class="short">The cap you set on how long a model’s reply can be.</p>
+  <p>An API setting that stops generation after a given number of output tokens. It protects against runaway costs, but if it is set too low a reply is cut off mid-sentence.</p>
+  <p class="practice"><b>In practice</b> If answers end abruptly, check max tokens before rewriting your prompt.</p>
+  <p class="meta"><span>See also: <a href="#token">Token</a>, <a href="#inference">Inference</a></span><span>Source: <a href="https://platform.claude.com/docs/en/api/messages">Anthropic: Messages API reference</a></span></p>
+</article>
+<article class="term" id="mcp" data-cat="building" data-hay="mcp (model context protocol)  an open standard for connecting ai apps to outside tools and data, often compared to a usb-c port for ai. created by anthropic in 2024 and now used across many ai apps, mcp defines how an ai client talks to “servers” that expose tools, data and prompts. write one mcp server for, say, your calendar or database, and any mcp-compatible app can use it. only install mcp servers you trust. a server can see what you send it and can feed instructions back to the model.">
+  <div class="term-head"><h4><a class="self" href="#mcp">MCP (Model Context Protocol)</a></h4><span class="tag">Building with AI</span></div>
+  
+  <p class="short">An open standard for connecting AI apps to outside tools and data, often compared to a USB-C port for AI.</p>
+  <p>Created by Anthropic in 2024 and now used across many AI apps, MCP defines how an AI client talks to “servers” that expose tools, data and prompts. Write one MCP server for, say, your calendar or database, and any MCP-compatible app can use it.</p>
+  <p class="practice"><b>In practice</b> Only install MCP servers you trust. A server can see what you send it and can feed instructions back to the model.</p>
+  <p class="meta"><span>See also: <a href="#tool-use">Tool use</a>, <a href="#agent">Agent</a>, <a href="#prompt-injection">Prompt injection</a></span><span>Source: <a href="https://modelcontextprotocol.io/docs/getting-started/intro">Model Context Protocol: Introduction</a></span></p>
+</article>
+<article class="term" id="moe" data-cat="basics" data-hay="mixture of experts (moe)  a model split into many sub-networks (“experts”), where only a few are used for each token. a router picks a small set of experts for each token, so a model can have a huge total parameter count while only a fraction does work at any moment. that makes it cheaper to run than a dense model of the same size. many recent open models, including some qwen and llama releases, use moe. for local use, an moe model still needs memory for all its parameters, even though it runs at the speed of a smaller one.">
+  <div class="term-head"><h4><a class="self" href="#moe">Mixture of experts (MoE)</a></h4><span class="tag">How models work</span></div>
+  
+  <p class="short">A model split into many sub-networks (“experts”), where only a few are used for each token.</p>
+  <p>A router picks a small set of experts for each token, so a model can have a huge total parameter count while only a fraction does work at any moment. That makes it cheaper to run than a dense model of the same size. Many recent open models, including some Qwen and Llama releases, use MoE.</p>
+  <p class="practice"><b>In practice</b> For local use, an MoE model still needs memory for all its parameters, even though it runs at the speed of a smaller one.</p>
+  <p class="meta"><span>See also: <a href="#parameters">Parameters</a>, <a href="#vram">VRAM</a></span><span>Source: <a href="https://arxiv.org/abs/1701.06538">Shazeer et al. (2017): Sparsely-gated mixture of experts</a></span></p>
+</article>
+<article class="term" id="model" data-cat="basics" data-hay="model  the trained artifact that takes an input and produces an output, for example gpt-5, claude or llama. a model is the result of training: a large set of learned numbers plus the code that runs them. products like chatgpt or the claude app wrap a model in an interface with extra features such as memory, file upload and web search. the app and the model are different things. the same model can behave differently in the app, the api and a third-party tool because each adds its own instructions and tools.">
+  <div class="term-head"><h4><a class="self" href="#model">Model</a></h4><span class="tag">How models work</span></div>
+  
+  <p class="short">The trained artifact that takes an input and produces an output, for example GPT-5, Claude or Llama.</p>
+  <p>A model is the result of training: a large set of learned numbers plus the code that runs them. Products like ChatGPT or the Claude app wrap a model in an interface with extra features such as memory, file upload and web search.</p>
+  <p class="practice"><b>In practice</b> The app and the model are different things. The same model can behave differently in the app, the API and a third-party tool because each adds its own instructions and tools.</p>
+  <p class="meta"><span>See also: <a href="#llm">Large language model</a>, <a href="#parameters">Parameters</a>, <a href="#system-prompt">System prompt</a></span><span>Source: <a href="https://developers.google.com/machine-learning/glossary">Google: Machine Learning Glossary</a> · <a href="https://platform.claude.com/docs/en/about-claude/glossary">Anthropic: Glossary</a></span></p>
+</article>
+<article class="term" id="multimodal" data-cat="basics" data-hay="multimodal  a model that can take in or produce more than one kind of data, such as text, images, audio or video. early llms handled text only. multimodal models can read a screenshot, a chart, a pdf page or a photo alongside your text, and some can generate images or speech. claude, gpt and gemini all accept images as input. instead of describing a chart or an error dialog, paste a screenshot. it is often faster and more accurate.">
+  <div class="term-head"><h4><a class="self" href="#multimodal">Multimodal</a></h4><span class="tag">How models work</span></div>
+  
+  <p class="short">A model that can take in or produce more than one kind of data, such as text, images, audio or video.</p>
+  <p>Early LLMs handled text only. Multimodal models can read a screenshot, a chart, a PDF page or a photo alongside your text, and some can generate images or speech. Claude, GPT and Gemini all accept images as input.</p>
+  <p class="practice"><b>In practice</b> Instead of describing a chart or an error dialog, paste a screenshot. It is often faster and more accurate.</p>
+  <p class="meta"><span>See also: <a href="#llm">Large language model</a>, <a href="#diffusion">Diffusion model</a></span><span>Source: <a href="https://platform.claude.com/docs/en/build-with-claude/vision">Anthropic: Vision</a> · <a href="https://platform.claude.com/docs/en/about-claude/models/overview">Anthropic: Models overview</a></span></p>
+</article>
+<h3 class="letter" id="l-N">N</h3>
+<article class="term" id="neural-net" data-cat="basics" data-hay="neural network deep learning a model built from layers of simple connected units whose connection strengths are learned. loosely inspired by the brain, a neural network passes numbers through many layers. each connection has a weight, and training nudges those weights until the network produces useful outputs. modern language, image and audio models are all very large neural networks. “deep learning” just means neural networks with many layers. it is the approach behind nearly every ai product you use today.">
+  <div class="term-head"><h4><a class="self" href="#neural-net">Neural network</a></h4><span class="tag">How models work</span></div>
+  <p class="aka">Also: deep learning</p>
+  <p class="short">A model built from layers of simple connected units whose connection strengths are learned.</p>
+  <p>Loosely inspired by the brain, a neural network passes numbers through many layers. Each connection has a weight, and training nudges those weights until the network produces useful outputs. Modern language, image and audio models are all very large neural networks.</p>
+  <p class="practice"><b>In practice</b> “Deep learning” just means neural networks with many layers. It is the approach behind nearly every AI product you use today.</p>
+  <p class="meta"><span>See also: <a href="#parameters">Parameters</a>, <a href="#transformer">Transformer</a>, <a href="#training">Training</a></span><span>Source: <a href="https://developers.google.com/machine-learning/glossary">Google: Machine Learning Glossary</a></span></p>
+</article>
+<h3 class="letter" id="l-O">O</h3>
+<article class="term" id="ollama" data-cat="local" data-hay="ollama and llama.cpp lm studio popular free tools for downloading and running open models on your own computer. llama.cpp is the open-source engine that runs models efficiently on ordinary cpus and gpus, including macs. ollama wraps engines like it in a simple command-line app and local api: one command downloads and runs a model. lm studio offers a graphical alternative. ollama’s local api lets your own scripts use a local model much as they would a cloud api.">
+  <div class="term-head"><h4><a class="self" href="#ollama">Ollama and llama.cpp</a></h4><span class="tag">Running models yourself</span></div>
+  <p class="aka">Also: LM Studio</p>
+  <p class="short">Popular free tools for downloading and running open models on your own computer.</p>
+  <p>llama.cpp is the open-source engine that runs models efficiently on ordinary CPUs and GPUs, including Macs. Ollama wraps engines like it in a simple command-line app and local API: one command downloads and runs a model. LM Studio offers a graphical alternative.</p>
+  <p class="practice"><b>In practice</b> Ollama’s local API lets your own scripts use a local model much as they would a cloud API.</p>
+  <p class="meta"><span>See also: <a href="#local-model">Local model</a>, <a href="#gguf">GGUF</a>, <a href="#api">API</a></span><span>Source: <a href="https://ollama.com/">Ollama</a> · <a href="https://github.com/ggml-org/llama.cpp">llama.cpp</a></span></p>
+</article>
+<article class="term" id="open-weight" data-cat="basics" data-hay="open-weight model open model, open source model a model whose trained weights are published so anyone can download and run it. llama, qwen, mistral and gemma publish their weights; gpt-5 and claude do not. open weights are not the same as open source: the open source initiative’s definition also expects enough information about the training data and code to rebuild the model, and many open-weight licences add usage limits. open weights mean you can run a model privately on your own hardware. read the licence before using one commercially.">
+  <div class="term-head"><h4><a class="self" href="#open-weight">Open-weight model</a></h4><span class="tag">How models work</span></div>
+  <p class="aka">Also: open model, open source model</p>
+  <p class="short">A model whose trained weights are published so anyone can download and run it.</p>
+  <p>Llama, Qwen, Mistral and Gemma publish their weights; GPT-5 and Claude do not. Open weights are not the same as open source: the Open Source Initiative’s definition also expects enough information about the training data and code to rebuild the model, and many open-weight licences add usage limits.</p>
+  <p class="practice"><b>In practice</b> Open weights mean you can run a model privately on your own hardware. Read the licence before using one commercially.</p>
+  <p class="meta"><span>See also: <a href="#local-model">Local model</a>, <a href="#parameters">Parameters</a></span><span>Source: <a href="https://opensource.org/ai/open-source-ai-definition">Open Source Initiative: Open Source AI Definition</a></span></p>
+</article>
+<h3 class="letter" id="l-P">P</h3>
+<article class="term" id="parameters" data-cat="basics" data-hay="parameters (weights) weights, 7b, 70b the learned numbers inside a model. “7b” means about seven billion of them. parameters are the adjustable values that training tunes. more parameters generally means more capacity to learn, but also more memory and compute to run. model names often include the count: llama 3 8b, qwen 2.5 14b. parameter count is the quickest way to estimate whether a model will fit on your computer. see the memory rule of thumb in the cheat sheet.">
+  <div class="term-head"><h4><a class="self" href="#parameters">Parameters (weights)</a></h4><span class="tag">How models work</span></div>
+  <p class="aka">Also: weights, 7B, 70B</p>
+  <p class="short">The learned numbers inside a model. “7B” means about seven billion of them.</p>
+  <p>Parameters are the adjustable values that training tunes. More parameters generally means more capacity to learn, but also more memory and compute to run. Model names often include the count: Llama 3 8B, Qwen 2.5 14B.</p>
+  <p class="practice"><b>In practice</b> Parameter count is the quickest way to estimate whether a model will fit on your computer. See the memory rule of thumb in the cheat sheet.</p>
+  <p class="meta"><span>See also: <a href="#model">Model</a>, <a href="#quantization">Quantization</a>, <a href="#vram">VRAM</a>, <a href="#open-weight">Open-weight model</a></span><span>Source: <a href="https://developers.google.com/machine-learning/glossary">Google: Machine Learning Glossary</a></span></p>
+</article>
+<article class="term" id="pretraining" data-cat="basics" data-hay="pre-training base model the first, largest stage of training, where a model learns language by predicting text at huge scale. in pre-training, a model reads a vast corpus of text and learns to predict the next token. the result, a base model, knows a great deal but is not yet a helpful assistant: it may simply continue your text rather than answer it. later stages turn it into a chat model. pre-training is where a model’s general knowledge, and its knowledge cutoff, come from.">
+  <div class="term-head"><h4><a class="self" href="#pretraining">Pre-training</a></h4><span class="tag">How models work</span></div>
+  <p class="aka">Also: base model</p>
+  <p class="short">The first, largest stage of training, where a model learns language by predicting text at huge scale.</p>
+  <p>In pre-training, a model reads a vast corpus of text and learns to predict the next token. The result, a base model, knows a great deal but is not yet a helpful assistant: it may simply continue your text rather than answer it. Later stages turn it into a chat model.</p>
+  <p class="practice"><b>In practice</b> Pre-training is where a model’s general knowledge, and its knowledge cutoff, come from.</p>
+  <p class="meta"><span>See also: <a href="#training">Training</a>, <a href="#fine-tuning">Fine-tuning</a>, <a href="#rlhf">RLHF</a>, <a href="#cutoff">Knowledge cutoff</a></span><span>Source: <a href="https://platform.claude.com/docs/en/about-claude/glossary">Anthropic: Glossary</a> · <a href="https://arxiv.org/abs/2005.14165">Brown et al. (2020): Language models are few-shot learners</a></span></p>
+</article>
+<article class="term" id="prompt" data-cat="using" data-hay="prompt  the input you give a model: instructions, questions, examples and material. a prompt can be one line or several pages. good prompts state the goal, give relevant context, separate instructions from pasted material, and say what a good answer looks like. the companion prompting field guide covers this in depth, with 45 copy-paste prompts.">
+  <div class="term-head"><h4><a class="self" href="#prompt">Prompt</a></h4><span class="tag">Using AI day to day</span></div>
+  
+  <p class="short">The input you give a model: instructions, questions, examples and material.</p>
+  <p>A prompt can be one line or several pages. Good prompts state the goal, give relevant context, separate instructions from pasted material, and say what a good answer looks like.</p>
+  <p class="practice"><b>In practice</b> The companion Prompting Field Guide covers this in depth, with 45 copy-paste prompts.</p>
+  <p class="meta"><span>See also: <a href="#system-prompt">System prompt</a>, <a href="#few-shot">Zero-shot and few-shot</a>, <a href="#context-engineering">Context engineering</a></span><span>Source: <a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices">Anthropic: Prompting best practices</a></span></p>
+</article>
+<article class="term" id="prompt-caching" data-cat="using" data-hay="prompt caching  reusing the processed start of a prompt across requests, so repeated context is faster and cheaper. if many requests begin with the same long text, such as a system prompt, a document or a codebase summary, the provider can store that processed prefix and skip recomputing it. anthropic and openai both offer caching at a steep discount on cached input. put stable material first and the part that changes last, so the cache can be reused.">
+  <div class="term-head"><h4><a class="self" href="#prompt-caching">Prompt caching</a></h4><span class="tag">Using AI day to day</span></div>
+  
+  <p class="short">Reusing the processed start of a prompt across requests, so repeated context is faster and cheaper.</p>
+  <p>If many requests begin with the same long text, such as a system prompt, a document or a codebase summary, the provider can store that processed prefix and skip recomputing it. Anthropic and OpenAI both offer caching at a steep discount on cached input.</p>
+  <p class="practice"><b>In practice</b> Put stable material first and the part that changes last, so the cache can be reused.</p>
+  <p class="meta"><span>See also: <a href="#inference">Inference</a>, <a href="#context-window">Context window</a>, <a href="#api">API</a></span><span>Source: <a href="https://platform.claude.com/docs/en/build-with-claude/prompt-caching">Anthropic: Prompt caching</a></span></p>
+</article>
+<article class="term" id="prompt-injection" data-cat="risk" data-hay="prompt injection  hidden instructions in content a model reads (a web page, email, file) that hijack what it does. owasp ranks prompt injection as the top risk for llm applications. direct injection comes from the user typing it; indirect injection hides in outside content the model processes, such as white text on a web page telling an agent to email your files somewhere. there is no complete fix yet. be most careful when an ai can do three things at once: read your private data, read untrusted content, and send data out. simon willison calls this the lethal trifecta.">
+  <div class="term-head"><h4><a class="self" href="#prompt-injection">Prompt injection</a></h4><span class="tag">Risk, safety and trust</span></div>
+  
+  <p class="short">Hidden instructions in content a model reads (a web page, email, file) that hijack what it does.</p>
+  <p>OWASP ranks prompt injection as the top risk for LLM applications. Direct injection comes from the user typing it; indirect injection hides in outside content the model processes, such as white text on a web page telling an agent to email your files somewhere. There is no complete fix yet.</p>
+  <p class="practice"><b>In practice</b> Be most careful when an AI can do three things at once: read your private data, read untrusted content, and send data out. Simon Willison calls this the lethal trifecta.</p>
+  <p class="meta"><span>See also: <a href="#jailbreak">Jailbreak</a>, <a href="#agent">Agent</a>, <a href="#mcp">MCP</a>, <a href="#tool-use">Tool use</a></span><span>Source: <a href="https://genai.owasp.org/llmrisk/llm01-prompt-injection/">OWASP: LLM01:2025 Prompt Injection</a> · <a href="https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/">Simon Willison: The lethal trifecta</a></span></p>
+</article>
+<h3 class="letter" id="l-Q">Q</h3>
+<article class="term" id="quantization" data-cat="local" data-hay="quantization q4, q8, 4-bit storing a model’s numbers at lower precision, such as 4-bit instead of 16-bit, so it uses far less memory. models are usually trained with 16-bit numbers. quantization rounds them to 8, 5, 4 or fewer bits, cutting memory and often speeding things up, with a small loss in quality that grows as precision drops. 4-bit is a popular balance for local use. if a model won’t fit, try a lower-bit version before trying a smaller model. going below about 4 bits usually hurts noticeably.">
+  <div class="term-head"><h4><a class="self" href="#quantization">Quantization</a></h4><span class="tag">Running models yourself</span></div>
+  <p class="aka">Also: Q4, Q8, 4-bit</p>
+  <p class="short">Storing a model’s numbers at lower precision, such as 4-bit instead of 16-bit, so it uses far less memory.</p>
+  <p>Models are usually trained with 16-bit numbers. Quantization rounds them to 8, 5, 4 or fewer bits, cutting memory and often speeding things up, with a small loss in quality that grows as precision drops. 4-bit is a popular balance for local use.</p>
+  <p class="practice"><b>In practice</b> If a model won’t fit, try a lower-bit version before trying a smaller model. Going below about 4 bits usually hurts noticeably.</p>
+  <p class="meta"><span>See also: <a href="#gguf">GGUF</a>, <a href="#vram">VRAM</a>, <a href="#parameters">Parameters</a></span><span>Source: <a href="https://huggingface.co/docs/transformers/main/en/quantization/overview">Hugging Face: Quantization overview</a></span></p>
+</article>
+<h3 class="letter" id="l-R">R</h3>
+<article class="term" id="rag" data-cat="building" data-hay="rag (retrieval-augmented generation) retrieval look up relevant documents first, then give them to the model to answer from. introduced in a 2020 paper from facebook ai research, rag pairs a retriever with a generator. the system searches a knowledge base for passages relevant to the question, adds them to the prompt, and the model answers from them. this lets a model use private or up-to-date information without retraining. most “chat with your documents” tools are rag. answers are only as good as what gets retrieved, so test the search step, not just the final answer.">
+  <div class="term-head"><h4><a class="self" href="#rag">RAG (retrieval-augmented generation)</a></h4><span class="tag">Building with AI</span></div>
+  <p class="aka">Also: retrieval</p>
+  <p class="short">Look up relevant documents first, then give them to the model to answer from.</p>
+  <p>Introduced in a 2020 paper from Facebook AI Research, RAG pairs a retriever with a generator. The system searches a knowledge base for passages relevant to the question, adds them to the prompt, and the model answers from them. This lets a model use private or up-to-date information without retraining.</p>
+  <p class="practice"><b>In practice</b> Most “chat with your documents” tools are RAG. Answers are only as good as what gets retrieved, so test the search step, not just the final answer.</p>
+  <p class="meta"><span>See also: <a href="#embedding">Embedding</a>, <a href="#chunking">Chunking</a>, <a href="#grounding">Grounding</a>, <a href="#fine-tuning">Fine-tuning</a></span><span>Source: <a href="https://arxiv.org/abs/2005.11401">Lewis et al. (2020): Retrieval-Augmented Generation</a> · <a href="https://platform.claude.com/docs/en/about-claude/glossary">Anthropic: Glossary</a></span></p>
+</article>
+<article class="term" id="reasoning-model" data-cat="using" data-hay="reasoning model (thinking) extended thinking, thinking budget, effort a model trained to think at length before answering, trading speed for accuracy on hard problems. reasoning models generate an internal chain of thought, sometimes thousands of tokens long, before they reply. claude’s extended thinking, openai’s reasoning models and gemini’s thinking modes all expose a setting for how much to think. use more thinking for maths, debugging, planning and tricky analysis. for quick rewrites or lookups, less thinking is faster and cheaper with little loss.">
+  <div class="term-head"><h4><a class="self" href="#reasoning-model">Reasoning model (thinking)</a></h4><span class="tag">Using AI day to day</span></div>
+  <p class="aka">Also: extended thinking, thinking budget, effort</p>
+  <p class="short">A model trained to think at length before answering, trading speed for accuracy on hard problems.</p>
+  <p>Reasoning models generate an internal chain of thought, sometimes thousands of tokens long, before they reply. Claude’s extended thinking, OpenAI’s reasoning models and Gemini’s thinking modes all expose a setting for how much to think.</p>
+  <p class="practice"><b>In practice</b> Use more thinking for maths, debugging, planning and tricky analysis. For quick rewrites or lookups, less thinking is faster and cheaper with little loss.</p>
+  <p class="meta"><span>See also: <a href="#cot">Chain of thought</a>, <a href="#inference">Inference</a>, <a href="#latency">Latency</a></span><span>Source: <a href="https://platform.claude.com/docs/en/build-with-claude/extended-thinking">Anthropic: Extended thinking</a></span></p>
+</article>
+<article class="term" id="rlhf" data-cat="basics" data-hay="rlhf (reinforcement learning from human feedback)  training a model on human ratings of its answers so it becomes more helpful and better behaved. people compare pairs of model answers and pick the better one. those preferences train a reward model, which then steers the language model toward answers people prefer. openai’s instructgpt paper showed this made a much smaller model preferred over a far larger base model. anthropic’s constitutional ai uses ai feedback guided by written principles for part of this step. rlhf is why chat models follow instructions politely. it is also one cause of sycophancy, since people tend to rate agreeable answers highly.">
+  <div class="term-head"><h4><a class="self" href="#rlhf">RLHF (reinforcement learning from human feedback)</a></h4><span class="tag">How models work</span></div>
+  
+  <p class="short">Training a model on human ratings of its answers so it becomes more helpful and better behaved.</p>
+  <p>People compare pairs of model answers and pick the better one. Those preferences train a reward model, which then steers the language model toward answers people prefer. OpenAI’s InstructGPT paper showed this made a much smaller model preferred over a far larger base model. Anthropic’s Constitutional AI uses AI feedback guided by written principles for part of this step.</p>
+  <p class="practice"><b>In practice</b> RLHF is why chat models follow instructions politely. It is also one cause of sycophancy, since people tend to rate agreeable answers highly.</p>
+  <p class="meta"><span>See also: <a href="#fine-tuning">Fine-tuning</a>, <a href="#alignment">Alignment</a>, <a href="#sycophancy">Sycophancy</a></span><span>Source: <a href="https://arxiv.org/abs/2203.02155">Ouyang et al. (2022): Training language models to follow instructions with human feedback</a> · <a href="https://www.anthropic.com/research/constitutional-ai-harmlessness-from-ai-feedback">Anthropic: Constitutional AI</a> · <a href="https://platform.claude.com/docs/en/about-claude/glossary">Anthropic: Glossary</a></span></p>
+</article>
+<h3 class="letter" id="l-S">S</h3>
+<article class="term" id="semantic-search" data-cat="building" data-hay="semantic search  search by meaning rather than exact keywords. keyword search matches words; semantic search compares embeddings, so a search for “ending a lease early” can find a passage about “early termination”. many systems combine both, called hybrid search, because exact terms such as names and codes still matter. if users search with their own words rather than your jargon, semantic search helps them find things.">
+  <div class="term-head"><h4><a class="self" href="#semantic-search">Semantic search</a></h4><span class="tag">Building with AI</span></div>
+  
+  <p class="short">Search by meaning rather than exact keywords.</p>
+  <p>Keyword search matches words; semantic search compares embeddings, so a search for “ending a lease early” can find a passage about “early termination”. Many systems combine both, called hybrid search, because exact terms such as names and codes still matter.</p>
+  <p class="practice"><b>In practice</b> If users search with their own words rather than your jargon, semantic search helps them find things.</p>
+  <p class="meta"><span>See also: <a href="#embedding">Embedding</a>, <a href="#vector-db">Vector database</a>, <a href="#rag">RAG</a></span><span>Source: <a href="https://developers.openai.com/api/docs/guides/embeddings">OpenAI: Embeddings guide</a></span></p>
+</article>
+<article class="term" id="skill" data-cat="building" data-hay="skill (agent skill)  a folder of instructions, scripts and resources an agent loads only when a task needs it. anthropic introduced agent skills in 2025 as a way to package expertise. the agent sees only each skill’s short description until a task calls for it, then reads the full instructions, so many skills can be installed without crowding the context. if you find yourself pasting the same long procedure into chats, it is a candidate for a skill.">
+  <div class="term-head"><h4><a class="self" href="#skill">Skill (Agent Skill)</a></h4><span class="tag">Building with AI</span></div>
+  
+  <p class="short">A folder of instructions, scripts and resources an agent loads only when a task needs it.</p>
+  <p>Anthropic introduced Agent Skills in 2025 as a way to package expertise. The agent sees only each skill’s short description until a task calls for it, then reads the full instructions, so many skills can be installed without crowding the context.</p>
+  <p class="practice"><b>In practice</b> If you find yourself pasting the same long procedure into chats, it is a candidate for a skill.</p>
+  <p class="meta"><span>See also: <a href="#context-file">Context file</a>, <a href="#agent">Agent</a>, <a href="#context-engineering">Context engineering</a></span><span>Source: <a href="https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills">Anthropic: Equipping agents for the real world with Agent Skills</a></span></p>
+</article>
+<article class="term" id="slm" data-cat="basics" data-hay="small language model (slm) small model a language model small enough to run on a laptop or phone, usually a few billion parameters or fewer. there is no official cutoff, but models in roughly the 1 to 15 billion parameter range are commonly called small. they are less capable on hard reasoning than frontier models, but they are fast, cheap and can run privately on your own hardware. a good fit for narrow, repeatable jobs like classifying emails, extracting fields from documents or drafting short replies, especially where data can’t leave the building.">
+  <div class="term-head"><h4><a class="self" href="#slm">Small language model (SLM)</a></h4><span class="tag">How models work</span></div>
+  <p class="aka">Also: small model</p>
+  <p class="short">A language model small enough to run on a laptop or phone, usually a few billion parameters or fewer.</p>
+  <p>There is no official cutoff, but models in roughly the 1 to 15 billion parameter range are commonly called small. They are less capable on hard reasoning than frontier models, but they are fast, cheap and can run privately on your own hardware.</p>
+  <p class="practice"><b>In practice</b> A good fit for narrow, repeatable jobs like classifying emails, extracting fields from documents or drafting short replies, especially where data can’t leave the building.</p>
+  <p class="meta"><span>See also: <a href="#local-model">Local model</a>, <a href="#quantization">Quantization</a>, <a href="#parameters">Parameters</a>, <a href="#distillation">Distillation</a></span><span>Source: <a href="https://developers.google.com/machine-learning/glossary">Google: Machine Learning Glossary</a> · <a href="https://ollama.com/">Ollama</a></span></p>
+</article>
+<article class="term" id="structured-output" data-cat="using" data-hay="structured output (json mode)  making a model reply in an exact machine-readable format, such as json matching a schema. apps often need data, not prose. structured output features constrain the model so its reply always matches a schema you provide, with the right fields and types, so code can use it reliably. if you are copying model output into a spreadsheet or another program, ask for a fixed format, or use the api’s structured output option.">
+  <div class="term-head"><h4><a class="self" href="#structured-output">Structured output (JSON mode)</a></h4><span class="tag">Using AI day to day</span></div>
+  
+  <p class="short">Making a model reply in an exact machine-readable format, such as JSON matching a schema.</p>
+  <p>Apps often need data, not prose. Structured output features constrain the model so its reply always matches a schema you provide, with the right fields and types, so code can use it reliably.</p>
+  <p class="practice"><b>In practice</b> If you are copying model output into a spreadsheet or another program, ask for a fixed format, or use the API’s structured output option.</p>
+  <p class="meta"><span>See also: <a href="#tool-use">Tool use</a>, <a href="#api">API</a></span><span>Source: <a href="https://developers.openai.com/api/docs/guides/structured-outputs">OpenAI: Structured outputs</a></span></p>
+</article>
+<article class="term" id="subagent" data-cat="building" data-hay="sub-agent  a helper agent with its own fresh context, sent off by a main agent to handle one part of a job. the main agent hands a focused task, such as searching a codebase or researching one question, to a sub-agent, which works in its own context window and returns only a summary. this keeps the main conversation clean and lets work run in parallel. useful for big research or code exploration, where the details would otherwise flood the main context.">
+  <div class="term-head"><h4><a class="self" href="#subagent">Sub-agent</a></h4><span class="tag">Building with AI</span></div>
+  
+  <p class="short">A helper agent with its own fresh context, sent off by a main agent to handle one part of a job.</p>
+  <p>The main agent hands a focused task, such as searching a codebase or researching one question, to a sub-agent, which works in its own context window and returns only a summary. This keeps the main conversation clean and lets work run in parallel.</p>
+  <p class="practice"><b>In practice</b> Useful for big research or code exploration, where the details would otherwise flood the main context.</p>
+  <p class="meta"><span>See also: <a href="#agent">Agent</a>, <a href="#context-window">Context window</a>, <a href="#context-engineering">Context engineering</a></span><span>Source: <a href="https://code.claude.com/docs/en/sub-agents">Anthropic: Claude Code subagents</a></span></p>
+</article>
+<article class="term" id="sycophancy" data-cat="risk" data-hay="sycophancy  a model’s tendency to tell you what you want to hear: agreeing, flattering or caving when you push back. anthropic research found that sycophancy is common across ai assistants and is likely driven partly by human preference ratings in training, which reward agreeable answers. a model may abandon a correct answer simply because you questioned it. ask for criticism directly, avoid signalling the answer you hope for, and be suspicious when a model reverses itself only because you objected.">
+  <div class="term-head"><h4><a class="self" href="#sycophancy">Sycophancy</a></h4><span class="tag">Risk, safety and trust</span></div>
+  
+  <p class="short">A model’s tendency to tell you what you want to hear: agreeing, flattering or caving when you push back.</p>
+  <p>Anthropic research found that sycophancy is common across AI assistants and is likely driven partly by human preference ratings in training, which reward agreeable answers. A model may abandon a correct answer simply because you questioned it.</p>
+  <p class="practice"><b>In practice</b> Ask for criticism directly, avoid signalling the answer you hope for, and be suspicious when a model reverses itself only because you objected.</p>
+  <p class="meta"><span>See also: <a href="#rlhf">RLHF</a>, <a href="#hallucination">Hallucination</a>, <a href="#alignment">Alignment</a></span><span>Source: <a href="https://www.anthropic.com/research/towards-understanding-sycophancy-in-language-models">Anthropic: Towards understanding sycophancy in language models</a></span></p>
+</article>
+<article class="term" id="system-prompt" data-cat="using" data-hay="system prompt system message, custom instructions standing instructions that frame every reply, set by the app or developer rather than typed each time. apps use a system prompt to give the model its role, tone, rules and tools before your message arrives. custom instructions in chatgpt, project instructions in claude and claude.md or agents.md files in coding agents all work in a similar way. put durable preferences (who you are, how you like answers formatted) in custom or project instructions instead of repeating them in every chat.">
+  <div class="term-head"><h4><a class="self" href="#system-prompt">System prompt</a></h4><span class="tag">Using AI day to day</span></div>
+  <p class="aka">Also: system message, custom instructions</p>
+  <p class="short">Standing instructions that frame every reply, set by the app or developer rather than typed each time.</p>
+  <p>Apps use a system prompt to give the model its role, tone, rules and tools before your message arrives. Custom instructions in ChatGPT, project instructions in Claude and CLAUDE.md or AGENTS.md files in coding agents all work in a similar way.</p>
+  <p class="practice"><b>In practice</b> Put durable preferences (who you are, how you like answers formatted) in custom or project instructions instead of repeating them in every chat.</p>
+  <p class="meta"><span>See also: <a href="#prompt">Prompt</a>, <a href="#context-file">Context file</a></span><span>Source: <a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices">Anthropic: Prompting best practices</a> · <a href="https://platform.claude.com/docs/en/api/messages">Anthropic: Messages API reference</a></span></p>
+</article>
+<h3 class="letter" id="l-T">T</h3>
+<article class="term" id="temperature" data-cat="using" data-hay="temperature  a setting for randomness. low gives focused, repeatable output; high gives more varied output. when choosing the next token, a model weighs many candidates. low temperature sticks closely to the most likely ones; high temperature gives less likely tokens more of a chance. anthropic’s glossary puts it simply: higher is more creative and varied, lower is more conservative and predictable. use low temperature for facts, extraction and code; higher for brainstorming and fiction. even at temperature 0, outputs are not guaranteed to be identical every time. some reasoning models fix or ignore this setting.">
+  <div class="term-head"><h4><a class="self" href="#temperature">Temperature</a></h4><span class="tag">Using AI day to day</span></div>
+  
+  <p class="short">A setting for randomness. Low gives focused, repeatable output; high gives more varied output.</p>
+  <p>When choosing the next token, a model weighs many candidates. Low temperature sticks closely to the most likely ones; high temperature gives less likely tokens more of a chance. Anthropic’s glossary puts it simply: higher is more creative and varied, lower is more conservative and predictable.</p>
+  <p class="practice"><b>In practice</b> Use low temperature for facts, extraction and code; higher for brainstorming and fiction. Even at temperature 0, outputs are not guaranteed to be identical every time. Some reasoning models fix or ignore this setting.</p>
+  <p class="meta"><span>See also: <a href="#top-p">Top-p</a>, <a href="#inference">Inference</a></span><span>Source: <a href="https://platform.claude.com/docs/en/about-claude/glossary">Anthropic: Glossary</a> · <a href="https://developers.google.com/machine-learning/glossary/generative">Google: Machine Learning Glossary, generative AI terms</a></span></p>
+</article>
+<article class="term" id="token" data-cat="using" data-hay="token  the chunk of text a model reads and writes. in english, about ¾ of a word, or 4 characters. models don’t see letters or words; they see tokens, which are common word pieces. “unbelievable” might be three tokens. context limits, speed and price are all measured in tokens. other languages, code and unusual words often take more tokens per word. rule of thumb: 1,000 tokens is roughly 750 english words. token-based processing is also why models sometimes miscount letters in a word.">
+  <div class="term-head"><h4><a class="self" href="#token">Token</a></h4><span class="tag">Using AI day to day</span></div>
+  
+  <p class="short">The chunk of text a model reads and writes. In English, about ¾ of a word, or 4 characters.</p>
+  <p>Models don’t see letters or words; they see tokens, which are common word pieces. “Unbelievable” might be three tokens. Context limits, speed and price are all measured in tokens. Other languages, code and unusual words often take more tokens per word.</p>
+  <p class="practice"><b>In practice</b> Rule of thumb: 1,000 tokens is roughly 750 English words. Token-based processing is also why models sometimes miscount letters in a word.</p>
+  <p class="meta"><span>See also: <a href="#tokenizer">Tokenizer</a>, <a href="#context-window">Context window</a>, <a href="#inference">Inference</a></span><span>Source: <a href="https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them">OpenAI: What are tokens and how to count them</a> · <a href="https://platform.claude.com/docs/en/about-claude/glossary">Anthropic: Glossary</a></span></p>
+</article>
+<article class="term" id="tokenizer" data-cat="using" data-hay="tokenizer  the tool that splits text into tokens before a model sees it. each model family has its own tokenizer with its own vocabulary, so the same text can be a different number of tokens in claude, gpt or llama. public tokenizer tools let you paste text and see exactly how it is split. use a tokenizer tool when you need to estimate cost or check whether a long document will fit.">
+  <div class="term-head"><h4><a class="self" href="#tokenizer">Tokenizer</a></h4><span class="tag">Using AI day to day</span></div>
+  
+  <p class="short">The tool that splits text into tokens before a model sees it.</p>
+  <p>Each model family has its own tokenizer with its own vocabulary, so the same text can be a different number of tokens in Claude, GPT or Llama. Public tokenizer tools let you paste text and see exactly how it is split.</p>
+  <p class="practice"><b>In practice</b> Use a tokenizer tool when you need to estimate cost or check whether a long document will fit.</p>
+  <p class="meta"><span>See also: <a href="#token">Token</a></span><span>Source: <a href="https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them">OpenAI: What are tokens and how to count them</a></span></p>
+</article>
+<article class="term" id="tool-use" data-cat="building" data-hay="tool use (function calling) function calling, tool calling letting a model call outside functions, such as search, a calculator or an api, and use the results. the developer describes available tools; the model decides when to call one and with what arguments; the app runs it and returns the result; the model continues. this is how chatbots search the web, run code or book a meeting. tools turn a model from something that talks into something that acts, which is useful and also raises the stakes. see prompt injection.">
+  <div class="term-head"><h4><a class="self" href="#tool-use">Tool use (function calling)</a></h4><span class="tag">Building with AI</span></div>
+  <p class="aka">Also: function calling, tool calling</p>
+  <p class="short">Letting a model call outside functions, such as search, a calculator or an API, and use the results.</p>
+  <p>The developer describes available tools; the model decides when to call one and with what arguments; the app runs it and returns the result; the model continues. This is how chatbots search the web, run code or book a meeting.</p>
+  <p class="practice"><b>In practice</b> Tools turn a model from something that talks into something that acts, which is useful and also raises the stakes. See prompt injection.</p>
+  <p class="meta"><span>See also: <a href="#agent">Agent</a>, <a href="#mcp">MCP</a>, <a href="#structured-output">Structured output</a></span><span>Source: <a href="https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview">Anthropic: Tool use overview</a> · <a href="https://developers.openai.com/api/docs/guides/function-calling">OpenAI: Function calling</a></span></p>
+</article>
+<article class="term" id="top-p" data-cat="using" data-hay="top-p (nucleus sampling)  another randomness setting: only consider the most likely tokens that together reach probability p. with top-p of 0.9, the model picks from the smallest set of tokens whose probabilities add up to 90%, cutting off the long tail of unlikely words. it was introduced to make generated text less repetitive without becoming incoherent. adjust temperature or top-p, not both. most people never need to touch top-p.">
+  <div class="term-head"><h4><a class="self" href="#top-p">Top-p (nucleus sampling)</a></h4><span class="tag">Using AI day to day</span></div>
+  
+  <p class="short">Another randomness setting: only consider the most likely tokens that together reach probability p.</p>
+  <p>With top-p of 0.9, the model picks from the smallest set of tokens whose probabilities add up to 90%, cutting off the long tail of unlikely words. It was introduced to make generated text less repetitive without becoming incoherent.</p>
+  <p class="practice"><b>In practice</b> Adjust temperature or top-p, not both. Most people never need to touch top-p.</p>
+  <p class="meta"><span>See also: <a href="#temperature">Temperature</a></span><span>Source: <a href="https://arxiv.org/abs/1904.09751">Holtzman et al. (2019): The curious case of neural text degeneration</a></span></p>
+</article>
+<article class="term" id="training" data-cat="basics" data-hay="training  the process of adjusting a model’s parameters by showing it examples, usually at great expense. during training a model makes predictions, measures how wrong they are, and nudges its parameters to be a little less wrong, billions of times over. training a frontier model takes months on thousands of specialised chips. using the finished model is called inference. your chats do not retrain a model in real time. whether a provider may use your conversations for future training depends on your settings and plan; see data retention.">
+  <div class="term-head"><h4><a class="self" href="#training">Training</a></h4><span class="tag">How models work</span></div>
+  
+  <p class="short">The process of adjusting a model’s parameters by showing it examples, usually at great expense.</p>
+  <p>During training a model makes predictions, measures how wrong they are, and nudges its parameters to be a little less wrong, billions of times over. Training a frontier model takes months on thousands of specialised chips. Using the finished model is called inference.</p>
+  <p class="practice"><b>In practice</b> Your chats do not retrain a model in real time. Whether a provider may use your conversations for future training depends on your settings and plan; see data retention.</p>
+  <p class="meta"><span>See also: <a href="#pretraining">Pre-training</a>, <a href="#fine-tuning">Fine-tuning</a>, <a href="#inference">Inference</a>, <a href="#data-retention">Data retention and training on your data</a></span><span>Source: <a href="https://developers.google.com/machine-learning/glossary">Google: Machine Learning Glossary</a> · <a href="https://platform.claude.com/docs/en/about-claude/glossary">Anthropic: Glossary</a></span></p>
+</article>
+<article class="term" id="transformer" data-cat="basics" data-hay="transformer  the neural network design behind modern llms, built around a mechanism called attention. introduced by google researchers in the 2017 paper “attention is all you need”, the transformer processes a whole sequence at once and lets every token weigh its relationship to every other token. it trains efficiently on modern chips, which is why it scaled into today’s models. the “t” in gpt stands for transformer. you rarely need the internals, but transformers explain two everyday facts: why there is a context window limit, and why longer inputs cost more.">
+  <div class="term-head"><h4><a class="self" href="#transformer">Transformer</a></h4><span class="tag">How models work</span></div>
+  
+  <p class="short">The neural network design behind modern LLMs, built around a mechanism called attention.</p>
+  <p>Introduced by Google researchers in the 2017 paper “Attention Is All You Need”, the transformer processes a whole sequence at once and lets every token weigh its relationship to every other token. It trains efficiently on modern chips, which is why it scaled into today’s models. The “T” in GPT stands for transformer.</p>
+  <p class="practice"><b>In practice</b> You rarely need the internals, but transformers explain two everyday facts: why there is a context window limit, and why longer inputs cost more.</p>
+  <p class="meta"><span>See also: <a href="#attention">Attention</a>, <a href="#context-window">Context window</a>, <a href="#llm">Large language model</a></span><span>Source: <a href="https://arxiv.org/abs/1706.03762">Vaswani et al. (2017): Attention Is All You Need</a></span></p>
+</article>
+<h3 class="letter" id="l-V">V</h3>
+<article class="term" id="vector-db" data-cat="building" data-hay="vector database vector store a database built to store embeddings and quickly find the ones closest to a query. given a question’s embedding, a vector database returns the stored chunks whose embeddings are most similar. dedicated products exist, and many ordinary databases now offer vector search as a feature. for a small project, a few thousand chunks fit comfortably in a simple local store. you don’t need specialised infrastructure to start.">
+  <div class="term-head"><h4><a class="self" href="#vector-db">Vector database</a></h4><span class="tag">Building with AI</span></div>
+  <p class="aka">Also: vector store</p>
+  <p class="short">A database built to store embeddings and quickly find the ones closest to a query.</p>
+  <p>Given a question’s embedding, a vector database returns the stored chunks whose embeddings are most similar. Dedicated products exist, and many ordinary databases now offer vector search as a feature.</p>
+  <p class="practice"><b>In practice</b> For a small project, a few thousand chunks fit comfortably in a simple local store. You don’t need specialised infrastructure to start.</p>
+  <p class="meta"><span>See also: <a href="#embedding">Embedding</a>, <a href="#semantic-search">Semantic search</a>, <a href="#rag">RAG</a></span><span>Source: <a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/glossary-genai">Google Cloud: Generative AI glossary</a></span></p>
+</article>
+<article class="term" id="vram" data-cat="local" data-hay="vram (and unified memory) gpu memory the memory a model must fit into to run fast, on a graphics card or in a mac’s shared memory. a model runs quickest when all its weights fit in gpu memory. apple silicon macs share one pool of unified memory between cpu and gpu, which lets them run larger models than a similarly priced pc graphics card. memory needed also grows with the context length you use. rough sizing: parameters × bits ÷ 8. a 7b model at 4-bit is about 3.5 gb of weights; budget around 5 gb in total.">
+  <div class="term-head"><h4><a class="self" href="#vram">VRAM (and unified memory)</a></h4><span class="tag">Running models yourself</span></div>
+  <p class="aka">Also: GPU memory</p>
+  <p class="short">The memory a model must fit into to run fast, on a graphics card or in a Mac’s shared memory.</p>
+  <p>A model runs quickest when all its weights fit in GPU memory. Apple Silicon Macs share one pool of unified memory between CPU and GPU, which lets them run larger models than a similarly priced PC graphics card. Memory needed also grows with the context length you use.</p>
+  <p class="practice"><b>In practice</b> Rough sizing: parameters × bits ÷ 8. A 7B model at 4-bit is about 3.5 GB of weights; budget around 5 GB in total.</p>
+  <p class="meta"><span>See also: <a href="#quantization">Quantization</a>, <a href="#parameters">Parameters</a>, <a href="#local-model">Local model</a></span><span>Source: <a href="https://huggingface.co/docs/transformers/main/en/quantization/overview">Hugging Face: Quantization overview</a> · <a href="https://github.com/ggml-org/llama.cpp">llama.cpp</a></span></p>
+</article>
+<h3 class="letter" id="l-W">W</h3>
+<article class="term" id="workflow" data-cat="building" data-hay="workflow (vs agent) prompt chaining a fixed sequence of model calls and code, designed in advance, rather than letting the model decide each step. examples include prompt chaining (draft, then critique, then revise), routing (classify, then send to the right prompt) and running several calls in parallel. workflows are predictable and easy to debug. if you can write the steps down in advance, build a workflow. reach for an agent when the steps genuinely depend on what the model finds.">
+  <div class="term-head"><h4><a class="self" href="#workflow">Workflow (vs agent)</a></h4><span class="tag">Building with AI</span></div>
+  <p class="aka">Also: prompt chaining</p>
+  <p class="short">A fixed sequence of model calls and code, designed in advance, rather than letting the model decide each step.</p>
+  <p>Examples include prompt chaining (draft, then critique, then revise), routing (classify, then send to the right prompt) and running several calls in parallel. Workflows are predictable and easy to debug.</p>
+  <p class="practice"><b>In practice</b> If you can write the steps down in advance, build a workflow. Reach for an agent when the steps genuinely depend on what the model finds.</p>
+  <p class="meta"><span>See also: <a href="#agent">Agent</a></span><span>Source: <a href="https://www.anthropic.com/engineering/building-effective-agents">Anthropic: Building effective agents</a></span></p>
+</article>
+<h3 class="letter" id="l-Z">Z</h3>
+<article class="term" id="few-shot" data-cat="using" data-hay="zero-shot and few-shot in-context learning, one-shot zero-shot: just ask. few-shot: include a few worked examples of the answer you want. the gpt-3 paper showed that large models can pick up a new task from a handful of examples placed in the prompt, without any retraining. examples are one of the most reliable ways to control format and tone. use two to five varied examples. if they all look alike, the model will copy their quirks.">
+  <div class="term-head"><h4><a class="self" href="#few-shot">Zero-shot and few-shot</a></h4><span class="tag">Using AI day to day</span></div>
+  <p class="aka">Also: in-context learning, one-shot</p>
+  <p class="short">Zero-shot: just ask. Few-shot: include a few worked examples of the answer you want.</p>
+  <p>The GPT-3 paper showed that large models can pick up a new task from a handful of examples placed in the prompt, without any retraining. Examples are one of the most reliable ways to control format and tone.</p>
+  <p class="practice"><b>In practice</b> Use two to five varied examples. If they all look alike, the model will copy their quirks.</p>
+  <p class="meta"><span>See also: <a href="#prompt">Prompt</a>, <a href="#fine-tuning">Fine-tuning</a></span><span>Source: <a href="https://arxiv.org/abs/2005.14165">Brown et al. (2020): Language models are few-shot learners</a> · <a href="https://developers.google.com/machine-learning/glossary/generative">Google: Machine Learning Glossary, generative AI terms</a></span></p>
+</article>
+      <p class="empty" id="empty" hidden>No term matches that. Try a shorter word, or clear the topic filter.</p>
+    </div>
+  </section>
+
+  <section class="shelf" id="cheatsheet">
+    <div class="shelf-head">
+      <span class="eyebrow">02 · One-page cheat sheet</span>
+      <h2>The twenty terms that matter most</h2>
+      <p>Everything on this card is also in the glossary above. Print it, or save it as a PDF from your browser’s print dialog.</p>
+    </div>
+    <div class="sheet-actions"><button type="button" class="btn" id="print">Print the cheat sheet</button><span class="small">Prints this card alone, one page.</span></div>
+    <div class="sheet">
+      <div class="sheet-title"><h3>AI cheat sheet</h3><span>mylesparslow-collab.github.io/guide/glossary</span></div>
+      <div class="sheet-col">
+        <div><h4>Key terms</h4><ul class="defs"><li><b>Token</b> The chunk of text a model reads and writes. In English, about ¾ of a word, or 4 characters.</li><li><b>Context window</b> How much text a model can consider at once: your prompt, files, the conversation so far and its reply.</li><li><b>System prompt</b> Standing instructions that frame every reply, set by the app or developer rather than typed each time.</li><li><b>Temperature</b> A setting for randomness. Low gives focused, repeatable output; high gives more varied output.</li><li><b>Hallucination</b> When a model states something false or made up as if it were true.</li><li><b>Knowledge cutoff</b> The date after which a model’s training data stops, so it knows nothing newer on its own.</li><li><b>Reasoning model</b> A model trained to think at length before answering, trading speed for accuracy on hard problems.</li><li><b>Grounding</b> Tying a model’s answer to specific trusted sources, such as your documents or a web search.</li><li><b>RAG</b> Look up relevant documents first, then give them to the model to answer from.</li><li><b>Embedding</b> A list of numbers that represents the meaning of a piece of text, so similar meanings sit close together.</li><li><b>Tool use</b> Letting a model call outside functions, such as search, a calculator or an API, and use the results.</li><li><b>Agent</b> A model that works in a loop: plan, use tools, check results, repeat until the task is done.</li><li><b>MCP</b> An open standard for connecting AI apps to outside tools and data, often compared to a USB-C port for AI.</li><li><b>Fine-tuning</b> Extra training on a smaller, focused dataset to specialise a model or change its behaviour.</li><li><b>Parameters</b> The learned numbers inside a model. “7B” means about seven billion of them.</li><li><b>Quantization</b> Storing a model’s numbers at lower precision, such as 4-bit instead of 16-bit, so it uses far less memory.</li><li><b>Open-weight model</b> A model whose trained weights are published so anyone can download and run it.</li><li><b>Prompt injection</b> Hidden instructions in content a model reads (a web page, email, file) that hijack what it does.</li><li><b>Sycophancy</b> A model’s tendency to tell you what you want to hear: agreeing, flattering or caving when you push back.</li><li><b>Multimodal</b> A model that can take in or produce more than one kind of data, such as text, images, audio or video.</li></ul></div>
+      </div>
+      <div class="sheet-col">
+        <div><h4>Handy numbers</h4>
+          <dl class="nums">
+            <dt>1 token</dt><dd>≈ 4 characters ≈ ¾ of an English word</dd>
+            <dt>100 tokens</dt><dd>≈ 75 words</dd>
+            <dt>1,000 tokens</dt><dd>≈ 750 words, about a page and a half</dd>
+            <dt>Memory</dt><dd>parameters × bits ÷ 8 = gigabytes of weights; add 20–30% for context</dd>
+          </dl>
+        </div>
+        <div><h4>Will it fit? Weights only</h4>
+          <table class="fix">
+            <thead><tr><th>Model size</th><th>4-bit</th><th>8-bit</th></tr></thead>
+            <tbody>
+              <tr><td>7B or 8B</td><td>~4 GB</td><td>~8 GB</td></tr>
+              <tr><td>14B</td><td>~7 GB</td><td>~14 GB</td></tr>
+              <tr><td>32B</td><td>~16 GB</td><td>~32 GB</td></tr>
+              <tr><td>70B</td><td>~35 GB</td><td>~70 GB</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div><h4>Which setting for which job</h4>
+          <table class="fix">
+            <thead><tr><th>Job</th><th>Try</th></tr></thead>
+            <tbody>
+              <tr><td>Facts, extraction, code</td><td>Low temperature</td></tr>
+              <tr><td>Brainstorming, fiction</td><td>Higher temperature</td></tr>
+              <tr><td>Maths, debugging, planning</td><td>More thinking effort</td></tr>
+              <tr><td>Quick rewrite or lookup</td><td>Less thinking, smaller model</td></tr>
+              <tr><td>Needs current or private facts</td><td>Search or RAG</td></tr>
+              <tr><td>Fixed tone or format at scale</td><td>Examples, then fine-tune</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div><h4>Five habits</h4>
+          <ol class="rules">
+            <li>Verify anything you will act on or publish.</li>
+            <li>Paste the source instead of trusting memory.</li>
+            <li>Start a fresh chat when answers drift.</li>
+            <li>Never mix private data, untrusted content and outbound tools.</li>
+            <li>Test on your own examples, not leaderboards.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="sheet-foot">Definitions and sources: mylesparslow-collab.github.io/guide/glossary · Memory figures are weights only, so real use needs more.</div>
+    </div>
+  </section>
+
+  <section class="shelf" id="sources">
+    <div class="shelf-head">
+      <span class="eyebrow">03 · Sources</span>
+      <h2>Where the definitions come from</h2>
+      <p>Researched in October 2026 with Claude. Every link below was opened and checked for the claim it supports. Where labs use different words for the same thing (NIST says “confabulation”, most others say “hallucination”), the entry gives both. Explanations and tips are written in plain language from these sources, not quoted from them.</p>
+    </div>
+    <ul class="srcs"><li><a href="https://agents.md/">AGENTS.md</a></li><li><a href="https://www.anthropic.com/engineering/building-effective-agents">Anthropic: Building effective agents</a></li><li><a href="https://code.claude.com/docs/en/memory">Anthropic: Claude Code memory (CLAUDE.md)</a></li><li><a href="https://code.claude.com/docs/en/sub-agents">Anthropic: Claude Code subagents</a></li><li><a href="https://www.anthropic.com/research/constitutional-ai-harmlessness-from-ai-feedback">Anthropic: Constitutional AI</a></li><li><a href="https://platform.claude.com/docs/en/test-and-evaluate/develop-tests">Anthropic: Create strong empirical evaluations</a></li><li><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">Anthropic: Effective context engineering for AI agents</a></li><li><a href="https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills">Anthropic: Equipping agents for the real world with Agent Skills</a></li><li><a href="https://platform.claude.com/docs/en/build-with-claude/extended-thinking">Anthropic: Extended thinking</a></li><li><a href="https://platform.claude.com/docs/en/about-claude/glossary">Anthropic: Glossary</a></li><li><a href="https://platform.claude.com/docs/en/api/messages">Anthropic: Messages API reference</a></li><li><a href="https://platform.claude.com/docs/en/about-claude/models/overview">Anthropic: Models overview</a></li><li><a href="https://platform.claude.com/docs/en/build-with-claude/prompt-caching">Anthropic: Prompt caching</a></li><li><a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices">Anthropic: Prompting best practices</a></li><li><a href="https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/reduce-hallucinations">Anthropic: Reduce hallucinations</a></li><li><a href="https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview">Anthropic: Tool use overview</a></li><li><a href="https://www.anthropic.com/research/towards-understanding-sycophancy-in-language-models">Anthropic: Towards understanding sycophancy in language models</a></li><li><a href="https://www.anthropic.com/research/tracing-thoughts-language-model">Anthropic: Tracing the thoughts of a large language model</a></li><li><a href="https://platform.claude.com/docs/en/build-with-claude/vision">Anthropic: Vision</a></li><li><a href="https://arxiv.org/abs/2108.07258">Bommasani et al. (2021): On the opportunities and risks of foundation models</a></li><li><a href="https://arxiv.org/abs/2005.14165">Brown et al. (2020): Language models are few-shot learners</a></li><li><a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/glossary-genai">Google Cloud: Generative AI glossary</a></li><li><a href="https://developers.google.com/machine-learning/glossary">Google: Machine Learning Glossary</a></li><li><a href="https://developers.google.com/machine-learning/glossary/generative">Google: Machine Learning Glossary, generative AI terms</a></li><li><a href="https://arxiv.org/abs/1503.02531">Hinton et al. (2015): Distilling the knowledge in a neural network</a></li><li><a href="https://arxiv.org/abs/2006.11239">Ho et al. (2020): Denoising diffusion probabilistic models</a></li><li><a href="https://arxiv.org/abs/1904.09751">Holtzman et al. (2019): The curious case of neural text degeneration</a></li><li><a href="https://arxiv.org/abs/2106.09685">Hu et al. (2021): LoRA</a></li><li><a href="https://huggingface.co/docs/hub/gguf">Hugging Face: GGUF</a></li><li><a href="https://huggingface.co/docs/transformers/main/en/quantization/overview">Hugging Face: Quantization overview</a></li><li><a href="https://arxiv.org/abs/2005.11401">Lewis et al. (2020): Retrieval-Augmented Generation</a></li><li><a href="https://arxiv.org/abs/2307.03172">Liu et al. (2023): Lost in the middle</a></li><li><a href="https://github.com/ggml-org/llama.cpp">llama.cpp</a></li><li><a href="https://modelcontextprotocol.io/docs/getting-started/intro">Model Context Protocol: Introduction</a></li><li><a href="https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf">NIST AI 600-1: Generative AI Profile</a></li><li><a href="https://ollama.com/">Ollama</a></li><li><a href="https://opensource.org/ai/open-source-ai-definition">Open Source Initiative: Open Source AI Definition</a></li><li><a href="https://developers.openai.com/api/docs/guides/embeddings">OpenAI: Embeddings guide</a></li><li><a href="https://developers.openai.com/api/docs/guides/function-calling">OpenAI: Function calling</a></li><li><a href="https://developers.openai.com/api/docs/guides/structured-outputs">OpenAI: Structured outputs</a></li><li><a href="https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them">OpenAI: What are tokens and how to count them</a></li><li><a href="https://arxiv.org/abs/2203.02155">Ouyang et al. (2022): Training language models to follow instructions with human feedback</a></li><li><a href="https://genai.owasp.org/llmrisk/llm01-prompt-injection/">OWASP: LLM01:2025 Prompt Injection</a></li><li><a href="https://arxiv.org/abs/1701.06538">Shazeer et al. (2017): Sparsely-gated mixture of experts</a></li><li><a href="https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/">Simon Willison: The lethal trifecta</a></li><li><a href="https://arxiv.org/abs/1706.03762">Vaswani et al. (2017): Attention Is All You Need</a></li><li><a href="https://arxiv.org/abs/2201.11903">Wei et al. (2022): Chain-of-thought prompting</a></li></ul>
+  </section>
+
+  <footer>
+    <span>Myles Parslow · Researched and built with Claude · October 2026</span>
+    <a href="../">Prompting Field Guide</a>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var KEY = 'portfolio-scheme';
+  var root = document.documentElement;
+  var buttons = document.querySelectorAll('.swatch');
+  function apply(name) {
+    if (name !== 'pine' && name !== 'sky') name = 'eggshell';
+    if (name === 'eggshell') root.removeAttribute('data-scheme'); else root.setAttribute('data-scheme', name);
+    buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.pick === name)); });
+    return name;
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  apply(saved);
+  buttons.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var name = apply(b.dataset.pick);
+      try { localStorage.setItem(KEY, name); } catch (e) {}
+    });
+  });
+
+  // Search + topic filter
+  var q = document.getElementById('q'), clear = document.getElementById('clear');
+  var status = document.getElementById('status'), empty = document.getElementById('empty');
+  var chips = document.querySelectorAll('.chip');
+  var terms = Array.prototype.slice.call(document.querySelectorAll('.term'));
+  var letters = Array.prototype.slice.call(document.querySelectorAll('.letter'));
+  var azLinks = Array.prototype.slice.call(document.querySelectorAll('#az a'));
+  var cat = 'all';
+  function esc(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+  function unmark(el) { el.querySelectorAll('mark').forEach(function (m) { m.replaceWith(document.createTextNode(m.textContent)); }); el.normalize(); }
+  function mark(el, words) {
+    var re = new RegExp('(' + words.map(esc).join('|') + ')', 'gi');
+    var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null), nodes = [], n;
+    while ((n = walker.nextNode())) { if (!n.parentNode.closest('a, mark, button') && re.test(n.nodeValue)) nodes.push(n); re.lastIndex = 0; }
+    nodes.forEach(function (node) {
+      var frag = document.createDocumentFragment(), last = 0, t = node.nodeValue, m;
+      re.lastIndex = 0;
+      while ((m = re.exec(t))) {
+        frag.appendChild(document.createTextNode(t.slice(last, m.index)));
+        var mk = document.createElement('mark'); mk.textContent = m[0]; frag.appendChild(mk);
+        last = m.index + m[0].length;
+      }
+      frag.appendChild(document.createTextNode(t.slice(last)));
+      node.parentNode.replaceChild(frag, node);
+    });
+  }
+  function run() {
+    var raw = q.value.trim().toLowerCase();
+    var words = raw.split(/\s+/).filter(Boolean);
+    var shown = 0, present = {};
+    terms.forEach(function (t) {
+      unmark(t);
+      var ok = (cat === 'all' || t.dataset.cat === cat) && words.every(function (w) { return t.dataset.hay.indexOf(w) !== -1; });
+      t.hidden = !ok;
+      if (ok) { shown++; present[t.querySelector('h4').textContent.trim()[0].toUpperCase()] = 1; if (words.length) mark(t, words); }
+    });
+    letters.forEach(function (l) { var L = l.id.slice(2); l.hidden = !present[L]; });
+    azLinks.forEach(function (a) { a.classList.toggle('off', !present[a.textContent]); });
+    empty.hidden = shown !== 0;
+    clear.hidden = !raw;
+    status.textContent = (words.length || cat !== 'all') ? shown + ' of ' + terms.length + ' terms' : '';
+  }
+  q.addEventListener('input', run);
+  clear.addEventListener('click', function () { q.value = ''; run(); q.focus(); });
+  chips.forEach(function (c) {
+    c.addEventListener('click', function () {
+      cat = c.dataset.f;
+      chips.forEach(function (x) { x.setAttribute('aria-pressed', String(x === c)); });
+      run();
+    });
+  });
+  // A direct link to a term must show it even if a filter hides it.
+  function openHash() {
+    var id = location.hash.slice(1), el = id && document.getElementById(id);
+    if (el && el.classList.contains('term') && el.hidden) {
+      q.value = ''; cat = 'all';
+      chips.forEach(function (x) { x.setAttribute('aria-pressed', String(x.dataset.f === 'all')); });
+      run(); el.scrollIntoView();
+    }
+  }
+  window.addEventListener('hashchange', openHash);
+  run(); openHash();
+  // Fonts and layout settle after load; re-align a linked term.
+  window.addEventListener('load', function () { var el = location.hash && document.getElementById(location.hash.slice(1)); if (el && el.classList.contains('term')) el.scrollIntoView(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === '/' && document.activeElement !== q && !/input|textarea/i.test(document.activeElement.tagName)) { e.preventDefault(); q.focus(); }
+  });
+
+  document.getElementById('print').addEventListener('click', function () { window.print(); });
+})();
+</script>
+</body>
+</html>

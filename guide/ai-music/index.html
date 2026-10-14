@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="A handbook for making songs with Suno and a chat-model lyricist: premise, style prompts, song structure, singable lyrics, Suno v6 controls, fixes, copy-paste prompts and rights, with sources.">
+<title>AI Music Handbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Same sheet, tokens and colour picker as the portfolio home page, so a chosen scheme carries over. */
+:root {
+  color-scheme: light;
+  --bg: #f2eee3; --surface: #fbf9f3; --rule: #ddd3bf; --ink: #15120f; --muted: #5f4e40;
+  --accent: #6b3f22; --mark: #a9822f; --mark-soft: #ede1c1;
+  --display: "Bricolage Grotesque", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+  --body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+:root[data-scheme="pine"] {
+  --bg: #f4f6f4; --surface: #ffffff; --rule: #d5ddd8; --ink: #18201c; --muted: #56625b;
+  --accent: #23593f; --mark: #23593f; --mark-soft: #e2ece6;
+}
+:root[data-scheme="sky"] {
+  --bg: #e8f3fb; --surface: #ffffff; --rule: #c6e0f3; --ink: #192838; --muted: #4c6073;
+  --accent: #9b111e; --mark: #9b111e; --mark-soft: #f7e1e4;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 1.0625rem; line-height: 1.62; margin: 0; }
+.wrap { max-width: 72rem; margin: 0 auto; padding-inline: 1.25rem; padding-block: 3.5rem 4rem; display: grid; gap: 5rem; }
+a { color: var(--accent); text-underline-offset: 0.18em; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+h1, h2, h3, h4 { font-family: var(--display); text-wrap: balance; line-height: 1.12; margin: 0; }
+p { margin: 0; }
+code { font-family: var(--mono); font-size: 0.86em; background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; padding: 0.05em 0.3em; }
+.eyebrow { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+
+/* Top bar and picker */
+.topbar { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.75rem 1.5rem; }
+.topbar .back { font-family: var(--mono); font-size: 0.8rem; }
+.picker { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0; padding: 0; border: 0; }
+.picker legend { float: left; margin-right: 0.25rem; font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.swatch { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.3rem 0.7rem 0.3rem 0.35rem; border-radius: 999px; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); font-family: var(--display); font-size: 0.85rem; font-weight: 500; cursor: pointer; }
+.swatch:hover { border-color: var(--muted); }
+.swatch[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.swatch i { width: 1.15rem; height: 1.15rem; border-radius: 50%; flex: none; border: 1px solid rgba(0,0,0,0.15); }
+.swatch[data-pick="eggshell"] i { background: linear-gradient(135deg, #f2eee3 0 45%, #6b3f22 45% 70%, #a9822f 70%); }
+.swatch[data-pick="pine"] i { background: linear-gradient(135deg, #f4f6f4 0 50%, #23593f 50%); }
+.swatch[data-pick="sky"] i { background: linear-gradient(135deg, #e8f3fb 0 50%, #9b111e 50%); }
+
+/* Intro */
+.intro { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 2.5rem; align-items: start; }
+.intro-text { display: grid; gap: 1.25rem; align-content: start; }
+.intro h1 { font-size: clamp(2.6rem, 6.4vw, 4.4rem); font-weight: 800; letter-spacing: -0.025em; line-height: 1.04; }
+.intro h1 em { font-style: normal; color: var(--mark); }
+.lede { font-size: 1.22rem; max-width: 38rem; }
+.toc { display: grid; border-top: 2px solid var(--ink); counter-reset: toc; }
+.toc a { display: grid; grid-template-columns: 2.2rem 1fr auto; gap: 0.5rem; align-items: baseline; padding: 0.55rem 0; border-bottom: 1px solid var(--rule); text-decoration: none; color: var(--ink); font-family: var(--display); font-weight: 700; font-size: 1.05rem; }
+.toc a::before { counter-increment: toc; content: counter(toc, decimal-leading-zero); font-family: var(--mono); font-weight: 400; font-size: 0.75rem; color: var(--muted); }
+.toc a span { font-family: var(--mono); font-weight: 400; font-size: 0.75rem; color: var(--muted); text-align: right; }
+.toc a:hover { color: var(--accent); }
+.tally { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin: 0; border-top: 1px solid var(--rule); padding-top: 1.25rem; }
+.tally div { display: grid; gap: 0.2rem; align-content: start; }
+.tally dt { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); order: 2; }
+.tally dd { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(1.6rem, 3.4vw, 2.4rem); color: var(--accent); letter-spacing: -0.02em; line-height: 1.05; }
+
+/* Sections */
+.shelf { display: grid; gap: 2.25rem; scroll-margin-top: 1.5rem; }
+.shelf-head { display: grid; gap: 0.5rem; border-top: 2px solid var(--ink); padding-top: 1rem; }
+.shelf-head h2 { font-size: clamp(2rem, 4.2vw, 2.8rem); font-weight: 800; letter-spacing: -0.02em; }
+.shelf-head p { color: var(--muted); max-width: 46rem; }
+.sub { display: grid; gap: 1rem; }
+.sub > h3 { font-size: 1.5rem; }
+.sub > p { max-width: 48rem; }
+
+/* Numbered rules */
+.short { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem 2.5rem; counter-reset: r; }
+.short li { counter-increment: r; display: grid; grid-template-columns: 2.4rem 1fr; gap: 0.2rem 0.6rem; border-top: 1px solid var(--rule); padding-top: 0.8rem; }
+.short li::before { content: counter(r, decimal-leading-zero); grid-row: span 2; font-family: var(--display); font-weight: 800; font-size: 1.4rem; color: var(--mark); line-height: 1.1; }
+.short h3 { font-size: 1.12rem; }
+.short p { color: var(--muted); font-size: 0.98rem; }
+
+/* Card grids */
+.grid2, .grid3 { display: grid; gap: 1.5rem 2.25rem; }
+.grid2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.item { display: grid; gap: 0.4rem; align-content: start; border-top: 1px solid var(--rule); padding-top: 0.85rem; min-width: 0; }
+.item h4 { font-size: 1.08rem; }
+.item p { font-size: 0.98rem; }
+.item .why { color: var(--muted); }
+.item .cite { font-family: var(--mono); font-size: 0.74rem; color: var(--muted); }
+.item ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.35rem; font-size: 0.98rem; }
+
+/* Anatomy */
+.anatomy { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0.75rem; }
+.anatomy div { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 0.9rem; display: grid; gap: 0.35rem; align-content: start; }
+.anatomy b { font-family: var(--mono); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.anatomy p { font-size: 0.92rem; color: var(--muted); }
+.versus { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: 1.25rem; align-items: start; }
+.versus .label { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.35rem; }
+.versus .label.good { color: var(--accent); }
+
+/* Code blocks */
+.code { position: relative; min-width: 0; }
+pre { margin: 0; font-family: var(--mono); font-size: 0.8rem; line-height: 1.55; background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 0.9rem 1rem; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--ink); }
+.copy { position: absolute; top: 0.45rem; right: 0.45rem; font-family: var(--mono); font-size: 0.72rem; padding: 0.2rem 0.55rem; border-radius: 999px; border: 1px solid var(--rule); background: var(--bg); color: var(--accent); cursor: pointer; }
+.copy:hover { border-color: var(--accent); }
+.copy + pre { padding-top: 2rem; }
+
+/* Tables */
+.table-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; min-width: 46rem; }
+th, td { text-align: left; vertical-align: top; padding: 0.65rem 0.8rem; border-bottom: 1px solid var(--rule); }
+th { font-family: var(--mono); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); background: var(--mark-soft); }
+td:first-child { font-family: var(--display); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+.verdict { font-family: var(--mono); font-size: 0.72rem; padding: 0.1rem 0.45rem; border-radius: 999px; background: var(--mark-soft); color: var(--accent); white-space: nowrap; }
+
+/* Model cards */
+.model { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 1.25rem 1.3rem; display: grid; gap: 0.7rem; align-content: start; min-width: 0; }
+.model .kind { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+.model h3 { font-size: 1.45rem; }
+.model ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.45rem; font-size: 0.97rem; }
+.model .links { font-family: var(--mono); font-size: 0.78rem; display: flex; flex-wrap: wrap; gap: 0.3rem 1rem; }
+.callout { border-left: 3px solid var(--mark); padding-left: 0.9rem; display: grid; gap: 0.3rem; max-width: 50rem; }
+.callout b { font-family: var(--mono); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+
+/* Prompt library */
+.filters { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.chip { font-family: var(--display); font-size: 0.88rem; font-weight: 500; padding: 0.3rem 0.75rem; border-radius: 999px; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); cursor: pointer; }
+.chip span { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); margin-left: 0.15rem; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.chip[aria-pressed="true"] span { color: var(--bg); }
+.prompts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem 2.25rem; align-items: start; }
+.prompt { display: grid; gap: 0.6rem; min-width: 0; border-top: 1px solid var(--rule); padding-top: 0.9rem; scroll-margin-top: 1.5rem; }
+.prompt[hidden] { display: none; }
+.prompt .kind { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.prompt h3 { font-size: 1.25rem; margin-top: 0.2rem; }
+.prompt .src, .prompt .after { font-size: 0.88rem; color: var(--muted); }
+
+/* Resources */
+.rnav { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; font-family: var(--mono); font-size: 0.82rem; }
+.rgroup { display: grid; gap: 0.9rem; scroll-margin-top: 1.5rem; }
+.rgroup h3 { font-size: 1.5rem; }
+.rintro { color: var(--muted); max-width: 46rem; }
+.rlist { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem 2rem; }
+.rlist li { display: grid; gap: 0.3rem; align-content: start; border-top: 1px solid var(--rule); padding-top: 0.75rem; min-width: 0; }
+.rname { font-family: var(--display); font-weight: 700; font-size: 1.02rem; overflow-wrap: anywhere; }
+.rhost { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.rlist p { font-size: 0.94rem; }
+.rlist .caution { font-size: 0.84rem; color: var(--muted); font-style: italic; }
+
+.small { font-size: 0.9rem; color: var(--muted); }
+.srcs { columns: 2; column-gap: 2.5rem; font-size: 0.86rem; margin: 0; padding-left: 1.1rem; }
+.srcs li { break-inside: avoid; margin-bottom: 0.35rem; overflow-wrap: anywhere; }
+
+footer { border-top: 1px solid var(--rule); padding-top: 1.25rem; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 2rem; font-family: var(--mono); font-size: 0.8rem; color: var(--muted); }
+
+@media (max-width: 980px) {
+  .anatomy { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .rlist, .grid3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 820px) {
+  .intro, .short, .grid2, .grid3, .prompts, .rlist, .versus { grid-template-columns: minmax(0, 1fr); }
+  .anatomy { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tally { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .srcs { columns: 1; }
+  .wrap { gap: 3.5rem; padding-block: 2.5rem 3rem; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="intro">
+    <div class="topbar">
+      <a class="back" href="../../">← Myles Parslow portfolio</a>
+      <fieldset class="picker" aria-label="Colour scheme">
+        <legend>Colours</legend>
+        <button type="button" class="swatch" data-pick="eggshell" aria-pressed="true"><i></i>Eggshell</button>
+        <button type="button" class="swatch" data-pick="pine" aria-pressed="false"><i></i>Original</button>
+        <button type="button" class="swatch" data-pick="sky" aria-pressed="false"><i></i>Sky &amp; ruby</button>
+      </fieldset>
+    </div>
+    <div class="intro-text">
+      <span class="eyebrow">Handbook · October 2026</span>
+      <h1>Write AI songs that <em>sound like records</em>.</h1>
+      <p class="lede">A working method for making songs with Suno, with ChatGPT (or any chat model) as the lyricist. It is the system behind my fourteen cat songs, generalised: premise first, then the musical world, then a locked song structure, lyrics written to be sung, and a diagnosis step before any rewrite.</p>
+      <p class="small">Suno changes fast. This handbook is current to Suno v6 (released 9 September 2026). Where advice comes from Suno’s own help centre it says so; where it comes from the community or my own testing, it says that too. See also the <a href="../">Prompting Field Guide</a>.</p>
+    </div>
+    <nav class="toc" aria-label="Sections">
+      <a href="#short">The short version <span>10 rules</span></a>
+      <a href="#pipeline">The pipeline <span>who does what</span></a>
+      <a href="#premise">Premise <span>before any lyric</span></a>
+      <a href="#style">The style prompt <span>the musical world</span></a>
+      <a href="#structure">Lock the structure <span>sections, meter, tags</span></a>
+      <a href="#lyrics">Lyrics that sing <span>hook, rhyme, prosody</span></a>
+      <a href="#generate">Generate and choose <span>v6 controls</span></a>
+      <a href="#fix">Diagnose and fix <span>14 symptoms</span></a>
+      <a href="#prompts">Prompts to copy <span>7 prompts</span></a>
+      <a href="#rights">Rights and releasing <span>as of Oct 2026</span></a>
+      <a href="#sources">Sources <span>how this was made</span></a>
+    </nav>
+    <dl class="tally">
+      <div><dt>Steps in the source workflow</dt><dd>17</dd></div>
+      <div><dt>Quality checks per lyric</dt><dd>15</dd></div>
+      <div><dt>Songs made with it</dt><dd>14</dd></div>
+      <div><dt>Copy-paste prompts</dt><dd>7</dd></div>
+    </dl>
+  </header>
+
+  <!-- SHORT VERSION -->
+  <section class="shelf" id="short">
+    <div class="shelf-head">
+      <span class="eyebrow">01 · The short version</span>
+      <h2>Ten rules for AI songs</h2>
+      <p>If you read nothing else. Each one is expanded below.</p>
+    </div>
+    <ol class="short">
+      <li><h3>Decide the premise before the words</h3><p>Concept, point of view, tone and the central tension or joke. A song with no premise turns into a list of rhymes.</p></li>
+      <li><h3>Keep style and lyrics separate</h3><p>The Style field describes the record; the Lyrics field holds the words and section labels. Mixing them confuses both.</p></li>
+      <li><h3>Make the instrumental sound like a real record</h3><p>Name a real genre with real production detail. Funny or strange lyrics don’t need novelty production, and the contrast often helps.</p></li>
+      <li><h3>Lead with the main genre</h3><p>Order matters: the first genre tends to dominate. Blend two or three at most and add an era to anchor the sound.</p></li>
+      <li><h3>Say what you don’t want in Exclude</h3><p>“No drums” in the style text can pull drums in. Suno’s Exclude field is the official way to keep something out.</p></li>
+      <li><h3>Lock the structure, then the meter</h3><p>Equivalent sections get equal line counts and a set syllable pattern. The model needs a predictable shape to write a melody.</p></li>
+      <li><h3>Design the hook on its own</h3><p>Three to five syllables, simple words, repeated. The chorus gets its own identity rather than summarising the verses.</p></li>
+      <li><h3>Write to be sung, not read</h3><p>Keep natural word stress, leave room to breathe, give held notes open vowels. Read every line aloud on the beat.</p></li>
+      <li><h3>Aim for about three and a half minutes</h3><p>Overlong lyrics get rushed. Cut the weakest lines instead of hoping the model sings faster.</p></li>
+      <li><h3>Diagnose before rewriting</h3><p>Name what is wrong (melody, chorus, density, tone, rhyme) and fix that cause, rather than regenerating and hoping.</p></li>
+    </ol>
+  </section>
+
+  <!-- PIPELINE -->
+  <section class="shelf" id="pipeline">
+    <div class="shelf-head">
+      <span class="eyebrow">02 · The pipeline</span>
+      <h2>Who does what</h2>
+      <p>A chat model is good at words, structure and self-checking. Suno is good at sound. Keeping each tool on the job it does well, and keeping yourself as the judge between them, is most of the method.</p>
+    </div>
+    <div class="anatomy">
+      <div><b>1 · Premise</b><p>You and the chat model: concept, singer, tone, the central joke or tension, a list of scenes and images.</p></div>
+      <div><b>2 · Musical world</b><p>Chat model drafts the style prompt: genre, tempo, drums, bass, harmony, instruments, vocal, space, mood.</p></div>
+      <div><b>3 · Architecture</b><p>Sections, line counts and a syllable pattern per section, locked before any verse is written.</p></div>
+      <div><b>4 · Lyrics + audit</b><p>Hook first, then verses as scenes, then a rhyme audit, a meter audit and a length audit.</p></div>
+      <div><b>5 · Generate</b><p>Suno: paste the two blocks, generate, listen to both takes, keep the better parts.</p></div>
+      <div><b>6 · Diagnose</b><p>You name the fault and its cause, then revise the lyric or the style, or edit one section.</p></div>
+    </div>
+    <div class="callout">
+      <b>How my songs are made</b>
+      <p>ChatGPT writes the lyrics and style prompts under a written 17-step system; Suno makes the songs; I choose takes, diagnose and direct revisions. Any capable chat model (Claude, Gemini, a local model) can play the lyricist role with the prompts in section 09.</p>
+    </div>
+  </section>
+
+  <!-- PREMISE -->
+  <section class="shelf" id="premise">
+    <div class="shelf-head">
+      <span class="eyebrow">03 · Premise</span>
+      <h2>Start with the premise, not the rhymes</h2>
+      <p>Before a single lyric, write down five things. If you can’t, the song isn’t ready to write.</p>
+    </div>
+    <div class="grid3">
+      <div class="item"><h4>Core concept</h4><p>One sentence. “A cat runs a late-night radio call-in show for other cats.”</p></div>
+      <div class="item"><h4>Point of view</h4><p>Who sings, to whom, and what they want. First person almost always sings better than narration.</p></div>
+      <div class="item"><h4>Emotional tone</h4><p>Smooth, triumphant, wistful, menacing. The tone chooses the genre more than the topic does.</p></div>
+      <div class="item"><h4>Central tension or joke</h4><p>For comedy: the singer treats an absurd premise completely seriously. The joke is never explained; it comes out of the character’s logic.</p></div>
+      <div class="item"><h4>Scenes and images</h4><p>Brainstorm ten concrete, physical moments before choosing the best three or four. Verses are built from these, not from adjectives.</p></div>
+      <div class="item"><h4>Characters, if several sing</h4><p>Each gets a different worldview, vocabulary and kind of joke. If two lines could be swapped between characters, rewrite them.</p></div>
+    </div>
+  </section>
+
+  <!-- STYLE -->
+  <section class="shelf" id="style">
+    <div class="shelf-head">
+      <span class="eyebrow">04 · The style prompt</span>
+      <h2>Describe the record, not the topic</h2>
+      <p>The Style field (Custom or Advanced mode) is where the music lives. The lyrics already say what the song is about, so the style prompt should only describe how it sounds.</p>
+    </div>
+    <div class="grid2">
+      <div class="item">
+        <h4>What goes in it</h4>
+        <ul>
+          <li><strong>Genre and era:</strong> main genre first, at most two or three blended, plus an era (“late-70s”, “2010s UK”).</li>
+          <li><strong>Tempo and feel:</strong> a BPM or a band (“mid-tempo, ~96 BPM”), swing or straight, half-time.</li>
+          <li><strong>Rhythm section:</strong> drum feel and kit sound, bass role.</li>
+          <li><strong>Harmony and instruments:</strong> chords (“extended jazz chords”), lead instruments, textures.</li>
+          <li><strong>Vocal:</strong> register, timbre, delivery, mic distance, doubles and harmonies.</li>
+          <li><strong>Space and mood:</strong> room, reverb, tape, warmth; the feeling it should leave.</li>
+          <li><strong>Arrangement arc:</strong> dropouts, a sparse bridge, a bigger final chorus, so the track develops instead of looping.</li>
+        </ul>
+      </div>
+      <div class="item">
+        <h4>What keeps it working</h4>
+        <ul>
+          <li><strong>Length:</strong> Suno doesn’t publish limits, but the Style field is widely measured at 1,000 characters on current models and 200 on v4 and older. My records use most of that; plenty of good songs use far less.</li>
+          <li><strong>Positive phrasing:</strong> put unwanted instruments and vocals in Exclude, not “no X” in the style text.</li>
+          <li><strong>No artist names:</strong> Suno generally rejects them in the style text. Describe what you like about the artist instead: era, instruments, vocal, production.</li>
+          <li><strong>Plain musical language:</strong> v6 is documented as understanding vocals, instrumentation, structure, mood and references in plain language.</li>
+          <li><strong>Variety slider at 0</strong> on v6 if you want your exact style tags used; anything higher lets Suno vary them.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout">
+      <b>Where sources disagree</b>
+      <p>Community guides often recommend four to seven short descriptors and warn that ten or more muddy the result. My songs use long, precise style prompts close to the limit. Both work: short prompts suit exploring, long ones suit a sound you already hear in your head. If a long prompt drifts, cut it to the five descriptors that matter most and raise Style Influence.</p>
+    </div>
+    <div class="versus">
+      <div>
+        <p class="label">Weak</p>
+        <div class="code"><pre>funny cat song, upbeat, catchy, cool beat, good vocals, no drums</pre></div>
+        <p class="small">Describes the topic and a wish, not a sound. “No drums” belongs in Exclude.</p>
+      </div>
+      <div>
+        <p class="label good">Strong</p>
+        <div class="code"><button type="button" class="copy" data-copy="ex-style" aria-label="Copy example style prompt">Copy</button><pre id="ex-style">Late-70s Trinidad calypso with light soca lift, 112 BPM, straight and bouncy. Live kit with rimshot backbeat and shaker, round melodic bass walking the changes, steel pan lead, nylon guitar strums, warm brass stabs on the turnarounds. Major key, simple I-IV-V with passing chords. Male baritone lead, warm, conversational and completely sincere, close-mic, light vibrato; call-and-response gang vocals on the chorus. Roomy analog mix, tape warmth, gentle plate reverb. Verse 2 drops to bass, pan and voice; bridge strips to guitar; final chorus adds horns and a key-change lift. Ends on a held group "hey!" and a pan flourish.</pre></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STRUCTURE -->
+  <section class="shelf" id="structure">
+    <div class="shelf-head">
+      <span class="eyebrow">05 · Lock the structure</span>
+      <h2>Sections first, then meter, then words</h2>
+      <p>Suno writes a melody to the shape you give it. A stable shape gets a confident melody; an uneven one gets a confused melody that rushes or stalls.</p>
+    </div>
+    <div class="grid3">
+      <div class="item"><h4>Decide the sections</h4><p>A dependable pop form: intro, verse, pre-chorus, chorus, verse, pre-chorus, chorus, bridge, final chorus, outro. Write it down before writing lyrics.</p></div>
+      <div class="item"><h4>Equal line counts</h4><p>Matching sections get matching line counts, usually 4, 8, 12 or 16. Never let a verse run long because it has more jokes; cut the weaker joke.</p></div>
+      <div class="item"><h4>A syllable pattern per section</h4><p>Set it explicitly, such as 8/8/8/8 or 7/10/7/10, and keep the chorus even stricter. The second verse should scan exactly like the first.</p></div>
+    </div>
+    <div class="sub">
+      <h3>Section labels in the Lyrics field</h3>
+      <p>Bracketed labels on their own line tell Suno where each section starts. Suno’s help centre doesn’t publish an official tag list, so treat these as community practice that works reliably rather than a guaranteed command set. Tags guide; they don’t override the Style field.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tag</th><th>Use it for</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>[Intro] [Outro]</td><td>Opening and closing sections</td><td>Leave them empty or give a short line; a long intro lyric often gets sung as a verse.</td></tr>
+            <tr><td>[Verse 1] [Verse 2]</td><td>Story sections</td><td>Numbering helps keep verses distinct.</td></tr>
+            <tr><td>[Pre-Chorus]</td><td>The lift into the hook</td><td>Shorter lines and rising energy.</td></tr>
+            <tr><td>[Chorus]</td><td>The hook</td><td>Repeat the exact same words each time to encourage the same melody.</td></tr>
+            <tr><td>[Bridge]</td><td>Contrast</td><td>Sparse, different chords, a new angle on the premise.</td></tr>
+            <tr><td>[Instrumental] [Guitar Solo]</td><td>Breaks with no vocal</td><td>Name the instrument for a solo.</td></tr>
+            <tr><td>[Fade Out] [End]</td><td>A clean ending</td><td>[End] after the last section stops songs from wandering on.</td></tr>
+            <tr><td>(parentheses)</td><td>Backing vocals and ad-libs</td><td>Words in parentheses are usually treated as background voices.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="small">Common failure: a typo or missing bracket and the tag gets sung as a lyric. Since v4.5, Suno’s help centre also suggests putting extra song-specific context in the Lyrics box when the Style field holds the genre.</p>
+    </div>
+    <div class="code"><button type="button" class="copy" data-copy="ex-skel" aria-label="Copy song skeleton">Copy</button><pre id="ex-skel">[Intro]
+
+[Verse 1]            8 lines · 8/8/8/8/8/8/8/8
+[Pre-Chorus]         2 lines · 6/6
+[Chorus]             4 lines · 5/7/5/7  (hook in lines 1 and 3)
+[Verse 2]            8 lines · same pattern as Verse 1
+[Pre-Chorus]         same words or same meter
+[Chorus]             identical to the first chorus
+[Bridge]             4 lines · 6/6/6/6, sparse
+[Chorus]             identical, bigger arrangement
+[Outro]              stripped hook, then a held harmony
+[End]
+
+Target runtime 3:15 to 3:30</pre></div>
+  </section>
+
+  <!-- LYRICS -->
+  <section class="shelf" id="lyrics">
+    <div class="shelf-head">
+      <span class="eyebrow">06 · Lyrics that sing</span>
+      <h2>Written to be sung, not read</h2>
+      <p>A lyric can look clever on paper and still generate badly. These are the rules that made the biggest difference across fourteen songs.</p>
+    </div>
+    <div class="grid3">
+      <div class="item"><h4>The hook comes first</h4><p>A short repeated phrase of three to five syllables, with a repeated grammatical construction and simple words. Two of mine: “Kitty computer” and “No teef, big life”.</p></div>
+      <div class="item"><h4>Verses are scenes</h4><p>Concrete images, physical detail and character-specific logic. Each verse moves the story to a new place instead of restating the first.</p></div>
+      <div class="item"><h4>Rhyme with rules</h4><p>End, internal, multisyllabic and slant rhyme. No word rhymed with itself, no lazy pairs like side and outside, and no bent syntax to force a rhyme. Sound beats spelling.</p></div>
+      <div class="item"><h4>Keep natural stress</h4><p>Berklee songwriting faculty teach preserving the stress pattern of speech: verbs usually carry stress, compound words stress the first syllable. Stress on the wrong syllable sounds wrong when sung.</p></div>
+      <div class="item"><h4>Leave room to breathe</h4><p>No line much denser than its neighbours. Give long held notes open vowels (“high”, “go”, “day”) rather than closed consonants.</p></div>
+      <div class="item"><h4>Musical endings</h4><p>End on a refrain, a stripped hook, a harmony stack or an instrumental fade, not a spoken skit or a punchline the model has to deliver.</p></div>
+      <div class="item"><h4>Realistic length</h4><p>About 3:15 to 3:30. Guides that measured the Lyrics field put its limit around 5,000 characters, but around 3,000 is a safer working size; past that, Suno tends to rush.</p></div>
+      <div class="item"><h4>Embody the joke</h4><p>Comedy lands when the singer believes every word. Never wink, never explain the premise in the chorus.</p></div>
+      <div class="item"><h4>Two blocks out</h4><p>Have the chat model return exactly two copyable blocks, style prompt and lyrics, with no commentary, so nothing stray ends up in Suno.</p></div>
+    </div>
+  </section>
+
+  <!-- GENERATE -->
+  <section class="shelf" id="generate">
+    <div class="shelf-head">
+      <span class="eyebrow">07 · Generate and choose</span>
+      <h2>Using Suno’s controls well</h2>
+      <p>Each generation costs 10 credits and produces two songs. Listen to both all the way through before changing anything: the second take often fixes what the first got wrong.</p>
+    </div>
+    <div class="grid2">
+      <div class="model">
+        <span class="kind">Models (v6, Sept 2026)</span>
+        <h3>Explore wild, finish steady</h3>
+        <ul>
+          <li><strong>v6:</strong> the flagship for Pro and Premier, described by Suno as reliable and precise.</li>
+          <li><strong>v6-wild:</strong> less predictable and more textured; Suno suggests exploring here, then refining the best idea in v6.</li>
+          <li><strong>v6-mini:</strong> the fast model, free to everyone.</li>
+          <li><strong>Max Mode:</strong> more effort for more credits. Suno recommends it for songs over two minutes, close covers and consistent vocals across a full track.</li>
+          <li>All pre-v6 models were retired on launch. Old songs stay playable, but extends and covers of them now run on v6 and may sound different.</li>
+        </ul>
+      </div>
+      <div class="model">
+        <span class="kind">Sliders and toggles</span>
+        <h3>What each one does</h3>
+        <ul>
+          <li><strong>Weirdness</strong> (Safe to Chaos, 50% is normal): lower for clean, commercial results; higher for experiments.</li>
+          <li><strong>Style Influence</strong> (Loose to Strong): raise it when your style prompt is precise.</li>
+          <li><strong>Audio Influence:</strong> appears only with an audio upload; how closely to follow it.</li>
+          <li><strong>Variety</strong> (new in v6): rewrites your style tags for variety. Set it to 0 to keep full control.</li>
+          <li><strong>My Taste:</strong> on by default; biases underspecified prompts toward your history. Explicit style text still wins.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="sub">
+      <h3>Fix a part without losing the whole</h3>
+      <div class="grid3">
+        <div class="item"><h4>Edit a section</h4><p>v6 changes one section in plain language and keeps the rest, for example a chorus sung by a choir.</p></div>
+        <div class="item"><h4>Change a lyric</h4><p>Swap one word or line without regenerating the song. Ideal for a mispronounced word.</p></div>
+        <div class="item"><h4>Extend and Cover</h4><p>Extend continues from a point in the track; Cover re-performs a song in a new style. Extend from the latest version to stay consistent.</p></div>
+        <div class="item"><h4>Voices and Personas</h4><p>Keep a singer consistent across songs. Voices (v5.5 onward) need identity verification. A persona keeps timbre and delivery, not melody.</p></div>
+        <div class="item"><h4>Stems and Studio</h4><p>Split a song into stems (up to 12 with Auto Split), then fix levels, timing or sections in Suno Studio or your own DAW.</p></div>
+        <div class="item"><h4>Custom models</h4><p>Pro and Premier can train up to three on six or more of their own tracks. Keep the training set stylistically consistent.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FIX -->
+  <section class="shelf" id="fix">
+    <div class="shelf-head">
+      <span class="eyebrow">08 · Diagnose and fix</span>
+      <h2>Name the fault before rewriting</h2>
+      <p>The first six rows come from my own workflow; the rest are widely reported community fixes. Change one thing at a time, so you know what worked.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Symptom</th><th>Likely cause</th><th>Fix</th></tr></thead>
+        <tbody>
+          <tr><td>Melody wanders or stalls</td><td>Uneven syllable counts or line lengths</td><td>Re-meter the section to a fixed pattern; match the lines to their neighbours.</td></tr>
+          <tr><td>Weak chorus</td><td>Too many words, or it summarises the verses</td><td>Simplify it, shorten the hook, repeat more.</td></tr>
+          <tr><td>Rushed verses</td><td>Lines too dense, or too many lines</td><td>Cut density or cut lines; never ask the model to sing faster.</td></tr>
+          <tr><td>Feels childish</td><td>Novelty production matching novelty lyrics</td><td>Make the production more serious and genre-true.</td></tr>
+          <tr><td>Jokes feel forced</td><td>Jokes explained instead of embodied</td><td>Go back to the character’s perspective and concrete detail.</td></tr>
+          <tr><td>Rhymes sound weak</td><td>Lazy or self rhymes, patched words</td><td>Rewrite the rhyme structure of the section, not single words.</td></tr>
+          <tr><td>Ignores the style</td><td>Too many competing descriptors</td><td>Cut to the five that matter, main genre first, lower Weirdness, raise Style Influence.</td></tr>
+          <tr><td>Wrong genre wins</td><td>Genre order</td><td>Move the main genre to the front; anchor with an era.</td></tr>
+          <tr><td>Song ends abruptly or runs on</td><td>No ending defined</td><td>Add an [Outro] and [End] after the last section.</td></tr>
+          <tr><td>Tags sung as words</td><td>Typo or missing bracket</td><td>Check every label is in square brackets on its own line.</td></tr>
+          <tr><td>Unwanted instrument appears</td><td>Negative phrasing in Style</td><td>Remove it from Style and list it in Exclude.</td></tr>
+          <tr><td>Singer changes mid-song</td><td>Long track, no fixed voice</td><td>Use Max Mode, a Voice or Persona, and a precise vocal description.</td></tr>
+          <tr><td>One word mispronounced</td><td>Unusual spelling or a name</td><td>Change that lyric only, or respell it phonetically.</td></tr>
+          <tr><td>Extension doesn’t match</td><td>Extended from an older take</td><td>Extend from the most recent version.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="sub">
+      <h3>The fifteen checks before generating</h3>
+      <p>Run these on every lyric. Ask the chat model to run them and report only failures, then fix those.</p>
+      <ol class="short">
+        <li><h3>Equal line counts</h3><p>Matching verses have the same number of lines.</p></li>
+        <li><h3>Intended syllable pattern</h3><p>Every line hits the pattern set for its section.</p></li>
+        <li><h3>Consistent chorus meter</h3><p>The chorus scans the same way every time.</p></li>
+        <li><h3>Short, memorable hook</h3><p>Three to five syllables, easy to sing back.</p></li>
+        <li><h3>No self-rhymes or lazy rhymes</h3><p>No word rhymed with itself or its compound.</p></li>
+        <li><h3>Internal and multisyllabic rhyme</h3><p>Present where it comes naturally.</p></li>
+        <li><h3>Even density</h3><p>No line much denser than its neighbours.</p></li>
+        <li><h3>Scans aloud</h3><p>Read on the beat, stresses fall naturally.</p></li>
+        <li><h3>Distinct verses</h3><p>Each verse is a new scene, not a restatement.</p></li>
+        <li><h3>Realistic runtime</h3><p>Fits about 3:15 to 3:30.</p></li>
+        <li><h3>Joke embodied, not explained</h3><p>The premise comes out of the character’s logic.</p></li>
+        <li><h3>Musical ending</h3><p>Refrain, stripped hook, harmony stack or fade.</p></li>
+        <li><h3>Real-record production</h3><p>The style prompt describes a believable record.</p></li>
+        <li><h3>Distinct voices</h3><p>If several characters sing, none are interchangeable.</p></li>
+        <li><h3>Clean output</h3><p>Two copyable blocks, nothing else.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- PROMPTS -->
+  <section class="shelf" id="prompts">
+    <div class="shelf-head">
+      <span class="eyebrow">09 · Prompts to copy</span>
+      <h2>Seven prompts for the lyricist</h2>
+      <p>Written for ChatGPT, and they work in Claude, Gemini or a local model. Fill the <code>{{braces}}</code>. Use the first as a project or custom-instructions prompt so every chat follows the method.</p>
+    </div>
+    <div class="prompts">
+      <article class="prompt">
+        <span class="kind">Setup · 1</span><h3>The songwriter system prompt</h3>
+        <p class="src">Paste into a ChatGPT Project’s instructions, a Custom GPT, or a Claude Project.</p>
+        <div class="code"><button type="button" class="copy" data-copy="p1" aria-label="Copy prompt: songwriter system prompt">Copy</button><pre id="p1">You are a professional songwriter and producer writing lyrics and style prompts for Suno. Work in this order and do not skip steps:
+
+1. Premise: core concept, point of view, emotional tone, central joke or tension, and 10 concrete scenes or images.
+2. Musical world: a real, specific genre and era. The instrumental must sound like a real record; comic lyrics never need comic production.
+3. Architecture: list the sections, a line count for each (matching sections equal), and a syllable pattern per section. The chorus meter is the strictest.
+4. Hook: 3 to 5 syllables, simple words, repeated construction. The chorus has its own identity and does not summarise the verses.
+5. Verses: each one a distinct scene with physical detail and character-specific logic.
+6. Rhyme: end, internal, multisyllabic and slant rhyme. Never rhyme a word with itself or its compound, never bend syntax to force a rhyme.
+7. Singability: natural word stress, room to breathe, open vowels on held notes.
+8. Length: target 3:15 to 3:30. If long, cut the weakest lines and shorten the bridge.
+9. Ending: a refrain, stripped hook, harmony stack or instrumental fade. No spoken skit.
+
+Before answering, silently check: equal line counts, syllable pattern, chorus meter, hook length, no lazy or self rhymes, even density, scans aloud, distinct verses, runtime, joke embodied not explained, musical ending, real-record production, distinct character voices.
+
+Output exactly two code blocks and nothing else:
+STYLE: under 1,000 characters covering genre and era, BPM and feel, drums, bass, harmony, instruments, vocal (register, timbre, delivery, mic, harmonies), space and mood, and how the arrangement develops. No artist names. No negative instructions.
+LYRICS: section labels in square brackets on their own lines, backing vocals in parentheses, [End] after the last section.</pre></div>
+      </article>
+      <article class="prompt">
+        <span class="kind">Premise · 2</span><h3>Brainstorm premises</h3>
+        <div class="code"><button type="button" class="copy" data-copy="p2" aria-label="Copy prompt: brainstorm premises">Copy</button><pre id="p2">I want a song about {{subject}}. Give me 8 different premises. For each: a one-line concept, who sings it and to whom, the emotional tone, the central tension or joke, and the genre that would make the strongest contrast or fit. Favour premises where the singer takes something absurd completely seriously. Then recommend one and say why in two sentences.</pre></div>
+      </article>
+      <article class="prompt">
+        <span class="kind">Style · 3</span><h3>Turn a vibe into a style prompt</h3>
+        <div class="code"><button type="button" class="copy" data-copy="p3" aria-label="Copy prompt: vibe to style prompt">Copy</button><pre id="p3">Write a Suno style prompt under 1,000 characters for this sound: {{describe the vibe, or name songs or artists you like}}.
+Translate any artist names into what they sound like: era, instruments, drum and bass feel, harmony, vocal register and delivery, production and space. Put the main genre first, blend at most three genres, give a BPM, and describe how the arrangement changes across the song. No artist names and no "no X" phrases; list anything to keep out separately as an Exclude line.</pre></div>
+      </article>
+      <article class="prompt">
+        <span class="kind">Structure · 4</span><h3>Lock the architecture</h3>
+        <div class="code"><button type="button" class="copy" data-copy="p4" aria-label="Copy prompt: lock the architecture">Copy</button><pre id="p4">Before writing any lyrics for this premise: {{premise}}
+Propose the song architecture as a table: section, line count, syllable pattern per line, and what happens in that section (scene, turn, or hook). Matching sections must have equal line counts and the same pattern. Target 3:15 to 3:30 at {{BPM}} BPM. Also propose three hook options of 3 to 5 syllables. Wait for my choice before writing the lyrics.</pre></div>
+      </article>
+      <article class="prompt">
+        <span class="kind">Audit · 5</span><h3>Audit a lyric before generating</h3>
+        <div class="code"><button type="button" class="copy" data-copy="p5" aria-label="Copy prompt: audit a lyric">Copy</button><pre id="p5">Audit these lyrics against the target structure {{structure, e.g. verses 8 lines of 8 syllables, chorus 4 lines 5/7/5/7}}.
+For every line, give the syllable count and mark stressed syllables in CAPS. Then list only the failures: lines off the pattern, uneven density, self or lazy rhymes, unnatural stress, verses that repeat each other, a hook longer than 5 syllables, a runtime over 3:30, a joke that is explained rather than embodied, a non-musical ending. Suggest a fix for each failure without changing lines that pass.
+
+&lt;lyrics&gt;
+{{paste lyrics}}
+&lt;/lyrics&gt;</pre></div>
+      </article>
+      <article class="prompt">
+        <span class="kind">Diagnose · 6</span><h3>Diagnose a generated song</h3>
+        <div class="code"><button type="button" class="copy" data-copy="p6" aria-label="Copy prompt: diagnose a generated song">Copy</button><pre id="p6">I generated this song in Suno. What I hear: {{e.g. the chorus melody is weak, verse 2 is rushed, it sounds like a children's song}}.
+Diagnose the cause before suggesting any rewrite. Possible causes: syllable count and line length (confused melody), chorus too wordy (weak chorus), density (rushed verses), production too playful (childish), jokes explained (forced), rhyme structure (weak rhymes), style prompt overloaded (ignores the style). Name the most likely cause, then change only what that cause requires. Return the two blocks again with the changes marked.
+
+&lt;style&gt;{{style prompt}}&lt;/style&gt;
+&lt;lyrics&gt;{{lyrics}}&lt;/lyrics&gt;</pre></div>
+      </article>
+      <article class="prompt">
+        <span class="kind">Characters · 7</span><h3>A song for several singers</h3>
+        <div class="code"><button type="button" class="copy" data-copy="p7" aria-label="Copy prompt: several singers">Copy</button><pre id="p7">Write a song where {{characters}} each sing a verse about {{premise}}. First, give each character a one-line worldview, a vocabulary list of 8 words only they would use, and the kind of joke they make. Then write the lyrics with each verse labelled by singer, e.g. [Verse 1: {{name}}, low gruff voice]. No line should work if moved to another character. Shared chorus, identical each time.</pre></div>
+      </article>
+    </div>
+  </section>
+
+  <!-- RIGHTS -->
+  <section class="shelf" id="rights">
+    <div class="shelf-head">
+      <span class="eyebrow">10 · Rights and releasing</span>
+      <h2>What you can do with the songs</h2>
+      <p>This changed a lot in 2025 and 2026 and is still moving. This is a summary of what the sources say as of October 2026, not legal advice; check the current terms before you release anything.</p>
+    </div>
+    <div class="grid2">
+      <div class="item">
+        <h4>Suno’s plans</h4>
+        <ul>
+          <li><strong>Free:</strong> non-commercial use only, Suno owns the songs, and 7 lifetime downloads. Subscribing later doesn’t license earlier songs.</li>
+          <li><strong>Pro and Premier:</strong> commercial use rights; Suno’s help centre says you own the songs. 20 and 60 downloads a month, starting 3 September 2026, with stems counting as part of their song.</li>
+          <li>Streaming and sharing inside Suno stay unlimited on every plan.</li>
+        </ul>
+      </div>
+      <div class="item">
+        <h4>Copyright</h4>
+        <ul>
+          <li>The US Copyright Office’s January 2025 report says purely AI-generated music isn’t protected, and prompts alone don’t give enough human control.</li>
+          <li>Human-written parts are protected. Suno’s help centre: if you wrote the lyrics, you own them, and you can usually register them separately.</li>
+          <li>So writing or substantially editing the lyrics yourself, rather than only prompting, gives you something you can protect.</li>
+        </ul>
+      </div>
+      <div class="item">
+        <h4>Streaming platforms</h4>
+        <ul>
+          <li>Spotify (September 2025) bans unauthorised voice clones and impersonation, filters spam such as mass uploads and 31-second tracks, and supports DDEX credits that disclose AI use. It says disclosure won’t be penalised.</li>
+          <li>Never release a track that imitates a real singer’s voice.</li>
+        </ul>
+      </div>
+      <div class="item">
+        <h4>The licensing picture</h4>
+        <ul>
+          <li>Warner settled with Suno in November 2025; v6 launched in September 2026 trained on licensed Warner, BMG and Believe catalogues, and all earlier models were retired.</li>
+          <li>Suits from Sony, Universal and others were still pending at v6’s launch.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="sub">
+      <h3>Other AI music tools</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tool</th><th>Good for</th><th>Status, Aug–Oct 2026</th></tr></thead>
+          <tbody>
+            <tr><td>Suno</td><td>Full songs with vocals from a lyric and a style</td><td>v6 on licensed data; download caps by plan; commercial rights on paid plans.</td></tr>
+            <tr><td>Udio</td><td>Song generation and remixing</td><td>Settled with Universal and Warner; audio downloads disabled since October 2025.</td></tr>
+            <tr><td>ElevenLabs Music</td><td>Licensed music via app or API</td><td>Licensed through Merlin and Kobalt; commercial use on paid plans, film and TV on Enterprise.</td></tr>
+            <tr><td>Stable Audio</td><td>Instrumentals, sound design, self-hosting</td><td>Licensed training data; smaller models can be run on your own hardware.</td></tr>
+            <tr><td>Google Lyria</td><td>Developers building music features</td><td>Preview on Vertex AI; outputs carry a SynthID watermark.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="small">The comparison rows for tools other than Suno draw on a Stability AI comparison (a vendor in the table) dated 28 August 2026, so check each tool’s own terms.</p>
+    </div>
+  </section>
+
+  <!-- SOURCES -->
+  <section class="shelf" id="sources">
+    <div class="shelf-head">
+      <span class="eyebrow">11 · Sources</span>
+      <h2>How this was made</h2>
+      <p>The method comes from my own written workflow for the cat songs, which you can hear in the <a href="https://www.youtube.com/playlist?list=PLKCbGht0OqxU">YouTube playlist</a> and read about in the <a href="../../#songs">case study</a>. The Suno details were researched with Claude in October 2026 from Suno’s release notes and help centre first, then trade press and community guides, which are labelled as such above.</p>
+    </div>
+    <div class="sub">
+      <h3>Suno, official</h3>
+      <ul class="srcs">
+        <li><a href="https://suno.com/release-notes">Suno release notes</a></li>
+        <li><a href="https://help.suno.com/en/articles/13924481">Suno: v6 FAQ</a></li>
+        <li><a href="https://help.suno.com/en/articles/6141377">Suno: Creative Sliders</a></li>
+        <li><a href="https://help.suno.com/en/articles/3161921">Suno: Excluding elements</a></li>
+        <li><a href="https://help.suno.com/en/articles/5782977">Suno: Better prompts in Lyrics (v4.5)</a></li>
+        <li><a href="https://help.suno.com/en/articles/9010177">Suno: Music glossary</a></li>
+        <li><a href="https://help.suno.com/en/articles/2746945">Suno: Do I have the copyrights to songs I made?</a></li>
+        <li><a href="https://help.suno.com/en/articles/13614785">Suno: Downloads, models and terms FAQ</a></li>
+      </ul>
+    </div>
+    <div class="sub">
+      <h3>Law, industry and press</h3>
+      <ul class="srcs">
+        <li><a href="https://blogs.loc.gov/copyright/2025/05/a-i-art-and-copyright-the-human-element-that-makes-all-the-difference/">US Copyright Office blog: the human element</a></li>
+        <li><a href="https://www.rimonlaw.com/how-copyright-office-guidance-applies-to-music-that-includes-ai-generated-material/">Rimon Law: Copyright Office guidance and AI music</a></li>
+        <li><a href="https://www.musicbusinessworldwide.com/warner-music-group-settles-with-suno-strikes-first-of-its-kind-deal-with-ai-song-generator/">Music Business Worldwide: Warner settles with Suno</a></li>
+        <li><a href="https://www.digitalmusicnews.com/2025/12/22/suno-warner-music-deal-changes/">Digital Music News: Suno’s 2026 changes</a></li>
+        <li><a href="https://techcrunch.com/2026/09/09/suno-replaces-its-ai-models-with-a-new-one-trained-on-licensed-music-as-copyright-suits-pile-up/">TechCrunch: Suno v6 on licensed music</a></li>
+        <li><a href="https://musicbusinessworldwide.com/spotify-has-deleted-75m-spammy-tracks-as-it-unveils-new-ai-music-policies">Music Business Worldwide: Spotify’s AI policies</a></li>
+        <li><a href="https://stability.ai/explainers/stable-audio-vs-competitors-licensing-export-rights-and-self-hosting-compared">Stability AI: AI music tools compared (vendor)</a></li>
+      </ul>
+    </div>
+    <div class="sub">
+      <h3>Craft and community guides</h3>
+      <ul class="srcs">
+        <li><a href="https://www.berklee.edu/berklee-now/news/berklee-riffs-natural-music-in-language">Berklee: Natural music in language (prosody)</a></li>
+        <li><a href="https://en.wikipedia.org/wiki/Prosody_(music)">Wikipedia: Prosody (music)</a></li>
+        <li><a href="https://blakecrosley.com/guides/suno">Blake Crosley: Suno tags, meta tags and prompts</a></li>
+        <li><a href="https://hookgenius.app/learn/suno-character-limits/">HookGenius: Suno character limits (measured)</a></li>
+        <li><a href="https://weraveyou.com/2026/09/suno-v6-models-features-editing-sampling-advanced-mode/">We Rave You: Suno v6 features walkthrough</a></li>
+        <li><a href="https://learnprompting.org/blog/guide-suno">Learn Prompting: Suno guide</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <span>Myles Parslow · Researched and built with Claude · October 2026</span>
+    <a href="../../">Back to the portfolio</a>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var KEY = 'portfolio-scheme';
+  var root = document.documentElement;
+  var buttons = document.querySelectorAll('.swatch');
+  function apply(name) {
+    if (name !== 'pine' && name !== 'sky') name = 'eggshell';
+    if (name === 'eggshell') root.removeAttribute('data-scheme'); else root.setAttribute('data-scheme', name);
+    buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.pick === name)); });
+    return name;
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  apply(saved);
+  buttons.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var name = apply(b.dataset.pick);
+      try { localStorage.setItem(KEY, name); } catch (e) {}
+    });
+  });
+
+  document.querySelectorAll('.copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var el = document.getElementById(btn.dataset.copy);
+      if (!el) return;
+      var text = el.textContent;
+      function done(ok) { btn.textContent = ok ? 'Copied' : 'Select & copy'; setTimeout(function () { btn.textContent = 'Copy'; }, 1600); }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(false); });
+      } else {
+        var r = document.createRange(); r.selectNodeContents(el);
+        var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+        try { done(document.execCommand('copy')); } catch (e) { done(false); }
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

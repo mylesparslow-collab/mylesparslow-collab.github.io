@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="A practical, sourced guide to using AI safely: what not to paste, work policies, training and retention settings by vendor, local vs cloud, hallucinations, verification and prompt injection.">
+<title>AI Safety and Privacy Basics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Same sheet, tokens and colour picker as the portfolio home page, so a chosen scheme carries over. */
+:root {
+  color-scheme: light;
+  --bg: #f2eee3; --surface: #fbf9f3; --rule: #ddd3bf; --ink: #15120f; --muted: #5f4e40;
+  --accent: #6b3f22; --mark: #a9822f; --mark-soft: #ede1c1;
+  --display: "Bricolage Grotesque", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+  --body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+:root[data-scheme="pine"] {
+  --bg: #f4f6f4; --surface: #ffffff; --rule: #d5ddd8; --ink: #18201c; --muted: #56625b;
+  --accent: #23593f; --mark: #23593f; --mark-soft: #e2ece6;
+}
+:root[data-scheme="sky"] {
+  --bg: #e8f3fb; --surface: #ffffff; --rule: #c6e0f3; --ink: #192838; --muted: #4c6073;
+  --accent: #9b111e; --mark: #9b111e; --mark-soft: #f7e1e4;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 1.0625rem; line-height: 1.62; margin: 0; }
+.wrap { max-width: 72rem; margin: 0 auto; padding-inline: 1.25rem; padding-block: 3.5rem 4rem; display: grid; gap: 5rem; }
+a { color: var(--accent); text-underline-offset: 0.18em; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+h1, h2, h3, h4 { font-family: var(--display); text-wrap: balance; line-height: 1.12; margin: 0; }
+p { margin: 0; }
+code { font-family: var(--mono); font-size: 0.86em; background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; padding: 0.05em 0.3em; }
+.eyebrow { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+
+/* Top bar and picker */
+.topbar { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.75rem 1.5rem; }
+.topbar .back { font-family: var(--mono); font-size: 0.8rem; }
+.picker { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0; padding: 0; border: 0; }
+.picker legend { float: left; margin-right: 0.25rem; font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.swatch { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.3rem 0.7rem 0.3rem 0.35rem; border-radius: 999px; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); font-family: var(--display); font-size: 0.85rem; font-weight: 500; cursor: pointer; }
+.swatch:hover { border-color: var(--muted); }
+.swatch[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.swatch i { width: 1.15rem; height: 1.15rem; border-radius: 50%; flex: none; border: 1px solid rgba(0,0,0,0.15); }
+.swatch[data-pick="eggshell"] i { background: linear-gradient(135deg, #f2eee3 0 45%, #6b3f22 45% 70%, #a9822f 70%); }
+.swatch[data-pick="pine"] i { background: linear-gradient(135deg, #f4f6f4 0 50%, #23593f 50%); }
+.swatch[data-pick="sky"] i { background: linear-gradient(135deg, #e8f3fb 0 50%, #9b111e 50%); }
+
+/* Intro */
+.intro { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 2.5rem; align-items: start; }
+.intro-text { display: grid; gap: 1.25rem; align-content: start; }
+.intro h1 { font-size: clamp(2.6rem, 6.4vw, 4.4rem); font-weight: 800; letter-spacing: -0.025em; line-height: 1.04; }
+.intro h1 em { font-style: normal; color: var(--mark); }
+.lede { font-size: 1.22rem; max-width: 38rem; }
+.toc { display: grid; border-top: 2px solid var(--ink); counter-reset: toc; }
+.toc a { display: grid; grid-template-columns: 2.2rem 1fr auto; gap: 0.5rem; align-items: baseline; padding: 0.55rem 0; border-bottom: 1px solid var(--rule); text-decoration: none; color: var(--ink); font-family: var(--display); font-weight: 700; font-size: 1.05rem; }
+.toc a::before { counter-increment: toc; content: counter(toc, decimal-leading-zero); font-family: var(--mono); font-weight: 400; font-size: 0.75rem; color: var(--muted); }
+.toc a span { font-family: var(--mono); font-weight: 400; font-size: 0.75rem; color: var(--muted); text-align: right; }
+.toc a:hover { color: var(--accent); }
+.tally { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin: 0; border-top: 1px solid var(--rule); padding-top: 1.25rem; }
+.tally div { display: grid; gap: 0.2rem; align-content: start; }
+.tally dt { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); order: 2; }
+.tally dd { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(1.6rem, 3.4vw, 2.4rem); color: var(--accent); letter-spacing: -0.02em; line-height: 1.05; }
+
+/* Sections */
+.shelf { display: grid; gap: 2.25rem; scroll-margin-top: 1.5rem; }
+.shelf-head { display: grid; gap: 0.5rem; border-top: 2px solid var(--ink); padding-top: 1rem; }
+.shelf-head h2 { font-size: clamp(2rem, 4.2vw, 2.8rem); font-weight: 800; letter-spacing: -0.02em; }
+.shelf-head p { color: var(--muted); max-width: 46rem; }
+.sub { display: grid; gap: 1rem; }
+.sub > h3 { font-size: 1.5rem; }
+.sub > p { max-width: 48rem; }
+
+/* Numbered rules */
+.short { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem 2.5rem; counter-reset: r; }
+.short li { counter-increment: r; display: grid; grid-template-columns: 2.4rem 1fr; gap: 0.2rem 0.6rem; border-top: 1px solid var(--rule); padding-top: 0.8rem; }
+.short li::before { content: counter(r, decimal-leading-zero); grid-row: span 2; font-family: var(--display); font-weight: 800; font-size: 1.4rem; color: var(--mark); line-height: 1.1; }
+.short h3 { font-size: 1.12rem; }
+.short p { color: var(--muted); font-size: 0.98rem; }
+
+/* Card grids */
+.grid2, .grid3 { display: grid; gap: 1.5rem 2.25rem; }
+.grid2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.item { display: grid; gap: 0.4rem; align-content: start; border-top: 1px solid var(--rule); padding-top: 0.85rem; min-width: 0; }
+.item h4 { font-size: 1.08rem; }
+.item p { font-size: 0.98rem; }
+.item .why { color: var(--muted); }
+.item .cite { font-family: var(--mono); font-size: 0.74rem; color: var(--muted); }
+.item ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.35rem; font-size: 0.98rem; }
+
+/* Anatomy */
+.anatomy { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0.75rem; }
+.anatomy div { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 0.9rem; display: grid; gap: 0.35rem; align-content: start; }
+.anatomy b { font-family: var(--mono); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.anatomy p { font-size: 0.92rem; color: var(--muted); }
+.versus { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: 1.25rem; align-items: start; }
+.versus .label { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.35rem; }
+.versus .label.good { color: var(--accent); }
+
+/* Code blocks */
+.code { position: relative; min-width: 0; }
+pre { margin: 0; font-family: var(--mono); font-size: 0.8rem; line-height: 1.55; background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 0.9rem 1rem; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--ink); }
+.copy { position: absolute; top: 0.45rem; right: 0.45rem; font-family: var(--mono); font-size: 0.72rem; padding: 0.2rem 0.55rem; border-radius: 999px; border: 1px solid var(--rule); background: var(--bg); color: var(--accent); cursor: pointer; }
+.copy:hover { border-color: var(--accent); }
+.copy + pre { padding-top: 2rem; }
+
+/* Tables */
+.table-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; min-width: 46rem; }
+th, td { text-align: left; vertical-align: top; padding: 0.65rem 0.8rem; border-bottom: 1px solid var(--rule); }
+th { font-family: var(--mono); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); background: var(--mark-soft); }
+td:first-child { font-family: var(--display); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+.verdict { font-family: var(--mono); font-size: 0.72rem; padding: 0.1rem 0.45rem; border-radius: 999px; background: var(--mark-soft); color: var(--accent); white-space: nowrap; }
+
+/* Model cards */
+.model { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 1.25rem 1.3rem; display: grid; gap: 0.7rem; align-content: start; min-width: 0; }
+.model .kind { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+.model h3 { font-size: 1.45rem; }
+.model ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.45rem; font-size: 0.97rem; }
+.model .links { font-family: var(--mono); font-size: 0.78rem; display: flex; flex-wrap: wrap; gap: 0.3rem 1rem; }
+.callout { border-left: 3px solid var(--mark); padding-left: 0.9rem; display: grid; gap: 0.3rem; max-width: 50rem; }
+.callout b { font-family: var(--mono); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+
+/* Prompt library */
+.filters { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.chip { font-family: var(--display); font-size: 0.88rem; font-weight: 500; padding: 0.3rem 0.75rem; border-radius: 999px; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); cursor: pointer; }
+.chip span { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); margin-left: 0.15rem; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.chip[aria-pressed="true"] span { color: var(--bg); }
+.prompts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem 2.25rem; align-items: start; }
+.prompt { display: grid; gap: 0.6rem; min-width: 0; border-top: 1px solid var(--rule); padding-top: 0.9rem; scroll-margin-top: 1.5rem; }
+.prompt[hidden] { display: none; }
+.prompt .kind { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.prompt h3 { font-size: 1.25rem; margin-top: 0.2rem; }
+.prompt .src, .prompt .after { font-size: 0.88rem; color: var(--muted); }
+
+/* Resources */
+.rnav { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; font-family: var(--mono); font-size: 0.82rem; }
+.rgroup { display: grid; gap: 0.9rem; scroll-margin-top: 1.5rem; }
+.rgroup h3 { font-size: 1.5rem; }
+.rintro { color: var(--muted); max-width: 46rem; }
+.rlist { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem 2rem; }
+.rlist li { display: grid; gap: 0.3rem; align-content: start; border-top: 1px solid var(--rule); padding-top: 0.75rem; min-width: 0; }
+.rname { font-family: var(--display); font-weight: 700; font-size: 1.02rem; overflow-wrap: anywhere; }
+.rhost { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.rlist p { font-size: 0.94rem; }
+.rlist .caution { font-size: 0.84rem; color: var(--muted); font-style: italic; }
+
+.small { font-size: 0.9rem; color: var(--muted); }
+.srcs { columns: 2; column-gap: 2.5rem; font-size: 0.86rem; margin: 0; padding-left: 1.1rem; }
+.srcs li { break-inside: avoid; margin-bottom: 0.35rem; overflow-wrap: anywhere; }
+
+footer { border-top: 1px solid var(--rule); padding-top: 1.25rem; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 2rem; font-family: var(--mono); font-size: 0.8rem; color: var(--muted); }
+
+@media (max-width: 980px) {
+  .anatomy { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .rlist, .grid3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 820px) {
+  .intro, .short, .grid2, .grid3, .prompts, .rlist, .versus { grid-template-columns: minmax(0, 1fr); }
+  .anatomy { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tally { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .srcs { columns: 1; }
+  .wrap { gap: 3.5rem; padding-block: 2.5rem 3rem; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="intro">
+    <div class="topbar">
+      <a class="back" href="../../">← Myles Parslow portfolio</a>
+      <fieldset class="picker" aria-label="Colour scheme">
+        <legend>Colours</legend>
+        <button type="button" class="swatch" data-pick="eggshell" aria-pressed="true"><i></i>Eggshell</button>
+        <button type="button" class="swatch" data-pick="pine" aria-pressed="false"><i></i>Original</button>
+        <button type="button" class="swatch" data-pick="sky" aria-pressed="false"><i></i>Sky &amp; ruby</button>
+      </fieldset>
+    </div>
+    <div class="intro-text">
+      <span class="eyebrow">Field guide · October 2026</span>
+      <h1>Use AI <em>freely</em>, and know where the edges are.</h1>
+      <p class="lede">Most AI use is low risk. A handful of habits cover nearly all of the real risk: what you paste in, which account you use, which settings you check, and how you verify what comes back. This guide covers those habits with the sources behind them.</p>
+      <p class="small">Vendor settings change often. Everything here was checked against the vendors’ own pages on 14 October 2026; where a vendor’s page did not say something, this guide says so rather than guessing. Not legal advice. <a href="../">Companion: the prompting field guide.</a></p>
+    </div>
+    <nav class="toc" aria-label="Sections">
+      <a href="#short">The short version <span>10 habits</span></a>
+      <a href="#paste">What not to paste <span>3 tiers</span></a>
+      <a href="#work">At work <span>policy, law, health</span></a>
+      <a href="#vendors">Settings by vendor <span>9 products</span></a>
+      <a href="#local">Local vs cloud <span>what it fixes</span></a>
+      <a href="#hallucinations">Hallucinations <span>why, real cases</span></a>
+      <a href="#verify">Verifying output <span>SIFT and more</span></a>
+      <a href="#injection">Prompt injection <span>agents, MCP</span></a>
+      <a href="#scams">Voice clones and deepfakes <span>safe word</span></a>
+      <a href="#sources">Sources <span>and limits</span></a>
+    </nav>
+    <dl class="tally">
+      <div><dt>Vendors’ settings checked</dt><dd>9</dd></div>
+      <div><dt>Linked sources</dt><dd>77</dd></div>
+      <div><dt>Court cases with AI-fabricated content (Oct 2026)</dt><dd>2,000+</dd></div>
+      <div><dt>Prompt injection fully solved</dt><dd>No</dd></div>
+    </dl>
+  </header>
+
+  <section class="shelf" id="short">
+    <div class="shelf-head">
+      <span class="eyebrow">01 · The short version</span>
+      <h2>Ten habits that cover most of it</h2>
+      <p>None of these require giving up AI. They are what security teams, bar associations and the vendors themselves keep recommending.</p>
+    </div>
+    <ol class="short">
+      <li><h3>Paste in tiers</h3><p>Public stuff goes anywhere. Private stuff goes only to tools you have vetted. Regulated or secret stuff stays out. See the three tiers below.</p></li>
+      <li><h3>Use the work account for work</h3><p>Surveys keep finding most workplace AI use on personal accounts. Work tiers usually have different terms than free consumer ones.</p></li>
+      <li><h3>Check the training switch once</h3><p>Every major chat product has one. It takes a minute and applies from then on. Section 04 has the path for each.</p></li>
+      <li><h3>Treat “temporary” as “shorter”, not “gone”</h3><p>Temporary and incognito chats are typically still held for days (30 for ChatGPT and Claude, 72 hours for Gemini) for safety review.</p></li>
+      <li><h3>Don’t send thumbs on private chats</h3><p>At several vendors, rating a reply can send the whole conversation for review or training even if you opted out.</p></li>
+      <li><h3>Think before you share a link</h3><p>Shared chats have been indexed by search engines more than once. Anyone with the link can read it.</p></li>
+      <li><h3>Verify anything you will act on</h3><p>Open the cited source. Confirm the quote is in it. Fake citations have reached courtrooms, government reports and journals.</p></li>
+      <li><h3>Be suspicious of agreement</h3><p>Models lean toward telling you what you want to hear. Ask for the strongest case against your idea.</p></li>
+      <li><h3>Limit what an agent can touch</h3><p>Private data, untrusted content and a way to send data out should not all be in one session. Approve irreversible actions by hand.</p></li>
+      <li><h3>Hang up and call back</h3><p>A voice or video call can now be faked. Agree on a family safe word and verify money requests on a known number.</p></li>
+    </ol>
+  </section>
+
+  <section class="shelf" id="paste">
+    <div class="shelf-head">
+      <span class="eyebrow">02 · What not to paste</span>
+      <h2>Three tiers, not a blanket ban</h2>
+      <p>OWASP’s guidance on sensitive information disclosure is blunt: <a href="https://genai.owasp.org/llmrisk/llm022025-sensitive-information-disclosure/">users should avoid entering sensitive information</a>, and providers should let users opt out of training. A simple sort makes that workable.</p>
+    </div>
+    <div class="grid3">
+      <div class="model"><span class="kind">Tier 1 · Paste freely</span><h3>Public or yours to share</h3><ul><li>Published articles, public docs, open-source code</li><li>Your own writing and ideas you would post anyway</li><li>General questions with no names or numbers attached</li></ul></div>
+      <div class="model"><span class="kind">Tier 2 · Approved tools only</span><h3>Private but not regulated</h3><ul><li>Internal documents, meeting notes, unreleased plans</li><li>Customer or employee details, in a tool your organisation has approved</li><li>Proprietary source code</li><li>Use a business or API tier, or a local model, not a free personal account</li></ul></div>
+      <div class="model"><span class="kind">Tier 3 · Keep out</span><h3>Secrets and regulated data</h3><ul><li>Passwords, API keys, private keys, recovery codes</li><li>Health records and other protected data without an agreement in place</li><li>Privileged client material without informed consent</li><li>Government ID, bank and card numbers</li></ul></div>
+    </div>
+    <div class="callout"><b>Redact, then paste</b><p>Most tasks don’t need the real names. Replace people, companies, amounts and account numbers with placeholders (“Client A”, “$X”), get the help, then put the details back yourself.</p></div>
+    <div class="sub">
+      <h3>Why this is not paranoia</h3>
+      <div class="grid2">
+        <div class="item"><h4>Samsung, 2023</h4><p>Engineers in a Samsung division uploaded internal source code to ChatGPT. The company then banned generative AI tools on its devices and network and told staff not to enter company information.</p><p class="cite"><a href="https://www.channelnews.com.au/samsung-bans-staff-from-chatgpt-after-privacy-error/">ChannelNews, citing Bloomberg</a></p></div>
+        <div class="item"><h4>Credentials leak by being pasted</h4><p>Harmonic Security found about 8.5% of business prompts could expose sensitive data in Q4 2024: customer data 45.8%, employee data 26.8%, legal and finance 14.9%, security data 6.9%, sensitive code and keys 5.6%.</p><p class="cite"><a href="https://thejournal.com/articles/2025/01/22/1-in-10-ai-prompts-could-expose-sensitive-data.aspx">THE Journal</a> · vendor survey, sample size not published</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="shelf" id="work">
+    <div class="shelf-head">
+      <span class="eyebrow">03 · At work</span>
+      <h2>Policy, personal accounts and professional duties</h2>
+      <p>The biggest workplace risk is not the tool, it is the account. Surveys from security vendors keep finding the same pattern: lots of sensitive data going into AI through accounts the employer cannot see.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Finding</th><th>Number</th><th>Source</th></tr></thead>
+        <tbody>
+          <tr><td>Sensitive share of data put into chatbots</td><td>27.4% in 2024, up from 10.7% a year earlier</td><td><a href="https://www.scworld.com/news/shadow-ai-on-the-rise-sensitive-data-input-by-workers-up-156">Cyberhaven via SC Media</a></td></tr>
+          <tr><td>Workplace ChatGPT use on personal accounts</td><td>73.8% (2024)</td><td><a href="https://www.scworld.com/news/shadow-ai-on-the-rise-sensitive-data-input-by-workers-up-156">Cyberhaven via SC Media</a></td></tr>
+          <tr><td>AI interactions involving sensitive data</td><td>39.7% (2026 report)</td><td><a href="https://cyberhaven.com/blog/4-2-of-workers-have-pasted-company-data-into-chatgpt">Cyberhaven</a></td></tr>
+          <tr><td>Generative AI access via non-corporate accounts</td><td>71.6% (2025)</td><td><a href="https://www.techrepublic.com/article/news-employees-share-company-secrets-on-chatgpt/">LayerX via TechRepublic</a></td></tr>
+          <tr><td>Employees using AI tools their employer hasn’t approved</td><td>71%</td><td><a href="https://www.ncsc.gov.uk/blogs/the-hidden-risks-of-shadow-ai">UK NCSC, citing a study</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small">These are vendor-published surveys with different methods, so treat them as the direction of travel, not exact rates. The UK NCSC’s framing is the useful one: it does not tell people to stop, it says to prefer approved tools and asks organisations to understand why staff go around them and offer secure alternatives.</p>
+    <div class="grid3">
+      <div class="item"><h4>Read your acceptable-use policy</h4><p>If there isn’t one, ask. The NIST <a href="https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence">Generative AI Profile (AI 600-1)</a> is the standard reference organisations build policies from.</p></div>
+      <div class="item"><h4>Lawyers and client confidentiality</h4><p>ABA Formal Opinion 512 (July 2024) says lawyers must assess disclosure risk before entering client data, read the tool’s terms, and get informed consent for self-learning tools. Boilerplate in an engagement letter is “not sufficient”.</p><p class="cite"><a href="https://natlawreview.com/article/american-bar-association-issues-formal-opinion-use-generative-ai-tools">National Law Review summary</a></p></div>
+      <div class="item"><h4>Health data</h4><p>HHS says a cloud provider handling protected health information for a covered entity is a business associate and needs a HIPAA business associate agreement. Without one, sending PHI to an AI vendor is generally not permitted. Consumer tiers usually have no such agreement.</p><p class="cite"><a href="https://www.hhs.gov/hipaa/for-professionals/special-topics/health-information-technology/cloud-computing/index.html">HHS</a> · <a href="https://www.hollandhart.com/ai-chatbots-and-hipaa-what-healthcare-providers-need-to-know-1">Holland &amp; Hart</a></p></div>
+    </div>
+  </section>
+
+  <section class="shelf" id="vendors">
+    <div class="shelf-head">
+      <span class="eyebrow">04 · Settings by vendor</span>
+      <h2>Training, retention and the switch to find</h2>
+      <p>Consumer plans from most vendors can use your chats to improve models unless you opt out. Business, enterprise and API tiers generally do not. Opting out almost always applies from that point on and does not pull data out of models already trained.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Product</th><th>Where the setting is</th><th>Retention to know</th><th>Gotchas</th></tr></thead>
+        <tbody>
+          <tr><td>ChatGPT</td><td>Settings › Data controls › “Improve the model for everyone”. Default is not stated on OpenAI’s pages.</td><td>Deleted chats removed within 30 days. Temporary Chat: no training, no memory, but may be kept up to 30 days for safety.</td><td>Thumbs feedback can send the whole conversation for training even if opted out. Business, Enterprise, Edu and API: not used for training by default. <a href="https://help.openai.com/en/articles/7730893-data-controls-faq">FAQ</a> · <a href="https://help.openai.com/en/articles/7039943-how-openai-uses-your-data">how data is used</a></td></tr>
+          <tr><td>Claude</td><td>Settings › Privacy › “Help Improve Claude”. Choice introduced Aug–Oct 2025 for Free, Pro and Max.</td><td>Opted out: about 30 days. Opted in: up to 5 years, de-identified. Incognito chats are kept 30 days by default.</td><td>Feedback and bug reports are kept 5 years regardless. Team, Enterprise, Education and API use commercial terms and are not covered by the consumer change. <a href="https://www.anthropic.com/news/updates-to-our-consumer-terms">Announcement</a> · <a href="https://privacy.claude.com/en/articles/10023548-how-long-do-you-store-my-data">retention</a> · <a href="https://support.claude.com/en/articles/12260368-using-incognito-chats">incognito</a></td></tr>
+          <tr><td>Gemini</td><td>“Keep Activity” (Gemini Apps Activity). Turn it off to stop chats being saved for improvement.</td><td>Auto-delete defaults to 18 months (3, 36 or off possible). Temporary chats and activity-off chats: 72 hours.</td><td>A subset of chats is reviewed by humans, detached from your account and kept up to 3 years; deleting activity does not remove reviewed copies. Workspace accounts are not used to train models. <a href="https://support.google.com/gemini/answer/13594961">Privacy Hub</a> · <a href="https://support.google.com/mail/answer/14615114">Workspace</a></td></tr>
+          <tr><td>Microsoft Copilot (consumer)</td><td>Privacy › “Model training on text” and “on voice”. On by default for eligible users.</td><td>Chats kept 18 months by default; uploaded files deleted after 30 days.</td><td>Microsoft says an opt-out of human review is not available. Work and school accounts are never used for training. <a href="https://support.microsoft.com/en-us/topic/privacy-faq-for-microsoft-copilot-27b3a435-8dc9-4b55-9a4b-58eeb9647a7f">Privacy FAQ</a> · <a href="https://learn.microsoft.com/en-us/copilot/microsoft-365/enterprise-data-protection">M365 Copilot</a></td></tr>
+          <tr><td>Meta AI</td><td>No dedicated training opt-out described for US users; the EU and UK have a right-to-object form (2024 source, not re-confirmed).</td><td>Not confirmed on a Meta page.</td><td>Since 16 Dec 2025, chats shape the content and ads you see in most regions. The app’s Discover feed has exposed chats users shared by mistake. <a href="https://about.fb.com/news/2025/10/improving-your-recommendations-apps-ai-meta/">Meta</a> · <a href="https://www.mozillafoundation.org/en/campaigns/meta-help-users-stop-accidentally-sharing-private-ai-conversations/">Mozilla</a></td></tr>
+          <tr><td>Perplexity</td><td>Account › Preferences › “AI data retention”. On by default for Free, Pro and Max.</td><td>Consumer period not confirmed. Enterprise: never used for training; files kept 7 days.</td><td>Opt-out applies only to data collected afterwards. Downgrading from Enterprise brings back the consumer default. <a href="https://intercom.help/perplexity-ai/en/articles/11564572-data-collection-at-perplexity">Perplexity</a></td></tr>
+          <tr><td>Grok</td><td>Settings › Data controls › “Improve the model”. Default not stated.</td><td>Deleted chats and Private Chat removed within 30 days.</td><td>Feedback may still be used after opting out. In Aug 2025, over 370,000 shared chats were indexed by Google with no warning. <a href="https://x.ai/legal/faq">xAI FAQ</a> · <a href="https://9to5mac.com/2025/08/20/370k-grok-ai-chats-made-public-without-user-consent/">9to5Mac</a></td></tr>
+          <tr><td>DeepSeek</td><td>Settings › Data › “Improve the model for everyone”.</td><td>Policy says data is stored on servers in the People’s Republic of China; retention period not stated. The version loaded was dated 2024.</td><td>Not for sensitive or work material. Kaspersky reports deleting chats may not remove them from servers (not DeepSeek’s own statement). <a href="https://chat.deepseek.com/downloads/DeepSeek%20Privacy%20Policy.html">Policy</a> · <a href="https://www.kaspersky.com/blog/deepseek-privacy-and-security/54643/">Kaspersky</a></td></tr>
+          <tr><td>GitHub Copilot</td><td>github.com/settings/copilot › Privacy. Since 24 Apr 2026, Free, Pro and Pro+ interaction data is used for training unless you opt out.</td><td>Not covered here.</td><td>Business and Enterprise accounts and private repositories at rest are excluded. <a href="https://github.blog/news-insights/company-news/updates-to-github-copilot-interaction-data-usage-policy/">GitHub blog</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="grid3">
+      <div class="item"><h4>The API is a different deal</h4><p>OpenAI says API content has not been used for training since 1 March 2023, with abuse logs kept up to 30 days. Zero data retention needs prior approval, and Anthropic offers it for API and commercial Claude Code use but not for Free, Pro or Max.</p><p class="cite"><a href="https://developers.openai.com/api/docs/guides/your-data">OpenAI</a> · <a href="https://privacy.claude.com/en/articles/8956058-i-have-a-zero-data-retention-agreement-with-anthropic-what-products-does-it-apply-to">Anthropic</a></p></div>
+      <div class="item"><h4>Courts can freeze deletion</h4><p>In 2025 a court order in the New York Times case forced OpenAI to keep deleted logs. It ended going forward in late September 2025 and was formally lifted on 9 October, but logs already preserved stay preserved.</p><p class="cite"><a href="https://engadget.com/ai/openai-no-longer-has-to-preserve-all-of-its-chatgpt-data-with-some-exceptions-192422093.html">Engadget</a></p></div>
+      <div class="item"><h4>Wrapper apps add a third party</h4><p>In February 2026 a misconfigured database behind the “Chat &amp; Ask AI” app exposed about 300 million messages from over 25 million users. Prefer the vendor’s own app.</p><p class="cite"><a href="https://www.malwarebytes.com/blog/news/2026/02/ai-chat-app-leak-exposes-300-million-messages">Malwarebytes</a></p></div>
+    </div>
+    <p class="small">Past exposure incidents, for context: a March 2023 ChatGPT bug showed some users other people’s chat titles and, for 1.2% of Plus subscribers in a nine-hour window, partial payment details (<a href="https://openai.com/blog/march-20-chatgpt-outage">OpenAI</a>); ChatGPT’s opt-in “discoverable” shared links appeared in search before OpenAI removed the option in August 2025 (<a href="https://www.theregister.com/2025/08/01/openai_removes_chatgpt_selfdoxing_option/">The Register</a>); DeepSeek left an unauthenticated database with chat history and secrets open until Wiz reported it in January 2025 (<a href="https://www.wiz.io/blog/wiz-research-uncovers-exposed-deepseek-database-leak">Wiz</a>).</p>
+  </section>
+
+  <section class="shelf" id="local">
+    <div class="shelf-head">
+      <span class="eyebrow">05 · Local vs cloud</span>
+      <h2>What running a model on your own machine does and doesn’t fix</h2>
+      <p>Local models keep your prompts off a vendor’s servers. That solves a real problem. It does not solve the others.</p>
+    </div>
+    <div class="grid2">
+      <div class="model"><span class="kind">What local fixes</span><h3>Where your text goes</h3><ul><li>Ollama’s policy: for local use, “we do not collect, store, transmit, or have access to your prompts.” It still collects some usage metadata and processes prompts on its servers for its cloud-hosted models. <a href="https://ollama.com/privacy">Policy</a></li><li>LM Studio says chats and documents are never transmitted and the app has no telemetry; update checks send version, OS and IP. Its optional cloud services do send prompts. <a href="https://lmstudio.ai/app-privacy">Policy</a></li><li>No training on your data and no retention window to read.</li></ul></div>
+      <div class="model"><span class="kind">What local does not fix</span><h3>The rest of the risk</h3><ul><li><b>Malicious model files.</b> Pickle-format files can run code when loaded; JFrog found about 100 malicious models on Hugging Face. Prefer safetensors and trusted publishers. <a href="https://huggingface.co/docs/hub/en/security-pickle">Hugging Face</a> · <a href="https://thehackernews.com/2024/03/over-100-malicious-aiml-models-found-on.html">THN</a></li><li><b>Exposed servers.</b> Censys and SentinelOne found over 175,000 publicly reachable Ollama hosts in January 2026, many with tool-calling on. Don’t expose yours to the internet. <a href="https://thehackernews.com/2026/01/researchers-find-175000-publicly.html">THN</a></li><li><b>Hallucination and prompt injection</b> are properties of the model, local or not.</li></ul></div>
+    </div>
+    <div class="callout"><b>Rule of thumb</b><p>Use local models for the Tier 2 material you would not send to a vendor, cloud models for everything else. If you do run a local server, keep it bound to your own machine and check the project’s docs for its default.</p></div>
+  </section>
+
+  <section class="shelf" id="hallucinations">
+    <div class="shelf-head">
+      <span class="eyebrow">06 · Hallucinations</span>
+      <h2>Why models make things up, and what it has cost people</h2>
+      <p>A hallucination is a fluent, confident statement that isn’t true. It is not a rare glitch, and it is not random.</p>
+    </div>
+    <div class="sub">
+      <h3>The plain-English cause</h3>
+      <p>OpenAI’s September 2025 explanation: models are trained and scored mostly on accuracy, so a guess can earn credit while “I don’t know” always earns zero. Standard training and evaluation “reward guessing over acknowledging uncertainty.” Arbitrary facts, like a stranger’s birthday, have no pattern to learn, so the model guesses. In OpenAI’s example, an older model answered nearly every question and was wrong 75% of the time, while a newer one declined 52% of the time and was wrong 26%. <a href="https://openai.com/blog/why-language-models-hallucinate/">OpenAI</a> · <a href="https://arxiv.org/pdf/2509.04664">paper</a></p>
+    </div>
+    <div class="sub">
+      <h3>Real cases</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Case</th><th>What happened</th><th>Lesson</th></tr></thead>
+          <tbody>
+            <tr><td>Mata v. Avianca (2023)</td><td>Lawyers filed a brief with at least six bogus decisions and quotes. Asked if a case was real, ChatGPT said yes. Fined $5,000 in total.</td><td>The AI vouching for itself is not verification. <a href="https://news.bloomberglaw.com/bloomberg-government-news/chatgpt-phony-legal-filing-case-gets-lawyers-a-5-000-fine">Bloomberg Law</a> · <a href="https://ktvz.com/money/cnn-business-consumer/2023/05/27/lawyer-apologizes-for-fake-court-citations-from-chatgpt/">CNN</a></td></tr>
+            <tr><td>Moffatt v. Air Canada (2024)</td><td>A chatbot gave wrong bereavement-fare information. Air Canada argued the bot was a separate legal entity; the tribunal disagreed and awarded about CA$650 plus interest and fees.</td><td>You are responsible for what your tool says. <a href="https://www.americanbar.org/groups/business_law/resources/business-law-today/2024-february/bc-tribunal-confirms-companies-remain-liable-information-provided-ai-chatbot/">ABA</a></td></tr>
+            <tr><td>Chicago Sun-Times list (2025)</td><td>A summer reading list had at least 10 of 15 books that appear not to exist. The freelancer said he used AI and did not fact-check.</td><td>Plausible titles are cheap to generate. <a href="https://www.axios.com/2025/05/20/ai-summer-reading-books-chicago-sun-times">Axios</a></td></tr>
+            <tr><td>Deloitte Australia (2025)</td><td>A AU$440,000 government report had a made-up judge’s quote and references that don’t exist. Deloitte agreed to repay the final instalment.</td><td>Professional polish hides invented sources. <a href="https://www.news4jax.com/business/2025/10/07/deloitte-to-partially-refund-australian-government-for-report-with-apparent-ai-generated-errors/">AP</a></td></tr>
+            <tr><td>South Africa AI policy (2026)</td><td>At least 6 of 67 bibliography sources were fabricated; the draft was withdrawn 17 days after publication.</td><td>Check the bibliography, not just the prose. <a href="https://restofworld.org/2026/government-ai-hallucinations-south-africa-deloitte/">Rest of World</a></td></tr>
+            <tr><td>Journals (2026)</td><td>An audit of about 2.5M biomedical papers found over 4,000 fake references; the rate rose from 1 in 2,828 papers in 2023 to 1 in 277 in early 2026.</td><td>Peer review misses it too. <a href="https://fortune.com/2026/05/24/ai-hallucinations-scientific-research-authors-medical-journal-treatment/">Fortune</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="small">Damien Charlotin’s <a href="https://www.damiencharlotin.com/hallucinations/">database of court decisions involving AI-fabricated content</a> listed 2,184 cases on 10 October 2026, up from 1,459 in May. The number is live and rising.</p>
+    </div>
+    <div class="grid3">
+      <div class="item"><h4>Fake packages in code</h4><p>A study of 16 code models and 576,000 samples found 19.7% of recommended packages did not exist: 5.2% for commercial models, 21.7% for open-source ones. 43% of fake names recurred on every repeat of the same prompt, which lets an attacker register them in advance. Check a package exists and is the real one before installing.</p><p class="cite"><a href="https://arxiv.org/html/2406.10279v3">Spracklen et al.</a> · <a href="https://www.utsa.edu/today/2025/04/story/utsa-researchers-investigate-AI-threats.html">UTSA</a></p></div>
+      <div class="item"><h4>AI search is not a citation</h4><p>The Tow Center tested eight AI search tools on 1,600 queries and found they were collectively wrong more than 60% of the time at identifying news sources. ChatGPT got 134 articles wrong but flagged low confidence only 15 times.</p><p class="cite"><a href="https://www.cjr.org/tow_center/we-compared-eight-ai-search-engines-theyre-all-bad-at-citing-news.php">CJR</a></p></div>
+      <div class="item"><h4>Rates vary a lot by task</h4><p>Vectara’s leaderboard has models summarise supplied documents and scores how faithfully they do: from 1.8% to 24.2% unfaithful, May 2026. That is the easy case, with the source in hand. Open-ended questions are usually worse.</p><p class="cite"><a href="https://github.com/vectara/hallucination-leaderboard">Vectara</a></p></div>
+    </div>
+    <div class="callout"><b>Sycophancy is a cousin of hallucination</b><p>In April 2025 OpenAI rolled back a GPT-4o update that had become “noticeably more sycophantic”, validating doubts and reinforcing negative emotions. Its cause was a reward signal built partly on thumbs-up feedback. Ask for criticism explicitly, and be wary of a model that agrees with everything. <a href="https://openai.com/index/expanding-on-sycophancy/">OpenAI</a></p></div>
+  </section>
+
+  <section class="shelf" id="verify">
+    <div class="shelf-head">
+      <span class="eyebrow">07 · Verifying output</span>
+      <h2>Spend your checking time where it counts</h2>
+      <p>You can’t check everything. Check in proportion to what happens if it is wrong: a brainstorm needs nothing, a figure in a report needs a source, a legal or medical decision needs a professional.</p>
+    </div>
+    <div class="anatomy">
+      <div><b>Stop</b><p>Pause before you act on or forward a claim.</p></div>
+      <div><b>Investigate</b><p>Who is the source, and would they know?</p></div>
+      <div><b>Find better</b><p>Look for coverage from independent sources, not the ones the AI cited.</p></div>
+      <div><b>Trace</b><p>Go to the original quote, paper or data and compare it with what the AI said.</p></div>
+      <div><b>Repeat</b><p>Ask the same question several times; disagreement is a warning sign.</p></div>
+      <div><b>Escalate</b><p>For high stakes, use an official source or a professional.</p></div>
+    </div>
+    <div class="grid2">
+      <div class="item"><h4>SIFT, applied to AI</h4><p>Mike Caulfield’s four moves (Stop, Investigate the source, Find better coverage, Trace claims) predate chatbots but fit them: pull out the specific claims, dates and sources in an answer and check them against sources the AI did not choose. <a href="https://hapgood.us/sift/">Caulfield</a> · <a href="https://learning.northeastern.edu/ai-gallery-post-sift-verification-method-for-genai-tools/">Northeastern</a></p></div>
+      <div class="item"><h4>Ask it again</h4><p>Oxford researchers showed that asking the same question several times and comparing the <em>meaning</em> of the answers can flag confabulation. It misses errors a model makes consistently, so it’s a signal, not proof. <a href="https://www.ox.ac.uk/news/2024-06-20-major-research-hallucinating-generative-models-advances-reliability-artificial">Oxford</a></p></div>
+      <div class="item"><h4>Open every link</h4><p>University library guidance: ask for sources, open the links, check that the source actually supports the claim, and use official or original sources for anything high stakes. <a href="https://ask.library.arizona.edu/faq/407972">University of Arizona</a></p></div>
+      <div class="item"><h4>Provenance for images and audio</h4><p>C2PA Content Credentials can show where media came from, but they are optional, can be stripped, and say nothing about whether content is true; a file without them isn’t automatically suspect. Google’s SynthID watermark detects only Google’s own marks. Neither is a universal detector. <a href="https://spec.c2pa.org/specifications/specifications/2.2/explainer/Explainer.html">C2PA</a> · <a href="https://contentcredentials.org/verify">verify tool</a> · <a href="https://aihub.org/2025/06/16/googles-synthid-is-the-latest-tool-for-catching-ai-made-content-what-is-ai-watermarking-and-does-it-work">limits of watermarking</a></p></div>
+    </div>
+    <p class="small">A second model can be a useful reviewer, but no source I found specifically recommends it as verification, so treat its agreement as one more weak signal rather than a check.</p>
+  </section>
+
+  <section class="shelf" id="injection">
+    <div class="shelf-head">
+      <span class="eyebrow">08 · Prompt injection</span>
+      <h2>When the text the AI reads tells it what to do</h2>
+      <p>Models can’t reliably separate your instructions from instructions hidden in a web page, email or file they are reading. OWASP lists prompt injection first in its <a href="https://genai.owasp.org/llmrisk/llm01-prompt-injection/">2025 top ten for LLM applications</a> and says it is unclear whether fool-proof prevention exists. The UK NCSC goes further: such attacks <a href="https://www.ncsc.gov.uk/blog-post/prompt-injection-is-not-sql-injection">“may never be totally mitigated”</a>. OpenAI says the same of its browser agent: <a href="https://openai.com/index/hardening-atlas-against-prompt-injection/">unlikely to ever be fully “solved”</a>.</p>
+    </div>
+    <div class="grid3">
+      <div class="item"><h4>The lethal trifecta</h4><p>Risk appears when one agent has all three: access to your private data, exposure to untrusted content, and a way to send data out. Remove any one. <a href="https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/">Simon Willison</a></p></div>
+      <div class="item"><h4>EchoLeak (2025)</h4><p>A crafted email could make Microsoft 365 Copilot leak internal data when the user later asked an ordinary question (CVE-2025-32711). Patched in June 2025, no customer action needed, no known exploitation. <a href="https://thehackernews.com/2025/06/zero-click-ai-vulnerability-exposes.html">THN</a></p></div>
+      <div class="item"><h4>AI browsers</h4><p>Brave showed hidden text in a Reddit comment could make Perplexity’s Comet agent read a one-time code from Gmail and post it. A later fix was reported incomplete. <a href="https://brave.com/blog/comet-prompt-injection/">Brave</a></p></div>
+      <div class="item"><h4>Malicious tool servers</h4><p>The first known malicious MCP server, a copy of postmark-mcp, added one line that BCC’d every outgoing email to the attacker (1,643 downloads). <a href="https://thehackernews.com/2025/09/first-malicious-mcp-server-found.html">THN</a></p></div>
+      <div class="item"><h4>Malicious skills</h4><p>Koi Security found 341 malicious skills among 2,857 audited on one agent skill marketplace, disguised as crypto and Google Workspace tools. <a href="https://esecurityplanet.com/threats/hundreds-of-malicious-skills-found-in-openclaws-clawhub">eSecurity Planet</a></p></div>
+      <div class="item"><h4>What helps</h4><ul><li>Narrow, specific instructions and logged-out mode when browsing (OpenAI’s tips)</li><li>Read confirmation prompts before approving</li><li>Limit privileges; be wary of any product claiming to “stop” injection (NCSC)</li><li>Install skills and MCP servers only from sources you trust, and read them</li></ul></div>
+    </div>
+  </section>
+
+  <section class="shelf" id="scams">
+    <div class="shelf-head">
+      <span class="eyebrow">09 · Voice clones and deepfakes</span>
+      <h2>Verify the person, not the voice</h2>
+      <p>The FTC’s advice is short: scammers can clone a voice from a short clip posted online, so <a href="https://consumer.ftc.gov/consumer-alerts/2023/03/scammers-use-ai-enhance-their-family-emergency-schemes">“don’t trust the voice”</a>. Hang up and call back on a number you know is theirs. Wire transfers, crypto and gift cards are red flags.</p>
+    </div>
+    <div class="grid3">
+      <div class="item"><h4>Pick a safe word</h4><p>The FBI recommends creating a secret word or phrase with your family to verify identity, and limiting how much of your voice and image is online. <a href="https://www.ic3.gov/PSA/2024/PSA241203">FBI IC3</a></p></div>
+      <div class="item"><h4>Live video can be faked</h4><p>In 2024 a Hong Kong employee at Arup joined a video call with deepfaked senior staff and sent transfers totalling about US$25.6 million. Arup said its systems were not compromised. <a href="https://www.constructionbriefing.com/news/arup-employee-falls-victim-to-us-25-million-deepfake-video-call-scam/8037338.article">Construction Briefing</a></p></div>
+      <div class="item"><h4>Process beats instinct</h4><p>The FBI’s July 2026 notice says AI content is often hard to identify and voice clones can be paired with spoofed caller ID. Require a second channel and a second approver for payments. <a href="https://www.ic3.gov/PSA/2026/PSA260720">FBI IC3</a></p></div>
+    </div>
+  </section>
+
+  <section class="shelf" id="sources">
+    <div class="shelf-head">
+      <span class="eyebrow">10 · Sources and limits</span>
+      <h2>How this guide was made</h2>
+      <p>Researched in October 2026 with Claude: research agents loaded vendor help pages, privacy policies, papers and news reports, and each link was opened and checked against the claim. Every claim above links to its source.</p>
+    </div>
+    <div class="sub">
+      <h3>What could not be confirmed</h3>
+      <ul class="srcs">
+        <li>The default state (on or off) of ChatGPT, Claude, Gemini and Grok training toggles was not stated on the vendors’ own pages. Check the setting yourself.</li>
+        <li>Human review policies for Claude and Meta AI, and Meta’s and Perplexity’s current consumer retention periods, were not found on official pages.</li>
+        <li>Whether the court-ordered handover of 20 million de-identified ChatGPT logs in the New York Times case has completed was not confirmed.</li>
+        <li>The Mata v. Avianca order itself did not load; facts come from Bloomberg Law and CNN.</li>
+        <li>Survey statistics come from security vendors with unpublished or differing methods.</li>
+        <li>I found no official privacy statement for llama.cpp, and did not confirm Ollama’s default network binding.</li>
+        <li>Arup details beyond the amount and the video call, and Samsung’s “three incidents” detail, are widely repeated but not confirmed here.</li>
+        <li>Charlotin’s case count and Vectara’s rankings are live and will have changed.</li>
+      </ul>
+    </div>
+    <p class="small">Related reading: the <a href="../">prompting field guide</a> has a shorter safety section and a list of testing tools (promptfoo, garak, PyRIT) for people building AI apps.</p>
+  </section>
+
+  <footer>
+    <span>Myles Parslow · Researched and built with Claude · October 2026</span>
+    <a href="../../">Back to the portfolio</a>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var KEY = 'portfolio-scheme';
+  var root = document.documentElement;
+  var buttons = document.querySelectorAll('.swatch');
+  function apply(name) {
+    if (name !== 'pine' && name !== 'sky') name = 'eggshell';
+    if (name === 'eggshell') root.removeAttribute('data-scheme'); else root.setAttribute('data-scheme', name);
+    buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.pick === name)); });
+    return name;
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  apply(saved);
+  buttons.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var name = apply(b.dataset.pick);
+      try { localStorage.setItem(KEY, name); } catch (e) {}
+    });
+  });
+})();
+</script>
+</body>
+</html>
