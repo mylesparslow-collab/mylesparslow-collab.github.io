@@ -1,0 +1,1288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="A field guide to prompting Claude, ChatGPT, Codex, Gemini and local models: best practices with sources, copy-paste prompts, and verified repos and resources to feed your AI.">
+<title>Prompting Field Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Same sheet, tokens and colour picker as the portfolio home page, so a chosen scheme carries over. */
+:root {
+  color-scheme: light;
+  --bg: #f2eee3; --surface: #fbf9f3; --rule: #ddd3bf; --ink: #15120f; --muted: #5f4e40;
+  --accent: #6b3f22; --mark: #a9822f; --mark-soft: #ede1c1;
+  --display: "Bricolage Grotesque", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+  --body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+:root[data-scheme="pine"] {
+  --bg: #f4f6f4; --surface: #ffffff; --rule: #d5ddd8; --ink: #18201c; --muted: #56625b;
+  --accent: #23593f; --mark: #23593f; --mark-soft: #e2ece6;
+}
+:root[data-scheme="sky"] {
+  --bg: #e8f3fb; --surface: #ffffff; --rule: #c6e0f3; --ink: #192838; --muted: #4c6073;
+  --accent: #9b111e; --mark: #9b111e; --mark-soft: #f7e1e4;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 1.0625rem; line-height: 1.62; margin: 0; }
+.wrap { max-width: 72rem; margin: 0 auto; padding-inline: 1.25rem; padding-block: 3.5rem 4rem; display: grid; gap: 5rem; }
+a { color: var(--accent); text-underline-offset: 0.18em; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+h1, h2, h3, h4 { font-family: var(--display); text-wrap: balance; line-height: 1.12; margin: 0; }
+p { margin: 0; }
+code { font-family: var(--mono); font-size: 0.86em; background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; padding: 0.05em 0.3em; }
+.eyebrow { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+
+/* Top bar and picker */
+.topbar { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.75rem 1.5rem; }
+.topbar .back { font-family: var(--mono); font-size: 0.8rem; }
+.picker { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0; padding: 0; border: 0; }
+.picker legend { float: left; margin-right: 0.25rem; font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.swatch { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.3rem 0.7rem 0.3rem 0.35rem; border-radius: 999px; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); font-family: var(--display); font-size: 0.85rem; font-weight: 500; cursor: pointer; }
+.swatch:hover { border-color: var(--muted); }
+.swatch[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.swatch i { width: 1.15rem; height: 1.15rem; border-radius: 50%; flex: none; border: 1px solid rgba(0,0,0,0.15); }
+.swatch[data-pick="eggshell"] i { background: linear-gradient(135deg, #f2eee3 0 45%, #6b3f22 45% 70%, #a9822f 70%); }
+.swatch[data-pick="pine"] i { background: linear-gradient(135deg, #f4f6f4 0 50%, #23593f 50%); }
+.swatch[data-pick="sky"] i { background: linear-gradient(135deg, #e8f3fb 0 50%, #9b111e 50%); }
+
+/* Intro */
+.intro { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 2.5rem; align-items: start; }
+.intro-text { display: grid; gap: 1.25rem; align-content: start; }
+.intro h1 { font-size: clamp(2.6rem, 6.4vw, 4.4rem); font-weight: 800; letter-spacing: -0.025em; line-height: 1.04; }
+.intro h1 em { font-style: normal; color: var(--mark); }
+.lede { font-size: 1.22rem; max-width: 38rem; }
+.toc { display: grid; border-top: 2px solid var(--ink); counter-reset: toc; }
+.toc a { display: grid; grid-template-columns: 2.2rem 1fr auto; gap: 0.5rem; align-items: baseline; padding: 0.55rem 0; border-bottom: 1px solid var(--rule); text-decoration: none; color: var(--ink); font-family: var(--display); font-weight: 700; font-size: 1.05rem; }
+.toc a::before { counter-increment: toc; content: counter(toc, decimal-leading-zero); font-family: var(--mono); font-weight: 400; font-size: 0.75rem; color: var(--muted); }
+.toc a span { font-family: var(--mono); font-weight: 400; font-size: 0.75rem; color: var(--muted); text-align: right; }
+.toc a:hover { color: var(--accent); }
+.tally { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin: 0; border-top: 1px solid var(--rule); padding-top: 1.25rem; }
+.tally div { display: grid; gap: 0.2rem; align-content: start; }
+.tally dt { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); order: 2; }
+.tally dd { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(1.6rem, 3.4vw, 2.4rem); color: var(--accent); letter-spacing: -0.02em; line-height: 1.05; }
+
+/* Sections */
+.shelf { display: grid; gap: 2.25rem; scroll-margin-top: 1.5rem; }
+.shelf-head { display: grid; gap: 0.5rem; border-top: 2px solid var(--ink); padding-top: 1rem; }
+.shelf-head h2 { font-size: clamp(2rem, 4.2vw, 2.8rem); font-weight: 800; letter-spacing: -0.02em; }
+.shelf-head p { color: var(--muted); max-width: 46rem; }
+.sub { display: grid; gap: 1rem; }
+.sub > h3 { font-size: 1.5rem; }
+.sub > p { max-width: 48rem; }
+
+/* Numbered rules */
+.short { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem 2.5rem; counter-reset: r; }
+.short li { counter-increment: r; display: grid; grid-template-columns: 2.4rem 1fr; gap: 0.2rem 0.6rem; border-top: 1px solid var(--rule); padding-top: 0.8rem; }
+.short li::before { content: counter(r, decimal-leading-zero); grid-row: span 2; font-family: var(--display); font-weight: 800; font-size: 1.4rem; color: var(--mark); line-height: 1.1; }
+.short h3 { font-size: 1.12rem; }
+.short p { color: var(--muted); font-size: 0.98rem; }
+
+/* Card grids */
+.grid2, .grid3 { display: grid; gap: 1.5rem 2.25rem; }
+.grid2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.item { display: grid; gap: 0.4rem; align-content: start; border-top: 1px solid var(--rule); padding-top: 0.85rem; min-width: 0; }
+.item h4 { font-size: 1.08rem; }
+.item p { font-size: 0.98rem; }
+.item .why { color: var(--muted); }
+.item .cite { font-family: var(--mono); font-size: 0.74rem; color: var(--muted); }
+.item ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.35rem; font-size: 0.98rem; }
+
+/* Anatomy */
+.anatomy { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0.75rem; }
+.anatomy div { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 0.9rem; display: grid; gap: 0.35rem; align-content: start; }
+.anatomy b { font-family: var(--mono); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.anatomy p { font-size: 0.92rem; color: var(--muted); }
+.versus { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: 1.25rem; align-items: start; }
+.versus .label { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.35rem; }
+.versus .label.good { color: var(--accent); }
+
+/* Code blocks */
+.code { position: relative; min-width: 0; }
+pre { margin: 0; font-family: var(--mono); font-size: 0.8rem; line-height: 1.55; background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 0.9rem 1rem; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--ink); }
+.copy { position: absolute; top: 0.45rem; right: 0.45rem; font-family: var(--mono); font-size: 0.72rem; padding: 0.2rem 0.55rem; border-radius: 999px; border: 1px solid var(--rule); background: var(--bg); color: var(--accent); cursor: pointer; }
+.copy:hover { border-color: var(--accent); }
+.copy + pre { padding-top: 2rem; }
+
+/* Tables */
+.table-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; min-width: 46rem; }
+th, td { text-align: left; vertical-align: top; padding: 0.65rem 0.8rem; border-bottom: 1px solid var(--rule); }
+th { font-family: var(--mono); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); background: var(--mark-soft); }
+td:first-child { font-family: var(--display); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+.verdict { font-family: var(--mono); font-size: 0.72rem; padding: 0.1rem 0.45rem; border-radius: 999px; background: var(--mark-soft); color: var(--accent); white-space: nowrap; }
+
+/* Model cards */
+.model { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 1.25rem 1.3rem; display: grid; gap: 0.7rem; align-content: start; min-width: 0; }
+.model .kind { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+.model h3 { font-size: 1.45rem; }
+.model ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.45rem; font-size: 0.97rem; }
+.model .links { font-family: var(--mono); font-size: 0.78rem; display: flex; flex-wrap: wrap; gap: 0.3rem 1rem; }
+.callout { border-left: 3px solid var(--mark); padding-left: 0.9rem; display: grid; gap: 0.3rem; max-width: 50rem; }
+.callout b { font-family: var(--mono); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+
+/* Prompt library */
+.filters { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.chip { font-family: var(--display); font-size: 0.88rem; font-weight: 500; padding: 0.3rem 0.75rem; border-radius: 999px; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); cursor: pointer; }
+.chip span { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); margin-left: 0.15rem; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.chip[aria-pressed="true"] span { color: var(--bg); }
+.prompts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem 2.25rem; align-items: start; }
+.prompt { display: grid; gap: 0.6rem; min-width: 0; border-top: 1px solid var(--rule); padding-top: 0.9rem; scroll-margin-top: 1.5rem; }
+.prompt[hidden] { display: none; }
+.prompt .kind { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.prompt h3 { font-size: 1.25rem; margin-top: 0.2rem; }
+.prompt .src, .prompt .after { font-size: 0.88rem; color: var(--muted); }
+
+/* Resources */
+.rnav { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; font-family: var(--mono); font-size: 0.82rem; }
+.rgroup { display: grid; gap: 0.9rem; scroll-margin-top: 1.5rem; }
+.rgroup h3 { font-size: 1.5rem; }
+.rintro { color: var(--muted); max-width: 46rem; }
+.rlist { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem 2rem; }
+.rlist li { display: grid; gap: 0.3rem; align-content: start; border-top: 1px solid var(--rule); padding-top: 0.75rem; min-width: 0; }
+.rname { font-family: var(--display); font-weight: 700; font-size: 1.02rem; overflow-wrap: anywhere; }
+.rhost { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.rlist p { font-size: 0.94rem; }
+.rlist .caution { font-size: 0.84rem; color: var(--muted); font-style: italic; }
+
+.small { font-size: 0.9rem; color: var(--muted); }
+.srcs { columns: 2; column-gap: 2.5rem; font-size: 0.86rem; margin: 0; padding-left: 1.1rem; }
+.srcs li { break-inside: avoid; margin-bottom: 0.35rem; overflow-wrap: anywhere; }
+
+footer { border-top: 1px solid var(--rule); padding-top: 1.25rem; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 2rem; font-family: var(--mono); font-size: 0.8rem; color: var(--muted); }
+
+@media (max-width: 980px) {
+  .anatomy { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .rlist, .grid3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 820px) {
+  .intro, .short, .grid2, .grid3, .prompts, .rlist, .versus { grid-template-columns: minmax(0, 1fr); }
+  .anatomy { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tally { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .srcs { columns: 1; }
+  .wrap { gap: 3.5rem; padding-block: 2.5rem 3rem; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="intro">
+    <div class="topbar">
+      <a class="back" href="../">← Myles Parslow portfolio</a>
+      <fieldset class="picker" aria-label="Colour scheme">
+        <legend>Colours</legend>
+        <button type="button" class="swatch" data-pick="eggshell" aria-pressed="true"><i></i>Eggshell</button>
+        <button type="button" class="swatch" data-pick="pine" aria-pressed="false"><i></i>Original</button>
+        <button type="button" class="swatch" data-pick="sky" aria-pressed="false"><i></i>Sky &amp; ruby</button>
+      </fieldset>
+    </div>
+    <div class="intro-text">
+      <span class="eyebrow">Field guide · October 2026</span>
+      <h1>How to <em>talk to AI</em> so it does good work.</h1>
+      <p class="lede">A working guide to prompting Claude, ChatGPT, Codex, Gemini and models you run yourself. It collects what the labs actually recommend, what the research says about popular tricks, 45 prompts you can copy, and a vetted shelf of repos and resources to hand to your AI.</p>
+      <p class="small">Every recommendation links to its source. Model-specific advice changes fast; where a lab’s docs name a model, this guide says so, and where sources disagree, it says that too.</p>
+    </div>
+    <nav class="toc" aria-label="Sections">
+      <a href="#short">The short version <span>12 rules</span></a>
+      <a href="#anatomy">Anatomy of a prompt <span>6 parts</span></a>
+      <a href="#practices">Best practices <span>with sources</span></a>
+      <a href="#evidence">Tricks vs evidence <span>research</span></a>
+      <a href="#models">Model by model <span>5 families</span></a>
+      <a href="#agents">Coding agents <span>context files</span></a>
+      <a href="#library">Prompt library <span>45 prompts</span></a>
+      <a href="#safety">Safety <span>prompt injection</span></a>
+      <a href="#resources">Resources to feed your AI <span>79 links</span></a>
+      <a href="#sources">Sources &amp; papers <span>how this was made</span></a>
+    </nav>
+    <dl class="tally">
+      <div><dt>Copy-paste prompts</dt><dd>45</dd></div>
+      <div><dt>Verified repos and resources</dt><dd>79</dd></div>
+      <div><dt>AI labs’ official guides compared</dt><dd>5</dd></div>
+      <div><dt>Popular tricks checked against research</dt><dd>8</dd></div>
+    </dl>
+  </header>
+
+  <!-- SHORT VERSION -->
+  <section class="shelf" id="short">
+    <div class="shelf-head">
+      <span class="eyebrow">01 · The short version</span>
+      <h2>Twelve rules that hold across every model</h2>
+      <p>If you read nothing else. Each rule is backed in the sections below.</p>
+    </div>
+    <ol class="short">
+      <li><h3>Brief it like a smart new colleague</h3><p>Anthropic’s test: show your prompt to someone with no context. If they would be confused, the model will be too.</p></li>
+      <li><h3>Say what “done” looks like</h3><p>Describe the outcome, the success criteria and the shape of the output, not just the topic.</p></li>
+      <li><h3>Give the reason behind each rule</h3><p>“This will be read aloud, so no ellipses” works better than “NEVER use ellipses”. Models generalise from reasons.</p></li>
+      <li><h3>Show, don’t just tell</h3><p>Two to five varied examples beat paragraphs of description, especially for format and tone.</p></li>
+      <li><h3>Separate instructions from material</h3><p>Wrap pasted documents, data and examples in labelled tags like <code>&lt;document&gt;</code> so nothing gets mistaken for an instruction.</p></li>
+      <li><h3>Long material first, question last</h3><p>Anthropic and Google both recommend it; Anthropic measured up to 30% better answers on long inputs.</p></li>
+      <li><h3>Say what to do, not what to avoid</h3><p>“Write flowing paragraphs” beats “don’t use bullet points”. Image models especially draw what you name.</p></li>
+      <li><h3>Drop the shouting</h3><p>Newer models follow instructions closely. ALL-CAPS and “CRITICAL: MUST” now cause overreaction, not compliance.</p></li>
+      <li><h3>Let reasoning models reason</h3><p>With ChatGPT’s reasoning models, Claude’s thinking, or Gemini’s thinking levels, set the effort control instead of writing “think step by step”.</p></li>
+      <li><h3>Give it a way to check its work</h3><p>Tests, a command that must pass, quotes from the source. Checking against something real beats asking the model to double-check itself.</p></li>
+      <li><h3>Restart instead of patching</h3><p>Models get worse over long, corrected conversations. After two failed fixes, write one better prompt in a fresh chat.</p></li>
+      <li><h3>Treat outside content as untrusted</h3><p>Web pages, emails and documents can carry hidden instructions. Don’t combine private data, untrusted input and tools that send data out.</p></li>
+    </ol>
+  </section>
+
+  <!-- ANATOMY -->
+  <section class="shelf" id="anatomy">
+    <div class="shelf-head">
+      <span class="eyebrow">02 · Anatomy of a prompt</span>
+      <h2>Six parts of a prompt that works</h2>
+      <p>Not every prompt needs all six. A quick question needs one line. A task you will repeat, or hand to an agent, usually needs most of them. OpenAI suggests the order identity, instructions, examples, context; Anthropic and Google suggest putting long material before the final question.</p>
+    </div>
+    <div class="anatomy">
+      <div><b>1 · Goal and why</b><p>What you want, and what it is for. The purpose lets the model make sensible judgment calls.</p></div>
+      <div><b>2 · Context</b><p>Who it is for, what you already know, constraints, what has been tried.</p></div>
+      <div><b>3 · Material</b><p>Documents, data or code, each in its own labelled tag.</p></div>
+      <div><b>4 · Examples</b><p>A few varied samples of good output, wrapped in example tags.</p></div>
+      <div><b>5 · Output shape</b><p>Format, length, sections, tone; a schema for data.</p></div>
+      <div><b>6 · Done when</b><p>How to check the result, and what to do when unsure: ask, flag, or use a placeholder.</p></div>
+    </div>
+    <div class="versus">
+      <div>
+        <p class="label">Before</p>
+        <pre>Write a summary of this contract.</pre>
+      </div>
+      <div>
+        <p class="label good">After</p>
+        <div class="code"><button type="button" class="copy" data-copy="anat" aria-label="Copy the example prompt">Copy</button><pre id="anat">&lt;contract&gt;
+{{paste contract}}
+&lt;/contract&gt;
+
+I run a five-person design studio and I'm deciding whether to sign the contract above with a new client. I'm not a lawyer; I want to know what I'd be agreeing to.
+
+Summarize it for that decision:
+- The deal in two sentences: what we deliver, what we get paid, and when.
+- Every obligation, deadline and payment term, quoted exactly with the clause number.
+- Anything unusual for a small creative services contract, and why it matters.
+- What the contract doesn't cover that I'd expect it to (e.g. revisions, kill fee).
+
+Use plain English. If a clause is ambiguous, quote it and say so rather than guessing.
+Keep it under 400 words.</pre></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRACTICES -->
+  <section class="shelf" id="practices">
+    <div class="shelf-head">
+      <span class="eyebrow">03 · Best practices</span>
+      <h2>What the labs and practitioners agree on</h2>
+      <p>The advice below appears in the official guides of at least one lab and is consistent with the others unless noted. Sources are linked on each item.</p>
+    </div>
+
+    <div class="sub">
+      <h3>Clarity and context</h3>
+      <div class="grid3">
+        <div class="item"><h4>Be explicit about ambition</h4><p>Newer models do what you ask, precisely. If you want more than the minimum, say so: Anthropic’s example adds “Include as many relevant features and interactions as possible. Go beyond the basics.”</p><p class="cite"><a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices">Anthropic best practices</a></p></div>
+        <div class="item"><h4>Ask for action, not suggestions</h4><p>“Can you suggest changes?” gets suggestions. “Change this function to…” gets changes. Word the request as the thing you want done.</p><p class="cite"><a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices">Anthropic best practices</a></p></div>
+        <div class="item"><h4>Describe the outcome, not every step</h4><p>OpenAI’s current guidance: state the expected outcome, success criteria, allowed side effects and output shape, and avoid step-by-step process instructions unless the exact path matters. Older prompts over-specified because older models needed it.</p><p class="cite"><a href="https://developers.openai.com/api/docs/guides/prompt-guidance">OpenAI prompt guidance</a></p></div>
+        <div class="item"><h4>Explain the why</h4><p>A rule with a reason generalises to cases you didn’t foresee. A bare rule gets applied too literally or not at all. Anthropic recommends heuristics at the “right altitude” over brittle if-then lists.</p><p class="cite"><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">Anthropic, context engineering</a></p></div>
+        <div class="item"><h4>Avoid vague quantities</h4><p>Mistral’s guide flags “too long”, “many”, “few”, “better” as words that blur instructions. Give numbers: “under 150 words”, “three options”.</p><p class="cite"><a href="https://docs.mistral.ai/guides/prompting_capabilities/">Mistral prompting guide</a></p></div>
+        <div class="item"><h4>Hunt for contradictions</h4><p>Conflicting instructions are worse than missing ones. OpenAI says they are “more damaging” to GPT-5-class models, which burn effort reconciling them. Claude may pick one at random.</p><p class="cite"><a href="https://developers.openai.com/cookbook/examples/gpt-5/gpt-5_prompting_guide">GPT-5 prompting guide</a> · <a href="https://code.claude.com/docs/en/memory">Claude Code memory</a></p></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <h3>Structure and examples</h3>
+      <div class="grid3">
+        <div class="item"><h4>Use tags as delimiters</h4><p>Put each kind of content in its own descriptive tag (<code>&lt;instructions&gt;</code>, <code>&lt;context&gt;</code>, <code>&lt;document index="1"&gt;</code>). Works for every vendor. Google’s advice: pick XML or Markdown and stay consistent.</p><p class="cite"><a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices">Anthropic</a> · <a href="https://ai.google.dev/gemini-api/docs/prompting-strategies">Google</a></p></div>
+        <div class="item"><h4>Few, varied, canonical examples</h4><p>Anthropic: 3–5 examples. Google: “always include few-shot examples”, in a consistent format. Vary them so the model copies the pattern, not the surface details.</p><p class="cite"><a href="https://ai.google.dev/gemini-api/docs/prompting-strategies">Google prompting strategies</a></p></div>
+        <div class="item"><h4>Balance your examples</h4><p>Example order and label mix can swing accuracy wildly; models lean toward the majority label and the most recent example. Mix the classes and shuffle the order.</p><p class="cite"><a href="https://arxiv.org/abs/2102.09690">Zhao et al., Calibrate Before Use</a></p></div>
+        <div class="item"><h4>Match your prompt to your output</h4><p>A prompt full of bullets gets bullets back. Anthropic notes that removing Markdown from your prompt reduces Markdown in the answer.</p><p class="cite"><a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices">Anthropic best practices</a></p></div>
+        <div class="item"><h4>Use structured outputs for data</h4><p>When you need JSON, use the API’s structured-output or JSON-schema mode (OpenAI, Gemini, Ollama, llama.cpp grammars) rather than only describing the schema in words.</p><p class="cite"><a href="https://docs.ollama.com/capabilities/structured-outputs">Ollama structured outputs</a> · <a href="https://ai.google.dev/gemini-api/docs/prompting-strategies">Google</a></p></div>
+        <div class="item"><h4>Static first, variable last</h4><p>Put reusable instructions at the top and the changing part at the end. It reads better and lets providers cache the repeated prefix, which cuts cost and latency.</p><p class="cite"><a href="https://developers.openai.com/api/docs/guides/prompt-engineering">OpenAI prompt engineering</a></p></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <h3>Long documents and accuracy</h3>
+      <div class="grid3">
+        <div class="item"><h4>Documents on top, question at the bottom</h4><p>Anthropic measured up to 30% better answers with the query at the end of long, multi-document prompts. Google recommends the same: “Based on the information above…”.</p><p class="cite"><a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices">Anthropic</a> · <a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/start/gemini-3-prompting-guide">Google Gemini 3</a></p></div>
+        <div class="item"><h4>Quote first, then answer</h4><p>Ask the model to pull the relevant passages into <code>&lt;quotes&gt;</code> before answering from them. It focuses attention and makes the answer checkable.</p><p class="cite"><a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices">Anthropic best practices</a></p></div>
+        <div class="item"><h4>Let it say “I don’t know”</h4><p>Give explicit permission and a format for uncertainty: “If the documents don’t say, answer ‘not stated’”, or “[TK: missing fact]” placeholders in drafts. Meta’s Llama guide and OpenAI both recommend it.</p><p class="cite"><a href="https://dev.meta.ai/llama/docs/how-to-guides/prompting">Meta Llama guide</a> · <a href="https://developers.openai.com/api/docs/guides/prompt-guidance">OpenAI</a></p></div>
+        <div class="item"><h4>More context is not free</h4><p>Chroma tested 18 models and found performance drops as input grows, even on simple tasks, and distracting text makes it worse. Include what’s relevant, not everything you have.</p><p class="cite"><a href="https://www.trychroma.com/research/context-rot">Chroma, Context Rot</a></p></div>
+        <div class="item"><h4>Make the context the source of truth</h4><p>Gemini 3 may fall back on training knowledge when your material conflicts with it. Say plainly that the provided text wins, especially for fiction, hypotheticals or recent facts.</p><p class="cite"><a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/start/gemini-3-prompting-guide">Google Gemini 3 guide</a></p></div>
+        <div class="item"><h4>Use code for exact work</h4><p>Models are weak at arithmetic and counting but strong at writing code. Ask for a script or a spreadsheet formula and run it, rather than trusting mental math.</p><p class="cite"><a href="https://dev.meta.ai/llama/docs/how-to-guides/prompting">Meta Llama guide</a> · <a href="https://docs.mistral.ai/guides/prompting_capabilities/">Mistral</a></p></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <h3>Process</h3>
+      <div class="grid3">
+        <div class="item"><h4>Chain steps you need to inspect</h4><p>Draft, review against criteria, then refine, each as its own step. Anthropic lists five workflow patterns (chaining, routing, parallel, orchestrator-workers, evaluator-optimizer) and says to use the simplest that works.</p><p class="cite"><a href="https://www.anthropic.com/engineering/building-effective-agents">Building effective agents</a></p></div>
+        <div class="item"><h4>Let it interview you</h4><p>For fuzzy, open-ended work, ask the model to question you first, then write a spec. For well-defined tasks, skip it: OpenAI warns newer models can stop too early if told to always ask.</p><p class="cite"><a href="https://code.claude.com/docs/en/best-practices">Claude Code</a> · <a href="https://developers.openai.com/api/docs/guides/prompt-guidance">OpenAI</a></p></div>
+        <div class="item"><h4>Test prompts on real cases</h4><p>Before you rely on a prompt, run it on a set of real inputs and read the outputs. Hamel Husain calls error analysis “the most important activity in evals”: look at 100 outputs, then write pass/fail checks.</p><p class="cite"><a href="https://hamel.dev/blog/posts/evals-faq/">Hamel Husain, evals FAQ</a></p></div>
+        <div class="item"><h4>Start minimal, add on failure</h4><p>Begin with the shortest prompt that could work on the best model, then add instructions only for failures you actually observe. Anthropic and OpenAI both recommend a “fresh baseline” when moving to a new model.</p><p class="cite"><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">Anthropic</a> · <a href="https://developers.openai.com/api/docs/guides/prompt-guidance">OpenAI</a></p></div>
+        <div class="item"><h4>Have the AI improve your prompt</h4><p>Ask the model to critique your prompt, then rewrite it, then propose test cases. Anthropic’s Console and OpenAI’s Playground both have prompt generators and optimizers built in.</p><p class="cite"><a href="https://claude.com/blog/prompt-improver">Anthropic prompt improver</a> · <a href="https://developers.openai.com/api/docs/guides/prompt-engineering">OpenAI</a></p></div>
+        <div class="item"><h4>There are no secret prompts</h4><p>Ethan Mollick’s point holds: working with the AI over a few turns, and giving it real context, matters more than any magic phrasing.</p><p class="cite"><a href="https://www.oneusefulthing.org/p/a-guide-to-prompting-ai-for-what">One Useful Thing</a></p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EVIDENCE -->
+  <section class="shelf" id="evidence">
+    <div class="shelf-head">
+      <span class="eyebrow">04 · Tricks vs evidence</span>
+      <h2>What the research says about popular tricks</h2>
+      <p>Plenty of prompting folklore comes from 2023-era models. Here is how the common tricks hold up in more recent testing.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Trick</th><th>Verdict</th><th>What the evidence shows</th></tr></thead>
+        <tbody>
+          <tr><td>“Think step by step”</td><td><span class="verdict">Model-dependent</span></td><td>It made a big difference in 2022 (<a href="https://arxiv.org/abs/2205.11916">Kojima et al.</a>: 17.7% → 78.7% on one maths set). Wharton’s 2025 tests found modest gains for non-reasoning models and almost none for reasoning models, with 20–600% more latency (<a href="https://gail.wharton.upenn.edu/research-and-insights/tech-report-chain-of-thought/">Prompting Science Report 2</a>). OpenAI says it can hurt reasoning models (<a href="https://developers.openai.com/api/docs/guides/reasoning-best-practices">reasoning best practices</a>). Use the effort or thinking setting instead.</td></tr>
+          <tr><td>“You are a world-class expert…”</td><td><span class="verdict">Tone, not accuracy</span></td><td>Expert personas generally did not improve factual accuracy across six models (<a href="https://ai-analytics.wharton.upenn.edu/insights/stop-telling-ai-who-to-be-why-personas-dont-improve-accuracy/">Wharton Report 4</a>). Roles still shape voice and focus (<a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices">Anthropic</a>), and Gemini 3 follows personas so closely they can override other instructions (<a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/start/gemini-3-prompting-guide">Google</a>). Pair a role with real context.</td></tr>
+          <tr><td>Tipping or threatening</td><td><span class="verdict">Unreliable</span></td><td>Small, mostly insignificant average effects, with individual questions swinging up to 36 points either way (<a href="https://gail.wharton.upenn.edu/research-and-insights/techreport-threaten-or-tip/">Wharton Report 3</a>).</td></tr>
+          <tr><td>Rudeness or extreme politeness</td><td><span class="verdict">Small, inconsistent</span></td><td>One study found rude prompts slightly better on GPT-4o (<a href="https://arxiv.org/abs/2510.04950">Mind Your Tone</a>), on only 50 questions; follow-ups found effects vary by model and subject. Write clearly and neutrally.</td></tr>
+          <tr><td>ALL-CAPS and “CRITICAL”</td><td><span class="verdict">Now counterproductive</span></td><td>Anthropic says newer models overreact to aggressive emphasis; write “Use this tool when…” instead (<a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices">best practices</a>). OpenAI reserves ALWAYS/NEVER for true invariants. In CLAUDE.md, “if you emphasize many lines, none of them stands out” (<a href="https://code.claude.com/docs/en/best-practices">Claude Code</a>).</td></tr>
+          <tr><td>“Double-check your answer”</td><td><span class="verdict">Needs a real check</span></td><td>Without outside feedback, models often change right answers to wrong ones (<a href="https://arxiv.org/abs/2310.01798">Huang et al., ICLR 2024</a>). Self-correction works when there is something real to check against: tests, code execution, sources, or a fresh reviewer.</td></tr>
+          <tr><td>Majority vote over several answers</td><td><span class="verdict">Works, costs more</span></td><td>Self-consistency (sample several reasoning paths, take the most common answer) gave large gains on reasoning benchmarks (<a href="https://arxiv.org/abs/2203.11171">Wang et al.</a>). Worth it for high-stakes single answers.</td></tr>
+          <tr><td>Correcting a chat over and over</td><td><span class="verdict">Start fresh</span></td><td>Across 15 models, performance dropped about 39% on average when requirements arrived over many turns instead of one complete prompt (<a href="https://arxiv.org/abs/2505.06120">Laban et al.</a>). Consolidate and restart.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- MODELS -->
+  <section class="shelf" id="models">
+    <div class="shelf-head">
+      <span class="eyebrow">05 · Model by model</span>
+      <h2>Where the labs’ advice differs</h2>
+      <p>The fundamentals transfer, but each family has quirks. These notes come from each lab’s own documentation as of October 2026. Anthropic’s caveat applies everywhere: effects measured on one model should be re-checked before you rely on them with another.</p>
+    </div>
+    <div class="grid2">
+      <article class="model">
+        <span class="kind">Anthropic</span><h3>Claude</h3>
+        <ul>
+          <li>Trained for precise instruction-following: ask explicitly for “above and beyond” work, and phrase requests as actions.</li>
+          <li>XML tags are the recommended way to structure prompts; long documents go on top.</li>
+          <li>Thinking is controlled with adaptive thinking and an <em>effort</em> setting; on the newest models it is always on. Rely on it rather than asking for reasoning in tags. A general “think thoroughly” beats a hand-written step plan.</li>
+          <li>Pre-filling the start of Claude’s reply is no longer supported from the 4.6 generation; put format instructions in the prompt instead.</li>
+          <li>Newer models are terse by default and may skip summaries; ask for one if you want it. Opus 5 is an exception and runs long.</li>
+          <li>The docs include ready-made blocks for common behaviours: act by default, ask before acting, avoid over-engineering, and avoid generic “AI-looking” front-end design.</li>
+        </ul>
+        <p class="links"><a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices">Best practices</a><a href="https://platform.claude.com/docs/en/release-notes/system-prompts/overview">Published system prompts</a><a href="https://github.com/anthropics/prompt-eng-interactive-tutorial">Tutorial</a></p>
+      </article>
+      <article class="model">
+        <span class="kind">OpenAI</span><h3>ChatGPT and the GPT API</h3>
+        <ul>
+          <li>Reasoning models are like a senior colleague: give the goal. Non-reasoning models are like a junior one: give explicit steps.</li>
+          <li>Current guidance is outcome-first: success criteria, allowed side effects, evidence rules, output shape. Start from a fresh baseline when moving to a new model rather than carrying old prompt stacks forward.</li>
+          <li>Use <em>reasoning effort</em> (start at medium; higher is not automatically better) and <em>verbosity</em> controls instead of prompt tricks.</li>
+          <li>Reasoning models don’t need “think step by step” and often don’t need examples; try zero-shot first.</li>
+          <li>Ask for approval only after preparing something concrete to review. Put tool-specific guidance in tool descriptions.</li>
+          <li>In long chats, formatting instructions fade; the GPT-5 guide suggests re-stating them every few messages.</li>
+        </ul>
+        <p class="links"><a href="https://developers.openai.com/api/docs/guides/prompt-guidance">Current model guide</a><a href="https://developers.openai.com/api/docs/guides/reasoning-best-practices">Reasoning models</a><a href="https://developers.openai.com/cookbook">Cookbook</a></p>
+      </article>
+      <article class="model">
+        <span class="kind">OpenAI</span><h3>Codex</h3>
+        <ul>
+          <li>Write tasks in four parts: goal, context, constraints, and “done when”.</li>
+          <li>Plan first (<code>/plan</code>) for anything non-trivial; keep a <code>PLANS.md</code> for long work.</li>
+          <li>Require verification: run lint and the smallest relevant tests, and report the commands and results.</li>
+          <li><code>AGENTS.md</code> layers global, repo and folder files; the nearest one wins. “A short, accurate AGENTS.md is more useful than a long file full of vague rules.” Add rules only after repeated mistakes.</li>
+          <li>If you keep repeating the same prompt, turn it into a skill. OpenAI notes that its newest models need less hand-holding: overly specific guidance can now hurt.</li>
+        </ul>
+        <p class="links"><a href="https://learn.chatgpt.com/guides/best-practices">Codex best practices</a><a href="https://learn.chatgpt.com/docs/agent-configuration/agents-md">AGENTS.md guide</a></p>
+      </article>
+      <article class="model">
+        <span class="kind">Google</span><h3>Gemini</h3>
+        <ul>
+          <li>Google recommends always including few-shot examples, with a consistent format.</li>
+          <li>Gemini 3 is concise by default and responds best to direct instructions; avoid “overly persuasive language”. Ask for detail explicitly.</li>
+          <li>Order: context first, then the task, then constraints and format, with the critical restriction on the last line.</li>
+          <li>Don’t lower the temperature on Gemini 3: Google recommends the default of 1.0 because lower values can cause looping. On the newest Gemini models, remove sampling settings entirely.</li>
+          <li>Use <em>thinking level</em> rather than token budgets. Avoid sweeping bans like “do not infer”, which can break basic reasoning; scope them instead.</li>
+          <li>In Gemini CLI, standing instructions go in <code>GEMINI.md</code>; it can be set to read <code>AGENTS.md</code> too.</li>
+        </ul>
+        <p class="links"><a href="https://ai.google.dev/gemini-api/docs/prompting-strategies">Prompting strategies</a><a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/start/gemini-3-prompting-guide">Gemini 3 guide</a><a href="https://github.com/google-gemini/cookbook">Cookbook</a></p>
+      </article>
+      <article class="model">
+        <span class="kind">Open weights</span><h3>Local models: Llama, Qwen, Mistral and friends</h3>
+        <ul>
+          <li>Use the model’s exact chat template. Hugging Face warns that the wrong control tokens make models “drastically worse”. Ollama and LM Studio handle this for you if the model is set up correctly.</li>
+          <li>Smaller models need the explicit, example-backed style: a role, rules, clear instructions and one example (Meta’s Llama guide). Terse, goal-only prompts suit frontier reasoning models, not 7B models.</li>
+          <li>Use the model card’s sampling settings. Qwen3 thinking mode: temperature 0.6, top-p 0.95; and “do not use greedy decoding”, which causes endless repetition.</li>
+          <li>Qwen3 thinking can be toggled with <code>/think</code> and <code>/no_think</code>; keep only final answers in chat history.</li>
+          <li>Check the context length (Ollama’s <code>num_ctx</code>); if it is too small, long system prompts are silently cut off.</li>
+          <li>Force structure with JSON Schema or grammars (Ollama <code>format</code>, llama.cpp GBNF), and describe the structure in the prompt as well.</li>
+        </ul>
+        <p class="links"><a href="https://dev.meta.ai/llama/docs/how-to-guides/prompting">Llama guide</a><a href="https://github.com/QwenLM/Qwen3">Qwen3</a><a href="https://docs.mistral.ai/guides/prompting_capabilities/">Mistral guide</a><a href="https://docs.ollama.com/modelfile">Ollama Modelfile</a></p>
+      </article>
+      <article class="model">
+        <span class="kind">Media models</span><h3>Images, music and video</h3>
+        <ul>
+          <li>Images: describe subject, action, setting, composition, lighting and style in full sentences. Put any text that must appear in quotes, with its position and typeface (OpenAI, Google).</li>
+          <li>Name what you want, not what you don’t: “no cake” can still produce cake. Use Midjourney’s <code>--no</code> or an exclude field instead.</li>
+          <li>For edits, say “change only X” and list what must stay the same. Repeated edits drift, so restate it each time.</li>
+          <li>Midjourney: short, specific prompts often work best; use exact counts and specific words (“enormous”, not “big”).</li>
+          <li>Suno: describe style in a few descriptors, use the Exclude field for unwanted elements, and adjust the Weirdness and Style Influence sliders. Section tags like <code>[Chorus]</code> are community practice, not official.</li>
+        </ul>
+        <p class="links"><a href="https://developers.openai.com/api/docs/guides/image-prompting">OpenAI images</a><a href="https://docs.midjourney.com/hc/en-us/articles/32023408776205-Prompt-Basics">Midjourney</a><a href="https://cloud.google.com/blog/products/ai-machine-learning/ultimate-prompting-guide-for-nano-banana">Nano Banana guide</a><a href="https://help.suno.com/en/articles/6141377">Suno sliders</a></p>
+      </article>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Topic</th><th>Claude</th><th>GPT / ChatGPT</th><th>Gemini</th><th>Local models</th></tr></thead>
+        <tbody>
+          <tr><td>“Think step by step”</td><td>Use thinking and effort instead</td><td>Avoid with reasoning models</td><td>Usually unnecessary; “think very hard” can help on hard problems</td><td>Still helps non-reasoning models</td></tr>
+          <tr><td>Examples</td><td>3–5, varied, in tags</td><td>Zero-shot first for reasoning models</td><td>Always include some</td><td>Recommended</td></tr>
+          <tr><td>Delimiters</td><td>XML tags</td><td>Markdown and XML</td><td>XML or Markdown, consistently</td><td>Markdown or XML</td></tr>
+          <tr><td>Long inputs</td><td>Documents first, question last</td><td>Context near the end; GPT-4.1 liked instructions at both ends</td><td>Context first, question last</td><td>Keep within the context length</td></tr>
+          <tr><td>Temperature</td><td>Not a prompting lever</td><td>Removed when reasoning is on</td><td>Keep default (Gemini 3) or omit (newest)</td><td>Use the model card values; never greedy for Qwen thinking</td></tr>
+          <tr><td>Main dial</td><td>Effort</td><td>Reasoning effort, verbosity</td><td>Thinking level</td><td>Thinking on or off, sampling</td></tr>
+          <tr><td>Agent file</td><td>CLAUDE.md (reads AGENTS.md if none)</td><td>AGENTS.md</td><td>GEMINI.md (can read AGENTS.md)</td><td>Depends on the tool</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- AGENTS -->
+  <section class="shelf" id="agents">
+    <div class="shelf-head">
+      <span class="eyebrow">06 · Coding agents</span>
+      <h2>Working with Claude Code, Codex, Gemini CLI and Cursor</h2>
+      <p>With agents, the prompt is only part of what the model sees. Anthropic calls the bigger skill <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">context engineering</a>: curating the smallest set of high-signal information for each step. Claude Code’s docs put it bluntly: the context window “fills up fast, and performance degrades as it fills.”</p>
+    </div>
+
+    <div class="sub">
+      <h3>Context files: standing instructions for your repo</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tool</th><th>File</th><th>How it loads</th></tr></thead>
+          <tbody>
+            <tr><td>Claude Code</td><td><code>CLAUDE.md</code>, <code>.claude/rules/*.md</code></td><td>Every session; supports <code>@path</code> imports. Aim for under 200 lines per file. <a href="https://code.claude.com/docs/en/memory">Docs</a></td></tr>
+            <tr><td>Codex, Cursor, Copilot, Jules, Aider, Zed and more</td><td><code>AGENTS.md</code></td><td>Open format; nested files allowed, nearest one wins. <a href="https://agents.md/">agents.md</a></td></tr>
+            <tr><td>Gemini CLI</td><td><code>GEMINI.md</code></td><td>Global, project and folder files are all combined; can be pointed at AGENTS.md. <a href="https://geminicli.com/docs/cli/gemini-md/">Docs</a></td></tr>
+            <tr><td>Cursor</td><td><code>.cursor/rules/*.mdc</code></td><td>Always, by file pattern, when relevant, or on request. <a href="https://cursor.com/docs/context/rules">Docs</a></td></tr>
+            <tr><td>GitHub Copilot</td><td><code>.github/copilot-instructions.md</code></td><td>Repo-wide, plus path-scoped instruction files. <a href="https://docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions">Docs</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="grid3">
+        <div class="item"><h4>Put in</h4><ul><li>Exact build, single-test, lint and typecheck commands</li><li>Conventions that differ from the defaults</li><li>Environment quirks and gotchas</li><li>How to verify work is done</li></ul></div>
+        <div class="item"><h4>Leave out</h4><ul><li>Anything the agent can learn by reading the code</li><li>File-by-file tours and long tutorials</li><li>Things that change often</li><li>Walls of NEVER/ALWAYS</li></ul></div>
+        <div class="item"><h4>Maintain it</h4><ul><li>For each line ask “would removing this cause mistakes?”</li><li>Add a rule each time the agent repeats a mistake (<a href="https://mitchellh.com/writing/my-ai-adoption-journey">Hashimoto</a>)</li><li>Use hooks, not prose, for anything that must always happen</li></ul></div>
+      </div>
+      <p class="callout"><b>Why it matters</b>Claude Code’s docs warn that “bloated CLAUDE.md files cause Claude to ignore your actual instructions”. A short, accurate file beats a long one.</p>
+    </div>
+
+    <div class="sub">
+      <h3>The working loop</h3>
+      <div class="grid3">
+        <div class="item"><h4>Explore, plan, then build</h4><p>Have the agent read and explain first, write a plan you approve, then implement. Use plan mode (Claude Code: Shift+Tab; Codex: <code>/plan</code>). Skip the plan if you could describe the change in one sentence.</p><p class="cite"><a href="https://code.claude.com/docs/en/best-practices">Claude Code best practices</a></p></div>
+        <div class="item"><h4>Give it a check it can run</h4><p>Tests, a build, a screenshot comparison. Claude Code calls this the difference between a session you watch and one you can walk away from. Ask for the command output as evidence, not a claim of success.</p><p class="cite"><a href="https://code.claude.com/docs/en/best-practices">Claude Code</a> · <a href="https://learn.chatgpt.com/guides/best-practices">Codex</a></p></div>
+        <div class="item"><h4>Don’t let it game the tests</h4><p>Anthropic’s guidance includes: “Tests are there to verify correctness, not to define the solution,” and it is unacceptable to remove or edit tests to pass.</p><p class="cite"><a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices">Anthropic best practices</a></p></div>
+        <div class="item"><h4>Review in a fresh context</h4><p>Use a sub-agent or a new session to review the diff against the plan, so the agent doing the work isn’t grading itself. Ask it to report only real gaps; chasing every nit leads to over-engineering.</p><p class="cite"><a href="https://code.claude.com/docs/en/best-practices">Claude Code</a></p></div>
+        <div class="item"><h4>Keep sessions short</h4><p>Clear between unrelated tasks. After two failed corrections, clear and write a better first prompt. Compact with a note about what to keep. For long work, keep progress in files and use git as checkpoints.</p><p class="cite"><a href="https://code.claude.com/docs/en/best-practices">Claude Code</a> · <a href="https://learn.chatgpt.com/guides/best-practices">Codex</a></p></div>
+        <div class="item"><h4>Use sub-agents for side quests</h4><p>Send research and exploration to sub-agents so the main context stays clean. Don’t overuse them: for simple, sequential or single-file work, the main agent should just do it.</p><p class="cite"><a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices">Anthropic</a></p></div>
+        <div class="item"><h4>Turn repeated prompts into skills</h4><p>A skill is a folder with a <code>SKILL.md</code> whose description loads up front and whose body loads only when relevant. Keep the body under 500 lines and write the description in the third person, saying what it does and when to use it.</p><p class="cite"><a href="https://platform.claude.com/docs/agents-and-tools/agent-skills/best-practices">Skills best practices</a> · <a href="https://agentskills.io/">agentskills.io</a></p></div>
+        <div class="item"><h4>Add tools sparingly</h4><p>Every MCP server’s tool descriptions cost context. Start with one or two that remove a frequent manual task. Command-line tools like <code>gh</code> are often the most context-efficient option.</p><p class="cite"><a href="https://learn.chatgpt.com/guides/best-practices">Codex</a> · <a href="https://code.claude.com/docs/en/best-practices">Claude Code</a></p></div>
+        <div class="item"><h4>Write tools like you’d brief a new hire</h4><p>Clear names and parameters (<code>user_id</code>, not <code>user</code>), readable results instead of opaque IDs, sensible pagination, and error messages that say how to fix the call. Make mistakes hard: Anthropic fixed a class of errors by requiring absolute file paths.</p><p class="cite"><a href="https://www.anthropic.com/engineering/writing-tools-for-agents">Writing tools for agents</a></p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIBRARY -->
+  <section class="shelf" id="library">
+    <div class="shelf-head">
+      <span class="eyebrow">07 · Prompt library</span>
+      <h2>45 prompts worth copying</h2>
+      <p>Each one works in Claude, ChatGPT, Gemini or a local model. Replace the <code>{{placeholders}}</code>, delete what you don’t need, and keep the parts that say what “done” looks like. Where a prompt adapts a public source, the source is linked.</p>
+    </div>
+    <div class="filters" role="group" aria-label="Filter prompts">
+<button type="button" class="chip" data-f="all" aria-pressed="true">All <span>45</span></button>
+<button type="button" class="chip" data-f="coding" aria-pressed="false">Coding <span>10</span></button>
+<button type="button" class="chip" data-f="writing" aria-pressed="false">Writing <span>6</span></button>
+<button type="button" class="chip" data-f="research" aria-pressed="false">Research & analysis <span>6</span></button>
+<button type="button" class="chip" data-f="learning" aria-pressed="false">Learning <span>3</span></button>
+<button type="button" class="chip" data-f="work" aria-pressed="false">Everyday work <span>4</span></button>
+<button type="button" class="chip" data-f="data" aria-pressed="false">Data <span>4</span></button>
+<button type="button" class="chip" data-f="meta" aria-pressed="false">Prompts about prompts <span>6</span></button>
+<button type="button" class="chip" data-f="setup" aria-pressed="false">Setup files <span>3</span></button>
+<button type="button" class="chip" data-f="media" aria-pressed="false">Images & music <span>3</span></button>
+    </div>
+    <div class="prompts">
+<article class="prompt" data-cat="coding" id="p1">
+  <div class="prompt-head"><span class="kind">Coding · 01</span><h3>Interview me, then write the spec</h3></div>
+  <p class="src">Adapted from <a href="https://code.claude.com/docs/en/best-practices">Claude Code best practices</a> (“let Claude interview you”). Mirrors GitHub Spec Kit’s specify → plan → build flow.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p1-t" aria-label="Copy prompt: Interview me, then write the spec">Copy</button><pre id="p1-t">I want to build {{brief description of feature}}.
+
+Interview me in detail before writing any code. Ask about technical implementation, UI/UX, edge cases, failure modes, security, and tradeoffs. Skip obvious questions; dig into the hard parts I may not have considered. Ask a few questions at a time.
+
+When we&#x27;ve covered everything, write a self-contained spec to {{SPEC.md}} that:
+- names the files, modules and interfaces involved
+- states what is explicitly OUT of scope
+- lists acceptance criteria as checkable statements
+- ends with an end-to-end verification step that proves the feature works
+Do not start implementing.</pre></div>
+  <p class="after">Then start a fresh session to build from SPEC.md, so the builder starts with clean context.</p>
+</article>
+<article class="prompt" data-cat="coding" id="p2">
+  <div class="prompt-head"><span class="kind">Coding · 02</span><h3>Feature build: goal, context, constraints, done when</h3></div>
+  <p class="src">Structure from <a href="https://learn.chatgpt.com/guides/best-practices">OpenAI Codex best practices</a>.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p2-t" aria-label="Copy prompt: Feature build: goal, context, constraints, done when">Copy</button><pre id="p2-t">Goal: {{what to change or build, one or two sentences}}
+Context: {{files, docs, error output, an existing pattern to follow, e.g. &quot;follow the pattern in src/widgets/HotDogWidget.tsx&quot;}}
+Constraints: {{stack rules, &quot;no new dependencies&quot;, security requirements, files you must not touch}}
+Done when: {{tests that must pass, a command that must succeed, observable behavior}}
+
+Work in small steps. After implementing, run {{test/lint/typecheck commands}} and show me the actual output. If something blocks you, stop and tell me rather than working around it.</pre></div>
+  
+</article>
+<article class="prompt" data-cat="coding" id="p3">
+  <div class="prompt-head"><span class="kind">Coding · 03</span><h3>Reproduce a bug and find the root cause</h3></div>
+  <p class="src">Grounded in <a href="https://code.claude.com/docs/en/best-practices">Claude Code best practices</a>: write a failing test first; fix the cause, don’t suppress the error.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p3-t" aria-label="Copy prompt: Reproduce a bug and find the root cause">Copy</button><pre id="p3-t">Bug: {{symptom as users see it}}
+Evidence: {{error message / stack trace / logs, pasted verbatim}}
+Where I suspect it lives: {{path or &quot;unknown&quot;}}
+Expected vs actual: {{...}}
+
+1. Before changing anything, read the relevant code. Don&#x27;t speculate about code you haven&#x27;t opened.
+2. Write a minimal failing test (or script) that reproduces the bug. Run it; show it fails.
+3. List 2-4 candidate root causes, with the evidence for and against each.
+4. Fix the root cause. Do not suppress the error, special-case the test, or catch-and-ignore.
+5. Re-run the reproduction and the surrounding tests; show the output.
+6. Explain in 3 sentences why the bug happened and why the fix is correct.</pre></div>
+  
+</article>
+<article class="prompt" data-cat="coding" id="p4">
+  <div class="prompt-head"><span class="kind">Coding · 04</span><h3>Code review that reports only what matters</h3></div>
+  <p class="src">From the writer/reviewer pattern in <a href="https://code.claude.com/docs/en/best-practices">Claude Code best practices</a>. Works best in a fresh chat or sub-agent.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p4-t" aria-label="Copy prompt: Code review that reports only what matters">Copy</button><pre id="p4-t">Review {{the diff on this branch vs main / a file / a PR}} for correctness.
+Context: the change is meant to {{intent}}. Our conventions: {{link or file}}.
+
+Report only findings that affect correctness, security, data integrity, or the stated requirements. For each: file:line, what goes wrong, a concrete input or scenario that triggers it, and a suggested fix. Rate confidence (high/medium/low).
+Do NOT report style preferences or speculative &quot;could be cleaner&quot; items.
+If you find nothing significant, say so plainly. That is an acceptable answer.</pre></div>
+  
+</article>
+<article class="prompt" data-cat="coding" id="p5">
+  <div class="prompt-head"><span class="kind">Coding · 05</span><h3>Check the work against the plan</h3></div>
+  <p class="src">Closely follows <a href="https://code.claude.com/docs/en/best-practices">Claude Code best practices</a>.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p5-t" aria-label="Copy prompt: Check the work against the plan">Copy</button><pre id="p5-t">Use a sub-agent (fresh context) to review the {{feature}} diff against {{PLAN.md / SPEC.md}}.
+Check that every requirement is implemented, every listed edge case has a test, and nothing outside the task&#x27;s scope changed. Report gaps, not style preferences.</pre></div>
+  
+</article>
+<article class="prompt" data-cat="coding" id="p6">
+  <div class="prompt-head"><span class="kind">Coding · 06</span><h3>Refactor plan, no code yet</h3></div>
+  
+  <div class="code"><button type="button" class="copy" data-copy="p6-t" aria-label="Copy prompt: Refactor plan, no code yet">Copy</button><pre id="p6-t">I want to refactor {{module/area}} because {{the pain: duplication, slow tests, hard to extend for X}}.
+
+Read the code first. Then produce a plan, not code:
+- Current structure (short), and the specific problems, with evidence (file:line)
+- Target structure and why it solves those problems
+- A sequence of small, independently shippable steps; each keeps tests green
+- For each step: files touched, risk, how we verify behavior is unchanged
+- What you would NOT change, and why
+Keep it simple. Don&#x27;t introduce abstractions for one-time operations.</pre></div>
+  <p class="after">The last line echoes Anthropic’s guidance against over-engineering.</p>
+</article>
+<article class="prompt" data-cat="coding" id="p7">
+  <div class="prompt-head"><span class="kind">Coding · 07</span><h3>Write tests that test the code, not the other way round</h3></div>
+  <p class="src">Grounded in <a href="https://code.claude.com/docs/en/best-practices">Claude Code</a> and Anthropic’s guidance against gaming tests.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p7-t" aria-label="Copy prompt: Write tests that test the code, not the other way round">Copy</button><pre id="p7-t">Write tests for {{function/module}} using {{framework}}, following the style of {{an existing test file}}.
+Cover: the happy path, {{specific edge cases}}, invalid inputs, and boundary values.
+Prefer real objects over mocks unless {{external service}} is involved.
+Each test name should state the behavior being checked.
+Run the tests and show the output. If a test fails because the CODE is wrong, report it. Do not change the assertion to match buggy behavior.</pre></div>
+  
+</article>
+<article class="prompt" data-cat="coding" id="p8">
+  <div class="prompt-head"><span class="kind">Coding · 08</span><h3>Plan, then execute (for coding agents)</h3></div>
+  <p class="src">Based on Claude Code’s explore → plan → implement flow and <a href="https://mitchellh.com/writing/my-ai-adoption-journey">Mitchell Hashimoto’s</a> separate planning and execution sessions.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p8-t" aria-label="Copy prompt: Plan, then execute (for coding agents)">Copy</button><pre id="p8-t">Phase 1, explore (read only, make no edits): read {{dirs/files}} and explain how {{the relevant subsystem}} currently works.
+Phase 2, plan: write a step-by-step plan to {{goal}} in PLAN.md: files to change, order of changes, tests to add, risks, and a verification command for each step.
+Stop and wait for my approval.
+Phase 3, after I approve: implement step by step, ticking items off in PLAN.md and running the verification after each step. If reality diverges from the plan, update the plan and tell me before continuing.</pre></div>
+  
+</article>
+<article class="prompt" data-cat="coding" id="p9">
+  <div class="prompt-head"><span class="kind">Coding · 09</span><h3>Explain a codebase to me</h3></div>
+  <p class="src">Grounded in <a href="https://simonwillison.net/2025/Mar/11/using-llms-for-code/">Simon Willison on using LLMs for code</a>.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p9-t" aria-label="Copy prompt: Explain a codebase to me">Copy</button><pre id="p9-t">I&#x27;m new to this codebase and need to {{goal, e.g. add an API endpoint}}.
+Give me:
+1. A 10-line overview: what it does, main entry points, how a request or data flows.
+2. A map of the 8-12 most important files/dirs and the role of each.
+3. How {{a specific subsystem: auth / logging / config}} works, with file:line references.
+4. Where I&#x27;d make my change, and which existing code is the best pattern to copy.
+5. Surprises and gotchas you noticed.
+Only state what you verified by reading code; mark guesses as guesses.</pre></div>
+  
+</article>
+<article class="prompt" data-cat="coding" id="p10">
+  <div class="prompt-head"><span class="kind">Coding · 10</span><h3>Learn a command-line tool, then use it</h3></div>
+  <p class="src">Adapted from <a href="https://code.claude.com/docs/en/best-practices">Claude Code best practices</a>.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p10-t" aria-label="Copy prompt: Learn a command-line tool, then use it">Copy</button><pre id="p10-t">Use `{{tool}} --help` (and subcommand help as needed) to learn how {{tool}} works.
+Then use it to {{task A, B, C}}. Show me the exact commands you ran and their output.</pre></div>
+  
+</article>
+<article class="prompt" data-cat="writing" id="p11">
+  <div class="prompt-head"><span class="kind">Writing · 11</span><h3>Line edit with tracked changes</h3></div>
+  
+  <div class="code"><button type="button" class="copy" data-copy="p11-t" aria-label="Copy prompt: Line edit with tracked changes">Copy</button><pre id="p11-t">Edit the text below for {{clarity and concision / grammar only / flow}}.
+Audience: {{who}}. Keep my voice and meaning; don&#x27;t add new claims.
+
+Output in two parts:
+1. &lt;edited&gt; the full revised text &lt;/edited&gt;
+2. &lt;changes&gt; a table: Original | Revised | Reason (one line), for every substantive change (skip pure punctuation) &lt;/changes&gt;
+If a sentence is ambiguous, don&#x27;t guess. Flag it in &lt;questions&gt;.
+
+&lt;text&gt;
+{{paste}}
+&lt;/text&gt;</pre></div>
+  
+</article>
+<article class="prompt" data-cat="writing" id="p12">
+  <div class="prompt-head"><span class="kind">Writing · 12</span><h3>Match my voice</h3></div>
+  <p class="src">Ethan Mollick suggests pasting your own writing as a style sample (<a href="https://www.oneusefulthing.org/p/a-guide-to-prompting-ai-for-what">One Useful Thing</a>). Anthropic recommends 3–5 varied examples.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p12-t" aria-label="Copy prompt: Match my voice">Copy</button><pre id="p12-t">Here are {{3-5}} samples of my writing:
+&lt;samples&gt;
+&lt;sample&gt;{{...}}&lt;/sample&gt;
+&lt;sample&gt;{{...}}&lt;/sample&gt;
+&lt;/samples&gt;
+First, describe my voice in 6-8 concrete bullets (sentence length, vocabulary, humor, how I open and close, what I never do). Then write {{piece}} about {{topic}} in that voice. Use only facts I&#x27;ve given you; where you need a fact I haven&#x27;t supplied, insert
+[TK: what&#x27;s needed] rather than inventing it.</pre></div>
+  <p class="after">The [TK] placeholder follows OpenAI’s advice to use labeled placeholders instead of invented specifics (<a href="https://developers.openai.com/api/docs/guides/prompt-guidance">prompt guidance</a>).</p>
+</article>
+<article class="prompt" data-cat="writing" id="p13">
+  <div class="prompt-head"><span class="kind">Writing · 13</span><h3>A hard-nosed critique</h3></div>
+  
+  <div class="code"><button type="button" class="copy" data-copy="p13-t" aria-label="Copy prompt: A hard-nosed critique">Copy</button><pre id="p13-t">Critique the draft below as a demanding {{editor / reviewer for venue X}} would.
+Goal of the piece: {{goal}}. Reader: {{reader}}.
+Give me: (1) the single biggest problem, (2) the 3-5 next most important issues, ranked, each with a quoted example from the text and a concrete fix, (3) what is working and must be kept. Don&#x27;t rewrite the piece. Don&#x27;t soften, but don&#x27;t invent problems to fill space.
+&lt;draft&gt;{{...}}&lt;/draft&gt;</pre></div>
+  
+</article>
+<article class="prompt" data-cat="writing" id="p14">
+  <div class="prompt-head"><span class="kind">Writing · 14</span><h3>Outline a novel or screenplay</h3></div>
+  
+  <div class="code"><button type="button" class="copy" data-copy="p14-t" aria-label="Copy prompt: Outline a novel or screenplay">Copy</button><pre id="p14-t">Help me outline a {{novel / feature screenplay / pilot}}.
+Premise: {{logline}}. Genre and tone: {{...}}. Comparable works: {{...}}.
+Protagonist, and what they want vs. what they need: {{...}}. Length target: {{...}}.
+
+Before outlining, ask me up to 5 questions whose answers would most change the structure. After I answer, produce:
+- a {{three-act / 8-sequence / chapter}} beat outline, one paragraph per beat
+- each beat&#x27;s turn (what changes) and how it escalates the stakes
+- 3 alternative directions for the midpoint and the ending
+Flag beats that feel generic and suggest a more specific option.</pre></div>
+  
+</article>
+<article class="prompt" data-cat="writing" id="p15">
+  <div class="prompt-head"><span class="kind">Writing · 15</span><h3>Rewrite for a different reader</h3></div>
+  
+  <div class="code"><button type="button" class="copy" data-copy="p15-t" aria-label="Copy prompt: Rewrite for a different reader">Copy</button><pre id="p15-t">Rewrite the text below for {{audience: busy executives / 12-year-olds / non-technical customers}} who need to {{what they must do or decide after reading}}.
+Constraints: {{max length}}, reading level {{...}}, keep these facts exactly: {{list}}.
+Replace jargon with plain words or define it once. Lead with what matters to this reader.
+&lt;original&gt;{{...}}&lt;/original&gt;</pre></div>
+  
+</article>
+<article class="prompt" data-cat="writing" id="p16">
+  <div class="prompt-head"><span class="kind">Writing · 16</span><h3>Prose, not slide bullets</h3></div>
+  <p class="src">Anthropic: say what to do rather than what not to do (<a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices">best practices</a>). OpenAI: use headers and bullets sparingly.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p16-t" aria-label="Copy prompt: Prose, not slide bullets">Copy</button><pre id="p16-t">Write this as smoothly flowing prose paragraphs, the way a thoughtful person writes a letter or essay, not as bullet points or headed sections. Use concrete examples and specific nouns. Vary sentence length. End when the point is made; no summary paragraph.
+Topic and material: {{...}}</pre></div>
+  
+</article>
+<article class="prompt" data-cat="research" id="p17">
+  <div class="prompt-head"><span class="kind">Research &amp; analysis · 17</span><h3>Deep-research brief</h3></div>
+  <p class="src">The competing-hypotheses line is adapted from Anthropic’s research prompt (<a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices">best practices</a>). Use it with ChatGPT, Claude or Gemini deep research modes.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p17-t" aria-label="Copy prompt: Deep-research brief">Copy</button><pre id="p17-t">Research question: {{precise question}}
+Why I&#x27;m asking / the decision it informs: {{...}}
+What I already know (don&#x27;t repeat it): {{...}}
+Scope: time range {{...}}, geography {{...}}, sources to prefer {{primary data, peer-reviewed, official docs}} and to avoid {{SEO blogs, vendor marketing}}.
+
+As you gather evidence, keep several competing hypotheses and track your confidence in each. Deliverable: a {{length}} report with the answer first, then the evidence.
+Every non-obvious claim gets an inline citation with a URL. Separate &quot;well established&quot;, &quot;contested&quot; and &quot;unknown&quot;. End with what evidence would change the conclusion.</pre></div>
+  
+</article>
+<article class="prompt" data-cat="research" id="p18">
+  <div class="prompt-head"><span class="kind">Research &amp; analysis · 18</span><h3>Fact-check every claim</h3></div>
+  <p class="src">In the spirit of Fabric’s analyze_claims pattern (<a href="https://github.com/danielmiessler/Fabric">danielmiessler/Fabric</a>).</p>
+  <div class="code"><button type="button" class="copy" data-copy="p18-t" aria-label="Copy prompt: Fact-check every claim">Copy</button><pre id="p18-t">Below is {{an article / a draft / an AI answer}}. List every factual claim in it.
+For each claim: quote it, classify it (verifiable fact / statistic / causal claim / opinion), say what source would verify it, and, if you can check it with {{web search / the attached sources}}, give the verdict (supported / contradicted / unverifiable) with the URL or quote. Do not invent references; &quot;could not verify&quot; is an acceptable verdict. Finish with the 3 claims most in need of a human check.
+&lt;text&gt;{{...}}&lt;/text&gt;</pre></div>
+  
+</article>
+<article class="prompt" data-cat="research" id="p19">
+  <div class="prompt-head"><span class="kind">Research &amp; analysis · 19</span><h3>Steelman and devil’s advocate</h3></div>
+  
+  <div class="code"><button type="button" class="copy" data-copy="p19-t" aria-label="Copy prompt: Steelman and devil’s advocate">Copy</button><pre id="p19-t">My position: {{position}}. My main reasons: {{...}}.
+1. Steelman the opposing view: the strongest case a smart, informed opponent would make, in their terms, with their best evidence.
+2. Then argue against my position: the 3 weakest points in my reasoning and the facts that would most embarrass me if true.
+3. Finally, tell me what I should check or ask to find out who is right.
+Don&#x27;t hedge into &quot;both sides have merit&quot;. Commit to the strongest versions.</pre></div>
+  
+</article>
+<article class="prompt" data-cat="research" id="p20">
+  <div class="prompt-head"><span class="kind">Research &amp; analysis · 20</span><h3>Pre-mortem</h3></div>
+  <p class="src">Adapted (paraphrased) from Mollick &amp; Mollick’s AI Coach pre-mortem in <a href="https://www.college.columbia.edu/sites/default/files/wharton_-_assigning_ai_-_seven_approaches_for_students_with_prompts.pdf">Assigning AI</a>.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p20-t" aria-label="Copy prompt: Pre-mortem">Copy</button><pre id="p20-t">Run a pre-mortem on my plan with me.
+Plan: {{description, goals, timeline, team}}.
+Imagine it is {{6 months}} from now and the plan has clearly failed.
+First ask me to list the reasons I think it failed. Then add the failure modes I missed (especially boring ones: staffing, dependencies, incentives, unclear ownership).
+For each: likelihood (L/M/H), impact, an early warning sign, and a cheap mitigation.
+End with a table: Failure | Warning sign | Mitigation | Owner.</pre></div>
+  
+</article>
+<article class="prompt" data-cat="research" id="p21">
+  <div class="prompt-head"><span class="kind">Research &amp; analysis · 21</span><h3>Decision matrix</h3></div>
+  
+  <div class="code"><button type="button" class="copy" data-copy="p21-t" aria-label="Copy prompt: Decision matrix">Copy</button><pre id="p21-t">I&#x27;m choosing between {{options A, B, C}} for {{decision}}.
+My priorities, in order: {{criteria}}. Hard constraints: {{budget, deadline, must-haves}}.
+1. Propose weights for the criteria (show them; I may adjust).
+2. Score each option 1-5 per criterion with a one-line reason, and say what fact, if wrong, would change the score.
+3. Show the weighted table, then a sensitivity check: what weight change flips the winner?
+4. Name an option I haven&#x27;t considered, if a strong one exists.
+Mark any score based on assumption rather than information I gave you.</pre></div>
+  
+</article>
+<article class="prompt" data-cat="research" id="p22">
+  <div class="prompt-head"><span class="kind">Research &amp; analysis · 22</span><h3>Answer from documents, quotes first</h3></div>
+  <p class="src">Straight from Anthropic’s long-context guidance (<a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices">best practices</a>).</p>
+  <div class="code"><button type="button" class="copy" data-copy="p22-t" aria-label="Copy prompt: Answer from documents, quotes first">Copy</button><pre id="p22-t">&lt;documents&gt;
+  &lt;document index=&quot;1&quot;&gt;&lt;source&gt;{{name}}&lt;/source&gt;&lt;document_content&gt;{{...}}&lt;/document_content&gt;&lt;/document&gt;
+  &lt;document index=&quot;2&quot;&gt;...&lt;/document&gt;
+&lt;/documents&gt;
+
+Question: {{question}} First, extract the passages relevant to the question into &lt;quotes&gt;, each with its document index. Then answer in &lt;answer&gt; using only those quotes, citing [doc#].
+If the documents don&#x27;t contain the answer, say so instead of using outside knowledge.</pre></div>
+  
+</article>
+<article class="prompt" data-cat="learning" id="p23">
+  <div class="prompt-head"><span class="kind">Learning · 23</span><h3>Socratic tutor</h3></div>
+  <p class="src">Adapted from Mollick &amp; Mollick’s AI Tutor prompt, which tells the AI not to give immediate answers.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p23-t" aria-label="Copy prompt: Socratic tutor">Copy</button><pre id="p23-t">You are an encouraging tutor helping me understand {{topic}}. Don&#x27;t give me answers outright; help me reach them.
+Start by asking, one at a time: what I want to learn, my level, and what I already know.
+Then teach with explanations, examples and analogies pitched to my level, and guide me with leading questions. If I&#x27;m stuck, give a hint, not the answer. Ask one question per turn and wait for my reply. When I seem to have it, ask me to explain it in my own words and give an example; correct me gently. Stop when I&#x27;ve shown understanding.</pre></div>
+  
+</article>
+<article class="prompt" data-cat="learning" id="p24">
+  <div class="prompt-head"><span class="kind">Learning · 24</span><h3>Explain it four ways</h3></div>
+  
+  <div class="code"><button type="button" class="copy" data-copy="p24-t" aria-label="Copy prompt: Explain it four ways">Copy</button><pre id="p24-t">Explain {{concept}} to me in four passes:
+1. To a curious 12-year-old, with one everyday analogy (120 words max).
+2. To an undergraduate, with the key mechanism and a worked example.
+3. The common misconceptions, and where the analogy in (1) breaks down.
+4. Three questions I should be able to answer if I truly understand it (answers hidden at the end under &quot;ANSWERS&quot;).
+About me: {{background}}.</pre></div>
+  
+</article>
+<article class="prompt" data-cat="learning" id="p25">
+  <div class="prompt-head"><span class="kind">Learning · 25</span><h3>Quiz me</h3></div>
+  
+  <div class="code"><button type="button" class="copy" data-copy="p25-t" aria-label="Copy prompt: Quiz me">Copy</button><pre id="p25-t">Quiz me on {{topic / the material below}}. Rules:
+- One question at a time; wait for my answer.
+- Mix formats: recall, application, &quot;explain why&quot;, spot-the-error.
+- Start at {{level}}; go harder after two right answers, easier after a miss.
+- After each answer: right / partly / wrong, the correct reasoning in 3 lines or fewer, and the concept it tests.
+- After 10 questions: summarize my weak spots and give 3 follow-up questions on them.
+&lt;material&gt;{{optional}}&lt;/material&gt;</pre></div>
+  
+</article>
+<article class="prompt" data-cat="work" id="p26">
+  <div class="prompt-head"><span class="kind">Everyday work · 26</span><h3>Meeting notes to decisions and actions</h3></div>
+  
+  <div class="code"><button type="button" class="copy" data-copy="p26-t" aria-label="Copy prompt: Meeting notes to decisions and actions">Copy</button><pre id="p26-t">From the meeting transcript or notes below, produce:
+1. Summary (5 bullets max): what was discussed and why it matters.
+2. Decisions made (quote the line that shows each decision).
+3. Action items table: Task | Owner | Due date | Source quote. Write &quot;UNASSIGNED&quot; or &quot;NO DATE&quot; when not stated. Don&#x27;t invent owners or dates.
+4. Open questions and disagreements left unresolved.
+5. A {{3-sentence}} recap I can paste into {{Slack / email}}.
+&lt;transcript&gt;{{...}}&lt;/transcript&gt;</pre></div>
+  
+</article>
+<article class="prompt" data-cat="work" id="p27">
+  <div class="prompt-head"><span class="kind">Everyday work · 27</span><h3>Email draft</h3></div>
+  
+  <div class="code"><button type="button" class="copy" data-copy="p27-t" aria-label="Copy prompt: Email draft">Copy</button><pre id="p27-t">Draft an email to {{recipient and relationship}}.
+Purpose: {{what I want them to do or know}}. Background they already know: {{...}}.
+Background they don&#x27;t: {{...}}. Tone: {{warm / firm / formal}}. Length: {{120}} words max.
+Put the ask in the first two sentences. One clear call to action with a date.
+Give me 2 subject-line options and 1 version that is half as long.</pre></div>
+  
+</article>
+<article class="prompt" data-cat="work" id="p28">
+  <div class="prompt-head"><span class="kind">Everyday work · 28</span><h3>Summarize a long document for a purpose</h3></div>
+  <p class="src">Long document first, question last, as both Anthropic and Google recommend.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p28-t" aria-label="Copy prompt: Summarize a long document for a purpose">Copy</button><pre id="p28-t">&lt;document&gt;
+{{paste long document}}
+&lt;/document&gt;
+
+I am {{role}} and need to {{decision or task}}. Summarize the document above for that purpose:
+- Bottom line in 2 sentences
+- The 5-7 points that matter for my purpose, each with a section or page reference
+- Numbers, dates, obligations and deadlines, quoted exactly
+- What the document conspicuously does NOT address
+- Anything ambiguous I should check with the author</pre></div>
+  
+</article>
+<article class="prompt" data-cat="work" id="p29">
+  <div class="prompt-head"><span class="kind">Everyday work · 29</span><h3>Extract the wisdom from a talk or article</h3></div>
+  <p class="src">A condensed version of Fabric’s extract_wisdom pattern (<a href="https://github.com/danielmiessler/Fabric">danielmiessler/Fabric</a>).</p>
+  <div class="code"><button type="button" class="copy" data-copy="p29-t" aria-label="Copy prompt: Extract the wisdom from a talk or article">Copy</button><pre id="p29-t">From the content below, output Markdown sections:
+SUMMARY (25 words: who is speaking and about what)
+IDEAS (10-20 of the most surprising or insightful ideas, one line each)
+QUOTES (5-10 exact quotes with the speaker)
+FACTS (claims about the world; flag any you doubt)
+REFERENCES (books, tools, people mentioned)
+ONE-SENTENCE TAKEAWAY (15 words)
+RECOMMENDATIONS (5-10 actionable items) Don&#x27;t repeat items. No preamble.
+&lt;content&gt;{{...}}&lt;/content&gt;</pre></div>
+  
+</article>
+<article class="prompt" data-cat="data" id="p30">
+  <div class="prompt-head"><span class="kind">Data · 30</span><h3>Extract to a JSON schema</h3></div>
+  <p class="src">If your API or app supports structured outputs (OpenAI, Gemini, Ollama, llama.cpp grammars), put the schema there instead; it is enforced rather than requested.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p30-t" aria-label="Copy prompt: Extract to a JSON schema">Copy</button><pre id="p30-t">Extract information from the text into JSON matching this schema exactly:
+&lt;schema&gt;
+{&quot;vendor&quot;: &quot;string&quot;, &quot;invoice_date&quot;: &quot;YYYY-MM-DD&quot;, &quot;total&quot;: &quot;number&quot;, &quot;currency&quot;: &quot;ISO-4217&quot;, &quot;line_items&quot;: [{&quot;desc&quot;: &quot;string&quot;, &quot;qty&quot;: &quot;number&quot;}]}
+&lt;/schema&gt;
+Rules: use null when a field is absent; never guess. Copy values verbatim before normalizing. If the text contradicts itself, choose the most explicit value and add a note to &quot;warnings&quot;: [...]. Output only the JSON.
+&lt;text&gt;{{...}}&lt;/text&gt;</pre></div>
+  
+</article>
+<article class="prompt" data-cat="data" id="p31">
+  <div class="prompt-head"><span class="kind">Data · 31</span><h3>Classify with labeled examples</h3></div>
+  <p class="src">Anthropic recommends 3–5 varied examples. Balance and order matter: <a href="https://arxiv.org/abs/2102.09690">Zhao et al., “Calibrate Before Use”</a>.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p31-t" aria-label="Copy prompt: Classify with labeled examples">Copy</button><pre id="p31-t">Classify each item into exactly one of: {{labels, each with a one-line definition}}.
+If none fits, use &quot;OTHER&quot;; if genuinely ambiguous, use &quot;UNSURE&quot;.
+&lt;examples&gt;
+&lt;example&gt;&lt;input&gt;{{...}}&lt;/input&gt;&lt;label&gt;{{A}}&lt;/label&gt;&lt;why&gt;{{...}}&lt;/why&gt;&lt;/example&gt;
+&lt;example&gt;&lt;input&gt;{{...}}&lt;/input&gt;&lt;label&gt;{{B}}&lt;/label&gt;&lt;why&gt;{{...}}&lt;/why&gt;&lt;/example&gt;
+&lt;example&gt;&lt;input&gt;{{...}}&lt;/input&gt;&lt;label&gt;{{C}}&lt;/label&gt;&lt;why&gt;{{...}}&lt;/why&gt;&lt;/example&gt;
+&lt;/examples&gt;
+Return one JSON object per line: {&quot;id&quot;: ..., &quot;label&quot;: ..., &quot;confidence&quot;: &quot;high|med|low&quot;}.
+&lt;items&gt;{{...}}&lt;/items&gt;</pre></div>
+  <p class="after">Balance the labels across your examples and vary their order; models lean toward the majority label and the most recent one.</p>
+</article>
+<article class="prompt" data-cat="data" id="p32">
+  <div class="prompt-head"><span class="kind">Data · 32</span><h3>Spreadsheet formula</h3></div>
+  
+  <div class="code"><button type="button" class="copy" data-copy="p32-t" aria-label="Copy prompt: Spreadsheet formula">Copy</button><pre id="p32-t">I&#x27;m using {{Excel 365 / Google Sheets}}. Columns: {{A=Date, B=Region, C=Revenue ...}} starting at row 2, about {{N}} rows. I need {{what the formula should compute}} in cell {{X}}.
+Give me: the formula, a plain-English explanation of each part, one edge case it handles (blanks, numbers stored as text, errors) and one it doesn&#x27;t. Prefer {{LET / LAMBDA / XLOOKUP / no array formulas}}. Then show a small sample table with the expected result.</pre></div>
+  
+</article>
+<article class="prompt" data-cat="data" id="p33">
+  <div class="prompt-head"><span class="kind">Data · 33</span><h3>Clean messy data with code, not by hand</h3></div>
+  <p class="src">Offload exact, repeatable work to code: Anthropic’s skills guidance and OpenAI’s “use external tools” both say this.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p33-t" aria-label="Copy prompt: Clean messy data with code, not by hand">Copy</button><pre id="p33-t">Here is a sample of messy data ({{first 30 rows}}). Don&#x27;t clean it by hand.
+1. List every data-quality problem you see, with example rows.
+2. Write a {{Python/pandas | SQL}} script that fixes them, logging every change.
+3. Describe checks to confirm the output (row counts, uniqueness, value ranges).
+Ask me before deciding anything that changes meaning (dropping rows, merging near-duplicates).
+&lt;sample&gt;{{...}}&lt;/sample&gt;</pre></div>
+  
+</article>
+<article class="prompt" data-cat="meta" id="p34">
+  <div class="prompt-head"><span class="kind">Prompts about prompts · 34</span><h3>Improve my prompt</h3></div>
+  <p class="src">Mirrors the steps of Anthropic’s <a href="https://claude.com/blog/prompt-improver">Console prompt improver</a>.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p34-t" aria-label="Copy prompt: Improve my prompt">Copy</button><pre id="p34-t">Improve the prompt below for {{model}}. It will be used for {{task}}; typical inputs look like {{...}}; good output looks like {{...}}; current failures: {{...}}.
+Rewrite it so that it: states the goal and why; separates instructions, context and input with XML tags; specifies output format and length; uses positive instructions (&quot;do X&quot;) rather than prohibitions; includes 2-3 varied examples if useful; removes redundant or ALL-CAPS emphasis. Then list each change and the failure it addresses, and propose 5 test inputs (including edge cases) to compare old vs new.
+&lt;prompt&gt;{{...}}&lt;/prompt&gt;</pre></div>
+  
+</article>
+<article class="prompt" data-cat="meta" id="p35">
+  <div class="prompt-head"><span class="kind">Prompts about prompts · 35</span><h3>Ask me questions first</h3></div>
+  <p class="src">Use when you are the bottleneck on context. Skip it for well-specified tasks: OpenAI’s newer guidance warns agents against stopping at a plan when they could deliver.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p35-t" aria-label="Copy prompt: Ask me questions first">Copy</button><pre id="p35-t">Before you answer, ask me the {{3-5}} questions whose answers would most change your response. For each, say briefly why it matters and give your default assumption.
+If I reply &quot;use defaults&quot;, go ahead with your stated assumptions and list them at the top.
+Task: {{...}}</pre></div>
+  
+</article>
+<article class="prompt" data-cat="meta" id="p36">
+  <div class="prompt-head"><span class="kind">Prompts about prompts · 36</span><h3>Write a system prompt</h3></div>
+  <p class="src">Grounded in Anthropic’s “right altitude” advice (<a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">context engineering</a>).</p>
+  <div class="code"><button type="button" class="copy" data-copy="p36-t" aria-label="Copy prompt: Write a system prompt">Copy</button><pre id="p36-t">Write a system prompt for an assistant that {{job}} for {{users}}.
+Include: its purpose and who it serves; what good help looks like here; context it needs (product facts, policies) in tagged sections; decision rules for the judgment calls {{list}}; output style; when to ask vs. proceed; what to do when it can&#x27;t help.
+Aim for the &quot;right altitude&quot;: specific enough to guide behavior, but heuristics rather than brittle if-then rules. Explain the WHY behind each rule. Keep it under {{N}} words.
+Then list 8 test conversations (including adversarial and off-topic ones) I should run.</pre></div>
+  
+</article>
+<article class="prompt" data-cat="meta" id="p37">
+  <div class="prompt-head"><span class="kind">Prompts about prompts · 37</span><h3>Critique my prompt before rewriting it</h3></div>
+  <p class="src">Anthropic’s “golden rule” turned into a prompt: if a colleague with no context would be confused, the model will be too (<a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices">best practices</a>).</p>
+  <div class="code"><button type="button" class="copy" data-copy="p37-t" aria-label="Copy prompt: Critique my prompt before rewriting it">Copy</button><pre id="p37-t">Act as a strict reviewer of the prompt below. Do not rewrite it yet.
+Find: ambiguities a smart new colleague would trip on; missing context or success criteria; conflicting instructions; places where the model must guess the output format; over-emphasis or rules without reasons; risks if inputs are untrusted.
+Rank issues by likely impact, quote the offending text, and suggest a minimal fix.
+&lt;prompt&gt;{{...}}&lt;/prompt&gt;</pre></div>
+  
+</article>
+<article class="prompt" data-cat="meta" id="p38">
+  <div class="prompt-head"><span class="kind">Prompts about prompts · 38</span><h3>Rescue a derailed chat</h3></div>
+  <p class="src">Based on <a href="https://arxiv.org/abs/2505.06120">Laban et al., “LLMs Get Lost in Multi-Turn Conversation”</a> and Claude Code’s “after two failed corrections, start over”.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p38-t" aria-label="Copy prompt: Rescue a derailed chat">Copy</button><pre id="p38-t">Summarize everything I&#x27;ve asked for in this conversation into a single, complete, self-contained instruction I can paste into a fresh chat: the goal, every constraint and preference I&#x27;ve stated (including corrections), relevant facts and data, the approaches we tried that failed and why, and the output format I want. Don&#x27;t include your previous answers.</pre></div>
+  
+</article>
+<article class="prompt" data-cat="meta" id="p39">
+  <div class="prompt-head"><span class="kind">Prompts about prompts · 39</span><h3>AI judge for one failure mode</h3></div>
+  <p class="src">Follows <a href="https://hamel.dev/blog/posts/evals-faq/">Hamel Husain’s evals FAQ</a>: pass/fail, one failure mode per judge, checked against human labels.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p39-t" aria-label="Copy prompt: AI judge for one failure mode">Copy</button><pre id="p39-t">You are evaluating one thing only: {{failure mode, e.g. &quot;the reply promises a refund the policy doesn&#x27;t allow&quot;}}.
+Definition of FAIL: {{precise definition}}. Definition of PASS: {{...}}.
+&lt;examples&gt;{{2-4 human-labeled PASS/FAIL examples with brief critiques}}&lt;/examples&gt;
+&lt;policy_or_context&gt;{{...}}&lt;/policy_or_context&gt;
+&lt;output_to_judge&gt;{{...}}&lt;/output_to_judge&gt;
+Write a 1-3 sentence critique, then output exactly &quot;PASS&quot; or &quot;FAIL&quot;.
+Ignore every other quality of the output.</pre></div>
+  
+</article>
+<article class="prompt" data-cat="setup" id="p40">
+  <div class="prompt-head"><span class="kind">Setup files · 40</span><h3>Custom instructions for any chat AI</h3></div>
+  <p class="src">Paste into ChatGPT’s custom instructions, a Claude project or profile preferences, or a Gemini Gem. Written for this guide from the practices below.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p40-t" aria-label="Copy prompt: Custom instructions for any chat AI">Copy</button><pre id="p40-t">About me: {{role, field, expertise level, what I&#x27;m usually working on}}.
+
+How to answer:
+- Lead with the answer, then the reasoning. Match length to the question.
+- When something is uncertain or you can&#x27;t verify it, say so and say why.
+- Use plain language; define jargon once. Prose by default, lists only for genuinely parallel items or steps.
+- If my request is ambiguous in a way that changes the answer, ask one short question; otherwise pick a sensible default and tell me which one.
+- For facts that change (prices, versions, laws, news), search or tell me the information may be out of date.
+- Don&#x27;t flatter me or pad answers. Point out flaws in my plans directly.
+- When I share writing, keep my voice; don&#x27;t add claims I didn&#x27;t make.</pre></div>
+  
+</article>
+<article class="prompt" data-cat="setup" id="p41">
+  <div class="prompt-head"><span class="kind">Setup files · 41</span><h3>Write or refresh a CLAUDE.md / AGENTS.md</h3></div>
+  <p class="src">Include/exclude lists from <a href="https://code.claude.com/docs/en/best-practices">Claude Code best practices</a>; content areas from <a href="https://agents.md/">agents.md</a>.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p41-t" aria-label="Copy prompt: Write or refresh a CLAUDE.md / AGENTS.md">Copy</button><pre id="p41-t">Explore this repository and draft an {{AGENTS.md / CLAUDE.md / GEMINI.md}} for coding agents.
+
+Include only things an agent can&#x27;t work out from reading the code:
+- exact build, test (including a single test), lint and typecheck commands
+- environment quirks and required environment variables
+- conventions that differ from language defaults
+- repo etiquette (branch naming, commit and PR rules)
+- non-obvious gotchas and &quot;never do X because Y&quot;
+- how to verify that work is done
+Exclude: file-by-file descriptions, standard conventions, long tutorials, API docs (link instead), anything that changes often.
+Aim for under {{100}} lines. For every line ask &quot;would removing this cause mistakes?&quot;
+If not, cut it. Then list anything you were unsure about as questions for me.</pre></div>
+  
+</article>
+<article class="prompt" data-cat="setup" id="p42">
+  <div class="prompt-head"><span class="kind">Setup files · 42</span><h3>A starter AGENTS.md skeleton</h3></div>
+  <p class="src">One file most coding agents read (Codex, Cursor, Copilot, Gemini CLI via config, Claude Code when there is no CLAUDE.md). Keep it short and add rules only after the agent repeats a mistake.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p42-t" aria-label="Copy prompt: A starter AGENTS.md skeleton">Copy</button><pre id="p42-t"># AGENTS.md
+
+## Commands
+- Install: {{npm ci}}
+- Run one test: {{npm test -- path/to/file.test.ts}}
+- Full check before you say you&#x27;re done: {{npm run lint &amp;&amp; npm run typecheck &amp;&amp; npm test}}
+
+## Conventions that differ from the defaults
+- {{e.g. &quot;Money is integer cents everywhere; never floats.&quot;}}
+- {{e.g. &quot;All dates are stored in UTC and shown in the user&#x27;s zone.&quot;}}
+
+## Gotchas
+- {{e.g. &quot;The dev database resets on every run of scripts/seed.sh.&quot;}}
+- Never {{edit generated files in src/gen/; run npm run codegen instead}}.
+
+## Done means
+- Tests and lint pass, and you have shown me the command output.
+- New behavior has a test. No unrelated files changed.</pre></div>
+  
+</article>
+<article class="prompt" data-cat="media" id="p43">
+  <div class="prompt-head"><span class="kind">Images &amp; music · 43</span><h3>Structured image prompt</h3></div>
+  <p class="src">Formula from Google’s <a href="https://cloud.google.com/blog/products/ai-machine-learning/ultimate-prompting-guide-for-nano-banana">Nano Banana prompting guide</a>: subject, action, location, composition, style.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p43-t" aria-label="Copy prompt: Structured image prompt">Copy</button><pre id="p43-t">{{Subject, specific, with materials and colors: &quot;an elderly clockmaker in a navy tweed apron&quot;}} {{action: &quot;inspecting a brass pocket watch with a loupe&quot;}} {{location: &quot;in a cluttered workshop lit by a single window&quot;}}. {{Composition: &quot;medium close-up, eye level, subject on the left third, shallow depth of field&quot;}}. {{Lighting: &quot;soft golden-hour side light, warm dust in the air&quot;}}. {{Style: &quot;documentary photograph on 35mm color film, slight grain&quot;}}. Aspect ratio {{3:2}}.
+Text in image (if any): &quot;{{EXACT WORDS}}&quot; in {{bold white sans-serif}}, {{placement}}.</pre></div>
+  <p class="after">Write full sentences, not keyword lists. Describe what you want (“an empty street”) rather than what you don’t (“no cars”).</p>
+</article>
+<article class="prompt" data-cat="media" id="p44">
+  <div class="prompt-head"><span class="kind">Images &amp; music · 44</span><h3>Edit an image with references</h3></div>
+  <p class="src">From the same Google guide, plus OpenAI’s image guidance: say “change only X” and list what to keep.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p44-t" aria-label="Copy prompt: Edit an image with references">Copy</button><pre id="p44-t">{{Change / Remove / Combine / Transform}} {{exactly what changes}}.
+Using image 1 as {{the structure / pose}} and image 2 as {{the texture / style / product}}, {{new scenario}}.
+Keep exactly the same: {{face and identity, framing, lighting, background, text}}.
+Match the original&#x27;s perspective and light direction.</pre></div>
+  <p class="after">Repeated edits drift, so restate what must stay the same each time.</p>
+</article>
+<article class="prompt" data-cat="media" id="p45">
+  <div class="prompt-head"><span class="kind">Images &amp; music · 45</span><h3>Suno song brief</h3></div>
+  <p class="src">Suno’s help centre documents the Style and Exclude fields and the lyrics box (<a href="https://help.suno.com/en/articles/3161921">Exclude</a>). Section tags like [Chorus] are community practice, not official documentation.</p>
+  <div class="code"><button type="button" class="copy" data-copy="p45-t" aria-label="Copy prompt: Suno song brief">Copy</button><pre id="p45-t">STYLE (4-7 descriptors): {{genre and subgenre}}, {{tempo and energy, e.g. &quot;mid-tempo ~95 BPM&quot;}}, {{key instruments}}, {{vocal style, e.g. &quot;breathy female alto&quot;}}, {{production, e.g. &quot;warm analog, roomy drums&quot;}}, {{mood}}
+EXCLUDE: {{e.g. &quot;autotune, EDM drops&quot;}}
+LYRICS:
+[Intro: {{instrumental, sparse piano}}]
+[Verse 1] {{lines}}
+[Pre-Chorus] {{lines}}
+[Chorus] {{hook lines: short, singable, repeated}}
+[Verse 2]
+[Bridge: {{whispered vocals, half-time}}]
+[Chorus]
+[Outro: {{fade out}}]</pre></div>
+  <p class="after">To have ChatGPT or Claude write the lyrics first: “Write lyrics about {{story}} with concrete images, a two-line hook repeated in each chorus, consistent syllable counts, and section labels in [brackets].”</p>
+</article>
+    </div>
+  </section>
+
+  <!-- SAFETY -->
+  <section class="shelf" id="safety">
+    <div class="shelf-head">
+      <span class="eyebrow">08 · Safety</span>
+      <h2>Prompt injection, in plain terms</h2>
+      <p>When an AI reads a web page, an email or a document, any instructions hidden in that text can steer it. This is the top risk on the <a href="https://genai.owasp.org/llm-top-10/">OWASP list for AI apps</a>, and Simon Willison notes there is still no 100% reliable fix.</p>
+    </div>
+    <div class="grid3">
+      <div class="item"><h4>Know the lethal trifecta</h4><p>Danger comes from combining three things: access to private data, exposure to untrusted content, and a way to send data out (web requests, email, links). Remove any one leg.</p><p class="cite"><a href="https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/">Simon Willison</a></p></div>
+      <div class="item"><h4>Keep outside text in its lane</h4><p>Pass untrusted text as clearly tagged material, never as instructions. Between agent steps, use fixed formats (enums, schemas) instead of free text.</p><p class="cite"><a href="https://developers.openai.com/api/docs/guides/agent-builder-safety">OpenAI agent safety</a></p></div>
+      <div class="item"><h4>Approve risky actions</h4><p>Let agents take reversible, local actions freely, but require approval for anything destructive or shared: deleting, force-pushing, sending, paying. Anthropic’s docs include a ready-made prompt for this.</p><p class="cite"><a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices">Anthropic</a></p></div>
+      <div class="item"><h4>Vet skills and MCP servers</h4><p>A skill or tool server is code and instructions you are handing your agent. Install from trusted sources and read the scripts first.</p><p class="cite"><a href="https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills">Anthropic on skills</a></p></div>
+      <div class="item"><h4>Don’t put secrets in prompts</h4><p>System prompts leak: whole repositories collect extracted ones. Assume anything in a prompt can be read by a determined user.</p><p class="cite"><a href="https://github.com/asgeirtj/system_prompts_leaks">Example collection</a></p></div>
+      <div class="item"><h4>Test your own app</h4><p>If you build with AI, scan it before others do. promptfoo, garak and PyRIT probe your own system for injection and leakage.</p><p class="cite"><a href="https://github.com/promptfoo/promptfoo">promptfoo</a> · <a href="https://github.com/NVIDIA/garak">garak</a></p></div>
+    </div>
+  </section>
+
+  <!-- RESOURCES -->
+  <section class="shelf" id="resources">
+    <div class="shelf-head">
+      <span class="eyebrow">09 · Resources to feed your AI</span>
+      <h2>Repos and references worth knowing</h2>
+      <p>Every GitHub repo here was checked to exist on 14 October 2026, under its current name, and every site was checked to load. Abandoned or archived projects were dropped, and so were collections of working jailbreaks. Many of these are folders of plain markdown you can paste into a chat, drop into a project, or point an agent at.</p>
+    </div>
+    <nav class="rnav" aria-label="Resource groups">
+      <a href="#res-learn">Learn</a><a href="#res-libraries">Prompt libraries</a><a href="#res-sysprompts">System prompts</a><a href="#res-agents">Skills &amp; agents</a><a href="#res-context">Context files</a><a href="#res-local">Local models</a><a href="#res-testing">Testing</a><a href="#res-safety">Safety</a>
+    </nav>
+<div class="rgroup" id="res-learn">
+    <h3>Start here: learn the craft</h3><p class="rintro">Free courses and references worth an afternoon each. Start with one of the first three.</p>
+    <ul class="rlist"><li><a class="rname" href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices">Claude prompting best practices</a><span class="rhost">Site</span>
+      <p>Anthropic’s single, current page of prompting advice, with copy-paste snippets for common behaviors. Most of it applies to any model.</p></li><li><a class="rname" href="https://github.com/anthropics/prompt-eng-interactive-tutorial">anthropics/prompt-eng-interactive-tutorial</a><span class="rhost">GitHub</span>
+      <p>A nine-chapter hands-on course with exercises. The best structured starting point for a beginner.</p><p class="caution">Written for Claude 3; where it disagrees with the best-practices page, follow the page.</p></li><li><a class="rname" href="https://www.promptingguide.ai/">Prompt Engineering Guide (promptingguide.ai)</a><span class="rhost">Site</span>
+      <p>A free, technique-by-technique reference: few-shot, chain-of-thought, ReAct, RAG, agents. Source repo: dair-ai/Prompt-Engineering-Guide.</p></li><li><a class="rname" href="https://learnprompting.org/">Learn Prompting</a><span class="rhost">Site</span>
+      <p>A beginner-friendly free course, including a module on prompt hacking and defence. Led by the author of The Prompt Report.</p><p class="caution">Some content is paid.</p></li><li><a class="rname" href="https://developers.openai.com/api/docs/guides/prompt-engineering">OpenAI prompt engineering guide</a><span class="rhost">Site</span>
+      <p>OpenAI’s official guide: message roles, structure (identity, instructions, examples, context), and the difference between reasoning and non-reasoning models.</p></li><li><a class="rname" href="https://ai.google.dev/gemini-api/docs/prompting-strategies">Gemini prompt design strategies</a><span class="rhost">Site</span>
+      <p>Google’s official guide, with a section on Gemini 3 and an agentic system-prompt template.</p></li><li><a class="rname" href="https://github.com/microsoft/generative-ai-for-beginners">microsoft/generative-ai-for-beginners</a><span class="rhost">GitHub</span>
+      <p>A 21-lesson beginner course with dedicated prompt-engineering lessons.</p><p class="caution">Leans toward Azure.</p></li><li><a class="rname" href="https://github.com/NirDiamant/Prompt_Engineering">NirDiamant/Prompt_Engineering</a><span class="rhost">GitHub</span>
+      <p>22 techniques, each as a runnable notebook. Good if you learn by running code.</p></li><li><a class="rname" href="https://github.com/brexhq/prompt-engineering">brexhq/prompt-engineering</a><span class="rhost">GitHub</span>
+      <p>A short, readable explainer on how language models and prompts work.</p><p class="caution">Unchanged since 2023; concepts hold, model specifics are dated.</p></li><li><a class="rname" href="https://lilianweng.github.io/posts/2023-03-15-prompt-engineering/">Lilian Weng, “Prompt Engineering”</a><span class="rhost">Site</span>
+      <p>A rigorous survey of the core techniques and the research behind them.</p><p class="caution">Predates reasoning models.</p></li><li><a class="rname" href="https://arxiv.org/abs/2406.06608">The Prompt Report</a><span class="rhost">Site</span>
+      <p>The most complete academic taxonomy: 58 text prompting techniques, terminology, and a meta-analysis.</p></li><li><a class="rname" href="https://hamel.dev/blog/posts/evals/">Hamel Husain, “Your AI Product Needs Evals”</a><span class="rhost">Site</span>
+      <p>Why and how to test prompts systematically instead of by feel.</p></li><li><a class="rname" href="https://simonwillison.net/tags/prompt-engineering/">Simon Willison’s prompt-engineering tag</a><span class="rhost">Site</span>
+      <p>Practical, current commentary from a careful practitioner, including annotated system prompts.</p></li></ul></div>
+<div class="rgroup" id="res-libraries">
+    <h3>Prompt libraries to borrow from</h3><p class="rintro">Ready-made prompts you can paste into any AI, or hand to an agent as a starting point.</p>
+    <ul class="rlist"><li><a class="rname" href="https://github.com/danielmiessler/Fabric">danielmiessler/Fabric</a><span class="rhost">GitHub</span>
+      <p>200+ sharp, single-purpose prompt “patterns” (summarize, extract wisdom, analyze claims, threat-model). Each is a plain markdown file you can paste into any chat or run from the command line.</p></li><li><a class="rname" href="https://github.com/f/prompts.chat">f/prompts.chat</a><span class="rhost">GitHub</span>
+      <p>The largest community library of “act as…” role prompts (formerly awesome-chatgpt-prompts), searchable at prompts.chat.</p><p class="caution">Quality varies by contributor.</p></li><li><a class="rname" href="https://github.com/anthropics/claude-cookbooks">anthropics/claude-cookbooks</a><span class="rhost">GitHub</span>
+      <p>Official, runnable recipes: tool use, retrieval, extraction, sub-agents, prompt caching. Includes Anthropic’s metaprompt notebook that writes a first-draft prompt for you.</p></li><li><a class="rname" href="https://github.com/openai/openai-cookbook">openai/openai-cookbook</a><span class="rhost">GitHub</span>
+      <p>Official OpenAI examples and model-specific prompting guides (GPT-4.1, GPT-5 and later).</p></li><li><a class="rname" href="https://github.com/google-gemini/cookbook">google-gemini/cookbook</a><span class="rhost">GitHub</span>
+      <p>Official Gemini examples and prompting notebooks.</p></li><li><a class="rname" href="https://github.com/langgptai/LangGPT">langgptai/LangGPT</a><span class="rhost">GitHub</span>
+      <p>A structured markdown template (role, skills, rules, workflow) for writing long prompts consistently.</p><p class="caution">Mostly in Chinese.</p></li><li><a class="rname" href="https://github.com/promptslab/Awesome-Prompt-Engineering">promptslab/Awesome-Prompt-Engineering</a><span class="rhost">GitHub</span>
+      <p>A curated list of papers, tools and courses.</p><p class="caution">Awesome lists vary in quality.</p></li><li><a class="rname" href="https://github.com/NirDiamant/RAG_Techniques">NirDiamant/RAG_Techniques</a><span class="rhost">GitHub</span>
+      <p>How to feed documents to an AI well: chunking, retrieval, reranking.</p></li></ul></div>
+<div class="rgroup" id="res-sysprompts">
+    <h3>System prompts to study</h3><p class="rintro">Reading how production assistants are instructed is one of the fastest ways to get better at writing your own.</p>
+    <ul class="rlist"><li><a class="rname" href="https://platform.claude.com/docs/en/release-notes/system-prompts/overview">Anthropic’s published system prompts</a><span class="rhost">Site</span>
+      <p>The real system prompts for the Claude apps, published by Anthropic. The one fully authoritative example of a long production prompt.</p><p class="caution">Covers the apps, not the API.</p></li><li><a class="rname" href="https://github.com/asgeirtj/system_prompts_leaks">asgeirtj/system_prompts_leaks</a><span class="rhost">GitHub</span>
+      <p>The most actively updated collection for ChatGPT, Claude, Gemini and Grok.</p><p class="caution">Unofficial and unverified.</p></li><li><a class="rname" href="https://github.com/x1xhlol/system-prompts-and-models-of-ai-tools">x1xhlol/system-prompts-and-models-of-ai-tools</a><span class="rhost">GitHub</span>
+      <p>The biggest collection of coding-tool prompts and tool definitions (Cursor, Devin, Lovable, v0, Windsurf, Kiro). Good for seeing how agent tools word their rules.</p><p class="caution">Unofficial; GPL-3.0.</p></li><li><a class="rname" href="https://github.com/jujumilk3/leaked-system-prompts">jujumilk3/leaked-system-prompts</a><span class="rhost">GitHub</span>
+      <p>An archive back to 2023; useful for seeing how prompts changed over time.</p><p class="caution">Unofficial; no license.</p></li><li><a class="rname" href="https://github.com/dontriskit/awesome-ai-system-prompts">dontriskit/awesome-ai-system-prompts</a><span class="rhost">GitHub</span>
+      <p>Smaller and curated, with commentary on the patterns. Easier to read than the raw dumps.</p><p class="caution">Unofficial.</p></li></ul></div>
+<div class="rgroup" id="res-agents">
+    <h3>Skills, sub-agents and agent workflows</h3><p class="rintro">Folders of instructions you install into Claude Code, Codex, Gemini CLI, Cursor and similar tools so the agent works the way you want.</p>
+    <ul class="rlist"><li><a class="rname" href="https://github.com/anthropics/skills">anthropics/skills</a><span class="rhost">GitHub</span>
+      <p>Anthropic’s official Agent Skills (Word, PDF, Excel, a skill-creator). The reference examples for the SKILL.md format.</p><p class="caution">Check each folder’s license.</p></li><li><a class="rname" href="https://agentskills.io/">agentskills.io</a><span class="rhost">Site</span>
+      <p>The open Agent Skills spec: how skills are written and loaded only when relevant. Supported by many agents beyond Claude.</p></li><li><a class="rname" href="https://github.com/obra/superpowers">obra/superpowers</a><span class="rhost">GitHub</span>
+      <p>A complete skills library and workflow (brainstorm, plan, test-driven build, review) for coding agents.</p><p class="caution">Opinionated; it changes how the agent behaves.</p></li><li><a class="rname" href="https://github.com/mattpocock/skills">mattpocock/skills</a><span class="rhost">GitHub</span>
+      <p>A practical engineering skills folder from a well-known TypeScript educator.</p><p class="caution">Personal workflow; adapt rather than copy.</p></li><li><a class="rname" href="https://github.com/github/spec-kit">github/spec-kit</a><span class="rhost">GitHub</span>
+      <p>GitHub’s spec-driven toolkit: write the spec, then plan, task and build from it with any agent.</p></li><li><a class="rname" href="https://github.com/anthropics/claude-plugins-official">anthropics/claude-plugins-official</a><span class="rhost">GitHub</span>
+      <p>Anthropic’s curated directory of Claude Code plugins.</p></li><li><a class="rname" href="https://github.com/hesreallyhim/awesome-claude-code">hesreallyhim/awesome-claude-code</a><span class="rhost">GitHub</span>
+      <p>A curated hub of Claude Code commands, hooks, CLAUDE.md files and workflows.</p><p class="caution">Quality varies.</p></li><li><a class="rname" href="https://github.com/wshobson/agents">wshobson/agents</a><span class="rhost">GitHub</span>
+      <p>A marketplace of specialised sub-agents and commands that works across Claude Code, Codex, Cursor and others.</p></li><li><a class="rname" href="https://github.com/VoltAgent/awesome-claude-code-subagents">VoltAgent/awesome-claude-code-subagents</a><span class="rhost">GitHub</span>
+      <p>100+ copy-paste sub-agent definitions sorted by role.</p><p class="caution">Quality varies.</p></li><li><a class="rname" href="https://github.com/bmad-code-org/BMAD-METHOD">bmad-code-org/BMAD-METHOD</a><span class="rhost">GitHub</span>
+      <p>A multi-agent “agile team” method (analyst, PM, architect, developer personas) driven by prompt files.</p><p class="caution">Heavy process; suits bigger projects.</p></li><li><a class="rname" href="https://github.com/coleam00/context-engineering-intro">coleam00/context-engineering-intro</a><span class="rhost">GitHub</span>
+      <p>A beginner template for giving a coding AI full context before it builds.</p></li><li><a class="rname" href="https://github.com/humanlayer/12-factor-agents">humanlayer/12-factor-agents</a><span class="rhost">GitHub</span>
+      <p>Clear principles for reliable agents, such as “own your prompts” and “own your context window”.</p></li><li><a class="rname" href="https://github.com/humanlayer/advanced-context-engineering-for-coding-agents">humanlayer/advanced-context-engineering-for-coding-agents</a><span class="rhost">GitHub</span>
+      <p>A write-up of the research, plan, implement workflow for large codebases.</p></li><li><a class="rname" href="https://github.com/modelcontextprotocol/servers">modelcontextprotocol/servers</a><span class="rhost">GitHub</span>
+      <p>Official reference MCP servers (files, git, fetch) for connecting an AI to tools and data.</p><p class="caution">Reference code, not hardened.</p></li><li><a class="rname" href="https://github.com/punkpeye/awesome-mcp-servers">punkpeye/awesome-mcp-servers</a><span class="rhost">GitHub</span>
+      <p>The biggest directory of community MCP servers.</p><p class="caution">Third-party servers can be unsafe; read the code first.</p></li><li><a class="rname" href="https://github.com/openai/codex">openai/codex</a><span class="rhost">GitHub</span>
+      <p>OpenAI’s open-source terminal coding agent; reads AGENTS.md.</p></li><li><a class="rname" href="https://github.com/google-gemini/gemini-cli">google-gemini/gemini-cli</a><span class="rhost">GitHub</span>
+      <p>Google’s terminal agent; reads GEMINI.md and supports skills.</p></li><li><a class="rname" href="https://github.com/anthropics/claude-code">anthropics/claude-code</a><span class="rhost">GitHub</span>
+      <p>Claude Code, with example hooks, commands and plugins.</p></li></ul></div>
+<div class="rgroup" id="res-context">
+    <h3>Context-file examples</h3><p class="rintro">Real CLAUDE.md, AGENTS.md, Cursor rules and Copilot instructions to copy from, plus the official docs for each format.</p>
+    <ul class="rlist"><li><a class="rname" href="https://agents.md/">agents.md</a><span class="rhost">Site</span>
+      <p>The open AGENTS.md format and the list of tools that read it (Codex, Cursor, Copilot, Gemini CLI, Jules, Aider, Zed and more). Repo: agentsmd/agents.md.</p></li><li><a class="rname" href="https://github.com/github/awesome-copilot">github/awesome-copilot</a><span class="rhost">GitHub</span>
+      <p>GitHub’s official community collection of instructions, prompts, agents and skills.</p></li><li><a class="rname" href="https://github.com/PatrickJS/awesome-cursorrules">PatrickJS/awesome-cursorrules</a><span class="rhost">GitHub</span>
+      <p>Hundreds of framework-specific rule files to adapt into any context file.</p><p class="caution">Many use the older .cursorrules format.</p></li><li><a class="rname" href="https://github.com/josix/awesome-claude-md">josix/awesome-claude-md</a><span class="rhost">GitHub</span>
+      <p>Real CLAUDE.md files from public projects, with notes on what makes them work.</p><p class="caution">Small.</p></li><li><a class="rname" href="https://code.claude.com/docs/en/memory">Claude Code memory docs</a><span class="rhost">Site</span>
+      <p>Where CLAUDE.md lives, how files layer and import, and the advice to keep each under about 200 lines.</p></li><li><a class="rname" href="https://learn.chatgpt.com/docs/agent-configuration/agents-md">Codex AGENTS.md guide</a><span class="rhost">Site</span>
+      <p>How Codex layers global, project and folder AGENTS.md files.</p></li><li><a class="rname" href="https://geminicli.com/docs/cli/gemini-md/">Gemini CLI GEMINI.md docs</a><span class="rhost">Site</span>
+      <p>How Gemini CLI finds and combines context files, and how to make it read AGENTS.md too.</p></li><li><a class="rname" href="https://cursor.com/docs/context/rules">Cursor rules docs</a><span class="rhost">Site</span>
+      <p>The .cursor/rules format and its four loading modes.</p></li><li><a class="rname" href="https://docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions">GitHub Copilot repository instructions</a><span class="rhost">Site</span>
+      <p>How .github/copilot-instructions.md and path-scoped instruction files work.</p></li></ul></div>
+<div class="rgroup" id="res-local">
+    <h3>Local and open models</h3><p class="rintro">Run models on your own computer and get reliable, structured output from them.</p>
+    <ul class="rlist"><li><a class="rname" href="https://github.com/ollama/ollama">ollama/ollama</a><span class="rhost">GitHub</span>
+      <p>The easiest way to run local models.</p></li><li><a class="rname" href="https://docs.ollama.com/modelfile">Ollama Modelfile reference</a><span class="rhost">Site</span>
+      <p>Set a local model’s system prompt, chat template and sampling settings.</p><p class="caution">Check the context length (num_ctx); too small silently cuts off long prompts.</p></li><li><a class="rname" href="https://github.com/open-webui/open-webui">open-webui/open-webui</a><span class="rhost">GitHub</span>
+      <p>A ChatGPT-style interface for local models, with saved prompts and document chat.</p></li><li><a class="rname" href="https://github.com/ggml-org/llama.cpp">ggml-org/llama.cpp</a><span class="rhost">GitHub</span>
+      <p>The core local inference engine. Its grammar files force valid JSON or any fixed format.</p></li><li><a class="rname" href="https://github.com/ggml-org/llama.cpp/blob/master/grammars/README.md">llama.cpp grammars (GBNF) guide</a><span class="rhost">Site</span>
+      <p>How to constrain output with a grammar or JSON Schema. Note: the schema is not shown to the model, so describe it in the prompt too.</p></li><li><a class="rname" href="https://huggingface.co/docs/transformers/main/en/chat_templating">Hugging Face chat templates</a><span class="rhost">Site</span>
+      <p>Why using a model’s exact chat template matters, and how to apply it.</p></li><li><a class="rname" href="https://github.com/QwenLM/Qwen3">QwenLM/Qwen3</a><span class="rhost">GitHub</span>
+      <p>Official Qwen3 docs: thinking mode on and off, and recommended sampling settings.</p></li><li><a class="rname" href="https://github.com/meta-llama/llama-cookbook">meta-llama/llama-cookbook</a><span class="rhost">GitHub</span>
+      <p>Meta’s Llama prompting and fine-tuning recipes.</p></li><li><a class="rname" href="https://github.com/openai/gpt-oss">openai/gpt-oss</a><span class="rhost">GitHub</span>
+      <p>OpenAI’s open-weight models and their “harmony” prompt format.</p></li><li><a class="rname" href="https://github.com/vllm-project/vllm">vllm-project/vllm</a><span class="rhost">GitHub</span>
+      <p>Fast self-hosted serving for when one user becomes many.</p><p class="caution">Needs a GPU.</p></li><li><a class="rname" href="https://lmstudio.ai/docs">LM Studio docs</a><span class="rhost">Site</span>
+      <p>A desktop app for downloading and chatting with local models.</p><p class="caution">The app is closed source.</p></li></ul></div>
+<div class="rgroup" id="res-testing">
+    <h3>Test, measure and structure prompts</h3><p class="rintro">Once a prompt matters, test it like code.</p>
+    <ul class="rlist"><li><a class="rname" href="https://github.com/promptfoo/promptfoo">promptfoo/promptfoo</a><span class="rhost">GitHub</span>
+      <p>The easiest way to compare prompts across models from one config file. Also red-teams your own app.</p></li><li><a class="rname" href="https://github.com/simonw/llm">simonw/llm</a><span class="rhost">GitHub</span>
+      <p>A command-line tool for running and logging prompts against many models, local ones included.</p></li><li><a class="rname" href="https://github.com/stanfordnlp/dspy">stanfordnlp/dspy</a><span class="rhost">GitHub</span>
+      <p>Automatically optimizes prompts and examples against a metric you define.</p><p class="caution">For developers.</p></li><li><a class="rname" href="https://github.com/langfuse/langfuse">langfuse/langfuse</a><span class="rhost">GitHub</span>
+      <p>Open-source prompt versioning, tracing and evals; self-hostable.</p></li><li><a class="rname" href="https://github.com/confident-ai/deepeval">confident-ai/deepeval</a><span class="rhost">GitHub</span>
+      <p>Unit-test style checks for AI output, with ready-made metrics.</p></li><li><a class="rname" href="https://github.com/567-labs/instructor">567-labs/instructor</a><span class="rhost">GitHub</span>
+      <p>Typed, structured output from any model.</p></li><li><a class="rname" href="https://github.com/dottxt-ai/outlines">dottxt-ai/outlines</a><span class="rhost">GitHub</span>
+      <p>Guaranteed JSON or regex-shaped output, especially from local models.</p></li><li><a class="rname" href="https://github.com/BerriAI/litellm">BerriAI/litellm</a><span class="rhost">GitHub</span>
+      <p>One API for 100+ models, which makes testing a prompt across providers easy.</p></li><li><a class="rname" href="https://github.com/microsoft/LLMLingua">microsoft/LLMLingua</a><span class="rhost">GitHub</span>
+      <p>Compresses long prompts to save cost and length.</p><p class="caution">Research-grade.</p></li></ul></div>
+<div class="rgroup" id="res-safety">
+    <h3>Safety and prompt injection</h3><p class="rintro">Read these before you give an AI web pages, email, documents from strangers, or tools that can act.</p>
+    <ul class="rlist"><li><a class="rname" href="https://simonwillison.net/tags/prompt-injection/">Simon Willison on prompt injection</a><span class="rhost">Site</span>
+      <p>Clear, ongoing coverage, including the “lethal trifecta”: private data, untrusted content and a way to send data out.</p></li><li><a class="rname" href="https://genai.owasp.org/llm-top-10/">OWASP Top 10 for LLM Applications</a><span class="rhost">Site</span>
+      <p>The standard checklist of AI app risks and mitigations; prompt injection is number one.</p></li><li><a class="rname" href="https://github.com/NVIDIA/garak">NVIDIA/garak</a><span class="rhost">GitHub</span>
+      <p>A scanner that probes your own model or app for injection, leakage and jailbreak weaknesses.</p><p class="caution">Use only on systems you own.</p></li><li><a class="rname" href="https://github.com/microsoft/PyRIT">microsoft/PyRIT</a><span class="rhost">GitHub</span>
+      <p>Microsoft’s red-teaming automation framework.</p><p class="caution">Use only on systems you own.</p></li><li><a class="rname" href="https://github.com/NVIDIA-NeMo/Guardrails">NVIDIA-NeMo/Guardrails</a><span class="rhost">GitHub</span>
+      <p>Programmable input and output rails for chatbots.</p></li><li><a class="rname" href="https://github.com/meta-llama/PurpleLlama">meta-llama/PurpleLlama</a><span class="rhost">GitHub</span>
+      <p>Llama Guard and Prompt Guard classifiers for screening inputs and outputs.</p></li></ul></div>
+    <p class="callout"><b>How to feed a repo to your AI</b>For a chat AI, paste the one file you need (a Fabric pattern, a CLAUDE.md example) rather than the whole repo. For coding agents, install skills into the tool’s skills folder, or clone the repo next to your project and ask the agent to read the specific files. For whole-repo questions, tools like Simon Willison’s <a href="https://github.com/simonw/llm">llm</a> let you pipe files into a prompt.</p>
+  </section>
+
+  <!-- SOURCES -->
+  <section class="shelf" id="sources">
+    <div class="shelf-head">
+      <span class="eyebrow">10 · Sources &amp; papers</span>
+      <h2>How this guide was made</h2>
+      <p>Researched in October 2026 with Claude: parallel research agents read each lab’s current documentation, the research below and practitioner writing, and checked every repo against GitHub. The prompts are original wording unless a source is credited. Where sources disagreed, or something could only be partly verified, this guide says so.</p>
+    </div>
+    <div class="sub">
+      <h3>Foundational papers</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Paper</th><th>Idea</th><th>Headline result</th></tr></thead>
+          <tbody>
+            <tr><td><a href="https://arxiv.org/abs/2201.11903">Chain-of-thought prompting</a> (Wei et al., 2022)</td><td>Show worked reasoning in examples</td><td>State of the art on GSM8K maths with a large model</td></tr>
+            <tr><td><a href="https://arxiv.org/abs/2205.11916">Zero-shot reasoners</a> (Kojima et al., 2022)</td><td>“Let’s think step by step”</td><td>17.7% → 78.7% on MultiArith</td></tr>
+            <tr><td><a href="https://arxiv.org/abs/2203.11171">Self-consistency</a> (Wang et al., 2022)</td><td>Sample several answers, take the majority</td><td>+17.9 points on GSM8K</td></tr>
+            <tr><td><a href="https://arxiv.org/abs/2205.10625">Least-to-most</a> (Zhou et al., 2022)</td><td>Break a problem into easier sub-problems</td><td>99%+ on SCAN vs 16% for chain-of-thought</td></tr>
+            <tr><td><a href="https://arxiv.org/abs/2210.03629">ReAct</a> (Yao et al., 2022)</td><td>Interleave reasoning with tool actions</td><td>The pattern behind most agents today</td></tr>
+            <tr><td><a href="https://arxiv.org/abs/2305.10601">Tree of Thoughts</a> (Yao et al., 2023)</td><td>Explore and backtrack over ideas</td><td>74% vs 4% on the Game of 24</td></tr>
+            <tr><td><a href="https://arxiv.org/abs/2406.06608">The Prompt Report</a> (Schulhoff et al., 2024)</td><td>A taxonomy of the field</td><td>58 text prompting techniques catalogued</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="sub">
+      <h3>Main sources</h3>
+      <ul class="srcs">
+        <li><a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices">Anthropic: Prompting best practices</a></li>
+        <li><a href="https://code.claude.com/docs/en/best-practices">Anthropic: Claude Code best practices</a></li>
+        <li><a href="https://code.claude.com/docs/en/memory">Anthropic: Claude Code memory (CLAUDE.md)</a></li>
+        <li><a href="https://www.anthropic.com/engineering/building-effective-agents">Anthropic: Building effective agents</a></li>
+        <li><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">Anthropic: Effective context engineering for AI agents</a></li>
+        <li><a href="https://www.anthropic.com/engineering/writing-tools-for-agents">Anthropic: Writing effective tools for agents</a></li>
+        <li><a href="https://platform.claude.com/docs/agents-and-tools/agent-skills/best-practices">Anthropic: Agent Skills best practices</a></li>
+        <li><a href="https://claude.com/blog/prompt-improver">Anthropic: Prompt improver</a></li>
+        <li><a href="https://developers.openai.com/api/docs/guides/prompt-engineering">OpenAI: Prompt engineering</a></li>
+        <li><a href="https://developers.openai.com/api/docs/guides/prompt-guidance">OpenAI: Current model prompt guidance</a></li>
+        <li><a href="https://developers.openai.com/api/docs/guides/reasoning-best-practices">OpenAI: Reasoning best practices</a></li>
+        <li><a href="https://developers.openai.com/cookbook/examples/gpt-5/gpt-5_prompting_guide">OpenAI: GPT-5 prompting guide</a></li>
+        <li><a href="https://learn.chatgpt.com/guides/best-practices">OpenAI: Codex best practices</a></li>
+        <li><a href="https://developers.openai.com/api/docs/guides/image-prompting">OpenAI: Image prompting</a></li>
+        <li><a href="https://developers.openai.com/api/docs/guides/agent-builder-safety">OpenAI: Agent builder safety</a></li>
+        <li><a href="https://ai.google.dev/gemini-api/docs/prompting-strategies">Google: Gemini prompt design strategies</a></li>
+        <li><a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/start/gemini-3-prompting-guide">Google: Gemini 3 prompting guide</a></li>
+        <li><a href="https://cloud.google.com/blog/products/ai-machine-learning/ultimate-prompting-guide-for-nano-banana">Google: Nano Banana image prompting guide</a></li>
+        <li><a href="https://geminicli.com/docs/cli/gemini-md/">Google: Gemini CLI GEMINI.md</a></li>
+        <li><a href="https://dev.meta.ai/llama/docs/how-to-guides/prompting">Meta: Llama prompting guide</a></li>
+        <li><a href="https://docs.mistral.ai/guides/prompting_capabilities/">Mistral: Prompting capabilities</a></li>
+        <li><a href="https://github.com/QwenLM/Qwen3">Qwen3 documentation</a></li>
+        <li><a href="https://docs.ollama.com/modelfile">Ollama: Modelfile</a> and <a href="https://docs.ollama.com/capabilities/structured-outputs">structured outputs</a></li>
+        <li><a href="https://huggingface.co/docs/transformers/main/en/chat_templating">Hugging Face: Chat templates</a></li>
+        <li><a href="https://docs.midjourney.com/hc/en-us/articles/32023408776205-Prompt-Basics">Midjourney: Prompt basics</a></li>
+        <li><a href="https://help.suno.com/en/articles/3161921">Suno help centre</a></li>
+        <li><a href="https://gail.wharton.upenn.edu/research-and-insights/tech-report-chain-of-thought/">Wharton: Prompting Science Reports</a></li>
+        <li><a href="https://www.trychroma.com/research/context-rot">Chroma: Context Rot</a></li>
+        <li><a href="https://arxiv.org/abs/2505.06120">Laban et al.: LLMs get lost in multi-turn conversation</a></li>
+        <li><a href="https://arxiv.org/abs/2310.01798">Huang et al.: LLMs cannot self-correct reasoning yet</a></li>
+        <li><a href="https://hamel.dev/blog/posts/evals-faq/">Hamel Husain: Evals FAQ</a></li>
+        <li><a href="https://simonwillison.net/2025/Mar/11/using-llms-for-code/">Simon Willison: Using LLMs for code</a></li>
+        <li><a href="https://www.oneusefulthing.org/p/a-guide-to-prompting-ai-for-what">Ethan Mollick: A guide to prompting AI</a></li>
+        <li><a href="https://mitchellh.com/writing/my-ai-adoption-journey">Mitchell Hashimoto: My AI adoption journey</a></li>
+        <li><a href="https://agents.md/">AGENTS.md</a> and <a href="https://agentskills.io/">Agent Skills</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <span>Myles Parslow · Researched and built with Claude · October 2026</span>
+    <a href="../">Back to the portfolio</a>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var KEY = 'portfolio-scheme';
+  var root = document.documentElement;
+  var buttons = document.querySelectorAll('.swatch');
+  function apply(name) {
+    if (name !== 'pine' && name !== 'sky') name = 'eggshell';
+    if (name === 'eggshell') root.removeAttribute('data-scheme'); else root.setAttribute('data-scheme', name);
+    buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.pick === name)); });
+    return name;
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  apply(saved);
+  buttons.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var name = apply(b.dataset.pick);
+      try { localStorage.setItem(KEY, name); } catch (e) {}
+    });
+  });
+
+  // Prompt filters
+  var chips = document.querySelectorAll('.chip');
+  var cards = document.querySelectorAll('.prompt');
+  chips.forEach(function (c) {
+    c.addEventListener('click', function () {
+      var f = c.dataset.f;
+      chips.forEach(function (x) { x.setAttribute('aria-pressed', String(x === c)); });
+      cards.forEach(function (card) { card.hidden = !(f === 'all' || card.dataset.cat === f); });
+    });
+  });
+
+  // Copy buttons
+  document.querySelectorAll('.copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var el = document.getElementById(btn.dataset.copy);
+      if (!el) return;
+      var text = el.textContent;
+      function done(ok) { btn.textContent = ok ? 'Copied' : 'Select & copy'; setTimeout(function () { btn.textContent = 'Copy'; }, 1600); }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(false); });
+      } else {
+        var r = document.createRange(); r.selectNodeContents(el);
+        var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+        try { done(document.execCommand('copy')); } catch (e) { done(false); }
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>
