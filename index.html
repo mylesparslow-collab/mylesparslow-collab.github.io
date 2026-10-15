@@ -169,6 +169,7 @@ span.note { font-style: italic; color: var(--muted); }
     </div>
     <nav class="toc" aria-label="Sections">
       <a href="#conflara">Case study: Conflara <span>legal software</span></a>
+      <a href="#vigilmark">Companion: VigilMark <span>trademark watch</span></a>
       <a href="#rsc">Case study: RSC Tool <span>small business</span></a>
       <a href="#byzantium">Case study: Byzantium <span>mosaic atlas</span></a>
       <a href="#catgpt">Case study: CatGPT <span>local AI + 9 games</span></a>
@@ -193,7 +194,7 @@ span.note { font-style: italic; color: var(--muted); }
       <span class="eyebrow">Case study 01 · Legal software</span>
       <h2>Conflara</h2>
       <p class="sum">A conflicts-check and new-matter intake system for US law firms of 10 to 150 lawyers, carried from a working product through research, pricing, a pilot plan and two films.</p>
-          <p class="links"><a href="demos/conflara.html">Try the demo</a><a href="demos/conflara-ad.html">Watch the 60-second ad</a><a href="demos/conflara-film.html">Watch the walkthrough film</a><a href="demos/conflara-lifecycle.html">Watch one matter from quick check to closing</a><a href="https://github.com/mylesparslow-collab/conflicts-desk">Prototype code</a></p>
+          <p class="links"><a href="demos/conflara.html">Try the demo</a><a href="demos/conflara-ad.html">Watch the 60-second ad</a><a href="demos/conflara-film.html">Watch the walkthrough film</a><a href="https://github.com/mylesparslow-collab/conflicts-desk">Prototype code</a></p>
     </div>
 
     <dl class="stats">
@@ -312,6 +313,88 @@ span.note { font-style: italic; color: var(--muted); }
     </div>
 
     <div class="made"><b>How it was built</b><p>It began as the <a href="https://github.com/mylesparslow-collab/conflicts-desk">Conflicts Desk</a> prototype in Claude Code, with tests and CI, and grew into Conflara. I supplied the domain: how conflicts departments actually run, which rules apply, and where existing tools fall short. Claude built the search engine, the synthetic firm and every screen. It then helped research competitors, price the product, write the pilot pack and script and code both films.</p></div>
+  </article>
+
+  <!-- VIGILMARK -->
+  <article class="case" id="vigilmark">
+    <div class="shelf-head">
+      <span class="eyebrow">Companion to case study 01 · Legal software</span>
+      <h2>VigilMark</h2>
+      <p class="sum">A trademark watch and triage desk for a conflicts-first law firm: it ranks new filings that look like a client's mark, checks whether the applicant is related to a firm client, and hands the hit to Conflara as an intake.</p>
+      <p class="links"><span>No public demo: screenshots only, all on invented clients and matters</span></p>
+    </div>
+
+    <dl class="stats">
+      <div><dt>Views</dt><dd>5</dd></div>
+      <div><dt>Generated document types</dt><dd>4</dd></div>
+      <div><dt>Import formats</dt><dd>3</dd></div>
+      <div><dt>Conflict states</dt><dd>3</dd></div>
+      <div><dt>Lines of code</dt><dd>1,980</dd></div>
+      <div><dt>Backend dependencies</dt><dd>0</dd></div>
+    </dl>
+
+    <figure class="wide">
+      <img src="assets/vigilmark-triage.jpg" alt="VigilMark's watch triage feed: incoming Official Gazette filings ranked by likelihood-of-confusion score, with a breakdown for CONFLARA versus KONFLARA LEGAL, a days-left countdown and a cleared conflict check." width="1400" height="900" loading="lazy">
+      <figcaption>The triage feed. Each new filing is scored against the client's mark, shows the days left in the opposition window, and carries a conflict check on the applicant. All names are invented.</figcaption>
+    </figure>
+
+    <div class="cols">
+      <section class="block">
+        <h3>The problem</h3>
+        <p>Trademark watch services flag new filings, but someone still has to decide which hits matter, check whether the applicant is related to an existing firm client (opposing a client's subsidiary can be a conflict of interest), and turn the hit into an engagement before the 30-day opposition window closes. Those three steps usually sit in different tools and inboxes.</p>
+      </section>
+      <section class="block">
+        <h3>What it does</h3>
+        <ul>
+          <li><strong>Triage feed</strong> of incoming Official Gazette and §2(d) hits, ranked by score and days left, filterable by registry.</li>
+          <li><strong>Watched marks portfolio</strong> with classes, goods and services, registries and watch strategy.</li>
+          <li><strong>Clearance lab:</strong> type two marks and see the scores update live.</li>
+          <li><strong>Enforcement studio:</strong> from any hit, a client pitch email with flat-fee options, a cease and desist letter, notice-of-opposition grounds, and an intake file.</li>
+          <li><strong>Batch import</strong> of Gazette filings as CSV, JSON or XML, each scored against every watched mark.</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="shots">
+      <figure>
+        <img src="assets/vigilmark-dupont-lab.jpg" alt="The clearance lab: two marks entered side by side with live sight, sound and goods scores, and a conflict hit on the applicant's parent company." width="1400" height="900" loading="lazy">
+        <figcaption>The clearance lab. Sight, sound and goods scores update as you type, and a parent-company match raises a conflict hit before anyone opposes a client.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/vigilmark-pitch-email.jpg" alt="The enforcement studio showing a generated client pitch email with the score breakdown, the opposition deadline and two flat-fee options." width="1400" height="900" loading="lazy">
+        <figcaption>One click turns a hit into a ready-to-edit client email with the deadline and flat-fee options.</figcaption>
+      </figure>
+    </div>
+
+    <section class="block">
+      <h3>How it connects to Conflara</h3>
+      <div class="grid3">
+        <div><h4>A published contract</h4><p>VigilMark defines a versioned schema, <code>conflara.intake.v1</code>, that maps a trademark hit onto Conflara's intake: client, matter, related parties and party roles such as parent entity, lead investor and adverse counterparty subsidiary.</p></div>
+        <div><h4>Conflict check first</h4><p>Before it recommends anything, VigilMark checks the applicant and its parent against a watchlist of firm clients and their corporate families, and marks the hit Cleared, Subsidiary review or Direct conflict, always flagged for human verification.</p></div>
+        <div><h4>Loosely coupled</h4><p>One click sends the hit, its scores and the conflict result into Conflara as a signed webhook. The two products share a versioned schema, not a database, so either can change inside without breaking the other. A toggle runs it standalone or in bridge mode.</p></div>
+      </div>
+      <figure class="wide">
+        <img src="assets/vigilmark-conflara-bridge.jpg" alt="The Conflara bridge screen: an inspector showing the conflara.intake.v1 payload, a webhook test, an API settings panel with its key masked, and the adverse-party watchlist." width="1400" height="900" loading="lazy">
+        <figcaption>The bridge. The payload inspector shows the intake file that Conflara receives, next to a webhook test and the watchlist. The API key is masked.</figcaption>
+      </figure>
+    </section>
+
+    <div class="cols">
+      <section class="block">
+        <h3>Scoring you can explain</h3>
+        <p>There is no model call. Sight is an edit-distance similarity. Sound compares phonetic consonant skeletons, so CONFLARA and KONFLARA both reduce to the same letters. Those combine into a mark score, which is blended with a goods-and-services score built from exact class matches, coordinated class groups and shared description vocabulary. Every score comes with a written rationale, which matters for legal work. The app's own labels say "AI"; this is plain algorithmic scoring.</p>
+      </section>
+      <section class="block">
+        <h3>Built to run anywhere</h3>
+        <ul>
+          <li><strong>Standard-library Python backend</strong> with a local database, and a single-file web app that also works straight from disk.</li>
+          <li><strong>A native Mac wrapper</strong> that starts the server and opens the app in its own window.</li>
+          <li><strong>Live trademark lookups</strong> with rate-limit tracking when an API key is present, and a built-in sample index when it isn't.</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>Built with Google Gemini, which wrote the web app, the Python server, the Mac wrapper and the schema. I set the idea and the Conflara hand-off, and the clients, matters and parties in these screenshots are invented, like the ones in the Conflara demo.</p></div>
   </article>
 
   <!-- RSC -->
@@ -833,6 +916,7 @@ span.note { font-style: italic; color: var(--muted); }
     </div>
     <div class="grid3">
       <div><h4>Conflara</h4><p><strong>Built with:</strong> Claude Code, including the research, pricing, pilot pack and both films.<br><strong>Runs on:</strong> a model on the firm's own hardware through Ollama or any OpenAI-compatible server (default Qwen 2.5 14B Instruct), plus a separate local statistical model for hit ranking.</p></div>
+      <div><h4>VigilMark</h4><p><strong>Built with:</strong> Google Gemini.<br><strong>Runs on:</strong> no AI model: scoring is plain, explainable rules.</p></div>
       <div><h4>RSC Tool</h4><p><strong>Built with:</strong> Claude Code.<br><strong>Runs on:</strong> small local models (for example Llama or Qwen), chosen so it runs on a modest desktop.</p></div>
       <div><h4>Byzantium</h4><p><strong>Built with:</strong> Claude Code, one long session.<br><strong>Runs on:</strong> no AI at runtime: it is a static site over prebuilt data.</p></div>
       <div><h4>CatGPT</h4><p><strong>Built with:</strong> Claude Code.<br><strong>Runs on:</strong> local models through Ollama or any OpenAI-compatible server, whisper.cpp for speech input, local voice cloning, local Stable Diffusion for pictures, and a local embedding model for shared memory.</p></div>
