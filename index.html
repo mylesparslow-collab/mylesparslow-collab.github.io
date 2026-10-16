@@ -210,87 +210,94 @@ span.note { font-style: italic; color: var(--muted); }
       <div class="shelf-head">
       <span class="eyebrow">Case study 08 · Operations software</span>
       <h2>Fieldwork</h2>
-      <p class="sum">A local-first deal engine for a data-licensing referral business. It researches established companies from public evidence, prepares outreach for human approval, collects owner consent, and tracks each introduction to a paid commission, with a guardrail at every step against overclaiming, over-sending or skipping consent.</p>
+      <p class="sum">An evidence-first Mac app for data-licensing deal scouts. It researches established businesses from public sources, checks them against buyer requirements, prepares outreach for human approval, collects owner consent and keeps a commission ledger. It is a working local prototype: it prepares research and drafts, and a person still makes every outreach, consent and introduction decision.</p>
       </div>
     </summary>
     <div class="case-body">
-      <p class="links"><span>No public demo: screenshots only, on fictional companies and contacts</span></p>
+      <p class="links"><span>No public demo: screenshots come from the app's built-in read-only demo, where every company is fictional</span></p>
 
     <dl class="stats">
-      <div><dt>Prospects researched</dt><dd>57</dd></div>
-      <div><dt>Evidence records</dt><dd>208</dd></div>
-      <div><dt>Deal stages</dt><dd>12</dd></div>
-      <div><dt>Automated tests</dt><dd>18</dd></div>
-      <div><dt>Database tables</dt><dd>17</dd></div>
-      <div><dt>Packages to install</dt><dd>0</dd></div>
+      <div><dt>Company research records</dt><dd>92</dd></div>
+      <div><dt>Sourced evidence rows</dt><dd>361</dd></div>
+      <div><dt>Outreach drafts, none sent</dt><dd>109</dd></div>
+      <div><dt>Referrals or commissions so far</dt><dd>0</dd></div>
+      <div><dt>Automated tests (app + desktop)</dt><dd>89 + 3</dd></div>
+      <div><dt>Database tables</dt><dd>41</dd></div>
     </dl>
 
     <figure class="wide">
-      <img src="assets/fieldwork-overview.jpg" alt="The Fieldwork overview: 57 of 100 prospects mapped, a priority queue ranked for research, and spend and commission held at zero until authorized." width="1400" height="900" loading="lazy">
-      <figcaption>The overview. A ranked research queue, and spend and commission held at $0 until someone authorizes them. Company names here are invented.</figcaption>
+      <img src="assets/fieldwork2-opportunities.jpg" alt="The Fieldwork opportunities screen: four counters for ready for introduction review, in your shortlist, outreach prepared and waiting for an owner, a research mission panel tied to one buyer, and an activity log." width="1400" height="900" loading="lazy">
+      <figcaption>The opportunity queue. A research mission is tied to one buyer's recorded requirements and fills a shortlist of up to 12 companies. "Ready for introduction review" is the only column that counts as a real opportunity. Shown here in the empty fictional demo.</figcaption>
     </figure>
 
     <div class="cols">
       <section class="block">
         <h3>The problem</h3>
-        <p>AI labs and data brokers pay referral fees for introductions to established businesses that own years of operating records. Each buyer program has its own entry criteria and its own rules about consent and automated submissions. Working that market by hand means tracking dozens of firms, keeping guesses apart from facts, getting explicit owner consent before any introduction, and not breaking a buyer's terms. Fieldwork turns that into a pipeline with a durable record of every step.</p>
+        <p>AI labs and data brokers pay referral fees for introductions to established businesses that hold years of operating records. A business listing is only the start: someone still has to establish which records exist, who controls them, whether a buyer wants them, whether the owner wants an introduction, and how referral credit is recorded. Treating a company score as a qualified deal hides the work that matters. Fieldwork aims to deliver a small queue of opportunities, each with its sources and an explicit list of what still blocks an introduction.</p>
       </section>
       <section class="block">
-        <h3>What it does</h3>
+        <h3>What it does today</h3>
         <ul>
-          <li><strong>Sourcing and research:</strong> imports prospects, then a job queue visits each company's public pages and records evidence with its source and a confidence level.</li>
-          <li><strong>Scoring:</strong> a 0 to 100 research priority, plus a verdict for each buyer program that lists exactly which facts are still unknown.</li>
-          <li><strong>Outreach:</strong> industry-specific drafts, each approved by a person before it can send, with daily caps and one follow-up.</li>
-          <li><strong>Owner intake:</strong> a single-use, expiring link to five questions, with explicit consent to one named buyer.</li>
-          <li><strong>Deals:</strong> a 12-stage pipeline from research to commission paid.</li>
+          <li><strong>Research:</strong> a background job queue reads each company's public pages and records every claim with its source and a confidence label. A discovery queue proposes new businesses from public directories for review, flagging likely duplicates.</li>
+          <li><strong>Buyer requirements:</strong> each buyer program's criteria and the referral agreement are recorded separately, with review dates, so expired terms stop counting.</li>
+          <li><strong>Prospect briefs:</strong> what is known, what still needs proof, likely record categories, and a fit hypothesis for each buyer naming the missing facts.</li>
+          <li><strong>Outreach preparation:</strong> drafts for sourced contacts, approved by a person before any campaign can send.</li>
+          <li><strong>Owner intake, deals and commissions:</strong> a single-use owner questionnaire with buyer-specific consent, a deal register, and an append-only ledger of invoices and payments.</li>
         </ul>
       </section>
     </div>
 
     <div class="shots">
       <figure>
-        <img src="assets/fieldwork-dossier.jpg" alt="A company dossier showing buyer-by-buyer fit with the exact missing facts, beside a qualification record where unknown fields stay Unknown." width="1400" height="900" loading="lazy">
-        <figcaption>A company dossier. Fit is shown buyer by buyer, with the exact facts still missing, and anything unsupported stays "Unknown".</figcaption>
+        <img src="assets/fieldwork2-brief.jpg" alt="A prospect brief for a fictional engineering firm: stored facts marked unverified or unknown, an evidence trail, possible record categories, a best next question, and buyer hypotheses listing missing facts." width="1400" height="1360" loading="lazy">
+        <figcaption>A prospect brief. Stored facts stay "unverified" until linked to evidence, and each buyer fit is a hypothesis that names exactly what is missing.</figcaption>
       </figure>
       <figure>
-        <img src="assets/fieldwork-evidence.jpg" alt="An evidence log where each claim carries its source, type and confidence, next to a button that creates a single-use owner intake for one named buyer." width="1400" height="900" loading="lazy">
-        <figcaption>The evidence log. Every claim carries its source, type and confidence label, and owner intake is one click for a named buyer.</figcaption>
+        <img src="assets/fieldwork2-buyers.jpg" alt="Buyer requirements: three buyer programs, each with its recorded requirements and referral agreement shown as unconfirmed." width="1400" height="900" loading="lazy">
+        <figcaption>Buyer requirements. Each program's terms and referral agreement are tracked apart, and nothing is treated as confirmed until the operator verifies it.</figcaption>
       </figure>
     </div>
 
     <section class="block">
-      <h3>Guardrails built into the data layer</h3>
+      <h3>Accountable automation</h3>
       <div class="grid3">
-        <div><h4>Evidence over assertion</h4><p>Each fact is tied to a source URL, an evidence type and a confidence label such as "directory-only" or "owner-reported; pending verification". Unknowns stay unknown and show up as gaps. Research priority is explicitly not a probability.</p></div>
-        <div><h4>A person approves every email</h4><p>The exact text of each message must be approved before it can send, and that is enforced in the back end, not only the screen. A send also needs a verified operating entity, a score above the threshold, an unsuppressed address and room under the daily cap.</p></div>
-        <div><h4>Crash-safe sending</h4><p>A message is marked "sending" before the network call. If the app crashes mid-send, it becomes "needs reconciliation" and is never retried automatically, so it asks a person instead of risking a duplicate email.</p></div>
-        <div><h4>Consent and terms in code</h4><p>A deal cannot reach "introduced" without a signed buyer agreement, a current mandate and an owner intake that affirms rights, authority and consent for that specific buyer. A company cannot be live with two buyers, and "commission paid" needs an amount and a date.</p></div>
-        <div><h4>A persistent research agent</h4><p>Every research item is a row in a job table. Temporary failures retry after 2, 10 and 30 minutes, permanent ones are blocked with the reason shown, and after a crash running jobs return to the queue, so the agent never loses its place.</p></div>
-        <div><h4>A careful crawler</h4><p>It obeys robots.txt, resolves each hostname before any request, and refuses local and private network addresses, including on redirects. The prompt for the local model treats any instructions found on scraped pages as untrusted data.</p></div>
+        <div><h4>Readiness is recomputed, never stored</h4><p>An opportunity is "ready for introduction review" only while every check passes: current buyer terms and mandate, verified facts, minimum size and record history, owner consent for that buyer, no suppression, and no competing introduction. Change any of them and it drops back with the reason listed.</p></div>
+        <div><h4>Reviews bound to a fingerprint</h4><p>The final human review signs a hash of the company record, the buyer's requirements, the owner's answers and the fact reviews. If any of those changes afterwards, the review no longer counts and the packet has to be looked at again.</p></div>
+        <div><h4>Approval of exact messages</h4><p>Campaign approval is bound to the exact text and recipients and expires. Sending also needs mail credentials, a separate delivery switch, daily limits and an unsuppressed contact. A send that crashes midway becomes "needs reconciliation" rather than being retried, so it can't double-send.</p></div>
+        <div><h4>Durable background work</h4><p>Research jobs live in the database with retries and backoff, and permanent failures are blocked with the reason shown. Daily usage limits cap research and paid search, which starts off.</p></div>
+        <div><h4>A careful crawler</h4><p>It obeys robots.txt, resolves each hostname first and refuses private or local network addresses. An optional local model may read page text, but its output is stored as a research hypothesis, never as a fact.</p></div>
+        <div><h4>Money kept honest</h4><p>The commission ledger only adds entries, and each one has a unique request key so a retried click can't double-count. Expected revenue shows as "Unknown" rather than a guess.</p></div>
       </div>
     </section>
 
-    <figure class="wide">
-      <img src="assets/fieldwork-intake.jpg" alt="The owner intake form: five questions about a company's history and explicit, buyer-specific consent, with no files requested." width="1400" height="1120" loading="lazy">
-      <figcaption>The owner intake form: five questions, explicit consent to one named buyer, and no files or confidential information requested.</figcaption>
-    </figure>
+    <div class="shots">
+      <figure>
+        <img src="assets/fieldwork2-desk.jpg" alt="The pilot desk: a readiness checklist covering buyer agreement and mandate, a ten-company pilot, sender identity, mail authentication, an external intake address and outbound safety gates." width="1400" height="900" loading="lazy">
+        <figcaption>The pilot desk lists what a controlled pilot still needs. Readiness is guidance: nothing on this screen sends email or submits a referral.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/fieldwork2-deals.jpg" alt="Deals and commissions: invoiced, received and outstanding commission at zero dollars, expected revenue shown as Unknown, and an empty deal register." width="1400" height="900" loading="lazy">
+        <figcaption>Deals and commissions. Accounting records do not execute payments, and unquoted value stays "Unknown".</figcaption>
+      </figure>
+    </div>
 
     <div class="cols">
       <section class="block">
-        <h3>Honest about where it stands</h3>
-        <p>Fieldwork is a working, stateful tool that has not been taken to market: no emails sent, no buyer referrals and no commissions so far. The overview says the same thing on screen, that the prospects are "not verified data sellers" and that outreach, submissions and paid searches stay off until explicitly authorized.</p>
+        <h3>Where it stands</h3>
+        <p>Fieldwork runs on my own Mac with research switched on and mail and paid search switched off. Its workspace holds 92 company research records, 109 contact records and 361 sourced evidence rows. Those are research records, not qualified sellers: only 3 companies have a verified current legal entity so far, and none has passed the readiness checks. The 109 outreach messages are all unsent drafts. No owner has answered an intake, no referral has been submitted and no commission has been earned. One buyer referral agreement is confirmed and on file.</p>
       </section>
       <section class="block">
-        <h3>Built to run anywhere</h3>
+        <h3>Built as a desktop product</h3>
         <ul>
-          <li><strong>Standard-library Python</strong> with a local database and a nine-screen dashboard, started by double-clicking one file, about 1,130 lines in all.</li>
-          <li><strong>Operations:</strong> autostart at login, daily database snapshots, crash recovery, and an example Docker setup behind an HTTPS proxy.</li>
-          <li><strong>An operating manual for an AI agent</strong> that sets out what it may do alone (public research, scoring, drafting), what needs a person (spending, sending, accepting terms) and how to report results without inflating them.</li>
+          <li><strong>Native Mac app:</strong> a Swift, AppKit and WebKit window around a bundled Python runtime, so it needs no Python install. Apple Silicon, macOS 14 or later, signed locally but not notarized by Apple.</li>
+          <li><strong>Data kept separate:</strong> the workspace lives outside the app, with automatic backups, and a one-time migration moved the original database across with its records intact.</li>
+          <li><strong>Standard-library Python and SQLite</strong> with a plain HTML, CSS and JavaScript interface. Customer builds ship without any data, and a read-only fictional demo can be explored safely.</li>
+          <li><strong>Tests:</strong> 89 backend and workflow tests and 3 desktop tests (startup without system Python, migration that preserves records, rejection of a corrupt database).</li>
         </ul>
       </section>
     </div>
 
-    <div class="made"><b>How it was built</b><p>Built with ChatGPT. An optional local model, run through Ollama and chosen by the user, reads public page text and returns a structured guess about the business; the app stores that as an unverified hypothesis, never as a fact.</p></div>
+    <div class="made"><b>How it was built</b><p>Built with ChatGPT and Codex, from my product direction, workflow design and testing. An optional local model, run through Ollama, can read public page text and suggest what a business does; the app labels that output an unverified hypothesis. Next steps: an approved small pilot from outreach to owner qualification, better recovery when research stalls, and a notarized Mac release.</p></div>
     </div>
   </details>
 
@@ -1069,7 +1076,7 @@ span.note { font-style: italic; color: var(--muted); }
     <div class="grid3">
       <div><h4>Conflara</h4><p><strong>Built with:</strong> Claude Code, including the research, pricing, pilot pack and both films.<br><strong>Runs on:</strong> a model on the firm's own hardware through Ollama or any OpenAI-compatible server (default Qwen 2.5 14B Instruct), plus a separate local statistical model for hit ranking.</p></div>
       <div><h4>VigilMark</h4><p><strong>Built with:</strong> Google Gemini.<br><strong>Runs on:</strong> no AI model: scoring is plain, explainable rules.</p></div>
-      <div><h4>Fieldwork</h4><p><strong>Built with:</strong> ChatGPT.<br><strong>Runs on:</strong> an optional local model through Ollama, whose output the app labels unverified; everything else is plain rules.</p></div>
+      <div><h4>Fieldwork</h4><p><strong>Built with:</strong> ChatGPT and Codex, including the native Mac app.<br><strong>Runs on:</strong> an optional local model through Ollama, whose output the app labels an unverified hypothesis; scoring, readiness and every gate are plain rules.</p></div>
       <div><h4>RSC Tool</h4><p><strong>Built with:</strong> Claude Code.<br><strong>Runs on:</strong> small local models (for example Llama or Qwen), chosen so it runs on a modest desktop.</p></div>
       <div><h4>Byzantium</h4><p><strong>Built with:</strong> Claude Code, one long session.<br><strong>Runs on:</strong> no AI at runtime: it is a static site over prebuilt data.</p></div>
       <div><h4>CatGPT</h4><p><strong>Built with:</strong> Claude Code.<br><strong>Runs on:</strong> local models through Ollama or any OpenAI-compatible server, whisper.cpp for speech input, local voice cloning, local Stable Diffusion for pictures, and a local embedding model for shared memory.</p></div>
