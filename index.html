@@ -128,6 +128,20 @@ figcaption { font-size: 0.85rem; color: var(--muted); }
 .links { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; margin-top: 0.35rem; font-family: var(--mono); font-size: 0.85rem; }
 .links a { color: var(--accent); }
 .links span { color: var(--muted); }
+/* Collapsible projects */
+details.case { scroll-margin-top: 1.5rem; }
+.case-sum { list-style: none; cursor: pointer; display: block; }
+.case-sum::-webkit-details-marker { display: none; }
+.case-sum:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; border-radius: 4px; }
+.case-sum .shelf-head h2 { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+.case-sum .shelf-head h2::after { content: "+"; font-family: var(--mono); font-weight: 400; color: var(--accent); flex: none; }
+details[open] > .case-sum .shelf-head h2::after { content: "\2212"; }
+.case-sum:hover .shelf-head h2 { color: var(--accent); }
+.case-body { display: grid; gap: 2.5rem; padding-top: 2.5rem; }
+details.case:not([open]) { margin-bottom: -3rem; }
+details.case + :not(details) { margin-top: 3rem; }
+.case-sum .shelf-head { padding-bottom: 0.25rem; }
+@media print { .case-sum .shelf-head h2::after { content: none; } }
 /* Method */
 .rules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem 2.5rem; }
 .rules div { display: grid; gap: 0.4rem; align-content: start; }
@@ -168,15 +182,16 @@ span.note { font-style: italic; color: var(--muted); }
       <p class="lede">Software for real businesses, novels and screenplays, games and reference works, and the workflows behind them. Each piece below shows what was made and which AI tools, Claude, ChatGPT, Codex, Suno and models running on my own computer, did which part.</p>
     </div>
     <nav class="toc" aria-label="Sections">
+      <a href="#fieldwork">Case study: Fieldwork <span>deal engine</span></a>
       <a href="#conflara">Case study: Conflara <span>legal software</span></a>
       <a href="#vigilmark">Companion: VigilMark <span>trademark watch</span></a>
       <a href="#rsc">Case study: RSC Tool <span>small business</span></a>
       <a href="#byzantium">Case study: Byzantium <span>mosaic atlas</span></a>
       <a href="#catgpt">Case study: CatGPT <span>local AI + 9 games</span></a>
+      <a href="#money">Money Desk <span>local AI workbench</span></a>
       <a href="#songs">Case study: Cat songs &amp; videos <span>Suno + animation</span></a>
       <a href="#xray">Case study: Argument X-ray <span>reading tool</span></a>
       <a href="#boardroom">Case study: Boardroom of One <span>decision tool</span></a>
-      <a href="#fieldwork">Case study: Fieldwork <span>deal engine</span></a>
       <a href="#writing">Writing &amp; workflows <span>299k words</span></a>
       <a href="#research">Research <span>2 reports</span></a>
       <a href="#tools">Which AI for what <span>by project</span></a>
@@ -189,14 +204,107 @@ span.note { font-style: italic; color: var(--muted); }
     </dl>
   </header>
 
+  <!-- FIELDWORK -->
+  <details class="case" id="fieldwork">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 08 · Operations software</span>
+      <h2>Fieldwork</h2>
+      <p class="sum">A local-first deal engine for a data-licensing referral business. It researches established companies from public evidence, prepares outreach for human approval, collects owner consent, and tracks each introduction to a paid commission, with a guardrail at every step against overclaiming, over-sending or skipping consent.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><span>No public demo: screenshots only, on fictional companies and contacts</span></p>
+
+    <dl class="stats">
+      <div><dt>Prospects researched</dt><dd>57</dd></div>
+      <div><dt>Evidence records</dt><dd>208</dd></div>
+      <div><dt>Deal stages</dt><dd>12</dd></div>
+      <div><dt>Automated tests</dt><dd>18</dd></div>
+      <div><dt>Database tables</dt><dd>17</dd></div>
+      <div><dt>Packages to install</dt><dd>0</dd></div>
+    </dl>
+
+    <figure class="wide">
+      <img src="assets/fieldwork-overview.jpg" alt="The Fieldwork overview: 57 of 100 prospects mapped, a priority queue ranked for research, and spend and commission held at zero until authorized." width="1400" height="900" loading="lazy">
+      <figcaption>The overview. A ranked research queue, and spend and commission held at $0 until someone authorizes them. Company names here are invented.</figcaption>
+    </figure>
+
+    <div class="cols">
+      <section class="block">
+        <h3>The problem</h3>
+        <p>AI labs and data brokers pay referral fees for introductions to established businesses that own years of operating records. Each buyer program has its own entry criteria and its own rules about consent and automated submissions. Working that market by hand means tracking dozens of firms, keeping guesses apart from facts, getting explicit owner consent before any introduction, and not breaking a buyer's terms. Fieldwork turns that into a pipeline with a durable record of every step.</p>
+      </section>
+      <section class="block">
+        <h3>What it does</h3>
+        <ul>
+          <li><strong>Sourcing and research:</strong> imports prospects, then a job queue visits each company's public pages and records evidence with its source and a confidence level.</li>
+          <li><strong>Scoring:</strong> a 0 to 100 research priority, plus a verdict for each buyer program that lists exactly which facts are still unknown.</li>
+          <li><strong>Outreach:</strong> industry-specific drafts, each approved by a person before it can send, with daily caps and one follow-up.</li>
+          <li><strong>Owner intake:</strong> a single-use, expiring link to five questions, with explicit consent to one named buyer.</li>
+          <li><strong>Deals:</strong> a 12-stage pipeline from research to commission paid.</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="shots">
+      <figure>
+        <img src="assets/fieldwork-dossier.jpg" alt="A company dossier showing buyer-by-buyer fit with the exact missing facts, beside a qualification record where unknown fields stay Unknown." width="1400" height="900" loading="lazy">
+        <figcaption>A company dossier. Fit is shown buyer by buyer, with the exact facts still missing, and anything unsupported stays "Unknown".</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/fieldwork-evidence.jpg" alt="An evidence log where each claim carries its source, type and confidence, next to a button that creates a single-use owner intake for one named buyer." width="1400" height="900" loading="lazy">
+        <figcaption>The evidence log. Every claim carries its source, type and confidence label, and owner intake is one click for a named buyer.</figcaption>
+      </figure>
+    </div>
+
+    <section class="block">
+      <h3>Guardrails built into the data layer</h3>
+      <div class="grid3">
+        <div><h4>Evidence over assertion</h4><p>Each fact is tied to a source URL, an evidence type and a confidence label such as "directory-only" or "owner-reported; pending verification". Unknowns stay unknown and show up as gaps. Research priority is explicitly not a probability.</p></div>
+        <div><h4>A person approves every email</h4><p>The exact text of each message must be approved before it can send, and that is enforced in the back end, not only the screen. A send also needs a verified operating entity, a score above the threshold, an unsuppressed address and room under the daily cap.</p></div>
+        <div><h4>Crash-safe sending</h4><p>A message is marked "sending" before the network call. If the app crashes mid-send, it becomes "needs reconciliation" and is never retried automatically, so it asks a person instead of risking a duplicate email.</p></div>
+        <div><h4>Consent and terms in code</h4><p>A deal cannot reach "introduced" without a signed buyer agreement, a current mandate and an owner intake that affirms rights, authority and consent for that specific buyer. A company cannot be live with two buyers, and "commission paid" needs an amount and a date.</p></div>
+        <div><h4>A persistent research agent</h4><p>Every research item is a row in a job table. Temporary failures retry after 2, 10 and 30 minutes, permanent ones are blocked with the reason shown, and after a crash running jobs return to the queue, so the agent never loses its place.</p></div>
+        <div><h4>A careful crawler</h4><p>It obeys robots.txt, resolves each hostname before any request, and refuses local and private network addresses, including on redirects. The prompt for the local model treats any instructions found on scraped pages as untrusted data.</p></div>
+      </div>
+    </section>
+
+    <figure class="wide">
+      <img src="assets/fieldwork-intake.jpg" alt="The owner intake form: five questions about a company's history and explicit, buyer-specific consent, with no files requested." width="1400" height="1120" loading="lazy">
+      <figcaption>The owner intake form: five questions, explicit consent to one named buyer, and no files or confidential information requested.</figcaption>
+    </figure>
+
+    <div class="cols">
+      <section class="block">
+        <h3>Honest about where it stands</h3>
+        <p>Fieldwork is a working, stateful tool that has not been taken to market: no emails sent, no buyer referrals and no commissions so far. The overview says the same thing on screen, that the prospects are "not verified data sellers" and that outreach, submissions and paid searches stay off until explicitly authorized.</p>
+      </section>
+      <section class="block">
+        <h3>Built to run anywhere</h3>
+        <ul>
+          <li><strong>Standard-library Python</strong> with a local database and a nine-screen dashboard, started by double-clicking one file, about 1,130 lines in all.</li>
+          <li><strong>Operations:</strong> autostart at login, daily database snapshots, crash recovery, and an example Docker setup behind an HTTPS proxy.</li>
+          <li><strong>An operating manual for an AI agent</strong> that sets out what it may do alone (public research, scoring, drafting), what needs a person (spending, sending, accepting terms) and how to report results without inflating them.</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>Built with ChatGPT. An optional local model, run through Ollama and chosen by the user, reads public page text and returns a structured guess about the business; the app stores that as an unverified hypothesis, never as a fact.</p></div>
+    </div>
+  </details>
+
   <!-- CONFLARA -->
-  <article class="case" id="conflara">
-    <div class="shelf-head">
+  <details class="case" id="conflara">
+    <summary class="case-sum">
+      <div class="shelf-head">
       <span class="eyebrow">Case study 01 · Legal software</span>
       <h2>Conflara</h2>
       <p class="sum">A conflicts-check and new-matter intake system for US law firms of 10 to 150 lawyers, carried from a working product through research, pricing, a pilot plan and two films.</p>
-          <p class="links"><a href="demos/conflara.html">Try the demo</a><a href="demos/conflara-ad.html">Watch the 60-second ad</a><a href="demos/conflara-film.html">Watch the walkthrough film</a><a href="https://github.com/mylesparslow-collab/conflicts-desk">Prototype code</a></p>
-    </div>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="demos/conflara.html">Try the demo</a><a href="demos/conflara-ad.html">Watch the 60-second ad</a><a href="demos/conflara-film.html">Watch the walkthrough film</a><a href="https://github.com/mylesparslow-collab/conflicts-desk">Prototype code</a></p>
 
     <dl class="stats">
       <div><dt>Firm roles modelled</dt><dd>7</dd></div>
@@ -314,16 +422,20 @@ span.note { font-style: italic; color: var(--muted); }
     </div>
 
     <div class="made"><b>How it was built</b><p>It began as the <a href="https://github.com/mylesparslow-collab/conflicts-desk">Conflicts Desk</a> prototype in Claude Code, with tests and CI, and grew into Conflara. I supplied the domain: how conflicts departments actually run, which rules apply, and where existing tools fall short. Claude built the search engine, the synthetic firm and every screen. It then helped research competitors, price the product, write the pilot pack and script and code both films.</p></div>
-  </article>
+    </div>
+  </details>
 
   <!-- VIGILMARK -->
-  <article class="case" id="vigilmark">
-    <div class="shelf-head">
+  <details class="case" id="vigilmark">
+    <summary class="case-sum">
+      <div class="shelf-head">
       <span class="eyebrow">Companion to case study 01 · Legal software</span>
       <h2>VigilMark</h2>
       <p class="sum">A trademark watch and triage desk for a conflicts-first law firm: it ranks new filings that look like a client's mark, checks whether the applicant is related to a firm client, and hands the hit to Conflara as an intake.</p>
+      </div>
+    </summary>
+    <div class="case-body">
       <p class="links"><span>No public demo: screenshots only, all on invented clients and matters</span></p>
-    </div>
 
     <dl class="stats">
       <div><dt>Views</dt><dd>5</dd></div>
@@ -396,16 +508,20 @@ span.note { font-style: italic; color: var(--muted); }
     </div>
 
     <div class="made"><b>How it was built</b><p>Built with Google Gemini, which wrote the web app, the Python server, the Mac wrapper and the schema. I set the idea and the Conflara hand-off, and the clients, matters and parties in these screenshots are invented, like the ones in the Conflara demo.</p></div>
-  </article>
+    </div>
+  </details>
 
   <!-- RSC -->
-  <article class="case" id="rsc">
-    <div class="shelf-head">
+  <details class="case" id="rsc">
+    <summary class="case-sum">
+      <div class="shelf-head">
       <span class="eyebrow">Case study 02 · Small business</span>
       <h2>RSC Tool</h2>
       <p class="sum">An operations app for a small family remodeling business. It runs entirely on one Mac, reads the business inbox with a local AI model, and never touches the books without the owner's approval.</p>
-          <p class="links"><span>No public demo yet: it runs on the owner's Mac with real client data</span></p>
-    </div>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><span>No public demo yet: it runs on the owner's Mac with real client data</span></p>
 
     <dl class="stats">
       <div><dt>Lines of Python, 2,361 of them tests</dt><dd>9,408</dd></div>
@@ -479,16 +595,20 @@ span.note { font-style: italic; color: var(--muted); }
     </div>
 
     <div class="made"><b>How it was built</b><p>Built in Claude Code from the owner's real estimates, contract terms and tracker. Claude wrote the code and tests within rules I set. The repo also carries a guide written for the next Claude session on the owner's Mac. It sets out how to explain changes in plain words, back up before any change, keep database migrations additive, test on a copy, and never edit contract text without review.</p></div>
-  </article>
+    </div>
+  </details>
 
   <!-- BYZANTIUM -->
-  <article class="case" id="byzantium">
-    <div class="shelf-head">
+  <details class="case" id="byzantium">
+    <summary class="case-sum">
+      <div class="shelf-head">
       <span class="eyebrow">Case study 03 · Reference work</span>
       <h2>Byzantium</h2>
       <p class="sum">An illustrated encyclopedia of the Eastern Roman Empire, 324 to 1453, built around a mosaic atlas you can drag through 1,129 years and watch the borders move.</p>
-          <p class="links"><a href="https://byzantium-atlas.pages.dev/">Explore the live atlas</a></p>
-    </div>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="https://byzantium-atlas.pages.dev/">Explore the live atlas</a></p>
 
     <dl class="stats">
       <div><dt>Dated territory snapshots</dt><dd>200</dd></div>
@@ -544,16 +664,20 @@ span.note { font-style: italic; color: var(--muted); }
     </div>
 
     <div class="made"><b>How it was built</b><p>One long Claude Code session took it from an empty folder to a verified site. Claude evaluated map sources and their licences, built three data pipelines and the renderer, and wrote its own reports on what failed, what was skipped and where the sources disagree, for me to review.</p></div>
-  </article>
+    </div>
+  </details>
 
   <!-- CATGPT -->
-  <article class="case" id="catgpt">
-    <div class="shelf-head">
+  <details class="case" id="catgpt">
+    <summary class="case-sum">
+      <div class="shelf-head">
       <span class="eyebrow">Case study 04 · Local AI</span>
       <h2>CatGPT</h2>
       <p class="sum">A control panel for the AI models running on my Mac that grew into a cat-themed home for chat, creative tools and games, hosted by three pixel-art cats: Newton, Skippy and Simba.</p>
-          <p class="links"><a href="demos/kitty-trivia.html">Play Kitty Trivia</a><span>The full app runs locally</span></p>
-    </div>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="demos/kitty-trivia.html">Play Kitty Trivia</a><span>The full app runs locally</span></p>
 
     <dl class="stats">
       <div><dt>Lines of code</dt><dd>22,500</dd></div>
@@ -664,16 +788,48 @@ span.note { font-style: italic; color: var(--muted); }
     </article>
 
     <div class="made"><b>How it was built</b><p>Built with Claude Code as plain Node.js and browser code with no build step. The repo holds an efficiency rulebook that tells coding agents to read narrowly, batch their calls and report in a sentence or two.</p></div>
-  </article>
+    </div>
+  </details>
+
+  <!-- MONEY DESK -->
+  <details class="case" id="money">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Sister app · Local AI</span>
+      <h2>Money Desk</h2>
+      <p>A workbench for finding and doing paid work with local models. It never posts, messages or signs up anywhere on its own: every output is a draft I check and send myself, and its prompts forbid inventing facts, prices or results.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><span>No public demo yet: runs locally</span></p>
+    <dl class="stats">
+      <div><dt>Lines of code</dt><dd>9,800</dd></div>
+      <div><dt>Studio tools</dt><dd>11</dd></div>
+      <div><dt>Sales pipelines</dt><dd>5</dd></div>
+      <div><dt>Assist stages</dt><dd>5</dd></div>
+      <div><dt>Coach characters</dt><dd>29</dd></div>
+      <div><dt>Starter prompts</dt><dd>48</dd></div>
+    </dl>
+    <div class="more">
+      <div><h3>Research and ideas</h3><p>Ideas scored on demand, competition, effort and speed, with a skeptical-investor critique. Research briefs from web search mark which facts came from sources and which are guesses.</p></div>
+      <div><h3>Gig Hunter and RFP Hunter</h3><p>Every few hours it reads public job boards, scores what's left against ten skills and drafts replies. A separate tool ranks public government bids by fit, profit and complexity.</p></div>
+      <div><h3>A five-stage assist chain</h3><p>Brainstormer, Assessor, Planner, Executor and Content Creator, each seeing everything earlier stages produced, with prompts editable in the app.</p></div>
+      <div><h3>Model choice and resilience</h3><p>It picks the best installed model, retries without the reasoning flag for models that lack it, uses a vision model for photo listings, and runs long jobs on the server so a closed tab never loses a result.</p></div>
+    </div>
+    </div>
+  </details>
 
   <!-- CAT SONGS -->
-  <article class="case" id="songs">
-    <div class="shelf-head">
+  <details class="case" id="songs">
+    <summary class="case-sum">
+      <div class="shelf-head">
       <span class="eyebrow">Case study 05 · Music &amp; animation</span>
       <h2>Cat songs and music videos</h2>
       <p class="sum">A repeatable way to write songs with Suno, and a toolkit that turns a finished song into a timed storyboard and an animated music video starring my cats.</p>
-<p class="links"><a href="https://www.youtube.com/playlist?list=PLKCbGht0OqxU">Watch all 14 songs on YouTube</a><a href="https://www.youtube.com/watch?v=fZF2ik8_9Vs">Start with one video</a></p>
-    </div>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="https://www.youtube.com/playlist?list=PLKCbGht0OqxU">Watch all 14 songs on YouTube</a><a href="https://www.youtube.com/watch?v=fZF2ik8_9Vs">Start with one video</a></p>
 
     <dl class="stats">
       <div><dt>Steps in the song workflow</dt><dd>17</dd></div>
@@ -757,102 +913,20 @@ span.note { font-style: italic; color: var(--muted); }
         <div class="made"><b>My role</b><p>I set the creative goals, supplied the songs and characters, directed the AI-assisted build, and shaped the workflow through requirements and feedback. It was built through an iterative ChatGPT and Codex workflow, which wrote the implementation, analysis scripts, production documents and animation code.</p></div>
       </section>
     </div>
-  </article>
-
-  <!-- FIELDWORK -->
-  <article class="case" id="fieldwork">
-    <div class="shelf-head">
-      <span class="eyebrow">Case study 08 · Operations software</span>
-      <h2>Fieldwork</h2>
-      <p class="sum">A local-first deal engine for a data-licensing referral business. It researches established companies from public evidence, prepares outreach for human approval, collects owner consent, and tracks each introduction to a paid commission, with a guardrail at every step against overclaiming, over-sending or skipping consent.</p>
-      <p class="links"><span>No public demo: screenshots only, on fictional companies and contacts</span></p>
     </div>
-
-    <dl class="stats">
-      <div><dt>Prospects researched</dt><dd>57</dd></div>
-      <div><dt>Evidence records</dt><dd>208</dd></div>
-      <div><dt>Deal stages</dt><dd>12</dd></div>
-      <div><dt>Automated tests</dt><dd>18</dd></div>
-      <div><dt>Database tables</dt><dd>17</dd></div>
-      <div><dt>Packages to install</dt><dd>0</dd></div>
-    </dl>
-
-    <figure class="wide">
-      <img src="assets/fieldwork-overview.jpg" alt="The Fieldwork overview: 57 of 100 prospects mapped, a priority queue ranked for research, and spend and commission held at zero until authorized." width="1400" height="900" loading="lazy">
-      <figcaption>The overview. A ranked research queue, and spend and commission held at $0 until someone authorizes them. Company names here are invented.</figcaption>
-    </figure>
-
-    <div class="cols">
-      <section class="block">
-        <h3>The problem</h3>
-        <p>AI labs and data brokers pay referral fees for introductions to established businesses that own years of operating records. Each buyer program has its own entry criteria and its own rules about consent and automated submissions. Working that market by hand means tracking dozens of firms, keeping guesses apart from facts, getting explicit owner consent before any introduction, and not breaking a buyer's terms. Fieldwork turns that into a pipeline with a durable record of every step.</p>
-      </section>
-      <section class="block">
-        <h3>What it does</h3>
-        <ul>
-          <li><strong>Sourcing and research:</strong> imports prospects, then a job queue visits each company's public pages and records evidence with its source and a confidence level.</li>
-          <li><strong>Scoring:</strong> a 0 to 100 research priority, plus a verdict for each buyer program that lists exactly which facts are still unknown.</li>
-          <li><strong>Outreach:</strong> industry-specific drafts, each approved by a person before it can send, with daily caps and one follow-up.</li>
-          <li><strong>Owner intake:</strong> a single-use, expiring link to five questions, with explicit consent to one named buyer.</li>
-          <li><strong>Deals:</strong> a 12-stage pipeline from research to commission paid.</li>
-        </ul>
-      </section>
-    </div>
-
-    <div class="shots">
-      <figure>
-        <img src="assets/fieldwork-dossier.jpg" alt="A company dossier showing buyer-by-buyer fit with the exact missing facts, beside a qualification record where unknown fields stay Unknown." width="1400" height="900" loading="lazy">
-        <figcaption>A company dossier. Fit is shown buyer by buyer, with the exact facts still missing, and anything unsupported stays "Unknown".</figcaption>
-      </figure>
-      <figure>
-        <img src="assets/fieldwork-evidence.jpg" alt="An evidence log where each claim carries its source, type and confidence, next to a button that creates a single-use owner intake for one named buyer." width="1400" height="900" loading="lazy">
-        <figcaption>The evidence log. Every claim carries its source, type and confidence label, and owner intake is one click for a named buyer.</figcaption>
-      </figure>
-    </div>
-
-    <section class="block">
-      <h3>Guardrails built into the data layer</h3>
-      <div class="grid3">
-        <div><h4>Evidence over assertion</h4><p>Each fact is tied to a source URL, an evidence type and a confidence label such as "directory-only" or "owner-reported; pending verification". Unknowns stay unknown and show up as gaps. Research priority is explicitly not a probability.</p></div>
-        <div><h4>A person approves every email</h4><p>The exact text of each message must be approved before it can send, and that is enforced in the back end, not only the screen. A send also needs a verified operating entity, a score above the threshold, an unsuppressed address and room under the daily cap.</p></div>
-        <div><h4>Crash-safe sending</h4><p>A message is marked "sending" before the network call. If the app crashes mid-send, it becomes "needs reconciliation" and is never retried automatically, so it asks a person instead of risking a duplicate email.</p></div>
-        <div><h4>Consent and terms in code</h4><p>A deal cannot reach "introduced" without a signed buyer agreement, a current mandate and an owner intake that affirms rights, authority and consent for that specific buyer. A company cannot be live with two buyers, and "commission paid" needs an amount and a date.</p></div>
-        <div><h4>A persistent research agent</h4><p>Every research item is a row in a job table. Temporary failures retry after 2, 10 and 30 minutes, permanent ones are blocked with the reason shown, and after a crash running jobs return to the queue, so the agent never loses its place.</p></div>
-        <div><h4>A careful crawler</h4><p>It obeys robots.txt, resolves each hostname before any request, and refuses local and private network addresses, including on redirects. The prompt for the local model treats any instructions found on scraped pages as untrusted data.</p></div>
-      </div>
-    </section>
-
-    <figure class="wide">
-      <img src="assets/fieldwork-intake.jpg" alt="The owner intake form: five questions about a company's history and explicit, buyer-specific consent, with no files requested." width="1400" height="1120" loading="lazy">
-      <figcaption>The owner intake form: five questions, explicit consent to one named buyer, and no files or confidential information requested.</figcaption>
-    </figure>
-
-    <div class="cols">
-      <section class="block">
-        <h3>Honest about where it stands</h3>
-        <p>Fieldwork is a working, stateful tool that has not been taken to market: no emails sent, no buyer referrals and no commissions so far. The overview says the same thing on screen, that the prospects are "not verified data sellers" and that outreach, submissions and paid searches stay off until explicitly authorized.</p>
-      </section>
-      <section class="block">
-        <h3>Built to run anywhere</h3>
-        <ul>
-          <li><strong>Standard-library Python</strong> with a local database and a nine-screen dashboard, started by double-clicking one file, about 1,130 lines in all.</li>
-          <li><strong>Operations:</strong> autostart at login, daily database snapshots, crash recovery, and an example Docker setup behind an HTTPS proxy.</li>
-          <li><strong>An operating manual for an AI agent</strong> that sets out what it may do alone (public research, scoring, drafting), what needs a person (spending, sending, accepting terms) and how to report results without inflating them.</li>
-        </ul>
-      </section>
-    </div>
-
-    <div class="made"><b>How it was built</b><p>Built with ChatGPT. An optional local model, run through Ollama and chosen by the user, reads public page text and returns a structured guess about the business; the app stores that as an unverified hypothesis, never as a fact.</p></div>
-  </article>
+  </details>
 
   <!-- ARGUMENT X-RAY -->
-  <article class="case" id="xray">
-    <div class="shelf-head">
+  <details class="case" id="xray">
+    <summary class="case-sum">
+      <div class="shelf-head">
       <span class="eyebrow">Case study 06 · Reading tool</span>
       <h2>Argument X-ray</h2>
       <p class="sum">Persuasive writing hides its structure. This tool maps a text into its thesis, claims, evidence, unstated assumptions and objections, then flags the weak links so you can see what is actually supported.</p>
+      </div>
+    </summary>
+    <div class="case-body">
       <p class="links"><a href="demos/argument-xray.html" target="_blank" rel="noopener">Open Argument X-ray</a></p>
-    </div>
 
     <dl class="stats">
       <div><dt>Worked examples</dt><dd>4</dd></div>
@@ -876,16 +950,20 @@ span.note { font-style: italic; color: var(--muted); }
     </div>
 
     <div class="made"><b>How it was built</b><p>Claude Code wrote the page, the sample texts and each analysis. The look is deliberately separate from this portfolio: a dark radiology light box, where the examples are plates and the fixes are recommendations.</p></div>
-  </article>
+    </div>
+  </details>
 
   <!-- BOARDROOM OF ONE -->
-  <article class="case" id="boardroom">
-    <div class="shelf-head">
+  <details class="case" id="boardroom">
+    <summary class="case-sum">
+      <div class="shelf-head">
       <span class="eyebrow">Case study 07 · Decision tool</span>
       <h2>Boardroom of One</h2>
       <p class="sum">Ask one AI for advice and you tend to get one balanced, agreeable answer that hides the real disagreement. This tool seats five advisers with fixed temperaments and lets them argue your decision, then vote.</p>
+      </div>
+    </summary>
+    <div class="case-body">
       <p class="links"><a href="demos/boardroom-of-one.html" target="_blank" rel="noopener">Open Boardroom of One</a></p>
-    </div>
 
     <dl class="stats">
       <div><dt>Advisers</dt><dd>5</dd></div>
@@ -909,31 +987,18 @@ span.note { font-style: italic; color: var(--muted); }
     </div>
 
     <div class="made"><b>How it was built</b><p>Claude Code built the page and wrote the four example debates. It has its own look, an after-hours boardroom with a brass-nameplate table and a chair's resolution sealed in wax, so it reads as a separate product.</p></div>
-  </article>
+    </div>
+  </details>
 
-  <!-- MONEY DESK -->
-  <section class="shelf" id="money">
-    <div class="shelf-head">
-      <span class="eyebrow">Sister app · Local AI</span>
-      <h2>Money Desk</h2>
-      <p>A workbench for finding and doing paid work with local models. It never posts, messages or signs up anywhere on its own: every output is a draft I check and send myself, and its prompts forbid inventing facts, prices or results.</p>
-          <p class="links"><span>No public demo yet: runs locally</span></p>
-    </div>
-    <dl class="stats">
-      <div><dt>Lines of code</dt><dd>9,800</dd></div>
-      <div><dt>Studio tools</dt><dd>11</dd></div>
-      <div><dt>Sales pipelines</dt><dd>5</dd></div>
-      <div><dt>Assist stages</dt><dd>5</dd></div>
-      <div><dt>Coach characters</dt><dd>29</dd></div>
-      <div><dt>Starter prompts</dt><dd>48</dd></div>
-    </dl>
-    <div class="more">
-      <div><h3>Research and ideas</h3><p>Ideas scored on demand, competition, effort and speed, with a skeptical-investor critique. Research briefs from web search mark which facts came from sources and which are guesses.</p></div>
-      <div><h3>Gig Hunter and RFP Hunter</h3><p>Every few hours it reads public job boards, scores what's left against ten skills and drafts replies. A separate tool ranks public government bids by fit, profit and complexity.</p></div>
-      <div><h3>A five-stage assist chain</h3><p>Brainstormer, Assessor, Planner, Executor and Content Creator, each seeing everything earlier stages produced, with prompts editable in the app.</p></div>
-      <div><h3>Model choice and resilience</h3><p>It picks the best installed model, retries without the reasoning flag for models that lack it, uses a vision model for photo listings, and runs long jobs on the server so a closed tab never loses a result.</p></div>
-    </div>
-  </section>
+
+
+
+
+
+
+
+
+
 
   <!-- WRITING -->
   <section class="shelf" id="writing">
@@ -1065,6 +1130,37 @@ span.note { font-style: italic; color: var(--muted); }
       var name = apply(b.dataset.pick);
       try { localStorage.setItem(KEY, name); } catch (e) {}
     });
+  });
+})();
+</script>
+<script>
+(function () {
+  var cases = Array.prototype.slice.call(document.querySelectorAll('details.case'));
+  function openFromHash() {
+    var id = decodeURIComponent(location.hash.slice(1));
+    if (!id) return;
+    var t = document.getElementById(id);
+    var d = t && t.closest ? t.closest('details.case') : null;
+    if (d) {
+      d.open = true;
+      requestAnimationFrame(function () { (t || d).scrollIntoView(); });
+    }
+  }
+  openFromHash();
+  window.addEventListener('hashchange', openFromHash);
+  document.querySelectorAll('.toc a[href^="#"]').forEach(function (a) {
+    a.addEventListener('click', function () {
+      var d = document.getElementById(a.getAttribute('href').slice(1));
+      if (d && d.matches && d.matches('details.case')) d.open = true;
+    });
+  });
+  var was = [];
+  window.addEventListener('beforeprint', function () {
+    was = cases.map(function (d) { return d.open; });
+    cases.forEach(function (d) { d.open = true; });
+  });
+  window.addEventListener('afterprint', function () {
+    cases.forEach(function (d, i) { d.open = was[i]; });
   });
 })();
 </script>
