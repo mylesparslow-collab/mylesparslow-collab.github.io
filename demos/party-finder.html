@@ -1,0 +1,2112 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Party Finder</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a conflicts desk worksheet. Intake vs found comparison first, then the party register, sources and Intapp export. */
+:root{
+  --bg:#f5f3ee; --panel:#ffffff; --panel2:#ebe8e0; --ink:#1c2220; --ink2:#4d5551; --ink3:#7f8682; --line:#d9d5cb;
+  --accent:#1f5c4a; --accent-ink:#ffffff; --accent-soft:#dcebe4;
+  --client:#2f5d8a; --client-bg:#e1eaf4; --adverse:#a83232; --adverse-bg:#f7e1df; --third:#7a5b16; --third-bg:#f4ead0;
+  --ok:#2d7a4f; --ok-bg:#e2f0e7; --bad:#b42a2a; --bad-bg:#f9e0e0; --hi:#fff2b8; --hi-ink:#1c2220;
+  --display:"Newsreader",Georgia,serif; --body:"Public Sans",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --bg:#121614; --panel:#1a201d; --panel2:#222a26; --ink:#e6ebe8; --ink2:#a9b3ae; --ink3:#7d8883; --line:#2e3833;
+  --accent:#6cc2a3; --accent-ink:#0d1a15; --accent-soft:#1c362c;
+  --client:#8db5e0; --client-bg:#1c2b3c; --adverse:#f08a84; --adverse-bg:#3d1d1c; --third:#e0bf6a; --third-bg:#362c14;
+  --ok:#6dc48f; --ok-bg:#173024; --bad:#f07a7a; --bad-bg:#3f1c1c; --hi:#5a4a12; --hi-ink:#fff6d6;
+  color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#121614; --panel:#1a201d; --panel2:#222a26; --ink:#e6ebe8; --ink2:#a9b3ae; --ink3:#7d8883; --line:#2e3833;
+  --accent:#6cc2a3; --accent-ink:#0d1a15; --accent-soft:#1c362c;
+  --client:#8db5e0; --client-bg:#1c2b3c; --adverse:#f08a84; --adverse-bg:#3d1d1c; --third:#e0bf6a; --third-bg:#362c14;
+  --ok:#6dc48f; --ok-bg:#173024; --bad:#f07a7a; --bad-bg:#3f1c1c; --hi:#5a4a12; --hi-ink:#fff6d6;
+  color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14.5px;line-height:1.5;margin:0;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-bottom:48px}
+h1,h2,h3{font-family:var(--display);font-weight:600;margin:0;text-wrap:balance}
+h2{font-size:19px} h3{font-size:16px}
+p{margin:0}
+a{color:var(--accent)}
+button{font:inherit;cursor:pointer}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:1240px;margin:0 auto}
+.muted{color:var(--ink2)} .small{font-size:13px}
+select,textarea,input{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:6px 8px;max-width:100%}
+textarea{width:100%;resize:vertical}
+select:focus,textarea:focus,input:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:6px;padding:7px 12px;font-weight:500}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn:disabled{opacity:.55;cursor:default}
+.btn.small{padding:3px 9px;font-size:13px}
+.linkbtn{border:0;background:none;color:var(--accent);padding:0;text-decoration:underline;text-underline-offset:2px}
+/* top */
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px;padding:22px 0 14px;border-bottom:1px solid var(--line)}
+.brand h1{font-size:28px;letter-spacing:-.01em}
+.brand p{color:var(--ink2);max-width:64ch}
+.controls{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px}
+.controls label{font-size:11.5px;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;display:flex;flex-direction:column;gap:3px}
+.no-claude .claude-only{display:none}
+.nav{display:flex;gap:4px;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid var(--line)}
+.nav button{border:0;background:transparent;color:var(--ink2);padding:6px 12px;border-radius:6px;font-weight:500}
+.nav button[aria-selected="true"]{background:var(--accent-soft);color:var(--ink)}
+.nav .count{font-family:var(--mono);font-size:12px;color:var(--ink3);margin-left:4px}
+/* compare */
+.compare{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1.6fr);gap:14px;align-items:stretch;margin:18px 0 8px}
+@media (max-width:760px){.compare{grid-template-columns:minmax(0,1fr)} .compare .arrow{display:none}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;min-width:0}
+.card .k{font-size:11.5px;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em}
+.big{font-family:var(--display);font-size:46px;line-height:1;font-weight:600;margin:6px 0 4px;font-variant-numeric:tabular-nums}
+.big.found{color:var(--accent)}
+.compare .arrow{align-self:center;font-family:var(--display);font-size:28px;color:var(--ink3)}
+.intakelist{margin:8px 0 0;padding:0;list-style:none;font-size:13.5px}
+.intakelist li{display:flex;gap:8px;padding:3px 0;border-top:1px dashed var(--line)}
+.intakelist li:first-child{border-top:0}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:10px}
+.tile{border-left:3px solid var(--line);padding:2px 0 2px 10px}
+.tile .v{font-family:var(--mono);font-size:22px;font-weight:500}
+.tile .s{font-size:12.5px;color:var(--ink2)}
+.tile.adv{border-color:var(--adverse)} .tile.adv .v{color:var(--adverse)}
+.tile.good{border-color:var(--ok)} .tile.good .v{color:var(--ok)}
+.tile.warn{border-color:var(--bad)} .tile.warn .v{color:var(--bad)}
+.runmeta{font-size:13px;color:var(--ink2);margin:6px 0 2px;display:flex;gap:6px 14px;flex-wrap:wrap;align-items:center}
+.runmeta .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:6px}
+.summary{font-family:var(--display);font-size:18.5px;line-height:1.4;margin:10px 0 4px;max-width:80ch}
+/* columns */
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,370px);gap:18px;align-items:start;margin-top:14px}
+@media (max-width:920px){.cols{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;min-width:0}
+.panel+.panel{margin-top:14px}
+.panel h2{margin-bottom:8px}
+.miss{padding:12px 0;border-top:1px solid var(--line)}
+.miss:first-of-type{border-top:0;padding-top:4px}
+.miss h3{display:flex;gap:10px;align-items:baseline}
+.miss h3 .n{font-family:var(--mono);font-size:13px;color:var(--adverse)}
+.miss p{margin-top:4px;color:var(--ink2)}
+.pchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+.pchip{border:1px solid var(--line);background:var(--panel2);border-radius:999px;padding:1px 10px;font-size:12.5px;color:var(--ink)}
+.pchip.adverse,.pchip.adverse-related{border-color:var(--adverse);background:var(--adverse-bg)}
+.pchip.client,.pchip.client-related{border-color:var(--client);background:var(--client-bg)}
+.pchip.third{border-color:var(--third);background:var(--third-bg)}
+ol.plain,ul.plain{margin:0;padding-left:18px}
+ol.plain li,ul.plain li{margin:5px 0}
+/* register */
+.filters{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:4px 0 12px}
+.filters button{border:1px solid var(--line);background:var(--panel);color:var(--ink2);border-radius:999px;padding:3px 11px;font-size:13px}
+.filters button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.filters input{flex:1 1 180px;min-width:0}
+.group{margin-top:18px}
+.group>h3{display:flex;align-items:center;gap:8px;font-size:15px;padding-bottom:6px;border-bottom:2px solid var(--line)}
+.group.adverse>h3{border-color:var(--adverse)} .group.client>h3{border-color:var(--client)} .group.third>h3{border-color:var(--third)}
+.group>h3 .num{font-size:12.5px;color:var(--ink3);font-weight:400}
+.party{display:grid;grid-template-columns:26px minmax(0,1fr);gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}
+.party.off{opacity:.5}
+.party input[type=checkbox]{margin-top:4px;width:16px;height:16px;accent-color:var(--accent)}
+.party .head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
+.party .name{font-weight:600;font-size:15px}
+.party .type{font-size:12px;color:var(--ink3);font-family:var(--mono)}
+.badge{display:inline-flex;align-items:center;border-radius:4px;padding:0 7px;font-size:11.5px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;line-height:19px}
+.badge.role{background:var(--panel2);color:var(--ink2)}
+.badge.high{background:var(--adverse-bg);color:var(--adverse)}
+.badge.medium{background:var(--third-bg);color:var(--third)}
+.badge.low{background:var(--panel2);color:var(--ink3)}
+.badge.on{background:var(--ok-bg);color:var(--ok)}
+.badge.notOn{background:var(--hi);color:var(--hi-ink)}
+.party .rel{margin-top:3px}
+.party .why{margin-top:2px;font-size:13px;color:var(--ink2)}
+.vars{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px;align-items:center}
+.var{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:12px;background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:1px 3px 1px 7px}
+.var button{border:0;background:none;color:var(--ink3);padding:0 3px;font-size:13px;line-height:1}
+.var button:hover{color:var(--bad)}
+.vars input{font-family:var(--mono);font-size:12px;padding:2px 6px;width:150px}
+.quote{margin-top:8px;font-size:13.5px;border-left:3px solid var(--line);padding:2px 0 2px 10px;color:var(--ink2)}
+.quote q{color:var(--ink);font-style:italic}
+.ok,.bad{display:inline-block;margin-left:8px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;border-radius:3px;padding:0 6px}
+.ok{background:var(--ok-bg);color:var(--ok)} .bad{background:var(--bad-bg);color:var(--bad)}
+.src{font-size:12.5px;margin-top:3px;color:var(--ink3)}
+.addrow{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;align-items:center}
+.addrow input{flex:1 1 200px}
+/* docs */
+.docnav{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.docnav button{border:1px solid var(--line);background:var(--panel);color:var(--ink2);border-radius:6px;padding:5px 11px;font-size:13px}
+.docnav button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
+.doc{font-family:var(--display);font-size:16px;line-height:1.6;white-space:pre-wrap;word-wrap:break-word;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 22px;max-width:80ch}
+.doc .pg{display:block;font-family:var(--mono);font-size:11.5px;color:var(--ink3);border-top:1px dashed var(--line);margin:14px 0 4px;padding-top:6px;letter-spacing:.06em}
+.doc .pg:first-child{border-top:0;margin-top:0;padding-top:0}
+.doc mark{background:var(--hi);color:var(--hi-ink);border-radius:2px;padding:0 1px;cursor:pointer}
+.doc mark.flash{outline:3px solid var(--accent);outline-offset:2px}
+.doc mark sup{font-family:var(--mono);font-size:10px;margin-left:2px;color:var(--accent)}
+/* export */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;margin-top:10px}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+th,td{text-align:left;padding:6px 9px;border-bottom:1px solid var(--line);vertical-align:top;white-space:nowrap}
+td.wrapc{white-space:normal;min-width:240px}
+th{background:var(--panel2);font-weight:600}
+.maprow{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px 14px;margin-top:10px}
+.maprow label{display:flex;flex-direction:column;gap:2px;font-size:12px;color:var(--ink3)}
+.maprow label input{font-size:13.5px}
+.opts{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:12px;align-items:center;font-size:13.5px}
+.btnrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+/* live */
+.live{background:var(--panel);border:1px solid var(--accent);border-radius:10px;padding:14px 16px;margin:14px 0}
+.phase{display:flex;align-items:center;gap:8px;color:var(--ink3);font-size:14px;padding:2px 0}
+.phase i{width:9px;height:9px;border-radius:50%;background:var(--line)}
+.phase.on{color:var(--ink)} .phase.on i{background:var(--accent);animation:pulse 1.2s infinite}
+.phase.done{color:var(--ink2)} .phase.done i{background:var(--ok)}
+@keyframes pulse{50%{opacity:.3}}
+@media (prefers-reduced-motion:reduce){.phase.on i{animation:none}}
+.stream{font-family:var(--mono);font-size:11.5px;color:var(--ink3);white-space:pre-wrap;max-height:90px;overflow:hidden;margin-top:8px;word-break:break-all}
+.err{color:var(--bad)}
+.note{font-size:12.5px;color:var(--ink3);margin-top:8px}
+/* own docs */
+.owngrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+@media (max-width:820px){.owngrid{grid-template-columns:minmax(0,1fr)}}
+.drop{border:2px dashed var(--line);border-radius:10px;padding:18px;text-align:center;color:var(--ink2)}
+.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.owndoc{display:flex;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.owndoc .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.foot{margin-top:28px;font-size:12.5px;color:var(--ink3);max-width:90ch}
+[hidden]{display:none !important}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>Party Finder</h1>
+      <p>Reads the complaint, deal documents or engagement request and builds the complete name list for a conflicts search, each name tied to the sentence it came from. The list goes into Intapp, which stays the system of record.</p>
+    </div>
+    <div class="controls">
+      <label>Matter<select id="setSel"></select></label>
+      <label class="claude-only">Model<select id="model"><option value="claude-fable-5-1">Fable 5.1</option><option value="claude-opus-5-5">Opus 5.5</option><option value="claude-sonnet-5-5">Sonnet 5.5</option></select></label>
+      <label class="claude-only">Depth<select id="depth"><option value="medium">Standard</option><option value="high">Thorough</option></select></label>
+      <button class="btn primary" id="runBtn" disabled>Run on Claude</button>
+    </div>
+  </header>
+
+  <nav class="nav" role="tablist">
+    <button role="tab" data-tab="overview" aria-selected="true">Overview</button>
+    <button role="tab" data-tab="register" aria-selected="false">Party register<span class="count" id="cntParties"></span></button>
+    <button role="tab" data-tab="docs" aria-selected="false">Source documents</button>
+    <button role="tab" data-tab="export" aria-selected="false">Intapp export</button>
+    <button role="tab" data-tab="own" aria-selected="false">Your documents</button>
+  </nav>
+
+  <div id="liveBox" hidden></div>
+
+  <section id="tab-overview">
+    <div class="compare">
+      <div class="card">
+        <div class="k">Intake form listed</div>
+        <div class="big num" id="intakeN">0</div>
+        <div class="muted small">names, as the requesting attorney submitted them</div>
+        <ul class="intakelist" id="intakeList"></ul>
+      </div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="card">
+        <div class="k">Party Finder found</div>
+        <div class="big found num" id="foundN">0</div>
+        <div class="muted small" id="foundSub">parties to search</div>
+        <div class="tiles" id="tiles"></div>
+      </div>
+    </div>
+    <div class="runmeta" id="runmeta"></div>
+    <p class="summary" id="summary"></p>
+    <div class="cols">
+      <div>
+        <div class="panel">
+          <h2>What a rushed analyst would miss</h2>
+          <p class="muted small" style="margin-bottom:6px">Names that are not on the intake form and not in the caption, and why each one matters.</p>
+          <div id="misses"></div>
+        </div>
+      </div>
+      <aside>
+        <div class="panel"><h2>Who is really adverse</h2><ul class="plain" id="adversity"></ul></div>
+        <div class="panel"><h2>Ask the responsible attorney</h2><ol class="plain" id="followups"></ol></div>
+      </aside>
+    </div>
+  </section>
+
+  <section id="tab-register" hidden>
+    <div class="filters" id="filters">
+      <button data-f="all" aria-pressed="true">All</button>
+      <button data-f="noton" aria-pressed="false">Not on intake</button>
+      <button data-f="high" aria-pressed="false">High priority</button>
+      <button data-f="individual" aria-pressed="false">People</button>
+      <button data-f="entity" aria-pressed="false">Entities</button>
+      <input id="q" type="search" placeholder="Search names, roles, variants" aria-label="Search the register">
+    </div>
+    <div id="register"></div>
+    <div class="addrow">
+      <input id="addName" placeholder="Add a name the documents do not show">
+      <select id="addSide"><option value="adverse">Adverse</option><option value="adverse-related">Adverse-related</option><option value="client-related">Client-related</option><option value="third party">Third party</option></select>
+      <button class="btn small" id="addBtn">Add to the list</button>
+    </div>
+  </section>
+
+  <section id="tab-docs" hidden>
+    <div class="docnav" id="docnav"></div>
+    <p class="muted small" style="margin-bottom:10px">Highlighted passages are the quotes behind each party, found word for word. Click one to jump to that party.</p>
+    <div class="doc" id="docview"></div>
+  </section>
+
+  <section id="tab-export" hidden>
+    <div class="panel">
+      <h2>Export for an Intapp conflicts search</h2>
+      <p class="muted">One row per search name, so every former name, trade name and variant gets searched, each linked back to its primary party with the source quote for the analyst's file. Rename the columns once to match your firm's Intapp import template and the page remembers them in this browser.</p>
+      <div class="opts">
+        <label><input type="radio" name="shape" value="rows" checked> One row per search name</label>
+        <label><input type="radio" name="shape" value="party"> One row per party, variants in one cell</label>
+        <label><input type="checkbox" id="onlyNew"> Only names not on the intake form</label>
+      </div>
+      <details style="margin-top:12px"><summary class="small">Column names</summary><div class="maprow" id="maprow"></div><button class="btn small" id="mapReset" style="margin-top:8px">Reset column names</button></details>
+      <div class="btnrow">
+        <button class="btn primary" id="dlCsv">Download CSV</button>
+        <button class="btn" id="cpCsv">Copy CSV</button>
+        <button class="btn" id="cpTerms">Copy search names only</button>
+        <span class="small muted" id="expMsg" style="align-self:center"></span>
+      </div>
+      <div class="tablewrap"><table id="preview"></table></div>
+      <p class="note" id="expNote"></p>
+    </div>
+  </section>
+
+  <section id="tab-own" hidden>
+    <div class="panel">
+      <h2>Run it on your own documents</h2>
+      <p class="muted">Drop a complaint, a deal document or an engagement email. PDF, Word and text files are read in this browser; the text goes only to Claude on your own account for this run and is not saved by the page.</p>
+      <div class="owngrid" style="margin-top:12px">
+        <div>
+          <div class="drop" id="drop">Drop files here or <button class="linkbtn" id="pick">choose files</button><input type="file" id="file" multiple accept=".pdf,.docx,.txt,.md,.eml" hidden></div>
+          <div id="ownDocs" style="margin-top:8px"></div>
+          <details style="margin-top:10px"><summary class="small">Or paste document text</summary><input id="pasteTitle" placeholder="Document title" style="width:100%;margin-top:6px"><textarea id="pasteText" rows="7" placeholder="Paste the document text" style="margin-top:6px"></textarea><button class="btn small" id="pasteAdd" style="margin-top:6px">Add this document</button></details>
+        </div>
+        <div>
+          <label class="small muted" for="ownReq">Engagement request (optional)</label>
+          <textarea id="ownReq" rows="4" placeholder="Who we represent and what the matter is"></textarea>
+          <label class="small muted" for="ownIntake" style="display:block;margin-top:8px">Names on the intake form, one per line as Name | role</label>
+          <textarea id="ownIntake" rows="4" placeholder="Acme Widgets, Inc. | Client&#10;Jane Roe | Adverse party"></textarea>
+        </div>
+      </div>
+      <div class="btnrow"><button class="btn primary" id="ownRun">Find the parties on Claude</button><button class="btn" id="ownReset">Back to the sample matters</button><span class="small muted" id="ownMsg" style="align-self:center"></span></div>
+    </div>
+  </section>
+
+  <p class="foot">The sample matters are invented; every company and person in them is fictional. Party Finder proposes names and shows where each one came from; the conflicts analyst decides what is searched, and clearance happens in Intapp. Each quote is checked against the source text in this page and shown in red if it is not found word for word.</p>
+</div>
+
+<script>
+/* Invented document sets for the demo. Every company, person and case here is fictional. */
+const PF_SETS = [
+{
+ id: "lit", label: "Litigation: cold storage spoilage suit", kind: "Litigation, defense",
+ request: "New matter request from the responsible attorney: We have been asked to defend Pacific Crest Cold Storage, Inc. in a spoilage suit filed by Delmar Produce Growers. Client contact is Marisol Ventura, General Counsel. Please open the matter and run conflicts. Adverse party: Delmar Produce Growers, LLC.",
+ intake: [
+  { name: "Pacific Crest Cold Storage, Inc.", role: "Client" },
+  { name: "Marisol Ventura", role: "Client contact" },
+  { name: "Delmar Produce Growers, LLC", role: "Adverse party" }
+ ],
+ docs: [
+ { id: "L1", title: "Complaint (Superior Court, County of Fresno)", text:
+`[Page 1]
+Teresa Okafor (SBN 241187)
+Daniel Wexler (SBN 290455)
+BRENNAN & OKAFOR LLP
+1800 Tulare Street, Suite 900
+Fresno, California 93721
+Attorneys for Plaintiffs Delmar Produce Growers, LLC, Delmar Family Farms, L.P., and Sunvale Agricultural Cooperative
+
+SUPERIOR COURT OF THE STATE OF CALIFORNIA
+COUNTY OF FRESNO
+
+DELMAR PRODUCE GROWERS, LLC, a California limited liability company doing business as Delmar Fresh; DELMAR FAMILY FARMS, L.P., a California limited partnership; and SUNVALE AGRICULTURAL COOPERATIVE, a California agricultural cooperative association,
+Plaintiffs,
+v.
+PACIFIC CREST COLD STORAGE, INC., a California corporation formerly known as Valley Ice & Storage Company; PCCS HOLDINGS, INC., a Delaware corporation; TRI-COUNTY REFRIGERATION SERVICES, INC., a California corporation; GARETH HOLLIS, an individual; and DOES 1 through 50, inclusive,
+Defendants.
+
+Case No. 26CECG04417
+COMPLAINT FOR (1) BREACH OF WAREHOUSE CONTRACT; (2) NEGLIGENCE; (3) BREACH OF BAILMENT; (4) VIOLATION OF BUSINESS AND PROFESSIONS CODE SECTION 17200
+DEMAND FOR JURY TRIAL
+
+[Page 2]
+INTRODUCTION
+1. This action arises from the loss of more than 2.1 million pounds of fresh-cut table grapes and stone fruit that Plaintiffs stored at Defendants' refrigerated warehouse located at 4410 East Jensen Avenue, Fresno, California (the "Jensen Facility") between July 8 and July 19, 2026.
+2. Defendants represented that the Jensen Facility would hold Plaintiffs' produce at 32 to 34 degrees Fahrenheit. Instead, a compressor failure that Defendants had known about for months allowed temperatures in Rooms 3 through 6 to rise above 50 degrees for at least 61 hours. By the time Plaintiffs were told, the fruit was a total loss.
+
+PARTIES
+3. Plaintiff Delmar Produce Growers, LLC ("Delmar") is a California limited liability company with its principal place of business in Kingsburg, California. Delmar markets its fruit under the trade name Delmar Fresh. Delmar's managing member is Rosa Delmar-Quintero.
+4. Plaintiff Delmar Family Farms, L.P. ("Family Farms") is a California limited partnership that grows the fruit Delmar packs and sells. Family Farms' general partner is Delmar Ag Management, Inc.
+5. Plaintiff Sunvale Agricultural Cooperative ("Sunvale") is a California agricultural cooperative association of 41 grower members. Sunvale stored member fruit at the Jensen Facility under Delmar's account and has assigned to Delmar its claims against Defendants, but joins this action to the extent any claim is held not to have been assigned.
+
+[Page 3]
+6. Defendant Pacific Crest Cold Storage, Inc. ("Pacific Crest") is a California corporation with its principal place of business in Fresno, California. Pacific Crest was known as Valley Ice & Storage Company until it changed its name in 2019. Pacific Crest operates the Jensen Facility.
+7. Defendant PCCS Holdings, Inc. ("PCCS Holdings") is a Delaware corporation and the sole shareholder of Pacific Crest. Plaintiffs are informed and believe that PCCS Holdings also owns Pacific Crest Logistics, LLC, which operates the refrigerated trucking fleet that delivered and picked up Plaintiffs' produce, and that PCCS Holdings is majority owned by the Hollis Family Trust.
+8. Defendant Gareth Hollis is an individual residing in Clovis, California. At all relevant times Hollis was the Chief Executive Officer of Pacific Crest and the President of PCCS Holdings, and personally approved the decision to defer the compressor replacement.
+9. Defendant Tri-County Refrigeration Services, Inc. ("Tri-County") is a California corporation that contracted with Pacific Crest to inspect and maintain the refrigeration systems at the Jensen Facility.
+10. The true names and capacities of Defendants sued as Does 1 through 50 are unknown to Plaintiffs, who therefore sue them by fictitious names. Plaintiffs will amend this Complaint when their true names are ascertained.
+
+[Page 4]
+ALTER EGO ALLEGATIONS
+11. Plaintiffs are informed and believe that Pacific Crest is the alter ego of PCCS Holdings and of Hollis. PCCS Holdings sweeps Pacific Crest's cash weekly, Pacific Crest has no employees of its own, and its warehouse staff are employed and paid by Pacific Crest Logistics, LLC. Adherence to the fiction of separate existence would promote injustice.
+12. The Jensen Facility is owned by Ridgeline Industrial Partners, L.P., which leases it to Pacific Crest. Plaintiffs are informed that the lease required Pacific Crest to maintain refrigeration equipment in good working order and that Ridgeline Industrial Partners, L.P. issued a written notice of default regarding the compressors in March 2026.
+
+FACTUAL ALLEGATIONS
+13. Delmar and Pacific Crest are parties to a Warehouse Services Agreement dated April 2, 2024 (the "Agreement"). The Agreement promised continuous temperature monitoring and immediate notice of any excursion above 36 degrees.
+14. Tri-County inspected the Jensen Facility compressors on February 11, 2026 and reported in writing that two of the four compressors serving Rooms 3 through 6 were "beyond economic repair." Pacific Crest did not replace them.
+
+[Page 5]
+15. On or about July 16, 2026, the second of those compressors failed. Pacific Crest's facilities manager at the time, Leonard Petrakis, has stated that he asked Hollis for authority to rent portable refrigeration units and was told to wait until Monday.
+16. Pacific Crest first notified Delmar of the temperature excursion on July 19, 2026. Delmar's quality control manager, Hector Ibarra, inspected the fruit the same day and found it unsalable.
+17. Delmar's largest customer for the affected fruit, Greenleaf Markets, Inc., cancelled its purchase orders for the July and August shipments as a result.
+18. Plaintiffs have retained Dr. Anika Rao of ThermoTrace Analytics, a cold chain engineering firm, who has reviewed the temperature logs and concluded that the excursion began no later than July 16 at 2:40 a.m.
+19. Plaintiffs are informed and believe that Pacific Crest is insured under a warehouse legal liability policy issued by Granite Shore Specialty Insurance Company, and that Tri-County is insured by Westbound Mutual Insurance Company.
+
+[Page 6]
+20. This is not the first such failure. In Sunrise Freight Lines, Inc. v. Valley Ice & Storage Company, Fresno County Superior Court Case No. 18CECG02290, a shipper alleged that a refrigeration failure at the same facility destroyed a frozen food inventory. That action settled in 2019, weeks before Valley Ice & Storage Company changed its name.
+
+FIRST CAUSE OF ACTION
+(Breach of Warehouse Contract, against Pacific Crest and Does 1 through 20)
+21. Plaintiffs incorporate paragraphs 1 through 20.
+22. Pacific Crest breached the Agreement by failing to maintain the promised temperature range and by failing to give the required notice.
+
+SECOND CAUSE OF ACTION
+(Negligence, against all Defendants)
+23. Defendants owed Plaintiffs a duty of reasonable care in the storage of their produce. Tri-County breached that duty by clearing the facility for continued operation in its April 2026 follow-up inspection despite its own February findings.
+
+[Page 7]
+THIRD CAUSE OF ACTION
+(Breach of Bailment, against Pacific Crest and PCCS Holdings)
+24. Plaintiffs delivered the produce to Pacific Crest as bailee. Pacific Crest failed to return it in the condition delivered.
+
+FOURTH CAUSE OF ACTION
+(Business and Professions Code Section 17200, against Pacific Crest, PCCS Holdings and Hollis)
+25. Defendants' practice of advertising continuous temperature monitoring while operating with known-failed equipment is an unfair and fraudulent business practice.
+
+PRAYER
+WHEREFORE, Plaintiffs pray for damages of not less than $6,400,000, restitution, prejudgment interest, costs of suit, and such other relief as the Court deems just.
+
+Dated: September 29, 2026
+BRENNAN & OKAFOR LLP
+By: Teresa Okafor
+Attorneys for Plaintiffs` },
+ { id: "L2", title: "Insurer tender acknowledgment letter", text:
+`[Page 1]
+GRANITE SHORE SPECIALTY INSURANCE COMPANY
+Commercial Claims, West Region
+500 Capitol Mall, Suite 2100, Sacramento, California 95814
+
+October 9, 2026
+
+Via email
+Marisol Ventura, General Counsel
+Pacific Crest Cold Storage, Inc.
+4410 East Jensen Avenue
+Fresno, California 93725
+
+Re: Insured: Pacific Crest Cold Storage, Inc.
+Policy No. WLL-7731940-26, Warehouse Legal Liability
+Claimant: Delmar Produce Growers, LLC, et al.
+Claim No. GS-26-118204
+
+Dear Ms. Ventura:
+
+Granite Shore Specialty Insurance Company ("Granite Shore") acknowledges receipt of your tender of the above-referenced lawsuit. I have been assigned as the claim professional on this matter. Granite Shore agrees to defend Pacific Crest Cold Storage, Inc. under a full reservation of rights, as set out below.
+
+The policy also lists PCCS Holdings, Inc. as an additional named insured. Granite Shore will extend the same defense to PCCS Holdings, Inc. under the same reservation. Gareth Hollis is not an insured under this policy for the claims alleged against him individually, and Granite Shore declines to defend him.
+
+[Page 2]
+Granite Shore has retained Lowell Strand LLP, attention Martin Lowell, as coverage counsel to advise it on the reservation of rights. Coverage counsel does not represent any insured.
+
+Granite Shore consents to your selection of defense counsel, subject to our litigation management guidelines and the rates stated in our panel agreement. Please also be advised that the policy is reinsured in part by Halvorsen Re (Bermuda) Ltd.; no action is required from you on that account.
+
+Please preserve all temperature logs, maintenance records, and communications with Tri-County Refrigeration Services, Inc. and with your landlord.
+
+Sincerely,
+Priya Nandakumar
+Senior Claim Professional
+Granite Shore Specialty Insurance Company` }
+ ]
+},
+{
+ id: "ma", label: "M&A: label printer asset purchase", kind: "M&A, buy side",
+ request: "New matter request from the responsible attorney: We represent the buyer, Alder Ridge Packaging Co., in its purchase of substantially all of the assets of Sequoia Label & Print, Inc. Seller is owned by Martin Okonkwo-Hale. Please run conflicts before we send comments on the draft APA.",
+ intake: [
+  { name: "Alder Ridge Packaging Co.", role: "Client" },
+  { name: "Sequoia Label & Print, Inc.", role: "Adverse party (seller)" },
+  { name: "Martin Okonkwo-Hale", role: "Seller principal" }
+ ],
+ docs: [
+ { id: "M1", title: "Asset Purchase Agreement, seller's draft (excerpts)", text:
+`[Page 1]
+ASSET PURCHASE AGREEMENT
+This ASSET PURCHASE AGREEMENT (this "Agreement") is entered into as of October 30, 2026, by and among Alder Ridge Packaging Co., a Delaware corporation ("Buyer"); Alder Ridge Holdings, L.P., a Delaware limited partnership ("Buyer Parent"), solely for purposes of Section 10.14; Sequoia Label & Print, Inc., a California corporation doing business as Sequoia Print Works ("Seller"); and Martin Okonkwo-Hale and the Okonkwo-Hale Living Trust dated June 4, 2011 (each, a "Shareholder" and together, the "Shareholders").
+
+RECITALS
+A. Seller is engaged in the business of designing and printing pressure-sensitive labels and flexible packaging for food, beverage and personal care brands from its facility at 2250 Mill Creek Road, Santa Rosa, California (the "Business").
+B. The Shareholders own all of the issued and outstanding capital stock of Seller. Martin Okonkwo-Hale owns 60% directly, and the Okonkwo-Hale Living Trust, of which Martin Okonkwo-Hale and Adaeze Okonkwo-Hale are co-trustees, owns 40%.
+C. Seller was incorporated in 2003 under the name S&L Graphics, Inc. and adopted its current name in 2014.
+
+[Page 2]
+ARTICLE 1. DEFINITIONS
+"Escrow Agent" means Pacific Harbor Escrow Services, Inc.
+"Excluded Subsidiary" means Sequoia Label de Mexico, S. de R.L. de C.V., Seller's wholly owned subsidiary in Tijuana, Baja California, the equity of which is not being sold under this Agreement.
+"Key Employees" means Janelle Ford, Vice President of Operations, and Tomas Reyes, Plant Manager.
+"Leased Real Property" means the facility at 2250 Mill Creek Road, Santa Rosa, California, leased by Seller from Old Mill Partners, LLC under the Lease dated January 1, 2015.
+"Payoff Lender" means Golden Valley Business Bank, as lender under Seller's revolving credit facility and term loan.
+"R&W Policy" means the buyer-side representations and warranties insurance policy bound by Buyer with Northfield Transaction Risk Insurance Ltd. as primary insurer, placed through Calder Risk Partners as broker.
+
+[Page 3]
+ARTICLE 2. PURCHASE AND SALE
+2.1 Purchased Assets. Seller shall sell to Buyer all of Seller's right, title and interest in the assets used in the Business, including the Assigned Contracts listed on Schedule 2.1(c), but excluding the Excluded Assets.
+2.2 Excluded Assets. The Excluded Assets include the equity of the Excluded Subsidiary, Seller's cash, and the claims described on Schedule 4.9 as retained claims.
+2.3 Assumed Liabilities. Buyer assumes only the liabilities under the Assigned Contracts arising after the Closing. Buyer does not assume any liability arising out of the matter captioned Ink Solutions Group, LLC v. Sequoia Label & Print, Inc.
+
+ARTICLE 3. PURCHASE PRICE
+3.1 Purchase Price. The purchase price is $38,500,000, subject to adjustment under Section 3.3.
+3.2 Escrow. At Closing, Buyer shall deposit $1,925,000 with the Escrow Agent as the indemnity escrow.
+3.4 Financing. Buyer has delivered a commitment letter from Harborline Credit Partners, LLC for the debt financing of the Purchase Price. Seller acknowledges that Harborline Credit Partners, LLC will take a first priority lien on the Purchased Assets at Closing.
+
+[Page 4]
+ARTICLE 4. REPRESENTATIONS AND WARRANTIES OF SELLER
+4.6 Financial Statements. Seller's financial statements for 2024 and 2025 have been audited by Whitaker Pruett LLP. Buyer has received the quality of earnings report prepared for Buyer by Ashgrove Advisory Group.
+4.9 Litigation. Except as set forth on Schedule 4.9, there is no action pending or threatened against Seller.
+4.12 Environmental. Seller has delivered the Phase I Environmental Site Assessment of the Leased Real Property dated August 14, 2026, prepared by Cardinal Environmental Consulting, Inc.
+4.15 Related Party Transactions. Except for the Lease, no Shareholder or Affiliate of a Shareholder is a party to any contract with Seller.
+4.18 Brokers. Except for Tidewater Capital Advisors, LLC, whose fees Seller shall pay, no broker or finder is entitled to a fee in connection with this transaction.
+
+[Page 5]
+ARTICLE 6. COVENANTS
+6.3 Third Party Consents. Seller shall use commercially reasonable efforts to obtain before Closing the consents listed on Schedule 2.1(c), including the consent of Old Mill Partners, LLC to the assignment of the Lease.
+6.7 Key Employees. Buyer intends to offer employment to the Key Employees. Seller shall not discourage any Key Employee from accepting.
+6.9 Non-Competition. For five years after Closing, neither Seller nor any Shareholder shall engage in a competing business in California, Oregon or Nevada, other than through Adaeze Okonkwo-Hale's existing ownership interest in Bright Leaf Packaging, Inc., which is disclosed on Schedule 6.9.
+
+ARTICLE 10. MISCELLANEOUS
+10.6 Notices. If to Buyer: Alder Ridge Packaging Co., c/o Kestrel Point Capital Partners, 101 California Street, Suite 3800, San Francisco, California 94111, Attention: Nadia Castellanos, with a copy to Buyer's counsel. If to Seller or the Shareholders: Sequoia Label & Print, Inc., Attention: Martin Okonkwo-Hale, with a copy to Ferris Lam LLP, Attention: Grace Lam.
+10.14 Buyer Parent Guaranty. Buyer Parent guarantees the payment obligations of Buyer under this Agreement.` },
+ { id: "M2", title: "Disclosure Schedules, seller's draft (excerpts)", text:
+`[Page 1]
+SCHEDULE 2.1(c)
+ASSIGNED CONTRACTS REQUIRING CONSENT
+1. Master Supply Agreement dated March 1, 2022 between Seller and Coastline Beverage Co. Consent of Coastline Beverage Co. required for assignment.
+2. Label Supply Agreement dated September 15, 2023 between Seller and Redwood Naturals, Inc. Assignment requires prior written consent; Redwood Naturals, Inc. is a wholly owned subsidiary of Evermore Brands Group plc, and notices go to Evermore Brands Group plc.
+3. Equipment Lease No. 4471 between Seller and Summit Press Finance, a division of Summit Commercial Leasing Corp., for two HP Indigo digital presses.
+4. Lease dated January 1, 2015 between Seller and Old Mill Partners, LLC for the Leased Real Property.
+
+[Page 2]
+SCHEDULE 4.9
+LITIGATION
+1. Ink Solutions Group, LLC v. Sequoia Label & Print, Inc., Sonoma County Superior Court Case No. SCV-274410. Supplier claim for $412,000 in unpaid invoices. Seller disputes the invoices and has cross-complained for defective ink. Defense counsel: Ahern Vasquez LLP. Retained claim; not assumed by Buyer.
+2. Demand letter dated July 7, 2026 from counsel for Lucia Navarro, a former press operator, alleging wage and hour violations on behalf of herself and similarly situated employees. Threatened claim under the Private Attorneys General Act. No action filed.
+
+SCHEDULE 4.15
+RELATED PARTY TRANSACTIONS
+1. The Lease. Old Mill Partners, LLC is owned by Martin Okonkwo-Hale and Adaeze Okonkwo-Hale. Rent was increased by 22% effective January 1, 2026.
+2. Seller purchases corrugated shipping cartons from Bright Leaf Packaging, Inc., in which Adaeze Okonkwo-Hale holds a 35% ownership interest. Purchases in 2025 were $286,400.
+
+[Page 3]
+SCHEDULE 6.9
+PERMITTED OWNERSHIP INTERESTS
+1. Adaeze Okonkwo-Hale's 35% interest in Bright Leaf Packaging, Inc., Petaluma, California.
+
+SCHEDULE 4.20
+MATERIAL CUSTOMERS (2025 revenue)
+1. Coastline Beverage Co.: 18.2%
+2. Redwood Naturals, Inc.: 11.7%
+3. Marigold Farms Creamery, LLC: 6.4%
+4. Tamarack Spirits Company: 5.1%` }
+ ]
+}
+];
+
+/* Prompt shared by the page (live runs) and run.js (recorded runs). */
+const PF_PROMPTS = {
+extract({ request, intake, docs }){
+const intakeList = intake.length ? intake.map(p => `- ${p.name} (${p.role})`).join("\n") : "- (no intake form was provided)";
+const docText = docs.map(d => `=== DOCUMENT ${d.id}: ${d.title} ===\n${d.text}\n=== END ${d.id} ===`).join("\n\n");
+return `You are the senior conflicts analyst at a California law firm. Before a new matter opens, you build the COMPLETE list of names the conflicts team must search, so that no adverse party, affiliate, insurer or related person is missed. A name that is never searched is how a firm ends up facing a disqualification motion under California Rules of Professional Conduct 1.7, 1.9 and 1.10.
+
+Read the engagement request, the intake form and every document below. List every person and entity that a careful conflicts analyst would search: named parties, parents, subsidiaries and sister companies, former names and trade names, owners, trusts and trustees, officers and directors, guarantors, lenders and lienholders, landlords, insurers and reinsurers, claim professionals, coverage counsel, opposing counsel (firm and each lawyer), experts, witnesses and other named individuals, counterparties to related litigation, customers and suppliers whose consent or claims matter, brokers, escrow agents and advisors. Do not list the court, a judge, our own firm, or Doe defendants. List each real-world party once; put former names and trade names in "variants" of that party, not as separate parties.
+
+Engagement request:
+${request || "(none)"}
+
+Intake form, as submitted (these are the only names the requester listed):
+${intakeList}
+
+${docText}
+
+Reply with ONLY a JSON object, no prose and no code fence, in this shape:
+{
+ "matter_summary": "one or two plain sentences: what the matter is and whom the firm represents",
+ "parties": [
+  {"id": "P1",
+   "name": "the full legal name exactly as it appears in the documents",
+   "type": "entity | individual",
+   "side": "client | client-related | adverse | adverse-related | third party",
+   "role": "one of: Client | Client affiliate | Client officer or owner | Client insurer | Adverse party | Adverse affiliate | Adverse officer or owner | Adverse insurer | Opposing counsel | Expert or witness | Lender or lienholder | Landlord | Insurer or reinsurer | Counterparty | Advisor or agent | Related litigation party | Other related party",
+   "relationship": "one short sentence: how this party connects to the matter, naming the related party",
+   "related_to": "P-id of the party it most directly connects to, or null",
+   "variants": ["other names a conflicts database might hold for this same party: former names, trade names, short forms used in the documents, and spelling or punctuation variants, without the legal suffix where helpful; 1 to 5 items"],
+   "doc": "the document id where the best supporting quote appears, for example L1",
+   "quote": "8 to 40 words copied EXACTLY from that document that name this party and show its role, character for character",
+   "priority": "high | medium | low",
+   "why_search": "one plain sentence on the conflict this name could reveal"}
+ ],
+ "rushed_misses": [
+  {"title": "4 to 8 words", "detail": "one or two plain sentences on a name a rushed analyst working only from the intake form or the caption would miss, and what could go wrong", "party_ids": ["P5"]}
+ ],
+ "follow_ups": ["a question the conflicts team should put to the responsible attorney before clearing the matter; 3 to 6 items"],
+ "adversity_notes": ["one sentence each on a relationship that changes who is adverse to whom, for example a co-defendant with cross-claims, an insurer defending under a reservation of rights, or a related-party landlord; 2 to 5 items"]
+}
+Rules:
+- Every quote is checked word for word against the document text in the page, and a quote that does not match is shown in red. Copy exactly, keep the original capitalization and punctuation, and do not join text from two places. Do not include the [Page N] markers in quotes.
+- Variants must be names a search would actually run. Never put generic defined terms (Buyer, Seller, Plaintiffs, Escrow Agent), job titles, addresses, facility names, or policy, claim, case or bar numbers in variants.
+- priority high: anyone adverse, anyone whose interests could become adverse (co-defendants, insurers under a reservation of rights, related-party counterparties), and owners or affiliates of the adverse side. medium: other parties with a stake. low: names that are worth searching but unlikely to matter.
+- Give 3 to 6 rushed_misses, the most consequential first.
+- No em-dashes anywhere. Plain English.`;
+}
+};
+
+const PF_RECORDED = {
+ "model": "claude-fable-5-1",
+ "recordedAt": "2026-10-17",
+ "runs": {
+  "lit": {
+   "secs": 133,
+   "result": {
+    "matter_summary": "Defense of Pacific Crest Cold Storage, Inc. in a Fresno County produce spoilage suit brought by Delmar Produce Growers, LLC and two co-plaintiffs, tendered to and accepted by its warehouse legal liability insurer under a reservation of rights. The firm represents Pacific Crest Cold Storage, Inc., with representation of co-defendants PCCS Holdings, Inc. and Gareth Hollis still to be decided.",
+    "parties": [
+     {
+      "id": "P1",
+      "name": "Pacific Crest Cold Storage, Inc.",
+      "type": "entity",
+      "side": "client",
+      "role": "Client",
+      "relationship": "The defendant warehouse operator the firm has been asked to defend, formerly Valley Ice & Storage Company.",
+      "related_to": null,
+      "variants": [
+       "Valley Ice & Storage Company",
+       "Valley Ice and Storage",
+       "Pacific Crest Cold Storage",
+       "Pacific Crest",
+       "PCCS"
+      ],
+      "doc": "L1",
+      "quote": "Pacific Crest was known as Valley Ice & Storage Company until it changed its name in 2019.",
+      "priority": "high",
+      "why_search": "The former name could surface prior matters where the firm was adverse to Valley Ice & Storage, including the 2018 Sunrise Freight case."
+     },
+     {
+      "id": "P2",
+      "name": "Marisol Ventura",
+      "type": "individual",
+      "side": "client-related",
+      "role": "Client officer or owner",
+      "relationship": "General Counsel of Pacific Crest Cold Storage, Inc. and the client contact who tendered the suit.",
+      "related_to": "P1",
+      "variants": [
+       "Ventura, Marisol",
+       "M. Ventura"
+      ],
+      "doc": "L2",
+      "quote": "Marisol Ventura, General Counsel Pacific Crest Cold Storage, Inc.",
+      "priority": "low",
+      "why_search": "A prior personal or employment matter involving her could create a relationship the responsible attorney must know about."
+     },
+     {
+      "id": "P3",
+      "name": "PCCS Holdings, Inc.",
+      "type": "entity",
+      "side": "client-related",
+      "role": "Client affiliate",
+      "relationship": "Delaware parent and sole shareholder of Pacific Crest, a named co-defendant and an additional named insured on the Granite Shore policy.",
+      "related_to": "P1",
+      "variants": [
+       "PCCS Holdings",
+       "PCCS"
+      ],
+      "doc": "L1",
+      "quote": "Defendant PCCS Holdings, Inc. (\"PCCS Holdings\") is a Delaware corporation and the sole shareholder of Pacific Crest.",
+      "priority": "high",
+      "why_search": "It is a co-defendant facing alter ego claims whose interests could diverge from Pacific Crest, and the firm may be asked to represent both."
+     },
+     {
+      "id": "P4",
+      "name": "Gareth Hollis",
+      "type": "individual",
+      "side": "client-related",
+      "role": "Client officer or owner",
+      "relationship": "CEO of Pacific Crest and President of PCCS Holdings, sued individually and denied a defense by Granite Shore.",
+      "related_to": "P1",
+      "variants": [
+       "Hollis, Gareth",
+       "G. Hollis",
+       "Hollis"
+      ],
+      "doc": "L1",
+      "quote": "At all relevant times Hollis was the Chief Executive Officer of Pacific Crest and the President of PCCS Holdings, and personally approved the decision to defer the compressor replacement.",
+      "priority": "high",
+      "why_search": "He is an uninsured co-defendant whose personal exposure could put him at odds with the company, and the firm may have represented or opposed him before."
+     },
+     {
+      "id": "P5",
+      "name": "Hollis Family Trust",
+      "type": "entity",
+      "side": "client-related",
+      "role": "Client officer or owner",
+      "relationship": "Majority owner of PCCS Holdings, Inc., the parent of the client.",
+      "related_to": "P3",
+      "variants": [
+       "Hollis Trust",
+       "Hollis Family Trust, trustee"
+      ],
+      "doc": "L1",
+      "quote": "that PCCS Holdings is majority owned by the Hollis Family Trust",
+      "priority": "high",
+      "why_search": "The ultimate owner of the client group may appear in trust, estate or business matters the firm has handled for or against the Hollis family."
+     },
+     {
+      "id": "P6",
+      "name": "Pacific Crest Logistics, LLC",
+      "type": "entity",
+      "side": "client-related",
+      "role": "Client affiliate",
+      "relationship": "Sister company under PCCS Holdings that ran the refrigerated trucking and employs the Jensen Facility warehouse staff.",
+      "related_to": "P3",
+      "variants": [
+       "Pacific Crest Logistics",
+       "PC Logistics"
+      ],
+      "doc": "L1",
+      "quote": "PCCS Holdings also owns Pacific Crest Logistics, LLC, which operates the refrigerated trucking fleet that delivered and picked up Plaintiffs' produce",
+      "priority": "high",
+      "why_search": "It is a likely Doe defendant and employer of key witnesses, so a prior matter for or against it bears directly on this defense."
+     },
+     {
+      "id": "P7",
+      "name": "Tri-County Refrigeration Services, Inc.",
+      "type": "entity",
+      "side": "adverse-related",
+      "role": "Counterparty",
+      "relationship": "Co-defendant maintenance contractor that inspected the Jensen Facility compressors for Pacific Crest; cross-claims between it and Pacific Crest are likely.",
+      "related_to": "P1",
+      "variants": [
+       "Tri-County Refrigeration",
+       "Tri-County",
+       "Tri County Refrigeration Services"
+      ],
+      "doc": "L1",
+      "quote": "Defendant Tri-County Refrigeration Services, Inc. (\"Tri-County\") is a California corporation that contracted with Pacific Crest to inspect and maintain the refrigeration systems at the Jensen Facility.",
+      "priority": "high",
+      "why_search": "Pacific Crest will likely blame Tri-County for the compressor failure, so any current or former representation of Tri-County would be a direct conflict."
+     },
+     {
+      "id": "P8",
+      "name": "Leonard Petrakis",
+      "type": "individual",
+      "side": "third party",
+      "role": "Expert or witness",
+      "relationship": "Former facilities manager of Pacific Crest whose statement about asking Hollis for portable refrigeration is central to the negligence claim.",
+      "related_to": "P1",
+      "variants": [
+       "Petrakis, Leonard",
+       "L. Petrakis",
+       "Petrakis"
+      ],
+      "doc": "L1",
+      "quote": "Pacific Crest's facilities manager at the time, Leonard Petrakis, has stated that he asked Hollis for authority to rent portable refrigeration units and was told to wait until Monday.",
+      "priority": "medium",
+      "why_search": "A former employee who is now a hostile witness may have an employment claim or other matter in which the firm is involved."
+     },
+     {
+      "id": "P9",
+      "name": "Ridgeline Industrial Partners, L.P.",
+      "type": "entity",
+      "side": "third party",
+      "role": "Landlord",
+      "relationship": "Owner and landlord of the Jensen Facility that served Pacific Crest a notice of default over the compressors in March 2026.",
+      "related_to": "P1",
+      "variants": [
+       "Ridgeline Industrial Partners",
+       "Ridgeline Industrial",
+       "Ridgeline"
+      ],
+      "doc": "L1",
+      "quote": "The Jensen Facility is owned by Ridgeline Industrial Partners, L.P., which leases it to Pacific Crest.",
+      "priority": "high",
+      "why_search": "The landlord has its own default and indemnity claims against the client, so a firm relationship with Ridgeline would conflict with the defense."
+     },
+     {
+      "id": "P10",
+      "name": "Granite Shore Specialty Insurance Company",
+      "type": "entity",
+      "side": "client-related",
+      "role": "Client insurer",
+      "relationship": "Warehouse legal liability insurer defending Pacific Crest and PCCS Holdings under a full reservation of rights and paying defense fees.",
+      "related_to": "P1",
+      "variants": [
+       "Granite Shore Specialty Insurance",
+       "Granite Shore Specialty",
+       "Granite Shore"
+      ],
+      "doc": "L2",
+      "quote": "Granite Shore agrees to defend Pacific Crest Cold Storage, Inc. under a full reservation of rights, as set out below.",
+      "priority": "high",
+      "why_search": "An insurer under a reservation of rights has interests that can turn adverse to the insured, and the firm may have coverage matters against Granite Shore."
+     },
+     {
+      "id": "P11",
+      "name": "Priya Nandakumar",
+      "type": "individual",
+      "side": "client-related",
+      "role": "Advisor or agent",
+      "relationship": "Senior claim professional at Granite Shore assigned to the Delmar claim.",
+      "related_to": "P10",
+      "variants": [
+       "Nandakumar, Priya",
+       "P. Nandakumar"
+      ],
+      "doc": "L2",
+      "quote": "Priya Nandakumar Senior Claim Professional Granite Shore Specialty Insurance Company",
+      "priority": "low",
+      "why_search": "The adjuster controlling the defense budget should be searched so any personal matter with the firm is known."
+     },
+     {
+      "id": "P12",
+      "name": "Lowell Strand LLP",
+      "type": "entity",
+      "side": "third party",
+      "role": "Opposing counsel",
+      "relationship": "Coverage counsel retained by Granite Shore to advise on the reservation of rights; does not represent any insured.",
+      "related_to": "P10",
+      "variants": [
+       "Lowell Strand",
+       "Lowell & Strand"
+      ],
+      "doc": "L2",
+      "quote": "Granite Shore has retained Lowell Strand LLP, attention Martin Lowell, as coverage counsel to advise it on the reservation of rights.",
+      "priority": "medium",
+      "why_search": "Coverage counsel is positioned against the insured on coverage, and a lateral or co-counsel relationship with that firm could be a conflict."
+     },
+     {
+      "id": "P13",
+      "name": "Martin Lowell",
+      "type": "individual",
+      "side": "third party",
+      "role": "Opposing counsel",
+      "relationship": "Lead coverage lawyer at Lowell Strand LLP advising Granite Shore.",
+      "related_to": "P12",
+      "variants": [
+       "Lowell, Martin",
+       "M. Lowell"
+      ],
+      "doc": "L2",
+      "quote": "Granite Shore has retained Lowell Strand LLP, attention Martin Lowell, as coverage counsel to advise it on the reservation of rights.",
+      "priority": "medium",
+      "why_search": "A personal or prior professional relationship with the coverage lawyer should be disclosed before the matter is cleared."
+     },
+     {
+      "id": "P14",
+      "name": "Halvorsen Re (Bermuda) Ltd.",
+      "type": "entity",
+      "side": "third party",
+      "role": "Insurer or reinsurer",
+      "relationship": "Reinsurer of part of the Granite Shore policy covering Pacific Crest.",
+      "related_to": "P10",
+      "variants": [
+       "Halvorsen Re",
+       "Halvorsen Reinsurance",
+       "Halvorsen Re Bermuda"
+      ],
+      "doc": "L2",
+      "quote": "the policy is reinsured in part by Halvorsen Re (Bermuda) Ltd.; no action is required from you on that account.",
+      "priority": "low",
+      "why_search": "A reinsurer with a financial stake in the outcome could be a firm client in unrelated reinsurance work."
+     },
+     {
+      "id": "P15",
+      "name": "Delmar Produce Growers, LLC",
+      "type": "entity",
+      "side": "adverse",
+      "role": "Adverse party",
+      "relationship": "Lead plaintiff and warehouse contract counterparty suing Pacific Crest, doing business as Delmar Fresh.",
+      "related_to": null,
+      "variants": [
+       "Delmar Fresh",
+       "Delmar Produce Growers",
+       "Delmar Produce",
+       "Delmar"
+      ],
+      "doc": "L1",
+      "quote": "Plaintiff Delmar Produce Growers, LLC (\"Delmar\") is a California limited liability company with its principal place of business in Kingsburg, California.",
+      "priority": "high",
+      "why_search": "Any current or former representation of Delmar or Delmar Fresh would bar the firm from defending against it."
+     },
+     {
+      "id": "P16",
+      "name": "Rosa Delmar-Quintero",
+      "type": "individual",
+      "side": "adverse-related",
+      "role": "Adverse officer or owner",
+      "relationship": "Managing member of Delmar Produce Growers, LLC.",
+      "related_to": "P15",
+      "variants": [
+       "Delmar-Quintero, Rosa",
+       "Rosa Delmar Quintero",
+       "Rosa Quintero",
+       "Rosa Delmar"
+      ],
+      "doc": "L1",
+      "quote": "Delmar markets its fruit under the trade name Delmar Fresh. Delmar's managing member is Rosa Delmar-Quintero.",
+      "priority": "high",
+      "why_search": "The firm may have handled personal, estate or farm matters for the owner of the adverse party."
+     },
+     {
+      "id": "P17",
+      "name": "Delmar Family Farms, L.P.",
+      "type": "entity",
+      "side": "adverse",
+      "role": "Adverse party",
+      "relationship": "Co-plaintiff limited partnership that grows the fruit Delmar Produce Growers packs and sells.",
+      "related_to": "P15",
+      "variants": [
+       "Delmar Family Farms",
+       "Family Farms"
+      ],
+      "doc": "L1",
+      "quote": "Plaintiff Delmar Family Farms, L.P. (\"Family Farms\") is a California limited partnership that grows the fruit Delmar packs and sells.",
+      "priority": "high",
+      "why_search": "This plaintiff was left off the intake form and must be searched as a directly adverse party."
+     },
+     {
+      "id": "P18",
+      "name": "Delmar Ag Management, Inc.",
+      "type": "entity",
+      "side": "adverse-related",
+      "role": "Adverse affiliate",
+      "relationship": "General partner of plaintiff Delmar Family Farms, L.P.",
+      "related_to": "P17",
+      "variants": [
+       "Delmar Ag Management",
+       "Delmar Ag"
+      ],
+      "doc": "L1",
+      "quote": "Family Farms' general partner is Delmar Ag Management, Inc.",
+      "priority": "high",
+      "why_search": "The general partner controls a plaintiff and would be the entity a firm client might have dealt with in prior farm transactions."
+     },
+     {
+      "id": "P19",
+      "name": "Sunvale Agricultural Cooperative",
+      "type": "entity",
+      "side": "adverse",
+      "role": "Adverse party",
+      "relationship": "Co-plaintiff cooperative of 41 grower members that stored fruit under Delmar's account and assigned its claims to Delmar.",
+      "related_to": "P15",
+      "variants": [
+       "Sunvale Agricultural Co-op",
+       "Sunvale Cooperative",
+       "Sunvale"
+      ],
+      "doc": "L1",
+      "quote": "Plaintiff Sunvale Agricultural Cooperative (\"Sunvale\") is a California agricultural cooperative association of 41 grower members.",
+      "priority": "high",
+      "why_search": "The cooperative and its grower members are adverse claimants not named on the intake form, and agricultural clients of the firm may be among them."
+     },
+     {
+      "id": "P20",
+      "name": "Hector Ibarra",
+      "type": "individual",
+      "side": "adverse-related",
+      "role": "Expert or witness",
+      "relationship": "Quality control manager for Delmar who inspected and condemned the fruit on July 19, 2026.",
+      "related_to": "P15",
+      "variants": [
+       "Ibarra, Hector",
+       "H. Ibarra"
+      ],
+      "doc": "L1",
+      "quote": "Delmar's quality control manager, Hector Ibarra, inspected the fruit the same day and found it unsalable.",
+      "priority": "low",
+      "why_search": "A key plaintiff witness the firm will cross-examine should not be a current or former firm client."
+     },
+     {
+      "id": "P21",
+      "name": "Greenleaf Markets, Inc.",
+      "type": "entity",
+      "side": "third party",
+      "role": "Counterparty",
+      "relationship": "Delmar's largest customer whose cancelled purchase orders form part of the claimed damages.",
+      "related_to": "P15",
+      "variants": [
+       "Greenleaf Markets",
+       "Greenleaf"
+      ],
+      "doc": "L1",
+      "quote": "Delmar's largest customer for the affected fruit, Greenleaf Markets, Inc., cancelled its purchase orders for the July and August shipments as a result.",
+      "priority": "medium",
+      "why_search": "Its records and witnesses will be subpoenaed on damages, which could be awkward if Greenleaf is a firm client."
+     },
+     {
+      "id": "P22",
+      "name": "Dr. Anika Rao",
+      "type": "individual",
+      "side": "adverse-related",
+      "role": "Expert or witness",
+      "relationship": "Cold chain engineering expert retained by Plaintiffs through ThermoTrace Analytics.",
+      "related_to": "P23",
+      "variants": [
+       "Anika Rao",
+       "Rao, Anika",
+       "A. Rao"
+      ],
+      "doc": "L1",
+      "quote": "Plaintiffs have retained Dr. Anika Rao of ThermoTrace Analytics, a cold chain engineering firm, who has reviewed the temperature logs",
+      "priority": "medium",
+      "why_search": "The firm may have retained the same expert in another matter, which affects both conflicts and strategy."
+     },
+     {
+      "id": "P23",
+      "name": "ThermoTrace Analytics",
+      "type": "entity",
+      "side": "adverse-related",
+      "role": "Expert or witness",
+      "relationship": "Cold chain engineering firm that employs Plaintiffs' expert Dr. Anika Rao.",
+      "related_to": "P15",
+      "variants": [
+       "ThermoTrace",
+       "Thermo Trace Analytics"
+      ],
+      "doc": "L1",
+      "quote": "Plaintiffs have retained Dr. Anika Rao of ThermoTrace Analytics, a cold chain engineering firm, who has reviewed the temperature logs",
+      "priority": "low",
+      "why_search": "An expert firm the firm has engaged elsewhere could hold confidential information relevant to this defense."
+     },
+     {
+      "id": "P24",
+      "name": "Brennan & Okafor LLP",
+      "type": "entity",
+      "side": "adverse-related",
+      "role": "Opposing counsel",
+      "relationship": "Fresno law firm representing all three plaintiffs.",
+      "related_to": "P15",
+      "variants": [
+       "BRENNAN & OKAFOR LLP",
+       "Brennan & Okafor",
+       "Brennan and Okafor"
+      ],
+      "doc": "L1",
+      "quote": "BRENNAN & OKAFOR LLP By: Teresa Okafor Attorneys for Plaintiffs",
+      "priority": "medium",
+      "why_search": "Lateral hires, co-counsel arrangements or referral relationships with opposing counsel must be disclosed."
+     },
+     {
+      "id": "P25",
+      "name": "Teresa Okafor",
+      "type": "individual",
+      "side": "adverse-related",
+      "role": "Opposing counsel",
+      "relationship": "Lead plaintiffs' attorney at Brennan & Okafor LLP who signed the complaint.",
+      "related_to": "P24",
+      "variants": [
+       "Okafor, Teresa",
+       "T. Okafor"
+      ],
+      "doc": "L1",
+      "quote": "BRENNAN & OKAFOR LLP By: Teresa Okafor Attorneys for Plaintiffs",
+      "priority": "medium",
+      "why_search": "A personal or family relationship between a firm lawyer and opposing counsel requires disclosure under Rule 1.7."
+     },
+     {
+      "id": "P26",
+      "name": "Daniel Wexler",
+      "type": "individual",
+      "side": "adverse-related",
+      "role": "Opposing counsel",
+      "relationship": "Second plaintiffs' attorney at Brennan & Okafor LLP listed on the complaint.",
+      "related_to": "P24",
+      "variants": [
+       "Wexler, Daniel",
+       "D. Wexler"
+      ],
+      "doc": "L1",
+      "quote": "Teresa Okafor (SBN 241187) Daniel Wexler (SBN 290455) BRENNAN & OKAFOR LLP",
+      "priority": "medium",
+      "why_search": "Each opposing lawyer is searched separately in case one is a former firm attorney who worked on client matters."
+     },
+     {
+      "id": "P27",
+      "name": "Westbound Mutual Insurance Company",
+      "type": "entity",
+      "side": "third party",
+      "role": "Insurer or reinsurer",
+      "relationship": "Liability insurer of co-defendant Tri-County Refrigeration Services, Inc.",
+      "related_to": "P7",
+      "variants": [
+       "Westbound Mutual Insurance",
+       "Westbound Mutual",
+       "Westbound"
+      ],
+      "doc": "L1",
+      "quote": "and that Tri-County is insured by Westbound Mutual Insurance Company.",
+      "priority": "medium",
+      "why_search": "Westbound will fund Tri-County's cross-claims against the client, and the firm may be on its panel or adverse to it elsewhere."
+     },
+     {
+      "id": "P28",
+      "name": "Sunrise Freight Lines, Inc.",
+      "type": "entity",
+      "side": "third party",
+      "role": "Related litigation party",
+      "relationship": "Shipper that sued Valley Ice & Storage Company in 2018 over a prior refrigeration failure at the same facility.",
+      "related_to": "P1",
+      "variants": [
+       "Sunrise Freight Lines",
+       "Sunrise Freight"
+      ],
+      "doc": "L1",
+      "quote": "In Sunrise Freight Lines, Inc. v. Valley Ice & Storage Company, Fresno County Superior Court Case No. 18CECG02290, a shipper alleged that a refrigeration failure at the same facility destroyed a frozen food inventory.",
+      "priority": "medium",
+      "why_search": "If the firm represented Sunrise Freight against Valley Ice, it holds confidential information about the client's facility history under Rule 1.9."
+     }
+    ],
+    "rushed_misses": [
+     {
+      "title": "Client's former name Valley Ice & Storage",
+      "detail": "The intake form uses only the current name. Prior matters, including the 2018 Sunrise Freight suit, were filed against Valley Ice & Storage Company, so a search of the new name alone could miss a case where the firm was adverse to this very client.",
+      "party_ids": [
+       "P1",
+       "P28"
+      ]
+     },
+     {
+      "title": "Co-defendants PCCS Holdings and Gareth Hollis",
+      "detail": "Neither the parent nor the CEO appears on the intake form, yet both are sued, face alter ego claims, and Hollis has no insurance defense. Taking on all three without searching and obtaining informed written consent invites a Rule 1.7 disqualification motion if their defenses split.",
+      "party_ids": [
+       "P3",
+       "P4",
+       "P5"
+      ]
+     },
+     {
+      "title": "Tri-County and its insurer Westbound",
+      "detail": "The co-defendant maintenance contractor is the natural target of a cross-complaint by Pacific Crest. If Tri-County or Westbound Mutual is a current firm client, the firm cannot pursue that cross-claim.",
+      "party_ids": [
+       "P7",
+       "P27"
+      ]
+     },
+     {
+      "title": "Two co-plaintiffs missing from intake",
+      "detail": "Delmar Family Farms, L.P., its general partner Delmar Ag Management, Inc. and Sunvale Agricultural Cooperative are all directly adverse but were never listed. Sunvale's 41 grower members add further unnamed adverse interests.",
+      "party_ids": [
+       "P17",
+       "P18",
+       "P19"
+      ]
+     },
+     {
+      "title": "Granite Shore defending under reservation",
+      "detail": "The insurer controls the defense budget and has coverage counsel positioned against the insured. If the firm handles coverage disputes against Granite Shore elsewhere, or is on its panel, the responsible attorney needs to know before accepting the appointment.",
+      "party_ids": [
+       "P10",
+       "P12",
+       "P13"
+      ]
+     },
+     {
+      "title": "Landlord Ridgeline Industrial Partners",
+      "detail": "The landlord already declared a lease default over the same compressors and may seek indemnity from the client. A firm relationship with Ridgeline would surface only if the complaint body, not the caption, is read.",
+      "party_ids": [
+       "P9"
+      ]
+     }
+    ],
+    "follow_ups": [
+     "Is the engagement limited to Pacific Crest Cold Storage, Inc., or will the firm also represent PCCS Holdings, Inc. and Gareth Hollis, and if so has anyone assessed whether their alter ego and personal exposure defenses conflict with the company's?",
+     "Who is the paying party and will the firm sign Granite Shore's panel agreement and litigation management guidelines, and has anyone considered whether the reservation of rights entitles the insureds to independent counsel under Civil Code section 2860?",
+     "Did the firm have any role in Sunrise Freight Lines, Inc. v. Valley Ice & Storage Company, or any other matter involving Valley Ice & Storage before the 2019 name change?",
+     "Can the client identify the 41 grower members of Sunvale Agricultural Cooperative and the trustees of the Hollis Family Trust so those names can be searched?",
+     "Does Pacific Crest intend to cross-complain against Tri-County Refrigeration Services, Inc. or to assert claims against Ridgeline Industrial Partners, L.P., which would make those parties directly adverse?",
+     "Are there other PCCS Holdings affiliates, lenders or lienholders with security interests in the Jensen Facility equipment or inventory that should be added to the search?"
+    ],
+    "adversity_notes": [
+     "Granite Shore is defending Pacific Crest and PCCS Holdings under a full reservation of rights, so the insurer's interests on coverage are potentially adverse to the insureds even though it is paying the defense.",
+     "Gareth Hollis is a co-defendant with no insurance defense, and his personal approval of the deferred compressor replacement gives the company a reason to shift blame to him, so joint representation needs informed written consent or separate counsel.",
+     "Tri-County Refrigeration Services, Inc. is a co-defendant that Pacific Crest will likely cross-complain against for the failed inspections, making it and its insurer Westbound Mutual effectively adverse.",
+     "Ridgeline Industrial Partners, L.P. is the client's landlord and has already declared a lease default over the compressors, so it may pursue indemnity or termination claims against Pacific Crest arising from the same facts.",
+     "Pacific Crest Logistics, LLC employs the warehouse staff and ran the trucking, so it is a probable Doe defendant whose addition would change the client-affiliate map and could require its own consent."
+    ]
+   }
+  },
+  "ma": {
+   "secs": 150,
+   "result": {
+    "matter_summary": "The firm represents the buyer, Alder Ridge Packaging Co., in its purchase of substantially all of the assets of Sequoia Label & Print, Inc. from the company and its shareholders, Martin Okonkwo-Hale and the Okonkwo-Hale Living Trust, under a seller-drafted asset purchase agreement.",
+    "parties": [
+     {
+      "id": "P1",
+      "name": "Alder Ridge Packaging Co.",
+      "type": "entity",
+      "side": "client",
+      "role": "Client",
+      "relationship": "Buyer of substantially all assets of Sequoia Label & Print, Inc.; the firm's client.",
+      "related_to": null,
+      "variants": [
+       "Alder Ridge Packaging",
+       "Alder Ridge"
+      ],
+      "doc": "M1",
+      "quote": "by and among Alder Ridge Packaging Co., a Delaware corporation (\"Buyer\");",
+      "priority": "high",
+      "why_search": "Confirms the client record and surfaces any matter where the firm has been adverse to Alder Ridge or its affiliates."
+     },
+     {
+      "id": "P2",
+      "name": "Alder Ridge Holdings, L.P.",
+      "type": "entity",
+      "side": "client-related",
+      "role": "Client affiliate",
+      "relationship": "Buyer Parent that guarantees Alder Ridge Packaging Co.'s payment obligations under Section 10.14.",
+      "related_to": "P1",
+      "variants": [
+       "Alder Ridge Holdings",
+       "Alder Ridge Holdings LP"
+      ],
+      "doc": "M1",
+      "quote": "Alder Ridge Holdings, L.P., a Delaware limited partnership (\"Buyer Parent\"), solely for purposes of Section 10.14;",
+      "priority": "medium",
+      "why_search": "The guarantor is a signatory, so a prior adverse matter against the parent would be a direct conflict."
+     },
+     {
+      "id": "P3",
+      "name": "Kestrel Point Capital Partners",
+      "type": "entity",
+      "side": "client-related",
+      "role": "Client affiliate",
+      "relationship": "Private equity sponsor whose office is the notice address for Alder Ridge Packaging Co.",
+      "related_to": "P1",
+      "variants": [
+       "Kestrel Point Capital",
+       "Kestrel Point"
+      ],
+      "doc": "M1",
+      "quote": "If to Buyer: Alder Ridge Packaging Co., c/o Kestrel Point Capital Partners, 101 California Street, Suite 3800, San Francisco, California 94111, Attention: Nadia Castellanos",
+      "priority": "medium",
+      "why_search": "The sponsor and its other portfolio companies may be existing clients or adverse parties in unrelated matters."
+     },
+     {
+      "id": "P4",
+      "name": "Nadia Castellanos",
+      "type": "individual",
+      "side": "client-related",
+      "role": "Client officer or owner",
+      "relationship": "Buyer's designated notice contact at Kestrel Point Capital Partners.",
+      "related_to": "P3",
+      "variants": [
+       "Castellanos, Nadia",
+       "N. Castellanos"
+      ],
+      "doc": "M1",
+      "quote": "c/o Kestrel Point Capital Partners, 101 California Street, Suite 3800, San Francisco, California 94111, Attention: Nadia Castellanos, with a copy to Buyer's counsel.",
+      "priority": "low",
+      "why_search": "Identifies the decision maker on the client side and any personal matter the firm has handled for or against her."
+     },
+     {
+      "id": "P5",
+      "name": "Northfield Transaction Risk Insurance Ltd.",
+      "type": "entity",
+      "side": "client-related",
+      "role": "Client insurer",
+      "relationship": "Primary insurer on the buyer-side representations and warranties policy bound by Alder Ridge Packaging Co.",
+      "related_to": "P1",
+      "variants": [
+       "Northfield Transaction Risk Insurance",
+       "Northfield"
+      ],
+      "doc": "M1",
+      "quote": "bound by Buyer with Northfield Transaction Risk Insurance Ltd. as primary insurer, placed through Calder Risk Partners as broker.",
+      "priority": "medium",
+      "why_search": "The firm may represent or oppose this insurer in coverage matters, and the insurer's interests can diverge from the client's on a claim."
+     },
+     {
+      "id": "P6",
+      "name": "Calder Risk Partners",
+      "type": "entity",
+      "side": "third party",
+      "role": "Advisor or agent",
+      "relationship": "Insurance broker that placed the R&W policy for Alder Ridge Packaging Co.",
+      "related_to": "P5",
+      "variants": [
+       "Calder Risk"
+      ],
+      "doc": "M1",
+      "quote": "with Northfield Transaction Risk Insurance Ltd. as primary insurer, placed through Calder Risk Partners as broker.",
+      "priority": "low",
+      "why_search": "A broker the firm has sued or defended could create an issue if the placement is later disputed."
+     },
+     {
+      "id": "P7",
+      "name": "Harborline Credit Partners, LLC",
+      "type": "entity",
+      "side": "client-related",
+      "role": "Lender or lienholder",
+      "relationship": "Acquisition lender to Alder Ridge Packaging Co. taking a first priority lien on the Purchased Assets.",
+      "related_to": "P1",
+      "variants": [
+       "Harborline Credit Partners",
+       "Harborline Credit",
+       "Harborline"
+      ],
+      "doc": "M1",
+      "quote": "Buyer has delivered a commitment letter from Harborline Credit Partners, LLC for the debt financing of the Purchase Price.",
+      "priority": "high",
+      "why_search": "The lender negotiates against the client on financing terms, and the firm may already represent it in other credits."
+     },
+     {
+      "id": "P8",
+      "name": "Ashgrove Advisory Group",
+      "type": "entity",
+      "side": "client-related",
+      "role": "Advisor or agent",
+      "relationship": "Prepared the quality of earnings report for Alder Ridge Packaging Co.",
+      "related_to": "P1",
+      "variants": [
+       "Ashgrove Advisory",
+       "Ashgrove"
+      ],
+      "doc": "M1",
+      "quote": "Buyer has received the quality of earnings report prepared for Buyer by Ashgrove Advisory Group.",
+      "priority": "low",
+      "why_search": "Diligence advisors become witnesses or defendants if the deal later goes wrong."
+     },
+     {
+      "id": "P9",
+      "name": "Sequoia Label & Print, Inc.",
+      "type": "entity",
+      "side": "adverse",
+      "role": "Adverse party",
+      "relationship": "Seller of the Business to Alder Ridge Packaging Co.; formerly S&L Graphics, Inc., doing business as Sequoia Print Works.",
+      "related_to": "P1",
+      "variants": [
+       "Sequoia Print Works",
+       "S&L Graphics, Inc.",
+       "S&L Graphics",
+       "Sequoia Label and Print",
+       "Sequoia Label & Print"
+      ],
+      "doc": "M1",
+      "quote": "Sequoia Label & Print, Inc., a California corporation doing business as Sequoia Print Works (\"Seller\");",
+      "priority": "high",
+      "why_search": "Any prior representation of the seller under its current, former or trade name bars the firm from acting against it in a substantially related matter."
+     },
+     {
+      "id": "P10",
+      "name": "Martin Okonkwo-Hale",
+      "type": "individual",
+      "side": "adverse",
+      "role": "Adverse officer or owner",
+      "relationship": "Shareholder and signatory who owns 60% of Sequoia Label & Print, Inc. directly and co-trustee of the Okonkwo-Hale Living Trust.",
+      "related_to": "P9",
+      "variants": [
+       "Okonkwo-Hale, Martin",
+       "Martin Okonkwo Hale",
+       "Martin Hale",
+       "M. Okonkwo-Hale"
+      ],
+      "doc": "M1",
+      "quote": "Martin Okonkwo-Hale owns 60% directly, and the Okonkwo-Hale Living Trust, of which Martin Okonkwo-Hale and Adaeze Okonkwo-Hale are co-trustees, owns 40%.",
+      "priority": "high",
+      "why_search": "He is personally bound by the noncompete and indemnity, so any prior estate, tax or business work for him is a direct conflict."
+     },
+     {
+      "id": "P11",
+      "name": "Okonkwo-Hale Living Trust dated June 4, 2011",
+      "type": "entity",
+      "side": "adverse",
+      "role": "Adverse party",
+      "relationship": "Shareholder and signatory that owns 40% of Sequoia Label & Print, Inc.",
+      "related_to": "P10",
+      "variants": [
+       "Okonkwo-Hale Living Trust",
+       "Okonkwo-Hale Trust",
+       "Okonkwo-Hale Family Trust"
+      ],
+      "doc": "M1",
+      "quote": "Martin Okonkwo-Hale and the Okonkwo-Hale Living Trust dated June 4, 2011 (each, a \"Shareholder\" and together, the \"Shareholders\").",
+      "priority": "high",
+      "why_search": "The trust is a party to the agreement, and firms often hold trust and estate files that would be substantially related."
+     },
+     {
+      "id": "P12",
+      "name": "Adaeze Okonkwo-Hale",
+      "type": "individual",
+      "side": "adverse-related",
+      "role": "Adverse officer or owner",
+      "relationship": "Co-trustee of the Okonkwo-Hale Living Trust, co-owner of landlord Old Mill Partners, LLC and 35% owner of supplier Bright Leaf Packaging, Inc.",
+      "related_to": "P11",
+      "variants": [
+       "Okonkwo-Hale, Adaeze",
+       "Adaeze Okonkwo Hale",
+       "Adaeze Hale",
+       "A. Okonkwo-Hale"
+      ],
+      "doc": "M2",
+      "quote": "Old Mill Partners, LLC is owned by Martin Okonkwo-Hale and Adaeze Okonkwo-Hale. Rent was increased by 22% effective January 1, 2026.",
+      "priority": "high",
+      "why_search": "She controls three related-party interests on the seller side and is not on the intake form at all."
+     },
+     {
+      "id": "P13",
+      "name": "Sequoia Label de Mexico, S. de R.L. de C.V.",
+      "type": "entity",
+      "side": "adverse-related",
+      "role": "Adverse affiliate",
+      "relationship": "Wholly owned Tijuana subsidiary of Sequoia Label & Print, Inc., excluded from the sale.",
+      "related_to": "P9",
+      "variants": [
+       "Sequoia Label de Mexico",
+       "Sequoia Label Mexico"
+      ],
+      "doc": "M1",
+      "quote": "\"Excluded Subsidiary\" means Sequoia Label de Mexico, S. de R.L. de C.V., Seller's wholly owned subsidiary in Tijuana, Baja California,",
+      "priority": "high",
+      "why_search": "A retained subsidiary stays under seller control and could be a competitor or a party the firm has represented on cross-border work."
+     },
+     {
+      "id": "P14",
+      "name": "Old Mill Partners, LLC",
+      "type": "entity",
+      "side": "adverse-related",
+      "role": "Landlord",
+      "relationship": "Landlord of the Santa Rosa facility, owned by Martin and Adaeze Okonkwo-Hale, whose consent to the Lease assignment is required.",
+      "related_to": "P10",
+      "variants": [
+       "Old Mill Partners",
+       "Old Mill"
+      ],
+      "doc": "M2",
+      "quote": "Old Mill Partners, LLC is owned by Martin Okonkwo-Hale and Adaeze Okonkwo-Hale. Rent was increased by 22% effective January 1, 2026.",
+      "priority": "high",
+      "why_search": "A related-party landlord that just raised rent 22% will be negotiated against on the lease, so any firm work for it is a conflict."
+     },
+     {
+      "id": "P15",
+      "name": "Bright Leaf Packaging, Inc.",
+      "type": "entity",
+      "side": "adverse-related",
+      "role": "Adverse affiliate",
+      "relationship": "Carton supplier to Sequoia Label & Print, Inc. in which Adaeze Okonkwo-Hale holds 35%, carved out of the noncompete.",
+      "related_to": "P12",
+      "variants": [
+       "Bright Leaf Packaging",
+       "Bright Leaf"
+      ],
+      "doc": "M2",
+      "quote": "Seller purchases corrugated shipping cartons from Bright Leaf Packaging, Inc., in which Adaeze Okonkwo-Hale holds a 35% ownership interest.",
+      "priority": "high",
+      "why_search": "It is a related-party supplier and a permitted competitor, so the firm may need to advise against it on the carve-out and supply terms."
+     },
+     {
+      "id": "P16",
+      "name": "Ferris Lam LLP",
+      "type": "entity",
+      "side": "adverse-related",
+      "role": "Opposing counsel",
+      "relationship": "Counsel to Sequoia Label & Print, Inc. and the Shareholders for notices under the agreement.",
+      "related_to": "P9",
+      "variants": [
+       "Ferris Lam",
+       "Ferris & Lam"
+      ],
+      "doc": "M1",
+      "quote": "with a copy to Ferris Lam LLP, Attention: Grace Lam.",
+      "priority": "medium",
+      "why_search": "Reveals co-counsel, referral or lateral relationships with opposing counsel that must be screened or disclosed."
+     },
+     {
+      "id": "P17",
+      "name": "Grace Lam",
+      "type": "individual",
+      "side": "adverse-related",
+      "role": "Opposing counsel",
+      "relationship": "Lawyer at Ferris Lam LLP handling the deal for the seller side.",
+      "related_to": "P16",
+      "variants": [
+       "Lam, Grace",
+       "G. Lam"
+      ],
+      "doc": "M1",
+      "quote": "with a copy to Ferris Lam LLP, Attention: Grace Lam.",
+      "priority": "medium",
+      "why_search": "A personal or former-firm connection between opposing counsel and a firm lawyer may require disclosure under Rule 1.7."
+     },
+     {
+      "id": "P18",
+      "name": "Golden Valley Business Bank",
+      "type": "entity",
+      "side": "third party",
+      "role": "Lender or lienholder",
+      "relationship": "Seller's revolving and term lender whose liens must be paid off and released at Closing.",
+      "related_to": "P9",
+      "variants": [
+       "Golden Valley Bank",
+       "Golden Valley"
+      ],
+      "doc": "M1",
+      "quote": "\"Payoff Lender\" means Golden Valley Business Bank, as lender under Seller's revolving credit facility and term loan.",
+      "priority": "medium",
+      "why_search": "The firm will negotiate payoff and lien release terms against this bank, which may be a current banking client."
+     },
+     {
+      "id": "P19",
+      "name": "Tidewater Capital Advisors, LLC",
+      "type": "entity",
+      "side": "adverse-related",
+      "role": "Advisor or agent",
+      "relationship": "Seller's investment banker or broker, paid by Sequoia Label & Print, Inc.",
+      "related_to": "P9",
+      "variants": [
+       "Tidewater Capital Advisors",
+       "Tidewater Capital",
+       "Tidewater"
+      ],
+      "doc": "M1",
+      "quote": "Except for Tidewater Capital Advisors, LLC, whose fees Seller shall pay, no broker or finder is entitled to a fee in connection with this transaction.",
+      "priority": "low",
+      "why_search": "Brokers become parties in fee and disclosure disputes after closing."
+     },
+     {
+      "id": "P20",
+      "name": "Whitaker Pruett LLP",
+      "type": "entity",
+      "side": "third party",
+      "role": "Advisor or agent",
+      "relationship": "Auditor of Sequoia Label & Print, Inc.'s 2024 and 2025 financial statements.",
+      "related_to": "P9",
+      "variants": [
+       "Whitaker Pruett",
+       "Whitaker & Pruett"
+      ],
+      "doc": "M1",
+      "quote": "Seller's financial statements for 2024 and 2025 have been audited by Whitaker Pruett LLP.",
+      "priority": "low",
+      "why_search": "The auditor is a likely defendant or witness if the financial representations prove wrong."
+     },
+     {
+      "id": "P21",
+      "name": "Cardinal Environmental Consulting, Inc.",
+      "type": "entity",
+      "side": "third party",
+      "role": "Expert or witness",
+      "relationship": "Prepared the Phase I Environmental Site Assessment of the Leased Real Property.",
+      "related_to": "P14",
+      "variants": [
+       "Cardinal Environmental Consulting",
+       "Cardinal Environmental"
+      ],
+      "doc": "M1",
+      "quote": "Phase I Environmental Site Assessment of the Leased Real Property dated August 14, 2026, prepared by Cardinal Environmental Consulting, Inc.",
+      "priority": "low",
+      "why_search": "Environmental consultants are sued when contamination surfaces after a sale."
+     },
+     {
+      "id": "P22",
+      "name": "Pacific Harbor Escrow Services, Inc.",
+      "type": "entity",
+      "side": "third party",
+      "role": "Advisor or agent",
+      "relationship": "Escrow Agent holding the $1,925,000 indemnity escrow for Alder Ridge Packaging Co. and the seller.",
+      "related_to": "P1",
+      "variants": [
+       "Pacific Harbor Escrow Services",
+       "Pacific Harbor Escrow",
+       "Pacific Harbor"
+      ],
+      "doc": "M1",
+      "quote": "\"Escrow Agent\" means Pacific Harbor Escrow Services, Inc.",
+      "priority": "low",
+      "why_search": "The escrow agent is an interpleader party if the indemnity escrow is contested."
+     },
+     {
+      "id": "P23",
+      "name": "Janelle Ford",
+      "type": "individual",
+      "side": "adverse-related",
+      "role": "Other related party",
+      "relationship": "Vice President of Operations of Sequoia Label & Print, Inc. and a Key Employee the client intends to hire.",
+      "related_to": "P9",
+      "variants": [
+       "Ford, Janelle",
+       "J. Ford"
+      ],
+      "doc": "M1",
+      "quote": "\"Key Employees\" means Janelle Ford, Vice President of Operations, and Tomas Reyes, Plant Manager.",
+      "priority": "medium",
+      "why_search": "The firm may draft her offer letter while she is still a seller officer, and she could be a witness in the wage claim."
+     },
+     {
+      "id": "P24",
+      "name": "Tomas Reyes",
+      "type": "individual",
+      "side": "adverse-related",
+      "role": "Other related party",
+      "relationship": "Plant Manager of Sequoia Label & Print, Inc. and a Key Employee the client intends to hire.",
+      "related_to": "P9",
+      "variants": [
+       "Reyes, Tomas",
+       "Tomás Reyes",
+       "T. Reyes"
+      ],
+      "doc": "M1",
+      "quote": "\"Key Employees\" means Janelle Ford, Vice President of Operations, and Tomas Reyes, Plant Manager.",
+      "priority": "medium",
+      "why_search": "A plant manager is a central witness in the wage and hour and ink defect disputes."
+     },
+     {
+      "id": "P25",
+      "name": "Ink Solutions Group, LLC",
+      "type": "entity",
+      "side": "third party",
+      "role": "Related litigation party",
+      "relationship": "Supplier suing Sequoia Label & Print, Inc. for $412,000 in unpaid invoices, with a cross-complaint for defective ink.",
+      "related_to": "P9",
+      "variants": [
+       "Ink Solutions Group",
+       "Ink Solutions"
+      ],
+      "doc": "M2",
+      "quote": "Ink Solutions Group, LLC v. Sequoia Label & Print, Inc., Sonoma County Superior Court Case No. SCV-274410. Supplier claim for $412,000 in unpaid invoices.",
+      "priority": "high",
+      "why_search": "The plaintiff could pursue the buyer as successor, and the firm may already represent this supplier."
+     },
+     {
+      "id": "P26",
+      "name": "Ahern Vasquez LLP",
+      "type": "entity",
+      "side": "adverse-related",
+      "role": "Opposing counsel",
+      "relationship": "Defense counsel for Sequoia Label & Print, Inc. in the Ink Solutions Group, LLC lawsuit.",
+      "related_to": "P25",
+      "variants": [
+       "Ahern Vasquez",
+       "Ahern & Vasquez"
+      ],
+      "doc": "M2",
+      "quote": "Defense counsel: Ahern Vasquez LLP. Retained claim; not assumed by Buyer.",
+      "priority": "low",
+      "why_search": "Shows whether the firm has co-counsel or lateral ties to the lawyers handling the seller's retained litigation."
+     },
+     {
+      "id": "P27",
+      "name": "Lucia Navarro",
+      "type": "individual",
+      "side": "third party",
+      "role": "Related litigation party",
+      "relationship": "Former press operator threatening a PAGA wage and hour claim against Sequoia Label & Print, Inc. on behalf of similarly situated employees.",
+      "related_to": "P9",
+      "variants": [
+       "Navarro, Lucia",
+       "Lucía Navarro",
+       "L. Navarro"
+      ],
+      "doc": "M2",
+      "quote": "Demand letter dated July 7, 2026 from counsel for Lucia Navarro, a former press operator, alleging wage and hour violations on behalf of herself and similarly situated employees.",
+      "priority": "high",
+      "why_search": "A representative wage claim can follow the workforce to the buyer, and the firm may have represented her or her counsel."
+     },
+     {
+      "id": "P28",
+      "name": "Coastline Beverage Co.",
+      "type": "entity",
+      "side": "third party",
+      "role": "Counterparty",
+      "relationship": "Largest customer of Sequoia Label & Print, Inc. at 18.2% of revenue, whose consent to assignment of the Master Supply Agreement is required.",
+      "related_to": "P9",
+      "variants": [
+       "Coastline Beverage",
+       "Coastline"
+      ],
+      "doc": "M2",
+      "quote": "Master Supply Agreement dated March 1, 2022 between Seller and Coastline Beverage Co. Consent of Coastline Beverage Co. required for assignment.",
+      "priority": "medium",
+      "why_search": "The firm will seek a consent from this customer and may represent it in beverage or supply matters."
+     },
+     {
+      "id": "P29",
+      "name": "Redwood Naturals, Inc.",
+      "type": "entity",
+      "side": "third party",
+      "role": "Counterparty",
+      "relationship": "Customer of Sequoia Label & Print, Inc. at 11.7% of revenue whose written consent to assignment of the Label Supply Agreement is required.",
+      "related_to": "P30",
+      "variants": [
+       "Redwood Naturals"
+      ],
+      "doc": "M2",
+      "quote": "Label Supply Agreement dated September 15, 2023 between Seller and Redwood Naturals, Inc. Assignment requires prior written consent;",
+      "priority": "medium",
+      "why_search": "Consent negotiations put the firm across the table from this customer."
+     },
+     {
+      "id": "P30",
+      "name": "Evermore Brands Group plc",
+      "type": "entity",
+      "side": "third party",
+      "role": "Counterparty",
+      "relationship": "Parent of Redwood Naturals, Inc. that receives notices and controls the consent under the Label Supply Agreement.",
+      "related_to": "P29",
+      "variants": [
+       "Evermore Brands Group",
+       "Evermore Brands",
+       "Evermore"
+      ],
+      "doc": "M2",
+      "quote": "Redwood Naturals, Inc. is a wholly owned subsidiary of Evermore Brands Group plc, and notices go to Evermore Brands Group plc.",
+      "priority": "medium",
+      "why_search": "A public parent company is more likely than its subsidiary to be a current firm client."
+     },
+     {
+      "id": "P31",
+      "name": "Summit Commercial Leasing Corp.",
+      "type": "entity",
+      "side": "third party",
+      "role": "Lender or lienholder",
+      "relationship": "Equipment lessor, through its Summit Press Finance division, of two digital presses used in the Business.",
+      "related_to": "P9",
+      "variants": [
+       "Summit Press Finance",
+       "Summit Commercial Leasing",
+       "Summit Leasing"
+      ],
+      "doc": "M2",
+      "quote": "Equipment Lease No. 4471 between Seller and Summit Press Finance, a division of Summit Commercial Leasing Corp., for two HP Indigo digital presses.",
+      "priority": "medium",
+      "why_search": "The lessor holds title to core equipment and must consent to the assignment, so the firm will negotiate against it."
+     },
+     {
+      "id": "P32",
+      "name": "Marigold Farms Creamery, LLC",
+      "type": "entity",
+      "side": "third party",
+      "role": "Counterparty",
+      "relationship": "Material customer of Sequoia Label & Print, Inc. at 6.4% of 2025 revenue.",
+      "related_to": "P9",
+      "variants": [
+       "Marigold Farms Creamery",
+       "Marigold Farms"
+      ],
+      "doc": "M2",
+      "quote": "3. Marigold Farms Creamery, LLC: 6.4%",
+      "priority": "low",
+      "why_search": "A key customer relationship the client will inherit and may need the firm to document."
+     },
+     {
+      "id": "P33",
+      "name": "Tamarack Spirits Company",
+      "type": "entity",
+      "side": "third party",
+      "role": "Counterparty",
+      "relationship": "Material customer of Sequoia Label & Print, Inc. at 5.1% of 2025 revenue.",
+      "related_to": "P9",
+      "variants": [
+       "Tamarack Spirits",
+       "Tamarack"
+      ],
+      "doc": "M2",
+      "quote": "4. Tamarack Spirits Company: 5.1%",
+      "priority": "low",
+      "why_search": "A key customer relationship the client will inherit and may need the firm to document."
+     }
+    ],
+    "rushed_misses": [
+     {
+      "title": "Second shareholder and co-trustee missing",
+      "detail": "The intake lists only Martin Okonkwo-Hale, but the Okonkwo-Hale Living Trust is a signatory and Adaeze Okonkwo-Hale is co-trustee, co-owner of the landlord and part owner of a supplier. A prior estate plan or trust matter for either would be a direct Rule 1.9 conflict.",
+      "party_ids": [
+       "P11",
+       "P12"
+      ]
+     },
+     {
+      "title": "Related-party landlord owned by sellers",
+      "detail": "Old Mill Partners, LLC is owned by the Okonkwo-Hales and just raised rent 22%. The firm will negotiate the lease assignment against it, and it is nowhere on the intake form.",
+      "party_ids": [
+       "P14"
+      ]
+     },
+     {
+      "title": "Former name S&L Graphics, Inc.",
+      "detail": "The seller operated as S&L Graphics, Inc. for eleven years and still trades as Sequoia Print Works. A search on the current name alone would miss any firm work under the old name.",
+      "party_ids": [
+       "P9"
+      ]
+     },
+     {
+      "title": "Buyer parent, sponsor and lender",
+      "detail": "Alder Ridge Holdings, L.P., Kestrel Point Capital Partners and Harborline Credit Partners, LLC are all on the client side but absent from intake. If the firm is adverse to the sponsor or represents the lender elsewhere, the engagement letter needs waivers.",
+      "party_ids": [
+       "P2",
+       "P3",
+       "P7"
+      ]
+     },
+     {
+      "title": "Pending supplier suit and PAGA threat",
+      "detail": "Ink Solutions Group, LLC and Lucia Navarro have live claims against the seller that can follow the assets or the workforce to the buyer. The firm may already represent either claimant.",
+      "party_ids": [
+       "P25",
+       "P27"
+      ]
+     },
+     {
+      "title": "Bright Leaf supplier carve-out",
+      "detail": "Bright Leaf Packaging, Inc. is a related-party supplier excluded from the noncompete. The firm will push back on that carve-out, so any existing relationship with Bright Leaf must be known.",
+      "party_ids": [
+       "P15"
+      ]
+     }
+    ],
+    "follow_ups": [
+     "Will the firm also represent Alder Ridge Holdings, L.P. or Kestrel Point Capital Partners on the guaranty, and should Kestrel Point's other portfolio companies be searched as client affiliates?",
+     "Will the firm represent the buyer on the Harborline Credit Partners, LLC financing, or will separate counsel handle the loan documents?",
+     "Does the engagement cover advising on successor exposure for the Ink Solutions Group, LLC suit and the Lucia Navarro PAGA threat, which would make those claimants adverse?",
+     "Will the firm negotiate the lease assignment and rent with Old Mill Partners, LLC and the supply terms with Bright Leaf Packaging, Inc., both owned by the Okonkwo-Hales?",
+     "Has the firm ever done estate planning, tax or corporate work for Martin or Adaeze Okonkwo-Hale, the Okonkwo-Hale Living Trust or S&L Graphics, Inc.?",
+     "Does the firm currently represent Northfield Transaction Risk Insurance Ltd. or Golden Valley Business Bank in any capacity?"
+    ],
+    "adversity_notes": [
+     "Old Mill Partners, LLC is a landlord in form but is owned by the sellers, so the lease consent and the 22% rent increase are seller-side negotiations and the landlord is adverse.",
+     "Bright Leaf Packaging, Inc. is both a supplier the buyer inherits and a permitted competitor owned 35% by a co-trustee of the selling trust, so its interests track the seller's.",
+     "Harborline Credit Partners, LLC finances the client but negotiates lien and covenant terms against it, so it is client-related for the deal and adverse on the loan documents.",
+     "Ink Solutions Group, LLC is adverse to the seller today, but as a supplier to the Business it could assert successor claims against the buyer after Closing.",
+     "Evermore Brands Group plc controls the consent held by its subsidiary Redwood Naturals, Inc., so the public parent, not just the customer, is the counterparty on that consent."
+    ]
+   }
+  }
+ }
+};
+</script>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const MODELS = { "claude-opus-5-5": { name: "Opus 5.5", tier: "complex" }, "claude-sonnet-5-5": { name: "Sonnet 5.5", tier: "default" }, "claude-fable-5-1": { name: "Fable 5.1", tier: "complex" } };
+const SIDES = [
+  { key: "adverse", label: "Adverse side", match: s => s === "adverse" || s === "adverse-related", cls: "adverse" },
+  { key: "client", label: "Client side", match: s => s === "client" || s === "client-related", cls: "client" },
+  { key: "third", label: "Third parties", match: () => true, cls: "third" }
+];
+const FIELDS = [
+  ["search", "Search Name"], ["primary", "Primary Party"], ["nameType", "Name Type"], ["entity", "Party Type"], ["role", "Role"], ["side", "Side"],
+  ["relationship", "Relationship"], ["priority", "Priority"], ["doc", "Source Document"], ["page", "Page"], ["quote", "Source Quote"], ["verified", "Quote Verified"], ["intake", "On Intake Form"]
+];
+let sample = null, downloads = null;
+
+const state = { setId: PF_SETS[0].id, sets: {}, filter: "all", q: "", busy: false, ctl: null, docId: null, own: { docs: [] } };
+for (const s of PF_SETS){ const r = PF_RECORDED.runs[s.id]; state.sets[s.id] = { set: s, result: prep(clone(r.result)), meta: `Recorded run on ${MODELS[PF_RECORDED.model]?.name || PF_RECORDED.model}, ${PF_RECORDED.recordedAt}, ${r.secs}s` }; }
+function clone(x){ return JSON.parse(JSON.stringify(x)); }
+function cur(){ return state.sets[state.setId]; }
+
+/* ---------- verbatim checks and matching ---------- */
+const norm = s => String(s || "").toLowerCase().replace(/[‘’ʼ`]/g, "'").replace(/[“”]/g, '"').replace(/—|–/g, "-").replace(/\s+/g, " ").trim();
+const SUFFIX = /\b(incorporated|inc|llc|l\.l\.c|lp|l\.p|llp|l\.l\.p|corp|corporation|co|company|ltd|limited|plc|n\.a|s\. de r\.l\. de c\.v|pllc|pc|p\.c)\b\.?/g;
+const root = s => norm(s).replace(/&/g, " and ").replace(SUFFIX, " ").replace(/[^a-z0-9 ]/g, " ").replace(/\b(the|a)\b/g, " ").replace(/\s+/g, " ").trim();
+function stripMarkers(t){ return t.replace(/\[Page \d+\]/g, " "); }
+function docOf(id){ return cur().set.docs.find(d => d.id === id); }
+function findQuote(quote, docId){
+  const q = norm(quote).replace(/^["']|["']$/g, ""); if (q.length < 8) return null;
+  const docs = cur().set.docs, order = [docOf(docId), ...docs.filter(d => d.id !== docId)].filter(Boolean);
+  for (const d of order){
+    const pages = splitPages(d.text);
+    for (const p of pages) if (norm(p.text).includes(q)) return { doc: d.id, page: p.n };
+    if (norm(stripMarkers(d.text)).includes(q)) return { doc: d.id, page: null };
+  }
+  return null;
+}
+function splitPages(text){
+  const out = [], re = /\[Page (\d+)\]/g; let m, last = 0, n = null;
+  while ((m = re.exec(text))){ if (m.index > last || n !== null) out.push({ n, text: text.slice(last, m.index) }); n = Number(m[1]); last = m.index + m[0].length; }
+  out.push({ n, text: text.slice(last) });
+  return out.filter(p => p.text.trim());
+}
+function nameInDocs(name){ const r = root(name); if (!r) return false; return cur().set.docs.some(d => root(d.text).includes(r)) || root(cur().set.request || "").includes(r); }
+function onIntake(p){
+  const intake = cur().set.intake.map(i => root(i.name)).filter(Boolean);
+  const names = [p.name, ...(p.variants || [])].map(root).filter(Boolean);
+  return names.some(n => intake.some(i => i === n));
+}
+function prep(res){
+  res.parties = (res.parties || []).map((p, i) => ({ ...p, id: p.id || "P" + (i + 1), variants: Array.isArray(p.variants) ? p.variants : [], include: true }));
+  return res;
+}
+function check(p){
+  if (!p._chk){ const f = findQuote(p.quote, p.doc); p._chk = { found: f, page: f?.page ?? null, doc: f?.doc || p.doc, inDocs: nameInDocs(p.name) }; }
+  return p._chk;
+}
+function sideCls(s){ return s === "adverse" || s === "adverse-related" ? "adverse" : s === "client" || s === "client-related" ? "client" : "third"; }
+
+/* ---------- render ---------- */
+function renderAll(){ renderCompare(); renderMisses(); renderRail(); renderRegister(); renderDocNav(); renderDoc(); renderExport(); }
+function stats(){
+  const s = cur(), ps = s.result?.parties || [];
+  const notOn = ps.filter(p => !onIntake(p)), q = ps.filter(p => p.quote), ok = q.filter(p => check(p).found);
+  const names = ps.reduce((n, p) => n + 1 + (p.variants || []).length, 0);
+  return { ps, notOn, highNew: notOn.filter(p => p.priority === "high"), people: ps.filter(p => p.type === "individual"), q, ok, names, adverse: ps.filter(p => sideCls(p.side) === "adverse") };
+}
+function renderCompare(){
+  const s = cur(), st = stats();
+  $("#intakeN").textContent = s.set.intake.length;
+  $("#intakeList").innerHTML = s.set.intake.length ? s.set.intake.map(i => `<li><span>${esc(i.name)}</span><span class="muted small" style="margin-left:auto">${esc(i.role)}</span></li>`).join("") : `<li class="muted">No intake form names were given.</li>`;
+  $("#foundN").textContent = st.ps.length;
+  $("#foundSub").textContent = `parties to search, ${st.names} search names with variants`;
+  $("#cntParties").textContent = st.ps.length || "";
+  $("#tiles").innerHTML = `
+    <div class="tile adv"><div class="v">${st.notOn.length}</div><div class="s">not on the intake form</div></div>
+    <div class="tile adv"><div class="v">${st.highNew.length}</div><div class="s">of those are high priority</div></div>
+    <div class="tile"><div class="v">${st.adverse.length}</div><div class="s">on the adverse side</div></div>
+    <div class="tile"><div class="v">${st.people.length}</div><div class="s">individuals</div></div>
+    <div class="tile ${st.ok.length === st.q.length ? "good" : "warn"}"><div class="v">${st.ok.length}/${st.q.length}</div><div class="s">quotes found word for word</div></div>`;
+  $("#runmeta").innerHTML = s.meta ? `<span><span class="dot"></span>${esc(s.meta)}</span><span>${esc(s.set.kind)}</span>` : "";
+  $("#summary").textContent = s.result?.matter_summary || "";
+}
+function chip(id){ const p = cur().result.parties.find(x => x.id === id); return p ? `<button class="pchip ${sideCls(p.side)}" data-goto="${esc(p.id)}">${esc(p.name)}</button>` : ""; }
+function renderMisses(){
+  const m = cur().result?.rushed_misses || [];
+  $("#misses").innerHTML = m.length ? m.map((x, i) => `<div class="miss"><h3><span class="n">${String(i + 1).padStart(2, "0")}</span>${esc(x.title)}</h3><p>${esc(x.detail)}</p><div class="pchips">${(x.party_ids || []).map(chip).join("")}</div></div>`).join("") : `<p class="muted">Run the matter to see what the intake form leaves out.</p>`;
+}
+function renderRail(){
+  const r = cur().result || {};
+  $("#adversity").innerHTML = (r.adversity_notes || []).map(t => `<li>${esc(t)}</li>`).join("") || `<li class="muted">None yet.</li>`;
+  $("#followups").innerHTML = (r.follow_ups || []).map(t => `<li>${esc(t)}</li>`).join("") || `<li class="muted">None yet.</li>`;
+}
+function quoteHtml(p){
+  if (!p.quote) return "";
+  const c = check(p), d = docOf(c.doc);
+  const where = d ? `${esc(d.title)}${c.page ? `, page ${c.page}` : ""}` : esc(p.doc || "");
+  return `<div class="quote"><q>${esc(p.quote)}</q>${c.found ? '<span class="ok" title="Found word for word in the source document">verified</span>' : '<span class="bad" title="Not found word for word in any source document">not found in source</span>'}
+    <div class="src">${c.found ? `<button class="linkbtn" data-src="${esc(p.id)}">${where}</button>` : where}${c.inDocs ? "" : ' · <span style="color:var(--bad)">name not found in the documents as written</span>'}</div></div>`;
+}
+function partyHtml(p){
+  const on = onIntake(p);
+  return `<div class="party${p.include ? "" : " off"}" id="party-${esc(p.id)}">
+    <input type="checkbox" ${p.include ? "checked" : ""} data-inc="${esc(p.id)}" aria-label="Include ${esc(p.name)} in the export">
+    <div>
+      <div class="head"><span class="name">${esc(p.name)}</span><span class="type">${p.type === "individual" ? "person" : "entity"}</span>
+        <span class="badge role">${esc(p.role || "")}</span><span class="badge ${esc(p.priority || "low")}">${esc(p.priority || "low")}</span>
+        ${on ? '<span class="badge on">on intake</span>' : '<span class="badge notOn">not on intake</span>'}</div>
+      <div class="rel">${esc(p.relationship || "")}</div>
+      ${p.why_search ? `<div class="why">${esc(p.why_search)}</div>` : ""}
+      <div class="vars">${(p.variants || []).map((v, i) => `<span class="var">${esc(v)}<button data-rmv="${esc(p.id)}" data-i="${i}" aria-label="Remove variant ${esc(v)}">×</button></span>`).join("")}<input data-addv="${esc(p.id)}" placeholder="+ add a variant" aria-label="Add a name variant for ${esc(p.name)}"></div>
+      ${quoteHtml(p)}
+    </div></div>`;
+}
+function passes(p){
+  const f = state.filter;
+  if (f === "noton" && onIntake(p)) return false;
+  if (f === "high" && p.priority !== "high") return false;
+  if ((f === "individual" || f === "entity") && p.type !== f) return false;
+  if (state.q){ const hay = norm([p.name, p.role, p.relationship, ...(p.variants || [])].join(" ")); if (!hay.includes(norm(state.q))) return false; }
+  return true;
+}
+function renderRegister(){
+  const ps = cur().result?.parties || [], used = new Set(); let html = "";
+  for (const g of SIDES){
+    const rows = ps.filter(p => !used.has(p.id) && g.match(p.side)); rows.forEach(p => used.add(p.id));
+    const shown = rows.filter(passes); if (!shown.length) continue;
+    const rank = { high: 0, medium: 1, low: 2 };
+    shown.sort((a, b) => (rank[a.priority] ?? 3) - (rank[b.priority] ?? 3));
+    html += `<div class="group ${g.cls}"><h3>${g.label}<span class="num">${shown.length}</span></h3>${shown.map(partyHtml).join("")}</div>`;
+  }
+  $("#register").innerHTML = html || `<p class="muted" style="margin-top:14px">No parties match this filter.</p>`;
+  document.querySelectorAll("#filters [data-f]").forEach(b => b.setAttribute("aria-pressed", b.dataset.f === state.filter));
+}
+function renderDocNav(){
+  const docs = cur().set.docs; if (!docs.find(d => d.id === state.docId)) state.docId = docs[0]?.id;
+  $("#docnav").innerHTML = docs.map(d => `<button data-doc="${esc(d.id)}" aria-pressed="${d.id === state.docId}">${esc(d.title)}</button>`).join("");
+}
+function quoteRegex(quote){
+  const words = norm(quote).replace(/^["']|["']$/g, "").split(" ").filter(Boolean).map(w => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/'/g, "['‘’ʼ`]").replace(/"/g, '["“”]').replace(/-/g, "[-–—]"));
+  return words.length ? new RegExp(words.join("\\s+"), "i") : null;
+}
+function renderDoc(){
+  const d = docOf(state.docId); if (!d){ $("#docview").innerHTML = ""; return; }
+  const ranges = [];
+  for (const p of cur().result?.parties || []){
+    if (!p.quote || check(p).doc !== d.id || !check(p).found) continue;
+    const re = quoteRegex(p.quote), m = re && re.exec(d.text); if (!m) continue;
+    const r = { s: m.index, e: m.index + m[0].length, ids: [p.id] }, hit = ranges.find(x => x.s === r.s && x.e === r.e);
+    if (hit) hit.ids.push(p.id); else if (!ranges.some(x => r.s < x.e && x.s < r.e)) ranges.push(r);
+  }
+  ranges.sort((a, b) => a.s - b.s);
+  const parties = cur().result.parties; let out = "", pos = 0;
+  const piece = t => esc(t).replace(/\[Page (\d+)\]\n?/g, '<span class="pg">PAGE $1</span>');
+  for (const r of ranges){
+    out += piece(d.text.slice(pos, r.s));
+    const nums = r.ids.map(id => parties.findIndex(p => p.id === id) + 1);
+    out += `<mark id="m-${esc(r.ids[0])}" data-goto="${esc(r.ids[0])}" title="${esc(r.ids.map(id => parties.find(p => p.id === id)?.name).join(", "))}">${piece(d.text.slice(r.s, r.e))}<sup>${nums.join(",")}</sup></mark>`;
+    pos = r.e;
+  }
+  out += piece(d.text.slice(pos));
+  $("#docview").innerHTML = out;
+}
+
+/* ---------- export ---------- */
+function headers(){ let saved = {}; try { saved = JSON.parse(localStorage.getItem("pf:cols") || "{}"); } catch (e) {} return Object.fromEntries(FIELDS.map(([k, v]) => [k, saved[k] || v])); }
+function exportRows(){
+  const shape = document.querySelector("input[name=shape]:checked")?.value || "rows", onlyNew = $("#onlyNew").checked, rows = [];
+  for (const p of cur().result?.parties || []){
+    if (!p.include || (onlyNew && onIntake(p))) continue;
+    const c = check(p), d = docOf(c.doc);
+    const base = { primary: p.name, entity: p.type === "individual" ? "Person" : "Organization", role: p.role || "", side: p.side || "", relationship: p.relationship || "", priority: p.priority || "", doc: d?.title || p.doc || "", page: c.page ?? "", quote: p.quote || "", verified: c.found ? "Yes" : "No", intake: onIntake(p) ? "Yes" : "No" };
+    if (shape === "party") rows.push({ search: [p.name, ...p.variants].join("; "), nameType: "Primary with variants", ...base });
+    else { rows.push({ search: p.name, nameType: "Primary", ...base }); for (const v of p.variants) rows.push({ search: v, nameType: "Variant", ...base }); }
+  }
+  return rows;
+}
+const csvCell = v => { const s = String(v ?? ""); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+function csvText(){ const h = headers(), rows = exportRows(); return [FIELDS.map(([k]) => csvCell(h[k])).join(","), ...rows.map(r => FIELDS.map(([k]) => csvCell(r[k])).join(","))].join("\r\n"); }
+function renderExport(){
+  const h = headers();
+  if (!$("#maprow").children.length) $("#maprow").innerHTML = FIELDS.map(([k]) => `<label>${esc(FIELDS.find(f => f[0] === k)[1])}<input data-col="${k}" value="${esc(h[k])}"></label>`).join("");
+  const rows = exportRows(), show = rows.slice(0, 14);
+  $("#preview").innerHTML = `<thead><tr>${FIELDS.map(([k]) => `<th>${esc(h[k])}</th>`).join("")}</tr></thead><tbody>${show.map(r => `<tr>${FIELDS.map(([k]) => `<td class="${k === "quote" || k === "relationship" ? "wrapc" : ""}">${esc(r[k])}</td>`).join("")}</tr>`).join("")}</tbody>`;
+  $("#expNote").textContent = `${rows.length} rows${rows.length > show.length ? `, first ${show.length} shown` : ""}. Unticked parties in the register are left out.`;
+}
+function flash(msg){ $("#expMsg").textContent = msg; setTimeout(() => { if ($("#expMsg").textContent === msg) $("#expMsg").textContent = ""; }, 3500); }
+async function copy(text, msg){ try { await navigator.clipboard.writeText(text); flash(msg); } catch (e) { flash("Copy was blocked by the browser. Use Download instead."); } }
+async function download(){
+  const name = `party-finder-${state.setId}-${new Date().toISOString().slice(0, 10)}.csv`, data = csvText();
+  if (downloads){ try { await downloads.save({ filename: name, data }); flash("Saved " + name); return; } catch (e) { if (e?.code === "cancelled" || e?.code === "declined") return; } }
+  try { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([data], { type: "text/csv" })); a.download = name; a.click(); flash("Downloaded " + name); } catch (e) { flash("Download is not available here. Use Copy CSV."); }
+}
+
+/* ---------- live run ---------- */
+function modelOpts(){ const m = $("#model").value; return { model: m, modelTier: MODELS[m]?.tier || "default", effort: $("#depth").value }; }
+function modelLabel(res){ return res?.modelApplied ? (MODELS[res.modelApplied]?.name || res.modelApplied) : `${res?.modelTierApplied || "default"} model (your pick was unavailable)`; }
+function parseJSON(text){ const t = s => { try { return JSON.parse(s); } catch (e) { return null; } }; let v = t(text); if (v) return v; const f = /```(?:json)?\s*([\s\S]*?)```/.exec(text); if (f && (v = t(f[1]))) return v; const a = text.indexOf("{"), b = text.lastIndexOf("}"); return a >= 0 && b > a ? t(text.slice(a, b + 1)) : null; }
+function errText(e){ if (e?.code === "not_granted") return "This page was not allowed to use Claude. Open the artifact's Permissions menu to allow it."; if (e?.code === "rate_limited") return "Claude is busy right now. Wait a minute and run again."; if (e?.code === "invalid_json") return "Claude's answer was not in the expected shape. Run again, or pick Thorough."; return e?.message || "The run did not finish."; }
+async function runLive(){
+  if (!sample || state.busy) return;
+  const s = cur(); if (!s.set.docs.length){ showTab("own"); $("#ownMsg").textContent = "Add at least one document first."; return; }
+  state.busy = true; state.ctl = new AbortController(); const ctl = state.ctl, started = Date.now();
+  $("#runBtn").textContent = "Stop"; $("#ownRun").disabled = true;
+  const box = $("#liveBox"); box.hidden = false;
+  const words = s.set.docs.reduce((n, d) => n + d.text.split(/\s+/).length, 0);
+  box.innerHTML = `<div class="live">
+    <div class="phase on" id="ph1"><i></i>Reading ${s.set.docs.length} document${s.set.docs.length > 1 ? "s" : ""} (${words.toLocaleString()} words) and listing every party</div>
+    <div class="phase" id="ph2"><i></i>Checking every quote against the documents and every name against the intake form</div>
+    <div class="stream" id="stream"></div>
+    <p class="note">A run usually takes one to three minutes. The current list stays on screen until the new one replaces it.</p></div>`;
+  const tick = setInterval(() => { const el = document.querySelector(".phase.on"); if (el) el.lastChild.textContent = el.lastChild.textContent.replace(/ \(\d+s\)$/, "") + ` (${Math.round((Date.now() - started) / 1000)}s)`; }, 1000);
+  try {
+    const r = await sample(PF_PROMPTS.extract(s.set), { ...modelOpts(), signal: ctl.signal, cache: false, onText: ({ text }) => { const el = $("#stream"); if (el) el.textContent = text.slice(-400); } });
+    const res = parseJSON(r.text); if (!res?.parties) throw { code: "invalid_json" };
+    $("#ph1").className = "phase done"; $("#ph2").className = "phase on";
+    s.result = prep(res);
+    const st = stats(), bad = st.q.length - st.ok.length;
+    s.meta = `Live run on ${modelLabel(r)}, ${new Date().toLocaleString()}, ${Math.round((Date.now() - started) / 1000)}s. ${bad ? `${bad} quote${bad > 1 ? "s" : ""} not found word for word, shown in red.` : "Every quote matched its document word for word."}`;
+    clearInterval(tick); box.hidden = true; showTab("overview"); renderAll();
+  } catch (e){
+    clearInterval(tick);
+    if (e?.code === "cancelled" || e?.name === "AbortError") box.hidden = true;
+    else box.innerHTML = `<div class="live"><p class="err">${esc(errText(e))}</p></div>`;
+  } finally { state.busy = false; state.ctl = null; $("#runBtn").textContent = "Run on Claude"; $("#ownRun").disabled = !sample; }
+}
+
+/* ---------- own documents ---------- */
+function loadScript(src){ return new Promise((ok, no) => { const s = document.createElement("script"); s.src = src; s.onload = ok; s.onerror = () => no(new Error("Could not load the file reader.")); document.head.appendChild(s); }); }
+async function readPdf(buf){
+  if (!window.pdfjsLib){ await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"); window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"; }
+  const pdf = await window.pdfjsLib.getDocument({ data: buf }).promise; let out = "";
+  for (let i = 1; i <= pdf.numPages; i++){ const pg = await pdf.getPage(i), c = await pg.getTextContent(); let line = "", text = ""; for (const it of c.items){ line += it.str; if (it.hasEOL){ text += line + "\n"; line = ""; } else line += ""; } text += line; out += `[Page ${i}]\n${text.replace(/[ \t]+/g, " ").trim()}\n\n`; }
+  return out;
+}
+async function readDocx(buf){ if (!window.mammoth) await loadScript("https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"); return (await window.mammoth.extractRawText({ arrayBuffer: buf })).value; }
+async function addFiles(files){
+  for (const f of files){
+    $("#ownMsg").textContent = `Reading ${f.name}...`;
+    try {
+      const ext = f.name.split(".").pop().toLowerCase(); let text;
+      if (ext === "pdf") text = await readPdf(await f.arrayBuffer());
+      else if (ext === "docx") text = await readDocx(await f.arrayBuffer());
+      else text = await f.text();
+      if (!text.trim()){ $("#ownMsg").textContent = `${f.name} has no readable text. A scanned PDF needs OCR first.`; continue; }
+      state.own.docs.push({ id: "D" + (state.own.docs.length + 1), title: f.name, text: text.slice(0, 400000) });
+      $("#ownMsg").textContent = "";
+    } catch (e){ $("#ownMsg").textContent = `Could not read ${f.name}: ${e.message || e}`; }
+  }
+  renderOwn();
+}
+function renderOwn(){
+  $("#ownDocs").innerHTML = state.own.docs.map((d, i) => `<div class="owndoc"><span class="num small muted">${esc(d.id)}</span><span class="t">${esc(d.title)}</span><span class="small muted">${d.text.split(/\s+/).length.toLocaleString()} words</span><button class="btn small" data-rmdoc="${i}">Remove</button></div>`).join("");
+}
+function ownRun(){
+  if (!state.own.docs.length){ $("#ownMsg").textContent = "Add at least one document first."; return; }
+  const intake = $("#ownIntake").value.split("\n").map(l => l.trim()).filter(Boolean).map(l => { const [name, ...r] = l.split("|"); return { name: name.trim(), role: (r.join("|").trim() || "Listed") }; });
+  const set = { id: "own", label: "Your documents", kind: "Your documents", request: $("#ownReq").value.trim(), intake, docs: state.own.docs.map(d => ({ ...d, id: d.id })) };
+  state.sets.own = { set, result: { parties: [] }, meta: "" };
+  if (![...$("#setSel").options].some(o => o.value === "own")) $("#setSel").add(new Option("Your documents", "own"));
+  state.setId = "own"; $("#setSel").value = "own"; renderAll(); runLive();
+}
+
+/* ---------- tabs and events ---------- */
+function showTab(t){ document.querySelectorAll(".nav [role=tab]").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === t)); for (const s of document.querySelectorAll("section[id^=tab-]")) s.hidden = s.id !== "tab-" + t; try { localStorage.setItem("pf:tab", t); } catch (e) {} }
+function gotoParty(id){ state.filter = "all"; state.q = ""; $("#q").value = ""; showTab("register"); renderRegister(); const el = $("#party-" + CSS.escape(id)); if (el){ el.scrollIntoView({ block: "center", behavior: "smooth" }); el.style.background = "var(--accent-soft)"; setTimeout(() => el.style.background = "", 1600); } }
+function gotoSource(id){ const p = cur().result.parties.find(x => x.id === id); if (!p) return; state.docId = check(p).doc; showTab("docs"); renderDocNav(); renderDoc(); const m = $("#m-" + CSS.escape(id)) || [...document.querySelectorAll("#docview mark")].find(x => x.title.includes(p.name)); if (m){ m.scrollIntoView({ block: "center", behavior: "smooth" }); m.classList.add("flash"); setTimeout(() => m.classList.remove("flash"), 1800); } }
+document.addEventListener("click", e => {
+  const b = e.target.closest("button, mark"); if (!b) return;
+  const P = id => cur().result.parties.find(x => x.id === id);
+  if (b.dataset.tab) showTab(b.dataset.tab);
+  else if (b.dataset.f){ state.filter = b.dataset.f; renderRegister(); }
+  else if (b.dataset.goto) gotoParty(b.dataset.goto);
+  else if (b.dataset.src) gotoSource(b.dataset.src);
+  else if (b.dataset.doc){ state.docId = b.dataset.doc; renderDocNav(); renderDoc(); }
+  else if (b.dataset.rmv){ const p = P(b.dataset.rmv); p.variants.splice(Number(b.dataset.i), 1); renderRegister(); renderCompare(); renderExport(); }
+  else if (b.dataset.rmdoc){ state.own.docs.splice(Number(b.dataset.rmdoc), 1); state.own.docs.forEach((d, i) => d.id = "D" + (i + 1)); renderOwn(); }
+  else if (b.id === "runBtn"){ if (state.busy) state.ctl?.abort(); else runLive(); }
+  else if (b.id === "addBtn"){ const n = $("#addName").value.trim(); if (!n) return; const ps = cur().result.parties; ps.push({ id: "U" + (ps.length + 1), name: n, type: /\b(inc|llc|l\.?p|corp|co|company|ltd|plc|llp|trust|bank|partners)\b/i.test(n) ? "entity" : "individual", side: $("#addSide").value, role: "Added by analyst", relationship: "Added by the conflicts analyst.", variants: [], priority: "medium", include: true, quote: null }); $("#addName").value = ""; renderAll(); gotoParty(ps[ps.length - 1].id); }
+  else if (b.id === "dlCsv") download();
+  else if (b.id === "cpCsv") copy(csvText(), "CSV copied.");
+  else if (b.id === "cpTerms") copy([...new Set(exportRows().map(r => r.search))].join("\n"), "Search names copied, one per line.");
+  else if (b.id === "mapReset"){ try { localStorage.removeItem("pf:cols"); } catch (x) {} $("#maprow").innerHTML = ""; renderExport(); }
+  else if (b.id === "pick") $("#file").click();
+  else if (b.id === "pasteAdd"){ const t = $("#pasteText").value.trim(); if (!t) return; state.own.docs.push({ id: "D" + (state.own.docs.length + 1), title: $("#pasteTitle").value.trim() || "Pasted document", text: t }); $("#pasteText").value = ""; $("#pasteTitle").value = ""; renderOwn(); }
+  else if (b.id === "ownRun") ownRun();
+  else if (b.id === "ownReset"){ state.setId = PF_SETS[0].id; $("#setSel").value = state.setId; showTab("overview"); renderAll(); }
+});
+document.addEventListener("change", e => {
+  const t = e.target;
+  if (t.dataset.inc){ const p = cur().result.parties.find(x => x.id === t.dataset.inc); p.include = t.checked; t.closest(".party").classList.toggle("off", !t.checked); renderExport(); }
+  else if (t.name === "shape" || t.id === "onlyNew") renderExport();
+  else if (t.id === "file"){ addFiles([...t.files]); t.value = ""; }
+});
+document.addEventListener("keydown", e => {
+  const t = e.target;
+  if (t.dataset?.addv && e.key === "Enter"){ const v = t.value.trim(); if (!v) return; const p = cur().result.parties.find(x => x.id === t.dataset.addv); p.variants.push(v); renderRegister(); renderCompare(); renderExport(); const n = document.querySelector(`[data-addv="${CSS.escape(p.id)}"]`); n?.focus(); }
+});
+document.addEventListener("input", e => {
+  const t = e.target;
+  if (t.id === "q"){ state.q = t.value; renderRegister(); }
+  else if (t.dataset.col){ const h = headers(); h[t.dataset.col] = t.value || FIELDS.find(f => f[0] === t.dataset.col)[1]; try { localStorage.setItem("pf:cols", JSON.stringify(h)); } catch (x) {} renderExport(); }
+});
+const drop = $("#drop");
+drop.addEventListener("dragover", e => { e.preventDefault(); drop.classList.add("over"); });
+drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+drop.addEventListener("drop", e => { e.preventDefault(); drop.classList.remove("over"); addFiles([...e.dataTransfer.files]); });
+$("#setSel").innerHTML = PF_SETS.map(s => `<option value="${s.id}">${esc(s.label)}</option>`).join("");
+$("#setSel").addEventListener("change", e => { state.setId = e.target.value; state.docId = null; try { localStorage.setItem("pf:set", state.setId); } catch (x) {} renderAll(); });
+try { const m = localStorage.getItem("pf:model"); if (m && MODELS[m]) $("#model").value = m; const s = localStorage.getItem("pf:set"); if (s && state.sets[s]){ state.setId = s; $("#setSel").value = s; } } catch (e) {}
+$("#model").addEventListener("change", e => { try { localStorage.setItem("pf:model", e.target.value); } catch (x) {} });
+renderAll();
+try { const t = localStorage.getItem("pf:tab"); if (t && t !== "own" && $("#tab-" + t)) showTab(t); } catch (e) {}
+$("#runBtn").title = "Connecting to Claude";
+(async () => {
+  try { sample = await window.claude?.use("sample"); } catch (e) { sample = null; }
+  try { downloads = await window.claude?.use("downloads"); } catch (e) { downloads = null; }
+  const rb = $("#runBtn");
+  if (sample){ rb.disabled = false; rb.title = "Find the parties live on your Claude account"; }
+  else { rb.disabled = true; rb.title = "Open this page in Claude to run it live"; document.body.classList.add("no-claude"); $("#ownRun").disabled = true; $("#ownMsg").textContent = "Open this page in Claude to run your own documents."; }
+})();
+</script>
