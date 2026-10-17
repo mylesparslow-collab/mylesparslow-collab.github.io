@@ -182,6 +182,12 @@ span.note { font-style: italic; color: var(--muted); }
       <p class="lede">Software for real businesses, novels and screenplays, games and reference works, and the workflows behind them. Each piece below shows what was made and which AI tools, Claude, ChatGPT, Codex, Suno and models running on my own computer, did which part.</p>
     </div>
     <nav class="toc" aria-label="Sections">
+      <a href="#winyourcase">Case study: Win your case ASAP <span>litigation AI</span></a>
+      <a href="#witnessbreaker">Case study: Witness Breaker <span>deposition prep</span></a>
+      <a href="#citationgate">Case study: Citation Gate <span>brief checking</span></a>
+      <a href="#guidelineguard">Case study: Guideline Guard <span>billing rules</span></a>
+      <a href="#hourcatch">Case study: Hour Catch <span>time capture</span></a>
+      <a href="#partyfinder">Case study: Party Finder <span>conflicts</span></a>
       <a href="#fieldwork">Case study: Fieldwork <span>deal engine</span></a>
       <a href="#conflara">Case study: Conflara <span>legal software</span></a>
       <a href="#vigilmark">Companion: VigilMark <span>trademark watch</span></a>
@@ -203,6 +209,432 @@ span.note { font-style: italic; color: var(--muted); }
       <div><dt>Trivia questions behind three pixel cats</dt><dd>53,648</dd></div>
     </dl>
   </header>
+
+  <!-- WIN YOUR CASE ASAP -->
+  <details class="case" id="winyourcase">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 09 · Legal AI</span>
+      <h2>Win your case ASAP</h2>
+      <p class="sum">A litigator's first read of a new complaint, done in minutes. It ranks every theory that could end the case by how early it can be filed, puts each one on the response clock, and quotes the complaint for every point it makes. Run blind on 26 California federal cases decided after the model’s training cutoff, the ground that actually won made its top three in 14, and 357 of 358 quotations checked out word for word.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="demos/win-your-case.html" target="_blank" rel="noopener">Try the demo</a><span>Saved runs on this site; live analysis runs inside Claude</span></p>
+
+    <dl class="stats">
+      <div><dt>Cases tested blind, decided after the model&rsquo;s cutoff</dt><dd>26</dd></div>
+      <div><dt>Hits</dt><dd>6</dd></div>
+      <div><dt>Partial</dt><dd>10</dd></div>
+      <div><dt>Misses</dt><dd>10</dd></div>
+      <div><dt>Winning ground in the top three</dt><dd>14 of 26</dd></div>
+      <div><dt>Quotes verified</dt><dd>357 of 358</dd></div>
+    </dl>
+
+    <figure class="wide">
+      <img src="assets/wyc-home.jpg" alt="Win your case ASAP on a defamation complaint: a one-paragraph bottom line, 18 days until the first response is due, a note that 16 of 16 quotes were found word for word, and a response clock with six numbered theories pinned at the earliest date each can be filed." width="1400" height="900" loading="lazy">
+      <figcaption>The first screen. The bottom line, days until the first response, every claim's earliest challenge, and a response clock with each theory pinned to the first date it can be filed. This demo matter is invented.</figcaption>
+    </figure>
+
+    <div class="cols">
+      <section class="block">
+        <h3>The problem</h3>
+        <p>The cheapest way to win a lawsuit is to end it early: an anti-SLAPP motion, a demurrer, a motion to compel arbitration, a statute of limitations defense. Those windows open and close in the first weeks after service, often before anyone has read the complaint closely with that question in mind. Miss one and a case that could have ended in month two runs for years.</p>
+      </section>
+      <section class="block">
+        <h3>What it does</h3>
+        <ul>
+          <li><strong>Ranked theories:</strong> each with the motion that carries it, the date it can be filed, the authority, what the client must supply, the other side's best answer, and how far it gets (ends the case, narrows it, or moves it).</li>
+          <li><strong>A response clock</strong> built from the forum's own rules, such as the 60-day anti-SLAPP window or the 30-day state response deadline, with dates exportable to Outlook.</li>
+          <li><strong>A claim-by-theory grid</strong> showing which theory reaches which claim, first moves for this week, and checkpoints a lawyer must confirm.</li>
+          <li><strong>A whole case file:</strong> PDFs, Word files and emails, read in passes when the file is large, and a draft motion outline or memo on request.</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="shots">
+      <figure>
+        <img src="assets/wyc-cornet-score.jpg" alt="Scorecard for Cornet v. Twitter: what actually won was a motion to compel individual arbitration, the tool ranked it first, and its earliest filing date was about two months before the ruling, beside the complaint text with the quoted passages highlighted." width="1400" height="900" loading="lazy">
+        <figcaption>Cornet v. Twitter, scored against the real outcome. The complaint never mentions arbitration, and the tool ranked compelling it first. It is a widely reported case, so the model may have known how it ended.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/wyc-cornet-theory.jpg" alt="Theory 1 for Cornet v. Twitter: the vehicle, filing date and authority, what the client must supply, the plaintiffs' likely answer, the leverage it creates, and two complaint quotes each marked as found word for word." width="1400" height="900" loading="lazy">
+        <figcaption>One theory in full. Every quote carries a check mark only if it was found word for word in the complaint, which sits beside it with the passages highlighted.</figcaption>
+      </figure>
+    </div>
+
+    <section class="block">
+      <h3>Tested against what actually happened</h3>
+      <p>For each case the tool read only the complaint, as of filing, without the outcome. Its ranked theories were then scored against what the court actually did.</p>
+      <div class="grid3">
+        <div><h4>26 cases the model could not have seen</h4><p>California federal cases decided after the model&rsquo;s training cutoff, so it could not have known how they ended. Each was scored against the court&rsquo;s ruling.</p></div>
+        <div><h4>6 hits, 10 partial, 10 misses</h4><p>The ground that actually won appeared in the tool&rsquo;s top three theories in 14 of the 26 cases. A partial means it found part of the winning ground or ranked it low.</p></div>
+        <div><h4>Quotes that check themselves</h4><p>Across the 26 cases, 357 of 358 quoted passages were found word for word in the complaint. The one that was not is flagged on screen rather than hidden.</p></div>
+        <div><h4>The clear blind spot</h4><p>Threshold defenses such as Article III standing are the ground it most often misses. A fix is proposed and has not yet been tested, so the numbers above are from the first version.</p></div>
+        <div><h4>An earlier check looked better</h4><p>On four well-known cases it scored 3 hits and 1 partial. Those cases were widely reported, so the model probably already knew the outcomes, and the 26-case result is the one to trust. The four stay in the demo as examples.</p></div>
+        <div><h4>A measurement, not a guarantee</h4><p>A lawyer reads every theory, confirms the facts it depends on, and decides what to file. The point is a faster, more complete first read, with a score that is public.</p></div>
+      </div>
+    </section>
+
+    <div class="cols">
+      <section class="block">
+        <h3>Decisions behind it</h3>
+        <ul>
+          <li><strong>Earliest first.</strong> Theories are ordered by when they can be filed and how much of the case they end, because the value is in the weeks saved.</li>
+          <li><strong>Code checks the model.</strong> Deadlines come from coded forum rules, and every quote is matched against the source text in the browser.</li>
+          <li><strong>A lawyer decides.</strong> Each theory lists the facts a lawyer must confirm before relying on it, such as whether the plaintiffs actually signed an arbitration agreement.</li>
+          <li><strong>Model choice.</strong> Opus, Sonnet or Fable, with a depth setting, so a team can trade speed against thoroughness.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>Built to run where lawyers already work</h3>
+        <p>It is a single page that runs inside Claude on the user's own account, so it needs no new vendor, server or install. Large case files are read in 140,000-character passes, two at a time; only facts whose quotes verify are carried forward to one final ranking pass. The four demo matters are invented; the real cases use public complaint text and public rulings, with sources linked in the tool.</p>
+      </section>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>Built with Claude Code as a page that calls Claude for the analysis. I set the goal, an early exit from every case, and the test: run it blind on real complaints, including ones decided after the model’s cutoff, and score it against what the court actually did. Claude wrote the page, the forum rules and the demo matters, found the public cases, and wrote up each scorecard for me to review.</p></div>
+    </div>
+  </details>
+
+  <!-- WITNESS BREAKER -->
+  <details class="case" id="witnessbreaker">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 10 · Litigation cheat code</span>
+      <h2>Witness Breaker</h2>
+      <p class="sum">Feed it the documents in a case and a witness’s sworn statements, and it finds every place the story breaks, with the exact quotes on both sides and a deposition script that walks the witness into the admission.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="demos/witness-breaker.html" target="_blank" rel="noopener">Try the demo</a><span>Saved runs on this site; live analysis runs inside Claude</span></p>
+
+    <dl class="stats">
+      <div><dt>Documents read</dt><dd>13</dd></div>
+      <div><dt>Contradictions found</dt><dd>9</dd></div>
+      <div><dt>Case-ending</dt><dd>3</dd></div>
+      <div><dt>Quotes verified word for word</dt><dd>32 of 32</dd></div>
+      <div><dt>Deposition questions scripted</dt><dd>96</dd></div>
+      <div><dt>Admission in the mock deposition</dt><dd>Question 8</dd></div>
+    </dl>
+
+    <div class="shots">
+      <figure>
+        <img src="assets/wb-1.jpg" alt="Witness Breaker headline: the manager swore he learned of the agency complaint only after the firing, but his own message the day before says he knew, with counts of 9 contradictions, 3 case-ending and 32 of 32 quotes verified." width="1400" height="900" loading="lazy">
+        <figcaption>The headline. A decision-maker swore he first learned of a complaint after firing the employee; his own message from the day before shows he knew. Names and case are invented.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/wb-2.jpg" alt="Contradiction C1 shown with the sworn declaration quote beside the contemporaneous message, each marked verified word for word, and a scripted question sequence below." width="1400" height="900" loading="lazy">
+        <figcaption>One contradiction in full: the sworn line beside the record, each checked word for word, the exit the witness will try, and the question sequence that closes it.</figcaption>
+      </figure>
+    </div>
+
+    <div class="cols">
+      <section class="block">
+        <h3>The problem</h3>
+        <p>Depositions are won on the contradictions, and finding them means holding a declaration, an email thread, a performance file and a chat log in your head at once. Associates do it by hand over days, and a missed contradiction is not recoverable once the witness has been prepared and sworn.</p>
+      </section>
+      <section class="block">
+        <h3>What it does</h3>
+        <ul>
+          <li><strong>Ranks contradictions</strong> as case-ending, major or useful, and flags which statements were made under oath.</li>
+          <li><strong>Shows both sides</strong> with the exact quote and the document it came from.</li>
+          <li><strong>Predicts the way out:</strong> what the witness will say to explain it away, and how to close that exit.</li>
+          <li><strong>Writes the deposition script</strong> as commit, confront and close questions, and lists what not to ask.</li>
+          <li><strong>Takes a real case file:</strong> upload documents or paste in your own.</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="cols">
+      <section class="block">
+        <h3>Decisions behind it</h3>
+        <ul>
+          <li><strong>Quotes are checked by code.</strong> Every quoted passage is matched word for word against the source document in the browser, and anything that does not match is flagged.</li>
+          <li><strong>Order matters.</strong> The kill shot is one admission, the sequence to get it, and why it ends the issue.</li>
+          <li><strong>A lawyer decides.</strong> It prepares the examination; it does not decide what to ask.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>What the recorded run showed</h3>
+        <p>It read 13 documents in 256 seconds and found 9 contradictions, 3 of them case-ending, with all 32 quotes verified. In a mock deposition where Claude played a coached witness, the scripted questions produced the key admission at question 8.</p>
+      </section>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>Built with Claude Code as a page that calls Claude for the analysis. I set the idea and the test; Claude wrote the page and prompts, and a script recorded the run shown here. Every client, case and number in the demo is invented.</p></div>
+    </div>
+  </details>
+
+  <!-- CITATION GATE -->
+  <details class="case" id="citationgate">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 11 · Litigation safeguard</span>
+      <h2>Citation Gate</h2>
+      <p class="sum">The last check before a brief is filed. Every case cited is looked up in a database of real opinions, every quotation is matched word for word against the court’s text, and Claude reads the actual opinion to judge whether it says what the brief claims.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><span>No public demo here: screenshots only, since it needs a 28 MB opinion index. All cases and briefs are invented</span></p>
+
+    <dl class="stats">
+      <div><dt>Citations in the test brief</dt><dd>7</dd></div>
+      <div><dt>Problems planted</dt><dd>4</dd></div>
+      <div><dt>Problems caught</dt><dd>4</dd></div>
+      <div><dt>Opinions in the index</dt><dd>256,000</dd></div>
+      <div><dt>Verdict on the brief</dt><dd>Hold, do not file</dd></div>
+      <div><dt>Checked against</dt><dd>Court’s own text</dd></div>
+    </dl>
+
+    <div class="shots">
+      <figure>
+        <img src="assets/cg-1.jpg" alt="Citation Gate showing a red Hold, do not file banner for a seven-case opposition brief, with a table of each citation and whether the case exists, its quotations check out and it supports the point." width="1400" height="900" loading="lazy">
+        <figcaption>The citation table for an invented seven-case brief. Four citations would put a false statement in front of a court, and the first is named in the banner.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/cg-2.jpg" alt="Citation Gate evidence for a misquoted case: the quotation checked against the court’s opinion with five words struck through, and a note that the proposition is overstated." width="1400" height="900" loading="lazy">
+        <figcaption>Evidence for one row. The brief’s quotation differs from the court’s words in five places, and the court did not say what the brief claims it said.</figcaption>
+      </figure>
+    </div>
+
+    <div class="cols">
+      <section class="block">
+        <h3>The problem</h3>
+        <p>Courts have begun sanctioning lawyers for citations to cases that do not exist, quotations that are not in the opinion, and holdings that say the opposite. The risk grows as more drafting is assisted by AI, and an associate cite-checking at midnight is the only barrier.</p>
+      </section>
+      <section class="block">
+        <h3>What it does</h3>
+        <ul>
+          <li><strong>Extracts every authority</strong> from a brief: cite, pin cite, quotations and the proposition each is cited for.</li>
+          <li><strong>Looks up each case</strong> in a local index built from CourtListener, and flags a citation that belongs to a different case.</li>
+          <li><strong>Matches every quotation</strong> against the opinion text, word for word, and marks the words that differ.</li>
+          <li><strong>Reads the opinion</strong> to judge whether it supports the point, and routes anything uncertain to a lawyer.</li>
+          <li><strong>Signs off:</strong> a table a lawyer signs, exported as a file or CSV.</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="cols">
+      <section class="block">
+        <h3>Decisions behind it</h3>
+        <ul>
+          <li><strong>Lookup first, model second.</strong> Existence and quotation checks are plain code against real text; the model only judges support.</li>
+          <li><strong>No text, no pass.</strong> A case with no opinion on file is marked for a lawyer and never cleared.</li>
+          <li><strong>Say what it did not check.</strong> Statutes and rules are listed as not checked by this tool.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>What the recorded run showed</h3>
+        <p>On a 7-case brief with problems planted, it blocked all four: two made-up or mismatched cases, one misquote and one wrong proposition. It cleared the two accurate citations and sent the rest to a lawyer rather than guessing.</p>
+      </section>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>Built with Claude Code as a page that calls Claude for the analysis. I set the idea and the test; Claude wrote the page and prompts, and a script recorded the run shown here. Every client, case and number in the demo is invented.</p></div>
+    </div>
+  </details>
+
+  <!-- GUIDELINE GUARD -->
+  <details class="case" id="guidelineguard">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 12 · Billing compliance</span>
+      <h2>Guideline Guard</h2>
+      <p class="sum">Every client’s outside counsel guidelines, enforced on each prebill before it leaves the firm. Claude reads the guidelines, audits each line, quotes the rule it applies and proposes the fix.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="demos/guideline-guard.html" target="_blank" rel="noopener">Try the demo</a><span>Saved runs on this site; live analysis runs inside Claude</span></p>
+
+    <dl class="stats">
+      <div><dt>Rules extracted from the guidelines</dt><dd>36</dd></div>
+      <div><dt>Prebill entries audited</dt><dd>32</dd></div>
+      <div><dt>Fees on the prebill</dt><dd>$26,000</dd></div>
+      <div><dt>At risk as submitted</dt><dd>$19,325</dd></div>
+      <div><dt>Recoverable by editing</dt><dd>$7,797</dd></div>
+      <div><dt>Entries needing action</dt><dd>23 of 32</dd></div>
+    </dl>
+
+    <div class="shots">
+      <figure>
+        <img src="assets/gg-1.jpg" alt="Guideline Guard audit summary: about $7,850 of $26,000 in fees is unrecoverable as billed, with tiles for fees at risk, recoverable by editing and not payable, and a list of time entries each marked rewrite or not payable." width="1400" height="900" loading="lazy">
+        <figcaption>The audit. Of $26,000 in fees, $19,325 is at risk as submitted, and the page says why in plain terms. The client and its guidelines are invented.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/gg-2.jpg" alt="A time entry marked Not payable because the associate was admitted less than a year earlier, with the guideline quoted and verified, beside a note to the billing partner and habits to change." width="1400" height="900" loading="lazy">
+        <figcaption>Each finding quotes the guideline word for word, shows the rule, and, where it can, proposes a rewritten narrative. A note to the billing partner sums up what to fix first.</figcaption>
+      </figure>
+    </div>
+
+    <div class="cols">
+      <section class="block">
+        <h3>The problem</h3>
+        <p>Clients now send guidelines that decide what they will pay: who may bill, at what rate, how entries are written, which tasks are never billable. Finance finds violations after the invoice is rejected, weeks later, when the work cannot be corrected and the write-off is already coming.</p>
+      </section>
+      <section class="block">
+        <h3>What it does</h3>
+        <ul>
+          <li><strong>Extracts a rulebook</strong> from the client’s guidelines, each rule with its category, a test and the exact sentence it comes from.</li>
+          <li><strong>Audits every entry</strong> as payable, rewrite, reduce, not payable or confirm.</li>
+          <li><strong>Quotes and verifies</strong> the rule behind each finding in the page.</li>
+          <li><strong>Proposes narratives</strong> that meet the rule, and writes a note to the billing partner.</li>
+          <li><strong>Exports to CSV</strong> for the billing team.</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="cols">
+      <section class="block">
+        <h3>Decisions behind it</h3>
+        <ul>
+          <li><strong>Before the invoice, not after.</strong> It runs on the prebill export, when the entry can still be fixed.</li>
+          <li><strong>No new vendor.</strong> It runs on the firm’s existing Claude and a billing export.</li>
+          <li><strong>Honest about the market.</strong> Commercial billing-guideline products exist; this shows what the same check looks like with a licensed model.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>What the recorded run showed</h3>
+        <p>It extracted 36 rules and audited the 32-entry prebill, finding that $19.3k of the $26k in fees would be cut or questioned as submitted and $7.8k of that was recoverable by rewriting or attaching approvals.</p>
+      </section>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>Built with Claude Code as a page that calls Claude for the analysis. I set the idea and the test; Claude wrote the page and prompts, and a script recorded the run shown here. Every client, case and number in the demo is invented.</p></div>
+    </div>
+  </details>
+
+  <!-- HOUR CATCH -->
+  <details class="case" id="hourcatch">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 13 · Time capture</span>
+      <h2>Hour Catch</h2>
+      <p class="sum">Every hour you work gets billed. It reads a lawyer’s day across Outlook, Teams, document history and the phone log, writes the time entries they forgot, and runs each one through Guideline Guard before it reaches billing.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="demos/hour-catch.html" target="_blank" rel="noopener">Try the demo</a><span>Saved runs on this site; live analysis runs inside Claude</span></p>
+
+    <dl class="stats">
+      <div><dt>Typed in from memory</dt><dd>4.1 h</dd></div>
+      <div><dt>Found in the day</dt><dd>7.3 h</dd></div>
+      <div><dt>Value found</dt><dd>$3,937</dd></div>
+      <div><dt>Payable after the guard</dt><dd>$3,632</dd></div>
+      <div><dt>Entries drafted</dt><dd>15</dd></div>
+      <div><dt>Rule quotes verified</dt><dd>25 of 25</dd></div>
+    </dl>
+
+    <div class="shots">
+      <figure>
+        <img src="assets/hc-1.jpg" alt="Hour Catch day view: 4.1 hours typed in from memory against 7.3 hours found in the day, 3,632 dollars payable after Guideline Guard, and a calendar of the day beside draft time entries." width="1400" height="900" loading="lazy">
+        <figcaption>The day. A lawyer typed in 4.1 hours from memory; Hour Catch found 7.3 across 15 entries. The lawyer and clients are invented.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/hc-2.jpg" alt="Hours by matter comparing remembered time to found time for four matters." width="1400" height="900" loading="lazy">
+        <figcaption>Remembered against found, matter by matter, for the same invented day.</figcaption>
+      </figure>
+    </div>
+
+    <div class="cols">
+      <section class="block">
+        <h3>The problem</h3>
+        <p>Time that is worked and not recorded is never billed. Lawyers reconstruct their day from memory at 6:40 pm and reliably remember the long tasks and forget the short ones. Across a firm, even one recovered hour a day is a very large number.</p>
+      </section>
+      <section class="block">
+        <h3>What it does</h3>
+        <ul>
+          <li><strong>Reads the day</strong> from the sources a lawyer already works in and accounts for every activity once.</li>
+          <li><strong>Drafts the entries</strong> in 0.1-hour increments with narratives written to the client’s rules.</li>
+          <li><strong>Runs the guard</strong> on each draft so a recovered hour does not turn into a rejected one.</li>
+          <li><strong>Waits for approval:</strong> nothing is saved to billing until the lawyer approves.</li>
+          <li><strong>Compares</strong> remembered time against found time, by matter.</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="cols">
+      <section class="block">
+        <h3>Decisions behind it</h3>
+        <ul>
+          <li><strong>Approve first.</strong> Drafts are never posted; the lawyer approves each entry.</li>
+          <li><strong>Compliance in the same step.</strong> The guard’s audit is part of capture, so the narratives come out compliant.</li>
+          <li><strong>Say what it assumes.</strong> The $344,300 a year figure on the page is labelled simple arithmetic, not a forecast.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>What the recorded run showed</h3>
+        <p>On one invented lawyer’s day it found 7.3 hours against the 4.1 hours the lawyer would have entered, drafted 15 entries and kept $3,632 payable after the audit. Every activity is accounted for once, and no entry bills more than its logged minutes.</p>
+      </section>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>Built with Claude Code as a page that calls Claude for the analysis. I set the idea and the test; Claude wrote the page and prompts, and a script recorded the run shown here. Every client, case and number in the demo is invented.</p></div>
+    </div>
+  </details>
+
+  <!-- PARTY FINDER -->
+  <details class="case" id="partyfinder">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 14 · Conflicts</span>
+      <h2>Party Finder</h2>
+      <p class="sum">No conflict hides in the paperwork. It reads the complaint, deal documents or engagement request, builds the complete list of names to search, and ties each name to the sentence it came from. The list goes into the firm’s conflicts system, which stays the system of record.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="demos/party-finder.html" target="_blank" rel="noopener">Try the demo</a><span>Saved runs on this site; live analysis runs inside Claude</span></p>
+
+    <dl class="stats">
+      <div><dt>Names on the intake form (litigation)</dt><dd>3</dd></div>
+      <div><dt>Parties found (litigation)</dt><dd>28</dd></div>
+      <div><dt>Names on the intake form (M&A)</dt><dd>3</dd></div>
+      <div><dt>Parties found (M&A)</dt><dd>33</dd></div>
+      <div><dt>Quotes verified</dt><dd>61 of 61</dd></div>
+      <div><dt>Search names with variants (litigation)</dt><dd>101</dd></div>
+    </dl>
+
+    <div class="shots">
+      <figure>
+        <img src="assets/pf-1.jpg" alt="Party Finder overview: 3 names listed on the intake form against 28 parties found, 25 not on the intake form and 11 high priority, with a summary of who is really adverse." width="1400" height="900" loading="lazy">
+        <figcaption>The overview for an invented litigation matter. The requesting attorney listed 3 names; Party Finder found 28, 25 of them not on the intake form.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/pf-2.jpg" alt="Party Finder export for a conflicts system: one row per search name with its primary party, type, role, side and the source quote." width="1400" height="900" loading="lazy">
+        <figcaption>The export. One row per search name, each former name and variant linked back to its primary party, ready to load into the conflicts system.</figcaption>
+      </figure>
+    </div>
+
+    <div class="cols">
+      <section class="block">
+        <h3>The problem</h3>
+        <p>A conflicts search is only as good as the list of names put into it, and the list comes from an intake form with a few names. The parties that create conflicts are usually in the paperwork: a former name, a parent, an insurer, a co-defendant, a trustee.</p>
+      </section>
+      <section class="block">
+        <h3>What it does</h3>
+        <ul>
+          <li><strong>Reads the documents</strong> and builds a party register with each party’s role, side and relationship.</li>
+          <li><strong>Finds what an intake form misses:</strong> former names, parents, affiliates, insurers, counsel, and officers.</li>
+          <li><strong>Explains who is really adverse</strong> and why a name matters, ranked by priority.</li>
+          <li><strong>Quotes the source</strong> sentence for every name, checked word for word in the page.</li>
+          <li><strong>Exports</strong> one row per search name for the firm’s conflicts system.</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="cols">
+      <section class="block">
+        <h3>Decisions behind it</h3>
+        <ul>
+          <li><strong>Feeds the system, does not replace it.</strong> The conflicts system stays the system of record; this fills its input.</li>
+          <li><strong>Every name is traceable.</strong> A name with no verified quote does not make the list.</li>
+          <li><strong>An analyst decides.</strong> It never clears or declines a matter.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>What the recorded run showed</h3>
+        <p>The litigation matter produced 28 parties against 3 on the intake form, and an M&A deal produced 33 against 3. All 61 supporting quotes were found word for word in the documents.</p>
+      </section>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>Built with Claude Code as a page that calls Claude for the analysis. It grows out of the Conflara conflicts work. Every client, party and number in the demo is invented.</p></div>
+    </div>
+  </details>
 
   <!-- FIELDWORK -->
   <details class="case" id="fieldwork">
@@ -1073,6 +1505,12 @@ span.note { font-style: italic; color: var(--muted); }
       <p>This portfolio is about using AI well in general, not one product. Here is which tool did which part of each project. Most projects use more than one.</p>
     </div>
     <div class="grid3">
+      <div><h4>Win your case ASAP</h4><p><strong>Built with:</strong> Claude Code.<br><strong>Runs on:</strong> Claude, inside the user's own Claude account, with a choice of Opus, Sonnet or Fable. Deadlines and quote checks are plain code.</p></div>
+      <div><h4>Witness Breaker</h4><p><strong>Built with:</strong> Claude Code.<br><strong>Runs on:</strong> Claude, inside the user’s own Claude account, with a choice of Opus, Sonnet or Fable. Quote checks are plain code.</p></div>
+      <div><h4>Citation Gate</h4><p><strong>Built with:</strong> Claude Code.<br><strong>Runs on:</strong> Claude, inside the user’s own Claude account, with a choice of Opus, Sonnet or Fable. Case lookup and quotation matching are plain code against a local opinion index.</p></div>
+      <div><h4>Guideline Guard</h4><p><strong>Built with:</strong> Claude Code.<br><strong>Runs on:</strong> Claude, inside the user’s own Claude account, with a choice of Opus, Sonnet or Fable. Rule quotes are verified in the page.</p></div>
+      <div><h4>Hour Catch</h4><p><strong>Built with:</strong> Claude Code.<br><strong>Runs on:</strong> Claude, inside the user’s own Claude account, with a choice of Opus, Sonnet or Fable. Every draft passes through Guideline Guard.</p></div>
+      <div><h4>Party Finder</h4><p><strong>Built with:</strong> Claude Code.<br><strong>Runs on:</strong> Claude, inside the user’s own Claude account, with a choice of Opus, Sonnet or Fable. Source quotes are verified in the page.</p></div>
       <div><h4>Conflara</h4><p><strong>Built with:</strong> Claude Code, including the research, pilot pack and both films.<br><strong>Runs on:</strong> a model on the firm's own hardware through Ollama or any OpenAI-compatible server (default Qwen 2.5 14B Instruct), plus a separate local statistical model for hit ranking.</p></div>
       <div><h4>VigilMark</h4><p><strong>Built with:</strong> Google Gemini.<br><strong>Runs on:</strong> no AI model: scoring is plain, explainable rules.</p></div>
       <div><h4>Fieldwork</h4><p><strong>Built with:</strong> ChatGPT and Codex, including the native Mac app.<br><strong>Runs on:</strong> an optional local model through Ollama, whose output the app labels an unverified hypothesis; scoring, readiness and every gate are plain rules.</p></div>

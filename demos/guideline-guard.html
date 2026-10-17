@@ -1,0 +1,1514 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guideline Guard</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a billing ledger. Summary strip first, then the audit as a ledger of entries, rulebook and notes in a right rail. */
+:root{
+  --bg:#f3f5f6; --panel:#ffffff; --panel2:#e9edef; --ink:#17232b; --ink2:#4b5962; --ink3:#7b8790; --line:#d5dce0;
+  --accent:#1c4f6e; --accent-ink:#ffffff; --accent-soft:#dbe8f0;
+  --pass:#2d7a4f; --pass-bg:#e3f1e8; --rewrite:#9a6700; --rewrite-bg:#fbf0d4; --reduce:#b4551c; --reduce-bg:#fae6d8; --remove:#b42a2a; --remove-bg:#f9e0e0; --confirm:#3b5fb3; --confirm-bg:#e2e8f8; --fixed:#4f6b7a; --fixed-bg:#e4eaee;
+  --display:"IBM Plex Serif",Georgia,serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --bg:#10171c; --panel:#18222a; --panel2:#1f2b34; --ink:#e6ecef; --ink2:#aab7bf; --ink3:#7f8d96; --line:#2c3a44;
+  --accent:#6fb0d6; --accent-ink:#0d1a24; --accent-soft:#1d3444;
+  --pass:#6dc48f; --pass-bg:#173024; --rewrite:#e6b64a; --rewrite-bg:#3a2f12; --reduce:#ec9a62; --reduce-bg:#3c2415; --remove:#f07a7a; --remove-bg:#3f1c1c; --confirm:#8fa9ec; --confirm-bg:#1f2a46; --fixed:#9fb3bf; --fixed-bg:#243038;
+  color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#10171c; --panel:#18222a; --panel2:#1f2b34; --ink:#e6ecef; --ink2:#aab7bf; --ink3:#7f8d96; --line:#2c3a44;
+  --accent:#6fb0d6; --accent-ink:#0d1a24; --accent-soft:#1d3444;
+  --pass:#6dc48f; --pass-bg:#173024; --rewrite:#e6b64a; --rewrite-bg:#3a2f12; --reduce:#ec9a62; --reduce-bg:#3c2415; --remove:#f07a7a; --remove-bg:#3f1c1c; --confirm:#8fa9ec; --confirm-bg:#1f2a46; --fixed:#9fb3bf; --fixed-bg:#243038;
+  color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14.5px;line-height:1.5;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+h1,h2,h3{font-family:var(--display);font-weight:600;text-wrap:balance;margin:0}
+h2{font-size:17px}
+h3{font-size:15px}
+p{margin:0}
+a{color:var(--accent)}
+button{font:inherit;cursor:pointer}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:1240px;margin:0 auto}
+/* top bar */
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px;padding:22px 0 14px;border-bottom:1px solid var(--line)}
+.brand h1{font-size:26px;letter-spacing:-.01em}
+.brand p{color:var(--ink2);max-width:60ch}
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.controls label{font-size:12px;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;display:flex;flex-direction:column;gap:3px}
+select,textarea,input{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:6px 8px}
+select:focus,textarea:focus,input:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:6px;padding:7px 12px;font-weight:500}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn:disabled{opacity:.55;cursor:default}
+.btn.small{padding:4px 9px;font-size:13px}
+/* nav */
+.nav{display:flex;gap:4px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid var(--line)}
+.nav button{border:0;background:transparent;color:var(--ink2);padding:6px 12px;border-radius:6px;font-weight:500}
+.nav button[aria-selected="true"]{background:var(--accent-soft);color:var(--ink)}
+/* run strip */
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:16px 0}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px;min-width:0}
+.tile .k{font-size:12px;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em}
+.tile .v{font-family:var(--mono);font-size:24px;font-weight:500;margin-top:2px;font-variant-numeric:tabular-nums}
+.tile .s{font-size:12.5px;color:var(--ink2)}
+.tile.risk .v{color:var(--remove)} .tile.rec .v{color:var(--rewrite)} .tile.fix .v{color:var(--pass)}
+.runmeta{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;font-size:13px;color:var(--ink2);margin:4px 0 14px}
+.runmeta .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--pass);margin-right:6px}
+.bottom{font-family:var(--display);font-size:18px;line-height:1.4;margin:10px 0 6px}
+/* columns */
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,360px);gap:18px;align-items:start}
+@media (max-width:900px){.cols{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;min-width:0}
+.panel+.panel{margin-top:14px}
+.panel h2{margin-bottom:8px}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 12px}
+.filters button{border:1px solid var(--line);background:var(--panel);color:var(--ink2);border-radius:999px;padding:3px 10px;font-size:13px}
+.filters button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+/* ledger entries */
+.entry{display:grid;grid-template-columns:52px minmax(0,1fr);gap:10px;padding:12px 0;border-top:1px solid var(--line)}
+.entry:first-of-type{border-top:0}
+.entry .id{font-family:var(--mono);color:var(--ink3);font-size:13px;padding-top:3px}
+.entry .meta{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:13px;color:var(--ink2);align-items:center}
+.entry .meta b{color:var(--ink);font-weight:500}
+.entry .narr{margin-top:4px}
+.chip{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:1px 9px;font-size:12px;font-weight:600;letter-spacing:.02em;text-transform:uppercase}
+.chip i{width:7px;height:7px;border-radius:50%;background:currentColor;display:inline-block}
+.v-pass{color:var(--pass);background:var(--pass-bg)} .v-rewrite{color:var(--rewrite);background:var(--rewrite-bg)} .v-reduce{color:var(--reduce);background:var(--reduce-bg)} .v-remove{color:var(--remove);background:var(--remove-bg)} .v-confirm{color:var(--confirm);background:var(--confirm-bg)} .v-fixed{color:var(--fixed);background:var(--fixed-bg)}
+.finding{margin-top:8px;border-left:3px solid var(--line);padding:6px 12px;display:grid;gap:6px;background:var(--panel2);border-radius:0 6px 6px 0}
+.finding.pass{display:none}
+.finding .why{color:var(--ink)}
+.quote{font-size:13px;color:var(--ink2)}
+.quote q{font-style:italic}
+.quote .ok{color:var(--pass);font-weight:600;font-size:12px;margin-left:6px}
+.quote .bad{color:var(--remove);font-weight:600;font-size:12px;margin-left:6px}
+.rw{display:grid;gap:4px}
+.rw .lab{font-size:12px;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em}
+.rw .txt{font-family:var(--body);background:var(--panel);border:1px dashed var(--line);border-radius:6px;padding:6px 10px}
+.rules-used{font-size:12.5px;color:var(--ink3)}
+.money{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.money.risk{color:var(--remove)}
+/* rulebook */
+.rule{padding:8px 0;border-top:1px solid var(--line);font-size:13.5px}
+.rule:first-child{border-top:0}
+.rule .t{font-weight:600}
+.rule .cat{font-size:11.5px;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;margin-left:6px}
+.rule .test{color:var(--ink2)}
+.rule .q{font-size:12.5px;color:var(--ink3);font-style:italic}
+details summary{cursor:pointer;font-weight:500;color:var(--ink2);padding:6px 0}
+.note{font-size:13px;color:var(--ink2)}
+.callout{border-left:3px solid var(--accent);padding:6px 12px;background:var(--accent-soft);border-radius:0 6px 6px 0;margin-top:8px;font-size:13.5px}
+.callout .q{color:var(--ink2);font-style:italic;font-size:12.5px}
+/* bars */
+.bars{display:grid;gap:6px;margin-top:8px}
+.bar{display:grid;grid-template-columns:150px minmax(0,1fr) 80px;gap:8px;align-items:center;font-size:13px}
+.bar .track{height:12px;background:var(--panel2);border-radius:3px;overflow:hidden}
+.bar .fill{height:100%;background:var(--remove);border-radius:0 3px 3px 0;min-width:2px}
+.bar .fill.rec{background:var(--rewrite)}
+.bar .amt{text-align:right}
+/* tables */
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;color:var(--ink3);text-transform:uppercase;letter-spacing:.05em;font-weight:500;white-space:nowrap}
+td.r,th.r{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+td.edited{background:var(--pass-bg)}
+.src{white-space:pre-wrap;font-family:var(--body);font-size:14px;line-height:1.55;max-width:75ch}
+.src mark{background:var(--rewrite-bg);color:inherit;padding:0 1px}
+/* live */
+.live{display:grid;gap:8px;padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);margin:14px 0}
+.phase{display:flex;gap:8px;align-items:center;color:var(--ink3)}
+.phase i{width:9px;height:9px;border-radius:50%;border:2px solid var(--line);display:inline-block}
+.phase.on{color:var(--ink)} .phase.on i{border-color:var(--accent);background:var(--accent)}
+.phase.done{color:var(--ink2)} .phase.done i{background:var(--pass);border-color:var(--pass)}
+.stream{font-family:var(--mono);font-size:12px;color:var(--ink3);white-space:pre-wrap;max-height:90px;overflow:hidden}
+.err{color:var(--remove);font-weight:500}
+/* program */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:8px}
+.step{border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:13.5px}
+.step b{display:block;margin-bottom:3px}
+.calc{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:8px;align-items:end}
+.calc label{display:flex;flex-direction:column;gap:3px;font-size:12.5px;color:var(--ink2)}
+.calc .out{font-family:var(--mono);font-size:22px;color:var(--ink)}
+ul{margin:6px 0 0;padding-left:18px}
+li{margin:3px 0}
+.own{display:grid;gap:10px}
+.own textarea{min-height:140px;font-family:var(--mono);font-size:12.5px}
+@media (prefers-reduced-motion:no-preference){.phase.on i{animation:pulse 1.2s infinite alternate}}
+@keyframes pulse{from{opacity:.5}to{opacity:1}}
+.no-claude .claude-only{display:none}
+</style>
+
+<div class="wrap">
+<header class="top">
+  <div class="brand">
+    <h1>Guideline Guard</h1>
+    <p>Every client's outside counsel guidelines, enforced on every prebill before it leaves the firm. Claude reads the guidelines, audits each line, quotes the rule it applied, and the biller decides.</p>
+  </div>
+  <div class="controls">
+    <label class="claude-only">Model<select id="model"><option value="claude-fable-5-1">Fable 5.1</option><option value="claude-opus-5-5">Opus 5.5</option><option value="claude-sonnet-5-5">Sonnet 5.5</option></select></label>
+    <label class="claude-only">Depth<select id="depth"><option value="low">Quick</option><option value="medium" selected>Standard</option><option value="high">Deep</option></select></label>
+    <label class="claude-only">Rulebook<select id="rbmode"><option value="reuse">Reuse extracted</option><option value="fresh">Extract again</option></select></label>
+    <button class="btn primary" id="runBtn" disabled>Run on Claude</button>
+  </div>
+</header>
+
+<nav class="nav" role="tablist">
+  <button role="tab" aria-selected="true" data-tab="audit">Audit</button>
+  <button role="tab" aria-selected="false" data-tab="prebill">Prebill</button>
+  <button role="tab" aria-selected="false" data-tab="guidelines">Guidelines</button>
+  <button role="tab" aria-selected="false" data-tab="own">Use your own</button>
+  <button role="tab" aria-selected="false" data-tab="firm">At the firm</button>
+</nav>
+
+<section id="tab-audit">
+  <div id="liveBox" hidden></div>
+  <div id="summary"></div>
+  <div class="cols">
+    <div>
+      <div class="panel">
+        <h2>Time entries</h2>
+        <div class="filters" id="filters"></div>
+        <div id="entries"></div>
+      </div>
+      <div class="panel">
+        <h2>Expenses</h2>
+        <div id="expenses"></div>
+      </div>
+    </div>
+    <aside>
+      <div class="panel" id="notePanel"></div>
+      <div class="panel" id="patternPanel"></div>
+      <div class="panel" id="chartPanel"></div>
+      <div class="panel" id="rulebookPanel"></div>
+      <div class="panel" id="deskPanel"></div>
+    </aside>
+  </div>
+</section>
+
+<section id="tab-prebill" hidden>
+  <div class="panel">
+    <h2 id="prebillTitle"></h2>
+    <p class="note" id="prebillNote"></p>
+    <div class="tablewrap" id="prebillTable"></div>
+  </div>
+</section>
+
+<section id="tab-guidelines" hidden>
+  <div class="panel">
+    <h2>Client guidelines as loaded</h2>
+    <p class="note">Highlighted passages are the ones Claude quoted in the current audit. Every quote on the Audit tab was matched against this text word for word.</p>
+    <div class="src" id="guidelinesSrc" style="margin-top:10px"></div>
+  </div>
+</section>
+
+<section id="tab-own" hidden>
+  <div class="panel own">
+    <h2>Run it on your own guidelines and prebill</h2>
+    <p class="note">Paste a client's outside counsel guidelines and the lines of a prebill. Nothing is stored; the run uses your own Claude account. Until the firm confirms the data terms of its Claude plan, use invented or already-public material here.</p>
+    <label>Guidelines (plain text)<textarea id="ownGuide" placeholder="Paste the outside counsel guidelines here"></textarea></label>
+    <label>Time entries, one per line: date | timekeeper | hours | rate | narrative<textarea id="ownEntries" placeholder="2026-09-02 | RA | 0.4 | 825 | Telephone conference with client re: termination notice"></textarea></label>
+    <label>Expenses, one per line (optional): date | amount | description<textarea id="ownExp" style="min-height:70px" placeholder="2026-09-12 | 412.00 | Westlaw research charges"></textarea></label>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" id="ownLoad">Load and run on Claude</button><button class="btn" id="ownReset">Back to the sample matter</button></div>
+    <p class="note" id="ownMsg"></p>
+  </div>
+</section>
+
+<section id="tab-firm" hidden>
+  <div class="panel">
+    <h2>What this would look like at the firm</h2>
+    <div class="steps">
+      <div class="step"><b>1. Prebill out of Aderant</b>Billing already produces a prebill for every matter each month. The same report, exported as text, is the input. No integration is needed for a pilot.</div>
+      <div class="step"><b>2. Guidelines out of the document system</b>Each client's guidelines are extracted into a rulebook once, then reused every month. The rulebook can be loaded into Intapp Terms later if the firm adopts that module.</div>
+      <div class="step"><b>3. The biller reviews, Claude checks</b>Claude flags, quotes and proposes rewrites. The biller applies what they agree with and sends a bill the client will pay. Nothing changes in Aderant without a person.</div>
+      <div class="step"><b>4. Later: automatic</b>A scheduled run on every prebill, with narrative write-back through Aderant, and a monthly report of dollars protected by client and by timekeeper.</div>
+    </div>
+  </div>
+  <div class="panel">
+    <h2>Why IT can say yes</h2>
+    <ul>
+      <li><b>Runs on what the firm already licenses.</b> Claude seats, the Aderant prebill report and the document system. No new vendor, no procurement, no client data in a new place.</li>
+      <li><b>No new data exposure.</b> Time narratives and expense lines already leave the firm every month to clients and e-billing platforms. The guidelines are the client's own document. [Confirm the data terms of the firm's Claude plan; enterprise terms exclude training on inputs.]</li>
+      <li><b>Every claim is checked.</b> Each flag quotes the guideline word for word, and the page matches the quote against the source text. A misquote shows in red before anyone acts on it.</li>
+      <li><b>A person decides.</b> The tool proposes; the biller applies. Aderant stays the system of record.</li>
+      <li><b>Auditable.</b> Each run records the model, the depth and the time, and the prompts are fixed text in this page, not a chat.</li>
+      <li><b>A path inside the firewall.</b> The audit step is a classification task. The firm's local-model bake-off showed a 9B model handling this class of work, so the step can move to firm hardware if the data terms are not settled.</li>
+    </ul>
+  </div>
+  <div class="panel">
+    <h2>What it is worth</h2>
+    <p class="note">Illustrative only. Replace the figures with the firm's own: fees billed through e-billing platforms, last year's reduction rate on those invoices, and the share of reductions that were guideline violations the firm could have caught. Each is an estimate until Finance pulls the numbers from Aderant.</p>
+    <div class="calc">
+      <label>Fees through e-billing per year ($)<input id="cFees" type="number" value="40000000" step="1000000"></label>
+      <label>Reduced or appealed (%)<input id="cRate" type="number" value="3" step="0.5"></label>
+      <label>Preventable share (%)<input id="cPrev" type="number" value="50" step="5"></label>
+      <div><div class="k note">Protected per year, estimate</div><div class="out" id="cOut"></div></div>
+    </div>
+  </div>
+  <div class="panel">
+    <h2>Where this sits next to the other tools</h2>
+    <p class="note">Matter Desk runs attorney workflows on matter documents. Marketing Studio drafts and checks firm content. Guideline Guard is the first tool for the business side of the firm: Finance owns the metric, Billing runs it monthly, and the conflicts desk gets each client's consent and affiliate terms as a by-product of the same extraction.</p>
+  </div>
+</section>
+</div>
+
+<script>
+/* Guideline Guard sample data. Every client, company, person and matter here is invented. */
+const GG_DATA = {
+client: "Pellbrook Technologies, Inc.",
+matter: { number: "2026-0347-002", name: "Pellbrook Technologies / Marrowgate Supply Co. supply agreement dispute", period: "September 1 to 30, 2026", manager: "S. Nakamura-Pell, Senior Counsel, Pellbrook Legal" },
+timekeepers: [
+  { code: "RA", name: "R. Ashcombe", title: "Partner", rate: 825, approved: true, admitted: 2004 },
+  { code: "DQ", name: "D. Quillfeather", title: "Senior Associate", rate: 610, approved: true, admitted: 2018 },
+  { code: "JF", name: "J. Farrowdale", title: "Associate", rate: 540, approved: false, admitted: 2022 },
+  { code: "TB", name: "T. Brindlewood", title: "Associate", rate: 455, approved: true, admitted: 2025 },
+  { code: "MO", name: "M. Okonkwo-Vane", title: "Paralegal", rate: 295, approved: true, admitted: null }
+],
+staffingPlanNote: "Approved staffing plan on file (dated January 14, 2026): R. Ashcombe (lead partner), D. Quillfeather, T. Brindlewood, M. Okonkwo-Vane. T. Brindlewood was admitted to the California bar in December 2025.",
+guidelines: `PELLBROOK TECHNOLOGIES, INC.
+OUTSIDE COUNSEL GUIDELINES
+Effective January 1, 2026
+
+These Guidelines apply to all legal services provided to Pellbrook Technologies, Inc. and its subsidiaries ("Pellbrook") by outside counsel ("the Firm"). By accepting an engagement, the Firm agrees to comply with these Guidelines. Invoices that do not comply will be reduced or returned.
+
+1. STAFFING
+
+1.1 Only timekeepers identified in the staffing plan approved in writing by the Pellbrook matter manager may bill time to a Pellbrook matter. Any additional timekeeper must be approved in writing by the matter manager before performing any work.
+
+1.2 Pellbrook will not pay for time billed by summer associates, law clerks, or associates with less than one year of practice following bar admission.
+
+1.3 Hourly rates are frozen for calendar year 2026 at the rates set out in the approved staffing plan. Rate increases require sixty (60) days' advance written notice and Pellbrook's written consent.
+
+1.4 Pellbrook will not pay for time spent by a new or substitute timekeeper becoming familiar with a matter, including reviewing the file to get up to speed.
+
+2. TIME RECORDING AND NARRATIVES
+
+2.1 Time must be recorded in increments of one-tenth (0.1) of an hour and must reflect actual time spent. Minimum charges are not permitted.
+
+2.2 Block billing is prohibited. Each task must be recorded as a separate entry with its own time.
+
+2.3 Each narrative must describe the specific task performed and its subject matter. For conferences, calls and correspondence, the narrative must identify the participants and the purpose of the communication. Entries such as "attention to file," "review file," "work on case," or "revise document" without more are not acceptable and will not be paid.
+
+2.4 Time must be recorded contemporaneously. Time entered more than thirty (30) days after the work was performed may be rejected.
+
+3. CONFERENCES, MEETINGS AND DUPLICATION
+
+3.1 Pellbrook will pay for only one timekeeper to attend any internal conference unless the narrative explains why each additional participant was necessary.
+
+3.2 Only one attorney may bill for attending a deposition, hearing, mediation, meeting or client call unless the matter manager has approved additional attendance in advance.
+
+3.3 Pellbrook will not pay for duplicative review of the same document by multiple timekeepers, or for the review of work product by a timekeeper not approved for the matter.
+
+4. RESEARCH, MOTIONS AND EXPERTS
+
+4.1 Legal research exceeding three (3) hours on any single issue requires the advance approval of the matter manager. The Firm is expected to draw on its existing knowledge and prior work product before conducting new research.
+
+4.2 The Firm must obtain the matter manager's approval before filing any motion, commencing any proceeding, or retaining any expert or consultant.
+
+5. NON-BILLABLE ACTIVITIES
+
+5.1 The following are not billable under any circumstances: conflicts checks; preparing, reviewing or revising invoices; responding to billing inquiries; preparing budgets or staffing plans; and time spent reading or complying with these Guidelines.
+
+5.2 Administrative and clerical tasks are not billable regardless of who performs them, including scheduling, calendaring, filing, photocopying, scanning, document organization, Bates stamping and data entry.
+
+5.3 Pellbrook will not pay for training, continuing legal education, or firm overhead activities.
+
+5.4 Routine monthly status reports are expected and may be billed at no more than 0.3 hours per report.
+
+6. TRAVEL
+
+6.1 Travel time is billed at fifty percent (50%) of the timekeeper's approved hourly rate. Travel time is not billable at all if the timekeeper performs work for other clients during the travel.
+
+6.2 Air travel is reimbursed at coach fare. Lodging and meals are reimbursed at reasonable cost and must be itemized.
+
+7. EXPENSES
+
+7.1 Pellbrook will not reimburse firm overhead, including online legal research charges (Westlaw, Lexis or similar), word processing, secretarial or paralegal overtime, local meals, office supplies, or local telephone charges.
+
+7.2 Photocopying and printing are reimbursed at cost, not to exceed $0.10 per page. Outside vendor charges are reimbursed at actual cost without markup.
+
+7.3 Any single expense exceeding $500 requires the matter manager's approval in advance.
+
+8. BUDGETS AND INVOICES
+
+8.1 Any matter expected to exceed $25,000 in fees requires a budget approved by the matter manager before substantive work begins. Each invoice must report fees to date against the approved budget.
+
+8.2 Invoices must be submitted monthly in LEDES format with UTBMS task codes. Invoices received more than ninety (90) days after the end of the billing period will not be paid.
+
+9. CONFLICTS OF INTEREST
+
+9.1 Pellbrook does not consent to any advance or blanket waiver of conflicts. The Firm must notify the Pellbrook General Counsel in writing and obtain written consent before accepting any representation adverse to Pellbrook or any of its subsidiaries or affiliates listed on Exhibit A, as updated from time to time.
+
+9.2 The Firm must run a conflicts check that includes the entities on Exhibit A before opening any new matter for Pellbrook and must disclose any potential conflict within five (5) business days of discovering it.
+
+10. CONFIDENTIALITY, DATA SECURITY AND ARTIFICIAL INTELLIGENCE
+
+10.1 The Firm must protect Pellbrook Confidential Information in accordance with the Pellbrook Information Security Addendum and must report any security incident involving Pellbrook information within forty-eight (48) hours.
+
+10.2 The Firm may not submit Pellbrook Confidential Information to any generative artificial intelligence tool unless the tool is an enterprise service that contractually prohibits the provider from training on the Firm's inputs and the Firm has completed a security review of the tool. The Firm will disclose, on request, which artificial intelligence tools were used on Pellbrook matters.
+
+10.3 A lawyer must review all work product prepared with the assistance of artificial intelligence before it is relied upon or delivered to Pellbrook. Pellbrook will not pay for time spent correcting errors introduced by artificial intelligence tools.
+
+11. COMMUNICATION
+
+11.1 The Firm must copy the matter manager on all substantive correspondence with opposing counsel and must provide copies of all filings on the day they are filed.
+
+11.2 Settlement authority rests solely with Pellbrook. The Firm may not make or accept any settlement proposal without written authorization.
+
+EXHIBIT A: AFFILIATES (as of January 1, 2026)
+Pellbrook Technologies, Inc.; Pellbrook Devices GmbH; Pellbrook Cloud Services LLC; Sorrelwick Analytics, Inc. (majority-owned); Brackenridge Sensor Partners, L.P. (joint venture).`,
+entries: [
+  { id: 1, date: "2026-09-02", entered: "2026-09-02", tk: "RA", hours: 0.4, code: "L120", narrative: "Telephone conference with S. Nakamura-Pell (Pellbrook Legal) re: Marrowgate's September 1 notice of termination and strategy for response." },
+  { id: 2, date: "2026-09-02", entered: "2026-09-03", tk: "DQ", hours: 2.3, code: "L120", narrative: "Review Supply Agreement (Sections 7, 11 and 14) and Marrowgate termination notice; prepare outline of breach and cure arguments." },
+  { id: 3, date: "2026-09-03", entered: "2026-09-03", tk: "TB", hours: 3.1, code: "L120", narrative: "Legal research re: California law on anticipatory repudiation and demand for adequate assurance of performance (Cal. Com. Code section 2609)." },
+  { id: 4, date: "2026-09-03", entered: "2026-09-04", tk: "MO", hours: 1.5, code: "L140", narrative: "Organize and Bates stamp documents received from client (PELL000001 to PELL000884)." },
+  { id: 5, date: "2026-09-04", entered: "2026-09-04", tk: "RA", hours: 0.3, code: "L120", narrative: "Review file." },
+  { id: 6, date: "2026-09-04", entered: "2026-09-04", tk: "DQ", hours: 0.8, code: "L120", narrative: "Draft response to Marrowgate termination notice asserting cure period under Section 14.2 and demanding adequate assurance." },
+  { id: 7, date: "2026-09-05", entered: "2026-09-05", tk: "RA", hours: 0.6, code: "L120", narrative: "Conference with D. Quillfeather and T. Brindlewood re: response letter." },
+  { id: 8, date: "2026-09-05", entered: "2026-09-05", tk: "DQ", hours: 0.6, code: "L120", narrative: "Conference with R. Ashcombe and T. Brindlewood re: response letter." },
+  { id: 9, date: "2026-09-05", entered: "2026-09-08", tk: "TB", hours: 0.6, code: "L120", narrative: "Conference with R. Ashcombe and D. Quillfeather re: response letter." },
+  { id: 10, date: "2026-09-08", entered: "2026-09-08", tk: "MO", hours: 0.4, code: "L110", narrative: "Run conflicts check on Marrowgate Supply Co. and its parent, Marrowgate Holdings Ltd." },
+  { id: 11, date: "2026-09-08", entered: "2026-09-08", tk: "DQ", hours: 0.5, code: "L120", narrative: "Telephone conference with S. Nakamura-Pell re: Marrowgate's reply to response letter and next steps toward mediation." },
+  { id: 12, date: "2026-09-09", entered: "2026-09-09", tk: "DQ", hours: 1.2, code: "L120", narrative: "Revise letter." },
+  { id: 13, date: "2026-09-10", entered: "2026-09-10", tk: "RA", hours: 0.5, code: "L120", narrative: "Review and finalize response letter to Marrowgate; email to S. Nakamura-Pell transmitting final letter." },
+  { id: 14, date: "2026-09-11", entered: "2026-09-11", tk: "JF", hours: 2.0, code: "L110", narrative: "Review Supply Agreement and background correspondence to get up to speed on matter." },
+  { id: 15, date: "2026-09-12", entered: "2026-09-12", tk: "DQ", hours: 4.5, code: "L120", narrative: "Legal research re: enforceability of consequential damages waiver in Section 11.3 under California law; draft memorandum to R. Ashcombe summarizing findings." },
+  { id: 16, date: "2026-09-15", entered: "2026-09-15", tk: "MO", hours: 2.2, code: "L140", narrative: "Prepare chronology of correspondence between Pellbrook and Marrowgate (June through August 2026) for use in mediation statement." },
+  { id: 17, date: "2026-09-16", entered: "2026-09-16", tk: "RA", hours: 3.0, code: "L120", narrative: "Travel from San Francisco to Sacramento and return for meeting with Pellbrook supply chain team." },
+  { id: 18, date: "2026-09-16", entered: "2026-09-16", tk: "RA", hours: 2.0, code: "L120", narrative: "Meeting with Pellbrook supply chain team (K. Oyelaran, P. Dusek) and S. Nakamura-Pell re: delivery history, shortfall calculations and damages." },
+  { id: 19, date: "2026-09-16", entered: "2026-09-16", tk: "DQ", hours: 2.0, code: "L120", narrative: "Attend meeting with Pellbrook supply chain team (K. Oyelaran, P. Dusek) and S. Nakamura-Pell re: delivery history, shortfall calculations and damages." },
+  { id: 20, date: "2026-09-17", entered: "2026-09-17", tk: "DQ", hours: 0.25, code: "L160", narrative: "Email to opposing counsel (H. Varga) proposing mediation dates in October." },
+  { id: 21, date: "2026-09-18", entered: "2026-09-18", tk: "TB", hours: 1.8, code: "L120", narrative: "Cite-check memorandum on consequential damages waiver." },
+  { id: 22, date: "2026-09-19", entered: "2026-09-19", tk: "RA", hours: 0.7, code: "L110", narrative: "Prepare budget for matter through mediation for submission to Pellbrook Legal." },
+  { id: 23, date: "2026-09-22", entered: "2026-09-22", tk: "DQ", hours: 5.5, code: "L160", narrative: "Draft mediation statement: factual background, breach analysis under Sections 7 and 14, damages summary and settlement framework." },
+  { id: 24, date: "2026-09-23", entered: "2026-09-23", tk: "RA", hours: 1.5, code: "L160", narrative: "Review and revise draft mediation statement, including damages summary and settlement framework." },
+  { id: 25, date: "2026-09-23", entered: "2026-09-23", tk: "JF", hours: 1.0, code: "L160", narrative: "Review draft mediation statement." },
+  { id: 26, date: "2026-09-24", entered: "2026-09-24", tk: "MO", hours: 0.6, code: "L160", narrative: "Schedule mediation with JAMS and circulate calendar invitations to all parties." },
+  { id: 27, date: "2026-09-25", entered: "2026-09-25", tk: "DQ", hours: 0.3, code: "L110", narrative: "Review Pellbrook outside counsel guidelines re: approval requirements for mediation and motion practice." },
+  { id: 28, date: "2026-09-26", entered: "2026-09-26", tk: "RA", hours: 0.5, code: "L110", narrative: "Prepare monthly status report to Pellbrook Legal re: termination dispute, mediation scheduling and budget." },
+  { id: 29, date: "2026-09-29", entered: "2026-09-29", tk: "DQ", hours: 1.1, code: "L230", narrative: "Prepare draft motion to compel arbitration under Section 16 of the Supply Agreement." },
+  { id: 30, date: "2026-08-12", entered: "2026-09-29", tk: "DQ", hours: 0.9, code: "L120", narrative: "Telephone conference with S. Nakamura-Pell re: initial facts of Marrowgate delivery shortfalls." },
+  { id: 31, date: "2026-09-30", entered: "2026-09-30", tk: "RA", hours: 0.3, code: "L110", narrative: "Attention to invoice; review prebill for September." },
+  { id: 32, date: "2026-09-30", entered: "2026-09-30", tk: "MO", hours: 0.8, code: "L160", narrative: "Prepare exhibit binder index for mediation statement, cross-referencing chronology to PELL Bates ranges." }
+],
+expenses: [
+  { id: "E1", date: "2026-09-12", desc: "Westlaw online legal research charges, September 2026", amount: 412.00 },
+  { id: "E2", date: "2026-09-22", desc: "In-house photocopying, 1,200 pages at $0.20 per page", amount: 240.00 },
+  { id: "E3", date: "2026-09-24", desc: "JAMS mediation deposit (invoice 88213)", amount: 3500.00 },
+  { id: "E4", date: "2026-09-16", desc: "Amtrak coach fare, San Francisco to Sacramento round trip (R. Ashcombe)", amount: 78.00 }
+]
+};
+
+/* Prompts shared by the page (live runs) and run.js (recorded run). */
+const GG_PROMPTS = {
+rulebook(guidelines){
+return `You are a senior legal billing compliance specialist at a California law firm. Convert the client's outside counsel guidelines below into a rulebook that a reviewer can apply, line by line, to a prebill (draft invoice) before it goes to the client.
+
+Reply with ONLY a JSON object, no prose and no code fence, in this shape:
+{
+ "summary": "two plain-English sentences on what this client cares most about",
+ "rules": [
+   {"id": "2.2", "category": "one of: Staffing | Narratives | Conferences and duplication | Research and motions | Non-billable | Travel | Expenses | Budgets and invoices | Conflicts | Data security and AI | Communication",
+    "title": "4 to 8 words", "test": "one sentence a reviewer can apply to a single time entry or expense",
+    "quote": "10 to 40 words copied EXACTLY from the guidelines, character for character",
+    "applies": "fees | expenses | both | desk"}
+ ],
+ "for_conflicts_desk": [{"point": "what the conflicts team must do or track for this client", "quote": "exact quote from the guidelines"}],
+ "for_it": [{"point": "what IT or information security must do or confirm for this client, including anything about artificial intelligence tools", "quote": "exact quote from the guidelines"}]
+}
+Rules:
+- One rule per enforceable requirement. Use the guideline's own section number as the id. Cover every section, including conflicts, data security and communication; mark rules that cannot be tested against an invoice line as "desk".
+- Every quote is checked word for word against the source text in the page, and a quote that does not match is shown in red, so copy exactly. Do not paraphrase inside quotes. Keep straight quotation marks and the original punctuation.
+- No em-dashes anywhere. Plain English.
+
+=== OUTSIDE COUNSEL GUIDELINES ===
+${guidelines}
+=== END ===`;
+},
+audit({ rulebook, timekeepers, staffingNote, entries, expenses, matter, today }){
+const tk = timekeepers.map(t => `${t.code}: ${t.name}, ${t.title}, rate ${t.rate}/hour, ${t.approved ? "on the approved staffing plan" : "NOT on the approved staffing plan"}${t.admitted ? `, admitted to the bar ${t.admitted}` : ""}`).join("\n");
+const ent = entries.map(e => `#${e.id} | work date ${e.date} | entered ${e.entered} | ${e.tk} | ${e.hours.toFixed(2)} h | task ${e.code} | ${e.narrative}`).join("\n");
+const exp = expenses.map(x => `${x.id} | ${x.date} | ${x.amount.toFixed(2)} | ${x.desc}`).join("\n");
+return `You are a senior legal billing compliance specialist reviewing a prebill before it is sent to the client. Apply the client's rulebook to every time entry and every expense. Be strict but fair: the goal is to fix what the client would reject and keep what the client would pay.
+
+Today is ${today}. Matter ${matter.number}, ${matter.name}. Billing period: ${matter.period}. Matter manager: ${matter.manager}.
+
+Timekeepers:
+${tk}
+${staffingNote}
+
+Rulebook (JSON, derived from the client's outside counsel guidelines; the "quote" fields are exact text from the guidelines):
+${JSON.stringify(rulebook.rules)}
+
+Time entries (id | work date | date entered | timekeeper | hours | UTBMS task | narrative):
+${ent}
+
+Expenses (id | date | amount | description):
+${exp}
+
+Reply with ONLY a JSON object, no prose and no code fence, in this shape:
+{
+ "bottom_line": "one sentence a billing partner reads first: what is at risk and why",
+ "entries": [
+   {"id": 1, "verdict": "pass | rewrite | reduce | remove | confirm", "rules": ["2.3"],
+    "reason": "one or two plain sentences; name the fact in the entry that triggers the rule",
+    "quote": "10 to 40 words copied EXACTLY from the rulebook quote for the rule applied, or null when the verdict is pass",
+    "rewrite": "a replacement narrative that would comply, written the way a lawyer writes a time entry, or null. For block billing, give the split lines separated by ' || ' with hours in brackets, for example '[1.5] Review ... || [0.8] Prepare ...'",
+    "hours_at_risk": 0.0, "recoverable": true}
+ ],
+ "expenses": [
+   {"id": "E1", "verdict": "pass | reduce | remove | confirm", "rules": ["7.1"], "reason": "...", "quote": "exact quote or null", "amount_at_risk": 0.0}
+ ],
+ "patterns": [{"title": "4 to 8 words", "detail": "one or two sentences on a habit the team should change, with the entry numbers"}],
+ "cover_note": "a 120 to 180 word note to the billing partner: what to fix before this bill goes out, in order of dollars, written as a colleague would, no bullet points"
+}
+Verdict definitions and the arithmetic:
+- pass: payable as written. hours_at_risk 0, recoverable true.
+- rewrite: the narrative would be rejected as written (vague, block billed, missing participants) but the work is payable once rewritten. hours_at_risk = the full hours of the entry; recoverable true. Always provide a rewrite.
+- reduce: part of the entry is not payable (travel above 50%, time above a cap, an increment that is not a tenth of an hour). hours_at_risk = only the hours that would be cut; recoverable false. Provide a rewrite only if the narrative also needs one.
+- remove: the client will not pay for this at all (non-billable activity, unapproved or ineligible timekeeper, duplicative review, transition time, late entry). hours_at_risk = the full hours; recoverable false.
+- confirm: payable only if an approval or fact is documented (advance approval for a motion, research over the limit, a second attendee, an expense over the threshold). hours_at_risk = the full hours; recoverable true. Say exactly what document would clear it.
+- Check every entry against every rule, including bar admission dates against the staffing rules, the date entered against the contemporaneous entry rule, and the work date against the billing period.
+- When several rules apply, list all of them and apply the most severe verdict.
+- Every entry and every expense must appear once in the output. Quotes are checked word for word against the source and shown in red if they do not match, so copy exactly.
+- No em-dashes anywhere. Plain English, no hedging.`;
+}
+};
+
+const GG_RECORDED = {
+ "model": "claude-fable-5-1",
+ "recordedAt": "2026-10-17",
+ "rulebook": {
+  "summary": "Pellbrook wants tight control over who works on its matters and what they bill, with written approval required for staffing, rates, research over three hours, motions, experts, large expenses and budgets. It also expects clean, task-level narratives, no overhead or clerical charges, strict conflicts handling that covers its Exhibit A affiliates, and careful limits on generative AI use with its confidential information.",
+  "rules": [
+   {
+    "id": "1.1",
+    "category": "Staffing",
+    "title": "Only approved timekeepers may bill",
+    "test": "Confirm the timekeeper on the entry appears in the staffing plan approved in writing by the matter manager, or has prior written approval.",
+    "quote": "Only timekeepers identified in the staffing plan approved in writing by the Pellbrook matter manager may bill time to a Pellbrook matter.",
+    "applies": "fees"
+   },
+   {
+    "id": "1.2",
+    "category": "Staffing",
+    "title": "No junior or clerk time",
+    "test": "Reject any entry by a summer associate, law clerk, or associate admitted to the bar less than one year before the work date.",
+    "quote": "Pellbrook will not pay for time billed by summer associates, law clerks, or associates with less than one year of practice following bar admission.",
+    "applies": "fees"
+   },
+   {
+    "id": "1.3",
+    "category": "Staffing",
+    "title": "Rates frozen at staffing plan",
+    "test": "Confirm the rate on the entry matches the approved 2026 staffing plan rate and has no increase without 60 days' notice and written consent.",
+    "quote": "Hourly rates are frozen for calendar year 2026 at the rates set out in the approved staffing plan.",
+    "applies": "fees"
+   },
+   {
+    "id": "1.4",
+    "category": "Staffing",
+    "title": "No get-up-to-speed time",
+    "test": "Reject entries where a new or substitute timekeeper reviews the file or otherwise becomes familiar with the matter.",
+    "quote": "Pellbrook will not pay for time spent by a new or substitute timekeeper becoming familiar with a matter, including reviewing the file to get up to speed.",
+    "applies": "fees"
+   },
+   {
+    "id": "2.1",
+    "category": "Narratives",
+    "title": "Tenth-hour increments, no minimums",
+    "test": "Confirm the entry is in 0.1 hour increments, reflects actual time, and is not a minimum charge such as 0.2 or 0.3 for every email.",
+    "quote": "Time must be recorded in increments of one-tenth (0.1) of an hour and must reflect actual time spent. Minimum charges are not permitted.",
+    "applies": "fees"
+   },
+   {
+    "id": "2.2",
+    "category": "Narratives",
+    "title": "No block billing",
+    "test": "Flag any entry that combines more than one task under a single time amount and require it to be split.",
+    "quote": "Block billing is prohibited. Each task must be recorded as a separate entry with its own time.",
+    "applies": "fees"
+   },
+   {
+    "id": "2.3a",
+    "category": "Narratives",
+    "title": "Narrative states task and subject",
+    "test": "Reject entries that use generic phrases like attention to file, review file, work on case, or revise document without naming the specific task and subject.",
+    "quote": "Entries such as \"attention to file,\" \"review file,\" \"work on case,\" or \"revise document\" without more are not acceptable and will not be paid.",
+    "applies": "fees"
+   },
+   {
+    "id": "2.3b",
+    "category": "Narratives",
+    "title": "Communications name participants and purpose",
+    "test": "For any conference, call or correspondence entry, confirm the narrative names the participants and the purpose of the communication.",
+    "quote": "For conferences, calls and correspondence, the narrative must identify the participants and the purpose of the communication.",
+    "applies": "fees"
+   },
+   {
+    "id": "2.4",
+    "category": "Narratives",
+    "title": "Time entered within thirty days",
+    "test": "Compare the entry date to the work date and flag any entry recorded more than 30 days after the work was performed.",
+    "quote": "Time entered more than thirty (30) days after the work was performed may be rejected.",
+    "applies": "fees"
+   },
+   {
+    "id": "3.1",
+    "category": "Conferences and duplication",
+    "title": "One timekeeper per internal conference",
+    "test": "Where two or more timekeepers bill the same internal conference, allow only one unless each additional participant's narrative explains why they were necessary.",
+    "quote": "Pellbrook will pay for only one timekeeper to attend any internal conference unless the narrative explains why each additional participant was necessary.",
+    "applies": "fees"
+   },
+   {
+    "id": "3.2",
+    "category": "Conferences and duplication",
+    "title": "One attorney at external events",
+    "test": "Where more than one attorney bills a deposition, hearing, mediation, meeting or client call, allow only one unless the matter manager approved the extra attendance in advance.",
+    "quote": "Only one attorney may bill for attending a deposition, hearing, mediation, meeting or client call unless the matter manager has approved additional attendance in advance.",
+    "applies": "fees"
+   },
+   {
+    "id": "3.3",
+    "category": "Conferences and duplication",
+    "title": "No duplicate document review",
+    "test": "Flag entries where multiple timekeepers review the same document, or where an unapproved timekeeper reviews another's work product.",
+    "quote": "Pellbrook will not pay for duplicative review of the same document by multiple timekeepers, or for the review of work product by a timekeeper not approved for the matter.",
+    "applies": "fees"
+   },
+   {
+    "id": "4.1",
+    "category": "Research and motions",
+    "title": "Research over three hours needs approval",
+    "test": "Total research time on a single issue across all entries and flag anything over 3 hours without advance approval from the matter manager.",
+    "quote": "Legal research exceeding three (3) hours on any single issue requires the advance approval of the matter manager.",
+    "applies": "fees"
+   },
+   {
+    "id": "4.2",
+    "category": "Research and motions",
+    "title": "Approval before motions and experts",
+    "test": "For entries or expenses tied to filing a motion, starting a proceeding, or retaining an expert or consultant, confirm the matter manager approved it beforehand.",
+    "quote": "The Firm must obtain the matter manager's approval before filing any motion, commencing any proceeding, or retaining any expert or consultant.",
+    "applies": "both"
+   },
+   {
+    "id": "5.1",
+    "category": "Non-billable",
+    "title": "Conflicts, billing and budget time",
+    "test": "Reject any entry for conflicts checks, preparing or revising invoices, answering billing questions, preparing budgets or staffing plans, or reading these Guidelines.",
+    "quote": "conflicts checks; preparing, reviewing or revising invoices; responding to billing inquiries; preparing budgets or staffing plans; and time spent reading or complying with these Guidelines.",
+    "applies": "fees"
+   },
+   {
+    "id": "5.2",
+    "category": "Non-billable",
+    "title": "No administrative or clerical tasks",
+    "test": "Reject entries for scheduling, calendaring, filing, photocopying, scanning, organizing documents, Bates stamping or data entry, whoever performed them.",
+    "quote": "Administrative and clerical tasks are not billable regardless of who performs them, including scheduling, calendaring, filing, photocopying, scanning, document organization, Bates stamping and data entry.",
+    "applies": "fees"
+   },
+   {
+    "id": "5.3",
+    "category": "Non-billable",
+    "title": "No training or overhead",
+    "test": "Reject entries for training, continuing legal education, or internal firm overhead activities.",
+    "quote": "Pellbrook will not pay for training, continuing legal education, or firm overhead activities.",
+    "applies": "fees"
+   },
+   {
+    "id": "5.4",
+    "category": "Non-billable",
+    "title": "Status reports capped at 0.3",
+    "test": "Cap any entry for a routine monthly status report at 0.3 hours.",
+    "quote": "Routine monthly status reports are expected and may be billed at no more than 0.3 hours per report.",
+    "applies": "fees"
+   },
+   {
+    "id": "6.1",
+    "category": "Travel",
+    "title": "Travel time at half rate",
+    "test": "Confirm travel entries are billed at 50 percent of the approved rate, and cut them entirely if the timekeeper worked for other clients while traveling.",
+    "quote": "Travel time is billed at fifty percent (50%) of the timekeeper's approved hourly rate. Travel time is not billable at all if the timekeeper performs work for other clients during the travel.",
+    "applies": "fees"
+   },
+   {
+    "id": "6.2",
+    "category": "Travel",
+    "title": "Coach airfare, itemized lodging and meals",
+    "test": "Confirm airfare is coach, and that lodging and meal charges are reasonable and itemized with receipts.",
+    "quote": "Air travel is reimbursed at coach fare. Lodging and meals are reimbursed at reasonable cost and must be itemized.",
+    "applies": "expenses"
+   },
+   {
+    "id": "7.1",
+    "category": "Expenses",
+    "title": "No overhead expense charges",
+    "test": "Reject expense lines for Westlaw or Lexis research, word processing, staff overtime, local meals, office supplies, or local phone charges.",
+    "quote": "Pellbrook will not reimburse firm overhead, including online legal research charges (Westlaw, Lexis or similar), word processing, secretarial or paralegal overtime, local meals, office supplies, or local telephone charges.",
+    "applies": "expenses"
+   },
+   {
+    "id": "7.2a",
+    "category": "Expenses",
+    "title": "Copies capped at ten cents",
+    "test": "Confirm photocopy and print charges are at cost and no more than $0.10 per page.",
+    "quote": "Photocopying and printing are reimbursed at cost, not to exceed $0.10 per page.",
+    "applies": "expenses"
+   },
+   {
+    "id": "7.2b",
+    "category": "Expenses",
+    "title": "Vendor charges at cost, no markup",
+    "test": "Compare each outside vendor charge to the vendor invoice and reject any markup.",
+    "quote": "Outside vendor charges are reimbursed at actual cost without markup.",
+    "applies": "expenses"
+   },
+   {
+    "id": "7.3",
+    "category": "Expenses",
+    "title": "Expenses over $500 need approval",
+    "test": "For any single expense over $500, confirm the matter manager approved it in advance.",
+    "quote": "Any single expense exceeding $500 requires the matter manager's approval in advance.",
+    "applies": "expenses"
+   },
+   {
+    "id": "8.1a",
+    "category": "Budgets and invoices",
+    "title": "Budget before substantive work",
+    "test": "If the matter is expected to exceed $25,000 in fees, confirm an approved budget exists dated before the first substantive entry.",
+    "quote": "Any matter expected to exceed $25,000 in fees requires a budget approved by the matter manager before substantive work begins.",
+    "applies": "fees"
+   },
+   {
+    "id": "8.1b",
+    "category": "Budgets and invoices",
+    "title": "Invoice reports fees against budget",
+    "test": "Confirm the invoice states fees to date compared with the approved budget.",
+    "quote": "Each invoice must report fees to date against the approved budget.",
+    "applies": "fees"
+   },
+   {
+    "id": "8.2a",
+    "category": "Budgets and invoices",
+    "title": "Monthly LEDES with UTBMS codes",
+    "test": "Confirm the invoice is monthly, in LEDES format, and every entry carries a UTBMS task code.",
+    "quote": "Invoices must be submitted monthly in LEDES format with UTBMS task codes.",
+    "applies": "both"
+   },
+   {
+    "id": "8.2b",
+    "category": "Budgets and invoices",
+    "title": "Submit within ninety days",
+    "test": "Confirm the invoice will reach Pellbrook within 90 days of the end of the billing period, and escalate any older unbilled time.",
+    "quote": "Invoices received more than ninety (90) days after the end of the billing period will not be paid.",
+    "applies": "both"
+   },
+   {
+    "id": "9.1",
+    "category": "Conflicts",
+    "title": "No advance waivers, written consent",
+    "test": "Confirm no blanket waiver is relied on and that any adverse representation has written consent from the Pellbrook General Counsel.",
+    "quote": "Pellbrook does not consent to any advance or blanket waiver of conflicts.",
+    "applies": "desk"
+   },
+   {
+    "id": "9.2",
+    "category": "Conflicts",
+    "title": "Check Exhibit A, disclose in five days",
+    "test": "Confirm a conflicts check including all Exhibit A entities was run before matter opening and any potential conflict was disclosed within five business days.",
+    "quote": "The Firm must run a conflicts check that includes the entities on Exhibit A before opening any new matter for Pellbrook",
+    "applies": "desk"
+   },
+   {
+    "id": "10.1",
+    "category": "Data security and AI",
+    "title": "Security addendum and 48-hour incidents",
+    "test": "Confirm the firm follows the Pellbrook Information Security Addendum and reports any incident involving Pellbrook information within 48 hours.",
+    "quote": "must report any security incident involving Pellbrook information within forty-eight (48) hours.",
+    "applies": "desk"
+   },
+   {
+    "id": "10.2",
+    "category": "Data security and AI",
+    "title": "Enterprise AI tools only",
+    "test": "Confirm any generative AI tool used with Pellbrook information is an enterprise service with a no-training contract and a completed firm security review.",
+    "quote": "The Firm may not submit Pellbrook Confidential Information to any generative artificial intelligence tool unless the tool is an enterprise service that contractually prohibits the provider from training on the Firm's inputs",
+    "applies": "desk"
+   },
+   {
+    "id": "10.3a",
+    "category": "Data security and AI",
+    "title": "Lawyer reviews AI work product",
+    "test": "Confirm a lawyer reviewed any AI-assisted work product before it was relied on or sent to Pellbrook.",
+    "quote": "A lawyer must review all work product prepared with the assistance of artificial intelligence before it is relied upon or delivered to Pellbrook.",
+    "applies": "desk"
+   },
+   {
+    "id": "10.3b",
+    "category": "Data security and AI",
+    "title": "No time fixing AI errors",
+    "test": "Reject entries for time spent correcting errors introduced by an artificial intelligence tool.",
+    "quote": "Pellbrook will not pay for time spent correcting errors introduced by artificial intelligence tools.",
+    "applies": "fees"
+   },
+   {
+    "id": "11.1",
+    "category": "Communication",
+    "title": "Copy manager, send filings same day",
+    "test": "Confirm the matter manager was copied on substantive correspondence with opposing counsel and received filings the day they were filed.",
+    "quote": "The Firm must copy the matter manager on all substantive correspondence with opposing counsel and must provide copies of all filings on the day they are filed.",
+    "applies": "desk"
+   },
+   {
+    "id": "11.2",
+    "category": "Communication",
+    "title": "Settlement only with written authority",
+    "test": "Confirm no settlement proposal was made or accepted without written authorization from Pellbrook.",
+    "quote": "The Firm may not make or accept any settlement proposal without written authorization.",
+    "applies": "desk"
+   }
+  ],
+  "for_conflicts_desk": [
+   {
+    "point": "Do not rely on any advance or blanket waiver for Pellbrook; each adverse representation needs its own written consent from the Pellbrook General Counsel before acceptance.",
+    "quote": "The Firm must notify the Pellbrook General Counsel in writing and obtain written consent before accepting any representation adverse to Pellbrook or any of its subsidiaries or affiliates listed on Exhibit A, as updated from time to time."
+   },
+   {
+    "point": "Load all Exhibit A entities as related parties on every Pellbrook matter and include them in every new-matter conflicts check for Pellbrook.",
+    "quote": "The Firm must run a conflicts check that includes the entities on Exhibit A before opening any new matter for Pellbrook"
+   },
+   {
+    "point": "Track the five business day disclosure clock from the date any potential conflict is discovered.",
+    "quote": "must disclose any potential conflict within five (5) business days of discovering it."
+   },
+   {
+    "point": "Maintain the Exhibit A affiliate list, including the majority-owned subsidiary and the joint venture, and refresh it when Pellbrook updates it.",
+    "quote": "Pellbrook Technologies, Inc.; Pellbrook Devices GmbH; Pellbrook Cloud Services LLC; Sorrelwick Analytics, Inc. (majority-owned); Brackenridge Sensor Partners, L.P. (joint venture)."
+   },
+   {
+    "point": "Conflicts check time must be written off and never appear on a Pellbrook invoice.",
+    "quote": "conflicts checks; preparing, reviewing or revising invoices; responding to billing inquiries; preparing budgets or staffing plans; and time spent reading or complying with these Guidelines."
+   }
+  ],
+  "for_it": [
+   {
+    "point": "Obtain the Pellbrook Information Security Addendum and confirm the firm's controls for Pellbrook data meet it.",
+    "quote": "The Firm must protect Pellbrook Confidential Information in accordance with the Pellbrook Information Security Addendum"
+   },
+   {
+    "point": "Add Pellbrook to the incident response contact list with a 48-hour reporting deadline for any incident involving its information.",
+    "quote": "must report any security incident involving Pellbrook information within forty-eight (48) hours."
+   },
+   {
+    "point": "Approve only enterprise generative AI tools with a contractual no-training commitment for Pellbrook work, and block consumer AI tools for its confidential information.",
+    "quote": "The Firm may not submit Pellbrook Confidential Information to any generative artificial intelligence tool unless the tool is an enterprise service that contractually prohibits the provider from training on the Firm's inputs"
+   },
+   {
+    "point": "Complete and document a security review of each approved AI tool, and keep a log of which AI tools were used on Pellbrook matters so the firm can disclose it on request.",
+    "quote": "and the Firm has completed a security review of the tool. The Firm will disclose, on request, which artificial intelligence tools were used on Pellbrook matters."
+   },
+   {
+    "point": "Support a workflow that records lawyer review of AI-assisted work product before it goes to Pellbrook.",
+    "quote": "A lawyer must review all work product prepared with the assistance of artificial intelligence before it is relied upon or delivered to Pellbrook."
+   }
+  ]
+ },
+ "rulebookSecs": 96,
+ "audit": {
+  "bottom_line": "About $7,850 of the $26,000 in September fees is unrecoverable as billed, mostly time from two ineligible associates and clerical or billing tasks, another $4,636 in fees plus the $3,500 JAMS deposit depend on approvals that are not in the file, and $3,161 of good work will be rejected until five narratives are rewritten.",
+  "entries": [
+   {
+    "id": 1,
+    "verdict": "pass",
+    "rules": [],
+    "reason": "Call with the matter manager names the participant and the purpose, and 0.4 is a tenth-hour increment.",
+    "quote": null,
+    "rewrite": null,
+    "hours_at_risk": 0,
+    "recoverable": true
+   },
+   {
+    "id": 2,
+    "verdict": "rewrite",
+    "rules": [
+     "2.2"
+    ],
+    "reason": "Two tasks, reviewing the agreement and notice and preparing an outline, sit under one 2.3 hour figure. Split them with the actual time for each.",
+    "quote": "Block billing is prohibited. Each task must be recorded as a separate entry with its own time.",
+    "rewrite": "[1.4] Review Supply Agreement Sections 7, 11 and 14 and Marrowgate September 1 termination notice re: breach and cure provisions || [0.9] Prepare outline of breach and cure arguments in response to Marrowgate termination notice",
+    "hours_at_risk": 2.3,
+    "recoverable": true
+   },
+   {
+    "id": 3,
+    "verdict": "remove",
+    "rules": [
+     "1.2",
+     "4.1"
+    ],
+    "reason": "T. Brindlewood was admitted in December 2025, so on September 3, 2026 they had less than one year of practice and the client will not pay their time even though they are on the staffing plan. The entry also exceeds three hours of research on one issue with no approval on file.",
+    "quote": "Pellbrook will not pay for time billed by summer associates, law clerks, or associates with less than one year of practice following bar admission.",
+    "rewrite": null,
+    "hours_at_risk": 3.1,
+    "recoverable": false
+   },
+   {
+    "id": 4,
+    "verdict": "remove",
+    "rules": [
+     "5.2"
+    ],
+    "reason": "Organizing and Bates stamping client documents is clerical work the guidelines name expressly, whoever performs it.",
+    "quote": "Administrative and clerical tasks are not billable regardless of who performs them, including scheduling, calendaring, filing, photocopying, scanning, document organization, Bates stamping and data entry.",
+    "rewrite": null,
+    "hours_at_risk": 0.3,
+    "recoverable": false
+   },
+   {
+    "id": 5,
+    "verdict": "rewrite",
+    "rules": [
+     "2.3a"
+    ],
+    "reason": "The narrative is the exact phrase \"Review file\" that the guidelines say will not be paid. State what was reviewed and why.",
+    "quote": "Entries such as \"attention to file,\" \"review file,\" \"work on case,\" or \"revise document\" without more are not acceptable and will not be paid.",
+    "rewrite": "Review Marrowgate September 1 termination notice and D. Quillfeather outline of breach and cure arguments in preparation for drafting response letter.",
+    "hours_at_risk": 0.3,
+    "recoverable": true
+   },
+   {
+    "id": 6,
+    "verdict": "pass",
+    "rules": [],
+    "reason": "Single drafting task with the document, the section and the purpose named.",
+    "quote": null,
+    "rewrite": null,
+    "hours_at_risk": 0,
+    "recoverable": true
+   },
+   {
+    "id": 7,
+    "verdict": "pass",
+    "rules": [],
+    "reason": "This is the one timekeeper allowed for the September 5 internal conference; participants and subject are named.",
+    "quote": null,
+    "rewrite": null,
+    "hours_at_risk": 0,
+    "recoverable": true
+   },
+   {
+    "id": 8,
+    "verdict": "rewrite",
+    "rules": [
+     "3.1"
+    ],
+    "reason": "Second timekeeper on the same September 5 internal conference as entry 7, and the narrative does not say why D. Quillfeather needed to attend. As the drafter of the letter the attendance is justifiable once the narrative says so.",
+    "quote": "Pellbrook will pay for only one timekeeper to attend any internal conference unless the narrative explains why each additional participant was necessary.",
+    "rewrite": "Conference with R. Ashcombe and T. Brindlewood re: partner comments on draft response letter to Marrowgate, attending as drafter responsible for incorporating the comments into the letter.",
+    "hours_at_risk": 0.6,
+    "recoverable": true
+   },
+   {
+    "id": 9,
+    "verdict": "remove",
+    "rules": [
+     "1.2",
+     "3.1"
+    ],
+    "reason": "T. Brindlewood had less than one year of practice on the work date, and this is the third timekeeper on the same internal conference with no explanation of necessity.",
+    "quote": "Pellbrook will not pay for time billed by summer associates, law clerks, or associates with less than one year of practice following bar admission.",
+    "rewrite": null,
+    "hours_at_risk": 0.6,
+    "recoverable": false
+   },
+   {
+    "id": 10,
+    "verdict": "remove",
+    "rules": [
+     "5.1"
+    ],
+    "reason": "Conflicts checks are listed as non-billable. Separately, running the check on September 8 after work began September 2 is a desk issue to raise under rule 9.2.",
+    "quote": "conflicts checks; preparing, reviewing or revising invoices; responding to billing inquiries; preparing budgets or staffing plans; and time spent reading or complying with these Guidelines.",
+    "rewrite": null,
+    "hours_at_risk": 0.4,
+    "recoverable": false
+   },
+   {
+    "id": 11,
+    "verdict": "pass",
+    "rules": [],
+    "reason": "Client call names the participant and two specific purposes.",
+    "quote": null,
+    "rewrite": null,
+    "hours_at_risk": 0,
+    "recoverable": true
+   },
+   {
+    "id": 12,
+    "verdict": "rewrite",
+    "rules": [
+     "2.3a"
+    ],
+    "reason": "\"Revise letter\" is a bare revise-document narrative with no subject. Name the letter and what was revised.",
+    "quote": "Entries such as \"attention to file,\" \"review file,\" \"work on case,\" or \"revise document\" without more are not acceptable and will not be paid.",
+    "rewrite": "Revise draft response letter to Marrowgate to incorporate R. Ashcombe comments on the Section 14.2 cure period and the demand for adequate assurance.",
+    "hours_at_risk": 1.2,
+    "recoverable": true
+   },
+   {
+    "id": 13,
+    "verdict": "rewrite",
+    "rules": [
+     "2.2"
+    ],
+    "reason": "Finalizing the letter and emailing it to the client are two tasks under one 0.5 figure separated by a semicolon. Split them.",
+    "quote": "Block billing is prohibited. Each task must be recorded as a separate entry with its own time.",
+    "rewrite": "[0.4] Review and finalize response letter to Marrowgate re: Section 14.2 cure period and demand for adequate assurance || [0.1] Email to S. Nakamura-Pell transmitting final response letter to Marrowgate for client records",
+    "hours_at_risk": 0.5,
+    "recoverable": true
+   },
+   {
+    "id": 14,
+    "verdict": "remove",
+    "rules": [
+     "1.1",
+     "1.4"
+    ],
+    "reason": "J. Farrowdale is not on the approved staffing plan, and the narrative itself says the time was spent getting up to speed on the matter.",
+    "quote": "Pellbrook will not pay for time spent by a new or substitute timekeeper becoming familiar with a matter, including reviewing the file to get up to speed.",
+    "rewrite": null,
+    "hours_at_risk": 2,
+    "recoverable": false
+   },
+   {
+    "id": 15,
+    "verdict": "confirm",
+    "rules": [
+     "4.1",
+     "2.2"
+    ],
+    "reason": "Research on one issue, the Section 11.3 damages waiver, and drafting a memorandum share a single 4.5 hour figure, so the research portion cannot be measured and likely exceeds three hours. Clears with a written approval from S. Nakamura-Pell dated before September 12 authorizing research beyond three hours on this issue; otherwise cap the research line at 3.0. Either way split the entry using the actual time for each task.",
+    "quote": "Legal research exceeding three (3) hours on any single issue requires the advance approval of the matter manager.",
+    "rewrite": "[3.0] Legal research re: enforceability of consequential damages waiver in Section 11.3 of the Supply Agreement under California law || [1.5] Draft memorandum to R. Ashcombe re: enforceability of Section 11.3 consequential damages waiver",
+    "hours_at_risk": 4.5,
+    "recoverable": true
+   },
+   {
+    "id": 16,
+    "verdict": "pass",
+    "rules": [],
+    "reason": "Preparing a correspondence chronology for the mediation statement is substantive paralegal work with the subject and purpose stated.",
+    "quote": null,
+    "rewrite": null,
+    "hours_at_risk": 0,
+    "recoverable": true
+   },
+   {
+    "id": 17,
+    "verdict": "reduce",
+    "rules": [
+     "6.1"
+    ],
+    "reason": "Three hours of travel is billed at the full $825 rate; the client pays travel at half rate, so 1.5 hours of value comes off. The narrative should also state no work was done for other clients on the train, or the whole entry goes.",
+    "quote": "Travel time is billed at fifty percent (50%) of the timekeeper's approved hourly rate. Travel time is not billable at all if the timekeeper performs work for other clients during the travel.",
+    "rewrite": "Travel from San Francisco to Sacramento and return for meeting with Pellbrook supply chain team, billed at 50 percent of approved rate, no work for other clients performed during travel.",
+    "hours_at_risk": 1.5,
+    "recoverable": false
+   },
+   {
+    "id": 18,
+    "verdict": "pass",
+    "rules": [],
+    "reason": "This is the one attorney allowed at the September 16 client meeting; participants and purpose are named.",
+    "quote": null,
+    "rewrite": null,
+    "hours_at_risk": 0,
+    "recoverable": true
+   },
+   {
+    "id": 19,
+    "verdict": "confirm",
+    "rules": [
+     "3.2"
+    ],
+    "reason": "D. Quillfeather is the second attorney billing the September 16 client meeting that R. Ashcombe bills in entry 18. Clears with an email or other writing from S. Nakamura-Pell dated before September 16 approving D. Quillfeather's attendance.",
+    "quote": "Only one attorney may bill for attending a deposition, hearing, mediation, meeting or client call unless the matter manager has approved additional attendance in advance.",
+    "rewrite": null,
+    "hours_at_risk": 2,
+    "recoverable": true
+   },
+   {
+    "id": 20,
+    "verdict": "reduce",
+    "rules": [
+     "2.1"
+    ],
+    "reason": "0.25 is not a tenth-hour increment; round to actual time at 0.2 and cut 0.05. Confirm the matter manager was copied on this email to opposing counsel under rule 11.1.",
+    "quote": "Time must be recorded in increments of one-tenth (0.1) of an hour and must reflect actual time spent. Minimum charges are not permitted.",
+    "rewrite": null,
+    "hours_at_risk": 0.05,
+    "recoverable": false
+   },
+   {
+    "id": 21,
+    "verdict": "remove",
+    "rules": [
+     "1.2"
+    ],
+    "reason": "T. Brindlewood had less than one year of practice on September 18, 2026, so the cite-check time is not payable.",
+    "quote": "Pellbrook will not pay for time billed by summer associates, law clerks, or associates with less than one year of practice following bar admission.",
+    "rewrite": null,
+    "hours_at_risk": 1.8,
+    "recoverable": false
+   },
+   {
+    "id": 22,
+    "verdict": "remove",
+    "rules": [
+     "5.1",
+     "8.1a"
+    ],
+    "reason": "Preparing a budget is listed as non-billable. The entry also shows the budget was prepared September 19, after substantive work began September 2 on a matter already near $26,000 in fees, which the matter manager should hear about before the invoice.",
+    "quote": "conflicts checks; preparing, reviewing or revising invoices; responding to billing inquiries; preparing budgets or staffing plans; and time spent reading or complying with these Guidelines.",
+    "rewrite": null,
+    "hours_at_risk": 0.7,
+    "recoverable": false
+   },
+   {
+    "id": 23,
+    "verdict": "pass",
+    "rules": [],
+    "reason": "Drafting one document, the mediation statement, with its sections listed is a single task, not block billing.",
+    "quote": null,
+    "rewrite": null,
+    "hours_at_risk": 0,
+    "recoverable": true
+   },
+   {
+    "id": 24,
+    "verdict": "pass",
+    "rules": [],
+    "reason": "Partner review and revision of the drafter's mediation statement is supervisory review, not duplicative, and the subject is named.",
+    "quote": null,
+    "rewrite": null,
+    "hours_at_risk": 0,
+    "recoverable": true
+   },
+   {
+    "id": 25,
+    "verdict": "remove",
+    "rules": [
+     "1.1",
+     "3.3"
+    ],
+    "reason": "J. Farrowdale is not on the approved staffing plan, and the entry is review of work product already reviewed by R. Ashcombe in entry 24.",
+    "quote": "Pellbrook will not pay for duplicative review of the same document by multiple timekeepers, or for the review of work product by a timekeeper not approved for the matter.",
+    "rewrite": null,
+    "hours_at_risk": 1,
+    "recoverable": false
+   },
+   {
+    "id": 26,
+    "verdict": "remove",
+    "rules": [
+     "5.2"
+    ],
+    "reason": "Scheduling the mediation and circulating calendar invitations are scheduling and calendaring tasks named as non-billable.",
+    "quote": "Administrative and clerical tasks are not billable regardless of who performs them, including scheduling, calendaring, filing, photocopying, scanning, document organization, Bates stamping and data entry.",
+    "rewrite": null,
+    "hours_at_risk": 0.6,
+    "recoverable": false
+   },
+   {
+    "id": 27,
+    "verdict": "remove",
+    "rules": [
+     "5.1"
+    ],
+    "reason": "Reading the Pellbrook outside counsel guidelines is expressly non-billable.",
+    "quote": "conflicts checks; preparing, reviewing or revising invoices; responding to billing inquiries; preparing budgets or staffing plans; and time spent reading or complying with these Guidelines.",
+    "rewrite": null,
+    "hours_at_risk": 0.3,
+    "recoverable": false
+   },
+   {
+    "id": 28,
+    "verdict": "reduce",
+    "rules": [
+     "5.4"
+    ],
+    "reason": "The routine monthly status report is billed at 0.5 against a 0.3 cap; cut 0.2.",
+    "quote": "Routine monthly status reports are expected and may be billed at no more than 0.3 hours per report.",
+    "rewrite": null,
+    "hours_at_risk": 0.2,
+    "recoverable": false
+   },
+   {
+    "id": 29,
+    "verdict": "confirm",
+    "rules": [
+     "4.2"
+    ],
+    "reason": "Drafting a motion to compel arbitration is work tied to filing a motion, and nothing in the file shows the matter manager approved it. Clears with a written approval from S. Nakamura-Pell authorizing the motion dated on or before September 29.",
+    "quote": "The Firm must obtain the matter manager's approval before filing any motion, commencing any proceeding, or retaining any expert or consultant.",
+    "rewrite": null,
+    "hours_at_risk": 1.1,
+    "recoverable": true
+   },
+   {
+    "id": 30,
+    "verdict": "remove",
+    "rules": [
+     "2.4"
+    ],
+    "reason": "Work dated August 12 was entered September 29, 48 days later, and falls outside the September billing period. Pull it from this bill and raise it with the matter manager rather than slipping it in.",
+    "quote": "Time entered more than thirty (30) days after the work was performed may be rejected.",
+    "rewrite": null,
+    "hours_at_risk": 0.9,
+    "recoverable": false
+   },
+   {
+    "id": 31,
+    "verdict": "remove",
+    "rules": [
+     "5.1",
+     "2.3a"
+    ],
+    "reason": "Reviewing the prebill is invoice preparation, which is non-billable, and \"Attention to invoice\" is a banned phrase.",
+    "quote": "conflicts checks; preparing, reviewing or revising invoices; responding to billing inquiries; preparing budgets or staffing plans; and time spent reading or complying with these Guidelines.",
+    "rewrite": null,
+    "hours_at_risk": 0.3,
+    "recoverable": false
+   },
+   {
+    "id": 32,
+    "verdict": "pass",
+    "rules": [],
+    "reason": "Cross-referencing the chronology to Bates ranges for the mediation exhibits is analytical paralegal work tied to the statement, not binder assembly.",
+    "quote": null,
+    "rewrite": null,
+    "hours_at_risk": 0,
+    "recoverable": true
+   }
+  ],
+  "expenses": [
+   {
+    "id": "E1",
+    "verdict": "remove",
+    "rules": [
+     "7.1"
+    ],
+    "reason": "Westlaw research charges are named as non-reimbursable overhead.",
+    "quote": "Pellbrook will not reimburse firm overhead, including online legal research charges (Westlaw, Lexis or similar), word processing, secretarial or paralegal overtime, local meals, office supplies, or local telephone charges.",
+    "amount_at_risk": 412
+   },
+   {
+    "id": "E2",
+    "verdict": "reduce",
+    "rules": [
+     "7.2a"
+    ],
+    "reason": "1,200 pages are charged at $0.20 per page, double the $0.10 cap; allow $120 and cut $120.",
+    "quote": "Photocopying and printing are reimbursed at cost, not to exceed $0.10 per page.",
+    "amount_at_risk": 120
+   },
+   {
+    "id": "E3",
+    "verdict": "confirm",
+    "rules": [
+     "7.3",
+     "7.2b"
+    ],
+    "reason": "The $3,500 JAMS deposit is over the $500 threshold and must be at vendor cost. Clears with a written approval from S. Nakamura-Pell dated on or before September 24 and a copy of JAMS invoice 88213 showing $3,500 with no markup.",
+    "quote": "Any single expense exceeding $500 requires the matter manager's approval in advance.",
+    "amount_at_risk": 3500
+   },
+   {
+    "id": "E4",
+    "verdict": "pass",
+    "rules": [],
+    "reason": "Coach rail fare for the approved client meeting at $78 is reasonable and within the travel rule.",
+    "quote": null,
+    "amount_at_risk": 0
+   }
+  ],
+  "patterns": [
+   {
+    "title": "Associates who cannot bill this client",
+    "detail": "T. Brindlewood (entries 3, 9, 21) was admitted in December 2025 and fails the one-year rule, and J. Farrowdale (entries 14, 25) is not on the staffing plan. Keep both off the matter until a written approval or the anniversary date changes that."
+   },
+   {
+    "title": "Clerical and billing tasks on the bill",
+    "detail": "Bates stamping, conflicts, budget, scheduling, reading guidelines and prebill review (entries 4, 10, 22, 26, 27, 31) should be coded non-billable at entry so they never reach a prebill."
+   },
+   {
+    "title": "Two-word narratives and semicolon block billing",
+    "detail": "\"Review file\" and \"Revise letter\" (entries 5, 12) and semicolon-joined tasks (entries 2, 13, 15) get rejected mechanically; every entry needs the task, the document and the subject, one task per line."
+   },
+   {
+    "title": "Approvals missing from the file",
+    "detail": "Research over three hours (15), a second attorney at the client meeting (19), the motion to compel (29) and the JAMS deposit (E3) all needed advance written approval from S. Nakamura-Pell; get approvals in writing before the work, not at billing."
+   },
+   {
+    "title": "Budget prepared after work began",
+    "detail": "Entry 22 shows the budget was prepared September 19 while substantive work started September 2, and the invoice must report fees against that budget; set the budget at intake next time."
+   },
+   {
+    "title": "Late and out-of-period time",
+    "detail": "Entry 30 is August work entered 48 days later; time must be entered within days and out-of-period entries flagged to the billing partner, not added to the next month."
+   },
+   {
+    "title": "Travel, increments and the status cap",
+    "detail": "Travel at full rate (17), a 0.25 entry (20) and a 0.5 status report (28) are small but automatic cuts; conform them at entry."
+   }
+  ],
+  "cover_note": "Before this bill goes out, pull every entry by T. Brindlewood and J. Farrowdale (entries 3, 9, 14, 21 and 25, about $4,120). Brindlewood was admitted in December 2025 and fails the one-year rule even though the staffing plan lists them, and Farrowdale is not on the plan at all. Next, get S. Nakamura-Pell's written approvals into the file or expect cuts: the $3,500 JAMS deposit, Quillfeather's 4.5 hours of research on the damages waiver (entry 15), Quillfeather's attendance at the Sacramento meeting (entry 19) and the motion to compel arbitration (entry 29), about $4,636 in fees together. Cut Ashcombe's travel to half rate (entry 17, $1,237 off) and write off the Bates stamping, conflicts, budget, scheduling, guideline and prebill entries (4, 10, 22, 26, 27, 31) plus the August call entered late (30). Rewrite entries 2, 5, 8, 12 and 13 so each names the task and splits combined tasks. On expenses, drop Westlaw and cut the copies to ten cents a page. The invoice must go out in LEDES format and report fees against the budget, and the matter manager should hear from you that the budget was prepared after work began."
+ },
+ "auditSecs": 193
+};
+</script>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const money = n => "$" + Math.round(n).toLocaleString("en-US");
+const MODELS = { "claude-opus-5-5": { name: "Opus 5.5", tier: "complex" }, "claude-sonnet-5-5": { name: "Sonnet 5.5", tier: "default" }, "claude-fable-5-1": { name: "Fable 5.1", tier: "complex" } };
+const VERDICTS = { pass: "Payable", rewrite: "Rewrite", reduce: "Reduce", remove: "Not payable", confirm: "Confirm", fixed: "Fixed" };
+let sample = null, downloads = null;
+
+const state = {
+  data: JSON.parse(JSON.stringify(GG_DATA)), custom: false,
+  rulebook: GG_RECORDED.rulebook, rulebookFor: GG_DATA.guidelines,
+  audit: GG_RECORDED.audit, meta: `Recorded run on ${MODELS[GG_RECORDED.model]?.name || GG_RECORDED.model}, ${GG_RECORDED.recordedAt}, rulebook ${GG_RECORDED.rulebookSecs}s and audit ${GG_RECORDED.auditSecs}s`,
+  applied: {}, filter: "action", busy: false, ctl: null
+};
+
+/* ---------- verbatim checks ---------- */
+const norm = s => String(s || "").toLowerCase().replace(/[‘’ʼ]/g, "'").replace(/[“”]/g, '"').replace(/—|–/g, "-").replace(/\s+/g, " ").trim();
+function verified(quote){ if (!quote) return null; const q = norm(quote).replace(/^["']|["']$/g, ""); return q.length > 8 && norm(state.data.guidelines).includes(q); }
+function quoteHtml(q){
+  if (!q) return "";
+  const ok = verified(q);
+  return `<div class="quote">Guideline: <q>${esc(q)}</q>${ok ? '<span class="ok" title="This quote was found word for word in the guidelines text">verified</span>' : '<span class="bad" title="This quote was not found word for word in the guidelines text">not found in source</span>'}</div>`;
+}
+
+/* ---------- derived numbers ---------- */
+function tkOf(code){ return state.data.timekeepers.find(t => t.code === code) || { code, name: code, title: "", rate: 0 }; }
+function totals(){
+  const a = state.audit, t = { fees: 0, risk: 0, recoverable: 0, lost: 0, fixed: 0, exp: 0, expRisk: 0, byCat: {}, counts: {} };
+  for (const e of state.data.entries){
+    const rate = tkOf(e.tk).rate, amt = e.hours * rate; t.fees += amt;
+    const f = a?.entries?.find(x => x.id === e.id); if (!f) continue;
+    const v = f.verdict || "pass"; t.counts[v] = (t.counts[v] || 0) + 1;
+    const risk = (Number(f.hours_at_risk) || 0) * rate;
+    if (state.applied[e.id]){ t.fixed += risk; continue; }
+    if (v === "pass") continue;
+    t.risk += risk; if (f.recoverable) t.recoverable += risk; else t.lost += risk;
+    const cat = catOf(f.rules?.[0]); t.byCat[cat] = t.byCat[cat] || { risk: 0, rec: 0 }; t.byCat[cat].risk += risk; if (f.recoverable) t.byCat[cat].rec += risk;
+  }
+  for (const x of state.data.expenses){
+    t.exp += x.amount; const f = a?.expenses?.find(y => y.id === x.id); if (f && f.verdict !== "pass"){ t.expRisk += Number(f.amount_at_risk) || 0; const cat = catOf(f.rules?.[0]); t.byCat[cat] = t.byCat[cat] || { risk: 0, rec: 0 }; t.byCat[cat].risk += Number(f.amount_at_risk) || 0; }
+  }
+  return t;
+}
+function catOf(id){ const r = state.rulebook?.rules?.find(r => r.id === id); return r?.category || "Other"; }
+function ruleTitle(id){ const r = state.rulebook?.rules?.find(r => r.id === id); return r ? `${r.id} ${r.title}` : id; }
+
+/* ---------- render ---------- */
+function renderAll(){ renderSummary(); renderEntries(); renderExpenses(); renderNote(); renderPatterns(); renderChart(); renderRulebook(); renderDesk(); renderPrebill(); renderGuidelines(); }
+
+function renderSummary(){
+  const el = $("#summary");
+  if (!state.audit){ el.innerHTML = `<div class="panel"><p class="note">No audit yet for this material. Press Run on Claude.</p></div>`; return; }
+  const t = totals();
+  el.innerHTML = `
+  <p class="runmeta"><span><span class="dot"></span>${esc(state.meta)}</span><span>${state.data.entries.length} entries, ${state.data.expenses.length} expenses, ${state.rulebook?.rules?.length || 0} rules</span>${downloads ? '<button class="btn small" id="exportBtn">Export audited prebill (CSV)</button>' : ""}</p>
+  <p class="bottom">${esc(state.audit.bottom_line || "")}</p>
+  <div class="strip">
+    <div class="tile"><div class="k">Fees on prebill</div><div class="v">${money(t.fees)}</div><div class="s">plus ${money(t.exp)} expenses</div></div>
+    <div class="tile risk"><div class="k">At risk as submitted</div><div class="v">${money(t.risk + t.expRisk)}</div><div class="s">${Math.round(100 * (t.risk + t.expRisk) / Math.max(1, t.fees + t.exp))}% of the bill would be cut or questioned</div></div>
+    <div class="tile rec"><div class="k">Recoverable by editing</div><div class="v">${money(t.recoverable)}</div><div class="s">rewrite the narrative or attach the approval</div></div>
+    <div class="tile"><div class="k">Not payable</div><div class="v">${money(t.lost + t.expRisk)}</div><div class="s">write off before the client does</div></div>
+    <div class="tile fix"><div class="k">Fixed in this session</div><div class="v">${money(t.fixed)}</div><div class="s">rewrites applied by you</div></div>
+  </div>`;
+  $("#exportBtn")?.addEventListener("click", exportCSV);
+}
+
+function findingHtml(f, kind){
+  if (!f || f.verdict === "pass") return "";
+  const cls = f.verdict || "pass";
+  return `<div class="finding ${cls}">
+    <div class="why">${esc(f.reason || "")}</div>
+    ${quoteHtml(f.quote)}
+    ${f.rules?.length ? `<div class="rules-used">Rules: ${f.rules.map(r => esc(ruleTitle(r))).join(" · ")}</div>` : ""}
+    ${f.rewrite ? `<div class="rw"><span class="lab">Proposed narrative</span><div class="txt">${esc(f.rewrite).replace(/ \|\| /g, "<br>")}</div></div>` : ""}
+  </div>`;
+}
+
+function renderEntries(){
+  const a = state.audit, counts = {};
+  const items = state.data.entries.map(e => { const f = a?.entries?.find(x => x.id === e.id); const v = state.applied[e.id] ? "fixed" : (f?.verdict || (a ? "pass" : "none")); counts[v] = (counts[v] || 0) + 1; return { e, f, v }; });
+  const show = items.filter(({ v }) => state.filter === "all" || (state.filter === "action" ? !["pass", "fixed", "none"].includes(v) : v === state.filter));
+  const fl = [["action", "Needs action"], ["all", "All"], ...Object.keys(VERDICTS).filter(k => counts[k]).map(k => [k, VERDICTS[k]])];
+  $("#filters").innerHTML = fl.map(([k, l]) => `<button aria-pressed="${state.filter === k}" data-f="${k}">${l}${k === "all" ? ` (${items.length})` : k === "action" ? ` (${items.filter(i => !["pass", "fixed", "none"].includes(i.v)).length})` : ` (${counts[k] || 0})`}</button>`).join("");
+  $("#entries").innerHTML = show.length ? show.map(({ e, f, v }) => {
+    const tk = tkOf(e.tk), amt = e.hours * tk.rate, risk = (Number(f?.hours_at_risk) || 0) * tk.rate;
+    return `<div class="entry" id="e${e.id}">
+      <div class="id">#${e.id}</div>
+      <div>
+        <div class="meta">${v !== "none" ? `<span class="chip v-${v}"><i></i>${VERDICTS[v]}</span>` : ""}<span><b>${esc(tk.name)}</b> ${esc(tk.title)}</span><span class="num">${e.date}</span><span class="num">${e.hours.toFixed(1)} h at $${tk.rate}</span><span class="money">${money(amt)}</span>${risk && v !== "fixed" && v !== "pass" ? `<span class="money risk">${money(risk)} at risk</span>` : ""}<span class="num" style="color:var(--ink3)">${esc(e.code)}</span></div>
+        <div class="narr">${esc(e.narrative)}</div>
+        ${v === "fixed" ? `<p class="note" style="margin-top:4px">Narrative replaced with Claude's proposal. <button class="btn small" data-undo="${e.id}">Undo</button></p>` : findingHtml(f)}
+        ${f?.rewrite && v !== "fixed" ? `<p style="margin-top:6px"><button class="btn small" data-apply="${e.id}">Use this narrative</button></p>` : ""}
+      </div></div>`; }).join("") : `<p class="note">Nothing in this view.</p>`;
+}
+
+function renderExpenses(){
+  const a = state.audit;
+  $("#expenses").innerHTML = state.data.expenses.map(x => { const f = a?.expenses?.find(y => y.id === x.id); const v = f?.verdict || (a ? "pass" : "none");
+    return `<div class="entry"><div class="id">${esc(x.id)}</div><div>
+      <div class="meta">${v !== "none" ? `<span class="chip v-${v}"><i></i>${VERDICTS[v]}</span>` : ""}<span class="num">${x.date}</span><span class="money">${money(x.amount)}</span>${f && Number(f.amount_at_risk) ? `<span class="money risk">${money(f.amount_at_risk)} at risk</span>` : ""}</div>
+      <div class="narr">${esc(x.desc)}</div>${findingHtml(f)}</div></div>`; }).join("");
+}
+
+function renderNote(){
+  const p = $("#notePanel"); if (!state.audit?.cover_note){ p.hidden = true; return; } p.hidden = false;
+  p.innerHTML = `<h2>Note to the billing partner</h2><p style="max-width:60ch">${esc(state.audit.cover_note)}</p><p style="margin-top:8px"><button class="btn small" id="copyNote">Copy note</button> <span class="note" id="copyMsg"></span></p>`;
+  $("#copyNote").addEventListener("click", async () => { try { await navigator.clipboard.writeText(state.audit.cover_note); $("#copyMsg").textContent = "Copied"; } catch (e) { $("#copyMsg").textContent = "Select the text and copy it"; } });
+}
+function renderPatterns(){
+  const p = $("#patternPanel"), ps = state.audit?.patterns || []; if (!ps.length){ p.hidden = true; return; } p.hidden = false;
+  p.innerHTML = `<h2>Habits to change</h2>` + ps.map(x => `<div class="rule"><div class="t">${esc(x.title)}</div><div class="test">${esc(x.detail)}</div></div>`).join("");
+}
+function renderChart(){
+  const p = $("#chartPanel"); if (!state.audit){ p.hidden = true; return; } p.hidden = false;
+  const t = totals(), cats = Object.entries(t.byCat).sort((a, b) => b[1].risk - a[1].risk), max = Math.max(1, ...cats.map(c => c[1].risk));
+  p.innerHTML = `<h2>Dollars at risk by rule area</h2><p class="note">Amber is recoverable by editing; red would be written off.</p><div class="bars">` + cats.map(([c, v]) => `<div class="bar"><span>${esc(c)}</span><div class="track" title="${esc(c)}: ${money(v.risk)} at risk, ${money(v.rec)} recoverable"><div class="fill ${v.rec >= v.risk - 1 ? "rec" : ""}" style="width:${Math.round(100 * v.risk / max)}%"></div></div><span class="amt money">${money(v.risk)}</span></div>`).join("") + `</div>`;
+}
+function renderRulebook(){
+  const p = $("#rulebookPanel"), rb = state.rulebook; if (!rb){ p.innerHTML = `<h2>Rulebook</h2><p class="note">Not extracted yet.</p>`; return; }
+  const groups = {}; for (const r of rb.rules || []) (groups[r.category] = groups[r.category] || []).push(r);
+  p.innerHTML = `<h2>Rulebook from the guidelines</h2><p class="note">${esc(rb.summary || "")}</p>` + Object.entries(groups).map(([c, rs]) => `<details><summary>${esc(c)} (${rs.length})</summary>` + rs.map(r => `<div class="rule"><div class="t">${esc(r.id)} ${esc(r.title)}<span class="cat">${esc(r.applies)}</span></div><div class="test">${esc(r.test)}</div><div class="q">${esc(r.quote)} ${verified(r.quote) ? '<span class="ok" style="color:var(--pass);font-style:normal;font-weight:600">verified</span>' : '<span style="color:var(--remove);font-style:normal;font-weight:600">not found in source</span>'}</div></div>`).join("") + `</details>`).join("");
+}
+function renderDesk(){
+  const p = $("#deskPanel"), rb = state.rulebook; if (!rb){ p.hidden = true; return; } p.hidden = false;
+  const block = (title, items) => items?.length ? `<h3 style="margin-top:10px">${title}</h3>` + items.map(i => `<div class="callout">${esc(i.point)}<div class="q">${esc(i.quote)}</div></div>`).join("") : "";
+  p.innerHTML = `<h2>Beyond billing</h2><p class="note">The same extraction hands the conflicts desk and IT the terms they must track for this client.</p>` + block("For the conflicts desk", rb.for_conflicts_desk) + block("For IT and information security", rb.for_it);
+}
+function renderPrebill(){
+  const d = state.data, a = state.audit;
+  $("#prebillTitle").textContent = `${d.client}: matter ${d.matter.number}`;
+  $("#prebillNote").textContent = `${d.matter.name}. Period ${d.matter.period}. ${state.custom ? "Your pasted material." : "All names, companies and figures are invented."} Green rows carry a narrative you replaced on the Audit tab.`;
+  const rows = d.entries.map(e => { const tk = tkOf(e.tk), f = a?.entries?.find(x => x.id === e.id), v = state.applied[e.id] ? "fixed" : f?.verdict; return `<tr><td class="r">${e.id}</td><td class="r">${e.date}</td><td>${esc(tk.name)}</td><td class="r">${e.hours.toFixed(1)}</td><td class="r">${tk.rate}</td><td class="r">${money(e.hours * tk.rate)}</td><td>${esc(e.code || "")}</td><td class="${v === "fixed" ? "edited" : ""}">${esc(e.narrative)}</td><td>${v ? `<span class="chip v-${v}"><i></i>${VERDICTS[v]}</span>` : ""}</td></tr>`; }).join("");
+  const tot = d.entries.reduce((s, e) => s + e.hours * tkOf(e.tk).rate, 0), hrs = d.entries.reduce((s, e) => s + e.hours, 0);
+  $("#prebillTable").innerHTML = `<table><thead><tr><th class="r">#</th><th class="r">Date</th><th>Timekeeper</th><th class="r">Hours</th><th class="r">Rate</th><th class="r">Amount</th><th>Task</th><th>Narrative</th><th>Audit</th></tr></thead><tbody>${rows}<tr><td></td><td></td><td><b>Total fees</b></td><td class="r">${hrs.toFixed(1)}</td><td></td><td class="r"><b>${money(tot)}</b></td><td colspan="3"></td></tr></tbody></table>
+  <h3 style="margin-top:14px">Expenses</h3><table><thead><tr><th>Id</th><th class="r">Date</th><th>Description</th><th class="r">Amount</th></tr></thead><tbody>${d.expenses.map(x => `<tr><td>${esc(x.id)}</td><td class="r">${x.date}</td><td>${esc(x.desc)}</td><td class="r">${money(x.amount)}</td></tr>`).join("")}</tbody></table>
+  <h3 style="margin-top:14px">Timekeepers</h3><table><thead><tr><th>Code</th><th>Name</th><th>Title</th><th class="r">Rate</th><th>Staffing plan</th><th>Admitted</th></tr></thead><tbody>${d.timekeepers.map(t => `<tr><td>${esc(t.code)}</td><td>${esc(t.name)}</td><td>${esc(t.title)}</td><td class="r">${t.rate}</td><td>${t.approved ? "Approved" : "Not on plan"}</td><td class="r">${t.admitted || ""}</td></tr>`).join("")}</tbody></table>`;
+}
+function renderGuidelines(){
+  let html = esc(state.data.guidelines);
+  const quotes = new Set(); for (const r of state.rulebook?.rules || []) if (r.quote) quotes.add(r.quote); for (const f of [...(state.audit?.entries || []), ...(state.audit?.expenses || [])]) if (f.quote) quotes.add(f.quote);
+  for (const q of quotes){ const e = esc(q).replace(/^["']|["']$/g, ""); if (e.length > 8 && html.includes(e)) html = html.split(e).join(`<mark>${e}</mark>`); }
+  $("#guidelinesSrc").innerHTML = html;
+}
+
+/* ---------- actions ---------- */
+function applyRewrite(id){
+  const f = state.audit?.entries?.find(x => x.id === id), e = state.data.entries.find(x => x.id === id); if (!f?.rewrite || !e) return;
+  state.applied[id] = { narrative: e.narrative }; e.narrative = f.rewrite.replace(/\[\d+(\.\d+)?\] /g, "").replace(/ \|\| /g, " / ");
+  renderAll();
+}
+function undoRewrite(id){ const e = state.data.entries.find(x => x.id === id); if (e && state.applied[id]) e.narrative = state.applied[id].narrative; delete state.applied[id]; renderAll(); }
+async function exportCSV(){
+  if (!downloads) return;
+  const rows = [["Entry", "Date", "Timekeeper", "Hours", "Rate", "Amount", "Verdict", "Rules", "Reason", "Narrative as submitted", "Proposed narrative", "Hours at risk"]];
+  for (const e of state.data.entries){ const tk = tkOf(e.tk), f = state.audit?.entries?.find(x => x.id === e.id); rows.push([e.id, e.date, tk.name, e.hours, tk.rate, (e.hours * tk.rate).toFixed(2), state.applied[e.id] ? "fixed" : f?.verdict || "", (f?.rules || []).join(" "), f?.reason || "", state.applied[e.id]?.narrative || e.narrative, f?.rewrite || "", f?.hours_at_risk ?? ""]); }
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+  try { await downloads.save({ filename: `guideline-guard-${state.data.matter.number}.csv`, data: csv }); } catch (e) {}
+}
+function modelOpts(){ const m = $("#model").value; return { model: m, modelTier: MODELS[m]?.tier || "default", effort: $("#depth").value }; }
+function modelLabel(res){ return res?.modelApplied ? (MODELS[res.modelApplied]?.name || res.modelApplied) : `${res?.modelTierApplied || "default"} model (your pick was unavailable)`; }
+function parseJSON(text){ const t = s => { try { return JSON.parse(s); } catch (e) { return null; } }; let v = t(text); if (v) return v; const f = /```(?:json)?\s*([\s\S]*?)```/.exec(text); if (f && (v = t(f[1]))) return v; const a = text.indexOf("{"), b = text.lastIndexOf("}"); return a >= 0 && b > a ? t(text.slice(a, b + 1)) : null; }
+function errText(e){ if (e?.code === "not_granted") return "This page was not allowed to use Claude. Open the artifact's Permissions menu to allow it."; if (e?.code === "rate_limited") return "Claude is busy right now. Wait a minute and run again."; if (e?.code === "invalid_json") return "Claude's answer was not in the expected shape. Run again, or pick a deeper setting."; return e?.message || "The run did not finish."; }
+
+async function runLive(){
+  if (!sample || state.busy) return;
+  state.busy = true; state.ctl = new AbortController(); const ctl = state.ctl, started = Date.now();
+  $("#runBtn").textContent = "Stop";
+  const reuse = $("#rbmode").value === "reuse" && state.rulebook && state.rulebookFor === state.data.guidelines;
+  const box = $("#liveBox"); box.hidden = false;
+  box.innerHTML = `<div class="live">
+    <div class="phase ${reuse ? "done" : "on"}" id="ph1"><i></i>${reuse ? `Reusing the rulebook already extracted (${state.rulebook.rules.length} rules)` : "Reading the guidelines and writing the rulebook"}</div>
+    <div class="phase ${reuse ? "on" : ""}" id="ph2"><i></i>Auditing ${state.data.entries.length} entries and ${state.data.expenses.length} expenses against every rule</div>
+    <div class="phase" id="ph3"><i></i>Checking every quote against the guidelines, word for word</div>
+    <div class="stream" id="stream"></div>
+    <p class="note">A full run usually takes one to three minutes. The recorded result stays on screen until the new one replaces it.</p></div>`;
+  const tick = setInterval(() => { const s = Math.round((Date.now() - started) / 1000); const el = document.querySelector(".phase.on"); if (el) el.lastChild.textContent = el.lastChild.textContent.replace(/ \(\d+s\)$/, "") + ` (${s}s)`; }, 1000);
+  try {
+    let rb = state.rulebook, label = "";
+    if (!reuse){
+      const r1 = await sample(GG_PROMPTS.rulebook(state.data.guidelines), { ...modelOpts(), signal: ctl.signal, cache: false, onText: ({ text }) => { const s = $("#stream"); if (s) s.textContent = text.slice(-400); } });
+      rb = parseJSON(r1.text); if (!rb?.rules) throw { code: "invalid_json" };
+      state.rulebook = rb; state.rulebookFor = state.data.guidelines; label = modelLabel(r1);
+      $("#ph1").className = "phase done"; $("#ph1").lastChild.textContent = `Rulebook extracted: ${rb.rules.length} rules`; $("#ph2").className = "phase on";
+      renderRulebook(); renderDesk(); renderGuidelines();
+    }
+    const today = new Date().toISOString().slice(0, 10);
+    const r2 = await sample(GG_PROMPTS.audit({ rulebook: rb, timekeepers: state.data.timekeepers, staffingNote: state.data.staffingPlanNote, entries: state.data.entries, expenses: state.data.expenses, matter: state.data.matter, today }), { ...modelOpts(), signal: ctl.signal, cache: false, onText: ({ text }) => { const s = $("#stream"); if (s) s.textContent = text.slice(-400); } });
+    const audit = parseJSON(r2.text); if (!audit?.entries) throw { code: "invalid_json" };
+    $("#ph2").className = "phase done"; $("#ph3").className = "phase on";
+    state.audit = audit; state.applied = {}; state.filter = "action";
+    const bad = [...audit.entries, ...(audit.expenses || [])].filter(f => f.quote && !verified(f.quote)).length;
+    state.meta = `Live run on ${modelLabel(r2)}${label && label !== modelLabel(r2) ? ` (rulebook on ${label})` : ""}, ${new Date().toLocaleString()}, ${Math.round((Date.now() - started) / 1000)}s. ${bad ? `${bad} quote${bad > 1 ? "s" : ""} not found word for word, shown in red.` : "Every quote matched the guidelines word for word."}`;
+    clearInterval(tick); box.hidden = true; renderAll();
+  } catch (e){
+    clearInterval(tick);
+    if (e?.code === "cancelled"){ box.hidden = true; }
+    else { box.innerHTML = `<div class="live"><p class="err">${esc(errText(e))}</p></div>`; }
+  } finally { state.busy = false; state.ctl = null; $("#runBtn").textContent = "Run on Claude"; }
+}
+
+/* ---------- own data ---------- */
+function loadOwn(){
+  const g = $("#ownGuide").value.trim(), lines = $("#ownEntries").value.split("\n").map(s => s.trim()).filter(Boolean);
+  if (g.length < 200 || !lines.length){ $("#ownMsg").textContent = "Paste the guidelines and at least one time entry line first."; return; }
+  const tks = {}, entries = []; let n = 0;
+  for (const l of lines){ const p = l.split("|").map(s => s.trim()); if (p.length < 5) continue; const [date, tk, hours, rate, ...rest] = p; tks[tk] = tks[tk] || { code: tk, name: tk, title: "", rate: Number(rate) || 0, approved: true, admitted: null }; entries.push({ id: ++n, date, entered: date, tk, hours: Number(hours) || 0, code: "", narrative: rest.join(" | ") }); }
+  const expenses = $("#ownExp").value.split("\n").map(s => s.trim()).filter(Boolean).map((l, i) => { const p = l.split("|").map(s => s.trim()); return { id: "E" + (i + 1), date: p[0] || "", amount: Number(p[1]) || 0, desc: p.slice(2).join(" | ") }; });
+  if (!entries.length){ $("#ownMsg").textContent = "No entry line had five fields separated by |."; return; }
+  state.data = { client: "Your client", matter: { number: "pasted", name: "Pasted prebill", period: "as pasted", manager: "unknown" }, timekeepers: Object.values(tks), staffingPlanNote: "No staffing plan was provided; treat every timekeeper as approved unless the guidelines say otherwise.", guidelines: g, entries, expenses };
+  state.custom = true; state.audit = null; state.rulebook = null; state.rulebookFor = null; state.applied = {}; state.meta = "";
+  $("#ownMsg").textContent = `Loaded ${entries.length} entries and ${expenses.length} expenses.`; showTab("audit"); renderAll(); runLive();
+}
+function resetOwn(){ state.data = JSON.parse(JSON.stringify(GG_DATA)); state.custom = false; state.rulebook = GG_RECORDED.rulebook; state.rulebookFor = GG_DATA.guidelines; state.audit = GG_RECORDED.audit; state.applied = {}; state.meta = `Recorded run on ${MODELS[GG_RECORDED.model]?.name || GG_RECORDED.model}, ${GG_RECORDED.recordedAt}`; $("#ownMsg").textContent = "Sample matter restored."; showTab("audit"); renderAll(); }
+
+/* ---------- tabs and events ---------- */
+function showTab(t){ document.querySelectorAll(".nav [role=tab]").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === t)); for (const s of document.querySelectorAll("section[id^=tab-]")) s.hidden = s.id !== "tab-" + t; try { localStorage.setItem("gg:tab", t); } catch (e) {} }
+document.addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.tab) showTab(b.dataset.tab);
+  else if (b.dataset.f){ state.filter = b.dataset.f; renderEntries(); }
+  else if (b.dataset.apply) applyRewrite(Number(b.dataset.apply));
+  else if (b.dataset.undo) undoRewrite(Number(b.dataset.undo));
+  else if (b.id === "runBtn"){ if (state.busy) state.ctl?.abort(); else runLive(); }
+  else if (b.id === "ownLoad") loadOwn();
+  else if (b.id === "ownReset") resetOwn();
+});
+function calc(){ const f = Number($("#cFees").value) || 0, r = Number($("#cRate").value) || 0, p = Number($("#cPrev").value) || 0; $("#cOut").textContent = money(f * r / 100 * p / 100); }
+["#cFees", "#cRate", "#cPrev"].forEach(s => $(s).addEventListener("input", calc)); calc();
+try { const m = localStorage.getItem("gg:model"); if (m && MODELS[m]) $("#model").value = m; } catch (e) {}
+$("#model").addEventListener("change", e => { try { localStorage.setItem("gg:model", e.target.value); } catch (x) {} });
+renderAll();
+try { const t = localStorage.getItem("gg:tab"); if (t && $("#tab-" + t)) showTab(t); } catch (e) {}
+$("#runBtn").title = "Connecting to Claude";
+(async () => {
+  try { sample = await window.claude?.use("sample"); } catch (e) { sample = null; }
+  try { downloads = await window.claude?.use("downloads"); } catch (e) { downloads = null; }
+  const rb = $("#runBtn");
+  if (sample){ rb.disabled = false; rb.title = "Audit this prebill live on your Claude account"; }
+  else { rb.disabled = true; rb.title = "Open this page in Claude to run it live"; document.body.classList.add("no-claude"); $("#ownLoad").disabled = true; }
+  renderSummary();
+})();
+</script>

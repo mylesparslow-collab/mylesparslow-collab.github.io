@@ -1,0 +1,1697 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Witness Breaker</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,500;0,700;1,500&family=Public+Sans:wght@400;500;600;700&family=Courier+Prime:wght@400;700&display=swap">
+<style>
+/* Layout: a deposition-room desk. Verdict strip on top, contradictions on the left, the selected impeachment on the right with the witness's words and the record side by side, and the question script set like a transcript page. */
+:root{
+  --paper:#f5f6f4; --sheet:#ffffff; --ink:#1d2430; --ink-2:#4b5563; --ink-3:#7b8494; --rule:#dde1e6; --rule-2:#c6ccd4;
+  --accent:#1f3a5f; --accent-soft:#e6ecf4; --sticker:#f2c94c; --sticker-ink:#3a2c00;
+  --bad:#a4262c; --bad-soft:#f8e6e6; --warn:#8a5a00; --warn-soft:#fbf0d9; --good:#1e6b45; --good-soft:#e2f2e9;
+  --display:"Spectral",Georgia,"Times New Roman",serif; --ui:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"Courier Prime","Courier New",Courier,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#12161d; --sheet:#1a2029; --ink:#e7eaef; --ink-2:#b4bcc8; --ink-3:#8590a0; --rule:#2b333f; --rule-2:#3a4452;
+  --accent:#9cb9e0; --accent-soft:#223249; --sticker:#e3b93f; --sticker-ink:#2a2000;
+  --bad:#f08a8f; --bad-soft:#3a1d20; --warn:#e9b860; --warn-soft:#3a2e15; --good:#79c99c; --good-soft:#173527; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#12161d; --sheet:#1a2029; --ink:#e7eaef; --ink-2:#b4bcc8; --ink-3:#8590a0; --rule:#2b333f; --rule-2:#3a4452;
+  --accent:#9cb9e0; --accent-soft:#223249; --sticker:#e3b93f; --sticker-ink:#2a2000;
+  --bad:#f08a8f; --bad-soft:#3a1d20; --warn:#e9b860; --warn-soft:#3a2e15; --good:#79c99c; --good-soft:#173527; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--ui);font-size:14px;line-height:1.5}
+.wrap{max-width:1240px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:18px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;font-weight:700}
+h1{font-size:30px;letter-spacing:-.01em}
+h2{font-size:21px}
+h3{font-size:17px}
+.eyebrow{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+button,select,input,textarea{font:inherit;color:inherit}
+.btn{border:1px solid var(--rule-2);background:var(--sheet);border-radius:6px;padding:7px 12px;cursor:pointer;font-weight:600;font-size:13px}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--sheet)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+select,input,textarea{background:var(--sheet);border:1px solid var(--rule-2);border-radius:6px;padding:6px 8px}
+textarea{width:100%;resize:vertical}
+label.f{display:grid;gap:4px;font-size:12px;color:var(--ink-2);font-weight:600}
+
+/* header */
+.top{display:flex;flex-wrap:wrap;gap:14px 24px;align-items:flex-end;justify-content:space-between}
+.top .id{display:grid;gap:4px;min-width:0}
+.caption{color:var(--ink-2);font-size:13px}
+.caption b{color:var(--ink);font-weight:600}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}
+.controls label{display:grid;gap:3px;font-size:11px;color:var(--ink-3);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.meta{font-size:12px;color:var(--ink-3)}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--rule);overflow-x:auto}
+.tabs button{border:0;background:none;padding:9px 14px;font-weight:600;color:var(--ink-2);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+
+/* verdict */
+.verdict{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:18px 20px;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:20px}
+.verdict .head{font-family:var(--display);font-size:20px;line-height:1.35;font-weight:500}
+.verdict .why{color:var(--ink-2);margin-top:8px}
+.qa{font-family:var(--mono);font-size:14px;background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:12px 14px;line-height:1.6}
+.qa .l{color:var(--ink-3)}
+.stats{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:12px;font-size:12px;color:var(--ink-2)}
+.stats b{font-variant-numeric:tabular-nums;color:var(--ink);font-size:15px}
+@media (max-width:820px){.verdict{grid-template-columns:1fr}}
+
+/* desk */
+.desk{display:grid;grid-template-columns:330px minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:900px){.desk{grid-template-columns:1fr}}
+.list{display:grid;gap:6px}
+.item{display:grid;gap:4px;text-align:left;border:1px solid var(--rule);background:var(--sheet);border-radius:8px;padding:10px 12px;cursor:pointer;border-left:4px solid var(--rule-2)}
+.item[data-sev="case-ending"]{border-left-color:var(--bad)}
+.item[data-sev="major"]{border-left-color:var(--warn)}
+.item[aria-current="true"]{border-color:var(--accent);border-left-width:4px;box-shadow:0 0 0 1px var(--accent)}
+.item .t{font-weight:600;line-height:1.3}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chip{font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;background:var(--paper);color:var(--ink-2);border:1px solid var(--rule)}
+.chip.bad{background:var(--bad-soft);color:var(--bad);border-color:transparent}
+.chip.warn{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.chip.good{background:var(--good-soft);color:var(--good);border-color:transparent}
+.chip.sworn{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+
+.detail{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:18px 20px;display:grid;gap:16px;min-width:0}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:640px){.vs{grid-template-columns:1fr}}
+.side{border:1px solid var(--rule);border-radius:8px;padding:12px 14px;display:grid;gap:8px;align-content:start;background:var(--paper);min-width:0}
+.side .lab{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
+.side blockquote{margin:0;font-family:var(--display);font-size:16px;line-height:1.45;font-style:italic}
+.sticker{display:inline-flex;gap:4px;align-items:center;background:var(--sticker);color:var(--sticker-ink);font-family:var(--mono);font-weight:700;font-size:11px;padding:2px 7px;border-radius:3px;cursor:pointer;border:0}
+.src{font-size:12px;color:var(--ink-2)}
+.ver{font-size:11px;font-weight:700}
+.ver.ok{color:var(--good)} .ver.no{color:var(--bad)}
+.notes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:760px){.notes{grid-template-columns:1fr}}
+.notes div{display:grid;gap:3px;align-content:start}
+.notes p{margin:0;color:var(--ink-2)}
+
+/* transcript */
+.transcript{border:1px solid var(--rule);border-radius:6px;background:var(--sheet);overflow-x:auto}
+.tline{display:grid;grid-template-columns:34px 78px minmax(0,1fr);gap:0 10px;font-family:var(--mono);font-size:14px;line-height:1.55;padding:3px 12px 3px 0;border-bottom:1px solid var(--rule)}
+.tline:last-child{border-bottom:0}
+.tline .n{color:var(--ink-3);text-align:right;font-variant-numeric:tabular-nums;border-right:1px solid var(--bad);padding-right:8px}
+.tline .s{font-family:var(--ui);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3);padding-top:4px}
+.tline[data-step="confront"] .s,.tline[data-step="lock"] .s{color:var(--bad)}
+.tline .q{min-width:0}
+.tline .q .sticker{margin-left:6px;vertical-align:1px}
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* co-pilot */
+.pilot{border:1px dashed var(--rule-2);border-radius:8px;padding:12px 14px;display:grid;gap:10px}
+.pilot .log{display:grid;gap:8px}
+.pilot .ex{font-family:var(--mono);font-size:13px;display:grid;gap:2px}
+.pilot .note{font-size:13px;background:var(--accent-soft);border-radius:6px;padding:8px 10px;display:grid;gap:4px}
+.pilot .row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
+.pilot .row textarea{flex:1 1 260px}
+
+/* panels */
+.panel{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:18px 20px;display:grid;gap:12px;min-width:0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:820px){.two{grid-template-columns:1fr}}
+ol.plain,ul.plain{margin:0;padding-left:20px;display:grid;gap:8px}
+ol.plain li span,ul.plain li span{display:block;color:var(--ink-2);font-size:13px}
+.tl{display:grid;gap:0}
+.tl .r{display:grid;grid-template-columns:110px minmax(0,1fr);gap:12px;padding:9px 0;border-bottom:1px solid var(--rule)}
+.tl .d{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--ink-2)}
+.tl .q{font-size:13px;color:var(--ink-2);font-style:italic;font-family:var(--display)}
+
+.docs{display:grid;grid-template-columns:260px minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:820px){.docs{grid-template-columns:1fr}}
+.doclist{display:grid;gap:4px}
+.doclist button{text-align:left;border:1px solid var(--rule);background:var(--sheet);border-radius:6px;padding:7px 10px;cursor:pointer;display:grid;gap:2px}
+.doclist button[aria-current="true"]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.doclist small{color:var(--ink-3)}
+.doctext{white-space:pre-wrap;font-family:var(--mono);font-size:13.5px;line-height:1.6;background:var(--sheet);border:1px solid var(--rule);border-radius:8px;padding:16px 18px;overflow-x:auto;margin:0}
+mark{background:var(--sticker);color:var(--sticker-ink);padding:0 1px;border-radius:2px}
+
+.own{display:grid;gap:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:700px){.grid2{grid-template-columns:1fr}}
+.drop{border:2px dashed var(--rule-2);border-radius:8px;padding:16px;text-align:center;color:var(--ink-2)}
+.drop.on{border-color:var(--accent);background:var(--accent-soft)}
+.owndocs{display:grid;gap:6px}
+.owndoc{display:grid;grid-template-columns:minmax(0,1fr) 140px 120px auto;gap:6px;align-items:center}
+@media (max-width:700px){.owndoc{grid-template-columns:1fr}}
+.stream{font-family:var(--mono);font-size:12px;color:var(--ink-3);white-space:pre-wrap;max-height:90px;overflow:hidden}
+.warnbox{background:var(--warn-soft);color:var(--warn);border-radius:6px;padding:8px 12px;font-size:13px}
+.errbox{background:var(--bad-soft);color:var(--bad);border-radius:6px;padding:8px 12px;font-size:13px}
+.foot{font-size:12px;color:var(--ink-3)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="id">
+      <span class="eyebrow">Litigation cheat code</span>
+      <h1>Witness Breaker</h1>
+      <div class="caption" id="caption"></div>
+    </div>
+    <div class="controls">
+      <label for="model">Model<select id="model"><option value="claude-opus-5-5">Opus 5.5</option><option value="claude-sonnet-5-5">Sonnet 5.5</option><option value="claude-fable-5-1">Fable 5.1</option></select></label>
+      <label for="depth">Depth<select id="depth"><option value="medium">Standard</option><option value="high">Deep</option><option value="low">Quick</option></select></label>
+      <button class="btn primary" id="rerun" type="button">Rerun on Claude</button>
+    </div>
+  </header>
+  <div class="meta" id="meta"></div>
+  <div id="busy" hidden></div>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" id="t-breaks" aria-selected="true" type="button">Contradictions</button>
+    <button role="tab" id="t-prep" aria-selected="false" type="button">Timeline and prep</button>
+    <button role="tab" id="t-docs" aria-selected="false" type="button">Case file</button>
+    <button role="tab" id="t-own" aria-selected="false" type="button">Use your own case</button>
+  </nav>
+
+  <section id="p-breaks" class="wrap" style="padding:0;gap:16px">
+    <div class="verdict" id="verdict"></div>
+    <div class="desk">
+      <div class="list" id="list"></div>
+      <div class="detail" id="detail"></div>
+    </div>
+  </section>
+
+  <section id="p-prep" hidden>
+    <div class="two">
+      <div class="panel"><h2>What happened, from the paper</h2><div class="tl" id="timeline"></div></div>
+      <div style="display:grid;gap:16px;align-content:start">
+        <div class="panel"><h2>Do before the deposition</h2><ol class="plain" id="before"></ol></div>
+        <div class="panel"><h2>Questions not to ask</h2><ul class="plain" id="dontask"></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="p-docs" hidden>
+    <div class="docs"><div class="doclist" id="doclist"></div><div style="display:grid;gap:8px;min-width:0"><div id="dochead"></div><pre class="doctext" id="doctext"></pre></div></div>
+  </section>
+
+  <section id="p-own" hidden>
+    <div class="panel own">
+      <div><h2>Break your own witness</h2><p class="foot" style="margin:4px 0 0">Add the witness's declarations, verified discovery answers, emails, chats and records. Files are read in your browser and sent only to Claude on your account. Use documents you are cleared to run through Claude.</p></div>
+      <div class="grid2">
+        <label class="f" for="o-caption">Case<input id="o-caption" placeholder="Smith v. Acme Corp."></label>
+        <label class="f" for="o-court">Court<input id="o-court" placeholder="Superior Court of California, County of ..."></label>
+        <label class="f" for="o-side">We represent<input id="o-side" placeholder="Plaintiff"></label>
+        <label class="f" for="o-witness">Witness<input id="o-witness" placeholder="Name and role"></label>
+      </div>
+      <label class="f" for="o-claims">Claims and posture<textarea id="o-claims" rows="2"></textarea></label>
+      <label class="f" for="o-goal">What we need from this witness<textarea id="o-goal" rows="2"></textarea></label>
+      <div class="drop" id="drop">Drop PDF, Word (.docx), text or email files here, or <button class="btn" id="pick" type="button">choose files</button><input type="file" id="file" multiple accept=".pdf,.docx,.txt,.eml,.md,.html,.htm" hidden></div>
+      <details><summary style="cursor:pointer;font-weight:600">Paste a document instead</summary>
+        <div style="display:grid;gap:8px;margin-top:8px">
+          <div class="grid2"><label class="f" for="p-title">Title<input id="p-title" placeholder="Declaration of ..."></label><label class="f" for="p-date">Date<input id="p-date" placeholder="2026-03-04"></label></div>
+          <label class="f" for="p-text">Text<textarea id="p-text" rows="6"></textarea></label>
+          <div><button class="btn" id="p-add" type="button">Add document</button></div>
+        </div>
+      </details>
+      <div class="owndocs" id="owndocs"></div>
+      <div id="ownwarn"></div>
+      <div class="tools"><button class="btn primary" id="o-run" type="button">Find the contradictions</button><button class="btn" id="o-sample" type="button">Load the sample case into this form</button><button class="btn" id="o-reset" type="button">Back to the sample run</button><span class="foot" id="o-msg"></span></div>
+    </div>
+  </section>
+
+  <p class="foot">Sample case, people and documents are invented. Every quote is matched word for word against the case file in this page; a quote that does not match is marked in red. Claude's analysis is a starting point for counsel and is not legal advice. Check every statute it names before relying on it.</p>
+</div>
+
+<script>/* Invented demo case file. Every person, company and document here is fictional. */
+const WB_DATA = {
+matter: {
+  caption: "Okafor v. Harborline Freight Services, Inc.",
+  court: "Superior Court of California, County of San Joaquin",
+  side: "Plaintiff",
+  witness: "Marcus Hale, Operations Manager, Harborline Freight Services (Stockton warehouse)",
+  depoDate: "2026-11-04",
+  claims: "Retaliation under Labor Code sections 1102.5 and 6310, and wrongful termination in violation of public policy. Ms. Okafor, a second shift forklift lead, warned about failing brakes on forklift 7, filed a Cal/OSHA complaint on March 16, 2026, and was terminated on March 25, 2026.",
+  goal: "Defeat the defense motion for summary judgment (hearing December 9, 2026) and prove retaliation at trial. Defendant's theory: Hale decided to eliminate the position in early March, before any complaint, for restructuring and performance reasons, and did not know about Cal/OSHA until after the termination."
+},
+docs: [
+{ id: "D1", title: "Annual performance review, Dana Okafor", type: "Review", date: "2026-01-22", author: "Marcus Hale",
+text: `HARBORLINE FREIGHT SERVICES, INC.
+ANNUAL PERFORMANCE REVIEW, CALENDAR YEAR 2025
+
+Employee: Dana Okafor
+Position: Forklift Lead, Second Shift
+Reviewer: Marcus Hale, Operations Manager
+Review date: January 22, 2026
+
+Overall rating: Meets Expectations
+
+Safety: Exceeds Expectations. Dana is our most reliable lead on safety. The team relies on her for forklift certification training, and she trained 11 new operators in 2025 with zero recordable incidents.
+
+Teamwork: Meets Expectations. Works well with the team and resolved the January scheduling dispute between two operators professionally.
+
+Productivity: Meets Expectations. Second shift hit its load targets in 10 of 12 months.
+
+Areas for development: Dana can be blunt when she raises equipment issues. I would like her to route maintenance requests through the ticket system instead of coming to me directly.
+
+Goals for 2026: Continue as second shift lead. Take on certification training for the new reach trucks arriving in Q2.
+
+Reviewer signature: Marcus Hale    Date: 01/22/2026`},
+
+{ id: "D2", title: "Email, Hale to HR: Q2 staffing plan", type: "Email", date: "2026-03-04", author: "Marcus Hale",
+text: `From: Marcus Hale
+To: Priya Nandakumar (HR Business Partner)
+Date: Wednesday, March 4, 2026 4:12 PM
+Subject: Q2 staffing plan
+
+Priya,
+
+Attached is the Q2 staffing plan for Stockton. Volume on second shift is down about 8 percent from Q4. We may need to restructure the lead roles on second shift at some point this year, but I want to see April numbers first before we decide anything.
+
+No changes to first shift.
+
+Thanks,
+Marcus`},
+
+{ id: "D3", title: "Email chain, Okafor and Hale: forklift 7 brakes", type: "Email", date: "2026-03-12", author: "Dana Okafor / Marcus Hale",
+text: `From: Dana Okafor
+To: Marcus Hale
+Date: Thursday, March 12, 2026 9:47 PM
+Subject: Forklift 7 brakes AGAIN
+
+Marcus,
+
+Forklift 7's brakes failed again tonight on the ramp at door 14. This is the third time I've reported it (tickets 4471, 4502 and 4519). Somebody is going to get hurt. If this isn't fixed I'll have to report it to Cal/OSHA.
+
+Dana
+
+---
+
+From: Marcus Hale
+To: Dana Okafor
+Date: Friday, March 13, 2026 7:05 AM
+Subject: RE: Forklift 7 brakes AGAIN
+
+Dana, take 7 out of service and tag it. Let's talk today at 2. Please don't go outside the company on this before we've had a chance to fix it.
+
+Marcus`},
+
+{ id: "D4", title: "Calendar entry: 1:1 with Dana", type: "Calendar", date: "2026-03-13", author: "Marcus Hale (organizer)",
+text: `Meeting: 1:1 Dana / forklift 7 concerns
+Organizer: Marcus Hale
+Attendees: Marcus Hale, Dana Okafor
+When: Friday, March 13, 2026, 2:00 PM to 2:30 PM
+Where: Ops office, Stockton
+Notes (organizer): Dana says she will call Cal/OSHA if 7 is not fixed by Monday. Told her maintenance is waiting on parts.`},
+
+{ id: "D5", title: "Cal/OSHA complaint confirmation", type: "Agency record", date: "2026-03-16", author: "Cal/OSHA online complaint system",
+text: `CAL/OSHA COMPLAINT CONFIRMATION
+Complaint number: 2026-STK-00318
+Received: March 16, 2026, 6:52 AM
+Complainant: Dana Okafor (name withheld from employer on request: NO)
+Establishment: Harborline Freight Services, Inc., Stockton, CA
+Hazard described: Powered industrial truck (forklift 7) with repeatedly failing service brakes, used on loading ramp at door 14. Reported to supervisor three times.
+Status: Received. Employer will be notified.`},
+
+{ id: "D6", title: "Teams messages, Hale and Tolentino", type: "Chat", date: "2026-03-17", author: "Marcus Hale / Ray Tolentino",
+text: `Microsoft Teams, chat between Marcus Hale and Ray Tolentino (Second Shift Supervisor)
+
+Tue 3/17/2026 8:31 AM, Marcus Hale:
+Heads up. Dana went to Cal/OSHA over forklift 7. Inspector could be here this week.
+
+Tue 3/17/2026 8:33 AM, Ray Tolentino:
+seriously? we told her parts were coming
+
+Tue 3/17/2026 8:34 AM, Marcus Hale:
+I know. Keep your head down and make sure the maintenance logs are clean. I'm going to deal with the Dana situation.
+
+Tue 3/17/2026 8:35 AM, Ray Tolentino:
+👍`},
+
+{ id: "D7", title: "Email chain, Hale and Regional VP: recommendation", type: "Email", date: "2026-03-18", author: "Marcus Hale / Lorraine Whitcomb",
+text: `From: Marcus Hale
+To: Lorraine Whitcomb (Regional Vice President, Operations)
+Date: Wednesday, March 18, 2026 10:20 AM
+Subject: Second shift lead
+
+Lorraine,
+
+I recommend we terminate Dana Okafor's employment. Her attitude has become a problem for the team and she is not following the chain of command. I'd like to do it next week.
+
+Marcus
+
+---
+
+From: Lorraine Whitcomb
+To: Marcus Hale
+Cc: Priya Nandakumar
+Date: Wednesday, March 18, 2026 1:46 PM
+Subject: RE: Second shift lead
+
+Agree with your recommendation on Okafor. Let's move quickly before this turns into a bigger problem. Priya, please open the paperwork and make sure the file supports it.
+
+Lorraine`},
+
+{ id: "D8", title: "HR case ticket: termination request", type: "HR record", date: "2026-03-19", author: "Priya Nandakumar",
+text: `HR CASE MANAGEMENT SYSTEM
+Ticket: HR-2026-0214
+Opened: 03/19/2026 9:02 AM by Priya Nandakumar
+Type: Involuntary termination request
+Employee: Dana Okafor, Forklift Lead, Second Shift
+Requested by: M. Hale. Approved by: L. Whitcomb (RVP), 03/18/2026
+Stated reason: Performance / attitude; not following chain of command
+Prior documentation on file: None. Manager reports verbal coaching (undocumented).
+HR note 03/20/2026: Spoke with M. Hale. He says the decision was made around 3/6 as part of the second shift restructuring. Recommend we frame as position elimination, not performance, given no written warnings in file.
+Status: Closed, 03/25/2026`},
+
+{ id: "D9", title: "Termination letter", type: "Letter", date: "2026-03-25", author: "Priya Nandakumar",
+text: `March 25, 2026
+
+Dana Okafor
+[address on file]
+
+Dear Ms. Okafor,
+
+This letter confirms that your employment with Harborline Freight Services, Inc. ends effective today, March 25, 2026. Your position of Forklift Lead, Second Shift, has been eliminated as part of a restructuring of second shift operations. This decision is not a reflection of your performance.
+
+Your final paycheck, including all accrued and unused vacation, is enclosed.
+
+Sincerely,
+Priya Nandakumar
+HR Business Partner`},
+
+{ id: "D10", title: "Job posting: Second Shift Forklift Lead", type: "Job posting", date: "2026-04-02", author: "Harborline Freight careers page",
+text: `HARBORLINE FREIGHT SERVICES, INC. CAREERS
+Posted: April 2, 2026
+Position: Forklift Lead, Second Shift (Stockton, CA)
+Reports to: Operations Manager
+Responsibilities: Lead second shift forklift operators; conduct forklift certification training for new operators; coordinate equipment maintenance tickets.
+Requirements: 3+ years powered industrial truck experience; current certification; prior lead experience preferred.
+Status (captured 04/15/2026): Filled`},
+
+{ id: "D11", title: "Defendant's verified responses to special interrogatories, set one", type: "Discovery", date: "2026-07-10", author: "Harborline Freight Services, verified by Marcus Hale",
+text: `DEFENDANT HARBORLINE FREIGHT SERVICES, INC.'S RESPONSES TO PLAINTIFF'S SPECIAL INTERROGATORIES, SET ONE
+
+SPECIAL INTERROGATORY NO. 4:
+Identify each person who participated in the decision to terminate Plaintiff's employment.
+RESPONSE TO SPECIAL INTERROGATORY NO. 4:
+Subject to and without waiving its objections, Defendant responds as follows: Marcus Hale. No other person participated in the decision.
+
+SPECIAL INTERROGATORY NO. 7:
+State the date on which Defendant first learned that Plaintiff had made a complaint to Cal/OSHA.
+RESPONSE TO SPECIAL INTERROGATORY NO. 7:
+Subject to and without waiving its objections, Defendant responds as follows: Defendant first learned of the complaint on March 27, 2026, when a Cal/OSHA inspector contacted the Stockton facility.
+
+SPECIAL INTERROGATORY NO. 9:
+State all reasons for the termination of Plaintiff's employment.
+RESPONSE TO SPECIAL INTERROGATORY NO. 9:
+Subject to and without waiving its objections, Defendant responds as follows: Plaintiff's position was eliminated as part of a restructuring of second shift operations that was planned before Plaintiff made any complaint.
+
+VERIFICATION
+I, Marcus Hale, am the Operations Manager of Harborline Freight Services, Inc. and am authorized to make this verification on its behalf. I have read the foregoing responses and declare under penalty of perjury under the laws of the State of California that they are true and correct.
+Executed July 10, 2026, at Stockton, California.
+/s/ Marcus Hale`},
+
+{ id: "D12", title: "Declaration of Marcus Hale ISO motion for summary judgment", type: "Declaration", date: "2026-09-18", author: "Marcus Hale",
+text: `DECLARATION OF MARCUS HALE IN SUPPORT OF DEFENDANT'S MOTION FOR SUMMARY JUDGMENT
+
+I, Marcus Hale, declare:
+
+1. I am the Operations Manager of the Stockton warehouse of Harborline Freight Services, Inc. I have personal knowledge of the facts in this declaration and could testify to them competently.
+
+2. I supervised Plaintiff Dana Okafor from 2023 until her employment ended on March 25, 2026.
+
+3. I made the decision to eliminate Ms. Okafor's lead position in early March 2026, as reflected in my March 4, 2026 email to Human Resources.
+
+4. At the time I made that decision, I was not aware that Ms. Okafor had made any complaint to Cal/OSHA or any other agency. I first learned of the Cal/OSHA complaint after Ms. Okafor's employment ended.
+
+5. Ms. Okafor had a documented history of performance problems, including repeated conflicts with coworkers.
+
+6. The decision to eliminate the position was mine alone. No one else at Harborline was involved in making it.
+
+7. The second shift lead position was eliminated and has not been refilled. Its duties were absorbed by the second shift supervisor.
+
+I declare under penalty of perjury under the laws of the State of California that the foregoing is true and correct. Executed September 18, 2026, at Stockton, California.
+
+/s/ Marcus Hale`},
+
+{ id: "D13", title: "Maintenance log, forklift 7", type: "Records", date: "2026-03-20", author: "Harborline maintenance",
+text: `EQUIPMENT MAINTENANCE LOG, UNIT: FORKLIFT 7 (Stockton)
+
+02/19/2026  Ticket 4471  Operator report: soft brake pedal. Inspected, adjusted. Returned to service.
+03/02/2026  Ticket 4502  Operator report (D. Okafor): brakes fail to hold on ramp. Parts ordered.
+03/12/2026  Ticket 4519  Operator report (D. Okafor): brake failure at door 14 ramp. Tagged out 03/13.
+03/20/2026  Ticket 4519  Master cylinder and brake lines replaced. Tested. Returned to service.`}
+]
+};
+</script>
+<script>/* Prompts shared by the page (live runs) and run.js (recorded run). */
+const WB_PROMPTS = {
+breaker({ matter, docs, today }){
+const files = docs.map(d => `=== ${d.id} | ${d.title} | ${d.type} | dated ${d.date || "undated"} | author ${d.author || "unknown"} ===\n${d.text}\n=== END ${d.id} ===`).join("\n\n");
+return `You are a senior California trial lawyer preparing to depose a witness. Your job is to find every place the witness's own paper trail contradicts itself or contradicts the documents, and to turn each contradiction into a deposition sequence that ends in an admission. You think like the best impeachment lawyers: commit the witness to their version under oath, credit the document that destroys it, then confront. You never ask a question you do not know the answer to, and you close the exits before you spring the trap.
+
+Today is ${today}.
+Case: ${matter.caption}, ${matter.court}.
+We represent: ${matter.side}.
+Witness to be deposed: ${matter.witness}${matter.depoDate ? `, deposition on ${matter.depoDate}` : ""}.
+Claims and posture: ${matter.claims}
+What we need: ${matter.goal}
+
+Case file (each document has an id; quote only from these):
+
+${files}
+
+Reply with ONLY a JSON object, no prose and no code fence, in this shape:
+{
+ "headline": "one sentence a partner can read in five seconds: the single admission that wins, and why",
+ "kill_shot": {
+   "admission": "the exact admission, in the witness's likely words, that ends the dispute on the issue that matters most",
+   "why_it_ends_it": "two or three sentences on the legal consequence under California law, for example which element or burden it decides and what it does to the pending motion",
+   "sequence": ["C1", "C2"]
+ },
+ "contradictions": [
+   {"id": "C1", "title": "6 to 10 words", "severity": "case-ending | major | useful",
+    "issue": "the element or theme it goes to, for example Knowledge, Timing, Decision-maker, Stated reason, Credibility",
+    "sworn": true,
+    "a": {"doc": "D12", "quote": "what the witness says, copied EXACTLY from that document"},
+    "b": {"doc": "D6", "quote": "what contradicts it, copied EXACTLY from that document"},
+    "why": "one or two sentences on why both cannot be true",
+    "exit": "the most plausible innocent explanation the witness will offer",
+    "close_exit": "how the sequence closes that exit before the confrontation",
+    "questions": [
+      {"step": "commit | close | credit | confront | lock", "q": "the question, short, one fact per question, leading where the step calls for it", "doc": "optional document id to mark as an exhibit at this question"}
+    ]}
+ ],
+ "timeline": [{"date": "YYYY-MM-DD", "event": "what happened, under 15 words", "doc": "D5", "quote": "short exact quote proving it"}],
+ "dont_ask": [{"q": "a question that is tempting but dangerous", "why": "what door it opens"}],
+ "before_the_depo": [{"action": "a concrete step to take before the deposition, such as a request for admission or a subpoena", "why": "what it locks down"}]
+}
+
+Rules:
+- Find every genuine contradiction, ranked most damaging first. Include contradictions between the witness's sworn statements (declarations, verified discovery) and contemporaneous documents, between two sworn statements, and between the witness's stated reasons over time. Do not invent tension where the documents are consistent; if a document actually helps the witness, say so in "exit" for the relevant contradiction.
+- Set "sworn" to true when quote "a" comes from a declaration, verified discovery response or testimony under penalty of perjury.
+- Each contradiction gets 6 to 12 questions in order. Start with commit questions that make the witness repeat and own their version, then close questions that shut the innocent explanation, then credit questions that establish the contradicting document (who wrote it, when, that it was accurate when written), then confront, then lock (the admission you want in their own words).
+- Every quote is checked word for word against the case file in the page, and any quote that does not match is shown in red, so copy exactly, keep the original punctuation, and keep quotes under 40 words. Never put a quote from one document under another document's id.
+- The timeline covers 8 to 14 key dated events, in date order.
+- 3 to 5 dont_ask items and 3 to 5 before_the_depo items.
+- California law applies. Do not cite case names. Statutes and rules by number are fine.
+- No em-dashes anywhere. Plain English a lawyer would use at the table.`;
+},
+
+followup({ matter, item, docsById, transcript }){
+const a = docsById[item.a.doc], b = docsById[item.b.doc];
+const t = transcript.map((x, i) => `${i + 1}. Q: ${x.q}\n   A: ${x.a}`).join("\n");
+return `You are second chair at a deposition in ${matter.caption}, sitting next to the examining lawyer, who represents ${matter.side}. The witness is ${matter.witness}.
+
+The lawyer is running this impeachment sequence:
+Title: ${item.title}
+Witness's version (${item.a.doc}, ${a ? a.title : ""}): "${item.a.quote}"
+Contradicting document (${item.b.doc}, ${b ? b.title : ""}): "${item.b.quote}"
+Why both cannot be true: ${item.why}
+The exit the witness will try: ${item.exit}
+Planned questions:
+${item.questions.map((q, i) => `${i + 1}. [${q.step}] ${q.q}`).join("\n")}
+
+Transcript so far:
+${t}
+
+Read the witness's last answer and pass the lawyer a note. Reply with ONLY a JSON object, no prose and no code fence:
+{
+ "read": "locked | evasive | exit_taken | admission | opened_door",
+ "note": "one or two sentences on what the answer did, plain English",
+ "next_q": "the single best next question, short and leading",
+ "show_doc": "the document id to hand the witness now, or empty",
+ "move_on": true or false
+}
+Rules: if the witness evaded, the next question pins the same fact more narrowly. If the witness took the exit, close it with the documents before confronting. If the witness admitted the point, lock it in their words and set move_on to true. No em-dashes.`;
+},
+
+witness({ matter, docs, transcript, question }){
+const files = docs.map(d => `=== ${d.id} | ${d.title} | ${d.date || ""} ===\n${d.text}`).join("\n\n");
+const t = transcript.map(x => `Q: ${x.q}\nA: ${x.a}`).join("\n");
+return `Role-play for deposition practice. You are the witness, ${matter.witness}, being deposed in ${matter.caption} by counsel for ${matter.side}. Defense counsel prepared you well: you are careful, a little defensive, you stick to your declaration and discovery answers as long as you honestly can, you take any innocent explanation the facts allow, and you never volunteer. You do not concede anything the examiner has not yet shown you a document for: until then you repeat your sworn version or retreat to "I don't recall" or an innocent explanation. But you are under oath: once a question puts a document you wrote or received in front of you, you do not deny what it plainly says, though you will try to minimize it. You know only what the documents below show you would know.
+
+Documents:
+${files}
+
+Transcript so far:
+${t || "(none)"}
+
+Q: ${question}
+
+Reply with ONLY the witness's answer, one to three sentences, as spoken. No quotation marks, no stage directions.`;
+}
+};
+</script>
+<script>/* Word-for-word quote check, shared by the page and run.js. */
+const WB_VERIFY = {
+norm(s){ return String(s || "").replace(/[‘’‛′]/g, "'").replace(/[“”″]/g, '"').replace(/[–—]/g, "-").replace(/…/g, "...").replace(/\s+/g, " ").trim().toLowerCase(); },
+find(quote, doc){
+  if (!doc || !quote) return false;
+  const q = WB_VERIFY.norm(quote).replace(/^["']|["']$/g, "").replace(/^\.\.\.\s*|\s*\.\.\.$/g, "");
+  if (q.length < 4) return false;
+  const t = WB_VERIFY.norm(doc.text);
+  if (t.includes(q)) return true;
+  /* allow an ellipsis joining two exact pieces, in order */
+  const parts = q.split(/\s*\.\.\.\s*|\s*\[\.\.\.\]\s*/).filter(Boolean);
+  if (parts.length < 2) return false;
+  let at = 0;
+  for (const p of parts){ const i = t.indexOf(p, at); if (i < 0) return false; at = i + p.length; }
+  return true;
+},
+checkAll(r, docs){
+  const by = Object.fromEntries(docs.map(d => [d.id, d]));
+  const misses = []; let total = 0, ok = 0;
+  const one = (where, doc, quote) => { if (!quote) return; total++; if (WB_VERIFY.find(quote, by[doc])) ok++; else misses.push({ where, doc, quote }); };
+  for (const c of r.contradictions || []){ one(c.id + ".a", c.a?.doc, c.a?.quote); one(c.id + ".b", c.b?.doc, c.b?.quote); }
+  for (const t of r.timeline || []) one("timeline " + t.date, t.doc, t.quote);
+  return { total, ok, misses };
+}
+};
+</script>
+<script>const WB_RECORDED = {
+ "model": "claude-fable-5-1",
+ "recordedAt": "2026-10-17",
+ "secs": 256,
+ "result": {
+  "headline": "Hale swore he learned of the Cal/OSHA complaint only after the firing, but his own March 17 Teams message says Dana went to Cal/OSHA and he would deal with her, one day before he recommended termination.",
+  "kill_shot": {
+   "admission": "Yes. On March 17 I knew Dana had gone to Cal/OSHA, and on March 18 I recommended that we terminate her.",
+   "why_it_ends_it": "Knowledge of the complaint plus an eight day gap to termination makes the protected activity a contributing factor under Labor Code section 1102.5, which under section 1102.6 shifts the burden to Harborline to prove by clear and convincing evidence that it would have fired her anyway. The summary judgment motion rests entirely on Hale's declaration as the sole decision-maker, so a sworn no-knowledge statement contradicted by his own contemporaneous writing is a triable issue of fact by itself, and under Code of Civil Procedure section 437c(e) the court may deny the motion where the only evidence of state of mind is the declarant's own word. The same admission carries the section 6310 claim and the public policy claim.",
+   "sequence": [
+    "C1",
+    "C2"
+   ]
+  },
+  "contradictions": [
+   {
+    "id": "C1",
+    "title": "Swore he learned of Cal/OSHA after firing, knew March 17",
+    "severity": "case-ending",
+    "issue": "Knowledge",
+    "sworn": true,
+    "a": {
+     "doc": "D12",
+     "quote": "I first learned of the Cal/OSHA complaint after Ms. Okafor's employment ended."
+    },
+    "b": {
+     "doc": "D6",
+     "quote": "Heads up. Dana went to Cal/OSHA over forklift 7. Inspector could be here this week."
+    },
+    "why": "Employment ended March 25. He told the shift supervisor in writing on March 17 that she had gone to Cal/OSHA. He cannot have first learned eight days later.",
+    "exit": "He will say the March 17 message was a rumor or a guess based on her March 13 threat, not actual knowledge of a filed complaint, so paragraph 4 is technically true.",
+    "close_exit": "Before showing the chat, get him to swear nobody told him and he told nobody before March 25, and that he does not spread rumors about safety complaints to supervisors. Then the message says she went to Cal/OSHA and predicts an inspector, which is knowledge however he got it.",
+    "questions": [
+     {
+      "step": "commit",
+      "q": "You signed your September 18, 2026 declaration under penalty of perjury?",
+      "doc": "D12"
+     },
+     {
+      "step": "commit",
+      "q": "Paragraph 4 says you first learned of the Cal/OSHA complaint after Ms. Okafor's employment ended. That was true when you signed it?"
+     },
+     {
+      "step": "commit",
+      "q": "Her employment ended March 25, 2026?"
+     },
+     {
+      "step": "close",
+      "q": "Before March 25, nobody told you Dana had contacted Cal/OSHA?"
+     },
+     {
+      "step": "close",
+      "q": "And before March 25 you never told anyone at Harborline that Dana had gone to Cal/OSHA?"
+     },
+     {
+      "step": "credit",
+      "q": "Exhibit 6 is a Microsoft Teams chat between you and Ray Tolentino dated March 17, 2026. The messages marked Marcus Hale are yours?",
+      "doc": "D6"
+     },
+     {
+      "step": "credit",
+      "q": "At 8:31 AM on March 17 you wrote: Heads up. Dana went to Cal/OSHA over forklift 7. Inspector could be here this week. You wrote that?"
+     },
+     {
+      "step": "credit",
+      "q": "When you wrote it, you believed it was accurate?"
+     },
+     {
+      "step": "confront",
+      "q": "March 17 is eight days before March 25?"
+     },
+     {
+      "step": "confront",
+      "q": "So on March 17 you knew Dana had gone to Cal/OSHA?"
+     },
+     {
+      "step": "lock",
+      "q": "Paragraph 4 of your declaration, that you first learned after her employment ended, is not true?"
+     },
+     {
+      "step": "lock",
+      "q": "At 8:34 AM you wrote: I'm going to deal with the Dana situation. On March 17 the Dana situation was her Cal/OSHA complaint?"
+     }
+    ]
+   },
+   {
+    "id": "C2",
+    "title": "Verified answer: company first learned March 27",
+    "severity": "case-ending",
+    "issue": "Knowledge",
+    "sworn": true,
+    "a": {
+     "doc": "D11",
+     "quote": "Defendant first learned of the complaint on March 27, 2026, when a Cal/OSHA inspector contacted the Stockton facility."
+    },
+    "b": {
+     "doc": "D4",
+     "quote": "Dana says she will call Cal/OSHA if 7 is not fixed by Monday. Told her maintenance is waiting on parts."
+    },
+    "why": "Hale is the Operations Manager who verified the response. His own calendar note on March 13 records the threat, and his March 17 chat records the complaint itself, ten days before the date he verified.",
+    "exit": "He will say the interrogatory asked about formal notice from the agency, and March 27 is the first official contact.",
+    "close_exit": "Make him agree the question asked when Defendant first learned, that he is the company's manager at the site, and that he searched his own messages before verifying. Then the March 13 note and March 17 chat leave no room for a notice-only reading.",
+    "questions": [
+     {
+      "step": "commit",
+      "q": "You verified Harborline's interrogatory responses on July 10, 2026 under penalty of perjury?",
+      "doc": "D11"
+     },
+     {
+      "step": "commit",
+      "q": "Response 7 says Defendant first learned of the complaint on March 27, 2026, when a Cal/OSHA inspector contacted the facility?"
+     },
+     {
+      "step": "commit",
+      "q": "You are the senior manager at Stockton. What you know about Stockton, Harborline knows?"
+     },
+     {
+      "step": "close",
+      "q": "Before you signed the verification, you checked your own emails and Teams messages to confirm that date?"
+     },
+     {
+      "step": "close",
+      "q": "The interrogatory asked when Defendant first learned. It did not ask when the agency sent formal notice?"
+     },
+     {
+      "step": "credit",
+      "q": "Exhibit 4 is your calendar entry for March 13, 2026. You are the organizer and you typed the notes?",
+      "doc": "D4"
+     },
+     {
+      "step": "credit",
+      "q": "Your note says: Dana says she will call Cal/OSHA if 7 is not fixed by Monday. Accurate when you wrote it?"
+     },
+     {
+      "step": "credit",
+      "q": "Exhibit 6, March 17, 8:31 AM: Dana went to Cal/OSHA over forklift 7. Those are your words?",
+      "doc": "D6"
+     },
+     {
+      "step": "confront",
+      "q": "On March 17 you told the shift supervisor an inspector could be there that week. That is ten days before March 27?"
+     },
+     {
+      "step": "lock",
+      "q": "The verified answer that the company first learned on March 27 is wrong?"
+     },
+     {
+      "step": "lock",
+      "q": "And you knew it was wrong when you signed the verification, because you wrote the March 17 message?"
+     }
+    ]
+   },
+   {
+    "id": "C3",
+    "title": "Decision in early March versus wait for April numbers",
+    "severity": "case-ending",
+    "issue": "Timing",
+    "sworn": true,
+    "a": {
+     "doc": "D12",
+     "quote": "I made the decision to eliminate Ms. Okafor's lead position in early March 2026, as reflected in my March 4, 2026 email to Human Resources."
+    },
+    "b": {
+     "doc": "D2",
+     "quote": "We may need to restructure the lead roles on second shift at some point this year, but I want to see April numbers first before we decide anything."
+    },
+    "why": "The only document he cites for an early March decision says in his own words that nothing had been decided and that no decision would be made before April numbers. The termination came March 25, before any April numbers existed.",
+    "exit": "He will say the March 4 email shows the restructuring was already under way and the decision firmed up over the following days as volume stayed down.",
+    "close_exit": "Commit him to the March 4 email as the document reflecting the decision and to there being no other early March document. Establish he had not seen April numbers by March 18 or March 25. Then read him his own sentence.",
+    "questions": [
+     {
+      "step": "commit",
+      "q": "Paragraph 3 of your declaration says you made the decision to eliminate the lead position in early March 2026?",
+      "doc": "D12"
+     },
+     {
+      "step": "commit",
+      "q": "And you say that decision is reflected in your March 4, 2026 email to Human Resources?"
+     },
+     {
+      "step": "commit",
+      "q": "The March 4 email is the document you chose to cite under oath as proof of the decision?"
+     },
+     {
+      "step": "close",
+      "q": "Other than the March 4 email, there is no document from early March recording a decision to eliminate the position?"
+     },
+     {
+      "step": "close",
+      "q": "You write carefully when you email HR about staffing?"
+     },
+     {
+      "step": "close",
+      "q": "April volume numbers do not exist until May?"
+     },
+     {
+      "step": "credit",
+      "q": "Exhibit 2 is your March 4 email to Priya Nandakumar. You wrote it?",
+      "doc": "D2"
+     },
+     {
+      "step": "credit",
+      "q": "You wrote: We may need to restructure the lead roles on second shift at some point this year, but I want to see April numbers first before we decide anything. Correct?"
+     },
+     {
+      "step": "credit",
+      "q": "That was your honest state of mind on March 4?"
+     },
+     {
+      "step": "confront",
+      "q": "On March 4 you had not decided anything about the lead roles?"
+     },
+     {
+      "step": "confront",
+      "q": "You had not seen April numbers on March 18 when you wrote Ms. Whitcomb, or on March 25 when Ms. Okafor was terminated?",
+      "doc": "D7"
+     },
+     {
+      "step": "lock",
+      "q": "So the decision was not made on March 4, and it was not made before March 16?"
+     }
+    ]
+   },
+   {
+    "id": "C4",
+    "title": "Reason shifted from attitude to restructuring after HR review",
+    "severity": "major",
+    "issue": "Stated reason",
+    "sworn": false,
+    "a": {
+     "doc": "D7",
+     "quote": "Her attitude has become a problem for the team and she is not following the chain of command. I'd like to do it next week."
+    },
+    "b": {
+     "doc": "D9",
+     "quote": "This decision is not a reflection of your performance."
+    },
+    "why": "On March 18 the reason given to the Regional VP was attitude and chain of command, with no mention of restructuring. One week later the company told Ms. Okafor it was restructuring and not performance. Shifting reasons are evidence of pretext.",
+    "exit": "He will say both were true: performance was the trigger, but HR chose the gentler restructuring label to spare her.",
+    "close_exit": "Commit him to having told Ms. Whitcomb the true reasons and to the March 18 email containing no restructuring reason. Then show the HR note that the reframing was recommended because there were no written warnings.",
+    "questions": [
+     {
+      "step": "commit",
+      "q": "When you recommended termination to Ms. Whitcomb on March 18, you told her the true reasons?",
+      "doc": "D7"
+     },
+     {
+      "step": "commit",
+      "q": "Those reasons were attitude and not following the chain of command?"
+     },
+     {
+      "step": "commit",
+      "q": "Your March 18 email does not mention restructuring, volume, or eliminating a position?"
+     },
+     {
+      "step": "close",
+      "q": "Ms. Whitcomb approved based on the reasons you gave her?"
+     },
+     {
+      "step": "close",
+      "q": "You did not write Ms. Whitcomb a second email adding a restructuring reason?"
+     },
+     {
+      "step": "credit",
+      "q": "Exhibit 8 is the HR case ticket. On March 20 you spoke with Ms. Nandakumar about this termination?",
+      "doc": "D8"
+     },
+     {
+      "step": "credit",
+      "q": "She recorded: Recommend we frame as position elimination, not performance, given no written warnings in file. You have no reason to dispute that she wrote that?"
+     },
+     {
+      "step": "credit",
+      "q": "Exhibit 9, the March 25 letter, told Ms. Okafor: This decision is not a reflection of your performance. The company sent that?",
+      "doc": "D9"
+     },
+     {
+      "step": "confront",
+      "q": "On March 18 the reason was attitude. On March 25 the reason was restructuring. Both came from you?"
+     },
+     {
+      "step": "confront",
+      "q": "The reason changed after HR found no written warnings in the file?"
+     },
+     {
+      "step": "lock",
+      "q": "The restructuring reason was chosen because the file would not support the performance reason?"
+     }
+    ]
+   },
+   {
+    "id": "C5",
+    "title": "Sworn documented performance history, file shows none",
+    "severity": "major",
+    "issue": "Credibility",
+    "sworn": true,
+    "a": {
+     "doc": "D12",
+     "quote": "Ms. Okafor had a documented history of performance problems, including repeated conflicts with coworkers."
+    },
+    "b": {
+     "doc": "D8",
+     "quote": "Prior documentation on file: None. Manager reports verbal coaching (undocumented)."
+    },
+    "why": "HR recorded that there was no documentation and that the manager's coaching was undocumented. Nine weeks before termination Hale himself rated her Meets Expectations, praised her teamwork and safety, and planned for her to continue as lead.",
+    "exit": "He will say documented means his own memory and verbal coaching, and the review's note about bluntness is the documentation.",
+    "close_exit": "Make him define documented as in writing, confirm he would be the author of any write-up, and confirm there are no warnings or memos. Then walk him through his own January review line by line.",
+    "questions": [
+     {
+      "step": "commit",
+      "q": "Paragraph 5 of your declaration says Ms. Okafor had a documented history of performance problems, including repeated conflicts with coworkers?",
+      "doc": "D12"
+     },
+     {
+      "step": "commit",
+      "q": "Documented means in writing?"
+     },
+     {
+      "step": "close",
+      "q": "As her supervisor, you would be the person who wrote any such documentation?"
+     },
+     {
+      "step": "close",
+      "q": "You cannot identify any written warning, improvement plan, or disciplinary memo to Ms. Okafor?"
+     },
+     {
+      "step": "credit",
+      "q": "Exhibit 1 is your January 22, 2026 annual review of Ms. Okafor. You wrote it and signed it?",
+      "doc": "D1"
+     },
+     {
+      "step": "credit",
+      "q": "You wrote: Dana is our most reliable lead on safety. True when you wrote it?"
+     },
+     {
+      "step": "credit",
+      "q": "Under Teamwork you wrote that she resolved the January scheduling dispute between two operators professionally. True when written?"
+     },
+     {
+      "step": "credit",
+      "q": "Under Goals for 2026 you wrote: Continue as second shift lead. That was your plan for her in January?"
+     },
+     {
+      "step": "credit",
+      "q": "Exhibit 8, the HR ticket, records: Prior documentation on file: None. Manager reports verbal coaching (undocumented). The manager is you?",
+      "doc": "D8"
+     },
+     {
+      "step": "confront",
+      "q": "Nine weeks before termination the only written evaluation rated her Meets Expectations and planned for her to continue as lead?"
+     },
+     {
+      "step": "lock",
+      "q": "There was no documented history of performance problems?"
+     }
+    ]
+   },
+   {
+    "id": "C6",
+    "title": "Swore position not refilled, posted and filled April",
+    "severity": "major",
+    "issue": "Stated reason",
+    "sworn": true,
+    "a": {
+     "doc": "D12",
+     "quote": "The second shift lead position was eliminated and has not been refilled. Its duties were absorbed by the second shift supervisor."
+    },
+    "b": {
+     "doc": "D10",
+     "quote": "Status (captured 04/15/2026): Filled"
+    },
+    "why": "The same title, shift, site, reporting line and duties were posted eight days after termination and marked filled within three weeks. A position that was refilled was not eliminated.",
+    "exit": "He will say the April posting was a different role, a lower grade, or a temporary backfill, or that the posting was HR's error.",
+    "close_exit": "Commit him to the position reporting to him, so he would know of any hire, and to no one holding the title today. Then match the posting's title, shift, reporting line and duties to Ms. Okafor's job.",
+    "questions": [
+     {
+      "step": "commit",
+      "q": "Paragraph 7 says the second shift lead position was eliminated and has not been refilled. You swore to that on September 18, 2026?",
+      "doc": "D12"
+     },
+     {
+      "step": "commit",
+      "q": "And that its duties were absorbed by the second shift supervisor, Mr. Tolentino?"
+     },
+     {
+      "step": "close",
+      "q": "The second shift forklift lead reports to the Operations Manager, which is you?"
+     },
+     {
+      "step": "close",
+      "q": "So if a second shift forklift lead were hired at Stockton, you would know?"
+     },
+     {
+      "step": "close",
+      "q": "No one holds the title Forklift Lead, Second Shift at Stockton today?"
+     },
+     {
+      "step": "credit",
+      "q": "Exhibit 10 is Harborline's careers page, posted April 2, 2026: Forklift Lead, Second Shift, Stockton, reporting to Operations Manager. That is the position you say was eliminated?",
+      "doc": "D10"
+     },
+     {
+      "step": "credit",
+      "q": "The duties listed include forklift certification training for new operators and coordinating maintenance tickets. Those were Ms. Okafor's duties?"
+     },
+     {
+      "step": "credit",
+      "q": "The status captured April 15, 2026 reads Filled. Someone was hired into that position?"
+     },
+     {
+      "step": "confront",
+      "q": "The position was posted eight days after Ms. Okafor was terminated?"
+     },
+     {
+      "step": "confront",
+      "q": "And filled within three weeks of her termination?"
+     },
+     {
+      "step": "lock",
+      "q": "Paragraph 7 of your declaration is false?"
+     }
+    ]
+   },
+   {
+    "id": "C7",
+    "title": "Decision mine alone, but VP approved and HR reframed",
+    "severity": "major",
+    "issue": "Decision-maker",
+    "sworn": true,
+    "a": {
+     "doc": "D12",
+     "quote": "The decision to eliminate the position was mine alone. No one else at Harborline was involved in making it."
+    },
+    "b": {
+     "doc": "D7",
+     "quote": "Agree with your recommendation on Okafor. Let's move quickly before this turns into a bigger problem. Priya, please open the paperwork and make sure the file supports it."
+    },
+    "why": "He recommended, the Regional VP approved, and HR recorded the approval and chose the stated reason. Three people participated. The sole decision-maker story exists to keep Whitcomb's bigger problem remark and HR's reframing out of the causation analysis.",
+    "exit": "He will say Whitcomb's approval was a rubber stamp and HR only handled paperwork, so the substantive decision was his.",
+    "close_exit": "Commit him to lacking authority to terminate without the VP, and to the word recommend meaning he was asking. Then the HR ticket's Approved by line and Whitcomb's reply make the others participants.",
+    "questions": [
+     {
+      "step": "commit",
+      "q": "Paragraph 6 of your declaration: the decision was mine alone, and no one else at Harborline was involved in making it?",
+      "doc": "D12"
+     },
+     {
+      "step": "commit",
+      "q": "And in Response 4 to the interrogatories, which you verified, Harborline said: Marcus Hale. No other person participated in the decision?",
+      "doc": "D11"
+     },
+     {
+      "step": "close",
+      "q": "You do not have authority to terminate a lead without approval from the Regional Vice President?"
+     },
+     {
+      "step": "close",
+      "q": "If Ms. Whitcomb had said no on March 18, Ms. Okafor would not have been terminated on March 25?"
+     },
+     {
+      "step": "credit",
+      "q": "Exhibit 7 is your March 18 email to Lorraine Whitcomb. You wrote: I recommend we terminate Dana Okafor's employment. You were recommending, not announcing?",
+      "doc": "D7"
+     },
+     {
+      "step": "credit",
+      "q": "Ms. Whitcomb replied: Agree with your recommendation on Okafor. Let's move quickly before this turns into a bigger problem. She approved?"
+     },
+     {
+      "step": "credit",
+      "q": "Exhibit 8, the HR ticket, reads: Requested by: M. Hale. Approved by: L. Whitcomb (RVP), 03/18/2026. Accurate?",
+      "doc": "D8"
+     },
+     {
+      "step": "confront",
+      "q": "Ms. Whitcomb approved the termination, and Ms. Nandakumar chose to frame it as position elimination. Two other people were involved?"
+     },
+     {
+      "step": "confront",
+      "q": "Nothing in your March 18 email, or in Ms. Whitcomb's reply, mentions restructuring or April numbers?"
+     },
+     {
+      "step": "lock",
+      "q": "The decision was not yours alone?"
+     }
+    ]
+   },
+   {
+    "id": "C8",
+    "title": "Chain of command reason was going to Cal/OSHA",
+    "severity": "major",
+    "issue": "Stated reason",
+    "sworn": false,
+    "a": {
+     "doc": "D7",
+     "quote": "she is not following the chain of command"
+    },
+    "b": {
+     "doc": "D3",
+     "quote": "Please don't go outside the company on this before we've had a chance to fix it."
+    },
+    "why": "Five days before he cited chain of command, he told her in writing not to go outside the company about the brakes. She had used the ticket system as he asked in January. The only step outside the chain between March 13 and March 18 was the Cal/OSHA complaint, so the stated reason is the protected activity itself.",
+    "exit": "He will say chain of command referred to her coming to him directly instead of using tickets, as noted in the January review. The maintenance log also helps him: parts were ordered March 2 and the repair was done March 20, so he can say the company was responding.",
+    "close_exit": "Use the maintenance log to show she used tickets 4471, 4502 and 4519, so the ticket complaint was cured. Then get him to define going outside the company as Cal/OSHA before confronting with the March 18 reason.",
+    "questions": [
+     {
+      "step": "commit",
+      "q": "Your March 18 reason to Ms. Whitcomb was that Ms. Okafor was not following the chain of command?",
+      "doc": "D7"
+     },
+     {
+      "step": "commit",
+      "q": "Chain of command means raising issues through the company's internal channels?"
+     },
+     {
+      "step": "close",
+      "q": "In her January review you asked her to route maintenance requests through the ticket system instead of coming to you directly?",
+      "doc": "D1"
+     },
+     {
+      "step": "close",
+      "q": "Exhibit 13, the maintenance log, shows her brake reports as tickets 4471, 4502 and 4519?",
+      "doc": "D13"
+     },
+     {
+      "step": "close",
+      "q": "So by March 2026 she was using the ticket system as you asked?"
+     },
+     {
+      "step": "credit",
+      "q": "Exhibit 3, March 12, 9:47 PM, she wrote you: If this isn't fixed I'll have to report it to Cal/OSHA. You received that?",
+      "doc": "D3"
+     },
+     {
+      "step": "credit",
+      "q": "On March 13 at 7:05 AM you replied: Please don't go outside the company on this before we've had a chance to fix it. Your words?"
+     },
+     {
+      "step": "confront",
+      "q": "Going outside the company meant Cal/OSHA?"
+     },
+     {
+      "step": "confront",
+      "q": "Between March 13 and March 18, the only thing she did outside the company was go to Cal/OSHA?"
+     },
+     {
+      "step": "lock",
+      "q": "Not following the chain of command, on March 18, referred to her going to Cal/OSHA?"
+     }
+    ]
+   },
+   {
+    "id": "C9",
+    "title": "Told HR decision made around March 6, no record",
+    "severity": "useful",
+    "issue": "Timing",
+    "sworn": false,
+    "a": {
+     "doc": "D8",
+     "quote": "He says the decision was made around 3/6 as part of the second shift restructuring."
+    },
+    "b": {
+     "doc": "D7",
+     "quote": "I recommend we terminate Dana Okafor's employment."
+    },
+    "why": "If the decision had been made around March 6, there would have been nothing to recommend on March 18 and no need for Whitcomb's approval. March 6 appears for the first time on March 20, after HR noted there were no written warnings, and it sits conveniently before the March 16 complaint.",
+    "exit": "He will say the restructuring decision was made in principle around March 6 and the March 18 email was simply the formal step to execute it.",
+    "close_exit": "Commit him to nothing changing between March 4 and March 6, no April numbers, and no document from March 6. Then the only new fact between March 4 and the March 18 recommendation is the Cal/OSHA complaint.",
+    "questions": [
+     {
+      "step": "commit",
+      "q": "On March 20 you told Ms. Nandakumar the decision was made around March 6 as part of the second shift restructuring?",
+      "doc": "D8"
+     },
+     {
+      "step": "commit",
+      "q": "March 6 is two days after your March 4 email saying you wanted to see April numbers before deciding anything?",
+      "doc": "D2"
+     },
+     {
+      "step": "close",
+      "q": "No April numbers arrived between March 4 and March 6?"
+     },
+     {
+      "step": "close",
+      "q": "Second shift volume did not change between March 4 and March 6?"
+     },
+     {
+      "step": "close",
+      "q": "There is no email, note, or calendar entry dated March 6 recording a decision?"
+     },
+     {
+      "step": "credit",
+      "q": "Exhibit 7, twelve days after March 6, you wrote: I recommend we terminate Dana Okafor's employment. If the decision was already made, there was nothing to recommend?",
+      "doc": "D7"
+     },
+     {
+      "step": "confront",
+      "q": "March 6 is the first date you gave HR, you gave it after HR found no written warnings, and it falls before March 16?"
+     },
+     {
+      "step": "lock",
+      "q": "You cannot point to anything that happened on or about March 6 that made the decision?"
+     }
+    ]
+   }
+  ],
+  "timeline": [
+   {
+    "date": "2026-01-22",
+    "event": "Hale rates Okafor Meets Expectations, best lead on safety, continue as lead",
+    "doc": "D1",
+    "quote": "Dana is our most reliable lead on safety."
+   },
+   {
+    "date": "2026-03-02",
+    "event": "Second brake ticket on forklift 7, parts ordered",
+    "doc": "D13",
+    "quote": "brakes fail to hold on ramp. Parts ordered."
+   },
+   {
+    "date": "2026-03-04",
+    "event": "Hale tells HR no lead decision until April numbers",
+    "doc": "D2",
+    "quote": "I want to see April numbers first before we decide anything."
+   },
+   {
+    "date": "2026-03-12",
+    "event": "Okafor reports third brake failure, warns she will go to Cal/OSHA",
+    "doc": "D3",
+    "quote": "If this isn't fixed I'll have to report it to Cal/OSHA."
+   },
+   {
+    "date": "2026-03-13",
+    "event": "Hale tells her not to go outside the company",
+    "doc": "D3",
+    "quote": "Please don't go outside the company on this before we've had a chance to fix it."
+   },
+   {
+    "date": "2026-03-13",
+    "event": "Hale's calendar note records her Cal/OSHA threat",
+    "doc": "D4",
+    "quote": "Dana says she will call Cal/OSHA if 7 is not fixed by Monday."
+   },
+   {
+    "date": "2026-03-16",
+    "event": "Cal/OSHA complaint received, name not withheld",
+    "doc": "D5",
+    "quote": "Received: March 16, 2026, 6:52 AM"
+   },
+   {
+    "date": "2026-03-17",
+    "event": "Hale tells supervisor Dana went to Cal/OSHA, will deal with her",
+    "doc": "D6",
+    "quote": "I'm going to deal with the Dana situation."
+   },
+   {
+    "date": "2026-03-18",
+    "event": "Hale recommends termination for attitude; VP approves same day",
+    "doc": "D7",
+    "quote": "I recommend we terminate Dana Okafor's employment."
+   },
+   {
+    "date": "2026-03-19",
+    "event": "HR opens termination ticket, no prior documentation",
+    "doc": "D8",
+    "quote": "Prior documentation on file: None."
+   },
+   {
+    "date": "2026-03-20",
+    "event": "HR recommends reframing as position elimination",
+    "doc": "D8",
+    "quote": "Recommend we frame as position elimination, not performance, given no written warnings in file."
+   },
+   {
+    "date": "2026-03-25",
+    "event": "Termination letter cites restructuring, not performance",
+    "doc": "D9",
+    "quote": "This decision is not a reflection of your performance."
+   },
+   {
+    "date": "2026-04-02",
+    "event": "Same lead position posted, filled by April 15",
+    "doc": "D10",
+    "quote": "Status (captured 04/15/2026): Filled"
+   },
+   {
+    "date": "2026-09-18",
+    "event": "Hale declares he learned of complaint after termination",
+    "doc": "D12",
+    "quote": "I first learned of the Cal/OSHA complaint after Ms. Okafor's employment ended."
+   }
+  ],
+  "dont_ask": [
+   {
+    "q": "Why did you decide to eliminate the position?",
+    "why": "An open question invites a rehearsed speech about volume, restructuring and April numbers that will be quoted back in the reply brief. Ask only leading questions about dates and documents."
+   },
+   {
+    "q": "What did you mean by deal with the Dana situation?",
+    "why": "He will say he meant fixing the forklift and calming the team. Box him in first with what the situation was on March 17, then let the words speak for themselves."
+   },
+   {
+    "q": "Tell me about Ms. Okafor's conflicts with coworkers.",
+    "why": "It invites him to invent undocumented incidents that become his trial narrative. Ask only whether any conflict is recorded in writing anywhere, then stop."
+   },
+   {
+    "q": "Who told you Dana had gone to Cal/OSHA?",
+    "why": "It lets him recast the March 17 message as a rumor from a third party and argue he never had real knowledge. His own message says she went and predicts an inspector. That is enough."
+   },
+   {
+    "q": "Were parts really on order for forklift 7?",
+    "why": "The maintenance log confirms parts were ordered March 2 and the repair was done March 20. That is his best fact. Do not give him the stage to tell it."
+   }
+  ],
+  "before_the_depo": [
+   {
+    "action": "Serve requests for admission under Code of Civil Procedure section 2033.010: that Hale authored the March 17 Teams messages, that he sent the March 18 recommendation, that no written warning to Okafor exists, and that a Forklift Lead, Second Shift was hired at Stockton in April 2026.",
+    "why": "Locks authenticity and the key facts before he can explain them, and makes any denial cost-shifting under section 2033.420."
+   },
+   {
+    "action": "Serve a document request and, if needed, a subpoena for the native Teams export between Hale and Tolentino from March 12 to March 27, 2026 with metadata, plus the Q2 staffing plan attachment to the March 4 email and all second shift volume reports through May.",
+    "why": "Confirms the chat is complete, tests whether logs were cleaned as his message suggested, and proves no April numbers existed before the termination."
+   },
+   {
+    "action": "Submit a Public Records Act request to Cal/OSHA for complaint 2026-STK-00318, including the date the employer was notified and the inspector's contact log.",
+    "why": "Pins when the agency notified Harborline and tests the verified March 27 date against the record."
+   },
+   {
+    "action": "Depose Ray Tolentino before Hale, and demand hiring records for the April 2026 second shift lead posting under Labor Code section 1198.5 and the document requests.",
+    "why": "Locks the meaning of the March 17 chat and whether lead duties were absorbed or a new lead was hired, before Hale can shape Tolentino's account."
+   },
+   {
+    "action": "Send a meet and confer letter demanding amended verified responses to Special Interrogatories 4, 7 and 9 in light of the March 17 chat and the April posting, with a motion to compel under section 2030.300 if refused.",
+    "why": "Either the company amends and concedes knowledge and refilling, or it stands on answers its own documents refute, which supports the opposition under section 437c(e) and a credibility argument at trial."
+   }
+  ]
+ },
+ "pilot": {
+  "id": "C1",
+  "copilot": "claude-opus-5-5",
+  "witness": "claude-sonnet-5-5",
+  "log": [
+   {
+    "q": "You signed your September 18, 2026 declaration under penalty of perjury?",
+    "a": "Yes, I did. I read it before I signed it, and it's accurate to the best of my knowledge.",
+    "note": {
+     "read": "locked",
+     "note": "He confirmed he signed under penalty of perjury and read it first. But he added \"to the best of my knowledge,\" which sets up his rumor exit, so take that hedge away before you ask about paragraph 4.",
+     "next_q": "When you first learned of Ms. Okafor's Cal/OSHA complaint is something you know personally, not something you had to guess at, correct?",
+     "show_doc": "D12",
+     "move_on": true
+    }
+   },
+   {
+    "q": "When you first learned of Ms. Okafor's Cal/OSHA complaint is something you know personally, not something you had to guess at, correct?",
+    "a": "Yes, I do. I found out about it after Ms. Okafor's employment ended, when the Cal/OSHA inspector contacted the facility, and that's what I put in my declaration.",
+    "note": {
+     "read": "locked",
+     "note": "He committed that the timing is his own personal knowledge, not a guess, and offered a trigger: he says he first heard when the Cal/OSHA inspector contacted the facility. That shuts his rumor-or-guess exit in advance. Next, pin down the date, then get him to agree that before the inspector called he had never heard Dana went to Cal/OSHA.",
+     "next_q": "Her employment ended March 25, 2026?",
+     "show_doc": "",
+     "move_on": true
+    }
+   },
+   {
+    "q": "Her employment ended March 25, 2026?",
+    "a": "Yes, that's correct. March 25, 2026 was her last day.",
+    "note": {
+     "read": "locked",
+     "note": "He confirmed March 25 was her last day, so the date is locked. In answer 2 he also said he learned only when the inspector contacted the facility after she left. That ties him to one specific source, which makes it harder for him to fall back on the rumor exit later.",
+     "next_q": "Before March 25, nobody told you, not even as a rumor, that Dana had contacted Cal/OSHA?",
+     "show_doc": "",
+     "move_on": false
+    }
+   },
+   {
+    "q": "Before March 25, nobody told you, not even as a rumor, that Dana had contacted Cal/OSHA?",
+    "a": "Not that I recall, no. I learned about it after her employment ended, when the inspector contacted the facility, and that's what I put in my declaration.",
+    "note": {
+     "read": "evasive",
+     "note": "He hedged with \"not that I recall.\" That leaves him room to say later that he just forgot. He did deny hearing even a rumor, and he tied his first knowledge to the inspector contacting the facility, which already blocks the rumor exit and fixes when he says he first learned. Turn the hedge into a flat statement before you put Exhibit 6 in front of him.",
+     "next_q": "As you sit here today, you have no memory of hearing anything before March 25, even a rumor, that Dana had contacted Cal/OSHA, correct?",
+     "show_doc": "",
+     "move_on": false
+    }
+   },
+   {
+    "q": "As you sit here today, you have no memory of hearing anything before March 25, even a rumor, that Dana had contacted Cal/OSHA, correct?",
+    "a": "Not that I recall, no. What I know is that I learned about it after her employment ended, when the inspector contacted the facility.",
+    "note": {
+     "read": "locked",
+     "note": "He has now twice denied hearing anything before March 25, even a rumor. That closes most of the rumor exit before he sees Exhibit 6. 'Not that I recall' leaves him room to say the document refreshed his memory, so close the other side next: what he told others, not just what he heard.",
+     "next_q": "And before March 25, you never told anyone at Harborline, in person, by email or by Teams message, that Dana had gone to Cal/OSHA?",
+     "show_doc": "",
+     "move_on": true
+    }
+   },
+   {
+    "q": "And before March 25, you never told anyone at Harborline, in person, by email or by Teams message, that Dana had gone to Cal/OSHA?",
+    "a": "Not that I recall, no. As I said, I learned about the complaint after Ms. Okafor's employment ended, when the inspector contacted the facility, so I wouldn't have had anything like that to tell anyone before then.",
+    "note": {
+     "read": "locked",
+     "note": "He denied telling anyone before March 25 'in person, by email or by Teams,' and said he had nothing to tell. He also tied what he knew to the inspector's visit and had already ruled out even a rumor, so the guess exit is mostly shut. 'Not that I recall' is the only gap left, and the document closes it.",
+     "next_q": "Exhibit 6 is a Microsoft Teams chat between you and Ray Tolentino dated March 17, 2026. The messages marked Marcus Hale are yours?",
+     "show_doc": "D6",
+     "move_on": true
+    }
+   },
+   {
+    "q": "Exhibit 6 is a Microsoft Teams chat between you and Ray Tolentino dated March 17, 2026. The messages marked Marcus Hale are yours?",
+    "a": "Yes, those are my messages. I'd have to read the whole thing to tell you what I meant by each line, but those are my messages to Ray.",
+    "note": {
+     "read": "admission",
+     "note": "He admits the Hale messages in Exhibit 6 are his, but 'what I meant by each line' sets up the rumor exit. That exit is already weak, because in Q4 to Q6 he swore nobody told him even a rumor before March 25 and that he told no one by Teams message.",
+     "next_q": "Look at 8:31 AM on March 17. You wrote the words: Heads up. Dana went to Cal/OSHA over forklift 7. Inspector could be here this week?",
+     "show_doc": "D6",
+     "move_on": true
+    }
+   },
+   {
+    "q": "Look at 8:31 AM on March 17. You wrote the words: Heads up. Dana went to Cal/OSHA over forklift 7. Inspector could be here this week?",
+    "a": "Yes, that's what the message says, and it's my message. I wrote it on the 17th, so I'd have to say I was aware of the complaint at that point, though I'd want to look at the rest of the chat to explain what I meant.",
+    "note": {
+     "read": "admission",
+     "note": "He admitted it in his own words: 'I was aware of the complaint at that point,' meaning March 17. He is already setting up the rumor exit by asking to explain what he meant, so lock the admission before he gets to read the rest of the chat.",
+     "next_q": "So in your words, on March 17, 2026, eight days before her employment ended, you were aware of Dana's Cal/OSHA complaint?",
+     "show_doc": "",
+     "move_on": true
+    }
+   }
+  ]
+ }
+};</script>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const store = { get(k){ try { return JSON.parse(localStorage.getItem(k)); } catch(e){ return null; } }, set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} } };
+const MODELS = { "claude-opus-5-5": { name: "Opus 5.5", tier: "complex" }, "claude-sonnet-5-5": { name: "Sonnet 5.5", tier: "default" }, "claude-fable-5-1": { name: "Fable 5.1", tier: "complex" } };
+const STEP = { commit: "Commit", close: "Close", credit: "Credit", confront: "Confront", lock: "Lock in" };
+const SEV = { "case-ending": "bad", major: "warn", useful: "" };
+const PDFJS = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+const PDFJS_WORKER = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+const MAMMOTH = "https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js";
+const MAX_CHARS = 600000;
+
+let sample = null, downloads = null;
+const state = {
+  matter: WB_DATA.matter, docs: WB_DATA.docs, result: WB_RECORDED.result,
+  meta: `Recorded run on ${MODELS[WB_RECORDED.model]?.name || WB_RECORDED.model}, ${WB_RECORDED.recordedAt}, ${WB_RECORDED.secs} seconds`,
+  sel: 0, doc: "D12", hl: [], busy: false, pilot: {}, own: { docs: [] }
+};
+function recordedPilot(){ const p = WB_RECORDED.pilot; state.pilot = {}; if (p?.log?.length) state.pilot[p.id] = { log: JSON.parse(JSON.stringify(p.log)), next: p.log[p.log.length - 1].note?.next_q || "", recorded: `Recorded mock deposition: ${MODELS[p.witness]?.name || p.witness} played the witness, coached to stick to his sworn story. ${MODELS[p.copilot]?.name || p.copilot} read each answer and chose the next question.` }; }
+recordedPilot();
+{ const i = (WB_RECORDED.result.contradictions || []).findIndex(c => c.id === WB_RECORDED.pilot?.id); if (i > 0) state.sel = i; }
+{ const m = store.get("wb:model"); if (MODELS[m]) $("#model").value = m; const d = store.get("wb:depth"); if (d) $("#depth").value = d; }
+$("#model").onchange = e => store.set("wb:model", e.target.value);
+$("#depth").onchange = e => store.set("wb:depth", e.target.value);
+const docsById = () => Object.fromEntries(state.docs.map(d => [d.id, d]));
+const ok = (doc, quote) => WB_VERIFY.find(quote, docsById()[doc]);
+const verTag = (doc, quote) => ok(doc, quote) ? `<span class="ver ok">✓ Verified word for word</span>` : `<span class="ver no">✗ Not found in ${esc(doc)}</span>`;
+const sticker = id => `<button class="sticker" type="button" data-doc="${esc(id)}" title="Open this exhibit">EX ${esc(id)}</button>`;
+
+/* ---------- render ---------- */
+function renderHead(){
+  const m = state.matter;
+  $("#caption").innerHTML = `<b>${esc(m.caption)}</b> · ${esc(m.court)} · Deposing ${esc(m.witness)}${m.depoDate ? ` on ${esc(new Date(m.depoDate + "T12:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }))}` : ""}`;
+  $("#meta").textContent = state.meta;
+}
+function renderVerdict(){
+  const r = state.result, cs = r.contradictions || [];
+  const chk = WB_VERIFY.checkAll(r, state.docs);
+  const sworn = cs.filter(c => c.sworn).length, ending = cs.filter(c => c.severity === "case-ending").length;
+  const ks = r.kill_shot || {};
+  $("#verdict").innerHTML = `
+    <div><div class="eyebrow">The admission that wins it</div>
+      <div class="head" style="margin-top:6px">${esc(r.headline)}</div>
+      <div class="why">${esc(ks.why_it_ends_it)}</div>
+      <div class="stats"><span><b>${cs.length}</b> contradictions</span><span><b>${ending}</b> case-ending</span><span><b>${sworn}</b> in sworn statements</span><span><b>${chk.ok}/${chk.total}</b> quotes verified</span><span><b>${cs.reduce((n, c) => n + (c.questions || []).length, 0)}</b> questions scripted</span></div>
+    </div>
+    <div style="display:grid;gap:8px;align-content:start"><div class="eyebrow">Get this answer on the record</div>
+      <div class="qa"><span class="l">A.</span> ${esc(ks.admission)}</div>
+      <div class="chips">${(ks.sequence || []).map(id => { const i = cs.findIndex(c => c.id === id); return i < 0 ? "" : `<button class="chip" type="button" data-go="${i}" style="cursor:pointer">Run ${esc(id)}: ${esc(cs[i].title)}</button>`; }).join("")}</div>
+    </div>`;
+}
+function renderList(){
+  const cs = state.result.contradictions || [];
+  $("#list").innerHTML = cs.map((c, i) => `<button class="item" type="button" data-sel="${i}" data-sev="${esc(c.severity)}" aria-current="${i === state.sel}">
+    <span class="chips"><span class="chip ${SEV[c.severity] || ""}">${esc(c.severity)}</span>${c.sworn ? `<span class="chip sworn">Under oath</span>` : ""}<span class="chip">${esc(c.issue)}</span></span>
+    <span class="t">${esc(c.id)}. ${esc(c.title)}</span>
+    <span class="src">${esc(c.a?.doc)} vs ${esc(c.b?.doc)}${ok(c.a?.doc, c.a?.quote) && ok(c.b?.doc, c.b?.quote) ? "" : ` · <span class="ver no">quote check failed</span>`}</span></button>`).join("");
+}
+function renderDetail(){
+  const c = (state.result.contradictions || [])[state.sel];
+  if (!c){ $("#detail").innerHTML = `<p>No contradictions found in this case file.</p>`; return; }
+  const by = docsById(), A = by[c.a.doc], B = by[c.b.doc];
+  const qs = c.questions || [];
+  $("#detail").innerHTML = `
+    <div style="display:grid;gap:4px"><span class="eyebrow">${esc(c.id)} · ${esc(c.issue)}</span><h2>${esc(c.title)}</h2></div>
+    <div class="vs">
+      <div class="side"><div class="lab"><span class="eyebrow">${c.sworn ? "The witness swore" : "The witness said"}</span>${sticker(c.a.doc)}</div>
+        <blockquote>"${esc(c.a.quote)}"</blockquote><div class="src">${esc(A?.title || c.a.doc)}${A?.date ? `, ${esc(A.date)}` : ""}</div>${verTag(c.a.doc, c.a.quote)}</div>
+      <div class="side"><div class="lab"><span class="eyebrow">The record says</span>${sticker(c.b.doc)}</div>
+        <blockquote>"${esc(c.b.quote)}"</blockquote><div class="src">${esc(B?.title || c.b.doc)}${B?.date ? `, ${esc(B.date)}` : ""}</div>${verTag(c.b.doc, c.b.quote)}</div>
+    </div>
+    <div class="notes">
+      <div><span class="eyebrow">Why both can't be true</span><p>${esc(c.why)}</p></div>
+      <div><span class="eyebrow">The exit they'll try</span><p>${esc(c.exit)}</p></div>
+      <div><span class="eyebrow">How the questions close it</span><p>${esc(c.close_exit)}</p></div>
+    </div>
+    <div style="display:grid;gap:8px">
+      <div class="tools" style="justify-content:space-between"><h3>Question script</h3><span class="tools"><button class="btn" id="copyQ" type="button">Copy script</button><button class="btn" id="saveQ" type="button">Download full outline</button></span></div>
+      <div class="transcript">${qs.map((q, i) => `<div class="tline" data-step="${esc(q.step)}"><span class="n">${i + 1}</span><span class="s">${esc(STEP[q.step] || q.step)}</span><span class="q">Q. ${esc(q.q)}${q.doc ? sticker(q.doc) : ""}</span></div>`).join("")}</div>
+    </div>
+    ${pilotHtml(c)}`;
+  bindPilot(c);
+  $("#copyQ").onclick = e => copy(scriptText(c), e.target);
+  $("#saveQ").onclick = e => saveOutline(e.target);
+}
+function renderPrep(){
+  const r = state.result;
+  $("#timeline").innerHTML = (r.timeline || []).map(t => `<div class="r"><span class="d">${esc(t.date)}</span><div style="display:grid;gap:3px;min-width:0"><span>${esc(t.event)} ${t.doc ? sticker(t.doc) : ""}</span>${t.quote ? `<span class="q">"${esc(t.quote)}"</span>${ok(t.doc, t.quote) ? "" : `<span class="ver no">✗ Not found in ${esc(t.doc)}</span>`}` : ""}</div></div>`).join("");
+  $("#before").innerHTML = (r.before_the_depo || []).map(b => `<li>${esc(b.action)}<span>${esc(b.why)}</span></li>`).join("");
+  $("#dontask").innerHTML = (r.dont_ask || []).map(b => `<li>"${esc(b.q)}"<span>${esc(b.why)}</span></li>`).join("");
+}
+function quotesFor(id){
+  const r = state.result, out = [];
+  for (const c of r.contradictions || []){ if (c.a?.doc === id) out.push(c.a.quote); if (c.b?.doc === id) out.push(c.b.quote); }
+  for (const t of r.timeline || []) if (t.doc === id && t.quote) out.push(t.quote);
+  return out;
+}
+function highlight(text, quotes){
+  /* map normalized positions back to the raw text so marks land on the original characters */
+  let raw = text, idx = [], norm = "";
+  const map = ch => ch.replace(/[‘’]/g, "'").replace(/[“”]/g, '"').toLowerCase();
+  for (let i = 0; i < raw.length; i++){
+    const ch = raw[i];
+    if (/\s/.test(ch)){ if (norm.endsWith(" ") || !norm.length) continue; norm += " "; idx.push(i); }
+    else { norm += map(ch); idx.push(i); }
+  }
+  const ranges = [];
+  for (const q of quotes){
+    const parts = WB_VERIFY.norm(q).replace(/^["']|["']$/g, "").split(/\s*\.\.\.\s*/).filter(p => p.length > 3);
+    let at = 0;
+    for (const p of parts){ const k = norm.indexOf(p, at); if (k < 0) break; ranges.push([idx[k], idx[k + p.length - 1] + 1]); at = k + p.length; }
+  }
+  ranges.sort((a, b) => a[0] - b[0]);
+  let out = "", pos = 0;
+  for (const [s, e] of ranges){ if (s < pos) continue; out += esc(raw.slice(pos, s)) + "<mark>" + esc(raw.slice(s, e)) + "</mark>"; pos = e; }
+  return out + esc(raw.slice(pos));
+}
+function renderDocs(){
+  if (!docsById()[state.doc]) state.doc = state.docs[0]?.id;
+  $("#doclist").innerHTML = state.docs.map(d => `<button type="button" data-open="${esc(d.id)}" aria-current="${d.id === state.doc}"><span><span class="sticker" style="cursor:inherit">EX ${esc(d.id)}</span> ${esc(d.title)}</span><small>${esc(d.type || "")}${d.date ? " · " + esc(d.date) : ""}${quotesFor(d.id).length ? ` · ${quotesFor(d.id).length} quoted` : ""}</small></button>`).join("");
+  const d = docsById()[state.doc];
+  if (!d) return;
+  $("#dochead").innerHTML = `<h2>${esc(d.title)}</h2><div class="src">${esc(d.type || "")}${d.date ? " · " + esc(d.date) : ""}${d.author ? " · " + esc(d.author) : ""}. Highlights show every passage the analysis quotes.</div>`;
+  $("#doctext").innerHTML = highlight(d.text, quotesFor(d.id));
+}
+function renderAll(){ renderHead(); renderVerdict(); renderList(); renderDetail(); renderPrep(); renderDocs(); }
+
+/* ---------- tabs and clicks ---------- */
+const TABS = ["breaks", "prep", "docs", "own"];
+function showTab(t){ for (const x of TABS){ $("#t-" + x).setAttribute("aria-selected", x === t); $("#p-" + x).hidden = x !== t; } store.set("wb:tab", t); }
+for (const x of TABS) $("#t-" + x).onclick = () => showTab(x);
+document.addEventListener("click", e => {
+  const s = e.target.closest("[data-sel]"); if (s){ state.sel = +s.dataset.sel; renderList(); renderDetail(); if (innerWidth < 900) $("#detail").scrollIntoView({ behavior: "smooth" }); return; }
+  const g = e.target.closest("[data-go]"); if (g){ state.sel = +g.dataset.go; renderList(); renderDetail(); $("#detail").scrollIntoView({ behavior: "smooth", block: "start" }); return; }
+  const d = e.target.closest("[data-doc]"); if (d){ state.doc = d.dataset.doc; renderDocs(); showTab("docs"); const m = $("#doctext mark"); if (m) m.scrollIntoView({ block: "center" }); return; }
+  const o = e.target.closest("[data-open]"); if (o){ state.doc = o.dataset.open; renderDocs(); return; }
+});
+
+/* ---------- export ---------- */
+function scriptText(c){
+  return `${c.id}. ${c.title}\nWitness: "${c.a.quote}" (${c.a.doc})\nRecord: "${c.b.quote}" (${c.b.doc})\nExit to close: ${c.exit}\n\n` + (c.questions || []).map((q, i) => `${String(i + 1).padStart(2)}  [${STEP[q.step] || q.step}] Q. ${q.q}${q.doc ? `  (mark ${q.doc})` : ""}`).join("\n");
+}
+function outlineText(){
+  const r = state.result, m = state.matter, by = docsById();
+  const ex = state.docs.map(d => `  ${d.id}  ${d.title}${d.date ? ", " + d.date : ""}`).join("\n");
+  return `DEPOSITION OUTLINE\n${m.caption}\nWitness: ${m.witness}\n${state.meta}\n\nTHE ADMISSION THAT WINS IT\n${r.headline}\nA. ${r.kill_shot?.admission}\n${r.kill_shot?.why_it_ends_it}\n\nEXHIBITS\n${ex}\n\n` +
+    (r.contradictions || []).map(c => scriptText(c)).join("\n\n" + "-".repeat(60) + "\n\n") +
+    `\n\nDO BEFORE THE DEPOSITION\n` + (r.before_the_depo || []).map((b, i) => `${i + 1}. ${b.action} (${b.why})`).join("\n") +
+    `\n\nDO NOT ASK\n` + (r.dont_ask || []).map(b => `- ${b.q} (${b.why})`).join("\n") + "\n";
+}
+async function copy(text, btn){
+  try { await navigator.clipboard.writeText(text); btn.textContent = "Copied"; }
+  catch(e){ btn.textContent = "Copy blocked here"; }
+  setTimeout(() => { btn.textContent = btn.id === "copyQ" ? "Copy script" : btn.textContent; }, 1600);
+}
+async function saveOutline(btn){
+  if (!downloads){ btn.textContent = "Open in Claude to download"; return; }
+  try { await downloads.save({ filename: "deposition-outline.txt", data: outlineText() }); }
+  catch(e){ if (e?.code !== "declined") btn.textContent = "Could not save"; }
+}
+
+/* ---------- live deposition co-pilot ---------- */
+function pilotHtml(c){
+  const p = state.pilot[c.id] || { log: [], next: (c.questions || [])[0]?.q || "" };
+  state.pilot[c.id] = p;
+  const log = p.log.map(x => `<div class="ex"><span>Q. ${esc(x.q)}</span><span>A. ${esc(x.a)}</span></div>${x.note ? `<div class="note"><span class="chips"><span class="chip ${x.note.read === "admission" ? "good" : x.note.read === "opened_door" || x.note.read === "exit_taken" ? "bad" : x.note.read === "evasive" ? "warn" : ""}">${esc(String(x.note.read || "").replace("_", " "))}</span>${x.note.show_doc ? sticker(x.note.show_doc) : ""}</span><span>${esc(x.note.note)}</span></div>` : ""}`).join("");
+  return `<div class="pilot"><div style="display:grid;gap:2px"><h3>Run it live</h3><span class="foot">Type what the witness actually says. Claude reads the answer and passes you the next question, like a second chair. To rehearse, let Claude answer as the witness.</span>${p.recorded ? `<span class="chip sworn" style="justify-self:start;margin-top:4px">${esc(p.recorded)}</span>` : ""}</div>
+    ${log ? `<div class="log">${log}</div>` : ""}
+    <label class="f" for="pq">Your question<input id="pq" value="${esc(p.next)}"></label>
+    <div class="row"><textarea id="pa" rows="2" placeholder="The witness's answer"></textarea><span class="tools" style="display:grid;gap:6px"><button class="btn" id="pwit" type="button">Claude answers as the witness</button><button class="btn primary" id="pgo" type="button">${sample ? "Get the next move" : "Open in Claude to use"}</button></span>${p.log.length ? `<button class="btn" id="pclear" type="button">Start over</button>` : ""}</div>
+    <div id="pmsg" class="foot"></div></div>`;
+}
+function bindPilot(c){
+  const p = state.pilot[c.id];
+  if ($("#pclear")) $("#pclear").onclick = () => { state.pilot[c.id] = null; renderDetail(); };
+  $("#pwit").onclick = async () => {
+    if (!sample){ $("#pmsg").textContent = "Rehearsal runs on your Claude account. Open this page in Claude to use it."; return; }
+    const q = $("#pq").value.trim(); if (!q){ $("#pmsg").textContent = "Enter a question first."; return; }
+    $("#pwit").disabled = true; $("#pmsg").textContent = "The witness is answering...";
+    try { const res = await sample(WB_PROMPTS.witness({ matter: state.matter, docs: state.docs, transcript: p.log, question: q }), { ...modelOpts(), effort: "low", cache: false }); $("#pa").value = res.text.trim(); $("#pmsg").textContent = "Edit the answer if you like, then get the next move."; }
+    catch(e){ $("#pmsg").textContent = errText(e); }
+    $("#pwit").disabled = false;
+  };
+  $("#pgo").onclick = async () => {
+    if (!sample){ $("#pmsg").textContent = "The live co-pilot runs on your Claude account. Open this page in Claude to use it."; return; }
+    const q = $("#pq").value.trim(), a = $("#pa").value.trim();
+    if (!q || !a){ $("#pmsg").textContent = "Enter the question and the witness's answer."; return; }
+    $("#pgo").disabled = true; $("#pmsg").textContent = "Reading the answer...";
+    const entry = { q, a, note: null }; p.log.push(entry);
+    try {
+      const res = await sample(WB_PROMPTS.followup({ matter: state.matter, item: c, docsById: docsById(), transcript: p.log }), { ...modelOpts(), effort: "low", cache: false });
+      entry.note = parseJson(res.text);
+      p.next = entry.note.next_q || "";
+    } catch(e){ p.log.pop(); $("#pmsg").textContent = errText(e); $("#pgo").disabled = false; return; }
+    renderDetail();
+  };
+}
+
+/* ---------- Claude runs ---------- */
+function modelOpts(){ const m = $("#model").value; return { model: m, modelTier: MODELS[m]?.tier || "default", effort: $("#depth").value }; }
+function modelLabel(res){ return res?.modelApplied ? (MODELS[res.modelApplied]?.name || res.modelApplied) : `the ${res?.modelTierApplied || "default"} model (your pick was unavailable)`; }
+function parseJson(text){ const a = text.indexOf("{"), b = text.lastIndexOf("}"); if (a < 0 || b < a) throw { message: "Claude did not return a result in the expected format. Run it again." }; return JSON.parse(text.slice(a, b + 1)); }
+function errText(e){
+  if (e?.code === "rate_limited") return "Claude is rate limited right now. Wait a minute and run it again.";
+  if (e?.code === "not_granted") return "Claude access was not allowed for this page. Allow it from the page's permissions to run live.";
+  return e?.message || "The run did not finish. Run it again.";
+}
+async function run(matter, docs){
+  if (!sample || state.busy) return;
+  state.busy = true; $("#rerun").disabled = true; $("#o-run").disabled = true;
+  const ctl = new AbortController(), t0 = Date.now();
+  const busy = $("#busy"); busy.hidden = false;
+  busy.innerHTML = `<div class="panel" style="gap:6px"><div class="tools" style="justify-content:space-between"><b>Reading ${docs.length} documents on ${esc(MODELS[$("#model").value].name)} and building the impeachment map</b><button class="btn" id="stop" type="button">Stop</button></div><div class="stream" id="stream">Thinking...</div></div>`;
+  $("#stop").onclick = () => ctl.abort();
+  try {
+    const res = await sample(WB_PROMPTS.breaker({ matter, docs, today: new Date().toISOString().slice(0, 10) }), { ...modelOpts(), signal: ctl.signal, cache: false, onText: ({ text }) => { const s = $("#stream"); if (s) s.textContent = `${text.length.toLocaleString()} characters written\n` + text.slice(-300); } });
+    const result = parseJson(res.text);
+    if (!Array.isArray(result.contradictions)) throw { message: "Claude's answer was missing the contradictions list. Run it again." };
+    state.matter = matter; state.docs = docs; state.result = result; state.sel = 0; state.pilot = {}; state.doc = docs[0]?.id;
+    state.meta = `Live run on ${modelLabel(res)}, ${Math.round((Date.now() - t0) / 1000)} seconds${res.truncated ? ", answer was cut short" : ""}`;
+    busy.hidden = true; renderAll(); showTab("breaks");
+  } catch(e){
+    busy.innerHTML = e?.code === "cancelled" || e?.name === "AbortError" ? `<div class="warnbox">Run stopped. The previous result is still shown.</div>` : `<div class="errbox">${esc(errText(e))}</div>`;
+  }
+  state.busy = false; $("#rerun").disabled = false; $("#o-run").disabled = false;
+}
+$("#rerun").onclick = () => { if (!sample){ $("#meta").textContent = state.meta + ". Open this page in Claude to rerun it live."; return; } run(state.matter, state.docs); };
+
+/* ---------- your own case ---------- */
+function loadScript(src){ return new Promise((res, rej) => { if ([...document.scripts].some(s => s.src === src)) return res(); const s = document.createElement("script"); s.src = src; s.onload = res; s.onerror = () => rej(new Error("Could not load the file reader")); document.head.appendChild(s); }); }
+async function readFile(f){
+  const name = f.name.toLowerCase();
+  if (name.endsWith(".pdf")){
+    await loadScript(PDFJS); window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER;
+    const pdf = await window.pdfjsLib.getDocument({ data: await f.arrayBuffer() }).promise;
+    let out = "";
+    for (let i = 1; i <= pdf.numPages; i++){ const pg = await pdf.getPage(i); const tc = await pg.getTextContent(); out += `[page ${i}]\n` + tc.items.map(t => t.str + (t.hasEOL ? "\n" : " ")).join("") + "\n"; }
+    if (out.replace(/\[page \d+\]|\s/g, "").length < 50 * pdf.numPages / 4) throw new Error(`${f.name} looks scanned (no text layer). Save it with OCR first.`);
+    return out;
+  }
+  if (name.endsWith(".docx")){ await loadScript(MAMMOTH); const r = await window.mammoth.extractRawText({ arrayBuffer: await f.arrayBuffer() }); return r.value; }
+  if (name.endsWith(".html") || name.endsWith(".htm")){ const d = new DOMParser().parseFromString(await f.text(), "text/html"); return d.body.innerText || d.body.textContent; }
+  return await f.text();
+}
+const TYPES = ["Declaration", "Discovery", "Testimony", "Email", "Chat", "Calendar", "Letter", "Records", "Review", "Other"];
+function guessType(n, t){ const s = (n + " " + t.slice(0, 600)).toLowerCase(); if (/declaration|declare under penalty/.test(s)) return "Declaration"; if (/interrogator|request for admission|responses to/.test(s)) return "Discovery"; if (/deposition|transcript/.test(s)) return "Testimony"; if (/^from:|subject:|\.eml/.test(s)) return "Email"; if (/teams|slack|text message/.test(s)) return "Chat"; return "Other"; }
+async function addFiles(list){
+  $("#o-msg").textContent = "Reading files...";
+  for (const f of list){
+    try { const text = (await readFile(f)).trim(); if (!text) throw new Error(`${f.name} has no readable text.`); state.own.docs.push({ title: f.name.replace(/\.[^.]+$/, ""), type: guessType(f.name, text), date: "", text }); }
+    catch(e){ $("#ownwarn").innerHTML = `<div class="warnbox">${esc(e.message)}</div>`; }
+  }
+  $("#o-msg").textContent = ""; renderOwn();
+}
+function renderOwn(){
+  const ds = state.own.docs;
+  $("#owndocs").innerHTML = ds.map((d, i) => `<div class="owndoc"><input id="od-t${i}" value="${esc(d.title)}" aria-label="Title"><select id="od-y${i}" aria-label="Type">${TYPES.map(t => `<option${t === d.type ? " selected" : ""}>${t}</option>`).join("")}</select><input id="od-d${i}" value="${esc(d.date)}" placeholder="Date" aria-label="Date"><button class="btn" type="button" data-rm="${i}">Remove</button></div>`).join("") + (ds.length ? `<div class="foot">${ds.length} documents, ${ds.reduce((n, d) => n + d.text.length, 0).toLocaleString()} characters</div>` : "");
+  ds.forEach((d, i) => { $("#od-t" + i).oninput = e => d.title = e.target.value; $("#od-y" + i).onchange = e => d.type = e.target.value; $("#od-d" + i).oninput = e => d.date = e.target.value; });
+  document.querySelectorAll("[data-rm]").forEach(b => b.onclick = () => { ds.splice(+b.dataset.rm, 1); renderOwn(); });
+  const total = ds.reduce((n, d) => n + d.text.length, 0);
+  $("#ownwarn").innerHTML = total > MAX_CHARS ? `<div class="warnbox">That is ${total.toLocaleString()} characters. Keep the set under ${MAX_CHARS.toLocaleString()} (about 150 pages) by choosing the witness's own statements and the documents that test them.</div>` : "";
+}
+$("#pick").onclick = () => $("#file").click();
+$("#file").onchange = e => { addFiles([...e.target.files]); e.target.value = ""; };
+const drop = $("#drop");
+drop.addEventListener("dragover", e => { e.preventDefault(); drop.classList.add("on"); });
+drop.addEventListener("dragleave", () => drop.classList.remove("on"));
+drop.addEventListener("drop", e => { e.preventDefault(); drop.classList.remove("on"); addFiles([...e.dataTransfer.files]); });
+$("#p-add").onclick = () => { const text = $("#p-text").value.trim(); if (!text) return; state.own.docs.push({ title: $("#p-title").value.trim() || "Pasted document", type: guessType("", text), date: $("#p-date").value.trim(), text }); $("#p-text").value = ""; $("#p-title").value = ""; $("#p-date").value = ""; renderOwn(); };
+$("#o-sample").onclick = () => {
+  const m = WB_DATA.matter;
+  $("#o-caption").value = m.caption; $("#o-court").value = m.court; $("#o-side").value = m.side; $("#o-witness").value = m.witness; $("#o-claims").value = m.claims; $("#o-goal").value = m.goal;
+  state.own.docs = WB_DATA.docs.map(d => ({ title: d.title, type: d.type, date: d.date, text: d.text, author: d.author })); renderOwn();
+  $("#o-msg").textContent = "Sample loaded. Edit anything, then run it.";
+};
+$("#o-reset").onclick = () => { state.matter = WB_DATA.matter; state.docs = WB_DATA.docs; state.result = WB_RECORDED.result; state.meta = `Recorded run on ${MODELS[WB_RECORDED.model]?.name || WB_RECORDED.model}, ${WB_RECORDED.recordedAt}, ${WB_RECORDED.secs} seconds`; state.sel = 0; recordedPilot(); { const i = (state.result.contradictions || []).findIndex(c => c.id === WB_RECORDED.pilot?.id); if (i > 0) state.sel = i; } state.doc = "D12"; renderAll(); showTab("breaks"); };
+$("#o-run").onclick = () => {
+  const ds = state.own.docs;
+  if (!sample){ $("#o-msg").textContent = "Open this page in Claude to run your own case."; return; }
+  if (ds.length < 2){ $("#o-msg").textContent = "Add at least two documents: something the witness said and something to test it against."; return; }
+  if (ds.reduce((n, d) => n + d.text.length, 0) > MAX_CHARS){ $("#o-msg").textContent = "Trim the documents first. See the note above."; return; }
+  const matter = { caption: $("#o-caption").value || "Untitled matter", court: $("#o-court").value || "Court not given", side: $("#o-side").value || "Not stated", witness: $("#o-witness").value || "The witness", depoDate: "", claims: $("#o-claims").value || "Not stated", goal: $("#o-goal").value || "Find every contradiction and the admissions that help our side most." };
+  const docs = ds.map((d, i) => ({ id: "D" + (i + 1), title: d.title, type: d.type, date: d.date, author: d.author || "", text: d.text }));
+  run(matter, docs);
+};
+
+/* ---------- boot ---------- */
+renderAll(); renderOwn();
+{ const t = store.get("wb:tab"); if (TABS.includes(t) && t !== "own") showTab(t); }
+(async () => {
+  try { sample = await window.claude?.use("sample"); } catch(e){ sample = null; }
+  try { downloads = await window.claude?.use("downloads"); } catch(e){ downloads = null; }
+  if (!sample){ $("#rerun").title = "Open this page in Claude to rerun it live"; }
+  renderDetail();
+})();
+</script>
