@@ -1,0 +1,1339 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Conflicts Desk Information Sheet: what Conflara does, how a matter moves through it, AI assistance, security and confidentiality, data and integrations, deployment, rollout and frequently asked questions.">
+<title>Conflicts Desk Information Sheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f2eee3; --surface: #fbf9f3; --rule: #ddd3bf; --ink: #15120f; --muted: #5f4e40;
+  --accent: #6b3f22; --mark: #a9822f; --mark-soft: #ede1c1;
+  --ok: #2f5d3a; --part: #8a5a12; --no: #8b2a1f;
+  --display: "Bricolage Grotesque", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+  --body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 1.0625rem; line-height: 1.6; margin: 0; }
+.wrap { max-width: 56rem; margin: 0 auto; padding: 2.5rem 1rem 4rem; display: grid; gap: 2.75rem; }
+a { color: var(--accent); text-underline-offset: 0.18em; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+h1, h2, h3 { font-family: var(--display); line-height: 1.1; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2.1rem, 6vw, 3.2rem); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.01em; }
+h3 { font-size: 1.1rem; font-weight: 700; }
+p, ul { margin: 0; }
+ul { padding-left: 1.2rem; display: grid; gap: 0.4rem; }
+.eyebrow { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.back { font-family: var(--mono); font-size: 0.85rem; }
+header { display: grid; gap: 1rem; }
+.lede { font-size: 1.15rem; }
+.links { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; font-family: var(--mono); font-size: 0.85rem; }
+.note { background: var(--mark-soft); border-radius: 6px; padding: 0.9rem 1.1rem; font-size: 0.95rem; display: grid; gap: 0.5rem; }
+.toc { display: flex; flex-wrap: wrap; gap: 0.35rem 1rem; font-family: var(--mono); font-size: 0.8rem; }
+section { display: grid; gap: 1rem; border-top: 2px solid var(--ink); padding-top: 1rem; scroll-margin-top: 1rem; }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem 2rem; }
+.grid > div { display: grid; gap: 0.45rem; align-content: start; border-top: 1px solid var(--rule); padding-top: 0.7rem; min-width: 0; }
+.grid ul { font-size: 0.97rem; }
+.tablewrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+th, td { text-align: left; vertical-align: top; padding: 0.55rem 0.6rem; border-bottom: 1px solid var(--rule); }
+th { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+td:first-child { font-weight: 600; min-width: 9rem; }
+.st { font-family: var(--mono); font-size: 0.78rem; white-space: nowrap; font-weight: 500; }
+.st.ok { color: var(--ok); } .st.part { color: var(--part); } .st.no { color: var(--no); }
+.legend { font-size: 0.9rem; color: var(--muted); }
+code { font-family: var(--mono); font-size: 0.86em; }
+footer { border-top: 1px solid var(--rule); padding-top: 1rem; font-family: var(--mono); font-size: 0.8rem; color: var(--muted); }
+@media (max-width: 680px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+
+section.level2 { border-top: 2px solid var(--ink); padding-top: 1rem; }
+section.level3 { border-top: 0; padding-top: 0.25rem; gap: 0.75rem; }
+section.level3 h3 { margin-top: 0.5rem; }
+ol { margin: 0; padding-left: 1.4rem; display: grid; gap: 0.5rem; }
+td:first-child { min-width: 8rem; }
+.diagram { margin: 0; display: grid; gap: 0.5rem; }
+.diagram svg { width: 100%; height: auto; background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 0.5rem; }
+.diagram figcaption { font-size: 0.9rem; color: var(--muted); }
+.version { font-family: var(--mono); font-size: 0.8rem; color: var(--muted); }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <a class="back" href="../index.html#conflara">&larr; Back to Conflara</a>
+    <span class="eyebrow">Conflara · For firm leadership</span>
+    <h1>Conflicts Desk Information Sheet</h1>
+    <p class="version">Document version 1.0 · describes Conflara build 110baed (17 October 2026)</p>
+    <p class="lede">Everything a firm's leadership needs to know about Conflara, the conflicts-checking and new business intake system: what it does, how a matter moves through it, how AI is used, how confidentiality is protected, how it connects to the firm's systems, and how it would be rolled out.</p>
+    <div class="note">
+      <p>All names, firms and examples are fictional. Where AI is used, it suggests or helps draft, and a person reviews and decides.</p>
+    </div>
+    <nav class="toc" aria-label="Sections">
+      <a href="#overview">Overview</a><a href="#matter">How a matter moves</a><a href="#features">Features</a><a href="#ai">AI assistance</a><a href="#security">Security and confidentiality</a><a href="#data">Data and integrations</a><a href="#it">Deployment and IT</a><a href="#rollout">Rollout and FAQ</a>
+    </nav>
+  </header>
+<section id="overview" class="level2">
+<h2>Overview</h2>
+<p>Conflara is a conflicts-checking and new business intake system built
+for a mid-size law firm. It replaces email and PDF intake with one place
+where a request is entered, every party is searched, each hit is decided
+by the conflicts team, approvals are routed to the right people, waivers
+and ethical walls are recorded, and the matter is opened in Aderant.</p>
+<p>What leadership should take away:</p>
+<ul>
+<li><strong>It covers the whole life of a matter.</strong> Quick checks,
+new business intake, pro bono intake, conflicts search and review,
+approvals, waivers, engagement letters, ethical walls, lateral hires,
+matter opening and closing, all in one system with one audit trail.</li>
+<li><strong>The firm keeps its data.</strong> Conflara can run entirely
+on the firm’s own servers, with sign-in through the firm’s Microsoft 365
+(Entra ID) accounts. Nothing is sent outside the firm unless an
+administrator deliberately turns that on.</li>
+<li><strong>AI is private and advisory.</strong> An optional AI model
+runs on the firm’s own hardware. It suggests and helps draft; a
+conflicts analyst or lawyer always decides. It never records a decision,
+signs anything or clears a hit.</li>
+<li><strong>Confidentiality is enforced on the server.</strong> People
+screened by an ethical wall, or kept out of a confidential matter, are
+never sent that record at all. Every change is written to a
+tamper-evident audit trail.</li>
+<li><strong>It works alongside Aderant.</strong> Aderant stays the
+billing system. Conflara reads clients, matters, entities and billing
+status from Aderant and sends newly opened matters back.</li>
+<li><strong>It has been load-tested at the firm’s size.</strong> A
+simulated firm of 229 people (200 lawyers) working at once, with 50,000
+to 250,000 party names, saw every change reach every screen in about one
+to two seconds, with no failed requests and no data errors.</li>
+<li><strong>Conflara never signs for anyone.</strong> Engagement letters
+and waivers count as signed only when a person uploads the signed copy
+and records who signed it.</li>
+</ul>
+<p>This sheet describes the standard configuration. Optional features
+that a firm can switch on later are noted where relevant.</p>
+<section id="key-facts" class="level3">
+<h3>Key facts</h3>
+<div class="tablewrap"><table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Question</th>
+<th>Answer</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Who uses it</td>
+<td>Lawyers and secretaries (requests and their own tasks), approvers
+(practice group leaders, general counsel, finance, insurance group), the
+conflicts team, and administrators</td>
+</tr>
+<tr class="even">
+<td>Where it runs</td>
+<td>On the firm’s own server (recommended), as a desktop app for a
+single user, or as a vendor-hosted install for the firm alone in a
+chosen data region</td>
+</tr>
+<tr class="odd">
+<td>Sign-in</td>
+<td>The firm’s Microsoft 365 accounts (Entra ID), so multi-factor and
+device rules follow the firm’s existing policy</td>
+</tr>
+<tr class="even">
+<td>Database</td>
+<td>PostgreSQL, the widely used open-source database</td>
+</tr>
+<tr class="odd">
+<td>Billing system</td>
+<td>Aderant stays the system of record for billing; Conflara exchanges
+data with it</td>
+</tr>
+<tr class="even">
+<td>Document management</td>
+<td>Can set up matter workspaces and folders in iManage or SharePoint
+when a matter opens (to be confirmed against the firm’s library)</td>
+</tr>
+<tr class="odd">
+<td>AI</td>
+<td>Optional; runs on the firm’s own hardware by default; advisory
+only</td>
+</tr>
+<tr class="even">
+<td>Signing</td>
+<td>Never signs or e-signs for anyone; signed copies are uploaded by
+people</td>
+</tr>
+<tr class="odd">
+<td>Audit</td>
+<td>Every change recorded with who, what and when, in a log that shows
+any tampering</td>
+</tr>
+<tr class="even">
+<td>Size it is built for</td>
+<td>About 200 lawyers and 50,000 to 250,000 party names, tested at that
+load</td>
+</tr>
+<tr class="odd">
+<td>Training</td>
+<td>Built-in role walkthroughs, a glossary, printable quick-start
+sheets, and a separate test firm with fictional data</td>
+</tr>
+</tbody>
+</table></div>
+</section>
+</section>
+<section id="matter" class="level2">
+<h2>How a matter moves</h2>
+<p>A new matter goes from a lawyer’s first question to an open, billable
+matter in eight steps, and Conflara shows everyone what the request is
+waiting on at each one.</p>
+<figure class="diagram"><svg viewBox="0 0 900 240" role="img" aria-labelledby="flowt"><title id="flowt">A matter opens once approved; billing waits for the signed copies</title><defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#15120f"/></marker></defs><rect x="10" y="20" width="190" height="62" rx="6" fill="#fbf9f3" stroke="#5f4e40" stroke-dasharray="6 4" stroke-width="1.5"/><text x="105.0" y="46" text-anchor="middle" font-family="Bricolage Grotesque, Helvetica Neue, Arial, sans-serif" font-weight="700" font-size="16" fill="#15120f">Quick check</text><text x="105.0" y="66" text-anchor="middle" font-family="IBM Plex Mono, Menlo, monospace" font-size="12" fill="#5f4e40">optional, names only</text><path d="M200 51 L236 51" stroke="#15120f" stroke-width="1.5" fill="none" marker-end="url(#ah)"/><rect x="240" y="20" width="190" height="62" rx="6" fill="#fbf9f3" stroke="#15120f" stroke-width="1.5"/><text x="335.0" y="46" text-anchor="middle" font-family="Bricolage Grotesque, Helvetica Neue, Arial, sans-serif" font-weight="700" font-size="16" fill="#15120f">New intake</text><text x="335.0" y="66" text-anchor="middle" font-family="IBM Plex Mono, Menlo, monospace" font-size="12" fill="#5f4e40">full request form</text><path d="M430 51 L466 51" stroke="#15120f" stroke-width="1.5" fill="none" marker-end="url(#ah)"/><rect x="470" y="20" width="190" height="62" rx="6" fill="#fbf9f3" stroke="#15120f" stroke-width="1.5"/><text x="565.0" y="46" text-anchor="middle" font-family="Bricolage Grotesque, Helvetica Neue, Arial, sans-serif" font-weight="700" font-size="16" fill="#15120f">Conflicts search</text><text x="565.0" y="66" text-anchor="middle" font-family="IBM Plex Mono, Menlo, monospace" font-size="12" fill="#5f4e40">every party</text><path d="M660 51 L696 51" stroke="#15120f" stroke-width="1.5" fill="none" marker-end="url(#ah)"/><rect x="700" y="20" width="190" height="62" rx="6" fill="#fbf9f3" stroke="#15120f" stroke-width="1.5"/><text x="795.0" y="46" text-anchor="middle" font-family="Bricolage Grotesque, Helvetica Neue, Arial, sans-serif" font-weight="700" font-size="16" fill="#15120f">Conflicts review</text><text x="795.0" y="66" text-anchor="middle" font-family="IBM Plex Mono, Menlo, monospace" font-size="12" fill="#5f4e40">each hit decided</text><path d="M795 82 L795 122 L105 122 L105 154" stroke="#15120f" stroke-width="1.5" fill="none" marker-end="url(#ah)"/><rect x="10" y="158" width="190" height="62" rx="6" fill="#fbf9f3" stroke="#15120f" stroke-width="1.5"/><text x="105.0" y="184" text-anchor="middle" font-family="Bricolage Grotesque, Helvetica Neue, Arial, sans-serif" font-weight="700" font-size="16" fill="#15120f">Approvals</text><text x="105.0" y="204" text-anchor="middle" font-family="IBM Plex Mono, Menlo, monospace" font-size="12" fill="#5f4e40">firm routing</text><path d="M200 189 L236 189" stroke="#15120f" stroke-width="1.5" fill="none" marker-end="url(#ah)"/><rect x="240" y="158" width="190" height="62" rx="6" fill="#6b3f22" stroke="#6b3f22" stroke-width="1.5"/><text x="335.0" y="184" text-anchor="middle" font-family="Bricolage Grotesque, Helvetica Neue, Arial, sans-serif" font-weight="700" font-size="16" fill="#fbf9f3">Matter opened</text><text x="335.0" y="204" text-anchor="middle" font-family="IBM Plex Mono, Menlo, monospace" font-size="12" fill="#ede1c1">number, Aderant, folders</text><path d="M430 189 L466 189" stroke="#15120f" stroke-width="1.5" fill="none" marker-end="url(#ah)"/><rect x="470" y="158" width="190" height="62" rx="6" fill="#ede1c1" stroke="#a9822f" stroke-width="1.5"/><text x="565.0" y="184" text-anchor="middle" font-family="Bricolage Grotesque, Helvetica Neue, Arial, sans-serif" font-weight="700" font-size="16" fill="#15120f">Billing on hold</text><text x="565.0" y="204" text-anchor="middle" font-family="IBM Plex Mono, Menlo, monospace" font-size="12" fill="#5f4e40">until signed copies</text><path d="M660 189 L696 189" stroke="#15120f" stroke-width="1.5" fill="none" marker-end="url(#ah)"/><rect x="700" y="158" width="190" height="62" rx="6" fill="#fbf9f3" stroke="#15120f" stroke-width="1.5"/><text x="795.0" y="184" text-anchor="middle" font-family="Bricolage Grotesque, Helvetica Neue, Arial, sans-serif" font-weight="700" font-size="16" fill="#15120f">Billable</text><text x="795.0" y="204" text-anchor="middle" font-family="IBM Plex Mono, Menlo, monospace" font-size="12" fill="#5f4e40">paperwork complete</text></svg><figcaption>A matter opens once approved; billing waits for the signed copies.</figcaption></figure>
+<ol type="1">
+<li><strong>Quick check (optional).</strong> A lawyer or secretary sends
+just the names of the parties, before there is a full form. It gets its
+own number (QC-2026-0001) and is searched at once. The conflicts team
+reviews the hits and sends the results back. If the work goes ahead, the
+same record is converted into a full intake, keeping every decision
+already made.</li>
+<li><strong>New business intake.</strong> The requester fills in the
+client, the matter, the parties and their roles, the practice area and
+records area, offices, lawyers, fee estimate and billing details, plus
+the firm’s own questions. The form shows a live preview of possible
+conflicts for each party as it is typed. Pro bono matters have their own
+intake with eligibility questions and no fee fields. A request can be
+saved as a draft, edited, withdrawn or cloned.</li>
+<li><strong>Conflicts search.</strong> On submission every party is
+searched against the firm’s clients, adverse parties, related companies,
+former and prospective clients, declined matters, pending requests and
+lawyers’ declared relationships. Each search gets a permanent number
+(S-2026-000123) that appears on reports, so an analyst can cite exactly
+which search was run. New parties are also screened against sanctions
+lists.</li>
+<li><strong>Conflicts review.</strong> The conflicts team sees the hits
+grouped by searched party and ranked by risk, with the reason for each
+ranking and any earlier decisions on the same party. They decide each
+hit (clear, not the same entity, waiver needed, screen, escalate,
+decline), ask responsible lawyers for clearance, record waivers and put
+up ethical walls. A conflicts summary goes back to the lawyer.</li>
+<li><strong>Approvals.</strong> The request goes through the firm’s
+approval route: for example the practice group leader, finance, and the
+general counsel when a request is restricted, high-fee, high-risk, or
+touches cannabis or political work. Each approver can approve, approve
+with conditions, or return it for more information. Deadlines and
+overdue flags keep it moving. An approver with a declared interest in a
+party is routed around automatically, and an alternate signs
+instead.</li>
+<li><strong>Matter opening.</strong> Once approved, the conflicts team
+opens the matter. It gets its client.matter number (for example
+011072.0001), new parties are added to the database, the Aderant record
+is prepared, and, if switched on, the matter’s folders are created in
+the document management system.</li>
+<li><strong>Billing hold until the paperwork is complete.</strong>
+Opening does not wait for paperwork, but billing does. Until the signed
+engagement letter, signed waivers and any required documents (such as a
+HIPAA business associate agreement) are uploaded, and every remaining
+conflicts item is closed, the matter shows <strong>Open · billing on
+hold</strong> and the conflicts team keeps a task to finish it.</li>
+<li><strong>After opening.</strong> Change monitoring re-checks the
+matter’s parties when the firm’s data changes and lists any new hit
+nobody has reviewed. When the matter ends it is closed with a retention
+date.</li>
+</ol>
+<section id="who-does-what" class="level3">
+<h3>Who does what</h3>
+<div class="tablewrap"><table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Role</th>
+<th>What they do in Conflara</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Lawyer (requester)</td>
+<td>Sends quick checks and new matters, answers questions, reviews
+waiver drafts, sees only their own requests and tasks</td>
+</tr>
+<tr class="even">
+<td>Secretary</td>
+<td>Prepares and converts requests for their lawyers</td>
+</tr>
+<tr class="odd">
+<td>Approver</td>
+<td>Approves, conditions or returns requests at their step</td>
+</tr>
+<tr class="even">
+<td>Conflicts analyst</td>
+<td>Reviews hits, runs searches, records waivers and walls, opens and
+closes matters</td>
+</tr>
+<tr class="odd">
+<td>Administrator</td>
+<td>Sets up the firm: people, approval routes, forms, templates,
+integrations and AI settings</td>
+</tr>
+</tbody>
+</table></div>
+<p>One person works on a form at a time. If a conflicts analyst or
+administrator needs to take over a form someone else is holding,
+Conflara asks them to confirm before it moves.</p>
+</section>
+<section id="what-people-see-while-they-wait" class="level3">
+<h3>What people see while they wait</h3>
+<p>Every request shows a next-step line that says, in plain words, what
+it is waiting on and who has it. Lawyers get a task list on their home
+page, and emails go out for approvals, walls and conflicts summaries.
+Optional emails (mentions, new intakes, waiver replies) can be turned
+off per person.</p>
+</section>
+</section>
+<section id="features" class="level2">
+<h2>Features</h2>
+<p>Conflara covers conflicts, intake, approvals, waivers, walls,
+laterals and matter opening in one system; this section lists what each
+area does.</p>
+<section id="conflicts-search" class="level3">
+<h3>Conflicts search</h3>
+<ul>
+<li><strong>Name matching that catches variants</strong>: misspellings,
+sound-alike names, nicknames (Bill and William), aliases, former names,
+and partly typed words (“merid sol” finds Meridian Solar). Rare words
+count more than common ones, so “Meridian” weighs more than
+“Holdings”.</li>
+<li><strong>Corporate families and personal links</strong>: parents,
+subsidiaries and affiliates up to the ultimate parent and back down, and
+links such as spouses and officers.</li>
+<li><strong>Everything the firm knows is searched</strong>: current and
+former clients, adverse and related parties, prospective clients turned
+away (ABA and California Rule 1.18), declined matters, requests still in
+progress, and lawyers’ declared relationships.</li>
+<li><strong>Search numbers</strong>: every search, re-run and report
+gets a permanent number (S-2026-000123) that can be cited and looked
+up.</li>
+<li><strong>Single, batch and Boolean search</strong>: one name, several
+wildcard searches at once (numbered B-2026-0001), or an exact rule-based
+search with AND, OR, NOT, phrases and fields such as role, open date and
+practice area.</li>
+<li><strong>Confidential searches</strong>: a search can be marked
+confidential so only the person who ran it and designated conflicts
+staff can see it.</li>
+<li><strong>Duplicate search warning</strong>: when most of a new
+search’s parties match a search from the last 12 months, Conflara says
+so and links the earlier one. It never stops a search; the threshold is
+set by the firm.</li>
+<li><strong>Searched before</strong>: wherever a name is entered,
+Conflara lists earlier searches for that party and what came of them
+(became a matter, quick check only, closed, still in progress).</li>
+<li><strong>Sanctions screening</strong>: new parties are checked
+against the OFAC list and other watch lists the firm loads.</li>
+<li><strong>Party types explained</strong>: a small “What do these types
+mean?” chart appears wherever party roles are shown.</li>
+</ul>
+</section>
+<section id="intake" class="level3">
+<h3>Intake</h3>
+<ul>
+<li><strong>Guided new business intake</strong> in a few short steps,
+with a live preview of possible conflicts for each party as it is
+typed.</li>
+<li><strong>Quick check</strong>: just the party names, searched before
+there is a full form, later converted in place into a new intake with
+every decision carried forward.</li>
+<li><strong>Pro bono intake</strong> with eligibility questions, a
+supervising lawyer and no fee fields, and its own numbering (by default
+a pro bono client range from 900001).</li>
+<li><strong>Practice area and records area</strong> on every new matter
+form; the records area sets the folders the matter gets in the document
+management system.</li>
+<li><strong>Firm questions without programming</strong>: administrators
+add the firm’s own questions, show them only for certain practices,
+offices or matter types, make fields required, preview, and publish
+versions.</li>
+<li><strong>Practice screens</strong>: Conflara notices when a request
+looks like health care, cannabis, an insurance company as client, a
+public body, or political or campaign work. It shows the right questions
+(for example HIPAA status) and can add approval steps through the firm’s
+routing rules. It never decides anything on its own.</li>
+<li><strong>Required documents</strong>: when the answers call for them,
+Conflara tracks a HIPAA business associate agreement, joint
+representation consents and founder acknowledgements.</li>
+<li><strong>Reading a document or email for parties</strong>: a pasted
+email or matter description can suggest parties, which the requester
+confirms one by one.</li>
+<li><strong>Public client intake form</strong> that feeds the same
+queue, protected against spam, and never showing conflicts results to
+the public.</li>
+<li><strong>Comments on parties</strong>, drafts, edit and resubmit,
+withdraw, clone, delegates, and <span class="citation"
+data-cites="mentions">@mentions</span> in comments.</li>
+<li><strong>Name suggestions</strong> in attorney and staff fields,
+accepted with Tab or Enter. Nothing fills in by itself.</li>
+</ul>
+</section>
+<section id="conflicts-review-and-clearance" class="level3">
+<h3>Conflicts review and clearance</h3>
+<ul>
+<li>Hits grouped by searched party, ranked by risk with a plain reason,
+and shown with earlier decisions on the same party.</li>
+<li>One-click and bulk decisions with notes: clear, not the same entity,
+waiver needed, screen, escalate, decline.</li>
+<li>Clearance requests sent to the responsible lawyers on matching
+matters.</li>
+<li>Lawyer relationship disclosures (California Rule 1.7(b) and (c)):
+declared family, board, investment, former-employer and personal ties
+are shown as FYIs when a party matches.</li>
+<li>A conflicts summary to the lawyer, and an attorney-readable
+conflicts report with a PDF download.</li>
+<li>An optional learned hit order that suggests which hits to read
+first, based on the firm’s own past decisions. It is off by default,
+needs at least 200 past decisions, keeps high-risk hits on top, and
+never hides or decides a hit.</li>
+</ul>
+</section>
+<section id="approvals-and-workflow" class="level3">
+<h3>Approvals and workflow</h3>
+<ul>
+<li>Approval routes built from the firm’s rules: practice group leader
+or office managing partner, finance, general counsel for restricted,
+high-fee or high-risk requests, and any other steps the firm
+defines.</li>
+<li>Approve, approve with conditions, or return for more information;
+deadlines and overdue flags; delegates.</li>
+<li><strong>Routing around an interest</strong>: an approver with a
+declared tie to a party is not asked to approve that request. An
+alternate signs instead, both are told, and the audit trail records
+it.</li>
+<li>Finance checks for credit, retainers and rate discounts.</li>
+<li>A task board, a workflow dashboard, and a next-step line on every
+request.</li>
+<li>One person works on a form at a time; conflicts staff and
+administrators can take one over after confirming.</li>
+</ul>
+</section>
+<section id="waivers-engagement-letters-and-client-guidelines"
+class="level3">
+<h3>Waivers, engagement letters and client guidelines</h3>
+<ul>
+<li>Waiver records with informed written consent; requests sent to
+clients by a secure link; reminders and tracking.</li>
+<li>Waiver drafts from templates. The conflicts team sends the draft to
+a lawyer, who edits it and approves or returns it from a task.</li>
+<li>Engagement letters from the firm’s editable templates, with
+California fee-agreement checks (Business and Professions Code 6147 and
+6148), exported to Word.</li>
+<li>Letters never name another client unless that client has agreed to
+be named; a letter that does cannot be marked ready.</li>
+<li>Drafts are edited by typing into the document itself, and every save
+is logged.</li>
+<li><strong>Signed copies only</strong>: a letter or waiver counts as
+signed only when someone uploads the signed copy and records who signed
+it. Conflara has no sign or countersign button.</li>
+<li>Outside counsel guidelines per client, broken into key terms
+(adverse work, staffing, AI use, billing) and flagged on that client’s
+requests.</li>
+</ul>
+</section>
+<section id="ethical-walls" class="level3">
+<h3>Ethical walls</h3>
+<ul>
+<li>Walls that keep named people out, or that let only the team in, over
+single matters or whole clients.</li>
+<li>Enforced inside Conflara on the server: a screened person is never
+sent the walled matter, its files, notes or audit lines. Blocked
+attempts are logged.</li>
+<li>Acknowledgments and periodic re-acknowledgment, wall notices, Rule
+1.10 certifications, and fee exclusion.</li>
+<li>Lists of who is screened, ready for the document management and
+time-entry systems, and connectors for applying walls in iManage,
+SharePoint and Microsoft 365 (to be confirmed against the firm’s systems
+before use).</li>
+</ul>
+</section>
+<section id="lateral-hires" class="level3">
+<h3>Lateral hires</h3>
+<ul>
+<li>A secure questionnaire for the candidate’s prior clients and
+matters.</li>
+<li>Batch search of what they list, California screening rule checks
+(Rules 1.10(a)(2), 1.11 and 1.12), walls put up before the start date,
+and a pre-start checklist.</li>
+</ul>
+</section>
+<section id="matter-opening-numbering-and-closing" class="level3">
+<h3>Matter opening, numbering and closing</h3>
+<ul>
+<li>Client.matter numbering in the Aderant style (011072.0001), with
+special numbers available to the conflicts team when a matter must open
+under a chosen number (with a reason, checked to be free, and
+recorded).</li>
+<li>Opening checklist split into what is needed to open and what is
+needed before billing; the billing hold described in “How a matter
+moves”.</li>
+<li>Matter workspaces and folders created in the document management
+system when a matter opens, if switched on.</li>
+<li>Closing with retention dates.</li>
+</ul>
+</section>
+<section id="change-monitoring-and-outside-company-data" class="level3">
+<h3>Change monitoring and outside company data</h3>
+<ul>
+<li>Change monitoring re-checks approved requests, open matters and
+watched clients whenever the firm’s data changes and each night, and
+lists only new hits nobody has reviewed. A person marks each one.</li>
+<li>Company families and names from public registers (GLEIF, SEC EDGAR,
+OpenCorporates) and from the firm’s own Dun &amp; Bradstreet or Capital
+IQ exports. Nothing is added to a party until an analyst picks it.</li>
+</ul>
+</section>
+<section id="reports-and-audit" class="level3">
+<h3>Reports and audit</h3>
+<ul>
+<li>Standard reports and a report builder, with spreadsheet export that
+is protected against formula tricks.</li>
+<li>An ethics and insurer pack for a chosen period.</li>
+<li>A searchable audit log of every change, and a “who opened walled
+records” log that includes blocked attempts.</li>
+</ul>
+</section>
+<section id="ease-of-use" class="level3">
+<h3>Ease of use</h3>
+<ul>
+<li>A command palette (Cmd or Ctrl + K) to jump to any page, request,
+matter, party, wall or search number.</li>
+<li>Personal preferences: day or night mode, menu at the side or top,
+text size, density, reduced motion, start page, font choice (including
+an easy-reading font), and five color schemes including high contrast.
+The color schemes are checked against the WCAG AA contrast
+standard.</li>
+<li>Role walkthroughs, a glossary of conflicts terms, short tooltips on
+terms, printable quick-start sheets per role, and a first-week checklist
+that guides an administrator to a live firm.</li>
+</ul>
+</section>
+</section>
+<section id="ai" class="level2">
+<h2>AI assistance</h2>
+<p>Conflara’s AI is optional, runs on the firm’s own hardware by
+default, and only suggests or helps draft: a conflicts analyst or lawyer
+reviews everything and makes every decision.</p>
+<section id="what-it-helps-with" class="level3">
+<h3>What it helps with</h3>
+<div class="tablewrap"><table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Task</th>
+<th>What the AI does</th>
+<th>What a person does</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Hit triage</td>
+<td>Suggests whether a hit is likely the same entity and likely a
+conflict, with a one-line reason, shown beside the rule-based risk with
+a ✦ mark</td>
+<td>The analyst decides. The suggestion never records a decision</td>
+</tr>
+<tr class="even">
+<td>Finding parties in text</td>
+<td>Suggests parties and roles from a pasted email or matter
+description</td>
+<td>The requester accepts or rejects each one. Names that are not in the
+text are thrown out</td>
+</tr>
+<tr class="odd">
+<td>Conflicts memo</td>
+<td>Helps draft a memo from the decisions already recorded</td>
+<td>The analyst edits it</td>
+</tr>
+<tr class="even">
+<td>Import column matching</td>
+<td>Suggests which column of an export feeds each field</td>
+<td>The administrator confirms. Only real column names are accepted</td>
+</tr>
+<tr class="odd">
+<td>File summaries</td>
+<td>Helps summarise an uploaded document</td>
+<td>A person checks it</td>
+</tr>
+<tr class="even">
+<td>Engagement letter and guideline terms</td>
+<td>Lists key terms from a letter or a client’s outside counsel
+guidelines</td>
+<td>A lawyer checks them</td>
+</tr>
+<tr class="odd">
+<td>Waiver first drafts</td>
+<td>Helps fill a waiver template</td>
+<td>A lawyer edits and approves it</td>
+</tr>
+<tr class="even">
+<td>Next-step wording</td>
+<td>Rewords the next-step line in plainer language</td>
+<td>Shown for information only</td>
+</tr>
+</tbody>
+</table></div>
+<p>Search results, risk levels, reports, approvals, walls and signed
+documents never depend on the AI. Without a model connected, Conflara
+works fully; the AI buttons simply say a local model is needed.</p>
+</section>
+<section id="where-it-runs" class="level3">
+<h3>Where it runs</h3>
+<ul>
+<li><strong>On the firm’s own hardware (default).</strong> The model
+runs on a server or workstation inside the firm, through standard local
+model software (Ollama, or any compatible local server such as LM
+Studio, llama.cpp or vLLM). Client names never leave the firm’s
+network.</li>
+<li><strong>The browser cannot choose where AI calls go.</strong>
+Conflara’s server sends every AI call to one fixed address set by IT,
+and refuses a model outside the firm’s private network unless an
+administrator deliberately allows it.</li>
+<li><strong>Background triage.</strong> When a model is connected, the
+server can triage new hits in the background after each intake, so
+suggestions are waiting when the analyst opens the request.</li>
+<li><strong>Sizing.</strong> As an estimate, one modern desktop-class
+machine with a capable graphics processor or Apple silicon can keep up
+with the intake volume of a firm of about 200 lawyers, because triage
+runs in the background rather than while someone waits. The pilot would
+confirm the right machine.</li>
+</ul>
+</section>
+<section id="external-ai-provider-off-unless-the-firm-chooses-it"
+class="level3">
+<h3>External AI provider (off unless the firm chooses it)</h3>
+<p>A firm can choose to use an outside AI provider instead. It takes two
+separate steps: IT configures the provider on the server, and then an
+administrator accepts a written data-handling notice in the app. Both
+are recorded in the audit trail, and switching it off is one click.</p>
+<p>Even when it is on, Conflara never sends:</p>
+<ul>
+<li>restricted or highly confidential requests, or confidential ones
+unless an administrator allows it;</li>
+<li>requests the requester or conflicts team marked “Keep this request
+away from outside AI services”;</li>
+<li>anything with a hit on a matter or party behind an ethical
+wall;</li>
+<li>anything touching a client whose outside counsel guidelines bar AI
+use, or its corporate family;</li>
+<li>health information requests and matters;</li>
+<li>import files.</li>
+</ul>
+<p>Each task sends a fixed, minimal set of fields (for example, hit
+triage sends no matter names or descriptions), and the server writes
+“Sent to external AI” to the audit trail with the fields sent before
+anything leaves. The firm should still check the provider’s own terms,
+and its clients’ engagement letters and guidelines, before turning this
+on.</p>
+</section>
+<section id="safeguards" class="level3">
+<h3>Safeguards</h3>
+<ul>
+<li>Documents and emails are treated as untrusted text, so instructions
+hidden in them are not followed. Hidden characters are stripped and
+lengths are capped.</li>
+<li>The model has no tools and no internet access. Its answers must fit
+a fixed format, and anything that does not is discarded.</li>
+<li>AI notes follow the same walls and confidentiality rules as
+everything else. A screened person never sees an AI note written from a
+matter they are walled from.</li>
+<li>Every AI use is recorded with the task and model name. The text sent
+and received is not stored.</li>
+<li>Every AI suggestion is marked ✦ on screen, with a reminder to check
+it.</li>
+</ul>
+</section>
+<section id="what-the-firm-should-know" class="level3">
+<h3>What the firm should know</h3>
+<ul>
+<li>AI suggestions can be wrong. They are a second pair of eyes for the
+conflicts team, not a substitute for its review.</li>
+<li>How well a given model suits the firm’s data is something the pilot
+would measure, by comparing its suggestions with the conflicts team’s
+own decisions.</li>
+<li>The AI never signs, approves, clears a hit, puts up or lifts a wall,
+or sends anything to a client.</li>
+</ul>
+</section>
+</section>
+<section id="security" class="level2">
+<h2>Security and confidentiality</h2>
+<p>Conflara is designed around one rule: a person screened from a matter
+must never receive it. The server decides what each person is sent,
+every change is recorded in a tamper-evident log, and the firm keeps its
+data on systems it controls.</p>
+<section id="who-can-see-what" class="level3">
+<h3>Who can see what</h3>
+<ul>
+<li><strong>Each person gets only their own view.</strong> The server
+builds what each person receives. Lawyers, secretaries and approvers get
+a task-only view: their own requests and the records their tasks need.
+The conflicts team and administrators see the wider database they need
+to do their work, still subject to confidentiality levels.</li>
+<li><strong>Walls are enforced before data leaves the server.</strong> A
+screened person’s browser never receives the walled matter, its parties,
+files, notes, comments, AI notes or audit lines. Hiding is not done by
+the screen, so it cannot be bypassed by looking at the page’s data.</li>
+<li><strong>Confidentiality levels.</strong> Any client, matter or
+request can be marked normal, confidential or highly confidential, with
+a list of people allowed in by name. Highly confidential records are
+open only to the record’s own lawyers, the people named, designated
+conflicts analysts and administrators. A matter takes the higher of its
+own level and its client’s.</li>
+<li><strong>What others see of a hidden record.</strong> When a search
+hits a record someone may not see, they get only “Match on a
+confidential record. Contact the conflicts team,” with no name, matter
+or count.</li>
+<li><strong>Restricted requests</strong> are visible only to the people
+on them and the conflicts team.</li>
+<li><strong>Every opening of a walled or confidential record is
+logged</strong>, including blocked attempts, in a “who opened walled
+records” log.</li>
+<li><strong>Losing access takes effect at once.</strong> Disabling an
+account or changing someone’s role ends their sessions and stops their
+live updates immediately.</li>
+</ul>
+</section>
+<section id="sign-in-and-sessions" class="level3">
+<h3>Sign-in and sessions</h3>
+<ul>
+<li>Sign-in through the firm’s Microsoft 365 accounts (Entra ID), so
+multi-factor authentication, device rules and conditional access follow
+the firm’s existing policy.</li>
+<li>Accounts are created by an administrator; nobody gets in just
+because they have a firm account, unless the firm chooses that.</li>
+<li>Sessions expire after 30 minutes idle and 12 hours in total (both
+adjustable), and signing out clears the browser.</li>
+<li>In server mode the browser keeps no firm data on the computer.</li>
+</ul>
+</section>
+<section id="the-audit-trail" class="level3">
+<h3>The audit trail</h3>
+<ul>
+<li>Every change (who, what, when) is appended to a log that the
+database itself refuses to edit or delete.</li>
+<li>Each entry is linked to the one before by a keyed fingerprint, so
+any change to past entries is detected. The server checks the whole
+chain when it starts and every 15 minutes, and stops accepting changes
+if the check fails.</li>
+<li>A daily copy of the latest fingerprint, stored outside the database,
+lets the firm detect even the deletion of the newest entries.</li>
+<li>The log alone can rebuild all of the firm’s data, and Conflara
+checks that it does.</li>
+</ul>
+</section>
+<section id="protecting-the-data" class="level3">
+<h3>Protecting the data</h3>
+<div class="tablewrap"><table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Area</th>
+<th>How it is protected</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>In transit</td>
+<td>HTTPS only, with strict browser security settings; no third-party
+content is loaded by the page, including fonts</td>
+</tr>
+<tr class="even">
+<td>Database</td>
+<td>PostgreSQL on the firm’s server, reached only from the app over a
+private network, with an app account that cannot change the database’s
+structure. Encryption at rest is provided by the server’s disk or the
+managed database service</td>
+</tr>
+<tr class="odd">
+<td>Uploaded files</td>
+<td>Encrypted by Conflara (AES-256) before they are stored, with
+optional virus scanning</td>
+</tr>
+<tr class="even">
+<td>Backups</td>
+<td>A backup script that encrypts every copy and refuses to write an
+unencrypted one; restore steps tested</td>
+</tr>
+<tr class="odd">
+<td>Logs</td>
+<td>Hold ids, timings and error codes, never party names, search terms
+or document text</td>
+</tr>
+<tr class="even">
+<td>Waiver links to clients</td>
+<td>Long random secrets, stored only as fingerprints, with expiry,
+revocation and a fresh link on every reminder</td>
+</tr>
+<tr class="odd">
+<td>Public forms</td>
+<td>Spam protection, rate limits, and no conflicts results ever returned
+to the public</td>
+</tr>
+<tr class="even">
+<td>Outside AI</td>
+<td>Off by default; see the AI assistance section for what is never
+sent</td>
+</tr>
+</tbody>
+</table></div>
+</section>
+<section id="getting-support-without-sharing-client-data"
+class="level3">
+<h3>Getting support without sharing client data</h3>
+<p>An administrator can produce a support bundle that holds versions,
+settings switches, record counts and recent error messages, with every
+name, email, id and piece of free text replaced by a placeholder.
+Conflara checks the bundle against every name in the firm’s records
+before it can be saved, the administrator reads it in full first, and
+saving it is recorded. Nothing is sent automatically. When support needs
+to see a problem happen, Conflara can build a test firm of made-up
+records with the same size and shape as the firm’s data.</p>
+</section>
+<section id="how-it-has-been-tested" class="level3">
+<h3>How it has been tested</h3>
+<ul>
+<li>Over 1,000 automated tests, including tests that inspect everything
+each kind of user is sent and check that no walled or highly
+confidential name, number or file appears in it.</li>
+<li>Tests that feed the AI hostile documents designed to trick it, and
+confirm nothing but the advisory note changes.</li>
+<li>Internal security testing of a production-mode install covering
+walls, confidentiality, sign-in, file handling and attempts to act as
+another user.</li>
+<li>Automated dependency and code scanning on every change; the
+production dependencies currently show no known vulnerabilities.</li>
+</ul>
+</section>
+<section id="recommended-before-go-live" class="level3">
+<h3>Recommended before go-live</h3>
+<ul>
+<li>An independent penetration test against the firm’s own install,
+including sign-in through the firm’s Entra tenant and the firm’s reverse
+proxy.</li>
+<li>Conflara does not hold a SOC 2 report or other certification. For a
+self-hosted install the firm’s own controls cover the servers; a SOC 2
+readiness mapping exists for the hosted option.</li>
+<li>The firm’s general counsel to review the built-in engagement letter,
+waiver and consent wording, which ships marked as drafts for a lawyer’s
+review.</li>
+</ul>
+</section>
+</section>
+<section id="data" class="level2">
+<h2>Data and integrations</h2>
+<p>The firm’s existing conflicts records come in through a checked
+import, Aderant stays the billing system and exchanges data with
+Conflara, and the document management system can receive matter folders
+and walls.</p>
+<section id="bringing-in-existing-records" class="level3">
+<h3>Bringing in existing records</h3>
+<p>The import works from exports the firm already has (CSV or Excel),
+from Aderant, Clio, another conflicts system or any spreadsheet with one
+row per party on a matter.</p>
+<ol type="1">
+<li><strong>Choose the file.</strong> Presets recognise Aderant Expert
+and Clio layouts; any other export is matched by its column
+headings.</li>
+<li><strong>Match the columns.</strong> Conflara guesses which column
+feeds each field and a person confirms or corrects each one.</li>
+<li><strong>Match the role values.</strong> The old system’s words for
+client, adverse party and so on are mapped to Conflara’s roles.</li>
+<li><strong>Dry run.</strong> Before anything is saved, Conflara shows
+the new parties, the matches to existing records, possible duplicates to
+merge, and any warnings (for example a matter that closes before it
+opens).</li>
+<li><strong>Import, with undo.</strong> A recent import can be undone
+while nothing else depends on its records. An import can also be tried
+first in the test firm.</li>
+</ol>
+<p>What comes across: parties and their ids, types, roles, aliases and
+parent companies; clients; matters with numbers, names, status, open and
+close dates, last billed date, responsible lawyer and practice area; and
+comments on parties. The old system’s search logs and past clearance
+memos are not imported, so the firm would keep its previous system’s
+archive available for reference.</p>
+</section>
+<section id="aderant" class="level3">
+<h3>Aderant</h3>
+<p>Aderant remains the firm’s system of record for billing; Conflara
+never changes billing data. There are three ways to connect, from least
+to most setup:</p>
+<div class="tablewrap"><table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>How it works</th>
+<th>What the firm’s Aderant team does</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Upload</td>
+<td>Someone exports reports from Aderant and uploads them on Conflara’s
+Aderant page; the columns are checked before anything is brought in</td>
+<td>Export the reports</td>
+</tr>
+<tr class="even">
+<td>Shared folder</td>
+<td>A scheduled job at the firm drops the same reports into a folder
+each night; Conflara reads new ones and writes import files for newly
+opened matters</td>
+<td>Set up read-only report queries and a job to load Conflara’s import
+files</td>
+</tr>
+<tr class="odd">
+<td>Live connection</td>
+<td>Conflara talks to Aderant’s programming interface directly</td>
+<td>Obtain API access and documentation from Aderant; Conflara’s
+connection is matched to it and tested against a test Aderant
+environment before use</td>
+</tr>
+</tbody>
+</table></div>
+<p>What moves each way:</p>
+<ul>
+<li><strong>From Aderant</strong>: Entity Manager names (with parent
+companies, aliases and former names), Expert clients and matters with
+their parties, and matter billing status (last bill date, last time
+entry, unbilled time and balance due, shown only to the conflicts
+team).</li>
+<li><strong>To Aderant</strong>: newly opened matters with their client,
+matter number, office and lawyers, new entities, and whether the matter
+is on billing hold and why.</li>
+<li><strong>Round trip</strong>: each party Conflara sends carries
+Conflara’s id, so when Entity Manager’s export comes back the two
+records are linked even if Aderant’s team typed the name
+differently.</li>
+<li><strong>One number</strong>: a matter numbered 011072.0001 in
+Conflara goes to Aderant under the same client and matter code.</li>
+</ul>
+<p>The nightly pull never merges records on its own; a close name is
+created as a new party and listed for review.</p>
+<p><strong>To confirm with the firm’s Aderant team first:</strong> the
+exact column names in the firm’s exports (a first step that shares
+column names only, no client data), and how the firm’s Aderant marks a
+bill hold.</p>
+</section>
+<section id="document-management" class="level3">
+<h3>Document management</h3>
+<ul>
+<li><strong>Matter folders.</strong> When a matter opens, Conflara can
+create its workspace and the folders its records area calls for, in
+iManage or SharePoint. Folders already there are left alone, and
+failures are shown in plain words with a Try again button. It is off
+until an administrator turns it on, and should first be tried with one
+matter against a test library.</li>
+<li><strong>Filing.</strong> Documents attached in Conflara can be filed
+to iManage or SharePoint. Confidential, highly confidential and walled
+records are not filed unless an administrator allows each case.</li>
+<li><strong>Walls in other systems.</strong> Conflara can apply its
+ethical walls to iManage workspaces, SharePoint folders and Microsoft
+365 groups, in plan, read-only or enforce mode, and produces
+screened-person lists for the time-entry system. These connections are
+to be tested against the firm’s own systems before they enforce
+anything.</li>
+<li>NetDocuments and Box are not connected yet; folders there would be
+made by hand.</li>
+</ul>
+</section>
+<section id="microsoft-365" class="level3">
+<h3>Microsoft 365</h3>
+<ul>
+<li>Sign-in through Entra ID.</li>
+<li>An Outlook add-in can start an intake from an open email, suggesting
+parties from it. It reads only the open message and sends it only to the
+firm’s own Conflara server. It is to be tested in the firm’s Microsoft
+365 before use.</li>
+</ul>
+</section>
+<section id="outside-company-data" class="level3">
+<h3>Outside company data</h3>
+<ul>
+<li>Public registers: GLEIF (global legal entity identifiers), SEC EDGAR
+(US public companies and their subsidiaries) and OpenCorporates (with
+the firm’s own account).</li>
+<li>The firm’s own Dun &amp; Bradstreet or S&amp;P Capital IQ exports,
+imported in the browser and kept with the firm’s data; nothing is sent
+to those providers.</li>
+<li>An analyst links a party to its record and picks the names, parents
+and subsidiaries to add. Each night Conflara re-reads linked records and
+lists what changed (a new parent, a new name, a company that merged or
+lapsed).</li>
+<li>Only the name typed into a search, or a register’s own id, ever
+leaves the firm.</li>
+</ul>
+</section>
+<section id="email" class="level3">
+<h3>Email</h3>
+<p>Notifications go through the firm’s own mail server. Emails about
+sensitive requests name them by number only, and a person can switch off
+optional emails for themselves.</p>
+</section>
+</section>
+<section id="it" class="level2">
+<h2>Deployment and IT</h2>
+<p>Conflara runs on one server inside the firm, alongside a PostgreSQL
+database and, optionally, a local AI model; a firm of about 200 lawyers
+was load-tested on a modest four-core, 15 GB machine.</p>
+<figure class="diagram"><svg viewBox="0 0 900 340" role="img" aria-labelledby="archt"><title id="archt">One Conflara server sits between the firm's people and its systems</title><defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#15120f"/></marker></defs><rect x="10" y="140" width="190" height="62" rx="6" fill="#fbf9f3" stroke="#15120f" stroke-width="1.5"/><text x="105.0" y="166" text-anchor="middle" font-family="Bricolage Grotesque, Helvetica Neue, Arial, sans-serif" font-weight="700" font-size="16" fill="#15120f">Lawyers and staff</text><text x="105.0" y="186" text-anchor="middle" font-family="IBM Plex Mono, Menlo, monospace" font-size="12" fill="#5f4e40">browser or desktop app</text><path d="M200 171 L236 171" stroke="#15120f" stroke-width="1.5" fill="none" marker-end="url(#ah2)"/><rect x="240" y="140" width="190" height="62" rx="6" fill="#fbf9f3" stroke="#15120f" stroke-width="1.5"/><text x="335.0" y="166" text-anchor="middle" font-family="Bricolage Grotesque, Helvetica Neue, Arial, sans-serif" font-weight="700" font-size="16" fill="#15120f">HTTPS proxy</text><text x="335.0" y="186" text-anchor="middle" font-family="IBM Plex Mono, Menlo, monospace" font-size="12" fill="#5f4e40">firm certificate</text><path d="M430 171 L466 171" stroke="#15120f" stroke-width="1.5" fill="none" marker-end="url(#ah2)"/><rect x="470" y="140" width="190" height="62" rx="6" fill="#6b3f22" stroke="#6b3f22" stroke-width="1.5"/><text x="565.0" y="166" text-anchor="middle" font-family="Bricolage Grotesque, Helvetica Neue, Arial, sans-serif" font-weight="700" font-size="16" fill="#fbf9f3">Conflara server</text><text x="565.0" y="186" text-anchor="middle" font-family="IBM Plex Mono, Menlo, monospace" font-size="12" fill="#ede1c1">checks every request</text><rect x="740" y="10" width="150" height="40" rx="6" fill="#fbf9f3" stroke="#15120f" stroke-width="1.5"/><text x="815" y="35" text-anchor="middle" font-family="Bricolage Grotesque, Helvetica Neue, Arial, sans-serif" font-weight="700" font-size="14" fill="#15120f">PostgreSQL</text><path d="M660 171 C700 171 700 30 736 30" stroke="#15120f" stroke-width="1.5" fill="none" marker-end="url(#ah2)"/><rect x="740" y="66" width="150" height="40" rx="6" fill="#fbf9f3" stroke="#15120f" stroke-width="1.5"/><text x="815" y="91" text-anchor="middle" font-family="Bricolage Grotesque, Helvetica Neue, Arial, sans-serif" font-weight="700" font-size="14" fill="#15120f">Local AI model</text><path d="M660 171 C700 171 700 86 736 86" stroke="#15120f" stroke-width="1.5" fill="none" marker-end="url(#ah2)"/><rect x="740" y="122" width="150" height="40" rx="6" fill="#fbf9f3" stroke="#15120f" stroke-width="1.5"/><text x="815" y="147" text-anchor="middle" font-family="Bricolage Grotesque, Helvetica Neue, Arial, sans-serif" font-weight="700" font-size="14" fill="#15120f">Entra ID</text><path d="M660 171 C700 171 700 142 736 142" stroke="#15120f" stroke-width="1.5" fill="none" marker-end="url(#ah2)"/><rect x="740" y="178" width="150" height="40" rx="6" fill="#fbf9f3" stroke="#15120f" stroke-width="1.5"/><text x="815" y="203" text-anchor="middle" font-family="Bricolage Grotesque, Helvetica Neue, Arial, sans-serif" font-weight="700" font-size="14" fill="#15120f">Aderant</text><path d="M660 171 C700 171 700 198 736 198" stroke="#15120f" stroke-width="1.5" fill="none" marker-end="url(#ah2)"/><rect x="740" y="234" width="150" height="40" rx="6" fill="#fbf9f3" stroke="#15120f" stroke-width="1.5"/><text x="815" y="259" text-anchor="middle" font-family="Bricolage Grotesque, Helvetica Neue, Arial, sans-serif" font-weight="700" font-size="14" fill="#15120f">Document system</text><path d="M660 171 C700 171 700 254 736 254" stroke="#15120f" stroke-width="1.5" fill="none" marker-end="url(#ah2)"/><rect x="740" y="290" width="150" height="40" rx="6" fill="#fbf9f3" stroke="#15120f" stroke-width="1.5"/><text x="815" y="315" text-anchor="middle" font-family="Bricolage Grotesque, Helvetica Neue, Arial, sans-serif" font-weight="700" font-size="14" fill="#15120f">Mail server</text><path d="M660 171 C700 171 700 310 736 310" stroke="#15120f" stroke-width="1.5" fill="none" marker-end="url(#ah2)"/></svg><figcaption>One Conflara server sits between the firm's people and its systems.</figcaption></figure>
+<p>Every request from a person passes through the firm’s HTTPS proxy to
+the Conflara server, which checks it and is the only part that talks to
+the database and the firm’s other systems.</p>
+<section id="ways-to-run-it" class="level3">
+<h3>Ways to run it</h3>
+<div class="tablewrap"><table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Option</th>
+<th>What it is</th>
+<th>Best for</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Firm server (recommended)</td>
+<td>The app, PostgreSQL and the optional AI model in containers on a
+firm server or virtual machine, behind the firm’s HTTPS proxy</td>
+<td>The whole firm</td>
+</tr>
+<tr class="even">
+<td>Desktop app</td>
+<td>A Windows or macOS application that either connects to the firm
+server, or runs everything on one computer for a single user</td>
+<td>Remote users of the firm server; a single conflicts analyst or an
+evaluation</td>
+</tr>
+<tr class="odd">
+<td>Hosted</td>
+<td>One install run by the vendor for this firm alone, in a data region
+the firm picks (US, Canada, EU, UK or Australia)</td>
+<td>A firm that prefers not to run servers</td>
+</tr>
+</tbody>
+</table></div>
+<p>One install serves one firm. Data is never shared between firms.</p>
+</section>
+<section id="what-firm-it-provides" class="level3">
+<h3>What firm IT provides</h3>
+<ul>
+<li>A Linux server or virtual machine with Docker. The load test used 4
+processor cores and 15 GB of memory for the app and database
+together.</li>
+<li>An HTTPS reverse proxy (for example nginx, Caddy or Azure
+Application Gateway) and a certificate.</li>
+<li>An Entra ID app registration for sign-in (a short, documented set of
+steps), and Conditional Access if the firm wants multi-factor or device
+rules.</li>
+<li>A mail relay for notifications.</li>
+<li>Encrypted storage for nightly backups, kept off the server.</li>
+<li>If AI is wanted: a machine for the local model (see the AI
+assistance section).</li>
+<li>Optional: a shared folder for Aderant reports, and service
+credentials for iManage or SharePoint.</li>
+</ul>
+<p>All settings are environment variables, documented one by one. In
+production mode the server refuses to start with an unsafe setting and
+says which one to fix.</p>
+</section>
+<section id="running-it-day-to-day" class="level3">
+<h3>Running it day to day</h3>
+<div class="tablewrap"><table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>When</th>
+<th>Job</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Every 5 minutes</td>
+<td>Health check: server up, audit chain intact, latest backup
+recent</td>
+</tr>
+<tr class="even">
+<td>Nightly</td>
+<td>Encrypted database backup</td>
+</tr>
+<tr class="odd">
+<td>Daily</td>
+<td>Record the audit log’s latest fingerprint outside the database</td>
+</tr>
+<tr class="even">
+<td>Monthly</td>
+<td>Apply security updates through a normal release</td>
+</tr>
+<tr class="odd">
+<td>Quarterly</td>
+<td>Restore drill on a scratch server, with the time taken recorded</td>
+</tr>
+</tbody>
+</table></div>
+<p>Backup, restore, upgrade and rollback have each been run end to end
+on a test install. A written runbook covers these jobs, monitoring,
+support severities and the response to a suspected data exposure.</p>
+</section>
+<section id="reliability" class="level3">
+<h3>Reliability</h3>
+<p>Conflara was tested against six standard reliability criteria:</p>
+<div class="tablewrap"><table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Criterion</th>
+<th>What it means for the firm</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A repeated action counts once</td>
+<td>A double click or a retried connection never records something
+twice</td>
+</tr>
+<tr class="even">
+<td>The change and its audit entry are saved together</td>
+<td>Nobody ever sees a change that was not fully saved and logged</td>
+</tr>
+<tr class="odd">
+<td>The log can rebuild everything</td>
+<td>The audit log alone reproduces the firm’s data exactly, and Conflara
+checks this</td>
+</tr>
+<tr class="even">
+<td>Lost access ends at once</td>
+<td>A disabled or demoted person stops receiving data immediately</td>
+</tr>
+<tr class="odd">
+<td>Two people editing at once</td>
+<td>If two people change the same thing at the same moment, the first is
+kept and the second is told who changed it, so nothing is silently
+overwritten</td>
+</tr>
+<tr class="even">
+<td>Measured performance</td>
+<td>Published load-test results, below</td>
+</tr>
+</tbody>
+</table></div>
+</section>
+<section id="performance-at-the-firms-size" class="level3">
+<h3>Performance at the firm’s size</h3>
+<p>The load test played all 229 people of a simulated 200-lawyer firm at
+once, each with their own sign-in and live screen, making changes at set
+rates for a minute at a time. A typical firm of that size has about
+50,000 party names.</p>
+<div class="tablewrap"><table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Party names</th>
+<th>Changes per second across the firm</th>
+<th>Time for a change to reach every screen (typical / slow)</th>
+<th>Server memory</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>50,000</td>
+<td>1</td>
+<td>0.4 s / 0.5 s</td>
+<td>1.0 GB</td>
+</tr>
+<tr class="even">
+<td>50,000</td>
+<td>10</td>
+<td>0.4 s / 0.7 s</td>
+<td>1.2 GB</td>
+</tr>
+<tr class="odd">
+<td>250,000</td>
+<td>1</td>
+<td>0.7 s / 1.0 s</td>
+<td>2.4 GB</td>
+</tr>
+<tr class="even">
+<td>250,000</td>
+<td>5</td>
+<td>0.9 s / 1.6 s</td>
+<td>3.0 GB</td>
+</tr>
+</tbody>
+</table></div>
+<p>One change a second is about 29,000 changes in an eight-hour day,
+well above what a firm of about 200 lawyers records on an ordinary day
+(an estimate). Every run had no failed requests, every simultaneous edit
+of the same item was resolved correctly, and the audit log verified and
+rebuilt the data exactly. After a restart with everyone’s browser open,
+all 229 people were back in within 9 seconds at 50,000 names and within
+a minute at 250,000. A firm with a million or more names would need a
+larger server.</p>
+</section>
+<section id="trying-changes-safely" class="level3">
+<h3>Trying changes safely</h3>
+<p>A separate test firm with fictional data lets the conflicts team and
+administrators try approval routes, intake questions, imports, templates
+and AI settings without touching real records. Test data never reaches
+live data, never sends email and never calls an outside AI. When a
+change works, an administrator reviews the differences and promotes it
+to the live firm, and the promotion is recorded.</p>
+</section>
+<section id="desktop-app-for-it" class="level3">
+<h3>Desktop app for IT</h3>
+<ul>
+<li>Installs per user or for all users, silently if wanted, with a
+first-run setup.</li>
+<li>An IT policy file can fix settings for every user, such as the firm
+server’s address.</li>
+<li>In single-computer mode, data stays in a folder on that computer,
+keys are kept in the operating system’s secure store, and the app
+accepts connections only from that computer. Full-disk encryption should
+be on.</li>
+</ul>
+</section>
+</section>
+<section id="rollout" class="level2">
+<h2>Rollout and FAQ</h2>
+<p>The safest path is a pilot that proves Conflara finds what the firm’s
+current process finds, on the firm’s own past searches, before anyone
+relies on it.</p>
+<section id="a-pilot-in-five-stages" class="level3">
+<h3>A pilot in five stages</h3>
+<ol type="1">
+<li><strong>IT and security review.</strong> Firm IT reviews this sheet
+and the security documentation, and installs Conflara on a test server
+inside the firm.</li>
+<li><strong>Load a copy of the records.</strong> The conflicts team
+imports a copy of the firm’s party and matter records through the
+checked import, and connects Aderant by report upload.</li>
+<li><strong>Side-by-side test on past searches.</strong> Past searches
+with known outcomes (a few hundred, including those that found real
+conflicts) are run again in Conflara. The conflicts team labels each hit
+without knowing which system found it. The bar is <strong>no missed
+conflicts</strong>, few missed relevant hits, and no flood of false
+alarms. A scoring tool for this comparison is included.</li>
+<li><strong>Parallel running.</strong> For a set period, new requests go
+through both the current process and Conflara, so the conflicts team can
+compare speed and results on live work.</li>
+<li><strong>Go-live decision.</strong> Leadership decides on go-live,
+which features to switch on (AI, folder creation, wall enforcement in
+other systems), and the firm’s approval routes and templates.</li>
+</ol>
+<p>If the firm prefers not to load real records at first, the pilot can
+start with names only, or entirely on fictional data in the test
+firm.</p>
+</section>
+<section id="to-confirm-before-go-live" class="level3">
+<h3>To confirm before go-live</h3>
+<ul>
+<li>Independent penetration test of the firm’s install</li>
+<li>Sign-in tested through the firm’s Entra tenant and Conditional
+Access</li>
+<li>Aderant export column names confirmed with the firm’s Aderant team,
+and how a bill hold is marked</li>
+<li>Matter folder creation tried on one matter in a test iManage or
+SharePoint library</li>
+<li>Wall enforcement in iManage, SharePoint and Microsoft 365 tried in
+read-only mode first</li>
+<li>General counsel review of engagement letter, waiver and consent
+templates</li>
+<li>Approval routes, practice screens and intake questions set to the
+firm’s policies</li>
+<li>Backup storage, restore drill and audit fingerprint storage agreed
+with IT</li>
+<li>Choice of AI: none, local model (and which machine), or external
+provider</li>
+</ul>
+</section>
+<section id="frequently-asked-questions" class="level3">
+<h3>Frequently asked questions</h3>
+<p><strong>Does Conflara replace Aderant?</strong> No. Aderant stays the
+billing system and the source of client, matter and entity records.
+Conflara reads from it and sends opened matters back.</p>
+<p><strong>Who owns and holds the data?</strong> The firm. On a firm
+server, the data never leaves the firm’s systems. It is kept in a
+standard PostgreSQL database and can be exported to spreadsheets at any
+time.</p>
+<p><strong>Can our previous conflicts history come across?</strong>
+Parties, clients, matters and their details can be imported from any
+export. Earlier search logs and clearance memos stay in the previous
+system’s archive for reference.</p>
+<p><strong>Does the AI make conflicts decisions?</strong> No. It
+suggests and helps draft, every suggestion is marked ✦, and a person
+decides. The firm can run Conflara with no AI at all.</p>
+<p><strong>Does any client information go to an outside AI
+company?</strong> Not unless the firm deliberately turns that on, in two
+separate steps. Even then, walled, restricted, highly confidential and
+health information records are never sent, and every call is logged.</p>
+<p><strong>Can a lawyer see a matter they are walled from?</strong> The
+server never sends it to them, in any screen, search, export or AI note.
+Attempts to open walled records are logged.</p>
+<p><strong>What happens if two people edit the same thing?</strong> One
+person works on a form at a time. If two people change the same detail
+at the same moment, the first is kept and the second is told who changed
+it.</p>
+<p><strong>Does Conflara sign engagement letters or waivers?</strong>
+Never. People upload signed copies and record who signed.</p>
+<p><strong>What if the server stops?</strong> Every change is saved to
+the database with its audit entry before anyone sees it, so a restart
+loses nothing. Nightly encrypted backups and a tested restore cover the
+loss of the server itself.</p>
+<p><strong>How are people trained?</strong> Each role gets a short
+walkthrough the first time they use Conflara, plus a glossary, printable
+quick-start sheets, and a test firm with fictional data to practise
+in.</p>
+<p><strong>How is support handled without exposing client data?</strong>
+Support works from a redacted support bundle and, when needed, a made-up
+test firm of the same size. Support terms and service levels would be
+agreed with the firm.</p>
+<p><strong>What about licensing and cost?</strong> Commercial terms are
+discussed separately from this sheet.</p>
+</section>
+</section>
+
+  <footer>Conflicts Desk Information Sheet · Document version 1.0 · Conflara build 110baed · 17 October 2026</footer>
+</main>
+</body>
+</html>
