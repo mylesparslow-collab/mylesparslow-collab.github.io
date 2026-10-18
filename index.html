@@ -236,6 +236,9 @@ span.note { font-style: italic; color: var(--muted); }
       <div class="toc-col">
       <p class="toc-group"><a href="#g-history">Research and history</a></p>
       <a href="#byzantium">Byzantium <span>mosaic atlas</span></a>
+      <a href="#mecfs">ME/CFS evidence map <span>medical research</span></a>
+      <a href="#aftercare">Clear Aftercare <span>patient tool</span></a>
+      <a href="#citationaudit">Guideline citation audit <span>evidence check</span></a>
       </div>
       <div class="toc-col">
       <a href="#tools">Which AI for what <span>by project</span></a>
@@ -1474,7 +1477,7 @@ span.note { font-style: italic; color: var(--muted); }
   <section class="group" id="g-history">
     <div class="group-head">
       <h2>Research and history</h2>
-      <p>Reference works and original research.</p>
+      <p>Reference works and original research, including medical research.</p>
     </div>
   <!-- BYZANTIUM -->
   <details class="case" id="byzantium">
@@ -1545,7 +1548,152 @@ span.note { font-style: italic; color: var(--muted); }
     </div>
   </details>
 
-  <!-- NOBEL MEDICAL WRITE-UP GOES HERE -->
+  <!-- ME/CFS EVIDENCE MAP -->
+  <details class="case" id="mecfs">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 15 · Medical research</span>
+      <h2>ME/CFS and Long COVID evidence map</h2>
+      <p class="sum">Thousands of small studies have measured something in people with ME/CFS or Long COVID, and few results have been checked against each other. This project read the whole PubMed literature, pulled out every measured finding with its quote, and graded which ones independent labs have actually replicated.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><span>Research write-up in progress, not peer reviewed. Data release planned once a person has checked a sample</span></p>
+
+    <dl class="stats">
+      <div><dt>Abstracts screened</dt><dd>15,923</dd></div>
+      <div><dt>Studies in the database</dt><dd>1,981</dd></div>
+      <div><dt>Findings, each with its source quote</dt><dd>7,337</dd></div>
+      <div><dt>Findings graded strong (ME/CFS / Long COVID)</dt><dd>17 / 33</dd></div>
+      <div><dt>Predicted gene sets that came up in the genetics test</dt><dd>0 of 19</dd></div>
+      <div><dt>Brain tissues enriched in the genetics test</dt><dd>11 of 13</dd></div>
+    </dl>
+
+    <div class="cols">
+      <section class="block">
+        <h3>The problem</h3>
+        <p>ME/CFS has been studied for decades and Long COVID has added thousands of papers in a few years, but most studies are small and many contradict each other. Nobody had pulled the whole literature into one table that says which findings hold up across independent labs and which do not.</p>
+      </section>
+      <section class="block">
+        <h3>What it does</h3>
+        <ul>
+          <li><strong>Extracts every finding</strong> from each abstract: what was measured, in whom, against which comparison group, and in which direction, with the sentence it came from.</li>
+          <li><strong>Grades replication by lab, not by paper,</strong> so a group publishing the same cohort five times counts once. Replicated nulls are kept too, such as the 11 of 11 labs that found no XMRV.</li>
+          <li><strong>Compares the two illnesses</strong> side by side. Both show the same circulation and exercise picture: a racing heart on standing, a lower stroke volume and reduced peak oxygen uptake.</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="cols">
+      <section class="block">
+        <h3>A prediction written down first, and it failed</h3>
+        <p>The replicated findings suggested an immune, vascular and autonomic chain. Before opening any genetic data, the predictions were written down and locked with a file hash. They were then tested against the open DecodeME genome study with MAGMA gene-set and tissue analysis. None of the 19 gene sets bet on came up, and a rival mitochondrial idea failed too. The signal sat in the brain: 11 of 13 brain tissues and the pituitary were enriched, and arteries ranked last of 54 tissues. The write-up says so plainly. It agrees with what the DecodeME team reported themselves, so it is an independent check rather than a new discovery.</p>
+      </section>
+      <section class="block">
+        <h3>How far to trust it</h3>
+        <ul>
+          <li><strong>Quotes are checked by code:</strong> every quote was matched word for word against its abstract.</li>
+          <li><strong>Errors were measured, not assumed.</strong> A blind second extraction of 10% of abstracts and a strict audit found roughly 10 to 15% of rows wrong, mostly Long COVID comparison groups. A full audit of every finding behind the main grades then dropped 17% of them.</li>
+          <li><strong>All of these checks were done by AI.</strong> A human spot-check of 100 random rows is still to do, and the work reads abstracts only.</li>
+          <li><strong>The mechanism comparison was not blind.</strong> It was written after seeing the data, and the best-fitting chain matches what several research groups already argue.</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>Built with Claude, under my direction, across several long Claude sessions. Claude wrote the search and grading code, ran the extraction in batches of 100 abstracts, audited its own output and ran the genetics pipeline. I directed the work and made the calls along the way, including writing the genetics predictions down before the test and reporting the result when it failed.</p></div>
+    </div>
+  </details>
+
+  <!-- CLEAR AFTERCARE -->
+  <details class="case" id="aftercare">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 16 · Patient tool</span>
+      <h2>Clear Aftercare</h2>
+      <p class="sum">Discharge papers are written in abbreviations and handed to people who are tired, unwell or 80 years old. Paste them in and get a plain-language care sheet plus a calendar reminder for every dose, task and appointment, with anything unclear marked instead of guessed.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="demos/clear-aftercare.html" target="_blank" rel="noopener">Try the demo</a><span>The example and calendar buttons work on this site; reading new instructions runs inside Claude</span></p>
+
+    <dl class="stats">
+      <div><dt>Things flagged for checking in the example</dt><dd>11</dd></div>
+      <div><dt>Medicines, doses or times it is allowed to add</dt><dd>0</dd></div>
+      <div><dt>Calendar formats (Google and .ics files)</dt><dd>2</dd></div>
+    </dl>
+
+    <div class="shots">
+      <figure>
+        <img src="assets/aftercare-1.jpg" alt="Clear Aftercare input screen with an emergency department discharge note pasted in, full of abbreviations such as PO BID x 7 days and PRN, and a visit date." width="1400" height="900" loading="lazy">
+        <figcaption>The input: an invented emergency department discharge for an 81-year-old with pneumonia, as it would be printed.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/aftercare-2.jpg" alt="The resulting care sheet: a plain-language summary of the visit, a red box of reasons to go back to the emergency room, and the first medicine card showing what it is for, how much and when." width="1400" height="900" loading="lazy">
+        <figcaption>The care sheet. Eleven gaps, such as "2 times a day" with no clock times, are marked for the patient to fill in or ask about.</figcaption>
+      </figure>
+    </div>
+
+    <div class="cols">
+      <section class="block">
+        <h3>What it does</h3>
+        <ul>
+          <li><strong>Rewrites, never adds.</strong> Abbreviations become plain words, but the prompt forbids adding any medicine, dose, time, duration or advice that is not on the paper.</li>
+          <li><strong>Flags the gaps:</strong> twice a day with no times, a dose in mg with no pill strength, "continue home meds" with no list, a follow-up nobody booked.</li>
+          <li><strong>Turns on reminders only when they are complete.</strong> Calendar buttons switch on once times, start date and number of days are set, with one-click presets such as 8 AM and 8 PM.</li>
+          <li><strong>Built for the reader:</strong> a large-text toggle, a dose checklist, a print view and a rough reading-grade score.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>Honest about the limits</h3>
+        <p>No clinician has checked its output, and errors in AI-written patient summaries are a known risk in published studies. AI rewrites of discharge instructions have been studied before; what this adds is going in one step from the paper to calendar entries, with explicit "won't guess" flags. The patient in the example is invented.</p>
+      </section>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>Built with Claude as a single page that calls Claude to read the instructions. Claude wrote the page, the prompt, the calendar files and the example, and checked prior work in the field, under my direction.</p></div>
+    </div>
+  </details>
+
+  <!-- TRAUMA GUIDELINE CITATION AUDIT -->
+  <details class="case" id="citationaudit">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 17 · Medical evidence check</span>
+      <h2>Trauma guideline citation audit</h2>
+      <p class="sum">Military trauma guidelines tell medics and surgeons what to do, and each recommendation cites a paper. This audit checked whether the cited papers say what the guidelines claim, and found reference lists whose numbers had slipped out of line.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><span>Write-up in progress. Results below are from AI checks except where noted</span></p>
+
+    <dl class="stats">
+      <div><dt>Public Joint Trauma System guidelines</dt><dd>11</dd></div>
+      <div><dt>Statement and citation pairs</dt><dd>672</dd></div>
+      <div><dt>Wrong-topic citations, all present in the printed PDFs</dt><dd>65</dd></div>
+      <div><dt>Cited papers retracted</dt><dd>0</dd></div>
+    </dl>
+
+    <div class="cols">
+      <section class="block">
+        <h3>What it found</h3>
+        <ul>
+          <li><strong>Shifted reference numbers.</strong> In the pain, anxiety and delirium guideline, 24 of 27 wrong-topic citations fit the entry two numbers later, so the in-text numbers look keyed to a different list. The TBI neurosurgery guideline shows a shift of one in its later references.</li>
+          <li><strong>Smaller slips elsewhere:</strong> two swapped references in one guideline and a reference reused for every cross-reference in another.</li>
+          <li><strong>56 specific citations</strong> are listed for a person to confirm by opening the PDF and reading the two entries.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>Decisions behind it</h3>
+        <ul>
+          <li><strong>Lead with what anyone can check.</strong> A shifted reference number is verifiable in minutes, so it is the headline, not a subjective "does this paper support it" grade.</li>
+          <li><strong>Distrust the big number.</strong> AI grading flagged about 38% of citations as unsupported, but that fell to 18% when the full paper was available instead of the abstract, so it is reported as a likely overestimate.</li>
+          <li><strong>Second opinion, labelled as such.</strong> ChatGPT re-graded 150 items and agreed with Claude well (kappa 0.76). That is two AI models agreeing, not human validation.</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>Built with Claude under my direction. Claude downloaded the guidelines, extracted every cited statement, matched each reference to PubMed, graded support and ran the reference-shift test; ChatGPT did the second-model check. Checking citation accuracy is an established research field; the contribution here is the specific, correctable errors in these guidelines.</p></div>
+    </div>
+  </details>
   </section>
 
   <!-- WHICH AI -->
@@ -1566,6 +1714,9 @@ span.note { font-style: italic; color: var(--muted); }
       <div><h4>VigilMark</h4><p><strong>Built with:</strong> Google Gemini.<br><strong>Runs on:</strong> no AI model: scoring is plain, explainable rules.</p></div>
       <div><h4>Fieldwork</h4><p><strong>Built with:</strong> ChatGPT and Codex, including the native Mac app.<br><strong>Runs on:</strong> an optional local model through Ollama, whose output the app labels an unverified hypothesis; scoring, readiness and every gate are plain rules.</p></div>
       <div><h4>RSC Tool</h4><p><strong>Built with:</strong> Claude Code.<br><strong>Runs on:</strong> small local models (for example Llama or Qwen), chosen so it runs on a modest desktop.</p></div>
+      <div><h4>ME/CFS evidence map</h4><p><strong>Built with:</strong> Claude, including extraction, audits and the genetics pipeline.<br><strong>Runs on:</strong> no AI at query time: grading and statistics are plain code over the extracted table.</p></div>
+      <div><h4>Clear Aftercare</h4><p><strong>Built with:</strong> Claude.<br><strong>Runs on:</strong> Claude, inside the user’s own Claude account. Calendar files are built in the page.</p></div>
+      <div><h4>Trauma guideline citation audit</h4><p><strong>Built with:</strong> Claude for extraction and grading, ChatGPT as an independent second grader.<br><strong>Runs on:</strong> the reference-shift test is plain code.</p></div>
       <div><h4>Byzantium</h4><p><strong>Built with:</strong> Claude Code, one long session.<br><strong>Runs on:</strong> no AI at runtime: it is a static site over prebuilt data.</p></div>
       <div><h4>CatGPT</h4><p><strong>Built with:</strong> Claude Code.<br><strong>Runs on:</strong> local models through Ollama or any OpenAI-compatible server, whisper.cpp for speech input, local voice cloning, local Stable Diffusion for pictures, and a local embedding model for shared memory.</p></div>
       <div><h4>Money Desk</h4><p><strong>Built with:</strong> Claude Code.<br><strong>Runs on:</strong> local models, with a vision model for photo listings.</p></div>
