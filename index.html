@@ -632,19 +632,21 @@ span.note { font-style: italic; color: var(--muted); }
   <details class="case" id="citationgate">
     <summary class="case-sum">
       <div class="shelf-head">
-      <span class="eyebrow">Case study 11 · Litigation safeguard</span>
+      <span class="eyebrow">Case study 11 · Litigation screen</span>
       <h2>Citation Gate</h2>
-      <p class="sum">The last check before a brief is filed. Every case cited is looked up in a database of real opinions, every quotation is matched word for word against the court’s text, and Claude reads the actual opinion to judge whether it says what the brief claims.</p>
+      <p class="sum">A first-pass screen before the citator check, not a citator. Every case cited is looked up in a database of real opinions, every quotation is matched word for word against the court’s text, and Claude reads the actual opinion to judge whether it says what the brief claims.</p>
       </div>
     </summary>
     <div class="case-body">
       <p class="links"><span>No public demo here: screenshots only, since it needs a 28 MB opinion index. All cases and briefs are invented</span></p>
 
+    <div class="made"><b>Not a citator. Does not replace Westlaw or Lexis.</b><p>It checks citations and quotations against a partial index of about 256,000 opinions from CourtListener&rsquo;s free public data (California Supreme Court, Court of Appeal, Ninth Circuit and U.S. Supreme Court, snapshot of September 30, 2026), and recent official California citations are often missing from it. It has no KeyCite or Shepard&rsquo;s data, so it cannot tell you that a case was overruled, reversed, depublished, ordered not published, or is uncitable under California Rules of Court, rule 8.1115. A result of &ldquo;no issues found&rdquo; means only that this tool found no problem in what it checks. Before filing, an attorney must verify every authority on a citator and remains responsible for every citation.</p></div>
+
     <dl class="stats">
       <div><dt>Citations in the test brief</dt><dd>7</dd></div>
       <div><dt>Problems planted</dt><dd>4</dd></div>
       <div><dt>Problems caught</dt><dd>4</dd></div>
-      <div><dt>Opinions in the index</dt><dd>256,000</dd></div>
+      <div><dt>Opinions in the partial index</dt><dd>256,000</dd></div>
       <div><dt>Verdict on the brief</dt><dd>Hold, do not file</dd></div>
       <div><dt>Checked against</dt><dd>Court’s own text</dd></div>
     </dl>
@@ -672,7 +674,7 @@ span.note { font-style: italic; color: var(--muted); }
           <li><strong>Looks up each case</strong> in a local index built from CourtListener, and flags a citation that belongs to a different case.</li>
           <li><strong>Matches every quotation</strong> against the opinion text, word for word, and marks the words that differ.</li>
           <li><strong>Reads the opinion</strong> to judge whether it supports the point, and routes anything uncertain to a lawyer.</li>
-          <li><strong>Signs off:</strong> a table a lawyer signs, exported as a file or CSV.</li>
+          <li><strong>Signs off:</strong> a table a lawyer signs, exported as a file or CSV. The sign-off states that every authority was also checked on KeyCite or Shepard&rsquo;s.</li>
         </ul>
       </section>
     </div>
@@ -682,13 +684,13 @@ span.note { font-style: italic; color: var(--muted); }
         <h3>Decisions behind it</h3>
         <ul>
           <li><strong>Lookup first, model second.</strong> Existence and quotation checks are plain code against real text; the model only judges support.</li>
-          <li><strong>No text, no pass.</strong> A case with no opinion on file is marked for a lawyer and never cleared.</li>
-          <li><strong>Say what it did not check.</strong> Statutes and rules are listed as not checked by this tool.</li>
+          <li><strong>No text, no pass.</strong> A case with no opinion on file is marked for a lawyer and never passed.</li>
+          <li><strong>Say what it did not check.</strong> Statutes and rules are listed as not checked, and even a clean result is stamped &ldquo;no issues found, citator check still required.&rdquo;</li>
         </ul>
       </section>
       <section class="block">
         <h3>What the recorded run showed</h3>
-        <p>On a 7-case brief with problems planted, it blocked all four: two made-up or mismatched cases, one misquote and one wrong proposition. It cleared the two accurate citations and sent the rest to a lawyer rather than guessing.</p>
+        <p>On a 7-case brief with problems planted, it blocked all four: two made-up or mismatched cases, one misquote and one wrong proposition. It found no problem with the two accurate citations, which still need a citator check, and sent the rest to a lawyer rather than guessing.</p>
       </section>
     </div>
 
