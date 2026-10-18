@@ -1,0 +1,612 @@
+<title>Clear Aftercare</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;600;800&family=Atkinson+Hyperlegible+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: one calm column. Step 1 paste, step 2 a printable care sheet in big type, every item with its own calendar buttons. */
+:root{
+  --paper:#fbfaf7; --card:#ffffff; --ink:#14232b; --ink-2:#44545c; --line:#d9dcd6;
+  --accent:#0d5c63; --accent-ink:#ffffff; --accent-soft:#e3f0ef;
+  --danger:#a8201a; --danger-soft:#fbe9e7; --warn:#8a5a00; --warn-soft:#fff3d6; --ok:#2c6e2f;
+  --f-body:"Atkinson Hyperlegible Next","Atkinson Hyperlegible",Verdana,Tahoma,sans-serif;
+  --f-mono:"Atkinson Hyperlegible Mono",ui-monospace,Menlo,Consolas,monospace;
+  --scale:1;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0f171b; --card:#16222a; --ink:#eef3f2; --ink-2:#b4c2c4; --line:#2c3a41;
+  --accent:#5ec4c9; --accent-ink:#06282b; --accent-soft:#163339;
+  --danger:#ff8a80; --danger-soft:#3a1715; --warn:#ffcf66; --warn-soft:#352a10; --ok:#8fd694; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0f171b; --card:#16222a; --ink:#eef3f2; --ink-2:#b4c2c4; --line:#2c3a41;
+  --accent:#5ec4c9; --accent-ink:#06282b; --accent-soft:#163339;
+  --danger:#ff8a80; --danger-soft:#3a1715; --warn:#ffcf66; --warn-soft:#352a10; --ok:#8fd694; color-scheme:dark}
+html{font-size:calc(18px * var(--scale))}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:1rem;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 60px}
+.wrap{max-width:46rem;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+h1,h2,h3{text-wrap:balance;line-height:1.2;margin:0}
+h1{font-size:2rem;font-weight:800}
+h2{font-size:1.5rem;font-weight:800}
+h3{font-size:1.3rem;font-weight:800}
+p{margin:0}
+.muted{color:var(--ink-2)}
+.eyebrow{font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--ink-2)}
+.time{font-family:var(--f-mono);font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+button,.btn{font:inherit;font-size:.95rem;font-weight:600;border-radius:10px;border:2px solid var(--accent);background:var(--card);color:var(--accent);
+  padding:.55rem .9rem;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:.4rem;min-height:44px}
+button.primary,.btn.primary{background:var(--accent);color:var(--accent-ink)}
+button:disabled{opacity:.45;cursor:not-allowed}
+button:focus-visible,.btn:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--warn);outline-offset:2px}
+input,textarea,select{font:inherit;color:var(--ink);background:var(--card);border:2px solid var(--line);border-radius:8px;padding:.45rem .6rem}
+textarea{width:100%;box-sizing:border-box;min-height:16rem;font-family:var(--f-mono);font-size:.85rem;line-height:1.45}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.notice{font-size:.85rem;color:var(--ink-2)}
+.status{font-weight:600}
+.status.err{color:var(--danger)}
+
+/* the care sheet */
+.sheet{display:flex;flex-direction:column;gap:28px}
+.sheet-head{display:flex;flex-direction:column;gap:8px;border-bottom:3px solid var(--ink);padding-bottom:16px}
+.sec{display:flex;flex-direction:column;gap:14px}
+.sec>h2{display:flex;align-items:baseline;gap:.6rem}
+.help{background:var(--danger-soft);border:3px solid var(--danger);border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:10px}
+.help h2{color:var(--danger)}
+.help ul{margin:0;padding-left:1.3rem;display:flex;flex-direction:column;gap:6px;font-size:1.1rem}
+.item{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:12px}
+.item.stop{border:3px solid var(--danger)}
+.tag{display:inline-block;font-size:.75rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;border-radius:6px;padding:.15rem .5rem;background:var(--accent-soft);color:var(--accent)}
+.tag.stop{background:var(--danger-soft);color:var(--danger)}
+.tag.warn{background:var(--warn-soft);color:var(--warn)}
+dl.facts{display:grid;grid-template-columns:minmax(7rem,auto) 1fr;gap:8px 16px;margin:0}
+dl.facts dt{font-weight:800}
+dl.facts dd{margin:0;min-width:0}
+@media (max-width:520px){dl.facts{grid-template-columns:1fr;gap:2px}dl.facts dd{margin-bottom:8px}}
+.times{display:flex;flex-wrap:wrap;gap:8px}
+.times .time{background:var(--accent-soft);color:var(--ink);border-radius:8px;padding:.2rem .6rem;font-size:1.15rem}
+.fix{background:var(--warn-soft);border:2px dashed var(--warn);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.fix strong{color:var(--warn)}
+.cal{display:flex;flex-wrap:wrap;gap:8px;padding-top:4px;border-top:1px solid var(--line)}
+.cal .lbl{width:100%;font-size:.85rem;color:var(--ink-2);padding-top:8px}
+.orig{font-size:.8rem;color:var(--ink-2)}
+.orig code{font-family:var(--f-mono)}
+.chart-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+table.chart{border-collapse:collapse;min-width:100%;font-size:.95rem}
+table.chart th,table.chart td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:center;white-space:nowrap}
+table.chart th:first-child,table.chart td:first-child{text-align:left;position:sticky;left:0;background:var(--card)}
+table.chart input{width:1.6rem;height:1.6rem;accent-color:var(--accent)}
+ul.plain{margin:0;padding-left:1.3rem;display:flex;flex-direction:column;gap:6px}
+.qs{background:var(--warn-soft);border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:10px}
+.foot{font-size:.85rem;color:var(--ink-2);border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+.icsbox{display:flex;flex-direction:column;gap:10px}
+.icsbox textarea{min-height:8rem}
+.screen-only{}
+@media print{.screen-only,.cal,.fix{display:none!important}body{background:#fff;color:#000}.item,.help{break-inside:avoid}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top screen-only">
+    <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+      <p class="eyebrow">After your visit</p>
+      <h1>Clear Aftercare</h1>
+      <p class="muted">Paste the instructions from a clinic, ER or hospital visit. You get a plain-language care sheet and one-click calendar reminders for every dose, task and appointment.</p>
+    </div>
+    <div class="tools">
+      <button id="bigger" type="button" aria-label="Make text bigger">A+</button>
+      <button id="smaller" type="button" aria-label="Make text smaller">A−</button>
+      <button id="printBtn" type="button" hidden>Print</button>
+    </div>
+  </header>
+
+  <section class="panel screen-only" aria-labelledby="step1">
+    <h2 id="step1">1. Paste the instructions</h2>
+    <p class="muted">Type or paste exactly what the doctor, nurse or discharge paper says. The tool only rewrites what is there. It never adds medicines, doses or times. Anything unclear is marked for you to check.</p>
+    <textarea id="src" aria-label="Visit or discharge instructions"></textarea>
+    <div class="row">
+      <label for="visitDate"><strong>Visit date</strong></label>
+      <input id="visitDate" type="date">
+    </div>
+    <div class="row">
+      <button id="go" class="primary" type="button">Make my care sheet</button>
+      <button id="stop" type="button" hidden>Stop</button>
+      <button id="loadSample" type="button">Load the example</button>
+      <span id="status" class="status" role="status" aria-live="polite"></span>
+    </div>
+    <p class="notice" id="aiNote">Making a new sheet asks Claude to read the text, so you may be asked to allow that the first time.</p>
+  </section>
+
+  <section class="panel screen-only" id="calAll" aria-labelledby="step2">
+    <h2 id="step2">2. Put it all in your calendar</h2>
+    <p class="muted">One file with every reminder below. It opens in Apple Calendar, Outlook and most phones. For Google Calendar, use the Google buttons on each item.</p>
+    <div class="row"><button id="icsAll" class="primary" type="button">Add everything (.ics file)</button><span id="calCount" class="muted"></span></div>
+    <div id="icsFallback" class="icsbox" hidden></div>
+  </section>
+
+  <article class="sheet" id="sheet" aria-label="Care sheet"></article>
+</div>
+
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad = n => String(n).padStart(2, "0");
+
+/* ---------- dates and times ---------- */
+function todayISO(){const d=new Date();return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`}
+function parseISO(s){if(!s||!/^\d{4}-\d{2}-\d{2}$/.test(s))return null;const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)}
+function toISO(d){return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`}
+function addDays(s,n){const d=parseISO(s);if(!d)return null;d.setDate(d.getDate()+n);return toISO(d)}
+function fmtDay(s,withYear){const d=parseISO(s);if(!d)return "";return d.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",...(withYear?{year:"numeric"}:{})})}
+function fmtShort(s){const d=parseISO(s);if(!d)return "";return d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})}
+function fmtTime(t){if(!t||!/^\d{1,2}:\d{2}$/.test(t))return "";let [h,m]=t.split(":").map(Number);const ap=h>=12?"PM":"AM";h=h%12||12;return `${h}:${pad(m)} ${ap}`}
+function sortTimes(a){return [...new Set(a.filter(t=>/^\d{1,2}:\d{2}$/.test(t)).map(t=>{const [h,m]=t.split(":");return `${pad(+h)}:${m}`}))].sort()}
+function plusMinutes(t,mins){let [h,m]=t.split(":").map(Number);let x=h*60+m+mins;return {t:`${pad(Math.floor(x/60)%24)}:${pad(x%60)}`,nextDay:x>=1440}}
+
+/* ---------- the example ---------- */
+const SAMPLE_TEXT = `EMERGENCY DEPARTMENT DISCHARGE INSTRUCTIONS
+Pt: Margaret Ellis, 81 y/o F
+Dx: Community-acquired pneumonia, RLL. O2 sat 94% RA at discharge.
+
+Rx:
+1. Amoxicillin-clavulanate (Augmentin) 875-125 mg PO BID x 7 days. Take w/ food. Complete full course.
+2. Acetaminophen (Tylenol) 650 mg PO q6h PRN pain or fever. Max 3 g/24h.
+3. Benzonatate 100 mg PO TID PRN cough. Swallow whole, do not chew.
+
+Continue home meds. HOLD lisinopril until PCP f/u (BP 104/62 in ED).
+
+Incentive spirometer 10x/hr while awake.
+Push PO fluids.
+
+F/u PCP Dr. Anita Patel in 2-3 days. Riverside Family Medicine, 410 Mill St. Tel (555) 201-4478.
+Repeat CXR in 6 wks to confirm resolution.
+
+RTED for: SOB or worse breathing, CP, fever >101.5 F despite Tylenol, new confusion, unable to keep fluids down, lips or fingertips turning blue.`;
+
+function sampleData(v){
+  return {
+    patient:{name:"Margaret Ellis"},
+    visit:{date:v, place:"Emergency Department", reason:"You have pneumonia. That is an infection in your lungs. It is in the lower part of your right lung.",
+      extra:"When you left, your oxygen level was 94% on regular air."},
+    help:{
+      title:"Go back to the Emergency Room right away if:",
+      items:["Your breathing gets harder, or you feel short of breath.","You have chest pain.","Your fever is over 101.5 °F, even after taking Tylenol.","You become confused, or someone says you are not acting like yourself.","You cannot keep fluids down (you keep throwing up).","Your lips or fingertips turn blue."],
+      call_doctor:[]
+    },
+    meds:[
+      {name:"Augmentin", generic:"amoxicillin-clavulanate", kind:"scheduled", status:"new", purpose:"An antibiotic. It kills the germs causing your pneumonia.",
+       amount:"1 pill (875-125 mg)", how:"Swallow by mouth, with food.", times_per_day:2, every_hours:null, times:[], start_date:v, days:7, ongoing:false,
+       max_per_day:null, notes:["Take all of the pills, for all 7 days, even if you feel better."],
+       flags:["The paper says “2 times a day” but not what times. Pick 2 times about 12 hours apart, like 8 AM and 8 PM. Your pharmacist can help."],
+       original:"Amoxicillin-clavulanate (Augmentin) 875-125 mg PO BID x 7 days. Take w/ food. Complete full course."},
+      {name:"Tylenol", generic:"acetaminophen", kind:"as_needed", status:"new", purpose:"For pain or fever.",
+       amount:"650 mg", how:"Swallow by mouth.", times_per_day:null, every_hours:6, times:[], start_date:v, days:null, ongoing:false,
+       max_per_day:"No more than 3,000 mg in 24 hours.", notes:["Only take it when you have pain or fever.","Wait at least 6 hours between doses."],
+       flags:["The paper says 650 mg but not how many pills that is. Check the bottle: if each pill is 325 mg, 650 mg is 2 pills.","Many cold and flu medicines also have acetaminophen in them. Ask your pharmacist before taking any of them, so you stay under the daily limit."],
+       original:"Acetaminophen (Tylenol) 650 mg PO q6h PRN pain or fever. Max 3 g/24h."},
+      {name:"Benzonatate", generic:"", kind:"as_needed", status:"new", purpose:"For cough.",
+       amount:"100 mg", how:"Swallow the pill whole. Do not chew it.", times_per_day:3, every_hours:null, times:[], start_date:v, days:null, ongoing:false,
+       max_per_day:"No more than 3 times a day.", notes:["Only take it when you are coughing."],
+       flags:[], original:"Benzonatate 100 mg PO TID PRN cough. Swallow whole, do not chew."},
+      {name:"Lisinopril", generic:"", kind:"stop", status:"hold", purpose:"Your blood pressure medicine.",
+       amount:"", how:"", times_per_day:null, every_hours:null, times:[], start_date:v, days:null, ongoing:false, max_per_day:null,
+       notes:["Your blood pressure was low-normal in the ER (104/62).","Do not start it again until Dr. Patel tells you to."],
+       flags:[], original:"HOLD lisinopril until PCP f/u (BP 104/62 in ED)."},
+      {name:"Your other usual medicines", generic:"", kind:"continue", status:"continue", purpose:"",
+       amount:"", how:"", times_per_day:null, every_hours:null, times:[], start_date:v, days:null, ongoing:true, max_per_day:null,
+       notes:["Keep taking your usual medicines the way you did before."],
+       flags:["The paper does not list which medicines these are. Bring all your pill bottles to Dr. Patel, and ask the pharmacist if any of them mix badly with Augmentin."],
+       original:"Continue home meds."}
+    ],
+    tasks:[
+      {what:"Use your breathing exerciser (incentive spirometer)", kind:"scheduled", how:"Breathe in slowly through it, 10 times in a row. Do this every hour while you are awake.",
+       times_per_day:null, every_hours:1, awake_only:true, times:[], start_date:v, days:null, ongoing:false, notes:[],
+       flags:["The paper does not say for how many days. Ask Dr. Patel at your follow-up. Until then, keep doing it every day."],
+       original:"Incentive spirometer 10x/hr while awake."},
+      {what:"Drink plenty of fluids", kind:"info", how:"Drink water and other fluids often through the day.", times_per_day:null, every_hours:null, times:[], start_date:v, days:null, ongoing:false, notes:[],
+       flags:["The paper does not say how much. If a doctor has told you to limit fluids (for example for heart or kidney problems), ask before drinking more."],
+       original:"Push PO fluids."}
+    ],
+    appts:[
+      {with:"Dr. Anita Patel (your regular doctor)", why:"Check your pneumonia and your blood pressure, and decide about lisinopril.", where:"Riverside Family Medicine, 410 Mill St", phone:"(555) 201-4478",
+       date:null, time:null, window_start:addDays(v,2), window_end:addDays(v,3), notes:["You need to call to make this appointment."],
+       flags:["No date is booked yet. Call the office to book a visit 2 to 3 days after your ER visit."],
+       original:"F/u PCP Dr. Anita Patel in 2-3 days. Riverside Family Medicine, 410 Mill St. Tel (555) 201-4478."},
+      {with:"Chest X-ray", why:"To make sure the pneumonia is gone.", where:"", phone:"",
+       date:null, time:null, window_start:addDays(v,42), window_end:addDays(v,42), notes:["About 6 weeks after your ER visit."],
+       flags:["The paper does not say where to get the X-ray or who orders it. Ask Dr. Patel at your follow-up visit."],
+       original:"Repeat CXR in 6 wks to confirm resolution."}
+    ],
+    other:{food:[],activity:[],avoid:[],other:[]},
+    questions:[]
+  };
+}
+
+/* ---------- state ---------- */
+let state = null;
+let editingFromAI = false;
+function newId(){return Math.random().toString(36).slice(2,10)}
+function normalize(d){
+  const arr = x => Array.isArray(x) ? x.filter(v => v != null && String(v).trim() !== "").map(String) : [];
+  d = d && typeof d === "object" ? d : {};
+  d.patient = d.patient || {}; d.visit = d.visit || {};
+  d.help = d.help || {}; d.help.items = arr(d.help.items); d.help.call_doctor = arr(d.help.call_doctor);
+  d.help.title = d.help.title || "Get help right away if:";
+  const fixItem = (x) => { x = x || {}; x.id = x.id || newId(); x.notes = arr(x.notes); x.flags = arr(x.flags);
+    x.times = sortTimes(Array.isArray(x.times) ? x.times.map(String) : []);
+    x.days = Number.isFinite(+x.days) && +x.days > 0 ? Math.round(+x.days) : null;
+    x.every_hours = Number.isFinite(+x.every_hours) && +x.every_hours > 0 ? +x.every_hours : null;
+    x.times_per_day = Number.isFinite(+x.times_per_day) && +x.times_per_day > 0 ? Math.round(+x.times_per_day) : null;
+    if (!parseISO(x.start_date)) x.start_date = null; return x; };
+  d.meds = (Array.isArray(d.meds) ? d.meds : []).map(fixItem);
+  d.tasks = (Array.isArray(d.tasks) ? d.tasks : []).map(fixItem);
+  d.appts = (Array.isArray(d.appts) ? d.appts : []).map(a => { a = fixItem(a); if(!parseISO(a.date)) a.date = null; if(!/^\d{1,2}:\d{2}$/.test(a.time||"")) a.time = null;
+    if(!parseISO(a.window_start)) a.window_start = null; if(!parseISO(a.window_end)) a.window_end = a.window_start; a.remind_date = a.remind_date || null; a.remind_time = a.remind_time || null; return a; });
+  d.other = d.other || {}; ["food","activity","avoid","other"].forEach(k => d.other[k] = arr(d.other[k]));
+  d.questions = arr(d.questions);
+  return d;
+}
+
+/* ---------- schedule logic ---------- */
+function presetsFor(x){
+  const out = [];
+  const n = x.times_per_day, h = x.every_hours;
+  if (h && h >= 1) {
+    const list = []; const end = x.awake_only ? 21*60 : 24*60;
+    for (let m = 8*60; m < end + (x.awake_only ? 1 : 0) && list.length < 24; m += h*60) list.push(`${pad(Math.floor(m/60)%24)}:${pad(m%60)}`);
+    if (x.awake_only) out.push({label:`Every ${h===1?"hour":h+" hours"}, 8 AM to 9 PM`, times:list});
+    else out.push({label:list.map(fmtTime).join(", "), times:list});
+  }
+  const map = {1:[["08:00"],["20:00"]], 2:[["08:00","20:00"],["09:00","21:00"]], 3:[["08:00","14:00","20:00"]], 4:[["08:00","12:00","16:00","20:00"]]};
+  (map[n] || []).forEach(t => out.push({label:t.map(fmtTime).join(" and "), times:t}));
+  return out;
+}
+function needsTimes(x){return x.kind === "scheduled" && x.times.length === 0}
+function needsDays(x){return x.kind === "scheduled" && !x.days && !x.ongoing}
+function calReady(x){return x.kind === "scheduled" && x.times.length > 0 && x.start_date && (x.days || x.ongoing)}
+function apptEvent(a){
+  if (a.date) return {date:a.date, time:a.time, title:`Appointment: ${a.with}`, booked:true};
+  if (a.remind_date) return {date:a.remind_date, time:a.remind_time || "10:00", title: a.phone ? `Call to book: ${a.with}` : `Book: ${a.with}`, booked:false};
+  return null;
+}
+
+/* ---------- calendar output ---------- */
+const TZ = (()=>{try{return Intl.DateTimeFormat().resolvedOptions().timeZone||""}catch(e){return ""}})();
+const compact = (date,time) => date.replace(/-/g,"") + (time ? "T" + time.replace(":","") + "00" : "");
+function itemText(x, kindLabel){
+  const lines = [];
+  if (kindLabel === "med") {
+    if (x.purpose) lines.push(`What it's for: ${x.purpose}`);
+    if (x.amount) lines.push(`How much: ${x.amount}`);
+    if (x.how) lines.push(`How: ${x.how}`);
+    if (x.days && x.start_date) lines.push(`Last day: ${fmtDay(addDays(x.start_date, x.days-1))}`);
+  } else if (x.how) lines.push(x.how);
+  if (x.why) lines.push(x.why);
+  if (x.where) lines.push(`Where: ${x.where}`);
+  if (x.phone) lines.push(`Phone: ${x.phone}`);
+  x.notes.forEach(n => lines.push(n));
+  lines.push("", `Your instructions said: ${x.original || ""}`, "Made with Clear Aftercare from your care instructions. If this doesn't match what your care team told you, follow them and call to check.");
+  return lines.join("\n");
+}
+function itemTitle(x, kindLabel){
+  if (kindLabel === "med") return `Take ${x.name}${x.amount ? ": " + x.amount : ""}`;
+  return x.what;
+}
+function gcalUrl({title, date, time, minutes=15, details="", location="", rrule=""}){
+  let dates;
+  if (time) { const e = plusMinutes(time, minutes); dates = `${compact(date,time)}/${compact(e.nextDay?addDays(date,1):date, e.t)}`; }
+  else dates = `${compact(date)}/${compact(addDays(date,1))}`;
+  const p = new URLSearchParams({action:"TEMPLATE", text:title, dates, details:details.slice(0,1500), location});
+  if (TZ && time) p.set("ctz", TZ);
+  if (rrule) p.set("recur", "RRULE:" + rrule);
+  return "https://calendar.google.com/calendar/render?" + p.toString();
+}
+function rruleFor(x){return x.days ? `FREQ=DAILY;COUNT=${x.days}` : "FREQ=DAILY"}
+function icsEsc(s){return String(s).replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\r?\n/g,"\\n")}
+function fold(line){const out=[];let s=line;while(s.length>73){out.push(s.slice(0,73));s=" "+s.slice(73)}out.push(s);return out.join("\r\n")}
+function vevent({title,date,time,minutes=15,details="",location="",rrule="",alarms=["PT0M"]}){
+  const now = new Date(); const stamp = `${now.getUTCFullYear()}${pad(now.getUTCMonth()+1)}${pad(now.getUTCDate())}T${pad(now.getUTCHours())}${pad(now.getUTCMinutes())}${pad(now.getUTCSeconds())}Z`;
+  const L = ["BEGIN:VEVENT", `UID:${newId()}${newId()}@clear-aftercare`, `DTSTAMP:${stamp}`];
+  if (time) { const e = plusMinutes(time, minutes); L.push(`DTSTART:${compact(date,time)}`, `DTEND:${compact(e.nextDay?addDays(date,1):date, e.t)}`); }
+  else L.push(`DTSTART;VALUE=DATE:${compact(date)}`, `DTEND;VALUE=DATE:${compact(addDays(date,1))}`);
+  if (rrule) L.push(`RRULE:${rrule}`);
+  L.push(`SUMMARY:${icsEsc(title)}`, `DESCRIPTION:${icsEsc(details)}`);
+  if (location) L.push(`LOCATION:${icsEsc(location)}`);
+  alarms.forEach(a => L.push("BEGIN:VALARM","ACTION:DISPLAY",`DESCRIPTION:${icsEsc(title)}`,`TRIGGER:-${a}`,"END:VALARM"));
+  L.push("END:VEVENT"); return L.map(fold).join("\r\n");
+}
+function eventsFor(x, kindLabel){
+  const ev = [];
+  if (kindLabel === "appt") {
+    const a = apptEvent(x); if (!a) return ev;
+    ev.push({title:a.title, date:a.date, time:a.time, minutes:a.booked?60:15, details:itemText(x,"appt"), location:x.where||"",
+      alarms: a.booked ? (a.time ? ["P1D","PT2H"] : ["PT0M"]) : ["PT0M"]});
+    return ev;
+  }
+  if (!calReady(x)) return ev;
+  x.times.forEach(t => ev.push({title:itemTitle(x,kindLabel), date:x.start_date, time:t, details:itemText(x,kindLabel), rrule:rruleFor(x)}));
+  return ev;
+}
+function icsFile(events){
+  return ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Clear Aftercare//EN","CALSCALE:GREGORIAN","METHOD:PUBLISH", ...events.map(vevent), "END:VCALENDAR"].join("\r\n") + "\r\n";
+}
+function allEvents(){
+  if (!state) return [];
+  return [...state.meds.flatMap(m => eventsFor(m,"med")), ...state.tasks.flatMap(t => eventsFor(t,"task")), ...state.appts.flatMap(a => eventsFor(a,"appt"))];
+}
+
+/* ---------- saving .ics ---------- */
+let downloads = null;
+async function saveIcs(filename, text){
+  const box = $("#icsFallback");
+  if (downloads) {
+    try { await downloads.save({filename, data:text}); setStatus("Saved. Open the file to add it to your calendar."); return; }
+    catch (e) {
+      if (e && e.code === "declined") return;
+      showIcsText(filename, text); return;
+    }
+  }
+  if (!window.claude) { // opened as a plain file outside Claude: an ordinary download works
+    const url = URL.createObjectURL(new Blob([text], {type:"text/calendar"}));
+    const a = document.createElement("a"); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000); return;
+  }
+  showIcsText(filename, text);
+}
+function showIcsText(filename, text){
+  const box = $("#icsFallback");
+  box.hidden = false;
+  box.innerHTML = `<p><strong>This viewer can't save calendar files directly.</strong> Copy the text below, paste it into a new file named <code>${esc(filename)}</code>, and open that file. Or use the Google Calendar buttons, which always work.</p>
+    <textarea id="icsText" readonly aria-label="Calendar file text"></textarea><div class="row"><button type="button" id="copyIcs">Copy</button></div>`;
+  $("#icsText").value = text;
+  $("#copyIcs").onclick = async () => { try { await navigator.clipboard.writeText(text); $("#copyIcs").textContent = "Copied"; } catch(e){ $("#icsText").select(); } };
+  $("#calAll").scrollIntoView({behavior:"smooth", block:"start"});
+}
+const fileName = s => (s || "reminders").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,40) + ".ics";
+
+/* ---------- rendering ---------- */
+function calButtons(x, kindLabel){
+  const ev = eventsFor(x, kindLabel);
+  if (!ev.length) return "";
+  const g = ev.map((e,i) => `<a class="btn" target="_blank" rel="noopener" href="${esc(gcalUrl(e))}">Google${ev.length>1 ? ": " + (e.time ? fmtTime(e.time) : "") : ""}</a>`).join("");
+  const what = kindLabel === "appt" ? (ev[0].title.startsWith("Appointment") ? "this appointment" : "a reminder to call") : (ev.length > 1 ? `all ${ev.length} daily reminders` : "this daily reminder");
+  const gBlock = ev.length > 4 ? `<details><summary class="btn">Google: ${ev.length} reminders, one button each</summary><div class="row" style="padding-top:8px">${g}</div></details>` : g;
+  return `<div class="cal"><span class="lbl">Add ${what} to your calendar:</span>${gBlock}<button type="button" data-ics="${kindLabel}:${x.id}">Apple / Outlook (.ics)</button></div>`;
+}
+function scheduleFix(x, kindLabel){
+  if (x.kind !== "scheduled") return "";
+  const bits = [];
+  if (needsTimes(x)) {
+    const ps = presetsFor(x);
+    bits.push(`<p><strong>Choose your times.</strong> Your paper doesn't give clock times. Pick what fits your day, then check with your pharmacist.</p>
+      <div class="row">${ps.map((p,i) => `<button type="button" data-preset="${kindLabel}:${x.id}:${i}">${esc(p.label)}</button>`).join("")}</div>`);
+  }
+  bits.push(`<div class="row"><label for="t-${x.id}">${x.times.length ? "Add or change a time" : "Or set your own time"}</label><input type="time" id="t-${x.id}"><button type="button" data-addtime="${kindLabel}:${x.id}">Add time</button>
+    ${x.times.length ? `<button type="button" data-cleartimes="${kindLabel}:${x.id}">Clear times</button>` : ""}</div>`);
+  bits.push(`<div class="row"><label for="s-${x.id}">First day</label><input type="date" id="s-${x.id}" value="${esc(x.start_date||"")}" data-start="${kindLabel}:${x.id}">
+    <label for="d-${x.id}">Number of days</label><input type="number" min="1" max="365" id="d-${x.id}" value="${x.days||""}" style="width:5.5rem" data-days="${kindLabel}:${x.id}"></div>`);
+  if (needsDays(x)) bits.push(`<p><strong>How many days?</strong> Your paper doesn't say. Type the number your care team gives you to turn on calendar reminders.</p>`);
+  const open = needsTimes(x) || needsDays(x) || !x.start_date;
+  return `<details class="fix screen-only" ${open ? "open" : ""}><summary><strong>${open ? "Fill this in to get reminders" : "Change times or days"}</strong></summary>${bits.join("")}</details>`;
+}
+function whenText(x){
+  if (x.kind === "as_needed") {
+    const parts = ["Only when you need it."];
+    if (x.every_hours) parts.push(`Wait at least ${x.every_hours} hours between doses.`);
+    if (x.max_per_day) parts.push(x.max_per_day);
+    return [...new Set(parts)].join(" ");
+  }
+  if (x.kind !== "scheduled") return "";
+  if (!x.times.length) return x.times_per_day ? `${x.times_per_day} ${x.times_per_day===1?"time":"times"} a day (times not chosen yet)` : x.every_hours ? `Every ${x.every_hours===1?"hour":x.every_hours+" hours"}${x.awake_only?" while you are awake":""} (times not chosen yet)` : "Times not given";
+  return null;
+}
+function lengthText(x){
+  if (x.kind !== "scheduled") return "";
+  if (x.days && x.start_date) return `${x.days} days: from ${fmtDay(x.start_date)} through ${fmtDay(addDays(x.start_date, x.days-1))}.`;
+  if (x.ongoing) return "Every day. Keep going until your care team tells you to stop.";
+  return "Not given. Ask your care team.";
+}
+function flagsHtml(x){return x.flags.length ? `<div class="fix" role="note"><strong>Check this</strong><ul class="plain">${x.flags.map(f=>`<li>${esc(f)}</li>`).join("")}</ul></div>` : ""}
+function origHtml(x){return x.original ? `<p class="orig">Your paper said: <code>${esc(x.original)}</code></p>` : ""}
+
+function medCard(m){
+  const tag = {new:"New medicine", changed:"Changed", hold:"Stop for now", stop:"Stop", continue:"Keep taking"}[m.status] || (m.kind==="as_needed"?"Only if needed":"");
+  const stop = m.kind === "stop";
+  const facts = [];
+  if (m.purpose) facts.push(["What it's for", esc(m.purpose)]);
+  if (m.amount) facts.push(["How much", `<span style="font-size:1.15rem;font-weight:800">${esc(m.amount)}</span>`]);
+  if (m.how) facts.push(["How", esc(m.how)]);
+  const w = whenText(m);
+  if (m.kind === "scheduled") facts.push(["When", w === null ? `<div class="times">${m.times.map(t=>`<span class="time">${fmtTime(t)}</span>`).join("")}</div><span class="muted">every day</span>` : esc(w)]);
+  else if (w) facts.push(["When", esc(w)]);
+  if (m.kind === "scheduled") facts.push(["How long", esc(lengthText(m))]);
+  return `<div class="item${stop?" stop":""}">
+    <div class="row" style="justify-content:space-between"><h3>${stop ? "Do not take: " : ""}${esc(m.name)}${m.generic ? ` <span class="muted" style="font-weight:400;font-size:1rem">(${esc(m.generic)})</span>` : ""}</h3>${tag?`<span class="tag${stop?" stop":""}">${esc(tag)}</span>`:""}</div>
+    ${facts.length ? `<dl class="facts">${facts.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>` : ""}
+    ${m.notes.length ? `<ul class="plain">${m.notes.map(n=>`<li>${esc(n)}</li>`).join("")}</ul>` : ""}
+    ${flagsHtml(m)}${scheduleFix(m,"med")}${origHtml(m)}${calButtons(m,"med")}
+  </div>`;
+}
+function taskCard(t){
+  const facts = [];
+  if (t.how) facts.push(["How", esc(t.how)]);
+  if (t.kind === "scheduled") {
+    const w = whenText(t);
+    facts.push(["When", w === null ? `<div class="times">${t.times.map(x=>`<span class="time">${fmtTime(x)}</span>`).join("")}</div>` : esc(w)]);
+    facts.push(["How long", esc(lengthText(t))]);
+  }
+  return `<div class="item"><h3>${esc(t.what)}</h3>${facts.length?`<dl class="facts">${facts.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>`:""}
+    ${t.notes.length ? `<ul class="plain">${t.notes.map(n=>`<li>${esc(n)}</li>`).join("")}</ul>` : ""}
+    ${flagsHtml(t)}${scheduleFix(t,"task")}${origHtml(t)}${calButtons(t,"task")}</div>`;
+}
+function apptCard(a){
+  const facts = [];
+  if (a.why) facts.push(["Why", esc(a.why)]);
+  if (a.date) facts.push(["When", `<strong>${esc(fmtDay(a.date,true))}</strong>${a.time ? ` at <span class="time">${fmtTime(a.time)}</span>` : " (time not given)"}`]);
+  else if (a.window_start) facts.push(["When", `Not booked yet. Aim for ${a.window_end && a.window_end !== a.window_start ? `between <strong>${esc(fmtDay(a.window_start))}</strong> and <strong>${esc(fmtDay(a.window_end))}</strong>` : `around <strong>${esc(fmtDay(a.window_start,true))}</strong>`}.`]);
+  else facts.push(["When", "Not booked yet."]);
+  if (a.where) facts.push(["Where", esc(a.where)]);
+  if (a.phone) facts.push(["Phone", `<span class="time" style="font-size:1.15rem;user-select:all">${esc(a.phone)}</span>`]);
+  const fix = `<details class="fix screen-only" ${!a.date && !a.remind_date ? "open" : ""}><summary><strong>${a.date ? "Change the date or time" : "Booked it? Enter the date. Not yet? Set a reminder to call."}</strong></summary>
+     <div class="row"><label for="ad-${a.id}">Appointment date</label><input type="date" id="ad-${a.id}" value="${esc(a.date||"")}" data-adate="${a.id}">
+     <label for="at-${a.id}">Time</label><input type="time" id="at-${a.id}" value="${esc(a.time||"")}" data-atime="${a.id}"></div>
+     ${a.date ? "" : `<div class="row"><label for="rd-${a.id}">Remind me to ${a.phone?"call":"book"} on</label><input type="date" id="rd-${a.id}" value="${esc(a.remind_date||"")}" data-rdate="${a.id}">
+     <label for="rt-${a.id}">at</label><input type="time" id="rt-${a.id}" value="${esc(a.remind_time||"10:00")}" data-rtime="${a.id}"></div>`}
+   </details>`;
+  return `<div class="item"><div class="row" style="justify-content:space-between"><h3>${esc(a.with)}</h3>${a.date?`<span class="tag">Booked</span>`:`<span class="tag warn">Not booked</span>`}</div>
+    <dl class="facts">${facts.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>
+    ${a.notes.length ? `<ul class="plain">${a.notes.map(n=>`<li>${esc(n)}</li>`).join("")}</ul>` : ""}
+    ${flagsHtml(a)}${fix}${origHtml(a)}${calButtons(a,"appt")}</div>`;
+}
+function doseChart(){
+  const meds = state.meds.filter(m => calReady(m) && m.days && m.days <= 30);
+  if (!meds.length) return "";
+  const start = meds.map(m=>m.start_date).sort()[0];
+  const end = meds.map(m=>addDays(m.start_date, m.days-1)).sort().slice(-1)[0];
+  const cols = meds.flatMap(m => m.times.map(t => ({m, t})));
+  const rows = []; for (let d = start; d <= end; d = addDays(d,1)) rows.push(d);
+  return `<section class="sec"><h2>Dose checklist</h2><p class="muted">Tick each box after you take the dose. On paper, use a pen.</p>
+    <div class="chart-wrap"><table class="chart"><thead><tr><th>Day</th>${cols.map(c=>`<th>${esc(c.m.name)}<br><span class="time">${fmtTime(c.t)}</span></th>`).join("")}</tr></thead>
+    <tbody>${rows.map(d => `<tr><td><strong>${esc(fmtShort(d))}</strong></td>${cols.map(c => {
+      const on = d >= c.m.start_date && d <= addDays(c.m.start_date, c.m.days-1);
+      const key = `${c.m.name}|${c.t}|${d}`;
+      return `<td>${on ? `<input type="checkbox" aria-label="${esc(c.m.name)} ${fmtTime(c.t)} ${esc(fmtShort(d))}" data-tick="${esc(key)}" ${ticks[key]?"checked":""}>` : "<span class='muted'>–</span>"}</td>`;
+    }).join("")}</tr>`).join("")}</tbody></table></div></section>`;
+}
+let ticks = {};
+try { ticks = JSON.parse(localStorage.getItem("aftercare-ticks") || "{}") || {}; } catch(e) { ticks = {}; }
+
+function render(){
+  const s = state, el = $("#sheet");
+  if (!s) { el.innerHTML = ""; return; }
+  const meds = s.meds, scheduled = meds.filter(m=>m.kind==="scheduled"), prn = meds.filter(m=>m.kind==="as_needed"), stop = meds.filter(m=>m.kind==="stop"), cont = meds.filter(m=>m.kind==="continue");
+  const allFlags = [...s.meds, ...s.tasks, ...s.appts].reduce((n,x)=>n + x.flags.length + (needsTimes(x)?1:0) + (needsDays(x)?1:0), 0);
+  const otherList = (h, a) => a.length ? `<div class="item"><h3>${h}</h3><ul class="plain">${a.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>` : "";
+  el.innerHTML = `
+    <header class="sheet-head">
+      <p class="eyebrow">${editingFromAI ? "Your care sheet" : "Example care sheet (made-up patient)"}</p>
+      <h1>${s.patient.name ? esc(s.patient.name) + ": " : ""}what to do after your visit</h1>
+      <p style="font-size:1.1rem">${s.visit.place ? esc(s.visit.place) + " visit" : "Visit"}${s.visit.date ? ` on <strong>${esc(fmtDay(s.visit.date,true))}</strong>` : ""}.</p>
+      ${s.visit.reason ? `<p style="font-size:1.15rem">${esc(s.visit.reason)}</p>` : ""}
+      ${s.visit.extra ? `<p class="muted">${esc(s.visit.extra)}</p>` : ""}
+      ${allFlags ? `<p class="screen-only" style="color:var(--warn);font-weight:700">${allFlags} ${allFlags===1?"thing needs":"things need"} checking. They are marked “Check this” or “Fill this in” below.</p>` : ""}
+    </header>
+    ${(s.help.items.length || s.help.call_doctor.length) ? `<section class="help" aria-label="When to get help">
+      ${s.help.items.length ? `<h2>${esc(s.help.title)}</h2><ul>${s.help.items.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>` : ""}
+      ${s.help.call_doctor.length ? `<h3>Call your doctor if:</h3><ul>${s.help.call_doctor.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>` : ""}
+      <p><strong>If you think it is an emergency, call 911.</strong></p></section>` : ""}
+    ${scheduled.length ? `<section class="sec"><h2>Medicines to take on a schedule</h2>${scheduled.map(medCard).join("")}</section>` : ""}
+    ${prn.length ? `<section class="sec"><h2>Medicines only if you need them</h2>${prn.map(medCard).join("")}</section>` : ""}
+    ${stop.length ? `<section class="sec"><h2>Medicines to stop</h2>${stop.map(medCard).join("")}</section>` : ""}
+    ${cont.length ? `<section class="sec"><h2>Medicines to keep taking</h2>${cont.map(medCard).join("")}</section>` : ""}
+    ${doseChart()}
+    ${s.appts.length ? `<section class="sec"><h2>Appointments</h2>${s.appts.map(apptCard).join("")}</section>` : ""}
+    ${s.tasks.length ? `<section class="sec"><h2>Things to do at home</h2>${s.tasks.map(taskCard).join("")}</section>` : ""}
+    ${(s.other.food.length||s.other.activity.length||s.other.avoid.length||s.other.other.length) ? `<section class="sec"><h2>Food, activity and other advice</h2>${otherList("Food and drink", s.other.food)}${otherList("Activity", s.other.activity)}${otherList("Avoid", s.other.avoid)}${otherList("Other", s.other.other)}</section>` : ""}
+    ${s.questions.length ? `<section class="qs"><h2>Questions to ask your care team</h2><ul class="plain">${s.questions.map(q=>`<li>${esc(q)}</li>`).join("")}</ul></section>` : ""}
+    <footer class="foot">
+      <p>This sheet rewrites your care team's written instructions in plain words. It was made with help from an AI tool, and a person should check it against the original paper. If anything here is different from what your care team told you, follow your care team and call them to check.</p>
+      <p id="grade"></p>
+    </footer>`;
+  const n = allEvents().length;
+  $("#calCount").textContent = n ? `${n} reminder${n===1?"":"s"} ready.` : "Fill in the items marked “Fill this in” to make reminders.";
+  $("#icsAll").disabled = !n;
+  const g = fkGrade(el.innerText.replace(/Your paper said:.*$/gm, ""));
+  $("#grade").textContent = g ? `Reading level of this sheet: about US grade ${g}.` : "";
+}
+
+/* Flesch-Kincaid grade, rough */
+function syl(w){w=w.toLowerCase().replace(/[^a-z]/g,"");if(w.length<=3)return 1;w=w.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/,"").replace(/^y/,"");const m=w.match(/[aeiouy]{1,2}/g);return m?m.length:1}
+function fkGrade(t){const words=t.match(/[A-Za-z][A-Za-z'-]*/g)||[];if(words.length<50)return null;const sents=Math.max(1,(t.match(/[.!?:\n]+/g)||[]).length);const s=words.reduce((a,w)=>a+syl(w),0);const g=0.39*(words.length/sents)+11.8*(s/words.length)-15.59;return Math.max(1,Math.round(g*10)/10)}
+
+/* ---------- interactions ---------- */
+function find(kind, id){return (kind==="med"?state.meds:kind==="task"?state.tasks:state.appts).find(x=>x.id===id)}
+document.addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b || !state) return;
+  if (b.dataset.preset) { const [k,id,i] = b.dataset.preset.split(":"); const x = find(k,id); x.times = sortTimes(presetsFor(x)[+i].times); render(); }
+  else if (b.dataset.addtime) { const [k,id] = b.dataset.addtime.split(":"); const x = find(k,id); const v = $("#t-"+id).value; if (v) { x.times = sortTimes([...x.times, v]); render(); } }
+  else if (b.dataset.cleartimes) { const [k,id] = b.dataset.cleartimes.split(":"); find(k,id).times = []; render(); }
+  else if (b.dataset.ics) { const [k,id] = b.dataset.ics.split(":"); const x = find(k,id); const ev = eventsFor(x,k); if (ev.length) saveIcs(fileName(k==="med"?x.name:k==="task"?x.what:x.with), icsFile(ev)); }
+});
+document.addEventListener("change", e => {
+  const t = e.target; if (!state) return;
+  if (t.dataset.tick) { ticks[t.dataset.tick] = t.checked; try { localStorage.setItem("aftercare-ticks", JSON.stringify(ticks)); } catch(_){} return; }
+  if (t.dataset.start) { const [k,id] = t.dataset.start.split(":"); find(k,id).start_date = parseISO(t.value) ? t.value : null; }
+  else if (t.dataset.days) { const [k,id] = t.dataset.days.split(":"); const v = Math.round(+t.value); find(k,id).days = v > 0 ? v : null; }
+  else if (t.dataset.adate) { const a = find("appt", t.dataset.adate); a.date = parseISO(t.value) ? t.value : null; }
+  else if (t.dataset.atime) { find("appt", t.dataset.atime).time = t.value || null; }
+  else if (t.dataset.rdate) { find("appt", t.dataset.rdate).remind_date = parseISO(t.value) ? t.value : null; }
+  else if (t.dataset.rtime) { find("appt", t.dataset.rtime).remind_time = t.value || null; }
+  else return;
+  const keep = t.id; render(); const again = keep && document.getElementById(keep); if (again) again.focus();
+});
+$("#icsAll").onclick = () => { const ev = allEvents(); if (ev.length) saveIcs(fileName((state.patient.name||"my") + " care reminders"), icsFile(ev)); };
+let scale = 1;
+try { scale = +localStorage.getItem("aftercare-scale") || 1; } catch(e) {}
+function setScale(v){scale = Math.min(1.6, Math.max(0.85, v)); document.documentElement.style.setProperty("--scale", scale); try{localStorage.setItem("aftercare-scale", scale)}catch(e){}}
+setScale(scale);
+$("#bigger").onclick = () => setScale(scale + 0.15);
+$("#smaller").onclick = () => setScale(scale - 0.15);
+if (!window.claude) { $("#printBtn").hidden = false; $("#printBtn").onclick = () => window.print(); }
+function setStatus(msg, err){const s=$("#status");s.textContent=msg||"";s.classList.toggle("err",!!err)}
+
+/* ---------- asking Claude ---------- */
+const PROMPT = (text, visit, today) => `You turn a clinician's after-visit or discharge instructions into data for a patient care sheet. The reader may be 10 or 100 years old, may have low vision or low health literacy, and may be confused or unwell.
+
+ABSOLUTE RULES
+1. Use ONLY what the instructions say. Never add a medicine, dose, amount, time of day, number of days, food rule, warning, appointment or advice that is not written there. Do not add general medical advice.
+2. Expand abbreviations into plain words (BID = 2 times a day, TID = 3 times a day, QID = 4 times a day, q6h = every 6 hours, PRN = only when needed, PO = by mouth, f/u = follow-up, PCP = regular doctor, RTED/RTC = come back to the ER/clinic, SOB = short of breath, CP = chest pain, x 7 days = for 7 days). That is translation, not adding.
+3. When something a patient would need is missing or unclear, do NOT guess. Leave the field empty/null and write a short flag saying what is missing and who to ask. Examples: "2 times a day" with no clock times; a dose in mg with no pill strength (say how to check the bottle, e.g. "if each pill is 325 mg, 650 mg is 2 pills" is fine only as a worked example of how to check); "continue home meds" without a list; a follow-up "in 2-3 days" with no booked date; no number of days for a scheduled item; conflicting instructions.
+4. Plain language, about US grade 5. Short sentences. Talk to the patient as "you". Keep exact numbers (doses, temperatures, phone numbers) exactly as written. Write numbers as digits.
+5. "times" holds clock times ONLY if the instructions give clock times (e.g. "at bedtime" is NOT a clock time: put "At bedtime." in notes and leave times empty, with a flag to choose a time).
+6. Visit date is ${visit}. Today is ${today}. If a medicine or task obviously starts now (a new prescription or home task from this visit), start_date = visit date. Compute window_start/window_end for follow-ups given as "in N days/weeks" from the visit date. Only set "date"/"time" on an appointment if a specific booked date/time is written.
+7. Every item gets "original": the exact source words it came from.
+
+Reply with ONLY one JSON object of this shape (omit nothing; use [] or null when empty):
+{
+ "patient": {"name": string|null},
+ "visit": {"date": "YYYY-MM-DD"|null, "place": string|null, "reason": "1-3 plain sentences: what was wrong", "extra": string|null},
+ "help": {"title": "e.g. 'Go back to the Emergency Room right away if:' or 'Call 911 if:' matching the instructions' wording", "items": [strings], "call_doctor": [strings for 'call your doctor if' items]},
+ "meds": [{"name": "the name the patient will see on the bottle (brand if given, else generic)", "generic": string, "kind": "scheduled"|"as_needed"|"stop"|"continue", "status": "new"|"changed"|"hold"|"stop"|"continue", "purpose": string|null (only if stated or obvious from the stated reason), "amount": "how much per dose, as written, plus pill count only if written", "how": string|null, "times_per_day": number|null, "every_hours": number|null, "times": ["HH:MM"], "start_date": "YYYY-MM-DD"|null, "days": number|null, "ongoing": boolean (true only if told to keep taking with no end), "max_per_day": string|null, "notes": [strings], "flags": [strings], "original": string}],
+ "tasks": [{"what": "short action title", "kind": "scheduled"|"info", "how": string, "times_per_day": number|null, "every_hours": number|null, "awake_only": boolean, "times": ["HH:MM"], "start_date": string|null, "days": number|null, "ongoing": boolean, "notes": [], "flags": [], "original": string}],
+ "appts": [{"with": "who or what (e.g. 'Dr. Patel (your regular doctor)', 'Blood test')", "why": string|null, "where": string|null, "phone": string|null, "date": string|null, "time": "HH:MM"|null, "window_start": string|null, "window_end": string|null, "notes": [], "flags": [], "original": string}],
+ "other": {"food": [], "activity": [], "avoid": [], "other": []},
+ "questions": ["questions the patient should ask, only for gaps not already flagged on an item"]
+}
+Use "scheduled" tasks only for things done at set times or intervals (exercises, wound care, checks); one-off or general advice goes in "info" or "other". A medicine to hold or stop is kind "stop".
+
+INSTRUCTIONS TO CONVERT:
+"""
+${text}
+"""`;
+
+let sample = null, ctl = null;
+(async () => {
+  if (!window.claude) { $("#go").disabled = true; $("#aiNote").textContent = "This copy is opened outside Claude, so it can't read new instructions. The example and all calendar buttons still work."; return; }
+  try { [sample, downloads] = await Promise.all([claude.use("sample"), claude.use("downloads")]); } catch(e) {}
+  if (!sample) { $("#go").disabled = true; $("#aiNote").textContent = "Reading new instructions isn't available in this view. The example and all calendar buttons still work."; }
+})();
+
+$("#go").onclick = async () => {
+  const text = $("#src").value.trim();
+  if (text.length < 20) { setStatus("Paste the instructions first.", true); return; }
+  const visit = parseISO($("#visitDate").value) ? $("#visitDate").value : todayISO();
+  ctl = new AbortController();
+  $("#go").disabled = true; $("#stop").hidden = false; setStatus("Reading the instructions… this can take up to a minute.");
+  try {
+    const d = await sample.json(PROMPT(text, visit, todayISO()), {signal: ctl.signal, modelTier: "complex"});
+    state = normalize(d); if (!state.visit.date) state.visit.date = visit;
+    editingFromAI = true; render(); setStatus("Done. Check each item against the paper.");
+    $("#sheet").scrollIntoView({behavior:"smooth", block:"start"});
+  } catch (e) {
+    const msg = {cancelled:"Stopped.", not_granted:"Claude wasn't allowed, so the tool can't read new instructions. The example still works.", rate_limited:"Too many requests just now. Wait a minute and try again.", invalid_json:"The answer came back garbled. Press the button to try again."}[e && e.code] || "Something went wrong reading the instructions. Try again.";
+    setStatus(msg, e && e.code !== "cancelled");
+  } finally { $("#go").disabled = !sample; $("#stop").hidden = true; }
+};
+$("#stop").onclick = () => ctl && ctl.abort();
+function loadSample(){ const v = todayISO(); $("#src").value = SAMPLE_TEXT; $("#visitDate").value = v; state = normalize(sampleData(v)); editingFromAI = false; render(); }
+$("#loadSample").onclick = () => { loadSample(); setStatus("Example loaded."); };
+loadSample();
+</script>
