@@ -150,6 +150,11 @@ details.case + :not(details) { margin-top: 3rem; }
 .group details.case:not([open]) { margin-bottom: 0; }
 .group details.case + :not(details) { margin-top: 2rem; }
 .group > section.shelf { margin-top: 1.5rem; }
+.books .lead { grid-column: 1 / -1; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr); gap: 1.5rem 2rem; align-items: start; }
+.books .lead .cover { width: 100%; height: auto; border-radius: 4px; box-shadow: 0 6px 24px rgba(0,0,0,.25); }
+.books .lead .lead-text { display: grid; gap: 0.9rem; }
+.case-body > .books { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 700px) { .case-body > .books, .books .lead { grid-template-columns: minmax(0, 1fr); } .books .lead .cover { max-width: 16rem; } }
 .toc .toc-group { margin: 0; padding: 1.1rem 0 0.3rem; border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; }
 .toc .toc-group a { display: inline; border: 0; padding: 0; font-family: var(--mono); font-weight: 400; font-size: 0.75rem; color: var(--accent); }
 .toc { grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 0 2.5rem; align-items: start; }
@@ -231,7 +236,6 @@ span.note { font-style: italic; color: var(--muted); }
       <div class="toc-col">
       <p class="toc-group"><a href="#g-history">Research and history</a></p>
       <a href="#byzantium">Byzantium <span>mosaic atlas</span></a>
-      <a href="#research">Research <span>2 reports</span></a>
       </div>
       <div class="toc-col">
       <a href="#tools">Which AI for what <span>by project</span></a>
@@ -1341,22 +1345,27 @@ span.note { font-style: italic; color: var(--muted); }
   </details>
 
   <!-- WRITING -->
-  <section class="shelf" id="writing">
-    <div class="shelf-head">
+  <details class="case" id="writing">
+    <summary class="case-sum">
+      <div class="shelf-head">
       <span class="eyebrow">Writing &amp; workflows</span>
       <h2>298,692 words of fiction, and the systems that write it</h2>
-      <p>A novel, a historical series and a screenplay package, each built with a process I can repeat: a story bible or system prompt first, then drafting and revision.</p>
-          <p class="links"><a href="demos/screenwriter-prompt.html">Read the screenwriter system prompt</a><a href="demos/corpus.html">Read CORPUS</a><a href="demos/fine-tuned.html">Read the FINE-TUNED pitch</a></p>
-    </div>
-
+      <p class="sum">A historical series, a science-fiction novel and a screenplay package, each built with a process I can repeat. Led by No Ear Cut Twice.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="demos/screenwriter-prompt.html">Read the screenwriter system prompt</a><a href="demos/corpus.html">Read CORPUS</a><a href="demos/fine-tuned.html">Read the FINE-TUNED pitch</a></p>
     <div class="books">
-      <article class="book">
+      <article class="book lead">
+        <img class="cover" src="assets/no-ear-cut-twice-cover.jpg" alt="Cover of No Ear Cut Twice, a novel by Myles Parslow: a plaster ear on a workbench beside iron shears, a raven's shadow, and the island of Ischia across the water." width="1024" height="1536" loading="lazy">
+        <div class="lead-text">
         <span class="kind">Series · Historical fiction</span>
         <h3>No Ear Cut Twice</h3>
         <p class="count">94,828 words</p>
         <p class="logline">On an island where perjurers lose their ears, a plasterer hides that his are prosthetic stucco, and a single lie blooms into a herd of thousands.</p>
         <p>Set on Ischia and in Naples across three parts: The Lie (34,187 words), The Herd (19,492) and The Collection (41,149). 32 chapters and an interlude.</p>
         <div class="made"><b>How it was made</b><p>Written part by part, then carried to launch with a 3,159-word marketing pack holding a master prompt, 14 image prompts and a bank of copy.</p></div>
+              </div>
       </article>
       <article class="book">
         <span class="kind">Novel · Literary science fiction</span>
@@ -1376,7 +1385,8 @@ span.note { font-style: italic; color: var(--muted); }
         <p class="note">Content note: horror, with gore.</p>
       </article>
     </div>
-  </section>
+    </div>
+  </details>
   </section>
 
   <!-- GROUP: AI TOOLS AND EXPERIMENTS -->
@@ -1535,26 +1545,7 @@ span.note { font-style: italic; color: var(--muted); }
     </div>
   </details>
 
-  <!-- RESEARCH -->
-  <section class="shelf" id="research">
-    <div class="shelf-head">
-      <span class="eyebrow">Research</span>
-      <h2>Questions answered with data</h2>
-          <p class="links"><a href="demos/two-hypotheses.html">Read Two Hypotheses</a><a href="demos/box-12.html">Open the Box 12 Field Guide</a></p>
-    </div>
-    <div class="more">
-      <div>
-        <h3>Two Hypotheses</h3>
-        <div class="facts"><span><strong>17</strong> futures</span><span><strong>111,201</strong> instrument-days</span><span><strong>2000–2026</strong></span></div>
-        <p>Do two published market effects, 12-month momentum and 5-day reversal, show up in futures data? Both hypotheses were registered before looking, with costs and a randomization test included. Momentum held (Sharpe 0.43, t = 2.29); reversal did not (Sharpe 0.03). The report says plainly that the result is not tradeable on its own.</p>
-      </div>
-      <div>
-        <h3>Box 12 Field Guide</h3>
-        <div class="facts"><span><strong>71</strong> occupation codes</span><span><strong>3</strong> tools</span></div>
-        <p>A free interactive guide to the new 2026 W-2 codes for overtime premium and tips: an overtime-premium calculator, a tip-or-service-charge decision aid, and a searchable table of every qualifying occupation code from the federal regulation. Its key point: only one third of time-and-a-half pay counts as the premium.</p>
-      </div>
-    </div>
-  </section>
+  <!-- NOBEL MEDICAL WRITE-UP GOES HERE -->
   </section>
 
   <!-- WHICH AI -->
