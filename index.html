@@ -142,6 +142,16 @@ details.case:not([open]) { margin-bottom: -3rem; }
 details.case + :not(details) { margin-top: 3rem; }
 .case-sum .shelf-head { padding-bottom: 0.25rem; }
 @media print { .case-sum .shelf-head h2::after { content: none; } }
+/* Categories */
+.group { display: grid; gap: 1.25rem; scroll-margin-top: 1.5rem; }
+.group-head { display: grid; gap: 0.3rem; border-top: 6px solid var(--accent); padding-top: 0.9rem; }
+.group-head h2 { font-family: var(--display); font-size: 1.5rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.group-head p { color: var(--muted); max-width: 44rem; }
+.group details.case:not([open]) { margin-bottom: 0; }
+.group details.case + :not(details) { margin-top: 2rem; }
+.group > section.shelf { margin-top: 1.5rem; }
+.toc .toc-group { margin: 0; padding: 1.1rem 0 0.3rem; border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; }
+.toc .toc-group a { display: inline; border: 0; padding: 0; font-family: var(--mono); font-weight: 400; font-size: 0.75rem; color: var(--accent); }
 /* Method */
 .rules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem 2.5rem; }
 .rules div { display: grid; gap: 0.4rem; align-content: start; }
@@ -182,23 +192,28 @@ span.note { font-style: italic; color: var(--muted); }
       <p class="lede">Software for real businesses, novels and screenplays, games and reference works, and the workflows behind them. Each piece below shows what was made and which AI tools, Claude, ChatGPT, Codex, Suno and models running on my own computer, did which part.</p>
     </div>
     <nav class="toc" aria-label="Sections">
+      <p class="toc-group"><a href="#g-legal">Legal</a></p>
+      <a href="#conflara">Case study: Conflara <span>legal software</span></a>
+      <a href="#vigilmark">Companion: VigilMark <span>trademark watch</span></a>
       <a href="#winyourcase">Case study: Win your case ASAP <span>litigation AI</span></a>
       <a href="#witnessbreaker">Case study: Witness Breaker <span>deposition prep</span></a>
       <a href="#citationgate">Case study: Citation Gate <span>brief checking</span></a>
       <a href="#guidelineguard">Case study: Guideline Guard <span>billing rules</span></a>
       <a href="#hourcatch">Case study: Hour Catch <span>time capture</span></a>
       <a href="#partyfinder">Case study: Party Finder <span>conflicts</span></a>
+      <p class="toc-group"><a href="#g-commercial">Commercial</a></p>
       <a href="#fieldwork">Case study: Fieldwork <span>deal engine</span></a>
-      <a href="#conflara">Case study: Conflara <span>legal software</span></a>
-      <a href="#vigilmark">Companion: VigilMark <span>trademark watch</span></a>
       <a href="#rsc">Case study: RSC Tool <span>small business</span></a>
-      <a href="#byzantium">Case study: Byzantium <span>mosaic atlas</span></a>
-      <a href="#catgpt">Case study: CatGPT <span>local AI + 9 games</span></a>
       <a href="#money">Money Desk <span>local AI workbench</span></a>
+      <p class="toc-group"><a href="#g-creative">Creative and media</a></p>
       <a href="#songs">Case study: Cat songs &amp; videos <span>Suno + animation</span></a>
+      <a href="#catgpt">Case study: CatGPT <span>local AI + 9 games</span></a>
+      <a href="#writing">Writing &amp; workflows <span>299k words</span></a>
+      <p class="toc-group"><a href="#g-aitools">AI tools and experiments</a></p>
       <a href="#xray">Case study: Argument X-ray <span>reading tool</span></a>
       <a href="#boardroom">Case study: Boardroom of One <span>decision tool</span></a>
-      <a href="#writing">Writing &amp; workflows <span>299k words</span></a>
+      <p class="toc-group"><a href="#g-history">Research and history</a></p>
+      <a href="#byzantium">Case study: Byzantium <span>mosaic atlas</span></a>
       <a href="#research">Research <span>2 reports</span></a>
       <a href="#tools">Which AI for what <span>by project</span></a>
     </nav>
@@ -209,6 +224,228 @@ span.note { font-style: italic; color: var(--muted); }
       <div><dt>Trivia questions behind three pixel cats</dt><dd>53,648</dd></div>
     </dl>
   </header>
+
+  <!-- GROUP: LEGAL -->
+  <section class="group" id="g-legal">
+    <div class="group-head">
+      <h2>Legal</h2>
+      <p>Software for law firms: conflicts, litigation, billing and trademark work.</p>
+    </div>
+  <!-- CONFLARA -->
+  <details class="case" id="conflara">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 01 · Legal software</span>
+      <h2>Conflara</h2>
+      <p class="sum">A conflicts-check and new-matter intake system for US law firms of 10 to 150 lawyers, carried from a working product through research, a pilot plan and two films.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="demos/conflara.html">Try the demo</a><a href="demos/conflara-ad.html">Watch the 60-second ad</a><a href="demos/conflara-film.html">Watch the walkthrough film</a><a href="demos/conflicts-desk-information-sheet.html">Conflicts Desk Information Sheet</a><a href="https://github.com/mylesparslow-collab/conflicts-desk">Prototype code</a></p>
+
+    <dl class="stats">
+      <div><dt>Firm roles modelled</dt><dd>7</dd></div>
+      <div><dt>Approval routing rules</dt><dd>9</dd></div>
+      <div><dt>Tests (66 files)</dt><dd>932</dd></div>
+      <div><dt>Synthetic parties benchmarked</dt><dd>3,000,000</dd></div>
+      <div><dt>Competitors researched</dt><dd>14+</dd></div>
+      <div><dt>Films made in code (60 s and 2:32)</dt><dd>2</dd></div>
+    </dl>
+
+    <figure class="wide">
+      <img src="assets/conflara-hits.jpg" alt="Hit review for a litigation request: a California Rule 1.7(b) lawyer-relationship disclosure, then two high-risk hits on the adverse party, each with a plain-English meaning, the rule, a suggested decision, the matters it matched and an advisory AI note." width="1280" height="800" loading="lazy">
+      <figcaption>Hit review. Each hit says what it means in plain English, cites the rule, suggests a decision and shows the matters behind it. The AI note is marked as advisory. All firm data is invented.</figcaption>
+    </figure>
+
+    <div class="cols">
+      <section class="block">
+        <h3>The problem</h3>
+        <p>Before a firm takes a matter, it must check every party against everyone it has represented or opposed. Mid-size firms usually search their billing system letter for letter, so they miss parent companies, former names, nicknames and misspellings. Intake is a web form nobody connects to the search, and the enterprise tools are quote-only and installed by consultants.</p>
+        <p>The people involved have different needs. An associate submits the request, a conflicts analyst reviews the hits, practice leaders and general counsel approve, and finance opens the matter. Conflara gives each of seven roles its own view.</p>
+      </section>
+      <section class="block">
+        <h3>How the matching works</h3>
+        <ul>
+          <li>Names are normalized: corporate suffixes stripped, abbreviations expanded, initials collapsed so "A.B.C. Holdings" finds "ABC Holdings".</li>
+          <li>Three scorers combine: a phonetic key (Smith and Smyth), Jaro-Winkler for typos, and trigram overlap for spacing. Rare words weigh more than common ones.</li>
+          <li>People match on surname first, then first name with 30+ nickname pairs (Kate and Katherine), aliases and former names.</li>
+          <li>Strong matches expand two hops through corporate families and one hop through personal links such as spouses and officers.</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="shots">
+      <figure>
+        <img src="assets/conflara-search.jpg" alt="Conflicts search for Kate Okafor finding a pending intake, Katherine A. Okafor via a known alias, and a company where she is an officer." width="1280" height="800" loading="lazy">
+        <figcaption>"Kate Okafor" finds the alias "Katherine A. Okafor" and, one hop out, a company where she is an officer that is a current client.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/conflara-walls.jpg" alt="Ethical walls page with compliance counts for active walls, acknowledgments outstanding and re-acknowledgments due, and export buttons for a deny list." width="1280" height="800" loading="lazy">
+        <figcaption>Ethical walls: who is screened, who still owes an acknowledgment, and a deny list to export to the document system and time entry.</figcaption>
+      </figure>
+    </div>
+
+    <section class="block">
+      <h3>Decisions that come from knowing the work</h3>
+      <div class="grid3">
+        <div><h4>Risk follows the relationship</h4><p>A name match alone means little. Being adverse to a current client on an open matter is high risk; a closed matter is medium; a match only through a personal link is capped below high. Related parties with no matter history are dropped as noise.</p></div>
+        <div><h4>Rules are built in</h4><p>Former clients point to Rule 1.9, prospective clients to Rule 1.18, lawyer relationships to California Rule 1.7(b) and (c) disclosures. Lateral hires get the 1.10, 1.11 and 1.12 analysis, and engagement letters check the California fee-agreement statutes.</p></div>
+        <div><h4>Lawyers decide, software suggests</h4><p>The local AI pre-sorts hits and drafts memos, but every AI-filled field carries a mark until a person confirms it. Restricted and walled data never reaches the model, and accepting a suggestion never decides a hit.</p></div>
+        <div><h4>Least privilege by role</h4><p>Approvers see a summary and a sign-off. Requesters see no firm records while they type. Walls are enforced in what the server sends each user, and every blocked attempt is logged.</p></div>
+        <div><h4>An audit trail that proves itself</h4><p>The log is append-only with a hash chain and a "Chain intact" check, and database triggers refuse edits. Matters cannot close until the final bill is issued and trust is at zero.</p></div>
+        <div><h4>Speed for the analyst</h4><p>J and K move between hits, 1 to 5 record a decision, Enter accepts the suggestion, and earlier decisions on the same party appear inline.</p></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h3>Since then: scale, outside data and a private model</h3>
+      <p>Conflara now has about 110,000 lines of TypeScript, 932 tests across 66 files and 140 commits, with roughly 40 of those commits and 13 merged pull requests landing in a single day. It runs two ways from the same code: a browser-only demo on fictional data, or a firm server with its own database, single sign-on, email and an AI model on the firm's own hardware.</p>
+      <div class="grid3">
+        <div><h4>Built for a firm with millions of names</h4><p>Row-level storage, incremental sync and server-side search replaced loading everything into the browser. A repeatable benchmark on synthetic firms (invented names only) goes up to 3,000,000 parties, with a written account of what limited a large firm and what changed.</p></div>
+        <div><h4>Outside entity data, watched nightly</h4><p>A party can be linked to its public-register record: legal-entity data and SEC filings, including subsidiaries read from the latest annual report. A person chooses which names and parents or subsidiaries to add. A nightly job lists what changed for a person to accept or set aside, and cleared requests are flagged for another look. The docs say plainly which sources are built, tested against recorded answers, or only stubbed.</p></div>
+        <div><h4>Search that is honest about itself</h4><p>Every search gets a number and shows what it covered and where its limits are. An empty or missing source is never shown as clearance, hits carry plain labels such as "likely same entity" instead of scores, and a no-match result is neutral, not green.</p></div>
+        <div><h4>Faster hit review</h4><p>A compact hit list with sticky party headers, identity review kept apart from the conflict assessment, and follow-ups tracked until resolved. The suggested order is learned locally from the firm's own past decisions, shows its factors and counts, is off by default, and never hides a hit or records a decision. An offline evaluation of the ranking is written up in the repo.</p></div>
+        <div><h4>Confidentiality and lateral hires</h4><p>Confidential matters are searched in batch without being revealed: the user is told there is a confidential match and nothing more. Lateral hires get a pre-start checklist with distinct pending, blocked, not-applicable and complete states, each backed by evidence.</p></div>
+        <div><h4>Compliance records</h4><p>Required documents per request, a summary of each conflict, and tracking for business-associate agreements, joint-representation consents and founder acknowledgements.</p></div>
+      </div>
+    </section>
+
+    <div class="cols">
+      <section class="block">
+        <h3>Measured, not claimed</h3>
+        <ul>
+          <li><strong>Name search</strong> (median): 77 ms to 1.3 ms at 50,000 parties; 535 ms to 5.3 ms at 250,000.</li>
+          <li><strong>Submitting an intake:</strong> 1.5 s to 37 ms at 50,000; 8.0 s to 20 ms at 250,000.</li>
+          <li><strong>After a colleague's change,</strong> a browser downloads 1 KB instead of reloading 200 KB.</li>
+          <li><strong>Server memory</strong> at 250,000 parties: 5.4 GB down to 1.8 GB.</li>
+        </ul>
+        <p>All figures come from a benchmark script run on synthetic firms with invented names.</p>
+      </section>
+      <section class="block">
+        <h3>A model that stays on the firm's hardware</h3>
+        <p>The AI runs through Ollama or any OpenAI-compatible local server, so client names never leave the building. It triages hits with a short reason, finds parties in a matter description or pasted email (any name that is not in the text is discarded), drafts a conflicts memo from the recorded decisions only, and suggests column mapping for imports. Every use is written to the audit log with the model name. The ranking model is a separate local statistical fit that uses no AI provider.</p>
+      </section>
+    </div>
+
+    <div class="cols">
+      <section class="block">
+        <h3>Teaching and testing inside the app</h3>
+        <ul>
+          <li><strong>Role-based walkthroughs</strong> (open a matter, prepare a request, approve, clear, get your firm live) that point at things but never click, submit or decide.</li>
+          <li><strong>A first-week checklist</strong> that ticks itself off from what the person actually does, with tests that limited roles are never shown a step for a page they can't open.</li>
+          <li><strong>A test environment</strong> on a fictional firm, marked by a striped banner on every page. It never writes to live data, sends email or calls an outside AI provider.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>Support without sharing firm data</h3>
+        <p>An administrator builds a support bundle of counts, settings switches, versions and error messages with names replaced by placeholders, reads it, then saves it. Nothing is sent automatically, and saving is written to the audit trail. To see a problem happen, support uses a test firm of made-up records at the same size and shape. The live app opens empty, with no sample data, and the desktop app ships for Windows, macOS and Linux with a first-run setup.</p>
+      </section>
+    </div>
+
+    <div class="cols">
+      <section class="block">
+        <h3>Taking it to market</h3>
+        <ul>
+          <li><strong>Research.</strong> 14+ competitors compared from public sources, and 21 gaps ranked.</li>
+          <li><strong>Pilot.</strong> Five firms over 90 days in four phases, measured on intake-to-cleared time, analyst hours per check and hits the old system missed.</li>
+          <li><strong>Honesty.</strong> A security table that says what is built and tested, built but untested, documented only, and not started.</li>
+        </ul>
+      </section>
+      <figure>
+        <img src="assets/ad.jpg" alt="Frame from the Conflara ad: spreadsheet, email and billing-search cards scattered on a dark background with the caption 'Most firms answer it with spreadsheets, email chains and a two-day wait.'" width="1280" height="800" loading="lazy">
+        <figcaption>Conflara in sixty seconds: nine scenes, typed text, a logo that draws itself and an original score, all in HTML, CSS and JavaScript. A 12-chapter, 2 min 32 s walkthrough film runs on the same engine.</figcaption>
+      </figure>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>It began as the <a href="https://github.com/mylesparslow-collab/conflicts-desk">Conflicts Desk</a> prototype in Claude Code, with tests and CI, and grew into Conflara. I supplied the domain: how conflicts departments actually run, which rules apply, and where existing tools fall short. Claude built the search engine, the synthetic firm and every screen. It then helped research competitors, price the product, write the pilot pack and script and code both films.</p></div>
+    </div>
+  </details>
+
+  <!-- VIGILMARK -->
+  <details class="case" id="vigilmark">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Companion to case study 01 · Legal software</span>
+      <h2>VigilMark</h2>
+      <p class="sum">A trademark watch and triage desk for a conflicts-first law firm: it ranks new filings that look like a client's mark, checks whether the applicant is related to a firm client, and hands the hit to Conflara as an intake.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><span>No public demo: screenshots only, all on invented clients and matters</span></p>
+
+    <dl class="stats">
+      <div><dt>Views</dt><dd>5</dd></div>
+      <div><dt>Generated document types</dt><dd>4</dd></div>
+      <div><dt>Import formats</dt><dd>3</dd></div>
+      <div><dt>Conflict states</dt><dd>3</dd></div>
+      <div><dt>Lines of code</dt><dd>1,980</dd></div>
+      <div><dt>Backend dependencies</dt><dd>0</dd></div>
+    </dl>
+
+    <figure class="wide">
+      <img src="assets/vigilmark-triage.jpg" alt="VigilMark's watch triage feed: incoming Official Gazette filings ranked by likelihood-of-confusion score, with a breakdown for CONFLARA versus KONFLARA LEGAL, a days-left countdown and a cleared conflict check." width="1400" height="900" loading="lazy">
+      <figcaption>The triage feed. Each new filing is scored against the client's mark, shows the days left in the opposition window, and carries a conflict check on the applicant. All names are invented.</figcaption>
+    </figure>
+
+    <div class="cols">
+      <section class="block">
+        <h3>The problem</h3>
+        <p>Trademark watch services flag new filings, but someone still has to decide which hits matter, check whether the applicant is related to an existing firm client (opposing a client's subsidiary can be a conflict of interest), and turn the hit into an engagement before the 30-day opposition window closes. Those three steps usually sit in different tools and inboxes.</p>
+      </section>
+      <section class="block">
+        <h3>What it does</h3>
+        <ul>
+          <li><strong>Triage feed</strong> of incoming Official Gazette and §2(d) hits, ranked by score and days left, filterable by registry.</li>
+          <li><strong>Watched marks portfolio</strong> with classes, goods and services, registries and watch strategy.</li>
+          <li><strong>Clearance lab:</strong> type two marks and see the scores update live.</li>
+          <li><strong>Enforcement studio:</strong> from any hit, a client pitch email with flat-fee options, a cease and desist letter, notice-of-opposition grounds, and an intake file.</li>
+          <li><strong>Batch import</strong> of Gazette filings as CSV, JSON or XML, each scored against every watched mark.</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="shots">
+      <figure>
+        <img src="assets/vigilmark-dupont-lab.jpg" alt="The clearance lab: two marks entered side by side with live sight, sound and goods scores, and a conflict hit on the applicant's parent company." width="1400" height="900" loading="lazy">
+        <figcaption>The clearance lab. Sight, sound and goods scores update as you type, and a parent-company match raises a conflict hit before anyone opposes a client.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/vigilmark-pitch-email.jpg" alt="The enforcement studio showing a generated client pitch email with the score breakdown, the opposition deadline and two flat-fee options." width="1400" height="900" loading="lazy">
+        <figcaption>One click turns a hit into a ready-to-edit client email with the deadline and flat-fee options.</figcaption>
+      </figure>
+    </div>
+
+    <section class="block">
+      <h3>How it connects to Conflara</h3>
+      <div class="grid3">
+        <div><h4>A published contract</h4><p>VigilMark defines a versioned schema, <code>conflara.intake.v1</code>, that maps a trademark hit onto Conflara's intake: client, matter, related parties and party roles such as parent entity, lead investor and adverse counterparty subsidiary.</p></div>
+        <div><h4>Conflict check first</h4><p>Before it recommends anything, VigilMark checks the applicant and its parent against a watchlist of firm clients and their corporate families, and marks the hit Cleared, Subsidiary review or Direct conflict, always flagged for human verification.</p></div>
+        <div><h4>Loosely coupled</h4><p>One click sends the hit, its scores and the conflict result into Conflara as a signed webhook. The two products share a versioned schema, not a database, so either can change inside without breaking the other. A toggle runs it standalone or in bridge mode.</p></div>
+      </div>
+      <figure class="wide">
+        <img src="assets/vigilmark-conflara-bridge.jpg" alt="The Conflara bridge screen: an inspector showing the conflara.intake.v1 payload, a webhook test, an API settings panel with its key masked, and the adverse-party watchlist." width="1400" height="900" loading="lazy">
+        <figcaption>The bridge. The payload inspector shows the intake file that Conflara receives, next to a webhook test and the watchlist. The API key is masked.</figcaption>
+      </figure>
+    </section>
+
+    <div class="cols">
+      <section class="block">
+        <h3>Scoring you can explain</h3>
+        <p>There is no model call. Sight is an edit-distance similarity. Sound compares phonetic consonant skeletons, so CONFLARA and KONFLARA both reduce to the same letters. Those combine into a mark score, which is blended with a goods-and-services score built from exact class matches, coordinated class groups and shared description vocabulary. Every score comes with a written rationale, which matters for legal work. The app's own labels say "AI"; this is plain algorithmic scoring.</p>
+      </section>
+      <section class="block">
+        <h3>Built to run anywhere</h3>
+        <ul>
+          <li><strong>Standard-library Python backend</strong> with a local database, and a single-file web app that also works straight from disk.</li>
+          <li><strong>A native Mac wrapper</strong> that starts the server and opens the app in its own window.</li>
+          <li><strong>Live trademark lookups</strong> with rate-limit tracking when an API key is present, and a built-in sample index when it isn't.</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>Built with Google Gemini, which wrote the web app, the Python server, the Mac wrapper and the schema. I set the idea and the Conflara hand-off, and the clients, matters and parties in these screenshots are invented, like the ones in the Conflara demo.</p></div>
+    </div>
+  </details>
 
   <!-- WIN YOUR CASE ASAP -->
   <details class="case" id="winyourcase">
@@ -635,7 +872,14 @@ span.note { font-style: italic; color: var(--muted); }
     <div class="made"><b>How it was built</b><p>Built with Claude Code as a page that calls Claude for the analysis. It grows out of the Conflara conflicts work. Every client, party and number in the demo is invented.</p></div>
     </div>
   </details>
+  </section>
 
+  <!-- GROUP: COMMERCIAL -->
+  <section class="group" id="g-commercial">
+    <div class="group-head">
+      <h2>Commercial</h2>
+      <p>Tools for running and finding paid work.</p>
+    </div>
   <!-- FIELDWORK -->
   <details class="case" id="fieldwork">
     <summary class="case-sum">
@@ -733,222 +977,6 @@ span.note { font-style: italic; color: var(--muted); }
     </div>
   </details>
 
-  <!-- CONFLARA -->
-  <details class="case" id="conflara">
-    <summary class="case-sum">
-      <div class="shelf-head">
-      <span class="eyebrow">Case study 01 · Legal software</span>
-      <h2>Conflara</h2>
-      <p class="sum">A conflicts-check and new-matter intake system for US law firms of 10 to 150 lawyers, carried from a working product through research, a pilot plan and two films.</p>
-      </div>
-    </summary>
-    <div class="case-body">
-      <p class="links"><a href="demos/conflara.html">Try the demo</a><a href="demos/conflara-ad.html">Watch the 60-second ad</a><a href="demos/conflara-film.html">Watch the walkthrough film</a><a href="demos/conflicts-desk-information-sheet.html">Conflicts Desk Information Sheet</a><a href="https://github.com/mylesparslow-collab/conflicts-desk">Prototype code</a></p>
-
-    <dl class="stats">
-      <div><dt>Firm roles modelled</dt><dd>7</dd></div>
-      <div><dt>Approval routing rules</dt><dd>9</dd></div>
-      <div><dt>Tests (66 files)</dt><dd>932</dd></div>
-      <div><dt>Synthetic parties benchmarked</dt><dd>3,000,000</dd></div>
-      <div><dt>Competitors researched</dt><dd>14+</dd></div>
-      <div><dt>Films made in code (60 s and 2:32)</dt><dd>2</dd></div>
-    </dl>
-
-    <figure class="wide">
-      <img src="assets/conflara-hits.jpg" alt="Hit review for a litigation request: a California Rule 1.7(b) lawyer-relationship disclosure, then two high-risk hits on the adverse party, each with a plain-English meaning, the rule, a suggested decision, the matters it matched and an advisory AI note." width="1280" height="800" loading="lazy">
-      <figcaption>Hit review. Each hit says what it means in plain English, cites the rule, suggests a decision and shows the matters behind it. The AI note is marked as advisory. All firm data is invented.</figcaption>
-    </figure>
-
-    <div class="cols">
-      <section class="block">
-        <h3>The problem</h3>
-        <p>Before a firm takes a matter, it must check every party against everyone it has represented or opposed. Mid-size firms usually search their billing system letter for letter, so they miss parent companies, former names, nicknames and misspellings. Intake is a web form nobody connects to the search, and the enterprise tools are quote-only and installed by consultants.</p>
-        <p>The people involved have different needs. An associate submits the request, a conflicts analyst reviews the hits, practice leaders and general counsel approve, and finance opens the matter. Conflara gives each of seven roles its own view.</p>
-      </section>
-      <section class="block">
-        <h3>How the matching works</h3>
-        <ul>
-          <li>Names are normalized: corporate suffixes stripped, abbreviations expanded, initials collapsed so "A.B.C. Holdings" finds "ABC Holdings".</li>
-          <li>Three scorers combine: a phonetic key (Smith and Smyth), Jaro-Winkler for typos, and trigram overlap for spacing. Rare words weigh more than common ones.</li>
-          <li>People match on surname first, then first name with 30+ nickname pairs (Kate and Katherine), aliases and former names.</li>
-          <li>Strong matches expand two hops through corporate families and one hop through personal links such as spouses and officers.</li>
-        </ul>
-      </section>
-    </div>
-
-    <div class="shots">
-      <figure>
-        <img src="assets/conflara-search.jpg" alt="Conflicts search for Kate Okafor finding a pending intake, Katherine A. Okafor via a known alias, and a company where she is an officer." width="1280" height="800" loading="lazy">
-        <figcaption>"Kate Okafor" finds the alias "Katherine A. Okafor" and, one hop out, a company where she is an officer that is a current client.</figcaption>
-      </figure>
-      <figure>
-        <img src="assets/conflara-walls.jpg" alt="Ethical walls page with compliance counts for active walls, acknowledgments outstanding and re-acknowledgments due, and export buttons for a deny list." width="1280" height="800" loading="lazy">
-        <figcaption>Ethical walls: who is screened, who still owes an acknowledgment, and a deny list to export to the document system and time entry.</figcaption>
-      </figure>
-    </div>
-
-    <section class="block">
-      <h3>Decisions that come from knowing the work</h3>
-      <div class="grid3">
-        <div><h4>Risk follows the relationship</h4><p>A name match alone means little. Being adverse to a current client on an open matter is high risk; a closed matter is medium; a match only through a personal link is capped below high. Related parties with no matter history are dropped as noise.</p></div>
-        <div><h4>Rules are built in</h4><p>Former clients point to Rule 1.9, prospective clients to Rule 1.18, lawyer relationships to California Rule 1.7(b) and (c) disclosures. Lateral hires get the 1.10, 1.11 and 1.12 analysis, and engagement letters check the California fee-agreement statutes.</p></div>
-        <div><h4>Lawyers decide, software suggests</h4><p>The local AI pre-sorts hits and drafts memos, but every AI-filled field carries a mark until a person confirms it. Restricted and walled data never reaches the model, and accepting a suggestion never decides a hit.</p></div>
-        <div><h4>Least privilege by role</h4><p>Approvers see a summary and a sign-off. Requesters see no firm records while they type. Walls are enforced in what the server sends each user, and every blocked attempt is logged.</p></div>
-        <div><h4>An audit trail that proves itself</h4><p>The log is append-only with a hash chain and a "Chain intact" check, and database triggers refuse edits. Matters cannot close until the final bill is issued and trust is at zero.</p></div>
-        <div><h4>Speed for the analyst</h4><p>J and K move between hits, 1 to 5 record a decision, Enter accepts the suggestion, and earlier decisions on the same party appear inline.</p></div>
-      </div>
-    </section>
-
-    <section class="block">
-      <h3>Since then: scale, outside data and a private model</h3>
-      <p>Conflara now has about 110,000 lines of TypeScript, 932 tests across 66 files and 140 commits, with roughly 40 of those commits and 13 merged pull requests landing in a single day. It runs two ways from the same code: a browser-only demo on fictional data, or a firm server with its own database, single sign-on, email and an AI model on the firm's own hardware.</p>
-      <div class="grid3">
-        <div><h4>Built for a firm with millions of names</h4><p>Row-level storage, incremental sync and server-side search replaced loading everything into the browser. A repeatable benchmark on synthetic firms (invented names only) goes up to 3,000,000 parties, with a written account of what limited a large firm and what changed.</p></div>
-        <div><h4>Outside entity data, watched nightly</h4><p>A party can be linked to its public-register record: legal-entity data and SEC filings, including subsidiaries read from the latest annual report. A person chooses which names and parents or subsidiaries to add. A nightly job lists what changed for a person to accept or set aside, and cleared requests are flagged for another look. The docs say plainly which sources are built, tested against recorded answers, or only stubbed.</p></div>
-        <div><h4>Search that is honest about itself</h4><p>Every search gets a number and shows what it covered and where its limits are. An empty or missing source is never shown as clearance, hits carry plain labels such as "likely same entity" instead of scores, and a no-match result is neutral, not green.</p></div>
-        <div><h4>Faster hit review</h4><p>A compact hit list with sticky party headers, identity review kept apart from the conflict assessment, and follow-ups tracked until resolved. The suggested order is learned locally from the firm's own past decisions, shows its factors and counts, is off by default, and never hides a hit or records a decision. An offline evaluation of the ranking is written up in the repo.</p></div>
-        <div><h4>Confidentiality and lateral hires</h4><p>Confidential matters are searched in batch without being revealed: the user is told there is a confidential match and nothing more. Lateral hires get a pre-start checklist with distinct pending, blocked, not-applicable and complete states, each backed by evidence.</p></div>
-        <div><h4>Compliance records</h4><p>Required documents per request, a summary of each conflict, and tracking for business-associate agreements, joint-representation consents and founder acknowledgements.</p></div>
-      </div>
-    </section>
-
-    <div class="cols">
-      <section class="block">
-        <h3>Measured, not claimed</h3>
-        <ul>
-          <li><strong>Name search</strong> (median): 77 ms to 1.3 ms at 50,000 parties; 535 ms to 5.3 ms at 250,000.</li>
-          <li><strong>Submitting an intake:</strong> 1.5 s to 37 ms at 50,000; 8.0 s to 20 ms at 250,000.</li>
-          <li><strong>After a colleague's change,</strong> a browser downloads 1 KB instead of reloading 200 KB.</li>
-          <li><strong>Server memory</strong> at 250,000 parties: 5.4 GB down to 1.8 GB.</li>
-        </ul>
-        <p>All figures come from a benchmark script run on synthetic firms with invented names.</p>
-      </section>
-      <section class="block">
-        <h3>A model that stays on the firm's hardware</h3>
-        <p>The AI runs through Ollama or any OpenAI-compatible local server, so client names never leave the building. It triages hits with a short reason, finds parties in a matter description or pasted email (any name that is not in the text is discarded), drafts a conflicts memo from the recorded decisions only, and suggests column mapping for imports. Every use is written to the audit log with the model name. The ranking model is a separate local statistical fit that uses no AI provider.</p>
-      </section>
-    </div>
-
-    <div class="cols">
-      <section class="block">
-        <h3>Teaching and testing inside the app</h3>
-        <ul>
-          <li><strong>Role-based walkthroughs</strong> (open a matter, prepare a request, approve, clear, get your firm live) that point at things but never click, submit or decide.</li>
-          <li><strong>A first-week checklist</strong> that ticks itself off from what the person actually does, with tests that limited roles are never shown a step for a page they can't open.</li>
-          <li><strong>A test environment</strong> on a fictional firm, marked by a striped banner on every page. It never writes to live data, sends email or calls an outside AI provider.</li>
-        </ul>
-      </section>
-      <section class="block">
-        <h3>Support without sharing firm data</h3>
-        <p>An administrator builds a support bundle of counts, settings switches, versions and error messages with names replaced by placeholders, reads it, then saves it. Nothing is sent automatically, and saving is written to the audit trail. To see a problem happen, support uses a test firm of made-up records at the same size and shape. The live app opens empty, with no sample data, and the desktop app ships for Windows, macOS and Linux with a first-run setup.</p>
-      </section>
-    </div>
-
-    <div class="cols">
-      <section class="block">
-        <h3>Taking it to market</h3>
-        <ul>
-          <li><strong>Research.</strong> 14+ competitors compared from public sources, and 21 gaps ranked.</li>
-          <li><strong>Pilot.</strong> Five firms over 90 days in four phases, measured on intake-to-cleared time, analyst hours per check and hits the old system missed.</li>
-          <li><strong>Honesty.</strong> A security table that says what is built and tested, built but untested, documented only, and not started.</li>
-        </ul>
-      </section>
-      <figure>
-        <img src="assets/ad.jpg" alt="Frame from the Conflara ad: spreadsheet, email and billing-search cards scattered on a dark background with the caption 'Most firms answer it with spreadsheets, email chains and a two-day wait.'" width="1280" height="800" loading="lazy">
-        <figcaption>Conflara in sixty seconds: nine scenes, typed text, a logo that draws itself and an original score, all in HTML, CSS and JavaScript. A 12-chapter, 2 min 32 s walkthrough film runs on the same engine.</figcaption>
-      </figure>
-    </div>
-
-    <div class="made"><b>How it was built</b><p>It began as the <a href="https://github.com/mylesparslow-collab/conflicts-desk">Conflicts Desk</a> prototype in Claude Code, with tests and CI, and grew into Conflara. I supplied the domain: how conflicts departments actually run, which rules apply, and where existing tools fall short. Claude built the search engine, the synthetic firm and every screen. It then helped research competitors, price the product, write the pilot pack and script and code both films.</p></div>
-    </div>
-  </details>
-
-  <!-- VIGILMARK -->
-  <details class="case" id="vigilmark">
-    <summary class="case-sum">
-      <div class="shelf-head">
-      <span class="eyebrow">Companion to case study 01 · Legal software</span>
-      <h2>VigilMark</h2>
-      <p class="sum">A trademark watch and triage desk for a conflicts-first law firm: it ranks new filings that look like a client's mark, checks whether the applicant is related to a firm client, and hands the hit to Conflara as an intake.</p>
-      </div>
-    </summary>
-    <div class="case-body">
-      <p class="links"><span>No public demo: screenshots only, all on invented clients and matters</span></p>
-
-    <dl class="stats">
-      <div><dt>Views</dt><dd>5</dd></div>
-      <div><dt>Generated document types</dt><dd>4</dd></div>
-      <div><dt>Import formats</dt><dd>3</dd></div>
-      <div><dt>Conflict states</dt><dd>3</dd></div>
-      <div><dt>Lines of code</dt><dd>1,980</dd></div>
-      <div><dt>Backend dependencies</dt><dd>0</dd></div>
-    </dl>
-
-    <figure class="wide">
-      <img src="assets/vigilmark-triage.jpg" alt="VigilMark's watch triage feed: incoming Official Gazette filings ranked by likelihood-of-confusion score, with a breakdown for CONFLARA versus KONFLARA LEGAL, a days-left countdown and a cleared conflict check." width="1400" height="900" loading="lazy">
-      <figcaption>The triage feed. Each new filing is scored against the client's mark, shows the days left in the opposition window, and carries a conflict check on the applicant. All names are invented.</figcaption>
-    </figure>
-
-    <div class="cols">
-      <section class="block">
-        <h3>The problem</h3>
-        <p>Trademark watch services flag new filings, but someone still has to decide which hits matter, check whether the applicant is related to an existing firm client (opposing a client's subsidiary can be a conflict of interest), and turn the hit into an engagement before the 30-day opposition window closes. Those three steps usually sit in different tools and inboxes.</p>
-      </section>
-      <section class="block">
-        <h3>What it does</h3>
-        <ul>
-          <li><strong>Triage feed</strong> of incoming Official Gazette and §2(d) hits, ranked by score and days left, filterable by registry.</li>
-          <li><strong>Watched marks portfolio</strong> with classes, goods and services, registries and watch strategy.</li>
-          <li><strong>Clearance lab:</strong> type two marks and see the scores update live.</li>
-          <li><strong>Enforcement studio:</strong> from any hit, a client pitch email with flat-fee options, a cease and desist letter, notice-of-opposition grounds, and an intake file.</li>
-          <li><strong>Batch import</strong> of Gazette filings as CSV, JSON or XML, each scored against every watched mark.</li>
-        </ul>
-      </section>
-    </div>
-
-    <div class="shots">
-      <figure>
-        <img src="assets/vigilmark-dupont-lab.jpg" alt="The clearance lab: two marks entered side by side with live sight, sound and goods scores, and a conflict hit on the applicant's parent company." width="1400" height="900" loading="lazy">
-        <figcaption>The clearance lab. Sight, sound and goods scores update as you type, and a parent-company match raises a conflict hit before anyone opposes a client.</figcaption>
-      </figure>
-      <figure>
-        <img src="assets/vigilmark-pitch-email.jpg" alt="The enforcement studio showing a generated client pitch email with the score breakdown, the opposition deadline and two flat-fee options." width="1400" height="900" loading="lazy">
-        <figcaption>One click turns a hit into a ready-to-edit client email with the deadline and flat-fee options.</figcaption>
-      </figure>
-    </div>
-
-    <section class="block">
-      <h3>How it connects to Conflara</h3>
-      <div class="grid3">
-        <div><h4>A published contract</h4><p>VigilMark defines a versioned schema, <code>conflara.intake.v1</code>, that maps a trademark hit onto Conflara's intake: client, matter, related parties and party roles such as parent entity, lead investor and adverse counterparty subsidiary.</p></div>
-        <div><h4>Conflict check first</h4><p>Before it recommends anything, VigilMark checks the applicant and its parent against a watchlist of firm clients and their corporate families, and marks the hit Cleared, Subsidiary review or Direct conflict, always flagged for human verification.</p></div>
-        <div><h4>Loosely coupled</h4><p>One click sends the hit, its scores and the conflict result into Conflara as a signed webhook. The two products share a versioned schema, not a database, so either can change inside without breaking the other. A toggle runs it standalone or in bridge mode.</p></div>
-      </div>
-      <figure class="wide">
-        <img src="assets/vigilmark-conflara-bridge.jpg" alt="The Conflara bridge screen: an inspector showing the conflara.intake.v1 payload, a webhook test, an API settings panel with its key masked, and the adverse-party watchlist." width="1400" height="900" loading="lazy">
-        <figcaption>The bridge. The payload inspector shows the intake file that Conflara receives, next to a webhook test and the watchlist. The API key is masked.</figcaption>
-      </figure>
-    </section>
-
-    <div class="cols">
-      <section class="block">
-        <h3>Scoring you can explain</h3>
-        <p>There is no model call. Sight is an edit-distance similarity. Sound compares phonetic consonant skeletons, so CONFLARA and KONFLARA both reduce to the same letters. Those combine into a mark score, which is blended with a goods-and-services score built from exact class matches, coordinated class groups and shared description vocabulary. Every score comes with a written rationale, which matters for legal work. The app's own labels say "AI"; this is plain algorithmic scoring.</p>
-      </section>
-      <section class="block">
-        <h3>Built to run anywhere</h3>
-        <ul>
-          <li><strong>Standard-library Python backend</strong> with a local database, and a single-file web app that also works straight from disk.</li>
-          <li><strong>A native Mac wrapper</strong> that starts the server and opens the app in its own window.</li>
-          <li><strong>Live trademark lookups</strong> with rate-limit tracking when an API key is present, and a built-in sample index when it isn't.</li>
-        </ul>
-      </section>
-    </div>
-
-    <div class="made"><b>How it was built</b><p>Built with Google Gemini, which wrote the web app, the Python server, the Mac wrapper and the schema. I set the idea and the Conflara hand-off, and the clients, matters and parties in these screenshots are invented, like the ones in the Conflara demo.</p></div>
-    </div>
-  </details>
-
   <!-- RSC -->
   <details class="case" id="rsc">
     <summary class="case-sum">
@@ -1036,72 +1064,135 @@ span.note { font-style: italic; color: var(--muted); }
     </div>
   </details>
 
-  <!-- BYZANTIUM -->
-  <details class="case" id="byzantium">
+  <!-- MONEY DESK -->
+  <details class="case" id="money">
     <summary class="case-sum">
       <div class="shelf-head">
-      <span class="eyebrow">Case study 03 · Reference work</span>
-      <h2>Byzantium</h2>
-      <p class="sum">An illustrated encyclopedia of the Eastern Roman Empire, 324 to 1453, built around a mosaic atlas you can drag through 1,129 years and watch the borders move.</p>
+      <span class="eyebrow">Sister app · Local AI</span>
+      <h2>Money Desk</h2>
+      <p>A workbench for finding and doing paid work with local models. It never posts, messages or signs up anywhere on its own: every output is a draft I check and send myself, and its prompts forbid inventing facts, prices or results.</p>
       </div>
     </summary>
     <div class="case-body">
-      <p class="links"><a href="https://byzantium-atlas.pages.dev/">Explore the live atlas</a></p>
+      <p class="links"><span>No public demo yet: runs locally</span></p>
+    <dl class="stats">
+      <div><dt>Lines of code</dt><dd>9,800</dd></div>
+      <div><dt>Studio tools</dt><dd>11</dd></div>
+      <div><dt>Sales pipelines</dt><dd>5</dd></div>
+      <div><dt>Assist stages</dt><dd>5</dd></div>
+      <div><dt>Coach characters</dt><dd>29</dd></div>
+      <div><dt>Starter prompts</dt><dd>48</dd></div>
+    </dl>
+    <div class="more">
+      <div><h3>Research and ideas</h3><p>Ideas scored on demand, competition, effort and speed, with a skeptical-investor critique. Research briefs from web search mark which facts came from sources and which are guesses.</p></div>
+      <div><h3>Gig Hunter and RFP Hunter</h3><p>Every few hours it reads public job boards, scores what's left against ten skills and drafts replies. A separate tool ranks public government bids by fit, profit and complexity.</p></div>
+      <div><h3>A five-stage assist chain</h3><p>Brainstormer, Assessor, Planner, Executor and Content Creator, each seeing everything earlier stages produced, with prompts editable in the app.</p></div>
+      <div><h3>Model choice and resilience</h3><p>It picks the best installed model, retries without the reasoning flag for models that lack it, uses a vision model for photo listings, and runs long jobs on the server so a closed tab never loses a result.</p></div>
+    </div>
+    </div>
+  </details>
+  </section>
+
+  <!-- GROUP: CREATIVE AND MEDIA -->
+  <section class="group" id="g-creative">
+    <div class="group-head">
+      <h2>Creative and media</h2>
+      <p>Songs, animation, games and fiction.</p>
+    </div>
+  <!-- CAT SONGS -->
+  <details class="case" id="songs">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 05 · Music &amp; animation</span>
+      <h2>Cat songs and music videos</h2>
+      <p class="sum">A repeatable way to write songs with Suno, and a toolkit that turns a finished song into a timed storyboard and an animated music video starring my cats.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="https://www.youtube.com/playlist?list=PLKCbGht0OqxU">Watch all 14 songs on YouTube</a><a href="https://www.youtube.com/watch?v=fZF2ik8_9Vs">Start with one video</a></p>
 
     <dl class="stats">
-      <div><dt>Dated territory snapshots</dt><dd>200</dd></div>
-      <div><dt>Map features</dt><dd>11,850</dd></div>
-      <div><dt>Encyclopedia entries</dt><dd>464</dd></div>
-      <div><dt>Licensed images</dt><dd>1,174</dd></div>
-      <div><dt>Podcast episodes indexed</dt><dd>440</dd></div>
-      <div><dt>Invalid geometries / overlaps</dt><dd>0 / 0</dd></div>
+      <div><dt>Steps in the song workflow</dt><dd>17</dd></div>
+      <div><dt>Quality-control checks per lyric</dt><dd>15</dd></div>
+      <div><dt>Word timings, one song</dt><dd>627</dd></div>
+      <div><dt>Shots in the finished video</dt><dd>34</dd></div>
+      <div><dt>Video length</dt><dd>3:33</dd></div>
+      <div><dt>Export</dt><dd>1080 × 1920</dd></div>
     </dl>
 
-    <figure class="wide">
-      <img src="assets/byz-atlas-1025.jpg" alt="The Byzantium atlas set to the year 1025: the empire laid out in purple mosaic tiles edged in gold, a blue tessera sea, a year slider with dynasty bands, and a panel describing what was happening in 1025." width="1600" height="1000" loading="lazy">
-      <figcaption>The atlas at 1025, near the empire's height. Every tile is a tessera; the panel says who was on the throne and who held what that year.</figcaption>
-    </figure>
-
     <section class="block">
-      <h3>The atlas</h3>
+      <h3>The song workflow</h3>
+      <p>The songs are written with Suno, and the process is a written system: concept, style, structure, meter, hook, verses, then a rhyme audit and a length audit before anything is generated. After generating, the song is diagnosed before it is rewritten. The full workflow runs to 17 steps; these are the ideas that matter most.</p>
       <div class="grid3">
-        <div><h4>Drawn as a mosaic</h4><p>Territory is one fixed grid of tesserae, each slightly varied in shade, with grout between them. The empire is imperial purple edged in gold; the sea is blue tile. A Borders mode switches to clean outlines, and light and dark themes each have their own palette.</p></div>
-        <div><h4>Conquest you can watch</h4><p>When borders change, only the tiles that changed owner turn over, in a wave that starts from the conqueror's side, so territory is taken rather than repainted. Cities that change hands send out a ripple.</p></div>
-        <div><h4>Built for scrubbing</h4><p>Drag, click or use the keyboard; play at 1 to 50 years a second; or press Next change to jump to the next year the map moves. Ownership is cached per snapshot and neighbours precomputed, so fast scrubbing stays smooth.</p></div>
-        <div><h4>Honest about the record</h4><p>Overlapping claims of more than about 500 km² become hatched contested land instead of being handed to one side. Five places where the source disagrees with history, from Manzikert to 1453, are corrected and explained on the map.</p></div>
-        <div><h4>Checked, not assumed</h4><p>An automated check confirms zero invalid geometries and zero overlaps across all 200 snapshots, and ten key years match the source to within 1% of land area. Five other map sources were evaluated and rejected, each with a written reason.</p></div>
-        <div><h4>More ways in</h4><p>Compare two years side by side with a draggable divider, switch to a table of powers, toggle cities, battles and campaign routes, and share any view by its URL. Patterns stand in for colour, and reduced motion swaps flips for fades.</p></div>
+        <div><h4>Start with the premise</h4><p>Name the core concept, point of view, emotional tone and the central joke or tension, and brainstorm scenes and images before any lyric. Comedy works best when the singer treats an absurd premise completely seriously. The joke is never explained; it comes out of the character's logic.</p></div>
+        <div><h4>A separate style prompt</h4><p>Genre, BPM, drum feel, bass, harmony, instruments, vocal register and timbre, texture, space and mood, in under about 1,000 characters. The instrumental should sound like a real record first: future garage, neo-soul, dub, dancehall, vintage calypso, synth-funk, jazz-funk. Funny lyrics don't need funny production, and the contrast is often what makes them funny.</p></div>
+        <div><h4>Lock structure, then meter</h4><p>Sections are decided before writing, and equivalent sections get equivalent line counts (8, 12 or 16, never a verse that runs long because it has more jokes). A syllable pattern is set per section, such as 8/8/8/8 or 7/10/7/10, with an even stricter meter in the chorus because the music model needs a predictable shape.</p></div>
+        <div><h4>The hook is designed on its own</h4><p>A short repeated phrase of three to five syllables with a repeated grammatical construction and simple words: "Kitty computer", "No teef, big life". The chorus gets its own identity instead of summarising the verses.</p></div>
+        <div><h4>Verses are distinct scenes</h4><p>Concrete images, physical detail and character-specific logic. When several characters sing, each has a different worldview, vocabulary and kind of joke, and no two are interchangeable.</p></div>
+        <div><h4>Rhyme with rules</h4><p>End, internal, multisyllabic and slant rhyme, with several rhyme points inside a line when it comes naturally. No word rhymed with itself, no lazy pseudo-rhymes such as side and outside, and no bent syntax to force a rhyme. Sound beats spelling.</p></div>
+        <div><h4>Written to be sung</h4><p>Where do the stresses fall, can the singer breathe, are the vowels good for held notes, and does each line have a rhythmic shape like its neighbour? A lyric can look clever on paper and still generate badly if the meter is unstable.</p></div>
+        <div><h4>Realistic runtime, musical endings</h4><p>The target is about 3:15 to 3:30. If a lyric is too long, cut the weaker jokes and shorten the bridge rather than rush the model. Endings are a refrain, a stripped hook, a harmony stack or an instrumental fade, not a spoken skit.</p></div>
+        <div><h4>Arrangements that evolve</h4><p>Dropouts, countermelodies, filtered passages, bass breaks, drum changes, vocal stacks, dub-delay throws, sparse bridges and a bigger final chorus, so the track develops instead of looping. Vocals are described precisely, for example a high, clear, intimate lead with airy falsetto edges, close-mic phrasing, whispered doubles and soft stacked harmonies.</p></div>
       </div>
     </section>
 
-    <div class="shots">
-      <figure>
-        <img src="assets/byz-atlas-compare.jpg" alt="Atlas compare mode: two years of the empire side by side, split by a draggable divider." width="1600" height="1000" loading="lazy">
-        <figcaption>Compare mode: two years side by side with a divider you can drag or move by keyboard.</figcaption>
-      </figure>
-      <figure>
-        <img src="assets/byz-atlas-1204.jpg" alt="The atlas in dark mode at 1204, with former imperial land hatched as contested after the Fourth Crusade." width="1600" height="1000" loading="lazy">
-        <figcaption>1204 in dark mode: after the Fourth Crusade the empire's land is hatched as contested rather than simply recoloured.</figcaption>
-      </figure>
+    <div class="cols">
+      <section class="block">
+        <h3>Quality control before output</h3>
+        <p>Fifteen checks run on every lyric: equal line counts in matching verses, the intended syllable pattern, a consistent chorus meter, a short memorable hook, no self-rhymes or lazy rhymes, internal and multisyllabic rhyme present, no line much denser than its neighbours, a lyric that scans out loud, distinct verses, a realistic runtime, a joke that is embodied rather than explained, a musical ending, and a production prompt that sounds like a real record. The output is always two copyable blocks, a style prompt and the lyrics, with no long explanations.</p>
+      </section>
+      <section class="block">
+        <h3>Diagnose before rewriting</h3>
+        <ul>
+          <li><strong>Confused melody:</strong> check syllable count and line length.</li>
+          <li><strong>Weak chorus:</strong> simplify it and repeat more.</li>
+          <li><strong>Rushed verses:</strong> cut density or cut lines.</li>
+          <li><strong>Feels childish:</strong> make the production more serious.</li>
+          <li><strong>Forced jokes:</strong> go back to character perspective and concrete detail.</li>
+          <li><strong>Weak rhymes:</strong> rewrite the rhyme structure instead of patching words.</li>
+        </ul>
+        <p class="note">Concept, style, structure, meter, hook, verses, rhyme audit, length audit, generate, diagnose, revise.</p>
+      </section>
     </div>
+
+    <section class="block">
+      <h3>Cat Music Video Studio</h3>
+      <p>A toolkit that connects a recorded song to a timed storyboard and animated character performances. Turning a finished song into a video means coordinating several timelines at once: the recording, the lyrics, the characters' performances and the visual story. Written lyrics don't capture how a singer actually delivers them, and repeated hooks, held vowels, pauses, ad-libs and changed pronunciations all make synchronisation hard. I directed the AI-assisted build of the tool that solves it.</p>
+      <div class="grid3">
+        <div><h4>An interactive review tool</h4><p>One browser workspace holds the song, the isolated vocal, the lyrics and the storyboard. Words and lines are clickable to audition them, master and vocal switch without losing your place, and playback speed slows difficult phrases. A waveform seeks on click, the current word highlights live, and search and section filters move through verses and choruses. Review flags and confidence labels mark uncertain alignment, and a storyboard view ties timed scenes to actions, camera direction, continuity notes and generation prompts.</p></div>
+        <div><h4>Audio analysis and alignment</h4><p>Scripts decode the master and the isolated vocal, measure both, and compare sync at several points. Whisper recognition and reference-conditioned alignment propose word and line timings, and separate analysis of each stem gives evidence to compare them. Targeted passes handle the hard parts: repeated calls, short interjections and closing phrases. The data keeps supplied lyrics, model recognition, candidate timestamps and unresolved events apart, so uncertainty stays visible.</p></div>
+        <div><h4>Production data other tools can use</h4><p>JSON for timing maps, audio metadata, lyrics, scenes and review evidence. CSV for word and line timings, sections, non-lyric intervals, scene plans and review logs. SRT for draft captions. HTML for an interactive review package with the timing data embedded. Together they give audio, shots, captions and animation one shared timeline.</p></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h3>The songs</h3>
+      <p>Fourteen songs so far, all starring my cats, written and generated with the workflow above and collected in <a href="https://www.youtube.com/playlist?list=PLKCbGht0OqxU">one YouTube playlist</a>.</p>
+      <ul><li>Why You Chase Me, Newty?</li><li>On Mi Turf</li><li>No Teef, Big Life</li><li>Mommy Saved Mi</li><li>Who Puke Pon di Floor?</li><li>Vet Day Come</li><li>Mi Nah Like Moving Day</li><li>Every Lane, Every Road</li><li>Free Di Claw</li><li>Shoulda Leave di Treats Alone</li><li>Please Turn on di Sink</li><li>Flea Pon Me</li><li>Kitty Computer</li><li>Open up the Door</li></ul>
+    </section>
+
+    <section class="block">
+      <h3>A finished animation</h3>
+      <p>A complete music video built in the browser with p5.js, combining character drawings, environments, timed shots, captions and the original song. Mouth opening follows word timing and vocal amplitude, the mouth closes between timed words, and singing can be switched on or off per shot. Mouth and tongue shapes respond to the resulting value. It has play, seek, restart, mute, caption and fullscreen controls, plus a rendered vertical-video version.</p>
+      <ul>
+        <li><strong>"Every Lane, Every Road":</strong> a 34-shot animated video, about 3 minutes 33 seconds, exported at 1080 × 1920 and 25 fps.</li>
+        <li><strong>"Why You Run Me Down, Newty?":</strong> 627 word records and 44 proposed shots.</li>
+        <li><strong>"Mommy Save Mi":</strong> 567 word records and 42 proposed shots.</li>
+      </ul>
+    </section>
 
     <div class="cols">
       <section class="block">
-        <h3>The encyclopedia around it</h3>
-        <ul>
-          <li><strong>464 entries</strong> pinned to fixed Wikipedia revisions with restored footnotes, plus 168 original introductions labelled as such.</li>
-          <li><strong>1,174 Commons images</strong> with author and licence; 41 were left out because their licence couldn't be confirmed.</li>
-          <li><strong>A guide to all 440 episodes</strong> of <em>The History of Byzantium</em> podcast. The build fails if any 12-word run matches the podcast's pages.</li>
-          <li><strong>87 battle entries</strong>, a people index of 1,765, a gazetteer, coins, a primary-source reader for Procopius and Anna Komnene, and a timeline that shares its playhead with the atlas.</li>
-        </ul>
+        <h3>What it can't do yet</h3>
+        <p>Alignment is provisional until someone has reviewed it by listening. The mouth animation is stylised and driven by words and vocal energy, so it is not phoneme-verified lip sync. The review interface supports inspection, but editable timing boundaries and saved corrections are still to come, and the processing scripts hold song-specific settings that need adapting for each new song.</p>
+        <p>Next: a reusable pipeline with configurable song inputs, persistent timing corrections and per-character mouth controls.</p>
       </section>
       <section class="block">
-        <h3>Built and verified</h3>
-        <p>React, TypeScript and d3-geo, with Python pipelines for the map geometry: borders from the Seshat Cliopatria dataset, coastlines from Natural Earth, and 96 cities and 71 battles from Wikidata. It ships with 20 slider tests, 60 screenshot checks across phone and desktop, and Lighthouse mobile scores of 93 to 96.</p>
+        <h3>Built with</h3>
+        <p>Python, Whisper small.en, stable-ts, FFmpeg, NumPy, SciPy, soundfile, JavaScript, HTML and CSS, and p5.js.</p>
+        <div class="made"><b>My role</b><p>I set the creative goals, supplied the songs and characters, directed the AI-assisted build, and shaped the workflow through requirements and feedback. It was built through an iterative ChatGPT and Codex workflow, which wrote the implementation, analysis scripts, production documents and animation code.</p></div>
       </section>
     </div>
-
-    <div class="made"><b>How it was built</b><p>One long Claude Code session took it from an empty folder to a verified site. Claude evaluated map sources and their licences, built three data pipelines and the renderer, and wrote its own reports on what failed, what was skipped and where the sources disagree, for me to review.</p></div>
     </div>
   </details>
 
@@ -1229,131 +1320,51 @@ span.note { font-style: italic; color: var(--muted); }
     </div>
   </details>
 
-  <!-- MONEY DESK -->
-  <details class="case" id="money">
-    <summary class="case-sum">
-      <div class="shelf-head">
-      <span class="eyebrow">Sister app · Local AI</span>
-      <h2>Money Desk</h2>
-      <p>A workbench for finding and doing paid work with local models. It never posts, messages or signs up anywhere on its own: every output is a draft I check and send myself, and its prompts forbid inventing facts, prices or results.</p>
-      </div>
-    </summary>
-    <div class="case-body">
-      <p class="links"><span>No public demo yet: runs locally</span></p>
-    <dl class="stats">
-      <div><dt>Lines of code</dt><dd>9,800</dd></div>
-      <div><dt>Studio tools</dt><dd>11</dd></div>
-      <div><dt>Sales pipelines</dt><dd>5</dd></div>
-      <div><dt>Assist stages</dt><dd>5</dd></div>
-      <div><dt>Coach characters</dt><dd>29</dd></div>
-      <div><dt>Starter prompts</dt><dd>48</dd></div>
-    </dl>
-    <div class="more">
-      <div><h3>Research and ideas</h3><p>Ideas scored on demand, competition, effort and speed, with a skeptical-investor critique. Research briefs from web search mark which facts came from sources and which are guesses.</p></div>
-      <div><h3>Gig Hunter and RFP Hunter</h3><p>Every few hours it reads public job boards, scores what's left against ten skills and drafts replies. A separate tool ranks public government bids by fit, profit and complexity.</p></div>
-      <div><h3>A five-stage assist chain</h3><p>Brainstormer, Assessor, Planner, Executor and Content Creator, each seeing everything earlier stages produced, with prompts editable in the app.</p></div>
-      <div><h3>Model choice and resilience</h3><p>It picks the best installed model, retries without the reasoning flag for models that lack it, uses a vision model for photo listings, and runs long jobs on the server so a closed tab never loses a result.</p></div>
-    </div>
-    </div>
-  </details>
-
-  <!-- CAT SONGS -->
-  <details class="case" id="songs">
-    <summary class="case-sum">
-      <div class="shelf-head">
-      <span class="eyebrow">Case study 05 · Music &amp; animation</span>
-      <h2>Cat songs and music videos</h2>
-      <p class="sum">A repeatable way to write songs with Suno, and a toolkit that turns a finished song into a timed storyboard and an animated music video starring my cats.</p>
-      </div>
-    </summary>
-    <div class="case-body">
-      <p class="links"><a href="https://www.youtube.com/playlist?list=PLKCbGht0OqxU">Watch all 14 songs on YouTube</a><a href="https://www.youtube.com/watch?v=fZF2ik8_9Vs">Start with one video</a></p>
-
-    <dl class="stats">
-      <div><dt>Steps in the song workflow</dt><dd>17</dd></div>
-      <div><dt>Quality-control checks per lyric</dt><dd>15</dd></div>
-      <div><dt>Word timings, one song</dt><dd>627</dd></div>
-      <div><dt>Shots in the finished video</dt><dd>34</dd></div>
-      <div><dt>Video length</dt><dd>3:33</dd></div>
-      <div><dt>Export</dt><dd>1080 × 1920</dd></div>
-    </dl>
-
-    <section class="block">
-      <h3>The song workflow</h3>
-      <p>The songs are written with Suno, and the process is a written system: concept, style, structure, meter, hook, verses, then a rhyme audit and a length audit before anything is generated. After generating, the song is diagnosed before it is rewritten. The full workflow runs to 17 steps; these are the ideas that matter most.</p>
-      <div class="grid3">
-        <div><h4>Start with the premise</h4><p>Name the core concept, point of view, emotional tone and the central joke or tension, and brainstorm scenes and images before any lyric. Comedy works best when the singer treats an absurd premise completely seriously. The joke is never explained; it comes out of the character's logic.</p></div>
-        <div><h4>A separate style prompt</h4><p>Genre, BPM, drum feel, bass, harmony, instruments, vocal register and timbre, texture, space and mood, in under about 1,000 characters. The instrumental should sound like a real record first: future garage, neo-soul, dub, dancehall, vintage calypso, synth-funk, jazz-funk. Funny lyrics don't need funny production, and the contrast is often what makes them funny.</p></div>
-        <div><h4>Lock structure, then meter</h4><p>Sections are decided before writing, and equivalent sections get equivalent line counts (8, 12 or 16, never a verse that runs long because it has more jokes). A syllable pattern is set per section, such as 8/8/8/8 or 7/10/7/10, with an even stricter meter in the chorus because the music model needs a predictable shape.</p></div>
-        <div><h4>The hook is designed on its own</h4><p>A short repeated phrase of three to five syllables with a repeated grammatical construction and simple words: "Kitty computer", "No teef, big life". The chorus gets its own identity instead of summarising the verses.</p></div>
-        <div><h4>Verses are distinct scenes</h4><p>Concrete images, physical detail and character-specific logic. When several characters sing, each has a different worldview, vocabulary and kind of joke, and no two are interchangeable.</p></div>
-        <div><h4>Rhyme with rules</h4><p>End, internal, multisyllabic and slant rhyme, with several rhyme points inside a line when it comes naturally. No word rhymed with itself, no lazy pseudo-rhymes such as side and outside, and no bent syntax to force a rhyme. Sound beats spelling.</p></div>
-        <div><h4>Written to be sung</h4><p>Where do the stresses fall, can the singer breathe, are the vowels good for held notes, and does each line have a rhythmic shape like its neighbour? A lyric can look clever on paper and still generate badly if the meter is unstable.</p></div>
-        <div><h4>Realistic runtime, musical endings</h4><p>The target is about 3:15 to 3:30. If a lyric is too long, cut the weaker jokes and shorten the bridge rather than rush the model. Endings are a refrain, a stripped hook, a harmony stack or an instrumental fade, not a spoken skit.</p></div>
-        <div><h4>Arrangements that evolve</h4><p>Dropouts, countermelodies, filtered passages, bass breaks, drum changes, vocal stacks, dub-delay throws, sparse bridges and a bigger final chorus, so the track develops instead of looping. Vocals are described precisely, for example a high, clear, intimate lead with airy falsetto edges, close-mic phrasing, whispered doubles and soft stacked harmonies.</p></div>
-      </div>
-    </section>
-
-    <div class="cols">
-      <section class="block">
-        <h3>Quality control before output</h3>
-        <p>Fifteen checks run on every lyric: equal line counts in matching verses, the intended syllable pattern, a consistent chorus meter, a short memorable hook, no self-rhymes or lazy rhymes, internal and multisyllabic rhyme present, no line much denser than its neighbours, a lyric that scans out loud, distinct verses, a realistic runtime, a joke that is embodied rather than explained, a musical ending, and a production prompt that sounds like a real record. The output is always two copyable blocks, a style prompt and the lyrics, with no long explanations.</p>
-      </section>
-      <section class="block">
-        <h3>Diagnose before rewriting</h3>
-        <ul>
-          <li><strong>Confused melody:</strong> check syllable count and line length.</li>
-          <li><strong>Weak chorus:</strong> simplify it and repeat more.</li>
-          <li><strong>Rushed verses:</strong> cut density or cut lines.</li>
-          <li><strong>Feels childish:</strong> make the production more serious.</li>
-          <li><strong>Forced jokes:</strong> go back to character perspective and concrete detail.</li>
-          <li><strong>Weak rhymes:</strong> rewrite the rhyme structure instead of patching words.</li>
-        </ul>
-        <p class="note">Concept, style, structure, meter, hook, verses, rhyme audit, length audit, generate, diagnose, revise.</p>
-      </section>
+  <!-- WRITING -->
+  <section class="shelf" id="writing">
+    <div class="shelf-head">
+      <span class="eyebrow">Writing &amp; workflows</span>
+      <h2>298,692 words of fiction, and the systems that write it</h2>
+      <p>A novel, a historical series and a screenplay package, each built with a process I can repeat: a story bible or system prompt first, then drafting and revision.</p>
+          <p class="links"><a href="demos/screenwriter-prompt.html">Read the screenwriter system prompt</a><a href="demos/corpus.html">Read CORPUS</a><a href="demos/fine-tuned.html">Read the FINE-TUNED pitch</a></p>
     </div>
 
-    <section class="block">
-      <h3>Cat Music Video Studio</h3>
-      <p>A toolkit that connects a recorded song to a timed storyboard and animated character performances. Turning a finished song into a video means coordinating several timelines at once: the recording, the lyrics, the characters' performances and the visual story. Written lyrics don't capture how a singer actually delivers them, and repeated hooks, held vowels, pauses, ad-libs and changed pronunciations all make synchronisation hard. I directed the AI-assisted build of the tool that solves it.</p>
-      <div class="grid3">
-        <div><h4>An interactive review tool</h4><p>One browser workspace holds the song, the isolated vocal, the lyrics and the storyboard. Words and lines are clickable to audition them, master and vocal switch without losing your place, and playback speed slows difficult phrases. A waveform seeks on click, the current word highlights live, and search and section filters move through verses and choruses. Review flags and confidence labels mark uncertain alignment, and a storyboard view ties timed scenes to actions, camera direction, continuity notes and generation prompts.</p></div>
-        <div><h4>Audio analysis and alignment</h4><p>Scripts decode the master and the isolated vocal, measure both, and compare sync at several points. Whisper recognition and reference-conditioned alignment propose word and line timings, and separate analysis of each stem gives evidence to compare them. Targeted passes handle the hard parts: repeated calls, short interjections and closing phrases. The data keeps supplied lyrics, model recognition, candidate timestamps and unresolved events apart, so uncertainty stays visible.</p></div>
-        <div><h4>Production data other tools can use</h4><p>JSON for timing maps, audio metadata, lyrics, scenes and review evidence. CSV for word and line timings, sections, non-lyric intervals, scene plans and review logs. SRT for draft captions. HTML for an interactive review package with the timing data embedded. Together they give audio, shots, captions and animation one shared timeline.</p></div>
-      </div>
-    </section>
-
-    <section class="block">
-      <h3>The songs</h3>
-      <p>Fourteen songs so far, all starring my cats, written and generated with the workflow above and collected in <a href="https://www.youtube.com/playlist?list=PLKCbGht0OqxU">one YouTube playlist</a>.</p>
-      <ul><li>Why You Chase Me, Newty?</li><li>On Mi Turf</li><li>No Teef, Big Life</li><li>Mommy Saved Mi</li><li>Who Puke Pon di Floor?</li><li>Vet Day Come</li><li>Mi Nah Like Moving Day</li><li>Every Lane, Every Road</li><li>Free Di Claw</li><li>Shoulda Leave di Treats Alone</li><li>Please Turn on di Sink</li><li>Flea Pon Me</li><li>Kitty Computer</li><li>Open up the Door</li></ul>
-    </section>
-
-    <section class="block">
-      <h3>A finished animation</h3>
-      <p>A complete music video built in the browser with p5.js, combining character drawings, environments, timed shots, captions and the original song. Mouth opening follows word timing and vocal amplitude, the mouth closes between timed words, and singing can be switched on or off per shot. Mouth and tongue shapes respond to the resulting value. It has play, seek, restart, mute, caption and fullscreen controls, plus a rendered vertical-video version.</p>
-      <ul>
-        <li><strong>"Every Lane, Every Road":</strong> a 34-shot animated video, about 3 minutes 33 seconds, exported at 1080 × 1920 and 25 fps.</li>
-        <li><strong>"Why You Run Me Down, Newty?":</strong> 627 word records and 44 proposed shots.</li>
-        <li><strong>"Mommy Save Mi":</strong> 567 word records and 42 proposed shots.</li>
-      </ul>
-    </section>
-
-    <div class="cols">
-      <section class="block">
-        <h3>What it can't do yet</h3>
-        <p>Alignment is provisional until someone has reviewed it by listening. The mouth animation is stylised and driven by words and vocal energy, so it is not phoneme-verified lip sync. The review interface supports inspection, but editable timing boundaries and saved corrections are still to come, and the processing scripts hold song-specific settings that need adapting for each new song.</p>
-        <p>Next: a reusable pipeline with configurable song inputs, persistent timing corrections and per-character mouth controls.</p>
-      </section>
-      <section class="block">
-        <h3>Built with</h3>
-        <p>Python, Whisper small.en, stable-ts, FFmpeg, NumPy, SciPy, soundfile, JavaScript, HTML and CSS, and p5.js.</p>
-        <div class="made"><b>My role</b><p>I set the creative goals, supplied the songs and characters, directed the AI-assisted build, and shaped the workflow through requirements and feedback. It was built through an iterative ChatGPT and Codex workflow, which wrote the implementation, analysis scripts, production documents and animation code.</p></div>
-      </section>
+    <div class="books">
+      <article class="book">
+        <span class="kind">Series · Historical fiction</span>
+        <h3>No Ear Cut Twice</h3>
+        <p class="count">94,828 words</p>
+        <p class="logline">On an island where perjurers lose their ears, a plasterer hides that his are prosthetic stucco, and a single lie blooms into a herd of thousands.</p>
+        <p>Set on Ischia and in Naples across three parts: The Lie (34,187 words), The Herd (19,492) and The Collection (41,149). 32 chapters and an interlude.</p>
+        <div class="made"><b>How it was made</b><p>Written part by part, then carried to launch with a 3,159-word marketing pack holding a master prompt, 14 image prompts and a bank of copy.</p></div>
+      </article>
+      <article class="book">
+        <span class="kind">Novel · Literary science fiction</span>
+        <h3>Thalweg</h3>
+        <p class="count">189,962 words</p>
+        <p class="logline">A surveyor re-measures her lost father's survey stations inside a vast alien object and finds a span that breathes.</p>
+        <p>34 chapters and 6 interludes in seven parts, with chapters running from 4,176 to 8,701 words. The prose uses real surveying technique.</p>
+        <div class="made"><b>How it was made</b><p>A 4,982-word story bible came first and kept the book consistent across its length. Chapters went through many rounds of revision.</p></div>
+      </article>
+      <article class="book">
+        <span class="kind">Workflow · Screenplay</span>
+        <h3>Horror screenwriting pipeline</h3>
+        <p class="count">13,902 words across 3 documents</p>
+        <p>A 4,642-word system prompt in 16 sections turns Claude into a senior horror screenwriter and script doctor, with a fear-mechanics toolkit, structure rules, a cliché list and a self-review checklist.</p>
+        <p class="logline">CORPUS: a novelist leaks a cursed 1349 manuscript into his homemade AI's training data.</p>
+        <div class="made"><b>How it was made</b><p>The prompt produced CORPUS, a 5,351-word development package with a 15-beat sheet, 7 characters and 9 set pieces chosen from 64 brainstormed. FINE-TUNED is the 3,909-word pitch with 18 beats over three acts. Side by side, they show prompt design as a tool.</p></div>
+        <p class="note">Content note: horror, with gore.</p>
+      </article>
     </div>
-    </div>
-  </details>
+  </section>
+  </section>
 
+  <!-- GROUP: AI TOOLS AND EXPERIMENTS -->
+  <section class="group" id="g-aitools">
+    <div class="group-head">
+      <h2>AI tools and experiments</h2>
+      <p>Small tools that put AI reasoning on display.</p>
+    </div>
   <!-- ARGUMENT X-RAY -->
   <details class="case" id="xray">
     <summary class="case-sum">
@@ -1427,54 +1438,82 @@ span.note { font-style: italic; color: var(--muted); }
     <div class="made"><b>How it was built</b><p>Claude Code built the page and wrote the four example debates. It has its own look, an after-hours boardroom with a brass-nameplate table and a chair's resolution sealed in wax, so it reads as a separate product.</p></div>
     </div>
   </details>
-
-
-
-
-
-
-
-
-
-
-
-  <!-- WRITING -->
-  <section class="shelf" id="writing">
-    <div class="shelf-head">
-      <span class="eyebrow">Writing &amp; workflows</span>
-      <h2>298,692 words of fiction, and the systems that write it</h2>
-      <p>A novel, a historical series and a screenplay package, each built with a process I can repeat: a story bible or system prompt first, then drafting and revision.</p>
-          <p class="links"><a href="demos/screenwriter-prompt.html">Read the screenwriter system prompt</a><a href="demos/corpus.html">Read CORPUS</a><a href="demos/fine-tuned.html">Read the FINE-TUNED pitch</a></p>
-    </div>
-
-    <div class="books">
-      <article class="book">
-        <span class="kind">Series · Historical fiction</span>
-        <h3>No Ear Cut Twice</h3>
-        <p class="count">94,828 words</p>
-        <p class="logline">On an island where perjurers lose their ears, a plasterer hides that his are prosthetic stucco, and a single lie blooms into a herd of thousands.</p>
-        <p>Set on Ischia and in Naples across three parts: The Lie (34,187 words), The Herd (19,492) and The Collection (41,149). 32 chapters and an interlude.</p>
-        <div class="made"><b>How it was made</b><p>Written part by part, then carried to launch with a 3,159-word marketing pack holding a master prompt, 14 image prompts and a bank of copy.</p></div>
-      </article>
-      <article class="book">
-        <span class="kind">Novel · Literary science fiction</span>
-        <h3>Thalweg</h3>
-        <p class="count">189,962 words</p>
-        <p class="logline">A surveyor re-measures her lost father's survey stations inside a vast alien object and finds a span that breathes.</p>
-        <p>34 chapters and 6 interludes in seven parts, with chapters running from 4,176 to 8,701 words. The prose uses real surveying technique.</p>
-        <div class="made"><b>How it was made</b><p>A 4,982-word story bible came first and kept the book consistent across its length. Chapters went through many rounds of revision.</p></div>
-      </article>
-      <article class="book">
-        <span class="kind">Workflow · Screenplay</span>
-        <h3>Horror screenwriting pipeline</h3>
-        <p class="count">13,902 words across 3 documents</p>
-        <p>A 4,642-word system prompt in 16 sections turns Claude into a senior horror screenwriter and script doctor, with a fear-mechanics toolkit, structure rules, a cliché list and a self-review checklist.</p>
-        <p class="logline">CORPUS: a novelist leaks a cursed 1349 manuscript into his homemade AI's training data.</p>
-        <div class="made"><b>How it was made</b><p>The prompt produced CORPUS, a 5,351-word development package with a 15-beat sheet, 7 characters and 9 set pieces chosen from 64 brainstormed. FINE-TUNED is the 3,909-word pitch with 18 beats over three acts. Side by side, they show prompt design as a tool.</p></div>
-        <p class="note">Content note: horror, with gore.</p>
-      </article>
-    </div>
   </section>
+
+  <!-- GROUP: RESEARCH AND HISTORY -->
+  <section class="group" id="g-history">
+    <div class="group-head">
+      <h2>Research and history</h2>
+      <p>Reference works and original research.</p>
+    </div>
+  <!-- BYZANTIUM -->
+  <details class="case" id="byzantium">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 03 · Reference work</span>
+      <h2>Byzantium</h2>
+      <p class="sum">An illustrated encyclopedia of the Eastern Roman Empire, 324 to 1453, built around a mosaic atlas you can drag through 1,129 years and watch the borders move.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="https://byzantium-atlas.pages.dev/">Explore the live atlas</a></p>
+
+    <dl class="stats">
+      <div><dt>Dated territory snapshots</dt><dd>200</dd></div>
+      <div><dt>Map features</dt><dd>11,850</dd></div>
+      <div><dt>Encyclopedia entries</dt><dd>464</dd></div>
+      <div><dt>Licensed images</dt><dd>1,174</dd></div>
+      <div><dt>Podcast episodes indexed</dt><dd>440</dd></div>
+      <div><dt>Invalid geometries / overlaps</dt><dd>0 / 0</dd></div>
+    </dl>
+
+    <figure class="wide">
+      <img src="assets/byz-atlas-1025.jpg" alt="The Byzantium atlas set to the year 1025: the empire laid out in purple mosaic tiles edged in gold, a blue tessera sea, a year slider with dynasty bands, and a panel describing what was happening in 1025." width="1600" height="1000" loading="lazy">
+      <figcaption>The atlas at 1025, near the empire's height. Every tile is a tessera; the panel says who was on the throne and who held what that year.</figcaption>
+    </figure>
+
+    <section class="block">
+      <h3>The atlas</h3>
+      <div class="grid3">
+        <div><h4>Drawn as a mosaic</h4><p>Territory is one fixed grid of tesserae, each slightly varied in shade, with grout between them. The empire is imperial purple edged in gold; the sea is blue tile. A Borders mode switches to clean outlines, and light and dark themes each have their own palette.</p></div>
+        <div><h4>Conquest you can watch</h4><p>When borders change, only the tiles that changed owner turn over, in a wave that starts from the conqueror's side, so territory is taken rather than repainted. Cities that change hands send out a ripple.</p></div>
+        <div><h4>Built for scrubbing</h4><p>Drag, click or use the keyboard; play at 1 to 50 years a second; or press Next change to jump to the next year the map moves. Ownership is cached per snapshot and neighbours precomputed, so fast scrubbing stays smooth.</p></div>
+        <div><h4>Honest about the record</h4><p>Overlapping claims of more than about 500 km² become hatched contested land instead of being handed to one side. Five places where the source disagrees with history, from Manzikert to 1453, are corrected and explained on the map.</p></div>
+        <div><h4>Checked, not assumed</h4><p>An automated check confirms zero invalid geometries and zero overlaps across all 200 snapshots, and ten key years match the source to within 1% of land area. Five other map sources were evaluated and rejected, each with a written reason.</p></div>
+        <div><h4>More ways in</h4><p>Compare two years side by side with a draggable divider, switch to a table of powers, toggle cities, battles and campaign routes, and share any view by its URL. Patterns stand in for colour, and reduced motion swaps flips for fades.</p></div>
+      </div>
+    </section>
+
+    <div class="shots">
+      <figure>
+        <img src="assets/byz-atlas-compare.jpg" alt="Atlas compare mode: two years of the empire side by side, split by a draggable divider." width="1600" height="1000" loading="lazy">
+        <figcaption>Compare mode: two years side by side with a divider you can drag or move by keyboard.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/byz-atlas-1204.jpg" alt="The atlas in dark mode at 1204, with former imperial land hatched as contested after the Fourth Crusade." width="1600" height="1000" loading="lazy">
+        <figcaption>1204 in dark mode: after the Fourth Crusade the empire's land is hatched as contested rather than simply recoloured.</figcaption>
+      </figure>
+    </div>
+
+    <div class="cols">
+      <section class="block">
+        <h3>The encyclopedia around it</h3>
+        <ul>
+          <li><strong>464 entries</strong> pinned to fixed Wikipedia revisions with restored footnotes, plus 168 original introductions labelled as such.</li>
+          <li><strong>1,174 Commons images</strong> with author and licence; 41 were left out because their licence couldn't be confirmed.</li>
+          <li><strong>A guide to all 440 episodes</strong> of <em>The History of Byzantium</em> podcast. The build fails if any 12-word run matches the podcast's pages.</li>
+          <li><strong>87 battle entries</strong>, a people index of 1,765, a gazetteer, coins, a primary-source reader for Procopius and Anna Komnene, and a timeline that shares its playhead with the atlas.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>Built and verified</h3>
+        <p>React, TypeScript and d3-geo, with Python pipelines for the map geometry: borders from the Seshat Cliopatria dataset, coastlines from Natural Earth, and 96 cities and 71 battles from Wikidata. It ships with 20 slider tests, 60 screenshot checks across phone and desktop, and Lighthouse mobile scores of 93 to 96.</p>
+      </section>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>One long Claude Code session took it from an empty folder to a verified site. Claude evaluated map sources and their licences, built three data pipelines and the renderer, and wrote its own reports on what failed, what was skipped and where the sources disagree, for me to review.</p></div>
+    </div>
+  </details>
 
   <!-- RESEARCH -->
   <section class="shelf" id="research">
@@ -1495,6 +1534,7 @@ span.note { font-style: italic; color: var(--muted); }
         <p>A free interactive guide to the new 2026 W-2 codes for overtime premium and tips: an overtime-premium calculator, a tip-or-service-charge decision aid, and a searchable table of every qualifying occupation code from the federal regulation. Its key point: only one third of time-and-a-half pay counts as the premium.</p>
       </div>
     </div>
+  </section>
   </section>
 
   <!-- WHICH AI -->
