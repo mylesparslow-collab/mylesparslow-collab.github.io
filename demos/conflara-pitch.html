@@ -930,12 +930,12 @@ const SCENES = [
     build(L) {
       const { el, body } = win(L, 'Preferences'); rise(el);
       h('div', 'h2', 'Preferences', body);
-      const prev = h('div', 'sec', '<b>Good morning, Priya</b><span class="gbtn" style="justify-self:start">Review hits</span>', body, { marginTop: '6px' });
+      const prev = h('div', 'sec', '<b>Good morning, Priya</b><span class="gbtn" style="justify-self:start;color:#fff">Review hits</span>', body, { marginTop: '6px', background: '#ffffff', color: '#17202e', borderColor: '#cddbd1' });
       h('div', 'eyebrow', 'Colour scheme', body, { color: 'var(--muted)', margin: '12px 0 6px' });
       const sw = h('div', null, '', body, { display: 'flex', gap: '8px' });
       const schemes = [['Navy', '#1f3b6e'], ['Harbor', '#1f6f78'], ['Graphite', '#3c4148'], ['Plum', '#5b3a6b'], ['High contrast', '#000000']];
-      const se = schemes.map(([n, c]) => { const e = h('span', 'chip', `<i style="width:12px;height:12px;border-radius:50%;background:${c};display:inline-block"></i>${n}`, sw); pop(e, 600 + se_i++ * 100, 500); return e; });
-      schemes.forEach(([n, c], i) => at(1800 + i * 700, () => { A(prev.querySelector('.gbtn'), [{ background: getComputedStyle(prev.querySelector('.gbtn')).backgroundColor }, { background: c }], { duration: 400, fill: 'forwards' }); se.forEach((e, k) => e.style.borderColor = k === i ? c : 'var(--line)'); sfx.tick(); }));
+      const se = schemes.map(([n, c]) => { const e = h('span', 'chip', `<i style="width:12px;height:12px;border-radius:50%;background:${c};display:inline-block;box-shadow:0 0 0 1.5px var(--surface),0 0 0 3px var(--muted)"></i>${n}`, sw); pop(e, 600 + se_i++ * 100, 500); return e; });
+      schemes.forEach(([n, c], i) => at(1800 + i * 700, () => { A(prev.querySelector('.gbtn'), [{ background: getComputedStyle(prev.querySelector('.gbtn')).backgroundColor }, { background: c }], { duration: 400, fill: 'forwards' }); se.forEach((e, k) => e.style.borderColor = k === i ? 'var(--ink)' : 'var(--line)'); sfx.tick(); }));
       h('div', 'eyebrow', 'Font', body, { color: 'var(--muted)', margin: '12px 0 6px' });
       const fonts = h('div', null, '', body, { display: 'flex', gap: '8px' });
       const ff = [['Standard', 'var(--f-ui)'], ['Serif', "Georgia, 'Source Serif 4', serif"], ['Legible', "Verdana, 'Atkinson Hyperlegible', sans-serif"], ['System', 'system-ui, sans-serif']];
@@ -1110,14 +1110,14 @@ const SCENES = [
   { title: 'Sized for your firm', nt: [36, 336], dur: 12500,
     build(L) {
       const c = abs(h('div', 'card3', `<h4>${'Enterprise suites'}</h4>`, L), 190, 40, 280, 320); rise(c, 200);
-      const big = h('div', 'fee', 'Big', c); big.style.fontSize = '44px';
-      h('small', null, 'firms paying well into five figures a year', big);
+      const big = h('div', 'fee', 'Six figures', c); big.style.fontSize = '38px';
+      h('small', null, 'a year, for many firms on the big suites', big);
       const stack = h('div', 'coins', '', c);
       for (let i = 0; i < 9; i++) { const co = abs(h('div', 'coin', '', stack), 110, 120 - i * 10); A(co, [{ transform: 'translateY(-200px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { delay: 1200 + i * 120, duration: 500, easing: BOUNCE }); at(1400 + i * 120, sfx.coin); }
       const r = abs(h('div', 'card3', '<h4>Conflara</h4>', L), 500, 40, 280, 320); rise(r, 400);
-      ['Made for firms of about 20 to 150 lawyers', 'Intake, conflicts, walls and letters in one app', 'No outside cloud to pay for'].forEach((x, i) => { const row = h('div', 'checkrow', `${tickSvg()}<span>${x}</span>`, r, { marginTop: '8px', fontSize: '14px' }); rise(row, 4600 + i * 400, 10); drawTick(row, 4900 + i * 400); at(4900 + i * 400, sfx.tick); });
-      at(300, () => say('The big suites are priced and staffed for the largest firms.'));
-      at(4600, () => say('Conflara is made for firms of about 20 to 150 lawyers, with everything in one app.', 'happy'));
+      ['Handles firms from 1 to 200+ attorneys', 'A small-firm version, too', 'Intake, conflicts, walls and letters in one app', 'No outside cloud to pay for'].forEach((x, i) => { const row = h('div', 'checkrow', `${tickSvg()}<span>${x}</span>`, r, { marginTop: '8px', fontSize: '14px' }); rise(row, 4400 + i * 400, 10); drawTick(row, 4700 + i * 400); at(4700 + i * 400, sfx.tick); });
+      at(300, () => say('The big suites are priced for the largest firms, and costs can stretch well into six figures a year.'));
+      at(5200, () => say('Conflara handles firms from one attorney to more than two hundred, and there is a small-firm version too, with everything in one app.', 'happy'));
     } },
 
   { title: 'The whole job in one place', nt: [36, 336], dur: 13000,
