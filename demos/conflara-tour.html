@@ -1,5 +1,10 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Newton's Conflara Tour</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<script>/* A light or dark choice made with the page's own button wins over the device setting. */ try { const th = localStorage.getItem('newton-theme'); if (th === 'light' || th === 'dark') document.documentElement.dataset.theme = th; } catch (e) {}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Pixelify+Sans:wght@500;600&family=Source+Sans+3:wght@400;600;700&display=swap">
@@ -365,6 +370,7 @@ svg.lines { position: absolute; left: 0; top: 0; pointer-events: none; overflow:
     <button class="btn" id="next" aria-label="Next scene">Next<svg viewBox="0 0 16 16"><path d="m6 3 5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     <button class="btn" id="replay">Replay</button>
     <button class="btn" id="sound" aria-pressed="false">Sound off</button>
+    <button class="btn" id="theme" type="button"></button>
     <span class="now" id="now"></span>
   </div>
   <div class="progress" aria-hidden="true"><i id="bar"></i></div>
@@ -1001,6 +1007,11 @@ $('play').addEventListener('click', () => { unlockAudio(); if (playing) pause();
 $('prev').addEventListener('click', () => { enter(Math.max(0, cur - 1)); play(); });
 $('next').addEventListener('click', () => { enter(Math.min(SCENES.length - 1, cur + 1)); play(); });
 $('replay').addEventListener('click', () => { unlockAudio(); enter(0); play(); });
+const darkMQ = matchMedia('(prefers-color-scheme: dark)');
+const themeNow = () => document.documentElement.dataset.theme || (darkMQ.matches ? 'dark' : 'light');
+function showTheme() { const d = themeNow() === 'dark'; $('theme').textContent = d ? 'Light mode' : 'Dark mode'; $('theme').setAttribute('aria-label', d ? 'Switch to light mode' : 'Switch to dark mode'); }
+$('theme').addEventListener('click', () => { const next = themeNow() === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = next; try { localStorage.setItem('newton-theme', next); } catch (e) {} showTheme(); });
+darkMQ.addEventListener?.('change', showTheme); showTheme();
 $('sound').addEventListener('click', (e) => {
   soundOn = !soundOn; e.currentTarget.setAttribute('aria-pressed', String(soundOn)); e.currentTarget.textContent = soundOn ? 'Sound on' : 'Sound off';
   if (soundOn && !AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch { AC = null; } }
