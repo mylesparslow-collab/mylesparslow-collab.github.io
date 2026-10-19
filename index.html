@@ -215,6 +215,10 @@ span.note { font-style: italic; color: var(--muted); }
       <a href="#guidelineguard">Guideline Guard <span>billing rules</span></a>
       <a href="#hourcatch">Hour Catch <span>time capture</span></a>
       <a href="#partyfinder">Party Finder <span>conflicts</span></a>
+      <a href="#matterdesk">Matter Desk <span>practice workflows</span></a>
+      <a href="#synthesis">Synthesis <span>deal workbench</span></a>
+      <a href="#casewins">Case Wins Debrief <span>litigation lessons</span></a>
+      <a href="#marketingstudio">Marketing Studio <span>firm marketing</span></a>
       </div>
       <div class="toc-col">
       <p class="toc-group"><a href="#g-commercial">Commercial</a></p>
@@ -256,7 +260,7 @@ span.note { font-style: italic; color: var(--muted); }
   <section class="group" id="g-legal">
     <div class="group-head">
       <h2>Legal</h2>
-      <p>Software for law firms: conflicts, litigation, billing and trademark work.</p>
+      <p>Software for law firms: conflicts, litigation, deals, billing, marketing and trademark work.</p>
     </div>
   <!-- CONFLARA -->
   <details class="case" id="conflara">
@@ -899,6 +903,265 @@ span.note { font-style: italic; color: var(--muted); }
     </div>
 
     <div class="made"><b>How it was built</b><p>Built with Claude Code as a page that calls Claude for the analysis. It grows out of the Conflara conflicts work. Every client, party and number in the demo is invented.</p></div>
+    </div>
+  </details>
+
+  <!-- MATTER DESK -->
+  <details class="case" id="matterdesk">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 18 · Practice workflows</span>
+      <h2>Matter Desk</h2>
+      <p class="sum">One desk for the first read of a new matter in five practice areas: M&amp;A diligence, an insurance tender, a PAGA notice, a lease abstract and a health care BAA. It reads the documents, says what a rushed review would miss, dates every deadline and drafts the first letter or email, with every quote checked against the source.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="demos/matter-desk.html" target="_blank" rel="noopener">Try the demo</a><span>Saved runs on this site; live analysis runs inside Claude</span></p>
+
+    <dl class="stats">
+      <div><dt>Practice workflows</dt><dd>5</dd></div>
+      <div><dt>Source documents</dt><dd>27</dd></div>
+      <div><dt>Catches ranked</dt><dd>30</dd></div>
+      <div><dt>Critical dates</dt><dd>36</dd></div>
+      <div><dt>Lawyer sign-off checks</dt><dd>40</dd></div>
+      <div><dt>Quotes found in the source</dt><dd>66 of 66</dd></div>
+    </dl>
+
+    <div class="shots">
+      <figure>
+        <img src="assets/md-1.jpg" alt="Matter Desk on the M&amp;A diligence workflow: the source documents on the left, and on the right a bottom line saying not to sign as drafted, followed by critical catches, each with its next step and a checked quote." width="1400" height="900" loading="lazy">
+        <figcaption>The deal diligence workflow on an invented stock purchase. The bottom line comes first, then what a rushed review would miss, each catch tied to a quote found in the documents.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/md-2.jpg" alt="Matter Desk critical dates for an invented office lease: each date with days remaining, the lease section and arithmetic behind it, and a verified quote." width="1400" height="900" loading="lazy">
+        <figcaption>The lease workflow’s critical dates. Each one shows the days left, the section and arithmetic behind it, and the quote it rests on. Tenant, landlord and building are invented.</figcaption>
+      </figure>
+    </div>
+
+    <div class="cols">
+      <section class="block">
+        <h3>The problem</h3>
+        <p>The first read of a new matter is where things get missed: a consent buried in a customer contract, a notice period that has already run, an amendment that quietly moved a deadline. Each practice group has its own checklist, and a rushed reviewer works from memory.</p>
+      </section>
+      <section class="block">
+        <h3>What it does</h3>
+        <ul>
+          <li><strong>Five workflows,</strong> each driven by a written practice checklist: deal diligence, tender and coverage, PAGA notice intake, lease abstract and dates, and BAA review against a playbook.</li>
+          <li><strong>Bottom line first,</strong> then the catches ranked critical, high or medium, each with a next step.</li>
+          <li><strong>Critical dates</strong> with the clause and the arithmetic behind each one.</li>
+          <li><strong>The working document for the practice:</strong> a consents tracker, a coverage chart, a PAGA issue table, a lease abstract or a clause-by-clause BAA comparison, plus a first draft such as a tender letter or litigation hold.</li>
+          <li><strong>What to ask the client for,</strong> and a sign-off checklist for the lawyer.</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="cols">
+      <section class="block">
+        <h3>Decisions behind it</h3>
+        <ul>
+          <li><strong>Quotes are checked by code.</strong> Every quote is matched against the source text in the page, and one that cannot be found is flagged in red.</li>
+          <li><strong>Gaps are marked, not guessed.</strong> Open points are labeled for the attorney to confirm.</li>
+          <li><strong>A lawyer decides.</strong> Claude drafts; nothing is final until the sign-off checklist is worked through.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>What the saved runs show</h3>
+        <p>Each workflow opens on a saved run of an invented matter. Across the five, all 66 quotes were found in the source documents. In the deal workflow, it catches that the largest customer contract treats a change of control as an assignment needing consent, which the seller’s schedules list as needing none.</p>
+      </section>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>Built with Claude as a page that calls Claude for the analysis. Pasting in a new matter and asking questions of the documents work when the page is opened inside Claude. Every client, party and number in the demo is invented.</p></div>
+    </div>
+  </details>
+
+  <!-- SYNTHESIS -->
+  <details class="case" id="synthesis">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 19 · Deal workbench</span>
+      <h2>Synthesis</h2>
+      <p class="sum">An M&amp;A workbench for the buy side of one deal. It checks the seller’s disclosure schedules against the reps and the contracts, explains every change in the seller’s markup and proposes a middle position, checks cross-references and defined terms in code, and builds the closing checklist from the agreement.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="demos/synthesis.html" target="_blank" rel="noopener">Try the demo</a><span>Saved runs on this site; live analysis runs inside Claude</span></p>
+
+    <dl class="stats">
+      <div><dt>Deal documents</dt><dd>8</dd></div>
+      <div><dt>Reps the schedules don’t match</dt><dd>7</dd></div>
+      <div><dt>Major issues in the seller’s markup</dt><dd>7</dd></div>
+      <div><dt>Drafting errors found by code</dt><dd>4</dd></div>
+      <div><dt>Closing items at risk</dt><dd>11 of 20</dd></div>
+      <div><dt>Markup quotes found in the source</dt><dd>37 of 37</dd></div>
+    </dl>
+
+    <div class="shots">
+      <figure>
+        <img src="assets/syn-1.jpg" alt="Synthesis deal room: days to closing and to the outside date, counts of schedule gaps, red flags, markup issues, drafting errors and closing items at risk, and the decisions for the deal partner." width="1400" height="900" loading="lazy">
+        <figcaption>The deal room for an invented $46.5 million stock purchase: where the deal stands, pulled from every module, with the decisions the deal partner has to make.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/syn-2.jpg" alt="Synthesis Turns view: a summary of how the seller's markup shifts risk, then each change shown as buyer's draft, seller's markup and a proposed middle position." width="1400" height="900" loading="lazy">
+        <figcaption>Turns. Code computes the redline between the buyer’s draft and the seller’s markup; Claude explains what each change does and proposes the language in between.</figcaption>
+      </figure>
+    </div>
+
+    <div class="cols">
+      <section class="block">
+        <h3>The problem</h3>
+        <p>Deal lawyers check the same things by hand against a deadline: whether the schedules match the reps and the contracts, what the other side’s markup quietly changed, whether cross-references still point anywhere, and what has to be signed at closing. Each is a separate pass, often done at the last minute.</p>
+      </section>
+      <section class="block">
+        <h3>What it does</h3>
+        <ul>
+          <li><strong>Deal room:</strong> decisions for the deal partner and the next dates, with days to closing and to the outside date.</li>
+          <li><strong>Schedules:</strong> each rep set against what the schedule says and what the documents show.</li>
+          <li><strong>Diligence:</strong> red flags, each with a checked citation.</li>
+          <li><strong>Turns:</strong> every change in the seller’s markup, who it favors, and a proposed middle position.</li>
+          <li><strong>Integrity and Closing:</strong> cross-reference and defined-term checks, and a checklist by phase with signature pages.</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="cols">
+      <section class="block">
+        <h3>Decisions behind it</h3>
+        <ul>
+          <li><strong>Code does what code can.</strong> The redline, cross-references, defined terms and date arithmetic are computed in the page, not by the model.</li>
+          <li><strong>Quotes are checked word for word</strong> against the deal documents, and anything not found is flagged.</li>
+          <li><strong>Grounded in the work.</strong> The page cites what deal lawyers have said in public about each task.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>What the saved runs show</h3>
+        <p>On the invented deal, the saved runs find 7 reps the schedules don’t match, 7 major issues in the seller’s markup and 11 of 20 closing items at risk, and the code finds 4 drafting errors. All 37 quotes in the markup analysis were found word for word in the documents.</p>
+      </section>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>Built with Claude as a page that calls Claude for the analysis. It uses the same invented deal as Matter Desk’s diligence workflow. Every company, person and number in the demo is invented.</p></div>
+    </div>
+  </details>
+
+  <!-- CASE WINS DEBRIEF -->
+  <details class="case" id="casewins">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 20 · Litigation debrief</span>
+      <h2>Case Wins Debrief</h2>
+      <p class="sum">Reads a firm’s case wins for what slowed them down or left value on the table, groups the lessons into patterns, and pairs each pattern with a working Claude tool. The demo runs on twelve invented wins at a fictional firm.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="demos/case-wins-debrief.html" target="_blank" rel="noopener">Try the demo</a><span>Saved runs on this site; live analysis runs inside Claude</span></p>
+
+    <dl class="stats">
+      <div><dt>Invented wins read</dt><dd>12</dd></div>
+      <div><dt>Patterns found</dt><dd>5</dd></div>
+      <div><dt>Working tools</dt><dd>4</dd></div>
+      <div><dt>Wins on the timeline</dt><dd>6</dd></div>
+      <div><dt>Longest time to a win</dt><dd>11.9 years</dd></div>
+    </dl>
+
+    <div class="shots">
+      <figure>
+        <img src="assets/cwd-1.jpg" alt="Case Wins Debrief header and a timeline of six invented wins, from 1.1 to 11.9 years from the first dated event to the win." width="1400" height="900" loading="lazy">
+        <figcaption>How long the wins took. Six of the twelve invented wins have dates, and three of the four longest were won on questions of law.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/cwd-2.jpg" alt="The Day-One Test tool: a complaint summary on the left and, on the right, dispositive legal issues ranked with the motion and earliest timing for each." width="1400" height="900" loading="lazy">
+        <figcaption>One of the four tools. The Day-One Test ranks the legal issues that could end a case and the earliest motion for each.</figcaption>
+      </figure>
+    </div>
+
+    <div class="cols">
+      <section class="block">
+        <h3>The problem</h3>
+        <p>Firms announce a win and move on. The lessons in it, such as a legal question that waited years for a motion, a notice that nearly sank a claim, or a fee award never claimed, rarely get collected, so the next team repeats the delay.</p>
+      </section>
+      <section class="block">
+        <h3>What it does</h3>
+        <ul>
+          <li><strong>Times the wins</strong> from the first dated event to the result.</li>
+          <li><strong>Finds patterns</strong> across the wins, each tied to the matters behind it.</li>
+          <li><strong>Asks the trial team a question</strong> for every win, rather than passing judgment.</li>
+          <li><strong>Four tools, each with a saved run:</strong> Day-One Test ranks issues that could end a case early; Notice Monitor checks an event log against a contract’s notice clause; Fee Recovery Builder sorts time entries for a fee motion; Win to Story turns a ruling into a release, an alert angle and a matter-experience entry.</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="cols">
+      <section class="block">
+        <h3>Decisions behind it</h3>
+        <ul>
+          <li><strong>Questions, not findings.</strong> Each "could have gone better" point is something to ask the team.</li>
+          <li><strong>Arithmetic stays in code.</strong> The fee tool totals the lodestar in the page.</li>
+          <li><strong>One tool per lesson.</strong> Every pattern ends with something a lawyer can run on the next matter.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>What the demo shows</h3>
+        <p>Twelve invented wins at a fictional firm produce five patterns: cases won on law that took years, contract wins that turned on notice paperwork, fee-shifting wins that need a clean fee record, wins that came only after a setback, and wins nobody wrote up for clients.</p>
+      </section>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>Built with Claude as a page that calls Claude for each tool. The firm is the fictional Ashford &amp; Vale LLP, and every win, matter and number in the demo is invented.</p></div>
+    </div>
+  </details>
+
+  <!-- MARKETING STUDIO -->
+  <details class="case" id="marketingstudio">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 21 · Firm marketing</span>
+      <h2>Marketing Studio</h2>
+      <p class="sum">Drafts law-firm marketing in the firm’s voice: attorney bios, client alerts, RFP responses and award submissions. A second Claude pass then checks each draft against the source and California’s attorney advertising rules before anyone publishes it.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="https://claude.ai/artifact/8zgrVJrAcrKnoN9fHWH3m9" target="_blank" rel="noopener">Open Marketing Studio in Claude</a><span>Hosted in Claude; example runs show first, and live drafting uses your own Claude account</span></p>
+
+    <dl class="stats">
+      <div><dt>Drafting workflows</dt><dd>4</dd></div>
+      <div><dt>Models to choose from</dt><dd>3</dd></div>
+      <div><dt>Built-in rules</dt><dd>5</dd></div>
+      <div><dt>Review items in the example runs</dt><dd>18</dd></div>
+      <div><dt>Flagged to fix before publishing</dt><dd>3</dd></div>
+    </dl>
+
+
+    <div class="cols">
+      <section class="block">
+        <h3>The problem</h3>
+        <p>Law-firm marketing is drafted from scattered notes and checked late. The risks are specific: a "specialist" or superlative claim the rules restrict, a client named without consent, a result with no disclaimer, or a fact nobody can source.</p>
+      </section>
+      <section class="block">
+        <h3>What it does</h3>
+        <ul>
+          <li><strong>Attorney bio:</strong> website, short and one-line bios, representative matters and website tags.</li>
+          <li><strong>Client alert:</strong> the alert with a source tag on every legal statement, a LinkedIn post and a subject line.</li>
+          <li><strong>RFP response:</strong> a requirements matrix, easy-to-miss items, win themes and a cover letter.</li>
+          <li><strong>Award submission:</strong> keeps confidential matters marked for the researcher only, with a referee template.</li>
+          <li><strong>Model picker and revisions:</strong> Opus, Sonnet or Fable, and a box to ask for a change.</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="cols">
+      <section class="block">
+        <h3>Decisions behind it</h3>
+        <ul>
+          <li><strong>Only facts from the source.</strong> Anything missing becomes a marked placeholder, never an invented client, result or referee.</li>
+          <li><strong>The rules are written in.</strong> No superlatives, no assumed pronouns, clients named only with recorded consent.</li>
+          <li><strong>An attorney approves.</strong> Every draft is a starting point for the responsible attorney.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>What the example runs show</h3>
+        <p>Each workflow opens on an example run Claude generated from made-up inputs with the same instructions. Across the four, the review raised 18 items: 3 to fix before publishing, 8 for the attorney to verify and 7 passed checks. One fix is four required RFP items with no content yet.</p>
+      </section>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>Built with Claude as a page hosted in Claude that calls Claude to draft and then to review. Every attorney, client and matter in the examples is made up.</p></div>
     </div>
   </details>
   </section>
@@ -1712,6 +1975,10 @@ span.note { font-style: italic; color: var(--muted); }
       <div><h4>Guideline Guard</h4><p><strong>Built with:</strong> Claude Code.<br><strong>Runs on:</strong> Claude, inside the user’s own Claude account, with a choice of Opus, Sonnet or Fable. Rule quotes are verified in the page.</p></div>
       <div><h4>Hour Catch</h4><p><strong>Built with:</strong> Claude Code.<br><strong>Runs on:</strong> Claude, inside the user’s own Claude account, with a choice of Opus, Sonnet or Fable. Every draft passes through Guideline Guard.</p></div>
       <div><h4>Party Finder</h4><p><strong>Built with:</strong> Claude Code.<br><strong>Runs on:</strong> Claude, inside the user’s own Claude account, with a choice of Opus, Sonnet or Fable. Source quotes are verified in the page.</p></div>
+      <div><h4>Matter Desk</h4><p><strong>Built with:</strong> Claude.<br><strong>Runs on:</strong> Claude, inside the user’s own Claude account, with a choice of Opus, Sonnet or Fable. Source quotes are verified in the page.</p></div>
+      <div><h4>Synthesis</h4><p><strong>Built with:</strong> Claude.<br><strong>Runs on:</strong> Claude, inside the user’s own Claude account, with a choice of Opus, Sonnet or Fable. The redline, cross-references, defined terms and date arithmetic are plain code.</p></div>
+      <div><h4>Case Wins Debrief</h4><p><strong>Built with:</strong> Claude.<br><strong>Runs on:</strong> Claude, inside the user’s own Claude account, with a choice of Opus, Sonnet or Fable. Fee totals are plain code.</p></div>
+      <div><h4>Marketing Studio</h4><p><strong>Built with:</strong> Claude.<br><strong>Runs on:</strong> Claude, inside the user’s own Claude account, with a choice of Opus, Sonnet or Fable: one pass drafts, a second reviews.</p></div>
       <div><h4>Conflara</h4><p><strong>Built with:</strong> Claude Code, including the research, pilot pack and animated pitch.<br><strong>Runs on:</strong> a model on the firm's own hardware through Ollama or any OpenAI-compatible server (default Qwen 2.5 14B Instruct), plus a separate local statistical model for hit ranking.</p></div>
       <div><h4>VigilMark</h4><p><strong>Built with:</strong> Google Gemini.<br><strong>Runs on:</strong> no AI model: scoring is plain, explainable rules.</p></div>
       <div><h4>Fieldwork</h4><p><strong>Built with:</strong> ChatGPT and Codex, including the native Mac app.<br><strong>Runs on:</strong> an optional local model through Ollama, whose output the app labels an unverified hypothesis; scoring, readiness and every gate are plain rules.</p></div>

@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Case Wins Debrief</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,650&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a case-file reading column; findings as docket entries; tools in a tabbed bench below. */
+:root{
+  --bg:#f5f7f8; --panel:#ffffff; --ink:#15212b; --muted:#5a6873; --rule:#d9e0e4;
+  --accent:#1f5e74; --accent-soft:#e2eef2; --brass:#9a6b1c;
+  --crit:#a3332a; --crit-soft:#f8e5e2; --warn:#8a5a00; --warn-soft:#fbefd6; --ok:#2d6a3e; --ok-soft:#e1f0e5;
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f161b; --panel:#162129; --ink:#e3eaee; --muted:#9aa9b3; --rule:#2a3943;
+  --accent:#7cbfd6; --accent-soft:#1b3440; --brass:#d9a85a;
+  --crit:#f08b80; --crit-soft:#3a1f1d; --warn:#e8bb62; --warn-soft:#352a14; --ok:#7fcf94; --ok-soft:#18321f; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f161b; --panel:#162129; --ink:#e3eaee; --muted:#9aa9b3; --rule:#2a3943;
+  --accent:#7cbfd6; --accent-soft:#1b3440; --brass:#d9a85a;
+  --crit:#f08b80; --crit-soft:#3a1f1d; --warn:#e8bb62; --warn-soft:#352a14; --ok:#7fcf94; --ok-soft:#18321f; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font:15px/1.6 var(--sans)}
+.wrap{max-width:1040px;margin:0 auto;padding-block:32px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:40px}
+h1,h2,h3{font-family:var(--serif);font-weight:650;text-wrap:balance;margin:0;line-height:1.2}
+h1{font-size:2.3rem} h2{font-size:1.5rem} h3{font-size:1.1rem}
+p{margin:0;max-width:68ch}
+.eyebrow{font:500 .72rem/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--brass)}
+.muted{color:var(--muted)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+header{display:grid;gap:12px}
+.note{font-size:.85rem;color:var(--muted);border-left:3px solid var(--rule);padding-left:12px}
+section{display:grid;gap:16px}
+/* timeline */
+.chart{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:16px;overflow-x:auto}
+.chart svg{display:block;min-width:620px;width:100%;height:auto}
+.chart text{font-family:var(--sans);font-size:12px;fill:var(--muted)}
+.chart .lbl{fill:var(--ink);font-size:12.5px}
+.chart .grid{stroke:var(--rule)}
+.chart .bar{fill:var(--accent)}
+.chart .end{fill:var(--brass)}
+/* findings */
+.findings{display:grid;gap:12px}
+.finding{display:grid;grid-template-columns:3.2rem 1fr;gap:16px;background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:18px}
+.finding .num{font:600 1.6rem/1 var(--serif);color:var(--brass)}
+.finding .body{display:grid;gap:8px;min-width:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:500 .72rem/1 var(--mono);padding:5px 8px;border-radius:3px;background:var(--accent-soft);color:var(--accent)}
+.fix{font-size:.92rem}
+.fix b{color:var(--accent)}
+/* tools */
+.tabs{display:flex;flex-wrap:wrap;gap:6px;border-bottom:1px solid var(--rule)}
+.tab{font:500 .9rem var(--sans);background:none;border:0;border-bottom:3px solid transparent;color:var(--muted);padding:10px 12px;cursor:pointer}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.tab:focus-visible,.btn:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.bench{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);gap:20px;align-items:start}
+@media (max-width:820px){.bench{grid-template-columns:1fr}.finding{grid-template-columns:1fr;gap:6px}}
+.pane{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:16px;display:grid;gap:12px;align-content:start;min-width:0}
+label{font:500 .8rem var(--sans);color:var(--muted)}
+textarea{width:100%;box-sizing:border-box;font:13px/1.5 var(--mono);color:var(--ink);background:var(--bg);border:1px solid var(--rule);border-radius:4px;padding:10px;resize:vertical}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:600 .88rem var(--sans);border-radius:4px;padding:9px 14px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:var(--panel)}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn[disabled]{opacity:.5;cursor:default}
+.runtag{font:500 .72rem var(--mono);color:var(--muted)}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:4px;overflow:hidden}
+.seg button{font:500 .82rem var(--sans);background:transparent;color:var(--muted);border:0;border-right:1px solid var(--rule);padding:7px 12px;cursor:pointer}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.seg button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.out{display:grid;gap:12px;min-width:0}
+.out h4{margin:0;font:600 .8rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.item{border:1px solid var(--rule);border-radius:4px;padding:12px;display:grid;gap:6px}
+.item .q{font-weight:600}
+.kv{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.82rem;color:var(--muted)}
+.kv b{color:var(--ink);font-weight:500}
+.pill{font:600 .7rem/1 var(--mono);text-transform:uppercase;letter-spacing:.06em;padding:4px 7px;border-radius:3px;justify-self:start}
+.p-crit{background:var(--crit-soft);color:var(--crit)} .p-warn{background:var(--warn-soft);color:var(--warn)} .p-ok{background:var(--ok-soft);color:var(--ok)}
+.callout{background:var(--accent-soft);border-radius:4px;padding:12px;font-size:.92rem}
+.draft{white-space:pre-wrap;font:13px/1.55 var(--mono);background:var(--bg);border:1px solid var(--rule);border-radius:4px;padding:12px}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.84rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font:500 .72rem var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+td.n{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.totals{display:flex;flex-wrap:wrap;gap:20px}
+.totals div{display:grid}
+.totals .big{font:600 1.3rem var(--serif);font-variant-numeric:tabular-nums}
+.status{font-size:.85rem;color:var(--muted)}
+.status.err{color:var(--crit)}
+ul.tight{margin:0;padding-left:18px;display:grid;gap:4px}
+footer{font-size:.85rem;color:var(--muted);display:grid;gap:8px}
+a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <span class="eyebrow">Litigation debrief · 2021 to 2026</span>
+  <h1>Case Wins Debrief</h1>
+  <p>Twelve invented wins at a fictional mid-size firm, read for what slowed them down or left value on the table. Each pattern comes with a working Claude tool that would have helped, ready to run.</p>
+  <p class="note">Ashford &amp; Vale LLP is a fictional firm. Every matter, name and number here is invented for this demo. Each "could have gone better" point is a question for the trial team, not a finding of error.</p>
+</header>
+
+<section aria-labelledby="t-time">
+  <span class="eyebrow">How long the wins took</span>
+  <h2 id="t-time">Six wins with known dates took 1 to 12 years to close</h2>
+  <p class="muted">Bars run from the first dated event in each matter to the win. Three of the four longest were won on questions of law.</p>
+  <div class="chart" id="chart"></div>
+</section>
+
+<section aria-labelledby="t-find">
+  <span class="eyebrow">What could have gone better</span>
+  <h2 id="t-find">Five patterns across the wins</h2>
+  <div class="findings" id="findings"></div>
+</section>
+
+<section aria-labelledby="t-tools" id="tools">
+  <span class="eyebrow">The fixes, live on Claude</span>
+  <h2 id="t-tools">Four tools, each loaded with a demo run</h2>
+  <p class="muted">Each tab opens on a saved run of its demo matter. Edit the input, or paste your own, and press <b>Run on Claude</b> to run it live on your Claude account. Demo inputs are invented.</p>
+  <div class="tabs" role="tablist" id="tabs"></div>
+  <div class="bench">
+    <div class="pane" id="inPane"></div>
+    <div class="pane"><div class="row" style="justify-content:space-between"><h3 id="outTitle">Result</h3><span class="runtag" id="runtag"></span></div><div class="status" id="status" aria-live="polite"></div><div class="out" id="out"></div></div>
+  </div>
+</section>
+
+<section aria-labelledby="t-all">
+  <span class="eyebrow">Matter by matter</span>
+  <h2 id="t-all">All twelve wins</h2>
+  <div class="tablewrap"><table id="wins"><thead><tr><th>Win</th><th>Forum and stage</th><th>What decided it</th><th>What to ask the team</th></tr></thead><tbody></tbody></table></div>
+</section>
+
+<footer>
+  <p><b>Next step:</b> take each finding to the partner who ran the matter for a 20-minute debrief, confirm or correct it, and pick one tool per practice group to pilot on a live matter.</p>
+</footer>
+</div>
+
+<script>
+/* ---------- data: wins (anonymized) ---------- */
+const WINS=[
+ {id:"W1",name:"Software reseller v. manufacturer (distribution termination)",forum:"Federal court; summary judgment",decided:"The agreement allowed termination without cause on 90 days' notice, and its integration clause barred the reseller's claim of an oral promise of exclusivity. Summary judgment for the manufacturer.",ask:"The clause was clear from day one, yet the motion was heard after 28 months. Was a pleading-stage motion on the termination clause considered?",span:[2019.25,2021.6],tag:"Distribution termination"},
+ {id:"W2",name:"Food processor v. property insurer (warehouse fire)",forum:"Federal court; 5-day bench trial",decided:"Court found the policy's business-interruption cover applied and awarded $3.7M plus $410K in prejudgment interest.",ask:"The insurer paid nothing for 22 months while the client's own loss schedules were revised three times. Would one supported loss schedule at the start have shortened the dispute?"},
+ {id:"W3",name:"Medical-device maker (trade secret)",forum:"State court; jury verdict set aside; affirmed on appeal (2025)",decided:"After a 2019 verdict for the plaintiff, the trial court set it aside because the alleged secret appeared in the plaintiff's own published patent application. The appellate court affirmed.",ask:"The publication point sat in the plaintiff's own filings from the start. Was an early motion on that fact considered, and what did it cost to reach a verdict first?",span:[2013.4,2025.3],tag:"Trade secret case"},
+ {id:"W4",name:"Warehouse operator (wage class action)",forum:"Federal court; motion to compel arbitration",decided:"Court sent each worker's claims to individual arbitration under the signed agreements and dismissed the class allegations.",ask:"The fastest win of the twelve. Is the client's arbitration program checked at intake of every employment matter?",span:[2022.1,2023.2],tag:"Wage class, arbitration"},
+ {id:"W5",name:"Buyer v. seller (mixed-use building purchase)",forum:"Superior court; bench trial on specific performance",decided:"The buyer had confirmed each inspection-period extension in writing. Court ordered the sale to close at the contract price. The purchase agreement has a prevailing-party fee clause.",ask:"The seller's defense was that an extension was never confirmed. Is a notice calendar kept for every option and extension in deals like this?"},
+ {id:"W6",name:"Hotel developer v. architect (design defect)",forum:"Arbitration; 6-day hearing",decided:"Panel held the developer's claims were barred by the contract's own limitation period and denied all damages.",ask:"The limitation defense was available at the start, but the hearing came four years later. Could an early hearing on the limits issue have saved the cost of the damages experts?",span:[2018.0,2022.4],tag:"Hotel developer v. architect"},
+ {id:"W7",name:"Craft brewer (trademark cancellation)",forum:"Trademark board; cancellation proceeding",decided:"Board cancelled a rival's registration for non-use, so the client keeps its regional brand.",ask:"Won on a clean abandonment record. Turn the evidence checklist into a reusable template for the group.",span:[2021.3,2022.9],tag:"Trademark cancellation"},
+ {id:"W8",name:"Minority shareholder v. closely held company (buyout)",forum:"State business court; bench trial, remand, second ruling",decided:"After the appellate court sent the valuation back for a proper method, the court adopted our expert's approach and set the buyout at $6.8M, against the minority holder's $11.4M.",ask:"The first valuation used the wrong method, which cost two years. Was the valuation framework settled with the expert before trial?",span:[2015.2,2024.1],tag:"Shareholder buyout"},
+ {id:"W9",name:"Retail executive (non-compete)",forum:"Superior court; preliminary injunction hearing",decided:"Court denied the former employer's injunction because the 18-month restriction was broader than needed to protect a legitimate interest. The employment agreement has a prevailing-party fee clause.",ask:"No fee amount is recorded. Was the fee motion filed, and how much of the time is recoverable?"},
+ {id:"W10",name:"Franchisee v. franchisor (termination)",forum:"State court of appeal; reversed a trial-court loss",decided:"The franchisor's cure notice left out the required cure period, so the termination was void and the franchisee kept the franchise.",ask:"The franchisee also nearly lost its rights by missing its own 30-day response date once. Would a deadline tracker built from the agreement have caught it?"},
+ {id:"W11",name:"SaaS vendor v. customer (unpaid fees)",forum:"Superior court; summary judgment",decided:"The customer's outage-damages counterclaim failed because it never gave the written outage notice the contract required within 10 days. The vendor recovered $740K in unpaid fees and its fees under the contract.",ask:"The vendor's own outage notices to the customer were sent late too. Did anyone check the vendor's side of the notice clause before suing?"},
+ {id:"W12",name:"Medical group v. health plan (reimbursement)",forum:"Arbitration; award confirmed in January 2026",decided:"Panel awarded $2.9M in underpaid claims, and the court denied the plan's petition to vacate.",ask:"Some 4,000 claims sat behind the award. Claim-level underpayment analysis and the record index are prime work for Claude; the confirmed award is also material for provider clients."}
+];
+const FINDINGS=[
+ {t:"Cases won on law took years to win",m:["W1","W3","W6"],b:"Three wins ended on a legal question: a termination clause, a contractual limits period, and a trade-secret claim built on a publicly published patent application. They ran 2.3, 4.4 and 11.9 years. Some cases need discovery first, but every month a legal question waits costs the client.",fix:"Day-One Test",fd:"reads the complaint on intake and ranks the dispositive legal issues by the earliest motion that could decide each one."},
+ {t:"Contract wins turned on notice paperwork",m:["W5","W10","W11"],b:"A buyer won specific performance because it confirmed every inspection extension in writing. A franchisee kept its franchise because the franchisor's cure notice was defective. A SaaS customer lost its outage counterclaim by missing a 10-day notice window. Each turned on a notice date, not on the merits.",fix:"Notice Monitor",fd:"reads the event log against the contract's notice clause and flags each event with its notice deadline, status and a draft notice."},
+ {t:"Fee-shifting wins need a clean fee record",m:["W5","W9","W11"],b:"Three wins sit on contractual fee clauses. A fee award is only as strong as the time records behind it: vague or block-billed entries get cut, and time spent on claims the client lost can be apportioned out. W9 has no fee amount recorded at all.",fix:"Fee Recovery Builder",fd:"sorts time entries into recoverable, partial and not recoverable, flags entries a judge will trim, and totals the lodestar."},
+ {t:"Several wins came only after a setback",m:["W3","W8","W10"],b:"Three of the twelve followed a setback that the firm turned around: a jury verdict set aside, a valuation sent back for the wrong method, and a trial-court loss reversed. Each shows a gap upstream. The same tools above close most of these earlier.",fix:"Day-One Test",fd:"also works on a tentative ruling or adverse order: paste it with the briefs to get the strongest response, ranked."},
+ {t:"The wins are not being told",m:["W4","W12"],b:"Neither of these wins was written up for clients, and the write-ups that exist for other matters omit the decision date, the court and what the result means for other clients. The arbitration ruling in W4 matters to every warehouse and logistics employer with a signed arbitration program.",fix:"Win to Story",fd:"turns a ruling into a release, a client alert angle with an outreach list, a matter-experience entry and a post, with a confidentiality check."}
+];
+
+/* ---------- chart ---------- */
+(function(){
+  const rows=WINS.filter(w=>w.span).sort((a,b)=>(b.span[1]-b.span[0])-(a.span[1]-a.span[0]));
+  const W=860,L=200,R=60,top=24,rh=34,H=top+rows.length*rh+30,x0=2012,x1=2026;
+  const sx=v=>L+(v-x0)/(x1-x0)*(W-L-R);
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Duration of six wins, from first dated event to win">`;
+  for(let y=x0;y<=x1;y+=2){s+=`<line class="grid" x1="${sx(y)}" x2="${sx(y)}" y1="${top-8}" y2="${H-26}"/><text x="${sx(y)}" y="${H-8}" text-anchor="middle">${y}</text>`}
+  rows.forEach((w,i)=>{const y=top+i*rh,yrs=(w.span[1]-w.span[0]);
+    s+=`<text class="lbl" x="${L-12}" y="${y+14}" text-anchor="end">${w.tag}</text>`;
+    s+=`<rect class="bar" x="${sx(w.span[0])}" y="${y+4}" width="${Math.max(4,sx(w.span[1])-sx(w.span[0]))}" height="14" rx="2"/>`;
+    s+=`<circle class="end" cx="${sx(w.span[1])}" cy="${y+11}" r="5"/>`;
+    s+=`<text x="${sx(w.span[1])+10}" y="${y+15}">${yrs.toFixed(1)} yr</text>`});
+  s+=`</svg>`;document.getElementById('chart').innerHTML=s;
+})();
+
+/* ---------- findings + table ---------- */
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+document.getElementById('findings').innerHTML=FINDINGS.map((f,i)=>`<article class="finding"><div class="num">${i+1}</div><div class="body"><h3>${esc(f.t)}</h3><div class="chips">${f.m.map(id=>`<span class="chip">${id} · ${esc(WINS.find(w=>w.id===id).tag||WINS.find(w=>w.id===id).name)}</span>`).join("")}</div><p>${esc(f.b)}</p><p class="fix"><b>Fix: ${esc(f.fix)}</b> ${esc(f.fd)} <a href="#tools" data-go="${esc(f.fix)}">Open it</a></p></div></article>`).join("");
+document.querySelector('#wins tbody').innerHTML=WINS.map(w=>`<tr><td><span class="mono">${w.id}</span> ${esc(w.name)}</td><td>${esc(w.forum)}</td><td>${esc(w.decided)}</td><td>${esc(w.ask)}</td></tr>`).join("");
+
+/* ---------- tools ---------- */
+const TOOLS={
+"Day-One Test":{
+ blurb:"Paste a complaint summary (or a tentative ruling with the briefs). Claude ranks the legal issues that could end the case and the earliest motion for each. Add the actual outcome to score how early the winning theory was visible.",
+ fields:[["input","Complaint or ruling",
+`Breach of contract and fraud suit filed in 2019 in federal court by a regional software reseller against a manufacturer.
+
+Allegations: after eight years as a reseller, the manufacturer ended the distribution agreement on 90 days' notice. The reseller says a sales executive had orally promised exclusivity and a five-year minimum term, and that it built a new warehouse and hired staff relying on that promise.
+
+Claims: (1) breach of the distribution agreement; (2) breach of an oral exclusivity promise; (3) fraud; (4) unfair business practices.
+Relief: lost profits of about $12M; reliance costs; an injunction against appointing a new reseller.
+Agreement terms: 90-day no-cause termination right, an integration clause, and a cap on consequential damages.`],
+ ["actual","Actual outcome (optional, for scoring)","About 28 months after filing, the court granted summary judgment for the manufacturer. The termination clause was clear, the integration clause barred evidence of the oral promise, and the fraud claim failed for the same reason. Judgment was entered with no trial."]],
+ prompt:v=>`You are a senior California litigator doing day-one case assessment for the defense. Read the matter below. Identify the legal issues most likely to dispose of the case, ranked by strength. For each, name the earliest procedural vehicle (demurrer, motion to strike, judgment on the pleadings, early summary judgment, class certification opposition) and how early it could be heard. Be careful: phrase legal conclusions as issues to confirm, and do not invent case citations. If an actual outcome is given, compare it to your ranking.
+
+MATTER:
+${v.input}
+
+ACTUAL OUTCOME (may be empty):
+${v.actual}
+
+Return only JSON: {"issues":[{"rank":1,"question":"...","why":"two sentences","vehicle":"...","earliest":"e.g. months 2-4","confidence":"high|medium|low"}],"first_move":"one paragraph","discovery_needed":["..."],"comparison":"one paragraph, or empty if no outcome given"}`,
+saved:{issues:[
+  {rank:1,question:"Does the agreement's no-cause termination right defeat the breach claim?",why:"The agreement let either side end it on 90 days' notice, and the manufacturer gave 90 days. If the clause is unambiguous, the contract claim is a pure question of text.",vehicle:"Motion to dismiss, or judgment on the pleadings",earliest:"Months 2 to 4",confidence:"high"},
+  {rank:2,question:"Does the integration clause bar the alleged oral promise of exclusivity?",why:"A fully integrated agreement generally keeps out earlier or side promises that contradict its terms. A promise of a five-year term conflicts with a 90-day exit right.",vehicle:"Motion to dismiss; early summary judgment",earliest:"Months 2 to 8",confidence:"medium"},
+  {rank:3,question:"Is the fraud claim barred if it rests on a promise the contract contradicts?",why:"Reliance on an oral promise that the signed agreement contradicts may be unreasonable as a matter of law. Check the pleading detail required for fraud too.",vehicle:"Motion to dismiss",earliest:"Months 2 to 4",confidence:"medium"},
+  {rank:4,question:"Does the damages cap limit lost profits even if some claim survives?",why:"The consequential damages cap may remove most of the $12M lost-profit claim. That narrows settlement value even if a claim survives.",vehicle:"Partial summary judgment",earliest:"Months 8 to 14",confidence:"medium"}],
+ first_move:"Lead with a motion to dismiss on issues 1 and 2, attaching the agreement, and pair it with issue 3. If the court wants facts about the executive's statements, ask for short, phased discovery limited to the negotiation record, then move for early summary judgment on the same text.",
+ discovery_needed:["The complete signed agreement and every amendment","Emails and drafts showing whether exclusivity was ever proposed and dropped","The termination notice and proof of its delivery date"],
+ comparison:"The winning theory, that the contract text decided the case, ranks first and second on this list from the complaint alone. The case was won at about month 28, on summary judgment. The question for the team is whether an early motion on the termination clause was raised and denied, or not tried. If not tried, a motion in months 2 to 4 could have saved roughly two years of defense spend."}
+},
+"Notice Monitor":{
+ blurb:"Paste the agreement's notice clause and your event log. Claude lists every event that could support a credit or damages claim, with its notice and claim deadlines, what the file shows was sent, and a draft notice for the most urgent one.",
+ fields:[["clause","Notice clause",
+`9.2 Customer shall give written notice to Provider within five (5) business days after any outage, data incident, missed milestone or other breach that Customer believes entitles it to service credits or damages. The notice shall describe the event and state that Customer intends to claim credits and/or damages. Failure to give timely notice waives the claim. A formal claim with supporting data shall follow within thirty (30) calendar days of the event.`],
+ ["log","Event log",
+`Today: Fri Mar 20, 2026
+Tue Mar 3  Platform outage of about 6 hours during month-end close. Finance team could not post entries.
+Wed Mar 4  Emailed Provider support: "Platform was down yesterday, please send a root cause report."
+Fri Mar 13 Provider misses the contractual go-live date for the data migration; reporting module still on the old system.
+Mon Mar 16 Provider account manager says on a call the fix "should land next week." Month-end reports still cannot be run.
+Thu Mar 19 Provider release breaks the billing API integration; 40 customer invoices rejected. Manual workaround needed.`]],
+ prompt:v=>`You are a commercial contracts attorney. Using the contract notice clause and the event log, list every event that may support a claim for credits or damages. For each, compute the notice deadline and formal claim deadline from the clause (count business days as Monday to Friday), state what the log shows was sent, and assign status: "missed" (deadline passed, no adequate notice), "at_risk" (something sent but it may not satisfy the clause), "due_soon" (deadline not yet passed), or "ok". Then draft the most urgent notice. Use the "Today" date in the log.
+
+CLAUSE:
+${v.clause}
+
+LOG:
+${v.log}
+
+Return only JSON: {"events":[{"date":"...","event":"...","notice_due":"...","claim_due":"...","status":"missed|at_risk|due_soon|ok","evidence":"what was sent","action":"..."}],"draft_notice":{"event":"...","text":"..."}}`,
+ saved:{events:[
+  {date:"Tue Mar 3",event:"Platform outage of about 6 hours during month-end close",notice_due:"Tue Mar 10",claim_due:"Thu Apr 2",status:"at_risk",evidence:"Mar 4 email to support. It reports the outage and asks for a root cause report but does not say Customer intends to claim credits or damages, which clause 9.2 requires.",action:"Send a formal notice today that refers back to the Mar 4 email as the timely notice, and start the impact data for the Apr 2 claim."},
+  {date:"Fri Mar 13",event:"Provider missed the data migration go-live date; reporting still on the old system",notice_due:"Fri Mar 20 (today)",claim_due:"Sun Apr 12",status:"due_soon",evidence:"Nothing sent. The Mar 16 call with the account manager is not written notice.",action:"Send the notice below today. Track the cost of manual reporting from Mar 13."},
+  {date:"Thu Mar 19",event:"Provider release broke the billing API integration; 40 invoices rejected",notice_due:"Thu Mar 26",claim_due:"Sat Apr 18",status:"due_soon",evidence:"Nothing sent.",action:"Send notice by Mar 26 describing the release and the rejected invoices, and log the hours spent on the manual workaround."}],
+ draft_notice:{event:"Missed migration go-live",text:`To: Provider (notice address under Section 9.2)
+Re: Notice under Section 9.2, missed data migration go-live
+
+On March 13, 2026, the contractual go-live date for the data migration passed and the reporting module remains on the old system. On March 16, Provider's account manager advised that a fix "should land next week." Customer cannot run its month-end reports until the migration is complete.
+
+Under Section 9.2, Customer gives notice that it intends to claim service credits and damages for this missed milestone, including the cost of manual reporting, from March 13 until go-live is achieved. Customer will submit its formal claim with supporting data within the time the agreement allows.
+
+Customer reserves all rights.`}}
+},
+"Fee Recovery Builder":{
+ blurb:"Paste time entries as CSV (date, timekeeper, hours, rate, description) and describe the fee basis. Claude sorts each entry, flags what a judge will trim, and the page totals the lodestar.",
+fields:[["basis","Fee basis","Prevailing-party fee clause in an employment agreement. Preliminary injunction denied for the former employee (non-compete portion denied; confidentiality portion granted in part). Fees recoverable for the injunction opposition and the fee motion."],
+ ["entries","Time entries (CSV)",
+`date,timekeeper,hours,rate,description
+2024-03-11,Partner A,3.0,900,Research enforceability of 18-month restriction; outline opposition to preliminary injunction
+2024-03-13,Associate B,7.0,500,Draft opposition brief and client declaration
+2024-03-14,Partner A,1.8,900,Client call; review personnel file; emails
+2024-03-18,Associate B,4.0,500,Draft answer and affirmative defenses to the trade-secret count
+2024-03-20,Paralegal C,2.5,260,Collect and index documents for initial production
+2024-03-27,Associate B,3.2,500,Review reply brief; prepare supplemental authority
+2024-03-28,Associate B,1.5,500,Emails
+2024-04-02,Partner A,2.2,900,Prepare argument on the non-compete portion and the confidentiality portion of the motion
+2024-04-04,Partner A,1.5,900,Prepare for and attend hearing on preliminary injunction
+2024-05-06,Associate B,4.5,500,Draft fee motion and lodestar declaration`]],
+ prompt:v=>`You are a California fee-motion specialist. Classify each time entry for recovery under the fee basis below. status: "recoverable", "partial" (give share 0-1 for the recoverable portion), or "not". Flag entries a judge is likely to trim (vague, block-billed, clerical, unrelated). Reasons must be one sentence. Then list cleanup steps before filing and a short outline for the attorney declaration. Do not invent case citations.
+
+FEE BASIS:
+${v.basis}
+
+ENTRIES (CSV; id = row number starting at 1):
+${v.entries}
+
+Return only JSON: {"entries":[{"id":1,"status":"recoverable|partial|not","share":1,"flag":"short flag or empty","reason":"..."}],"cleanup":["..."],"declaration_outline":["..."]}`,
+saved:{entries:[
+  {id:1,status:"recoverable",share:1,flag:"",reason:"Core research and outline for the opposition."},
+  {id:2,status:"recoverable",share:1,flag:"",reason:"Drafting the opposition brief and declaration."},
+  {id:3,status:"partial",share:0.5,flag:"Block-billed, vague",reason:"Mixes a client call, file review and emails with no task split; expect a cut unless rewritten from the underlying records."},
+  {id:4,status:"not",share:0,flag:"Unrelated work",reason:"Answering the trade-secret count is not work on the injunction."},
+  {id:5,status:"not",share:0,flag:"Discovery task",reason:"Document production work is not work on the injunction opposition."},
+  {id:6,status:"recoverable",share:1,flag:"",reason:"Reply review and supplemental authority on the motion."},
+  {id:7,status:"partial",share:0,flag:"Vague",reason:"\"Emails\" with no subject will likely be disallowed; recover it only if the emails can be tied to the motion."},
+  {id:8,status:"partial",share:0.6,flag:"Partial success",reason:"Argument prep covered two parts of the motion and only the non-compete part was won; apportion for partial success."},
+  {id:9,status:"recoverable",share:1,flag:"",reason:"Hearing on the motion."},
+  {id:10,status:"recoverable",share:1,flag:"",reason:"Fees for preparing the fee motion are recoverable."}],
+ cleanup:["Rewrite entry 3 from calendar and email records into separate tasks before filing.","Identify the subject of the entry 7 emails or drop the entry.","Write off entries 4 and 5 voluntarily; it builds credibility on the rest.","Support each rate with market evidence for the timekeeper's experience level.","Add the time spent replying on the fee motion after briefing closes."],
+ declaration_outline:["Timekeeper background and rates, with market support","Work performed by phase: research, opposition, hearing, fee motion","Billing judgment exercised, listing the write-offs","Apportionment for partial success","Lodestar total and request"]}
+},
+"Win to Story":{
+ blurb:"Paste a ruling summary. Claude drafts the release with the facts current releases leave out, a client alert angle with an outreach list, a matter-experience entry and a post, then runs a confidentiality check.",
+ fields:[["input","Ruling summary",
+`Decision date: Feb 12, 2025. Federal district court (cross-motions for summary judgment).
+Client: regional logistics company (approval to be named: NOT YET GIVEN).
+A software supplier invoked the audit clause in a license agreement to bill the company for "dormant" user accounts going back to 2016, claiming $3.1M. The clause lets the supplier audit use of the licensed software and bill for any use above the licensed seat count. The company argued that dormant accounts are not use.
+Holding: the audit clause reaches only active use, and dormant accounts do not count toward the seat limit. The supplier's back-bill is barred and the company receives declaratory judgment.`]],
+ prompt:v=>`You are the marketing lead at a California law firm, working with the trial team. From the ruling summary, draft: a headline; a press release (under 200 words) that includes the decision date, court and procedural posture, and one sentence on what it means for others; a client alert angle explaining who else is affected and what they should do; an outreach audience list; a matter-experience database entry (one sentence, anonymized); a LinkedIn post (under 80 words). Then a confidentiality checklist: list anything that needs client approval or is not yet public. Do not name the client if approval is not given. Do not invent citations.
+
+RULING SUMMARY:
+${v.input}
+
+Return only JSON: {"headline":"...","release":"...","alert_angle":"...","audience":["..."],"experience_entry":"...","post":"...","checks":["..."]}`,
+saved:{headline:"Court rules a software audit clause cannot be used to bill for seats no one used",
+ release:"On February 12, 2025, a federal district court granted summary judgment for a regional logistics company client in a dispute over a software license audit, holding that the license's audit clause reaches only active use of the software. The supplier had billed the company for dormant user accounts back to 2016. The court held that dormant accounts do not count toward the licensed seat limit, barred the back-bill, and entered declaratory judgment for the company.\n\nThe ruling matters beyond this license. Many enterprise licenses use similar audit language, and licensees facing back-billing for unused seats now have a clear argument that the clause does not reach them.",
+ alert_angle:"If a software supplier has invoked an audit clause to bill you for accounts or seats that nobody used, the clause may not reach them. Check how your license defines use, keep your account-activity records, and talk to counsel before you pay or sign a settlement of an audit claim.",
+ audience:["Logistics and retail companies with enterprise software licenses","General counsel and procurement leads at licensees","Technology transactions and licensing clients","Software asset management advisors","Commercial litigation referral contacts"],
+ experience_entry:"Obtained summary judgment and declaratory relief for a licensee holding that a software audit clause reaches only active use, barring a multi-year back-bill for dormant accounts.",
+ post:"A supplier can't use an audit clause to bill you for seats nobody used. Our team won summary judgment holding that the clause reaches only active use, which barred a multi-year back-bill. If you are facing a license audit, it is worth a second look at the wording.",
+ checks:["Client approval to be named is NOT given: keep the release anonymous until it is.","Confirm whether the supplier has appealed before saying the ruling is final.","Have the trial team confirm the holding as stated.","Confirm the release does not disclose settlement or fee information."]}
+}};
+const ORDER=Object.keys(TOOLS);
+let current=ORDER[0];let ctl=null;let sample=null;
+const MODELS=[{id:"claude-opus-5-5",name:"Opus 5.5",tier:"complex",hint:"Deepest legal reasoning"},{id:"claude-sonnet-5-5",name:"Sonnet 5.5",tier:"default",hint:"Faster, strong everyday model"},{id:"claude-fable-5-1",name:"Fable 5.1",tier:"complex",hint:"Newest model"}];
+let modelId=MODELS[0].id;try{const m=localStorage.getItem("cwd-model");if(MODELS.some(x=>x.id===m))modelId=m}catch(e){}
+const modelOf=id=>MODELS.find(m=>m.id===id)||MODELS[0];
+const vals={};ORDER.forEach(k=>{vals[k]={};TOOLS[k].fields.forEach(f=>vals[k][f[0]]=f[2])});
+
+function pill(s){const m={missed:["p-crit","Missed"],at_risk:["p-warn","At risk"],due_soon:["p-warn","Due soon"],ok:["p-ok","OK"],recoverable:["p-ok","Recoverable"],partial:["p-warn","Partial"],not:["p-crit","Not recoverable"],high:["p-ok","High"],medium:["p-warn","Medium"],low:["p-crit","Low"]}[s]||["p-warn",s];return `<span class="pill ${m[0]}">${esc(m[1])}</span>`}
+function parseCSV(t){const lines=t.trim().split(/\r?\n/).filter(Boolean);const out=[];lines.slice(1).forEach((l,i)=>{const p=l.split(",");if(p.length<5)return;out.push({id:i+1,date:p[0],who:p[1],hours:parseFloat(p[2])||0,rate:parseFloat(p[3])||0,desc:p.slice(4).join(",")})});return out}
+const money=n=>"$"+Math.round(n).toLocaleString("en-US");
+
+function render(tool,d){
+  const o=document.getElementById('out');let h="";
+  if(tool==="Day-One Test"){
+    h+=`<h4>Dispositive issues, ranked</h4>`+(d.issues||[]).map(i=>`<div class="item"><div class="row"><span class="mono">#${esc(i.rank)}</span>${pill(i.confidence)}</div><div class="q">${esc(i.question)}</div><div>${esc(i.why)}</div><div class="kv"><span>Vehicle <b>${esc(i.vehicle)}</b></span><span>Earliest <b>${esc(i.earliest)}</b></span></div></div>`).join("");
+    h+=`<h4>First move</h4><p>${esc(d.first_move)}</p>`;
+    if(d.discovery_needed?.length)h+=`<h4>Targeted discovery</h4><ul class="tight">${d.discovery_needed.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`;
+    if(d.comparison)h+=`<h4>Against the actual outcome</h4><div class="callout">${esc(d.comparison)}</div>`;
+  }else if(tool==="Notice Monitor"){
+    const ev=d.events||[];const c=s=>ev.filter(e=>e.status===s).length;
+    h+=`<div class="totals"><div><span class="big">${c("missed")}</span><span class="muted">missed</span></div><div><span class="big">${c("at_risk")}</span><span class="muted">at risk</span></div><div><span class="big">${c("due_soon")}</span><span class="muted">due soon</span></div></div>`;
+    h+=`<h4>Claim events</h4>`+ev.map(e=>`<div class="item">${pill(e.status)}<div class="q">${esc(e.date)} · ${esc(e.event)}</div><div class="kv"><span>Notice due <b>${esc(e.notice_due)}</b></span><span>Claim due <b>${esc(e.claim_due)}</b></span></div><div><span class="muted">On file:</span> ${esc(e.evidence)}</div><div><span class="muted">Do:</span> ${esc(e.action)}</div></div>`).join("");
+    if(d.draft_notice)h+=`<h4>Draft notice · ${esc(d.draft_notice.event)}</h4><div class="draft" id="copySrc">${esc(d.draft_notice.text)}</div><div class="row"><button class="btn ghost" id="copyBtn">Copy notice</button></div>`;
+  }else if(tool==="Fee Recovery Builder"){
+    const rows=parseCSV(vals[tool].entries);const by={};(d.entries||[]).forEach(e=>by[e.id]=e);
+    let billed=0,rec=0,cut=0;
+    const tr=rows.map(r=>{const e=by[r.id]||{status:"partial",share:0.5,flag:"Not classified",reason:""};const share=e.status==="recoverable"?1:e.status==="not"?0:Math.max(0,Math.min(1,Number(e.share)||0));const amt=r.hours*r.rate;billed+=amt;rec+=amt*share;if(e.flag)cut+=amt*(1-share);
+      return `<tr><td class="mono">${r.id}</td><td>${esc(r.date)}<br><span class="muted">${esc(r.who)}</span></td><td>${esc(r.desc)}<br><span class="muted">${esc(e.reason)}</span></td><td>${pill(e.status)}${e.flag?`<br><span class="muted">${esc(e.flag)}</span>`:""}</td><td class="n">${r.hours.toFixed(1)} h<br>${money(amt)}</td><td class="n">${money(amt*share)}</td></tr>`}).join("");
+    h+=`<div class="totals"><div><span class="big">${money(rec)}</span><span class="muted">recoverable lodestar</span></div><div><span class="big">${money(billed)}</span><span class="muted">billed</span></div><div><span class="big">${money(cut)}</span><span class="muted">at risk from flagged entries</span></div></div>`;
+    h+=`<div class="tablewrap"><table><thead><tr><th>#</th><th>Date</th><th>Entry</th><th>Call</th><th>Billed</th><th>Recover</th></tr></thead><tbody>${tr}</tbody></table></div>`;
+    h+=`<p class="muted" style="font-size:.8rem">Totals are computed on this page from your entries. Claude only classifies them.</p>`;
+    h+=`<h4>Fix before filing</h4><ul class="tight">${(d.cleanup||[]).map(x=>`<li>${esc(x)}</li>`).join("")}</ul><h4>Declaration outline</h4><ul class="tight">${(d.declaration_outline||[]).map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`;
+  }else{
+    h+=`<h4>Headline</h4><div class="q" style="font-family:var(--serif);font-size:1.15rem">${esc(d.headline)}</div><h4>Release</h4><div class="draft" id="copySrc">${esc(d.release)}</div><div class="row"><button class="btn ghost" id="copyBtn">Copy release</button></div>`;
+    h+=`<h4>Client alert angle</h4><div class="callout">${esc(d.alert_angle)}</div><h4>Send it to</h4><div class="chips">${(d.audience||[]).map(a=>`<span class="chip">${esc(a)}</span>`).join("")}</div>`;
+    h+=`<h4>Experience entry</h4><p>${esc(d.experience_entry)}</p><h4>Post</h4><p>${esc(d.post)}</p><h4>Confidentiality check</h4><ul class="tight">${(d.checks||[]).map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`;
+  }
+  o.innerHTML=h;
+  const cb=document.getElementById('copyBtn');if(cb)cb.onclick=async()=>{const t=document.getElementById('copySrc').textContent;try{await navigator.clipboard.writeText(t);cb.textContent="Copied"}catch(e){const r=document.createRange();r.selectNodeContents(document.getElementById('copySrc'));const s=getSelection();s.removeAllRanges();s.addRange(r);cb.textContent="Selected, press Ctrl+C"}};
+}
+
+function showTool(k){
+  current=k;if(ctl)ctl.abort();
+  document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.k===k));
+  const T=TOOLS[k];const p=document.getElementById('inPane');
+  p.innerHTML=`<h3>${esc(k)}</h3><p class="muted" style="font-size:.9rem">${esc(T.blurb)}</p>`+T.fields.map(f=>`<div style="display:grid;gap:4px"><label for="f-${f[0]}">${esc(f[1])}</label><textarea id="f-${f[0]}" rows="${Math.min(14,Math.max(4,f[2].split("\n").length+1))}">${esc(vals[k][f[0]])}</textarea></div>`).join("")+`<div style="display:grid;gap:4px"><label id="mLbl">Model</label><div class="row"><div class="seg" role="group" aria-labelledby="mLbl">${MODELS.map(m=>`<button type="button" data-m="${m.id}" aria-pressed="${m.id===modelId}" title="${esc(m.hint)}">${esc(m.name)}</button>`).join("")}</div><span class="muted" id="mHint" style="font-size:.8rem">${esc(modelOf(modelId).hint)}</span></div></div>`+`<div class="row"><button class="btn" id="runBtn">Run on Claude</button><button class="btn ghost" id="stopBtn" hidden>Stop</button><button class="btn ghost" id="savedBtn">Show saved run</button></div><p class="muted" id="noClaude" style="font-size:.82rem" hidden>Live runs need this page open in Claude. The saved run is shown.</p>`;
+  T.fields.forEach(f=>{document.getElementById('f-'+f[0]).oninput=e=>{vals[k][f[0]]=e.target.value}});
+  p.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{modelId=b.dataset.m;try{localStorage.setItem("cwd-model",modelId)}catch(e){}p.querySelectorAll('[data-m]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.m===modelId));document.getElementById('mHint').textContent=modelOf(modelId).hint});
+  document.getElementById('runBtn').onclick=run;document.getElementById('stopBtn').onclick=()=>ctl&&ctl.abort();
+  document.getElementById('savedBtn').onclick=()=>showSaved();
+  document.getElementById('outTitle').textContent=k==="Win to Story"?"Story kit":k==="Fee Recovery Builder"?"Fee review":k==="Notice Monitor"?"Notice status":"Case assessment";
+  updateAvail();showSaved();
+}
+function showSaved(){document.getElementById('runtag').textContent="Saved demo run";document.getElementById('status').textContent="";document.getElementById('status').className="status";render(current,TOOLS[current].saved)}
+function updateAvail(){const r=document.getElementById('runBtn');if(!r)return;r.hidden=!sample;document.getElementById('noClaude').hidden=!!sample}
+function extractJSON(t){const a=t.indexOf("{"),b=t.lastIndexOf("}");return JSON.parse(t.slice(a,b+1))}
+const ERR={not_granted:"Claude access was declined for this page, so live runs are off. The saved run still works.",rate_limited:"Too many runs at once. Wait a minute and try again.",cancelled:"Stopped."};
+async function run(){
+  if(!sample)return;const k=current;const st=document.getElementById('status');const rb=document.getElementById('runBtn'),sb=document.getElementById('stopBtn');
+  ctl=new AbortController();rb.disabled=true;sb.hidden=false;st.className="status";const M=modelOf(modelId);st.textContent="Thinking on "+M.name+"… a deep review can take a minute or two.";document.getElementById('runtag').textContent="Live run · "+M.name;
+  try{const res=await sample(TOOLS[k].prompt(vals[k]),{signal:ctl.signal,model:M.id,modelTier:M.tier,cache:false,onText:({text})=>{st.textContent="Writing on "+M.name+"… "+text.length.toLocaleString()+" characters"}});
+    if(current!==k)return;const d=extractJSON(res.text);const used=res.modelApplied===M.id;document.getElementById('runtag').textContent="Live run · "+(used?M.name:"fallback model");st.textContent=(used?"Answered by "+M.name+".":M.name+" wasn't available on this account, so Claude's "+(res.modelTierApplied||M.tier)+" model answered instead.")+" Check every legal point before relying on it.";render(k,d);
+  }catch(e){if(current!==k)return;st.className=e.code==="cancelled"?"status":"status err";st.textContent=ERR[e.code]||(e instanceof SyntaxError?"Claude's answer could not be read as a result. Run it again.":"The run failed: "+(e.message||"unknown error")+". The saved run is still available.");if(e.code==="not_granted"){sample=null;updateAvail()}}
+  finally{rb.disabled=false;sb.hidden=true}
+}
+document.getElementById('tabs').innerHTML=ORDER.map(k=>`<button class="tab" role="tab" data-k="${esc(k)}">${esc(k)}</button>`).join("");
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>showTool(b.dataset.k));
+document.querySelectorAll('[data-go]').forEach(a=>a.addEventListener('click',()=>showTool(a.dataset.go)));
+showTool(current);
+(async()=>{try{if(window.claude&&claude.use){sample=await claude.use("sample");updateAvail()}}catch(e){}})();
+</script>
