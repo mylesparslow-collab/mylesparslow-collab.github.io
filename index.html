@@ -271,6 +271,7 @@ span.note { font-style: italic; color: var(--muted); }
       <div class="toc-col">
       <p class="toc-group"><a href="#g-aitools">AI tools and experiments</a></p>
       <a href="#blackbox">BLACKBOX <span>agent recorder</span></a>
+      <a href="#agentforge">AgentForge <span>local AI agents</span></a>
       <a href="#xray">Argument X-ray <span>reading tool</span></a>
       <a href="#boardroom">Boardroom of One <span>decision tool</span></a>
       </div>
@@ -2519,6 +2520,93 @@ span.note { font-style: italic; color: var(--muted); }
     </div>
   </details>
 
+  <!-- AGENTFORGE -->
+  <details class="case" id="agentforge">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 38 · Native Mac app · Local AI</span>
+      <h2>AgentForge</h2>
+      <p class="sum">A Mac app for running AI agents on models that live on your own computer. You point an agent at a project folder, choose how much it may touch, and approve each change. It also covers chat, chat with your documents and visual agent workflows, all inside a retro terminal look built from text characters.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="https://agentforge.mylesparslow.workers.dev" target="_blank" rel="noopener">Download for Mac</a><span>Signed, notarized and self-updating. Needs Ollama, which the first-run setup installs.</span></p>
+
+    <dl class="stats">
+      <div><dt>Lines of Swift</dt><dd>10,442</dd></div>
+      <div><dt>Pages</dt><dd>19</dd></div>
+      <div><dt>Agent harnesses</dt><dd>3</dd></div>
+      <div><dt>Automated checks</dt><dd>32</dd></div>
+      <div><dt>Releases shipped</dt><dd>4</dd></div>
+      <div><dt>Cloud accounts required</dt><dd>0</dd></div>
+    </dl>
+
+    <figure class="wide">
+      <img src="assets/agentforge-mission.jpg" alt="AgentForge Mission Control: a green phosphor terminal dashboard with the AGENTFORGE title in block letters, an ASCII-art globe, model and agent counts, a pixel clock and a live hardware bar across the top." width="1280" height="754" loading="lazy">
+      <figcaption>Mission Control. The bar across the top tracks processor, graphics, memory, disk, network, temperature and battery in real time.</figcaption>
+    </figure>
+
+    <section class="block">
+      <h3>What it does</h3>
+      <div class="grid3">
+        <div><h4>Agents on your own models</h4><p>A built-in agent lists, reads, searches, writes and edits files and runs commands, using a model running locally through Ollama. Access is chosen per session: read only, ask before each change, or auto-approve edits. Every change is checkpointed and can be undone.</p></div>
+        <div><h4>Three harnesses</h4><p>The same launcher also drives Claude Code and Codex, either on the user's own cloud account or pointed at a local model. Skills and MCP tools plug in, and a timed-out run can be continued, with the agent told which files the last attempt already changed.</p></div>
+        <div><h4>Model Lab</h4><p>Grades each installed model on whether it can drive an agent: does it make real tool calls, how fast does it write, and how long does it take to wake. The agent picker defaults to the best-graded model.</p></div>
+        <div><h4>Flows</h4><p>A drag-and-drop canvas for wiring agents, prompts, routers, human approval gates and shell steps into a workflow, with zoom, fit, a minimap and ten starter templates. One template has an agent edit AgentForge itself, rebuild it and relaunch it.</p></div>
+        <div><h4>Library</h4><p>Chat with your own documents. PDFs, Word files and code are split up and indexed with a local embedding model, and answers cite the passage they came from. Agents can search the library too.</p></div>
+        <div><h4>The fun parts</h4><p>Idea Forge, a slot machine that rolls a project idea; ASCII Studio with effects and 24 animated creatures; Sprite Lab, where a model can draw a sprite from a prompt; a music visualizer; and an Agent Theater where running agents appear as characters.</p></div>
+      </div>
+    </section>
+
+    <figure class="wide">
+      <img src="assets/agentforge-agent.jpg" alt="The Agents page: on the left, harness, brain and access settings; on the right, a completed read-only session whose timeline shows the objective, list_files and read_file tool calls with their output, and the agent's written answer." width="1280" height="754" loading="lazy">
+      <figcaption>A real read-only run on gemma4:12b: the agent lists the folder, reads the README and the code, then explains the project. It took about six minutes on a base M2.</figcaption>
+    </figure>
+
+    <div class="gallery">
+      <figure>
+        <img src="assets/agentforge-flows.jpg" alt="The Flows canvas with a Triage Router template: a start node feeds a router that branches to a bug-hunter agent, a planner and an answerer, which merge into an output." width="1280" height="754" loading="lazy">
+        <figcaption>Flows: a router sends a request to a bug-hunting agent, a planner or an answerer.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/agentforge-lab.jpg" alt="Model Lab table grading local models on tool calling, speed, wake time and context, with letter grades from A to F." width="1280" height="422" loading="lazy">
+        <figcaption>Model Lab: which local models can actually drive an agent.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/agentforge-ideas.jpg" alt="Idea Forge with three reels set to generative art, voice-first and ship it in a weekend, and a generated idea called EchoCanvas below." width="1280" height="583" loading="lazy">
+        <figcaption>Idea Forge: lock or edit the reels, pull the lever, and a local model writes the pitch.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/agentforge-creatures.jpg" alt="ASCII Studio creatures mode: a text-art meadow with a cat, butterflies, clouds, a sun and flowers." width="1280" height="754" loading="lazy">
+        <figcaption>ASCII Studio: creatures move around a scene on their own.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/agentforge-donut.jpg" alt="ASCII Studio effects mode rendering a spinning text-character torus in a green-to-blue gradient." width="1280" height="754" loading="lazy">
+        <figcaption>The spinning donut, one of nine text effects you can export.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/agentforge-visualizer.jpg" alt="The music visualizer's radial burst mode: rings of orange and green bars drawn from text blocks." width="840" height="652" loading="lazy">
+        <figcaption>Music visualizer, radial burst mode. It listens to the mic or the Mac's own audio.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/agentforge-appearance.jpg" alt="Appearance page with five palettes (Neon, Matrix, Mono, Invert, Custom), thirteen animated backdrops and effect sliders." width="1280" height="754" loading="lazy">
+        <figcaption>Appearance: five palettes, thirteen animated backdrops and screen effects.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/agentforge-matrix.jpg" alt="Mission Control in the Matrix palette, all green on black, with the Agent Theater showing a finished agent." width="1280" height="754" loading="lazy">
+        <figcaption>The same dashboard in the Matrix palette, after an agent finished.</figcaption>
+      </figure>
+    </div>
+
+    <section class="block">
+      <h3>Making small local models usable as agents</h3>
+      <p>Local models fail as agents in quiet ways. Some write a tool call as text instead of making it, some announce the next step and then stop, and some repeat the same action forever. The harness recovers tool calls written as text, nudges a model that promised an action it did not take, redirects and then stops repeat loops, and frees memory and reloads the model onto the graphics chip before a long run. Model Lab measures which models need this help, so the default is one that does not.</p>
+    </section>
+
+    <div class="made"><b>How it was built</b><p>Built with Claude Code as a native SwiftUI app with no third-party code apart from the Sparkle updater. Every animation is plain text redrawn by a capped clock, and everything pauses when the window is in the background. Releases are signed with my Apple Developer ID, notarized by Apple and served from a Cloudflare Worker that also hosts the update feed. A feedback button attaches diagnostics and recent crash reports, with personal paths removed.</p></div>
+    </div>
+  </details>
+
   <!-- ARGUMENT X-RAY -->
   <details class="case" id="xray">
     <summary class="case-sum">
@@ -2833,6 +2921,7 @@ span.note { font-style: italic; color: var(--muted); }
       <div><h4>Thrifty Vows</h4><p><strong>Built with:</strong> Claude, including the product plan, the redesign mockup and the screenshots.<br><strong>Runs on:</strong> no AI at runtime: a native SwiftUI app with everything stored on the device.</p></div>
       <div><h4>Money Desk</h4><p><strong>Built with:</strong> Claude Code.<br><strong>Runs on:</strong> local models, with a vision model for photo listings.</p></div>
       <div><h4>Cat songs and music videos</h4><p><strong>Songs:</strong> Suno, with the written workflow above. Lyrics: ChatGPT.<br><strong>Studio and animation:</strong> ChatGPT and Codex for the code and production documents, Whisper small.en and stable-ts for alignment, p5.js for the animation.</p></div>
+      <div><h4>AgentForge</h4><p><strong>Built with:</strong> Claude Code, as a native Mac app.<br><strong>Runs on:</strong> local models through Ollama for agents, chat, the Library and Idea Forge, with Claude Code or Codex as optional agent harnesses on the user's own account or a local model.</p></div>
       <div><h4>BLACKBOX</h4><p><strong>Built with:</strong> Claude Code, from my specification package.<br><strong>Runs on:</strong> no AI: it records and analyzes Claude Code sessions with plain rules, entirely on the Mac.</p></div>
       <div><h4>ASCII and generative art</h4><p><strong>Built with:</strong> Claude Code, for all seven pieces and the Swift port of Prism Trip into AgentForge.<br><strong>Runs on:</strong> no AI at runtime: every frame is plain code in the browser (or in Swift, inside AgentForge).</p></div>
       <div><h4>Argument X-ray</h4><p><strong>Built with:</strong> Claude Code, which also wrote the examples and analyses.<br><strong>Runs on:</strong> no live AI on this site: worked examples plus 45 browser rules. The Claude-account version maps pasted text live.</p></div>
