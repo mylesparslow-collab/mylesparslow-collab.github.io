@@ -174,6 +174,8 @@ footer { border-top: 1px solid var(--rule); padding-top: 1.25rem; display: flex;
 td a { font-family: var(--mono); font-size: 0.72rem; margin-left: 0.2rem; }
 .item .cite a { white-space: normal; }
 </style>
+<link rel="stylesheet" href="../../assets/appearance.css">
+<script src="../../assets/appearance.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -528,24 +530,6 @@ td a { font-family: var(--mono); font-size: 0.72rem; margin-left: 0.2rem; }
 
 <script>
 (function () {
-  var KEY = 'portfolio-scheme';
-  var root = document.documentElement;
-  var buttons = document.querySelectorAll('.swatch');
-  function apply(name) {
-    if (name !== 'pine' && name !== 'sky') name = 'eggshell';
-    if (name === 'eggshell') root.removeAttribute('data-scheme'); else root.setAttribute('data-scheme', name);
-    buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.pick === name)); });
-    return name;
-  }
-  var saved = null;
-  try { saved = localStorage.getItem(KEY); } catch (e) {}
-  apply(saved);
-  buttons.forEach(function (b) {
-    b.addEventListener('click', function () {
-      var name = apply(b.dataset.pick);
-      try { localStorage.setItem(KEY, name); } catch (e) {}
-    });
-  });
 })();
 </script>
 </body>
