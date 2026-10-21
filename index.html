@@ -244,7 +244,7 @@ span.note { font-style: italic; color: var(--muted); }
       </div>
       <div class="toc-col">
       <p class="toc-group"><a href="#g-rsc">Refined Space Crafters</a></p>
-      <a href="#rsc">RSC Tool <span>office app</span></a>
+      <a href="#rsc">RSC Tool <span>office app + job tracker</span></a>
       <a href="#rscsite">rscrafters.com <span>website + blog</span></a>
       <a href="#rscads">Ad studio <span>six animation styles</span></a>
       <a href="#rsctiktok">TikTok on autopilot <span>scheduled posting</span></a>
@@ -1502,7 +1502,7 @@ span.note { font-style: italic; color: var(--muted); }
       <div class="shelf-head">
       <span class="eyebrow">Case study 02 · Office app</span>
       <h2>RSC Tool</h2>
-      <p class="sum">An operations app for a small family remodeling business. It runs entirely on one Mac, reads the business inbox with a local AI model, and never touches the books without the owner's approval.</p>
+      <p class="sum">Two tools for a small family remodeling business: an operations app that runs entirely on one Mac, reads the business inbox with a local AI model and never touches the books without the owner's approval, and a phone-first job tracker that shows what each job really earns once crew hours are counted.</p>
       </div>
     </summary>
     <div class="case-body">
@@ -1588,7 +1588,40 @@ span.note { font-style: italic; color: var(--muted); }
       </section>
     </div>
 
-    <div class="made"><b>How it was built</b><p>Built in Claude Code from the owner's real estimates, contract terms and tracker. Claude wrote the code and tests within rules I set. The repo also carries a guide written for the next Claude session on the owner's Mac. It sets out how to explain changes in plain words, back up before any change, keep database migrations additive, test on a copy, and never edit contract text without review.</p></div>
+    <section class="block">
+      <h3>Part two: the crew job tracker</h3>
+      <p>The second tool answers one question the owner's spreadsheet could not: after materials, subcontractors and crew time, how much does a job actually leave? Hours were invisible, so every job looked more profitable than it was. The tracker puts crew time on the books as money.</p>
+      <div class="grid3">
+        <div><h4>Two buttons, every day</h4><p>Today opens with <em>Log hours</em> and <em>Log a cost</em>, because that two-minute habit is what the whole system depends on. Everything else sits below it: what needs a decision, the week's schedule and the job board.</p></div>
+        <div><h4>Money left, live</h4><p>Set the crew's cost per hour once, and every job shows contract minus materials and subcontractors minus labor. Setup leads with the pricing floor: overhead per hour, break-even and the minimum billable rate.</p></div>
+        <div><h4>Six screens, built for a phone</h4><p>Today, Jobs, a job (work, money and history tabs), Money across all jobs, Archive and Setup, with a bottom tab bar on phones. The first version had no navigation at all below 680px, so a crew member on a phone could not get around.</p></div>
+        <div><h4>Change orders and invoices</h4><p>A change order does not move the contract until the customer approves it, and an approved one can be voided, which reverses it out of the total. Invoices flag when they are past due, and a queue lists costs with no receipt.</p></div>
+        <div><h4>Nothing is ever lost</h4><p>Every removal is reversible and goes to an archive that shows who removed it and why. Deleting a job hides it as a unit and restoring brings back everything attached. Settled records, such as a paid invoice, refuse to delete without an explicit acknowledgement.</p></div>
+        <div><h4>Built for four people</h4><p>The owner plus up to four crew. The first version had six roles with server-side rules, which was too much for a team that size, so the lightweight version trims permissions to roughly viewer, editor and owner.</p></div>
+      </div>
+    </section>
+
+    <div class="cols">
+      <section class="block">
+        <h3>Two versions, on purpose</h3>
+        <ul>
+          <li><strong>A full web app.</strong> About 6,300 lines across 24 files, with a database, six roles and backups with checksums. Roughly half was inherited from the ChatGPT and Codex first draft; the lifecycle system, query layer, all six screens and the design system are the Claude Code rewrite. It runs on the owner's computer.</li>
+          <li><strong>A shareable version on Claude's artifact pages.</strong> Built because the first hosting route could not invite outside visitors. It stores data in the page's shared store and falls back to the phone's own storage if sharing is not available.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>What testing caught</h3>
+        <ul>
+          <li><strong>A migration that would have hidden every job.</strong> The generated database migration filled a status column with the literal text of its own name, so no job matched "active" and all of them vanished from every screen. It was reproduced against a rebuilt copy of the live database and patched by hand.</li>
+          <li><strong>No mobile viewport tag.</strong> The artifact laid out at desktop width and shrank to unreadable on a real phone. It looked fine on a laptop.</li>
+          <li><strong>Two people logging at once.</strong> Each person writes only their own document per job, so two crew members cannot overwrite each other. A second phone's entry updated the first live in testing.</li>
+        </ul>
+      </section>
+    </div>
+
+    <p class="note">Honest limits: the shared-storage version is open only to members of the owner's Claude organization, so whether the crew can use it depends on that account setup, and the full web app was never deployed. Amounts in the examples are demo data.</p>
+
+    <div class="made"><b>How it was built</b><p>Both tools were built with AI. The Mac operations app was built in Claude Code from the owner's real estimates, contract terms and tracker. Claude wrote the code and tests within rules I set. The repo also carries a guide written for the next Claude session on the owner's Mac. It sets out how to explain changes in plain words, back up before any change, keep database migrations additive, test on a copy, and never edit contract text without review.</p></div>
     </div>
   </details>
 
@@ -2537,7 +2570,7 @@ span.note { font-style: italic; color: var(--muted); }
       <div><h4>Skippy</h4><p><strong>Built with:</strong> Claude Code, as a native Mac app.<br><strong>Runs on:</strong> Claude, through the API with citations or the user's own Claude subscription, after an approval sheet. Search, deadlines, redlines and quote checks are plain code and work offline.</p></div>
       <div><h4>VigilMark</h4><p><strong>Built with:</strong> Google Gemini.<br><strong>Runs on:</strong> no AI model: scoring is plain, explainable rules.</p></div>
       <div><h4>Fieldwork</h4><p><strong>Built with:</strong> ChatGPT and Codex, including the native Mac app.<br><strong>Runs on:</strong> an optional local model through Ollama, whose output the app labels an unverified hypothesis; scoring, readiness and every gate are plain rules.</p></div>
-      <div><h4>RSC Tool</h4><p><strong>Built with:</strong> Claude Code.<br><strong>Runs on:</strong> small local models (for example Llama or Qwen), chosen so it runs on a modest desktop.</p></div>
+      <div><h4>RSC Tool</h4><p><strong>Built with:</strong> Claude Code. The crew job tracker began as a ChatGPT and Codex draft that Claude Code rewrote and tested.<br><strong>Runs on:</strong> small local models (for example Llama or Qwen), chosen so it runs on a modest desktop.</p></div>
       <div><h4>rscrafters.com</h4><p><strong>Built with:</strong> Claude, then Claude Code.<br><strong>Runs on:</strong> no AI: a static site built and checked by a GitHub Action and hosted on Cloudflare Pages.</p></div>
       <div><h4>Ad studio</h4><p><strong>Built with:</strong> Claude Code.<br><strong>Made in:</strong> Blender for the clay, three.js and canvas for the browser ads, Remotion for paper-cut and the explainers, FFmpeg for sound and joins.</p></div>
       <div><h4>TikTok on autopilot</h4><p><strong>Built with:</strong> Claude, Buffer's MCP connector and a weekly Claude scheduled task.<br><strong>Runs on:</strong> Buffer, pulling videos from a public GitHub repo.</p></div>
