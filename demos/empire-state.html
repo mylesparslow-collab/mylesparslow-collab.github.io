@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta charset="utf-8">
+<title>Empire State in ASCII</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600;700&family=Poiret+One&display=swap">
+<style>
+/* Layout: full-bleed text-mode canvas with the tower on a turntable; a bottom bar holds the caption and display controls, fading when idle. */
+:root {
+  color-scheme: dark;
+  --night: #06070b;
+  --steel: #dfe3ea;
+  --steel-dim: #8b919c;
+  --deco: #e8b65a;
+  --line: rgba(223, 227, 234, .2);
+  --f-name: "Poiret One", "Futura", "Avenir Next", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+html, body { height: 100%; }
+body { background: var(--night); color: var(--steel); overflow: hidden; font-family: var(--f-mono);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+#c, #g { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+#g { filter: blur(6px) saturate(1.3); mix-blend-mode: screen; opacity: .7; pointer-events: none; }
+#g.off { display: none; }
+.vig { position: fixed; inset: 0; pointer-events: none; background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.5) 100%); }
+#ui { position: fixed; left: 0; right: 0; bottom: 0; display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px 24px;
+  padding: 48px max(20px, calc(env(safe-area-inset-right, 0px) + 16px)) calc(env(safe-area-inset-bottom, 0px) + 18px) max(20px, calc(env(safe-area-inset-left, 0px) + 16px));
+  background: linear-gradient(to top, rgba(0,0,0,.78) 40%, transparent); transition: opacity .6s ease; pointer-events: none; }
+#ui > * { pointer-events: auto; }
+body.idle #ui { opacity: 0; }
+body.idle #ui > * { pointer-events: none; }
+body.idle { cursor: none; }
+.cap { display: grid; gap: 4px; min-width: 0; }
+h1 { margin: 0; font: 400 clamp(26px, 3.6vw, 40px)/1 var(--f-name); letter-spacing: .06em; text-transform: uppercase; }
+.cap p { margin: 0; font-size: 12px; color: var(--steel-dim); }
+#phase { color: var(--deco); }
+.controls { display: grid; grid-template-columns: auto auto; gap: 8px 12px; align-items: center; font-size: 11px; }
+.controls > span { color: var(--steel-dim); text-transform: uppercase; letter-spacing: .12em; }
+.seg { display: flex; flex-wrap: wrap; gap: 4px; }
+.seg button { font: 500 12px/1 var(--f-mono); color: var(--steel); background: rgba(8,9,12,.6); border: 1px solid var(--line); border-radius: 3px; padding: 8px 10px; cursor: pointer; }
+.seg button:hover { border-color: var(--steel-dim); }
+.seg button:focus-visible, input:focus-visible { outline: 1px solid var(--deco); outline-offset: 2px; }
+.seg button[aria-pressed="true"] { color: var(--deco); border-color: rgba(232,182,90,.55); }
+.range { display: flex; align-items: center; gap: 10px; }
+input[type=range] { width: min(220px, 40vw); accent-color: var(--deco); }
+#detailOut { font-variant-numeric: tabular-nums; min-width: 6ch; color: var(--steel); }
+@media (max-width: 640px) { .controls { grid-template-columns: 1fr; } .controls > span { margin-top: 4px; } }
+</style>
+
+<canvas id="c"></canvas><canvas id="g"></canvas>
+<div class="vig"></div>
+<div id="ui">
+  <div class="cap">
+    <h1>Empire State</h1>
+    <p>Drag to turn it &middot; <span id="phase">golden hour</span></p>
+  </div>
+  <div class="controls" role="group" aria-label="Display">
+    <span id="l-detail">Detail</span>
+    <div class="range"><input id="detail" type="range" min="40" max="150" step="1" value="84" aria-labelledby="l-detail"><output id="detailOut" for="detail">84 rows</output></div>
+    <span>Weight</span>
+    <div class="seg" id="weight"><button data-v="300">light</button><button data-v="400">regular</button><button data-v="600">semibold</button><button data-v="700">bold</button></div>
+    <span>Characters</span>
+    <div class="seg" id="glyphs"><button data-v="classic">classic</button><button data-v="dense">dense</button><button data-v="blocks">blocks</button></div>
+    <span>Glow</span>
+    <div class="seg" id="glow"><button data-v="on">on</button><button data-v="off">off</button></div>
+    <span>Time</span>
+    <div class="seg" id="time"><button data-v="auto">cycle</button><button data-v="0.1">day</button><button data-v="0.31">golden hour</button><button data-v="0.66">night</button></div>
+  </div>
+</div>
+
+<script>
+(() => {
+"use strict";
+const TAU = Math.PI * 2;
+const clamp = (x, a, b) => x < a ? a : x > b ? b : x, mix = (a, b, t) => a + (b - a) * t;
+const sstep = (a, b, x) => { x = clamp((x - a) / (b - a), 0, 1); return x * x * (3 - 2 * x); };
+const frac = x => x - Math.floor(x);
+const PERM = new Uint8Array(512);
+{ let s = 5; const r = () => (s = (s * 16807) % 2147483647) / 2147483647, p = [...Array(256).keys()]; for (let i = 255; i > 0; i--) { const j = (r() * (i + 1)) | 0; [p[i], p[j]] = [p[j], p[i]]; } for (let i = 0; i < 512; i++) PERM[i] = p[i & 255]; }
+const hash2 = (x, y) => PERM[PERM[x & 255] + (y & 255)] / 255;
+
+const RAMPS = {
+  classic: " .,:;-~=+*ox%#&@",
+  dense: " .'`^\",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$",
+  blocks: " ·░▒▓█",
+};
+
+// ---------- settings (remembered per viewer) ----------
+const set = { detail: 84, weight: "400", glyphs: "classic", glow: "on", time: "auto" };
+try { Object.assign(set, JSON.parse(localStorage.getItem("esb-settings") || "{}")); } catch (e) {}
+const save = () => { try { localStorage.setItem("esb-settings", JSON.stringify(set)); } catch (e) {} };
+
+// ---------- the building as signed distance fields ----------
+// Object space: y up from the street, x along the long Fifth Avenue frontage, z along 34th Street.
+function box(px, py, pz, hx, hy, hz) { const dx = Math.abs(px) - hx, dy = Math.abs(py) - hy, dz = Math.abs(pz) - hz; return Math.hypot(Math.max(dx, 0), Math.max(dy, 0), Math.max(dz, 0)) + Math.min(Math.max(dx, dy, dz), 0); }
+const CELL = 0.2;
+let MAT = 0; // 0 the Empire State, 1 neighbouring blocks
+function sdf(x, y, z) {
+  // setbacks, from the five-storey base up to the 86th-floor observatory
+  let d = box(x, y - 0.03, z, 0.34, 0.03, 0.155);
+  d = Math.min(d, box(x, y - 0.155, z, 0.22, 0.095, 0.13));
+  d = Math.min(d, box(x, y - 0.275, z, 0.185, 0.025, 0.118));
+  d = Math.min(d, box(x, y - 0.56, z, 0.13, 0.26, 0.085), box(x, y - 0.56, z, 0.09, 0.26, 0.1));
+  d = Math.min(d, box(x, y - 0.84, z, 0.1, 0.02, 0.074), box(x, y - 0.875, z, 0.08, 0.015, 0.064), box(x, y - 0.905, z, 0.062, 0.015, 0.055));
+  // the mooring mast in its stepped tiers
+  const r = Math.hypot(x, z);
+  d = Math.min(d, Math.max(r - 0.042, 0.915 - y, y - 1.0), Math.max(r - 0.031, 0.99 - y, y - 1.035), Math.max(r - 0.02, 1.03 - y, y - 1.068));
+  // Midtown around it
+  let city = y - 0.28; // the tallest neighbour tops out below 0.28
+  if (y < 0.29) {
+    const cx = Math.round(x / CELL), cz = Math.round(z / CELL);
+    if ((Math.abs(cx) <= 2 && Math.abs(cz) <= 1) || cx * cx + cz * cz > 42) city = CELL * 0.45;
+    else { const h = 0.035 + 0.24 * hash2(cx + 40, cz + 40) ** 2.2, w = 0.06 + 0.02 * hash2(cz + 9, cx + 3); city = box(x - cx * CELL, y - h / 2, z - cz * CELL, w, h / 2, w); }
+  }
+  if (city < d) { MAT = 1; return city; }
+  MAT = 0; return d;
+}
+
+// ---------- palettes, blended through the day ----------
+const P = {
+  steel: { day: [[18, 19, 22], [118, 122, 130], [206, 210, 216], [248, 250, 252]], gold: [[24, 14, 10], [146, 98, 66], [238, 178, 116], [255, 232, 190]], night: [[8, 8, 12], [70, 74, 92], [160, 166, 186], [236, 240, 250]] },
+  city: { day: [[12, 15, 22], [62, 74, 92], [128, 142, 160], [196, 206, 220]], gold: [[18, 12, 22], [82, 60, 78], [156, 112, 110], [222, 170, 140]], night: [[3, 4, 10], [18, 22, 42], [52, 62, 100], [228, 232, 255]] },
+  lamp: { day: [[10, 12, 16], [60, 70, 84], [110, 122, 138], [150, 162, 178]], gold: [[20, 12, 8], [120, 80, 50], [200, 140, 80], [240, 196, 130]], night: [[24, 12, 2], [170, 104, 26], [255, 196, 90], [255, 240, 200]] },
+};
+const CROWN_A = [[30, 8, 0], [220, 90, 10], [255, 160, 40], [255, 232, 170]], CROWN_B = [[16, 4, 30], [120, 40, 200], [190, 110, 255], [240, 214, 255]];
+let PAL = [], LV = 16, RAMP = RAMPS.classic;
+function ramp(st) { const o = []; for (let l = 0; l < LV; l++) { const t = l / (LV - 1) * (st.length - 1), k = Math.min(st.length - 2, Math.floor(t)), f = t - k; o.push(`rgb(${st[k].map((c, j) => Math.round(mix(c, st[k + 1][j], f))).join(",")})`); } return o; }
+function buildPal(w, t) {
+  const blend = S => S.day.map((c, i) => c.map((v, j) => v * w.wd + S.gold[i][j] * w.wg + S.night[i][j] * w.wn));
+  const cm = 0.5 + 0.5 * Math.sin(t * 0.35);
+  const crownNight = CROWN_A.map((c, i) => c.map((v, j) => mix(v, CROWN_B[i][j], cm)));
+  const crown = blend(P.steel).map((c, i) => c.map((v, j) => mix(v, crownNight[i][j], w.wn)));
+  PAL = [ramp(blend(P.steel)), ramp(blend(P.city)), ramp(blend(P.lamp)), ramp(crown)];
+}
+function weights(tod) {
+  const wn = sstep(0.38, 0.48, tod) * (1 - sstep(0.86, 0.95, tod));
+  const wg = Math.max(Math.exp(-(((tod - 0.31) / 0.065) ** 2)), Math.exp(-(((tod - 0.93) / 0.045) ** 2))) * (1 - wn);
+  const wd = Math.max(0, 1 - wn - wg), s = wd + wg + wn;
+  return { wd: wd / s, wg: wg / s, wn: wn / s };
+}
+const phaseName = tod => tod < 0.24 || tod > 0.97 ? "day" : tod < 0.38 ? "golden hour" : tod < 0.48 ? "blue hour" : tod < 0.86 ? "night" : "dawn";
+
+// ---------- renderer ----------
+const cvs = document.getElementById("c"), ctx = cvs.getContext("2d", { alpha: false });
+const gcv = document.getElementById("g"), gctx = gcv.getContext("2d");
+let W, H, cw, chh, ox, oy, cols = 0, rows = 0, n = 0, U, V, PX, PY, VAL, CH, DEP, KEY, ORD;
+function resize() {
+  const DPR = Math.min(window.devicePixelRatio || 1, 2); W = innerWidth; H = innerHeight;
+  if (!W || !H) return;
+  RAMP = RAMPS[set.glyphs] || RAMPS.classic; LV = RAMP.length;
+  cvs.width = Math.round(W * DPR); cvs.height = Math.round(H * DPR); gcv.width = Math.max(1, W / 3 | 0); gcv.height = Math.max(1, H / 3 | 0);
+  const fs = Math.max(5, H / set.detail / 1.16);
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.font = `${set.weight} ${fs.toFixed(2)}px "IBM Plex Mono", ui-monospace, Menlo, monospace`; ctx.textBaseline = "top";
+  cw = ctx.measureText("M").width; chh = fs * 1.16;
+  cols = Math.floor(W / cw); rows = Math.floor(H / chh); n = cols * rows; ox = (W - cols * cw) / 2; oy = (H - rows * chh) / 2;
+  U = new Float32Array(n); V = new Float32Array(n); PX = new Float32Array(n); PY = new Float32Array(n);
+  VAL = new Float32Array(n); CH = new Uint8Array(n); DEP = new Float32Array(n); KEY = new Uint16Array(n); ORD = new Int32Array(n);
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) { const i = r * cols + c; PX[i] = ox + c * cw; PY[i] = oy + r * chh; U[i] = (ox + (c + 0.5) * cw - W / 2) / H; V[i] = (oy + (r + 0.5) * chh - H / 2) / H; }
+}
+
+// ---------- animation ----------
+let spin = 0.5, drag = null, vel = 0, T = 0, last = 0;
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const BASE = TAU / (reduce ? 60 : 32), CYCLE = 100;
+const BX = 1.4, BY1 = 1.08;
+function frame(dt) {
+  T += dt;
+  if (!drag) { vel = mix(vel, BASE, Math.min(1, dt * 1.2)); spin += vel * dt; }
+  const tod = set.time === "auto" ? frac(T / CYCLE + 0.27) : +set.time, w = weights(tod);
+  buildPal(w, T);
+  const ca = Math.cos(spin), sa = Math.sin(spin), tilt = 0.2, ct = Math.cos(tilt), st = Math.sin(tilt);
+  const toObj = (x, y, z) => { const y1 = y * ct - z * st, z1 = y * st + z * ct; return [x * ca - z1 * sa, y1, x * sa + z1 * ca]; };
+  const toWorld = (x, y, z) => { const X = x * ca + z * sa, Z = -x * sa + z * ca; return [X, y * ct + Z * st, -y * st + Z * ct]; };
+  const CAM = 3.3, LOOK = 0.56, F = 1.95;
+  const ro = toObj(0, 0, -CAM); ro[1] += LOOK;
+  const sunW = w.wg > 0.5 ? [-0.8, 0.3, -0.4] : [-0.45, 0.8, -0.3];
+  const Lo = toObj(...sunW); { const l = Math.hypot(...Lo); Lo[0] /= l; Lo[1] /= l; Lo[2] /= l; }
+  const night = w.wn, dayish = w.wd + w.wg;
+  for (let i = 0; i < n; i++) {
+    const u = U[i], v = V[i];
+    const rl = 1 / Math.hypot(u, v, F), rd = toObj(u * rl, -v * rl, F * rl);
+    const hz = clamp(0.5 - v, 0, 1);
+    let b = w.wd * (0.42 + 0.18 * hz) + w.wg * (0.5 * (1.1 - hz)) + w.wn * 0.05, c = 1;
+    if (night > 0.3 && v < 0.05) { const h = hash2(i * 7 + 13, (i / cols | 0) * 3); if (h > 0.993) { b = night * (0.3 + 0.3 * Math.sin(T * 2 + h * 900)); c = 1; } }
+    DEP[i] = 1e9;
+    // ray vs the scene's bounding box
+    let t0 = 0, t1 = 1e9;
+    const lo = [-BX, -0.01, -BX], hi = [BX, BY1, BX];
+    for (let a = 0; a < 3; a++) { const o = ro[a], dd = rd[a]; if (Math.abs(dd) < 1e-9) { if (o < lo[a] || o > hi[a]) { t0 = 1; t1 = 0; } continue; } let ta = (lo[a] - o) / dd, tb = (hi[a] - o) / dd; if (ta > tb) { const q = ta; ta = tb; tb = q; } if (ta > t0) t0 = ta; if (tb < t1) t1 = tb; }
+    let hit = false, x = 0, y = 0, z = 0, t = t0;
+    if (t0 < t1) for (let k = 0; k < 90; k++) { x = ro[0] + rd[0] * t; y = ro[1] + rd[1] * t; z = ro[2] + rd[2] * t; const d = sdf(x, y, z); if (d < 0.0015) { hit = true; break; } t += clamp(d * 0.9, 0.0015, 0.09); if (t > t1) break; }
+    if (hit) {
+      DEP[i] = t;
+      const e = 0.0015, f1 = sdf(x + e, y - e, z - e), f2 = sdf(x - e, y - e, z + e), f3 = sdf(x - e, y + e, z - e), f4 = sdf(x + e, y + e, z + e);
+      let nx = f1 - f2 - f3 + f4, ny = -f1 - f2 + f3 + f4, nz = -f1 + f2 - f3 + f4; const nl = Math.hypot(nx, ny, nz) || 1; nx /= nl; ny /= nl; nz /= nl;
+      sdf(x, y, z); const mat = MAT;
+      const diff = Math.max(0, nx * Lo[0] + ny * Lo[1] + nz * Lo[2]);
+      const along = Math.abs(nx) > Math.abs(nz) ? z : x;   // horizontal coordinate across the face
+      const side = Math.abs(nx) > Math.abs(nz) ? (nx > 0 ? 1 : 2) : (nz > 0 ? 3 : 4);
+      if (mat === 0) {
+        const vertical = Math.abs(ny) < 0.5;
+        const colF = frac(along / 0.0165), floorF = frac(y / 0.0105), fl = Math.floor(y / 0.0105), col = Math.floor(along / 0.0165 + 200);
+        const win = vertical && y > 0.06 && colF > 0.42 && floorF > 0.25 && y < 0.92;
+        const pier = vertical && colF < 0.2;
+        const dayL = 0.3 + 0.72 * diff;
+        if (y > 0.82 && night > 0.05) {
+          // the crown, washed in Halloween colour after dark
+          const glow = (0.55 + 0.4 * clamp((y - 0.82) / 0.2, 0, 1)) * (vertical && Math.abs(Math.sin(Math.atan2(z, x) * 16)) > 0.6 && y > 0.915 ? 1.12 : 1);
+          b = mix(dayL * (pier ? 1.1 : 0.9), glow, night); c = 3;
+        } else if (win) {
+          const lit = hash2(col * 3 + side * 61, fl) > 0.52 + 0.25 * Math.sin(T * 0.05 + fl);
+          b = dayish * dayL * 0.55 + night * (lit ? 0.6 + 0.3 * hash2(col, fl + 7) : 0.07); c = night > 0.5 && lit ? 2 : 0;
+        } else {
+          b = dayish * dayL * (pier ? 1.08 : 0.92) + night * (0.16 + 0.22 * sstep(0.3, 0.0, y) + (pier ? 0.06 : 0)); c = 0;
+        }
+      } else {
+        const dayL = 0.22 + 0.6 * diff;
+        const winC = Math.abs(ny) < 0.5 && frac(y / 0.012) > 0.35 && frac(along / 0.014) > 0.4;
+        const lit = winC && hash2(Math.floor(along / 0.014 + 300) + side * 31, Math.floor(y / 0.012)) > 0.62;
+        b = dayish * dayL * (winC ? 0.8 : 1) + night * (lit ? 0.5 : 0.06 + (ny > 0.5 ? 0.04 : 0)); c = night > 0.5 && lit ? 2 : 1;
+      }
+      b = clamp(b, 0, 1);
+    } else if (rd[1] < 0) {
+      // streets: avenues and cross streets between the blocks, lamps on at night
+      const tg = -ro[1] / rd[1], gx = ro[0] + rd[0] * tg, gz = ro[2] + rd[2] * tg, gr = Math.hypot(gx, gz);
+      if (gr < 1.45) {
+        const sx = Math.abs(frac(gx / CELL + 0.5) - 0.5), sz = Math.abs(frac(gz / CELL + 0.5) - 0.5), street = Math.max(sx, sz) > 0.36;
+        let sh = 1;
+        if (dayish > 0.2) { let s = 0.01; for (let k = 0; k < 30; k++) { const d = sdf(gx + Lo[0] * s, Lo[1] * s, gz + Lo[2] * s); if (d < 0.002) { sh = 0.4; break; } s += Math.max(d, 0.012); if (s > 2) break; } }
+        const edge = sstep(1.45, 1.2, gr);
+        b = (dayish * (street ? 0.3 : 0.38) * sh + night * (street ? 0.22 + 0.25 * (hash2(Math.floor(gx * 40 + 99), Math.floor(gz * 40 + 99)) > 0.8 ? 1 : 0) : 0.04)) * edge + (1 - edge) * b * 0.5;
+        c = night > 0.5 && street ? 2 : 1;
+      }
+    }
+    VAL[i] = b; CH[i] = c;
+  }
+  // the antenna: too thin to march, so draw it as a line with a depth test
+  const proj = (x, y, z) => { const p = toWorld(x, y - LOOK, z); const cz = p[2] + CAM; return [(p[0] * F / cz * H + W / 2 - ox) / cw - 0.5, (-p[1] * F / cz * H + H / 2 - oy) / chh - 0.5, cz]; };
+  const a0 = proj(0, 1.068, 0), a1 = proj(0, 1.25, 0), steps = Math.ceil(Math.abs(a1[1] - a0[1])) + 1;
+  for (let s = 0; s <= steps; s++) {
+    const q = s / steps, cI = Math.round(mix(a0[0], a1[0], q)), rI = Math.round(mix(a0[1], a1[1], q));
+    if (cI < 0 || rI < 0 || cI >= cols || rI >= rows) continue;
+    const i = rI * cols + cI; if (DEP[i] < mix(a0[2], a1[2], q) - 0.02) continue;
+    const blink = q > 0.97 && night > 0.3 && frac(T * 0.8) < 0.5;
+    VAL[i] = blink ? 1 : 0.55 + 0.2 * dayish; CH[i] = blink ? 2 : 0;
+  }
+}
+function draw() {
+  ctx.fillStyle = "#06070b"; ctx.fillRect(0, 0, W, H);
+  const K = 4 * LV, CNT = new Int32Array(K + 1);
+  for (let i = 0; i < n; i++) { let l = (VAL[i] * LV) | 0; if (l >= LV) l = LV - 1; if (l <= 0) { KEY[i] = K; continue; } const kk = CH[i] * LV + l; KEY[i] = kk; CNT[kk]++; }
+  const start = new Int32Array(K + 1); let acc = 0; for (let kk = 0; kk < K; kk++) { start[kk] = acc; acc += CNT[kk]; }
+  for (let i = 0; i < n; i++) if (KEY[i] < K) ORD[start[KEY[i]]++] = i;
+  let cur = -1;
+  for (let j = 0; j < acc; j++) { const i = ORD[j], kk = KEY[i]; if (kk !== cur) { cur = kk; ctx.fillStyle = PAL[(kk / LV) | 0][kk % LV]; } ctx.fillText(RAMP[kk % LV], PX[i], PY[i]); }
+  if (set.glow === "on" && cvs.width) { gctx.clearRect(0, 0, gcv.width, gcv.height); gctx.drawImage(cvs, 0, 0, gcv.width, gcv.height); }
+}
+const phaseEl = document.getElementById("phase");
+let shownPhase = "";
+function loop(now) {
+  requestAnimationFrame(loop);
+  if (now - last < 1000 / 30 - 2) return;
+  const dt = Math.min(0.1, (now - last) / 1000); last = now;
+  if (!n) { resize(); return; }
+  frame(dt); draw();
+  const p = phaseName(set.time === "auto" ? frac(T / CYCLE + 0.27) : +set.time);
+  if (p !== shownPhase) { shownPhase = p; phaseEl.textContent = p; }
+}
+
+// ---------- controls ----------
+const detail = document.getElementById("detail"), detailOut = document.getElementById("detailOut");
+function syncUI() {
+  detail.value = set.detail; detailOut.textContent = `${set.detail} rows`;
+  for (const id of ["weight", "glyphs", "glow", "time"]) document.querySelectorAll(`#${id} button`).forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === String(set[id]))));
+  gcv.classList.toggle("off", set.glow !== "on");
+}
+detail.addEventListener("input", () => { set.detail = +detail.value; detailOut.textContent = `${set.detail} rows`; clearTimeout(detail.t); detail.t = setTimeout(() => { resize(); save(); }, 60); });
+for (const id of ["weight", "glyphs", "glow", "time"]) document.querySelectorAll(`#${id} button`).forEach(b => b.addEventListener("click", () => {
+  set[id] = b.dataset.v; syncUI(); save();
+  if (id === "weight" || id === "glyphs") { if (document.fonts && id === "weight") document.fonts.load(`${set.weight} 16px "IBM Plex Mono"`).then(resize, resize); else resize(); }
+}));
+cvs.addEventListener("pointerdown", e => { drag = { x: e.clientX, t: performance.now() }; cvs.setPointerCapture(e.pointerId); });
+cvs.addEventListener("pointermove", e => { if (!drag) return; const dx = e.clientX - drag.x, now = performance.now(); spin -= dx * 0.008; vel = -dx * 0.008 / Math.max(0.016, (now - drag.t) / 1000); drag = { x: e.clientX, t: now }; });
+const end = () => { drag = null; }; cvs.addEventListener("pointerup", end); cvs.addEventListener("pointercancel", end);
+let idleT = 0; const wake = () => { document.body.classList.remove("idle"); clearTimeout(idleT); idleT = setTimeout(() => { if (!document.getElementById("ui").matches(":hover, :focus-within")) document.body.classList.add("idle"); else wake(); }, 3200); };
+addEventListener("pointermove", wake); addEventListener("pointerdown", wake); addEventListener("keydown", wake);
+addEventListener("resize", () => { clearTimeout(resize.t); resize.t = setTimeout(resize, 120); });
+const go = () => { syncUI(); resize(); wake(); requestAnimationFrame(t => { last = t; loop(t); }); };
+const fontsReady = document.fonts && document.fonts.load ? Promise.all([document.fonts.load(`${set.weight} 16px "IBM Plex Mono"`), document.fonts.load(`16px "IBM Plex Mono"`)]) : Promise.resolve();
+Promise.race([fontsReady, new Promise(r => setTimeout(r, 1500))]).then(go, go);
+})();
+</script>

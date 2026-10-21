@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta charset="utf-8">
+<title>Prism Trip</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Monoton&display=swap">
+<style>
+/* Layout: one full-bleed colour text-mode canvas; a control bar along the bottom that fades when the viewer is still. */
+:root {
+  color-scheme: dark;
+  --void: #050208;
+  --ink: #f3ecff;
+  --ink-dim: #9d90b4;
+  --hot: #ff4fd8;
+  --line: rgba(243, 236, 255, .18);
+  --f-name: "Monoton", "Futura", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+html, body { height: 100%; }
+body { margin: 0; background: var(--void); color: var(--ink); overflow: hidden; font-family: var(--f-mono);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+#c, #g1, #g2 { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+#c { touch-action: none; }
+#g1 { filter: blur(4px) saturate(1.6); mix-blend-mode: screen; opacity: .9; pointer-events: none; }
+#g2 { filter: blur(20px) saturate(1.8); mix-blend-mode: screen; opacity: .6; pointer-events: none; }
+#ui { position: fixed; left: 0; right: 0; bottom: 0; display: grid; gap: 10px;
+  padding: 50px max(18px, calc(env(safe-area-inset-right, 0px) + 16px)) calc(env(safe-area-inset-bottom, 0px) + 16px) max(18px, calc(env(safe-area-inset-left, 0px) + 16px));
+  background: linear-gradient(to top, rgba(5,2,8,.88) 45%, transparent); transition: opacity .7s ease; pointer-events: none; }
+#ui > * { pointer-events: auto; }
+body.idle #ui { opacity: 0; }
+body.idle #ui > * { pointer-events: none; }
+body.idle { cursor: none; }
+.top { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+h1 { margin: 0; font: 400 clamp(24px, 3.4vw, 38px)/1 var(--f-name); letter-spacing: .04em;
+  background: linear-gradient(90deg, #ff4fd8, #ffd84f, #4fffb0, #4fb8ff, #b44fff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+#modeName { font-size: 13px; color: var(--ink); }
+#modeNote { font-size: 12px; color: var(--ink-dim); }
+.modes, .seg { display: flex; flex-wrap: wrap; gap: 5px; }
+button { font: 600 12px/1 var(--f-mono); color: var(--ink); background: rgba(14,8,22,.65); border: 1px solid var(--line); border-radius: 3px; padding: 8px 10px; cursor: pointer; }
+button:hover { border-color: var(--ink-dim); }
+button:focus-visible, input:focus-visible { outline: 1px solid var(--hot); outline-offset: 2px; }
+button[aria-pressed="true"] { color: #050208; background: var(--ink); border-color: var(--ink); }
+.modes button b { color: var(--hot); margin-right: 5px; font-weight: 600; }
+.modes button[aria-pressed="true"] b { color: #7a1a66; }
+.row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; font-size: 11px; color: var(--ink-dim); }
+.row label { display: inline-flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: .12em; }
+input[type=range] { width: min(150px, 30vw); accent-color: var(--hot); }
+</style>
+
+<canvas id="c"></canvas><canvas id="g2"></canvas><canvas id="g1"></canvas>
+<div id="ui">
+  <div class="top"><h1>Prism Trip</h1><span id="modeName"></span><span id="modeNote"></span></div>
+  <div class="modes" id="modes" role="group" aria-label="Mode"></div>
+  <div class="row">
+    <label for="speed">Speed <input id="speed" type="range" min="0.1" max="3" step="0.05" value="1"></label>
+    <label for="hue">Colour flow <input id="hue" type="range" min="0" max="3" step="0.05" value="1"></label>
+    <span>Characters</span>
+    <div class="seg" id="glyphs"><button data-v="classic">classic</button><button data-v="dense">dense</button><button data-v="blocks">blocks</button><button data-v="geo">geo</button></div>
+    <div class="seg"><button id="cycle" aria-pressed="false">auto-cycle</button><button id="fs">fullscreen</button></div>
+  </div>
+</div>
+
+<script>
+(() => {
+"use strict";
+const TAU = Math.PI * 2;
+const clamp = (x, a, b) => x < a ? a : x > b ? b : x, mix = (a, b, t) => a + (b - a) * t;
+const sstep = (a, b, x) => { x = clamp((x - a) / (b - a), 0, 1); return x * x * (3 - 2 * x); };
+const frac = x => x - Math.floor(x);
+const PERM = new Uint8Array(512);
+{ let s = 42; const r = () => (s = (s * 16807) % 2147483647) / 2147483647, p = [...Array(256).keys()]; for (let i = 255; i > 0; i--) { const j = (r() * (i + 1)) | 0; [p[i], p[j]] = [p[j], p[i]]; } for (let i = 0; i < 512; i++) PERM[i] = p[i & 255]; }
+const hash2 = (x, y) => PERM[PERM[x & 255] + (y & 255)] / 255;
+function n2(x, y) { const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi, u = xf * xf * (3 - 2 * xf), w = yf * yf * (3 - 2 * yf); const a = hash2(xi, yi), b = hash2(xi + 1, yi), c = hash2(xi, yi + 1), d = hash2(xi + 1, yi + 1); return a + (b - a) * u + (c - a) * w + (a - b - c + d) * u * w; }
+function fbm(x, y, o = 3) { let s = 0, a = 0.5, f = 1, nm = 0; for (let k = 0; k < o; k++) { s += a * n2(x * f + k * 17.1, y * f + k * 9.7); nm += a; a *= 0.5; f *= 2.03; } return s / nm; }
+
+// ---------- colour: 36 hues x 14 brightness levels, every cell picks one ----------
+const NH = 36, NL = 14;
+const COLORS = []; for (let h = 0; h < NH; h++) for (let l = 0; l < NL; l++) { const L = 6 + (l / (NL - 1)) ** 0.9 * 70, S = 100 - Math.max(0, l - 10) * 6; COLORS.push(`hsl(${(h * 360 / NH).toFixed(1)},${S}%,${L.toFixed(1)}%)`); }
+const SETS = {
+  classic: " .:-=+*#%@",
+  dense: " .'`^\",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$",
+  blocks: " ·░▒▓█",
+  geo: " .·:+x*oO0@#",
+};
+let CHARS = [];
+function setGlyphs(name) { const s = SETS[name] || SETS.classic; CHARS = []; for (let l = 0; l < NL; l++) CHARS.push(s[Math.min(s.length - 1, Math.round(l / (NL - 1) * (s.length - 1)))]); }
+
+// ---------- grid ----------
+const cvs = document.getElementById("c"), ctx = cvs.getContext("2d", { alpha: false });
+const g1 = document.getElementById("g1"), g1c = g1.getContext("2d"), g2 = document.getElementById("g2"), g2c = g2.getContext("2d");
+let W, H, cw, chh, ox, oy, cols = 0, rows = 0, n = 0, A = 1, U, V, PX, PY, VAL, HUE, KEY, ORD, VALb, HUEb;
+function resize() {
+  const DPR = Math.min(devicePixelRatio || 1, 2); W = innerWidth; H = innerHeight; if (!W || !H) return;
+  cvs.width = Math.round(W * DPR); cvs.height = Math.round(H * DPR); g1.width = Math.max(1, W / 3 | 0); g1.height = Math.max(1, H / 3 | 0); g2.width = Math.max(1, W / 8 | 0); g2.height = Math.max(1, H / 8 | 0);
+  const fs = clamp(Math.round(Math.min(H / 70, W / 120)), 7, 18);
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.font = `600 ${fs}px "IBM Plex Mono", ui-monospace, Menlo, monospace`; ctx.textBaseline = "top";
+  cw = ctx.measureText("M").width; chh = Math.round(fs * 1.15); A = W / H;
+  cols = Math.floor(W / cw); rows = Math.floor(H / chh); n = cols * rows; ox = (W - cols * cw) / 2; oy = (H - rows * chh) / 2;
+  U = new Float32Array(n); V = new Float32Array(n); PX = new Float32Array(n); PY = new Float32Array(n); VAL = new Float32Array(n); HUE = new Float32Array(n); VALb = new Float32Array(n); HUEb = new Float32Array(n); KEY = new Uint16Array(n); ORD = new Int32Array(n);
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) { const i = r * cols + c; PX[i] = ox + c * cw; PY[i] = oy + r * chh; U[i] = (ox + (c + 0.5) * cw - W / 2) / H; V[i] = (oy + (r + 0.5) * chh - H / 2) / H; }
+  MODES.forEach(m => m.reset && m.reset());
+}
+
+// ---------- the modes: each fills value (brightness) and hue for every cell ----------
+const mouse = { u: 0, v: 0, at: -99, down: false };
+const mouseLive = t => t - mouse.at < 4;
+const MODES = [
+  { name: "Wormhole", note: "falling forever down a spiralling tunnel",
+    fill(t, val, hue) {
+      const cx = mouseLive(T) ? mouse.u * 0.5 : 0.12 * Math.sin(t * 0.31), cy = mouseLive(T) ? mouse.v * 0.5 : 0.08 * Math.cos(t * 0.23);
+      for (let i = 0; i < n; i++) {
+        const du = U[i] - cx, dv = V[i] - cy, r = Math.hypot(du, dv) + 1e-4, a = Math.atan2(dv, du), z = 0.32 / r + t * 1.6;
+        const bands = Math.sin(z * 6 + a * 3 + t * 0.8) * 0.5 + 0.5, ring = Math.sin(z * 18) * 0.5 + 0.5, fog = sstep(0.0, 0.14, r);
+        val[i] = (0.25 + 0.55 * bands + 0.2 * ring) * fog; hue[i] = z * 0.06 + a / TAU;
+      }
+    } },
+  { name: "Kaleidoscope", note: "eight mirrors turning around a blooming centre",
+    fill(t, val, hue) {
+      const N = 8, seg = TAU / N, cx = mouseLive(T) ? mouse.u * 0.3 : 0, cy = mouseLive(T) ? mouse.v * 0.3 : 0, rot = t * 0.15;
+      for (let i = 0; i < n; i++) {
+        const du = U[i] - cx, dv = V[i] - cy, r = Math.hypot(du, dv); let a = Math.atan2(dv, du) + rot; a = Math.abs(((a % seg) + seg) % seg - seg / 2);
+        const x = Math.cos(a) * r * 9, y = Math.sin(a) * r * 9;
+        const p = Math.sin(x * 1.3 + t) * Math.cos(y * 1.7 - t * 0.7) + Math.sin(r * 22 - t * 2) * 0.6 + Math.sin((x + y) * 0.9 + t * 1.3) * 0.5 + (fbm(x * 0.5, y * 0.5 + t * 0.2) - 0.5) * 2;
+        val[i] = clamp(0.5 + 0.38 * p, 0, 1) * sstep(0.72, 0.4, r); hue[i] = r * 1.4 + p * 0.12 - t * 0.04;
+      }
+    } },
+  { name: "Plasma", note: "classic demoscene colour waves",
+    fill(t, val, hue) {
+      const ph = mouseLive(T) ? mouse.u * 4 : 0;
+      for (let i = 0; i < n; i++) {
+        const x = U[i] * 9, y = V[i] * 9, cx = x + 4 * Math.sin(t * 0.4), cy = y + 4 * Math.cos(t * 0.33);
+        const s = Math.sin(x + t + ph) + Math.sin((y + t) * 0.5) + Math.sin((x + y + t) * 0.5) + Math.sin(Math.sqrt(cx * cx + cy * cy + 1) + t);
+        val[i] = 0.5 + 0.5 * Math.sin(s * Math.PI * 0.5); hue[i] = s * 0.12;
+      }
+    } },
+  { name: "Fractal", note: "a Julia set morphing as its seed orbits; your cursor steers it",
+    fill(t, val, hue) {
+      let cr = 0.7885 * Math.cos(t * 0.12), ci = 0.7885 * Math.sin(t * 0.12);
+      if (mouseLive(T)) { cr = mix(cr, mouse.u * 1.6, 0.6); ci = mix(ci, mouse.v * 1.6, 0.6); }
+      const zoom = 2.6 + 0.4 * Math.sin(t * 0.2), MAXI = 44;
+      for (let i = 0; i < n; i++) {
+        let zr = U[i] * zoom, zi = V[i] * zoom, k = 0, m2 = 0;
+        for (; k < MAXI; k++) { const r2 = zr * zr, i2 = zi * zi; m2 = r2 + i2; if (m2 > 16) break; zi = 2 * zr * zi + ci; zr = r2 - i2 + cr; }
+        if (k >= MAXI) { val[i] = 0.04; hue[i] = t * 0.05; continue; }
+        const mu = k + 1 - Math.log(Math.log(Math.sqrt(m2))) / Math.LN2;
+        val[i] = clamp(0.25 + 0.75 * Math.sqrt(mu / MAXI) * 1.5, 0, 1) * (0.75 + 0.25 * Math.sin(mu * 0.9 - t * 3)); hue[i] = mu * 0.035 + t * 0.03;
+      }
+    } },
+  { name: "Interference", note: "ripples from four sources crossing; one follows you",
+    fill(t, val, hue) {
+      const S = [[0.45 * Math.sin(t * 0.37), 0.3 * Math.cos(t * 0.29)], [0.5 * Math.cos(t * 0.21), 0.32 * Math.sin(t * 0.41)], [0.35 * Math.sin(t * 0.17 + 2), 0.25 * Math.sin(t * 0.33 + 1)], mouseLive(T) ? [mouse.u, mouse.v] : [0.2 * Math.cos(t * 0.5), -0.2 * Math.sin(t * 0.45)]];
+      for (let i = 0; i < n; i++) {
+        let s = 0, ang = 0;
+        for (let k = 0; k < 4; k++) { const du = U[i] - S[k][0], dv = V[i] - S[k][1], d = Math.hypot(du, dv); s += Math.sin(d * 70 - t * 4); ang += Math.atan2(dv, du); }
+        val[i] = (s / 4) * 0.5 + 0.5; val[i] = val[i] * val[i]; hue[i] = ang / TAU * 0.5 + s * 0.04 + t * 0.03;
+      }
+    } },
+  { name: "Hypno spiral", note: "a logarithmic spiral that never stops turning",
+    fill(t, val, hue) {
+      const cx = mouseLive(T) ? mouse.u * 0.4 : 0, cy = mouseLive(T) ? mouse.v * 0.4 : 0, breathe = 1 + 0.15 * Math.sin(t * 0.7);
+      for (let i = 0; i < n; i++) {
+        const du = U[i] - cx, dv = V[i] - cy, r = Math.hypot(du, dv) + 1e-4, a = Math.atan2(dv, du), lr = Math.log(r) * breathe;
+        const s = Math.sin(a * 5 + lr * 9 - t * 3), s2 = Math.sin(a * -3 + lr * 14 + t * 2);
+        val[i] = sstep(-0.2, 0.6, s) * 0.85 + 0.15 * (s2 * 0.5 + 0.5); hue[i] = lr * 0.25 - t * 0.08 + (s2 > 0.6 ? 0.5 : 0);
+      }
+    } },
+  { name: "Turing", note: "reaction-diffusion growing coral and mazes; drag to seed it",
+    reset() { this.A = null; },
+    seed(c0, r0, rad) { for (let r = r0 - rad; r <= r0 + rad; r++) for (let c = c0 - rad * 2; c <= c0 + rad * 2; c++) { if (r < 0 || c < 0 || r >= rows || c >= cols) continue; const i = r * cols + c; this.A[i] = 0.5; this.B[i] = 0.25 + Math.random() * 0.05; } },
+    fill(t, val, hue, dt) {
+      if (!this.A || this.A.length !== n) { this.A = new Float32Array(n).fill(1); this.B = new Float32Array(n); this.A2 = new Float32Array(n); this.B2 = new Float32Array(n); for (let k = 0; k < 30; k++) this.seed((Math.random() * cols) | 0, (Math.random() * rows) | 0, 2); this.age = 0; }
+      if (mouse.down && mouseLive(T)) { const c = Math.round((mouse.u * H + W / 2 - ox) / cw), r = Math.round((mouse.v * H + H / 2 - oy) / chh); this.seed(c, r, 1); }
+      this.age += dt;
+      const F = 0.037 + 0.01 * Math.sin(t * 0.05), K = 0.06 + 0.003 * Math.sin(t * 0.037), steps = Math.max(1, Math.round(10 * SPEED));
+      let a = this.A, b = this.B, a2 = this.A2, b2 = this.B2;
+      for (let s = 0; s < steps; s++) {
+        for (let r = 0; r < rows; r++) { const rU = ((r - 1 + rows) % rows) * cols, rD = ((r + 1) % rows) * cols, rr = r * cols; for (let c = 0; c < cols; c++) {
+          const cL = (c - 1 + cols) % cols, cR = (c + 1) % cols, i = rr + c;
+          const la = a[rr + cL] + a[rr + cR] + a[rU + c] + a[rD + c] - 4 * a[i], lb = b[rr + cL] + b[rr + cR] + b[rU + c] + b[rD + c] - 4 * b[i];
+          const abb = a[i] * b[i] * b[i];
+          a2[i] = clamp(a[i] + (0.2 * la - abb + F * (1 - a[i])), 0, 1); b2[i] = clamp(b[i] + (0.1 * lb + abb - (K + F) * b[i]), 0, 1);
+        } }
+        [a, a2] = [a2, a]; [b, b2] = [b2, b];
+      }
+      this.A = a; this.B = b; this.A2 = a2; this.B2 = b2;
+      let live = 0; for (let i = 0; i < n; i++) { const v = b[i]; live += v; val[i] = clamp(v * 3.2, 0, 1); hue[i] = a[i] * 1.3 + v * 3.5 + U[i] * 0.35 - V[i] * 0.25 + t * 0.03; }
+      if (live / n < 0.002 && this.age > 3) { for (let k = 0; k < 20; k++) this.seed((Math.random() * cols) | 0, (Math.random() * rows) | 0, 2); }
+    } },
+  { name: "Liquid", note: "noise folded into itself until it flows like oil on water",
+    fill(t, val, hue) {
+      const mx = mouseLive(T) ? mouse.u * 2 : 0, my = mouseLive(T) ? mouse.v * 2 : 0;
+      for (let i = 0; i < n; i++) {
+        const x = U[i] * 2.4 + mx * 0.2, y = V[i] * 2.4 + my * 0.2;
+        const qx = fbm(x + t * 0.05, y), qy = fbm(x + 5.2, y + 1.3 - t * 0.04);
+        const rx = fbm(x + 4 * qx + 1.7 + t * 0.07, y + 4 * qy + 9.2), ry = fbm(x + 4 * qx + 8.3, y + 4 * qy + 2.8 + t * 0.06);
+        const f = fbm(x + 4 * rx, y + 4 * ry);
+        val[i] = clamp((f - 0.25) * 1.9, 0, 1) ** 1.2; hue[i] = f * 1.3 + qx * 0.8 - ry * 0.6 + t * 0.02;
+      }
+    } },
+];
+
+// ---------- render ----------
+let mode = 0, prevMode = -1, fadeT = 1, T = 0, last = 0, SPEED = 1, HUEFLOW = 1, hueShift = 0, cycle = false, cycleAt = 0;
+function draw() {
+  ctx.fillStyle = "#050208"; ctx.fillRect(0, 0, W, H);
+  const K = NH * NL, CNT = new Int32Array(K + 1);
+  for (let i = 0; i < n; i++) { let l = (VAL[i] * NL) | 0; if (l >= NL) l = NL - 1; if (l <= 0) { KEY[i] = K; continue; } const h = (((frac(HUE[i] + hueShift) * NH) | 0) + NH) % NH, k = h * NL + l; KEY[i] = k; CNT[k]++; }
+  const start = new Int32Array(K + 1); let acc = 0; for (let k = 0; k < K; k++) { start[k] = acc; acc += CNT[k]; }
+  for (let i = 0; i < n; i++) if (KEY[i] < K) ORD[start[KEY[i]]++] = i;
+  let cur = -1;
+  for (let j = 0; j < acc; j++) { const i = ORD[j], k = KEY[i]; if (k !== cur) { cur = k; ctx.fillStyle = COLORS[k]; } ctx.fillText(CHARS[k % NL], PX[i], PY[i]); }
+  if (cvs.width) { g1c.clearRect(0, 0, g1.width, g1.height); g1c.drawImage(cvs, 0, 0, g1.width, g1.height); g2c.clearRect(0, 0, g2.width, g2.height); g2c.drawImage(cvs, 0, 0, g2.width, g2.height); }
+}
+function step(dt) {
+  T += dt * SPEED; hueShift += dt * 0.06 * HUEFLOW;
+  MODES[mode].fill(T, VAL, HUE, dt);
+  if (fadeT < 1 && prevMode >= 0) {
+    fadeT = Math.min(1, fadeT + dt / 1.2);
+    MODES[prevMode].fill(T, VALb, HUEb, dt);
+    const f = sstep(0, 1, fadeT);
+    for (let i = 0; i < n; i++) { VAL[i] = mix(VALb[i], VAL[i], f); if (f < 0.5) HUE[i] = HUEb[i]; }
+  }
+  draw();
+}
+
+// ---------- controls ----------
+const modesEl = document.getElementById("modes");
+MODES.forEach((m, k) => { const b = document.createElement("button"); b.innerHTML = `<b>${k + 1}</b>${m.name}`; b.addEventListener("click", () => setMode(k)); modesEl.appendChild(b); });
+function setMode(k) {
+  if (k === mode) return; prevMode = mode; mode = k; fadeT = 0; cycleAt = performance.now();
+  if (MODES[k].reset) MODES[k].reset();
+  syncUI();
+}
+let glyphName = "classic";
+try { const s = JSON.parse(localStorage.getItem("prism-trip") || "{}"); if (s.glyphs) glyphName = s.glyphs; } catch (e) {}
+setGlyphs(glyphName);
+function syncUI() {
+  [...modesEl.children].forEach((b, k) => b.setAttribute("aria-pressed", String(k === mode)));
+  document.getElementById("modeName").textContent = MODES[mode].name; document.getElementById("modeNote").textContent = MODES[mode].note;
+  document.querySelectorAll("#glyphs button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === glyphName)));
+  document.getElementById("cycle").setAttribute("aria-pressed", String(cycle));
+}
+document.querySelectorAll("#glyphs button").forEach(b => b.addEventListener("click", () => { glyphName = b.dataset.v; setGlyphs(glyphName); try { localStorage.setItem("prism-trip", JSON.stringify({ glyphs: glyphName })); } catch (e) {} syncUI(); }));
+document.getElementById("speed").addEventListener("input", e => { SPEED = +e.target.value; });
+document.getElementById("hue").addEventListener("input", e => { HUEFLOW = +e.target.value; });
+document.getElementById("cycle").addEventListener("click", () => { cycle = !cycle; cycleAt = performance.now(); syncUI(); });
+document.getElementById("fs").addEventListener("click", () => { try { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().catch(() => {}); } catch (e) {} });
+const toUV = e => [(e.clientX - W / 2) / H, (e.clientY - H / 2) / H];
+cvs.addEventListener("pointermove", e => { [mouse.u, mouse.v] = toUV(e); mouse.at = T; });
+cvs.addEventListener("pointerdown", e => { [mouse.u, mouse.v] = toUV(e); mouse.at = T; mouse.down = true; cvs.setPointerCapture(e.pointerId); });
+const up = () => { mouse.down = false; }; cvs.addEventListener("pointerup", up); cvs.addEventListener("pointercancel", up);
+addEventListener("keydown", e => {
+  if (/^[1-8]$/.test(e.key)) setMode(+e.key - 1);
+  else if (e.key === "ArrowRight") setMode((mode + 1) % MODES.length); else if (e.key === "ArrowLeft") setMode((mode + MODES.length - 1) % MODES.length);
+  else if (e.key === "c" || e.key === "C") { cycle = !cycle; cycleAt = performance.now(); syncUI(); }
+  else if (e.key === "f" || e.key === "F") document.getElementById("fs").click();
+  wake();
+});
+let idleT = 0; const wake = () => { document.body.classList.remove("idle"); clearTimeout(idleT); idleT = setTimeout(() => { if (document.getElementById("ui").matches(":hover, :focus-within")) wake(); else document.body.classList.add("idle"); }, 3200); };
+addEventListener("pointermove", wake); addEventListener("pointerdown", wake);
+addEventListener("resize", () => { clearTimeout(resize.t); resize.t = setTimeout(resize, 150); });
+
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+if (reduce) { SPEED = 0.4; document.getElementById("speed").value = "0.4"; }
+function loop(now) {
+  requestAnimationFrame(loop);
+  if (now - last < 1000 / 30 - 2) return;
+  const dt = Math.min(0.1, (now - last) / 1000); last = now;
+  if (!n) { resize(); return; }
+  if (cycle && now - cycleAt > 25000) setMode((mode + 1) % MODES.length);
+  step(dt);
+}
+const go = () => { resize(); syncUI(); wake(); requestAnimationFrame(t => { last = t; loop(t); }); };
+(document.fonts && document.fonts.load) ? Promise.race([document.fonts.load(`600 14px "IBM Plex Mono"`), new Promise(r => setTimeout(r, 1500))]).then(go, go) : go();
+})();
+</script>

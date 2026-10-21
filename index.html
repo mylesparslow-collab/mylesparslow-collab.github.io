@@ -259,6 +259,14 @@ span.note { font-style: italic; color: var(--muted); }
       <a href="#catgpt">CatGPT <span>local AI + 9 games</span></a>
       <a href="#clayexplainers">Clay explainers <span>Blender + local voice</span></a>
       <a href="#writing">Writing &amp; workflows <span>299k words</span></a>
+      <p class="toc-group"><a href="#g-ascii">ASCII and generative art</a></p>
+      <a href="#hollowhours">Hollow Hours <span>15 spooky scenes</span></a>
+      <a href="#auroralake">Aurora Lake <span>northern lights</span></a>
+      <a href="#prismtrip">Prism Trip <span>8 psychedelic modes</span></a>
+      <a href="#notredame">Notre-Dame <span>3D in text</span></a>
+      <a href="#empirestate">Empire State <span>3D in text</span></a>
+      <a href="#skippy3d">Skippy <span>3D cat portrait</span></a>
+      <a href="#livingprocesses">Living Processes <span>teaching animations</span></a>
       </div>
       <div class="toc-col">
       <p class="toc-group"><a href="#g-aitools">AI tools and experiments</a></p>
@@ -2215,6 +2223,248 @@ span.note { font-style: italic; color: var(--muted); }
   </details>
   </section>
 
+  <!-- GROUP: ASCII AND GENERATIVE ART -->
+  <section class="group" id="g-ascii">
+    <div class="group-head">
+      <h2>ASCII and generative art</h2>
+      <p>Live animation drawn entirely in text characters. Nothing is a video: every frame is computed in the browser as you watch.</p>
+    </div>
+
+  <!-- HOLLOW HOURS -->
+  <details class="case" id="hollowhours">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 31 · ASCII animation</span>
+      <h2>Hollow Hours</h2>
+      <p class="sum">Fifteen spooky scenes made to run fullscreen as a Halloween background, from a candlelit jack-o'-lantern to homages to The Shining, The Ring, Nosferatu and Psycho.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="demos/hollow-hours.html">Open Hollow Hours</a><span>Arrow keys or 1–9 switch scenes; it cycles on its own</span></p>
+    <dl class="stats">
+      <div><dt>Scenes</dt><dd>15</dd></div>
+      <div><dt>Classic-film homages</dt><dd>7</dd></div>
+    </dl>
+    <div class="shots">
+      <figure>
+        <img src="assets/ascii-hollow-lantern.jpg" alt="A jack-o'-lantern drawn in orange text characters, its carved eyes and grin glowing from a candle inside, with embers rising above it." width="1280" height="800" loading="lazy">
+        <figcaption>The Lantern: a 3D pumpkin, ray-marched and lit from inside, so the carved face glows and the shading turns as it sways.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/ascii-hollow-catacombs.jpg" alt="A brick tunnel in amber text characters receding into darkness, lit by torches on both walls." width="1280" height="800" loading="lazy">
+        <figcaption>The Catacombs: an endless torchlit tunnel you fly down. Sometimes a pair of red eyes shows up at the far end.</figcaption>
+      </figure>
+    </div>
+    <div class="cols">
+      <section class="block">
+        <h3>The scenes</h3>
+        <p>The first eight are originals: the lantern, a fog-bound graveyard, a bubbling cauldron over magenta fire, eyes in the dark that follow your cursor, a lightning-lit manor, drifting ghosts, a spider on its web and the catacombs. The next seven are classic horror: the Overlook hallway with its hexagon carpet and the twins, the cursed tape climbing out of the TV, Nosferatu's shadow on the stairs, Frankenstein's laboratory, the Psycho drain dissolving into an eye, the Exorcist streetlamp, and The Birds gathering on the wires.</p>
+      </section>
+      <section class="block">
+        <h3>How it's drawn</h3>
+        <p>Each scene writes a brightness and a colour channel into a grid of character cells, and one renderer turns brightness into characters from a density ramp. Some scenes are simulations, such as the fire, the rain and the flocking birds; the pumpkin is a signed-distance model ray-marched per cell. A blurred copy of the canvas, blended on top, gives the glow.</p>
+        <div class="made"><b>My role</b><p>I set the brief, pushed it well past the obvious, asked for the classic-film set, and chose what stayed. Claude Code wrote the code.</p></div>
+      </section>
+    </div>
+    </div>
+  </details>
+
+  <!-- AURORA LAKE -->
+  <details class="case" id="auroralake">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 32 · Generative scene</span>
+      <h2>Aurora Lake</h2>
+      <p class="sum">Northern lights over a mountain lake, made to be sat with: the light breathes at six breaths a minute, the water ripples where you move, and clicking releases a paper lantern into the sky.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="demos/aurora-lake.html">Open Aurora Lake</a><span>Move over the water, click to release a lantern, press S for sound</span></p>
+    <figure class="wide">
+      <img src="assets/ascii-aurora-lake.jpg" alt="Green and violet aurora curtains drawn in vertical text strokes above a silhouetted mountain range, reflected in a dark lake with fireflies and rising lanterns." width="1280" height="800" loading="lazy">
+      <figcaption>Two aurora curtains in fine vertical strokes, green at the base and violet above, glowing behind the peaks and reflected in the lake.</figcaption>
+    </figure>
+    <div class="cols">
+      <section class="block">
+        <h3>What's in it</h3>
+        <ul>
+          <li>Aurora curtains that drift and fold, built from layered noise per column.</li>
+          <li>Mountain ridgelines traced in slash and caret characters, snow catching the light.</li>
+          <li>A star field wheeling around the pole, a faint Milky Way and the odd shooting star.</li>
+          <li>A mirror lake that reflects everything, broken by swells and by your ripples.</li>
+          <li>Fireflies, swaying reeds and lanterns, each with its own reflection.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>The breathing</h3>
+        <p>The aurora brightens and dims on a ten-second cycle, which is a calm breathing pace, so you can breathe along with it. An optional ambient pad is synthesised live in the browser and swells with the same cycle; there are no audio files.</p>
+        <div class="made"><b>My role</b><p>The brief was to make the most beautiful, entrancing ASCII art I could. I judged each pass and Claude Code built and rebuilt it until the composition held.</p></div>
+      </section>
+    </div>
+    </div>
+  </details>
+
+  <!-- PRISM TRIP -->
+  <details class="case" id="prismtrip">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 33 · Psychedelic visuals</span>
+      <h2>Prism Trip</h2>
+      <p class="sum">A psychedelic light show in full-colour text with eight modes, from a wormhole and a kaleidoscope to a morphing fractal and living reaction-diffusion patterns. It also runs natively inside AgentForge, my Mac app.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="demos/prism-trip.html">Open Prism Trip</a><span>Keys 1–8 switch modes; C auto-cycles; F goes fullscreen</span></p>
+    <figure class="wide">
+      <img src="assets/ascii-prism-trip.jpg" alt="A rainbow-coloured spiral tunnel drawn in glowing text characters, the colours cycling around a dark centre." width="1280" height="800" loading="lazy">
+      <figcaption>Wormhole mode: falling down a spiralling tunnel. Every character carries its own colour, and the palette keeps flowing.</figcaption>
+    </figure>
+    <div class="cols">
+      <section class="block">
+        <h3>The eight modes</h3>
+        <ul>
+          <li><strong>Wormhole</strong> and <strong>Hypno spiral</strong>, both steered by the cursor.</li>
+          <li><strong>Kaleidoscope</strong>, eight mirrors around a blooming centre.</li>
+          <li><strong>Plasma</strong>, the classic demoscene colour waves.</li>
+          <li><strong>Fractal</strong>, a Julia set whose seed you bend with the cursor.</li>
+          <li><strong>Interference</strong>, ripples from moving sources, one following you.</li>
+          <li><strong>Turing</strong>, reaction-diffusion growing coral and mazes; drag to seed it.</li>
+          <li><strong>Liquid</strong>, noise folded into itself until it flows like oil on water.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>In the browser and on the Mac</h3>
+        <p>On the web, each cell picks one of 504 colours (36 hues by 14 brightness levels), and characters are drawn in batches by colour. In AgentForge it is a TRIP tab in ASCII Studio, written in Swift: glyphs are pre-tinted into tiles once, so each frame is a set of memory copies into one image, with a borderless fullscreen view on top.</p>
+        <div class="made"><b>My role</b><p>I asked for a psychedelic version with modes, then for it inside AgentForge. Claude Code wrote both, the browser piece and the Swift port.</p></div>
+      </section>
+    </div>
+    </div>
+  </details>
+
+  <!-- NOTRE-DAME -->
+  <details class="case" id="notredame">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 34 · 3D in text</span>
+      <h2>Notre-Dame, turning</h2>
+      <p class="sum">The cathedral as a real 3D model drawn in characters, turning on a turntable, with day, golden-hour and floodlit-night lighting.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="demos/notre-dame.html">Open Notre-Dame</a><span>Drag to turn it; pick a time of day</span></p>
+    <figure class="wide">
+      <img src="assets/ascii-notre-dame.jpg" alt="Notre-Dame de Paris rendered in gold text characters at golden hour: the twin towers, the long nave roof, the spire at the crossing and flying buttresses along the side." width="1280" height="800" loading="lazy">
+      <figcaption>Golden hour: the west towers, the nave, the transept and the spire, with flying buttresses down the flank.</figcaption>
+    </figure>
+    <div class="cols">
+      <section class="block">
+        <h3>The model</h3>
+        <p>The building is a set of signed-distance shapes: the west front and its towers, the nave and side aisles under a pitched lead roof, the transept, the rounded east end, repeating flying buttresses and the spire. Rose windows, portals and belfry louvres are painted onto the faces where they belong, and the cathedral casts a moving shadow on the plaza.</p>
+      </section>
+      <section class="block">
+        <h3>The light</h3>
+        <p>By day the sun lights each wall in turn as the building rotates. At night floodlights come up from below and the rose windows glow blue and red. The palette blends smoothly through the cycle.</p>
+        <div class="made"><b>My role</b><p>I asked for a cathedral, then rejected the flat façade and asked for 3D. Claude Code built it.</p></div>
+      </section>
+    </div>
+    </div>
+  </details>
+
+  <!-- EMPIRE STATE -->
+  <details class="case" id="empirestate">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 35 · 3D in text</span>
+      <h2>Empire State, turning</h2>
+      <p class="sum">The Empire State Building and the Midtown blocks around it, turning in 3D, with the crown lit orange and purple after dark. You can change how the text itself looks.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="demos/empire-state.html">Open Empire State</a><span>Drag to turn it; set detail, weight and characters</span></p>
+    <figure class="wide">
+      <img src="assets/ascii-empire-state.jpg" alt="The Empire State Building in pale text characters at night with its setbacks and antenna, surrounded by lower city blocks with scattered lit windows." width="1280" height="800" loading="lazy">
+      <figcaption>The Art Deco setbacks, mooring mast and antenna rising above Midtown.</figcaption>
+    </figure>
+    <div class="cols">
+      <section class="block">
+        <h3>What changes</h3>
+        <ul>
+          <li><strong>Detail:</strong> 40 to 150 rows of characters, from chunky to fine.</li>
+          <li><strong>Weight:</strong> light, regular, semibold or bold.</li>
+          <li><strong>Characters:</strong> a classic ramp, a dense 70-character ramp, or solid block shading.</li>
+          <li><strong>Time of day:</strong> day, golden hour or night, or a slow cycle.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>The city</h3>
+        <p>Office windows light up in a random scatter at night, streetlights come on along the avenues, and by day the tower's shadow sweeps across the streets. The antenna is too thin to ray-march, so it's drawn as a line with a depth test against the scene.</p>
+        <div class="made"><b>My role</b><p>I asked for the building and for controls over how the text looks. Claude Code built it.</p></div>
+      </section>
+    </div>
+    </div>
+  </details>
+
+  <!-- SKIPPY -->
+  <details class="case" id="skippy3d">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 36 · 3D portrait</span>
+      <h2>Skippy, turning</h2>
+      <p class="sum">My orange tabby, Skippy, as a 3D model drawn in characters and turning 360° on a loop, modelled from photos down to his sleepy half-lidded eyes.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="demos/skippy.html">Open Skippy</a><span>Drag to spin him</span></p>
+    <figure class="wide">
+      <img src="assets/ascii-skippy.jpg" alt="An orange tabby cat drawn in ginger text characters, sitting in a loaf with paws tucked forward, sleepy green-gold eyes, a white muzzle and whiskers." width="1280" height="800" loading="lazy">
+      <figcaption>The loaf pose, the big cheeks, the white muzzle and the sleepy green-gold eyes.</figcaption>
+    </figure>
+    <section class="block">
+      <h3>How he's made</h3>
+      <p>Skippy is built from blended ellipsoids for the body, head, cheeks, muzzle and paws, cones for the ears, and a chain of capsules for the tail. Tabby stripes come from his position on the body, the eyes are painted onto the face with slit pupils, and he blinks every few seconds. I supplied the photos; Claude Code built the model.</p>
+    </section>
+    </div>
+  </details>
+
+  <!-- LIVING PROCESSES -->
+  <details class="case" id="livingprocesses">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 37 · Teaching animations</span>
+      <h2>Living Processes</h2>
+      <p class="sum">A teaching gallery of eight animal and ecosystem processes animated in text, from the Great Migration to metamorphosis, each opening fullscreen with notes on what to watch for.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="demos/living-processes.html">Open Living Processes</a><span>Click any plate to open it fullscreen</span></p>
+    <figure class="wide">
+      <img src="assets/ascii-living-processes.jpg" alt="A gallery page titled Living Processes showing plates for the Great Migration map, a starling murmuration and geese in V-formation, each with a stage readout, explanation, legend and key terms." width="1280" height="800" loading="lazy">
+      <figcaption>Each plate shows the live animation, its real-world scale, the stage it's in right now, what to watch for and the key terms.</figcaption>
+    </figure>
+    <div class="cols">
+      <section class="block">
+        <h3>The plates</h3>
+        <ul>
+          <li>The Great Migration, month by month between the Serengeti and the Masai Mara.</li>
+          <li>A starling murmuration that ripples when a falcon dives in.</li>
+          <li>Geese in V-formation, taking turns at the front.</li>
+          <li>A salmon run up a waterfall, past a bear, to the spawning gravel.</li>
+          <li>The monarch migration across four generations to Mexico.</li>
+          <li>Lynx and hare populations rising and crashing.</li>
+          <li>Ant trails forming from pheromones.</li>
+          <li>Metamorphosis from egg to butterfly.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>For the classroom</h3>
+        <p>Each plate names the stage it's in as it happens ("Aug · crossing the Mara River · crocodiles wait"), gives the real scale behind the compressed time, and pauses with a click so a teacher can talk through a moment. Several plates are simulations rather than scripts: the flock, the ants and the predator–prey cycle all run on simple rules.</p>
+        <div class="made"><b>My role</b><p>I set the subject and the audience, and redirected it from cell biology to animals and ecosystems. Claude Code built it.</p></div>
+      </section>
+    </div>
+    </div>
+  </details>
+  </section>
+
   <!-- GROUP: AI TOOLS AND EXPERIMENTS -->
   <section class="group" id="g-aitools">
     <div class="group-head">
@@ -2584,6 +2834,7 @@ span.note { font-style: italic; color: var(--muted); }
       <div><h4>Money Desk</h4><p><strong>Built with:</strong> Claude Code.<br><strong>Runs on:</strong> local models, with a vision model for photo listings.</p></div>
       <div><h4>Cat songs and music videos</h4><p><strong>Songs:</strong> Suno, with the written workflow above. Lyrics: ChatGPT.<br><strong>Studio and animation:</strong> ChatGPT and Codex for the code and production documents, Whisper small.en and stable-ts for alignment, p5.js for the animation.</p></div>
       <div><h4>BLACKBOX</h4><p><strong>Built with:</strong> Claude Code, from my specification package.<br><strong>Runs on:</strong> no AI: it records and analyzes Claude Code sessions with plain rules, entirely on the Mac.</p></div>
+      <div><h4>ASCII and generative art</h4><p><strong>Built with:</strong> Claude Code, for all seven pieces and the Swift port of Prism Trip into AgentForge.<br><strong>Runs on:</strong> no AI at runtime: every frame is plain code in the browser (or in Swift, inside AgentForge).</p></div>
       <div><h4>Argument X-ray</h4><p><strong>Built with:</strong> Claude Code, which also wrote the examples and analyses.<br><strong>Runs on:</strong> no live AI on this site: worked examples plus 45 browser rules. The Claude-account version maps pasted text live.</p></div>
       <div><h4>Boardroom of One</h4><p><strong>Built with:</strong> Claude Code, which also wrote the four example debates.<br><strong>Runs on:</strong> no live AI on this site: written examples plus templates. The Claude-account version runs the five advisers live.</p></div>
       <div><h4>Horror screenwriting</h4><p><strong>Built with:</strong> Claude, driven by a 16-section system prompt that produced the CORPUS package and the FINE-TUNED pitch.</p></div>

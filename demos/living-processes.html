@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="en">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta charset="utf-8">
+<title>Living Processes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap">
+<style>
+/* Layout: a field-guide gallery. Header, then a responsive grid of plates; clicking a plate opens it in a fullscreen theater with the notes beside or below. */
+:root {
+  color-scheme: dark;
+  --field: #08090b;
+  --plate: #0d0f12;
+  --ink: #e9ebe6;
+  --ink-dim: #8d928a;
+  --rule: #1e221f;
+  --moss: #b5d98a;
+  --f-display: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+  --f-body: "IBM Plex Sans", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+body { background: var(--field); color: var(--ink); font-family: var(--f-body); margin: 0;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+body.theater-open { overflow: hidden; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-block: 48px 64px; }
+header { display: grid; gap: 10px; margin-bottom: 36px; max-width: 64ch; }
+.eyebrow { font: 500 11px/1 var(--f-mono); letter-spacing: .18em; text-transform: uppercase; color: var(--moss); }
+h1 { margin: 0; font: 400 clamp(40px, 6vw, 68px)/0.95 var(--f-display); letter-spacing: -0.01em; text-wrap: balance; }
+h1 em { color: var(--moss); }
+header p { margin: 0; color: var(--ink-dim); font-size: 15px; line-height: 1.55; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 20px; }
+.plate { background: var(--plate); border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
+.plate canvas { display: block; width: 100%; aspect-ratio: 16 / 10; max-width: 100%; background: #0b0d0f; cursor: zoom-in; }
+.plate canvas:focus-visible { outline: 2px solid var(--moss); outline-offset: -2px; }
+.meta { padding: 14px 16px 16px; display: grid; gap: 7px; border-top: 1px solid var(--rule); align-content: start; }
+.row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+h2 { margin: 0; font: 400 26px/1 var(--f-display); }
+.scale { font: 400 11px/1.3 var(--f-mono); color: var(--ink-dim); letter-spacing: .03em; }
+.phase { font: 500 12px/1.3 var(--f-mono); }
+.meta p { margin: 0; font-size: 13.5px; line-height: 1.5; color: var(--ink-dim); max-width: 62ch; }
+.meta p.watch { color: var(--ink); }
+.watch b { font-weight: 500; color: var(--moss); }
+.legend, .terms { display: flex; flex-wrap: wrap; gap: 6px 12px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; font: 400 11px/1 var(--f-mono); color: var(--ink-dim); }
+.legend i { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
+.terms { gap: 6px; }
+.terms span { font: 400 11px/1 var(--f-mono); color: var(--ink-dim); border: 1px solid var(--rule); border-radius: 999px; padding: 5px 9px; }
+.open-hint { font: 400 11px/1 var(--f-mono); color: var(--ink-dim); }
+footer { margin-top: 36px; color: var(--ink-dim); font-size: 12px; font-family: var(--f-mono); }
+
+/* fullscreen theater */
+#theater { position: fixed; inset: 0; z-index: 50; background: #0b0d0f; display: grid; grid-template-rows: minmax(0, 1fr) auto; }
+#theater[hidden] { display: none !important; }
+#theater canvas { width: 100%; height: 100%; display: block; min-height: 0; cursor: pointer; }
+#theater .meta { background: var(--plate); max-height: 38vh; overflow: auto; border-top: 1px solid var(--rule);
+  padding: 14px max(16px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 16px) max(16px, env(safe-area-inset-left, 0px)); }
+#theater h2 { font-size: 32px; }
+.bar { display: flex; flex-wrap: wrap; gap: 6px; }
+.bar button { font: 500 12px/1 var(--f-mono); color: var(--ink); background: #121512; border: 1px solid var(--rule); border-radius: 3px; padding: 9px 11px; cursor: pointer; }
+.bar button:hover { border-color: var(--ink-dim); }
+.bar button:focus-visible { outline: 1px solid var(--moss); outline-offset: 2px; }
+.bar button[aria-pressed="true"] { color: var(--moss); border-color: rgba(181,217,138,.5); }
+@media (min-width: 1000px) {
+  #theater { grid-template-columns: minmax(0, 1fr) 380px; grid-template-rows: minmax(0, 1fr); }
+  #theater .meta { max-height: none; border-top: 0; border-left: 1px solid var(--rule); padding-top: calc(env(safe-area-inset-top, 0px) + 22px); }
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Field plates &middot; animals and ecosystems, animated in text</span>
+    <h1>Living <em>Processes</em></h1>
+    <p>Eight things animals and ecosystems do, drawn live in characters: great migrations, flocks, life cycles and the balance between predator and prey. Click any plate to open it fullscreen.</p>
+  </header>
+  <main class="grid" id="grid"></main>
+  <footer>Time is compressed so a season or a decade fits in a few seconds; the scale notes give the real numbers.</footer>
+</div>
+
+<div id="theater" hidden role="dialog" aria-modal="true" aria-labelledby="th-name">
+  <canvas id="th-canvas" role="img" aria-label="Fullscreen animation"></canvas>
+  <div class="meta">
+    <div class="bar">
+      <button id="th-prev">&lsaquo; prev</button>
+      <button id="th-next">next &rsaquo;</button>
+      <button id="th-pause" aria-pressed="false">pause</button>
+      <button id="th-close">close &times;</button>
+    </div>
+    <div class="row"><h2 id="th-name"></h2></div>
+    <span class="scale" id="th-scale"></span>
+    <span class="phase" id="th-phase"></span>
+    <p id="th-text"></p>
+    <p class="watch"><b>Watch for:</b> <span id="th-watch"></span></p>
+    <div class="legend" id="th-legend"></div>
+    <div class="terms" id="th-terms"></div>
+    <span class="open-hint">Space pauses &middot; arrow keys switch &middot; Esc closes</span>
+  </div>
+</div>
+
+<script>
+(() => {
+"use strict";
+const TAU = Math.PI * 2;
+const clamp = (x, a, b) => x < a ? a : x > b ? b : x, mix = (a, b, t) => a + (b - a) * t;
+const sstep = (a, b, x) => { x = clamp((x - a) / (b - a), 0, 1); return x * x * (3 - 2 * x); };
+const frac = x => x - Math.floor(x);
+const PERM = new Uint8Array(512);
+{ let s = 3; const r = () => (s = (s * 16807) % 2147483647) / 2147483647, p = [...Array(256).keys()]; for (let i = 255; i > 0; i--) { const j = (r() * (i + 1)) | 0; [p[i], p[j]] = [p[j], p[i]]; } for (let i = 0; i < 512; i++) PERM[i] = p[i & 255]; }
+const hash2 = (x, y) => PERM[PERM[x & 255] + (y & 255)] / 255;
+function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const gauss = r => { let u = 0; for (let i = 0; i < 4; i++) u += r(); return (u - 2) / 1.1; };
+const slope = (dx, dy, asp) => { let d = Math.atan2(dy, dx * asp) * 180 / Math.PI; if (d < 0) d += 180; return d < 22.5 || d >= 157.5 ? "-" : d < 67.5 ? "\\" : d < 112.5 ? "|" : "/"; };
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+// ---------- a text-mode plate ----------
+class Plate {
+  constructor(cv, phaseEl, big) { this.cv = cv; this.ctx = cv.getContext("2d", { alpha: false }); this.phaseEl = phaseEl; this.big = big; this.t = 0; this.visible = true; this.ph = ""; this.n = 0; }
+  attach(scene) { this.scene = scene; this.t = 0; this.ph = ""; this.resize(); }
+  resize() {
+    const w = this.cv.clientWidth, h = this.cv.clientHeight; if (!w || !h || !this.scene) return;
+    const dpr = Math.min(devicePixelRatio || 1, 2); this.cv.width = Math.round(w * dpr); this.cv.height = Math.round(h * dpr);
+    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    this.fs = this.big ? clamp(Math.round(Math.min(w / 150, h / 56)), 9, 18) : clamp(Math.round(w / 62), 9, 13);
+    this.ctx.font = `${this.fs}px "IBM Plex Mono", ui-monospace, Menlo, monospace`; this.ctx.textBaseline = "top";
+    this.cw = this.ctx.measureText("M").width; this.chh = Math.round(this.fs * 1.2);
+    this.cols = Math.floor(w / this.cw); this.rows = Math.floor(h / this.chh); this.ox = (w - this.cols * this.cw) / 2; this.oy = (h - this.rows * this.chh) / 2;
+    this.asp = this.cw / this.chh; this.n = this.cols * this.rows; this.chr = new Uint16Array(this.n); this.col = new Uint8Array(this.n); this.W = w; this.H = h;
+    this.scene.init(this);
+  }
+  put(x, y, c, k) { x = Math.round(x); y = Math.round(y); if (x < 0 || y < 0 || x >= this.cols || y >= this.rows) return; const i = y * this.cols + x; this.chr[i] = typeof c === "number" ? c : c.charCodeAt(0); this.col[i] = k; }
+  text(x, y, s, k) { x = Math.round(x); for (let j = 0; j < s.length; j++) if (s[j] !== " ") this.put(x + j, y, s[j], k); }
+  line(x0, y0, x1, y1, k, c) { const dx = x1 - x0, dy = y1 - y0, n = Math.ceil(Math.max(Math.abs(dx), Math.abs(dy))) || 1, g = c || slope(dx, dy, this.asp); for (let s = 0; s <= n; s++) this.put(x0 + dx * s / n, y0 + dy * s / n, g, k); }
+  setPhase(s) { if (s !== this.ph) { this.ph = s; if (this.phaseEl) this.phaseEl.textContent = s; } }
+  step(dt) { if (!this.n) return; this.t += dt; this.chr.fill(0); this.scene.frame(this, this.t, dt); this.draw(); }
+  draw() {
+    const { ctx, n, chr, col, cols } = this, pal = this.scene.pal;
+    ctx.fillStyle = "#0b0d0f"; ctx.fillRect(0, 0, this.W, this.H);
+    for (let k = 0; k < pal.length; k++) { ctx.fillStyle = pal[k]; for (let i = 0; i < n; i++) if (chr[i] && col[i] === k) ctx.fillText(String.fromCharCode(chr[i]), this.ox + (i % cols) * this.cw, this.oy + ((i / cols) | 0) * this.chh); }
+  }
+}
+
+// ---------- 1. The Great Migration ----------
+const MIG_KEY = [[.56, .8], [.58, .83], [.5, .76], [.4, .67], [.3, .56], [.27, .45], [.4, .3], [.5, .19], [.57, .15], [.64, .2], [.68, .44], [.64, .68]];
+function loopPath(K, m) {
+  const n = K.length, i = Math.floor(m), f = m - i, P = k => K[((k % n) + n) % n], a = P(i - 1), b = P(i), c = P(i + 1), d = P(i + 2);
+  const cr = (p0, p1, p2, p3) => 0.5 * ((2 * p1) + (-p0 + p2) * f + (2 * p0 - 5 * p1 + 4 * p2 - p3) * f * f + (-p0 + 3 * p1 - 3 * p2 + p3) * f * f * f);
+  return [cr(a[0], b[0], c[0], d[0]), cr(a[1], b[1], c[1], d[1])];
+}
+const migration = {
+  name: "The Great Migration", scale: "over a million wildebeest · a loop of roughly 800 km a year", color: "#e8c27a",
+  text: "Wildebeest, with zebras and gazelles, follow the rains in a clockwise loop between Tanzania's Serengeti and Kenya's Masai Mara, chasing fresh grass. They calve on the southern plains and brave crocodile-filled rivers in the north.",
+  watch: "Follow the herd month by month. Green grass shifts with the rains, and the herd follows it. Watch the splashes at the Mara River from July to September.",
+  terms: ["migration", "seasonal rains", "calving", "river crossing", "herd behaviour"],
+  legend: [["wildebeest", "#e8c27a"], ["fresh grass", "#7fbf5a"], ["dry grass", "#8a7a52"], ["river / lake", "#5aa9ff"], ["crocodile", "#9be36b"]],
+  pal: ["#2a2b22", "#8a7a52", "#7fbf5a", "#5aa9ff", "#e8c27a", "#fff3d0", "#9be36b", "#c8ccd2", "#5d6470"],
+  init(G) { const r = rng(21); this.herd = [...Array(Math.round(clamp(G.cols * G.rows / 14, 120, 420)))].map(() => ({ lag: r() * 0.9, gx: gauss(r), gy: gauss(r), calf: r() < 0.25 })); },
+  frame(G, t) {
+    const m = (t * 0.5) % 12, mi = Math.floor(m), C = G.cols, R = G.rows;
+    const southGreen = mi >= 11 || mi <= 4 ? 1 : mi === 5 || mi === 10 ? 0.4 : 0, northGreen = mi >= 6 && mi <= 10 ? 1 : mi === 5 ? 0.4 : 0;
+    for (let y = 0; y < R; y++) for (let x = 0; x < C; x++) {
+      const u = x / C, v = y / R;
+      if (((u - 0.02) / 0.1) ** 2 + ((v - 0.5) / 0.3) ** 2 < 1) { G.put(x, y, frac(x * 0.3 + t * 0.4 + y * 0.5) < 0.5 ? "~" : "-", 3); continue; }
+      const g = v > 0.5 ? southGreen : northGreen, h = hash2(x * 7 + y, y * 13 + x);
+      if (h > 0.62) G.put(x, y, h > 0.9 ? '"' : h > 0.78 ? "," : ".", g > 0.5 ? 2 : (g > 0.2 && h > 0.8 ? 2 : 1));
+    }
+    const maraY = x => R * 0.25 + Math.sin(x * 0.22) * 0.8, grumY = x => R * 0.46 + Math.sin(x * 0.3 + 1) * 0.6;
+    for (let x = Math.round(C * 0.33); x < C * 0.93; x++) G.put(x, maraY(x), "~", 3);
+    for (let x = Math.round(C * 0.12); x < C * 0.42; x++) G.put(x, grumY(x), "~", 3);
+    for (let x = Math.round(C * 0.14); x < C; x += 2) G.put(x, R * (0.335 - (x / C) * 0.12), "-", 8);
+    G.text(C * 0.78, Math.round(R * 0.2), "KENYA", 8); G.text(C * 0.74, Math.round(R * 0.31), "TANZANIA", 8);
+    G.text(C * 0.5, 1, "Masai Mara", 7); G.text(C * 0.42, R - 2, "Serengeti plains", 7);
+    G.text(C * 0.13, Math.round(R * 0.46) + 1, "Grumeti R.", 8); G.text(C * 0.8, Math.round(R * 0.25) + 1, "Mara R.", 8);
+    G.text(0, Math.round(R * 0.5) - 1, "Lake", 3); G.text(0, Math.round(R * 0.5), "Vict.", 3);
+    const crossing = m > 6.4 && m < 9.6;
+    if (crossing) for (const cx of [0.48, 0.58, 0.68]) { const x = Math.round(C * cx + Math.sin(t * 0.7 + cx * 9) * 2); G.text(x, Math.round(maraY(x)), "=^", 6); }
+    for (const a of this.herd) {
+      const p = loopPath(MIG_KEY, ((m - a.lag) % 12 + 12) % 12), sp = mi === 1 ? 0.045 : 0.07;
+      const x = (p[0] + a.gx * sp * 0.75) * C, y = (p[1] + a.gy * sp) * R;
+      if (a.calf && (mi === 1 || mi === 2)) G.put(x + 1, y, ".", 5);
+      const atRiver = crossing && Math.abs(y - maraY(x)) < 1;
+      G.put(x, y, atRiver && hash2(Math.round(x), Math.floor(t * 6)) > 0.5 ? "*" : "m", atRiver ? 5 : 4);
+    }
+    const act = ["southern plains · grazing short rain-fed grass", "calving · hundreds of thousands born within weeks", "southern plains · calves growing fast", "plains drying · heading north-west", "moving through the western corridor", "crossing the Grumeti River", "pushing north toward Kenya", "crossing the Mara River · crocodiles wait", "grazing the Masai Mara", "grazing the Masai Mara", "short rains begin · turning south", "returning to the southern plains"][mi];
+    G.setPhase(`${MONTHS[mi]} · ${act}`);
+  }
+};
+
+// ---------- 2. Starling murmuration ----------
+const murmuration = {
+  name: "Starling murmuration", scale: "flocks can number in the hundreds of thousands", color: "#d9c2ff",
+  text: "No bird is in charge. Each starling simply keeps pace with a handful of its nearest neighbours (research suggests about seven), and the whole flock moves like one shape-shifting cloud, which makes it hard for a falcon to pick out a target.",
+  watch: "When the falcon (V) dives in, a ripple of turning spreads through the flock faster than any one bird could fly.",
+  terms: ["flocking", "collective behaviour", "emergence", "predator avoidance", "self-organisation"],
+  legend: [["starlings (denser = brighter)", "#d9c2ff"], ["falcon", "#ff8a5c"], ["sunset", "#f2a65a"]],
+  pal: ["#3a2a40", "#6d4f7a", "#a88abd", "#d9c2ff", "#f6eeff", "#ff8a5c", "#f2a65a", "#1f2a1c", "#4b5e3a"],
+  init(G) {
+    const r = rng(8), N = Math.round(clamp(G.cols * G.rows / 6, 180, 700)), Wd = G.cols * G.asp, Hd = G.rows;
+    this.r = r; this.Wd = Wd; this.Hd = Hd;
+    this.b = [...Array(N)].map(() => ({ x: Wd * (0.35 + r() * 0.3), y: Hd * (0.25 + r() * 0.3), vx: (r() - 0.5) * 4, vy: (r() - 0.5) * 2 }));
+    this.den = new Uint8Array(G.n); this.fal = null; this.nextFal = 6;
+  },
+  frame(G, t, dt) {
+    const B = this.b, Wd = this.Wd, Hd = this.Hd, r = this.r, cx = Wd * (0.5 + 0.18 * Math.sin(t * 0.13)), cy = Hd * (0.38 + 0.08 * Math.sin(t * 0.21));
+    if (!this.fal && t > this.nextFal) this.fal = { t0: t, side: r() < 0.5 ? -1 : 1 };
+    let fx = -99, fy = -99;
+    if (this.fal) { const q = (t - this.fal.t0) / 3.2; if (q > 1) { this.fal = null; this.nextFal = t + 7 + r() * 6; } else { fx = Wd * (0.5 + this.fal.side * (0.7 - q * 1.4)); fy = Hd * (0.1 + Math.sin(q * Math.PI) * 0.45); } }
+    const K = G.rows / 30, R2 = (3.2 * K) ** 2, SEP = 0.5 * K * K;
+    for (const a of B) {
+      let ax = 0, ay = 0, cxs = 0, cys = 0, vxs = 0, vys = 0, nb = 0, sx = 0, sy = 0;
+      for (const o of B) { if (o === a) continue; const dx = o.x - a.x, dy = o.y - a.y, d2 = dx * dx + dy * dy; if (d2 < R2) { nb++; cxs += dx; cys += dy; vxs += o.vx; vys += o.vy; if (d2 < SEP) { sx -= dx / (d2 + 0.05 * K) * K; sy -= dy / (d2 + 0.05 * K) * K; } } }
+      if (nb) { ax += cxs / nb * 0.9 + (vxs / nb - a.vx) * 1.4; ay += cys / nb * 0.9 + (vys / nb - a.vy) * 1.4; }
+      ax += sx * 0.35 + (cx - a.x) * 0.05; ay += sy * 0.35 + (cy - a.y) * 0.08;
+      const fdx = a.x - fx, fdy = a.y - fy, fd = Math.hypot(fdx, fdy); if (fd < 6 * K) { ax += fdx / (fd + 0.1) * 30; ay += fdy / (fd + 0.1) * 30; }
+      a.vx += ax * dt; a.vy += ay * dt; const sp = Math.hypot(a.vx, a.vy), mx = 9 * K, mn = 4 * K; if (sp > mx) { a.vx *= mx / sp; a.vy *= mx / sp; } else if (sp < mn) { a.vx *= mn / (sp || 1); a.vy *= mn / (sp || 1); }
+      a.x += a.vx * dt; a.y += a.vy * dt;
+    }
+    for (let y = 0; y < G.rows; y++) { const hz = y / G.rows; if (hz > 0.55) for (let x = 0; x < G.cols; x++) if (hash2(x * 5 + y, y * 9) > 0.86 - (hz - 0.55)) G.put(x, y, hz > 0.8 ? "-" : ".", 6); }
+    for (let x = 0; x < G.cols; x++) { const h = Math.round(2 + 2.5 * hash2(x, 3) + Math.sin(x * 0.4 + t * 0.8) * 0.4); for (let k = 0; k < h; k++) G.put(x, G.rows - 1 - k, k === h - 1 ? (hash2(x, 7) > 0.5 ? "/" : "\\") : "|", k > 1 ? 8 : 7); }
+    const den = this.den; den.fill(0);
+    for (const a of B) { const x = Math.round(a.x / G.asp), y = Math.round(a.y); if (x >= 0 && y >= 0 && x < G.cols && y < G.rows) den[y * G.cols + x] = Math.min(255, den[y * G.cols + x] + 1); }
+    for (let i = 0; i < G.n; i++) if (den[i]) { const d = den[i]; G.put(i % G.cols, (i / G.cols) | 0, d === 1 ? "." : d === 2 ? ":" : d < 5 ? "*" : "@", d === 1 ? 2 : d === 2 ? 3 : 4); }
+    if (this.fal) { G.put(fx / G.asp, fy, "V", 5); G.put(fx / G.asp - 1, fy - 0.6, "\\", 5); G.put(fx / G.asp + 1, fy - 0.6, "/", 5); }
+    G.setPhase(this.fal ? "falcon attack · a turning wave sweeps the flock" : `${B.length} starlings · each matching its nearest neighbours`);
+  }
+};
+
+// ---------- 3. V-formation flight ----------
+const vflight = {
+  name: "V-formation flight", scale: "geese and pelicans · trailing birds save energy", color: "#ffd166",
+  text: "Each bird flies slightly behind and to the side of the one ahead, riding the rising air that spills off its wingtip. Leading is the hardest job, so birds take turns at the front.",
+  watch: "The gold bird is leading. Every few seconds it drops back to the end of a line and the next bird takes over.",
+  terms: ["upwash", "wingtip vortex", "energy saving", "formation flight", "migration"],
+  legend: [["leader", "#ffd166"], ["followers", "#eef1f3"], ["wingtip air", "#5aa9ff"], ["fields below", "#6b8f4e"]],
+  pal: ["#1e2619", "#3a4a2c", "#6b8f4e", "#a7b88a", "#eef1f3", "#ffd166", "#2c5a8a", "#5aa9ff", "#8a7a52"],
+  init(G) { this.N = 9; this.order = [...Array(this.N).keys()]; this.pos = this.order.map(() => null); this.lastRot = 0; },
+  slot(k, G) { const cx = G.cols * 0.68, cy = G.rows * 0.5; if (k === 0) return [cx, cy]; const s = k % 2 ? -1 : 1, rnk = Math.ceil(k / 2); const S = Math.max(1, G.rows / 30); return [cx - rnk * 5.5 * S, cy + s * rnk * 2.1 * S]; },
+  frame(G, t, dt) {
+    const per = 6;
+    if (t - this.lastRot > per) { this.lastRot = t; const lead = this.order.shift(); this.order.push(lead); }
+    const off = t * 6;
+    for (let y = 0; y < G.rows; y++) for (let x = 0; x < G.cols; x++) {
+      const wx = x + off, fx = Math.floor(wx / 14), fy = Math.floor(y / 6), h = hash2(fx * 7 + fy, fy * 3 + fx);
+      const border = frac(wx / 14) < 0.06 || frac(y / 6) < 0.12;
+      const riverY = G.rows * 0.8 + Math.sin(wx * 0.08) * 2;
+      if (Math.abs(y - riverY) < 0.7) { G.put(x, y, "~", 6); continue; }
+      if (border) { if (hash2(x * 3 + Math.floor(off), y) > 0.4) G.put(x, y, ".", 1); continue; }
+      if (h > 0.66) { if (y % 2 === 0 && (Math.floor(wx) + y) % 3 === 0) G.put(x, y, "-", 1); } else if (h > 0.33) { if (hash2(Math.floor(wx), y) > 0.8) G.put(x, y, ".", 1); } else if (hash2(Math.floor(wx) * 5, y) > 0.85) G.put(x, y, ",", 8);
+    }
+    this.order.forEach((bird, k) => {
+      const tgt = this.slot(k, G); if (!this.pos[bird]) this.pos[bird] = tgt.slice();
+      const p = this.pos[bird]; p[0] += (tgt[0] - p[0]) * Math.min(1, dt * 1.2); p[1] += (tgt[1] - p[1]) * Math.min(1, dt * 1.2);
+      const x = p[0] + Math.sin(t * 1.3 + bird) * 0.3, y = p[1] + Math.sin(t * 1.7 + bird * 2) * 0.25, flap = Math.sin(t * 7 + bird * 0.9) > 0, c = k === 0 ? 5 : 4;
+      for (let j = 2; j < 9; j++) if (hash2(j * 7 + bird, Math.floor(t * 8 + j)) > 0.45) { G.put(x - j - 1, y - 1.2, "~", 7); G.put(x - j - 1, y + 1.2, "~", 7); }
+      G.put(x, y, ">", c); G.put(x - 1, y, "=", c); G.put(x - 2, y, "-", c);
+      G.put(x - 1, y - 1, flap ? "\\" : "-", c); G.put(x - 1, y + 1, flap ? "/" : "-", c);
+    });
+    const left = Math.ceil(per - (t - this.lastRot));
+    G.setPhase(`bird ${this.order[0] + 1} leading · swaps in ${left}s · ${this.N - 1} riding the upwash`);
+  }
+};
+
+// ---------- 4. Salmon run ----------
+const salmon = {
+  name: "Salmon run", scale: "some Pacific salmon swim over 1,000 km upstream", color: "#ff8f7a",
+  text: "Adult salmon leave the ocean and swim back up the river where they hatched, finding it partly by smell. They leap waterfalls, dodge bears, then lay and fertilise eggs in gravel beds before they die, feeding the whole river ecosystem.",
+  watch: "Count how many leaps fail before a fish clears the falls. The fish that make it settle on the gravel on the right and lay eggs (o).",
+  terms: ["anadromous", "spawning", "redd", "natal homing", "nutrient cycling"],
+  legend: [["salmon", "#ff8f7a"], ["eggs", "#ffb36b"], ["bear", "#b07a4a"], ["water", "#5aa9ff"]],
+  pal: ["#16202a", "#2c5a8a", "#5aa9ff", "#d6ecff", "#ff8f7a", "#ffb36b", "#b07a4a", "#6b5a44", "#3d4a2c", "#eef1f3"],
+  init(G) { this.r = rng(33); this.fish = [...Array(14)].map((_, i) => this.spawn(-i * 6)); this.eggs = []; this.past = 0; this.caught = 0; this.nom = -9; },
+  spawn(x) { return { x: x === undefined ? -3 : x, st: "swim", tries: 0, ph: this.r() * 6, sp: 4 + this.r() * 3 }; },
+  frame(G, t, dt) {
+    const C = G.cols, R = G.rows, xf = Math.round(C * 0.52), yU = Math.round(R * 0.36), yD = Math.round(R * 0.58), bed = R - 2;
+    for (let x = 0; x < C; x++) {
+      const surf = x < xf ? yD : yU;
+      for (let y = surf; y < bed; y++) { const flow = frac((x + t * (x < xf ? 7 : 4)) * 0.18 + y * 0.31); if (y === surf) G.put(x, y, flow < 0.5 ? "~" : "-", 3); else if (flow < 0.12) G.put(x, y, "-", 1); else if (flow < 0.18) G.put(x, y, ".", 2); }
+      G.put(x, bed, hash2(x, 2) > 0.6 ? "^" : "_", 7); G.put(x, bed + 1, "=", 7);
+      for (let y = 0; y < surf - 1; y++) if (x > xf + 2 ? y > yU - 4 : y > yD - 3) G.put(x, y, hash2(x * 3, y) > 0.55 ? '"' : "|", 8);
+    }
+    for (let y = yU; y < yD; y++) for (const dx of [0, 1, 2]) G.put(xf + dx, y, frac(y * 0.5 - t * 5 + dx * 0.3) < 0.5 ? "|" : "!", 3);
+    for (let k = 0; k < 8; k++) G.put(xf - 2 + hash2(k, Math.floor(t * 10)) * 6, yD - 1 + hash2(Math.floor(t * 10), k) * 2, "*", 9);
+    for (let x = Math.round(C * 0.8); x < C; x++) if (hash2(x, 9) > 0.35) G.put(x, bed - 1, "o", 7);
+    const bx = xf + 3, by = yU - 3, munch = t - this.nom < 1.2;
+    G.text(bx, by - 1, "n___n", 6); G.text(bx, by, munch ? "(^w^)" : "(o.o)", 6); G.text(bx + 1, by + 1, munch ? "nom" : "| |", munch ? 9 : 6);
+    for (const f of this.fish) {
+      if (f.st === "swim") {
+        f.x += f.sp * dt; const yy = mix(yD + 1, bed - 1, 0.5 + 0.35 * Math.sin(t * 1.5 + f.ph));
+        G.text(f.x - 2, yy, "><>", 4);
+        if (f.x >= xf - 3) { f.st = "leap"; f.l0 = t; f.ok = this.r() < 0.4; }
+      } else if (f.st === "leap") {
+        const q = (t - f.l0) / 0.9, x = mix(xf - 3, f.ok ? xf + 5 : xf, q), y = mix(yD, f.ok ? yU : yD, q) - Math.sin(Math.min(q, 1) * Math.PI) * (yD - yU + 2);
+        if (f.ok && q > 0.45 && q < 0.6 && this.r() < 0.02) { this.caught++; this.nom = t; Object.assign(f, this.spawn()); continue; }
+        G.text(x - 2, y, q < 0.5 ? "/<>" : "><>", 4);
+        if (q >= 1) { if (f.ok) { f.st = "up"; this.past++; f.x = xf + 5; } else { f.st = "swim"; f.x = xf - 9; f.tries++; } }
+      } else if (f.st === "up") {
+        f.x += f.sp * 0.7 * dt; G.text(f.x - 2, mix(yU + 1, bed - 2, 0.5 + 0.3 * Math.sin(t * 1.3 + f.ph)), "><>", 4);
+        if (f.x > C * 0.82 + f.ph * 2) { f.st = "spawn"; f.s0 = t; f.sy = bed - 2; }
+      } else {
+        const q = (t - f.s0) / 3; G.text(f.x - 2, f.sy, q < 0.7 ? "><>" : "><.", q < 0.7 ? 4 : 7);
+        if (q > 0.3 && this.eggs.length < 60 && this.r() < 0.2) this.eggs.push({ x: f.x - 2 + this.r() * 4, t0: t });
+        if (q > 1) Object.assign(f, this.spawn());
+      }
+    }
+    this.eggs = this.eggs.filter(e => t - e.t0 < 14); for (const e of this.eggs) G.put(e.x, bed - 1, "o", 5);
+    G.setPhase(`${this.past} past the falls · ${this.caught} caught by the bear · ${this.eggs.length} eggs in the gravel`);
+  }
+};
+
+// ---------- 5. Monarch migration ----------
+const NA = [[-125, 49], [-124, 42], [-122, 37], [-118, 34], [-117, 32.5], [-114, 30], [-110, 24], [-105, 20], [-100, 17], [-95, 15.6], [-92, 15], [-90, 17], [-88, 18], [-87, 21], [-90, 21.3], [-91, 19], [-95, 18.8], [-97, 22], [-97.4, 26], [-94, 29.6], [-90, 29], [-88, 30.4], [-85, 29.8], [-83, 29], [-82, 27], [-80.5, 25.2], [-80, 27], [-81, 31], [-76, 35], [-76, 38], [-74, 40], [-70, 42], [-70, 44], [-66, 45], [-61, 46], [-64, 48.5], [-66, 50], [-60, 51], [-58, 55], [-130, 55], [-130, 54]];
+const MON_KEY = [[-100.3, 19.6, .5, .3], [-100.3, 19.6, .5, .3], [-99, 26, 3, 2], [-96, 31, 5, 3], [-92, 36, 8, 4], [-88, 40, 10, 4], [-85, 43, 12, 4], [-84, 44, 12, 4], [-90, 37, 8, 4], [-98, 28, 4, 3], [-100.3, 19.8, .9, .6], [-100.3, 19.6, .5, .3]];
+const monarch = {
+  name: "Monarch migration", scale: "up to ~4,000 km · four generations in one year", color: "#ff9a2e",
+  text: "No single monarch makes the round trip. Spring and summer generations live a few weeks each, breeding their way north. The late-summer 'super generation' lives up to about eight months, flies all the way to the mountain forests of central Mexico, and starts the cycle again.",
+  watch: "Watch the cloud spread north across several generations, then funnel back to one small patch of forest in Mexico for the winter.",
+  terms: ["multigenerational migration", "overwintering", "super generation", "milkweed", "diapause"],
+  legend: [["monarchs", "#ff9a2e"], ["land", "#4b5a3c"], ["Great Lakes", "#5aa9ff"]],
+  pal: ["#1c2218", "#4b5a3c", "#7d8f62", "#5aa9ff", "#ff9a2e", "#ffd1a1", "#c8ccd2", "#5d6470"],
+  proj(G, lon, lat) { return [(lon + 130) / 72 * G.cols, (56 - lat) / 42 * G.rows]; },
+  init(G) {
+    const r = rng(5), poly = NA.map(([lo, la]) => this.proj(G, lo, la));
+    this.land = new Uint8Array(G.n);
+    for (let y = 0; y < G.rows; y++) for (let x = 0; x < G.cols; x++) { let ins = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const [xi, yi] = poly[i], [xj, yj] = poly[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) ins = !ins; } this.land[y * G.cols + x] = ins ? 1 : 0; }
+    this.bf = [...Array(Math.round(clamp(G.cols * G.rows / 20, 90, 300)))].map(() => ({ gx: gauss(r), gy: gauss(r), ph: r() * TAU }));
+  },
+  frame(G, t) {
+    const m = (t * 0.55) % 12, mi = Math.floor(m);
+    for (let i = 0; i < G.n; i++) if (this.land[i]) { const x = i % G.cols, y = (i / G.cols) | 0; G.put(x, y, hash2(x * 3 + y, y * 5) > 0.5 ? "." : ":", (x + y) % 5 ? 1 : 2); }
+    for (const [lo, la, rx, ry] of [[-87, 44, 1, 2.2], [-82, 44.8, 1.6, 0.8], [-80, 43.5, 1.6, 0.4], [-87.5, 47.5, 3, 0.7]]) { const [x, y] = this.proj(G, lo, la), sx = Math.max(0.6, rx / 72 * G.cols), sy = Math.max(0.6, ry / 42 * G.rows); for (let yy = Math.floor(y - sy); yy <= y + sy; yy++) for (let xx = Math.floor(x - sx); xx <= x + sx; xx++) if (((xx - x) / sx) ** 2 + ((yy - y) / sy) ** 2 <= 1) G.put(xx, yy, "~", 3); }
+    const lab = (lo, la, s, k) => { const [x, y] = this.proj(G, lo, la); G.text(x, y, s, k); };
+    lab(-108, 18.5, "Michoacan *", 6); lab(-104, 31.5, "Texas", 7); lab(-93, 48.5, "Great Lakes", 7); lab(-108, 52, "Canada", 7); lab(-93, 25.5, "Gulf", 7); lab(-126, 30, "Pacific", 7); lab(-70, 36, "Atlantic", 7);
+    const ib = Math.floor(m), f = m - ib, A = MON_KEY[ib % 12], B = MON_KEY[(ib + 1) % 12], k = [0, 1, 2, 3].map(j => mix(A[j], B[j], f));
+    for (const b of this.bf) {
+      const lon = k[0] + b.gx * k[2] + Math.sin(t * 3 + b.ph) * 0.3, lat = k[1] + b.gy * k[3] + Math.cos(t * 2.3 + b.ph) * 0.2;
+      const [x, y] = this.proj(G, lon, lat), still = k[2] < 1.2;
+      G.put(x, y, still ? (hash2(Math.round(x * 3), Math.round(y * 3)) > 0.5 ? "%" : "w") : (Math.sin(t * 9 + b.ph) > 0 ? "v" : "w"), still ? 5 : 4);
+    }
+    const lbl = ["super generation clustered in Mexico's fir forests", "still overwintering · millions per hectare", "overwinterers fly north, lay eggs on milkweed, then die", "generation 1 hatches and heads north", "generation 2 spreads across the eastern US", "generations 2–3 breed across the north", "generation 3 reaches southern Canada", "generation 4 born: the long-lived super generation", "super generation flies south, not breeding", "funnelling through Texas toward Mexico", "arriving in the mountains of Michoacán", "settling in for the winter"][mi];
+    G.setPhase(`${MONTHS[mi]} · ${lbl}`);
+  }
+};
+
+// ---------- 6. Predator and prey ----------
+const predprey = {
+  name: "Predator and prey", scale: "lynx and snowshoe hare · cycles of about 10 years", color: "#ffb04a",
+  text: "When hares are plentiful, lynx eat well and raise more kittens. More lynx eat more hares, so the hare population crashes, and then the starving lynx decline too, letting hares recover. Fur-trade records from the 1800s show this boom-and-bust rhythm.",
+  watch: "On the graph, the lynx peak (orange) always lags just behind the hare peak (white). The forest above shows the same numbers as animals.",
+  terms: ["population cycle", "predator–prey", "carrying capacity", "lag", "Lotka–Volterra model"],
+  legend: [["hares (\")", "#eef1f3"], ["lynx (A)", "#ffb04a"], ["trees", "#4f7a4a"]],
+  pal: ["#1c2328", "#3a4a52", "#4f7a4a", "#cfd8dc", "#eef1f3", "#ffb04a", "#8d96a0"],
+  init(G) { this.H = 42; this.L = 7; this.year = 0; this.hist = []; this.r = rng(77); this.ag = { h: [], l: [] }; },
+  frame(G, t, dt) {
+    const a = 0.9, b = 0.08, c = 0.02, d = 0.6, f = (H, L) => [a * H - b * H * L, c * H * L - d * L];
+    let yrs = dt / 1.3;
+    while (yrs > 0) { const h = Math.min(0.02, yrs); yrs -= h; const k1 = f(this.H, this.L), k2 = f(this.H + k1[0] * h / 2, this.L + k1[1] * h / 2), k3 = f(this.H + k2[0] * h / 2, this.L + k2[1] * h / 2), k4 = f(this.H + k3[0] * h, this.L + k3[1] * h); this.H += h / 6 * (k1[0] + 2 * k2[0] + 2 * k3[0] + k4[0]); this.L += h / 6 * (k1[1] + 2 * k2[1] + 2 * k3[1] + k4[1]); this.year += h; }
+    this.hist.push([this.H, this.L]); const Wg = G.cols - 6; while (this.hist.length > Wg) this.hist.shift();
+    const top = Math.floor(G.rows * 0.5), r = this.r;
+    for (let y = 0; y < top; y++) for (let x = 0; x < G.cols; x++) { const h = hash2(x * 11 + y, y * 7 + x); if (h > 0.93) G.put(x, y, "^", 2); else if (h > 0.86) G.put(x, y, ".", 1); }
+    const sync = (arr, n) => { n = Math.max(0, Math.round(n)); while (arr.length < n) arr.push({ x: r() * G.cols, y: 1 + r() * (top - 2), ph: r() * TAU }); arr.length = n; };
+    sync(this.ag.h, this.H * 0.9); sync(this.ag.l, this.L * 1.2);
+    for (const h of this.ag.h) { h.x += Math.sin(t * 2 + h.ph) * 0.2; G.put(h.x, h.y, '"', 4); }
+    for (const l of this.ag.l) { l.x += Math.cos(t * 0.8 + l.ph) * 0.3; l.y = clamp(l.y + Math.sin(t * 0.6 + l.ph) * 0.08, 1, top - 2); G.put(l.x, l.y, "A", 5); }
+    for (let x = 0; x < G.cols; x++) G.put(x, top, "-", 1);
+    const yB = G.rows - 1, yT = top + 2, mp = v => mix(yB, yT, clamp(v / 100, 0, 1));
+    G.text(0, Math.round(mp(100)), "100", 6); G.text(0, yB, "  0", 6);
+    let ph = null, pl = null;
+    this.hist.forEach(([H, L], j) => { const x = 5 + j, yh = Math.round(mp(H)), yl = Math.round(mp(L * 4)); if (ph !== null && Math.abs(yh - ph) > 1) for (let y = Math.min(yh, ph) + 1; y < Math.max(yh, ph); y++) G.put(x, y, "|", 4); if (pl !== null && Math.abs(yl - pl) > 1) for (let y = Math.min(yl, pl) + 1; y < Math.max(yl, pl); y++) G.put(x, y, "|", 5); G.put(x, yh, "*", 4); G.put(x, yl, "o", 5); ph = yh; pl = yl; });
+    const n = this.hist.length, dH = n > 5 ? this.hist[n - 1][0] - this.hist[n - 5][0] : 0, dL = n > 5 ? this.hist[n - 1][1] - this.hist[n - 5][1] : 0;
+    const stage = dH > 0 && dL <= 0 ? "hares boom while lynx are few" : dH > 0 && dL > 0 ? "lynx feast and multiply" : dH <= 0 && dL > 0 ? "hares crash under heavy hunting" : "lynx starve · hares start to recover";
+    G.setPhase(`year ${Math.floor(this.year)} · ${stage}`);
+  }
+};
+
+// ---------- 7. Ant foraging ----------
+const ants = {
+  name: "Ant foraging trails", scale: "a colony can hold thousands to millions of ants", color: "#ffcf5c",
+  text: "Ants that find food lay a scent trail (pheromone) on the way home. Other ants follow strong trails and add their own scent, while weak trails fade away. With no leader, the colony settles on short routes to the best food.",
+  watch: "At first ants wander at random. Once one finds food, a trail appears and quickly fills with traffic. When the pile runs out, the trail fades.",
+  terms: ["pheromone", "stigmergy", "swarm intelligence", "foraging", "positive feedback"],
+  legend: [["searching ant", "#e9ebe6"], ["carrying food", "#ffcf5c"], ["scent trail", "#7a6a3a"], ["food", "#8fd16a"], ["nest", "#b07a4a"]],
+  pal: ["#1e1c16", "#4a4128", "#7a6a3a", "#b39a52", "#e9ebe6", "#ffcf5c", "#8fd16a", "#b07a4a"],
+  init(G) {
+    this.r = rng(44); this.ph = new Float32Array(G.n); this.nest = [G.cols * 0.5, G.rows * 0.55]; this.got = 0;
+    this.food = [0, 1, 2].map(() => this.newFood(G));
+    this.ants = [...Array(Math.round(clamp(G.cols * G.rows / 16, 70, 260)))].map(() => ({ x: this.nest[0], y: this.nest[1], a: this.r() * TAU, carry: false }));
+  },
+  newFood(G) { const r = this.r; let x, y, k = 0; do { x = 3 + r() * (G.cols - 6); y = 2 + r() * (G.rows - 4); } while (Math.hypot((x - this.nest[0]) * G.asp, y - this.nest[1]) < G.rows * 0.3 && ++k < 50); return { x, y, amt: 50 }; },
+  frame(G, t, dt) {
+    const asp = G.asp, P = this.ph, r = this.r, nx = this.nest[0], ny = this.nest[1], S = G.rows / 22, sp = 9 * dt * S;
+    for (let i = 0; i < G.n; i++) P[i] *= 0.988;
+    const sense = (x, y) => { const xi = Math.round(x), yi = Math.round(y); return xi < 0 || yi < 0 || xi >= G.cols || yi >= G.rows ? -1 : P[yi * G.cols + xi]; };
+    for (const a of this.ants) {
+      if (a.carry) {
+        const tx = (nx - a.x) * asp, ty = ny - a.y; a.a = Math.atan2(ty, tx) + (r() - 0.5) * 0.6;
+        const xi = Math.round(a.x), yi = Math.round(a.y); if (xi >= 0 && yi >= 0 && xi < G.cols && yi < G.rows) P[yi * G.cols + xi] += 1.2;
+        if (Math.hypot(tx, ty) < 1.2) { a.carry = false; this.got++; a.a += Math.PI; }
+      } else {
+        const look = 2.2, sl = sense(a.x + Math.cos(a.a - 0.6) * look / asp, a.y + Math.sin(a.a - 0.6) * look), sc = sense(a.x + Math.cos(a.a) * look / asp, a.y + Math.sin(a.a) * look), sr = sense(a.x + Math.cos(a.a + 0.6) * look / asp, a.y + Math.sin(a.a + 0.6) * look);
+        if (sc < sl && sl > sr && sl > 0.05) a.a -= 0.35; else if (sr > sc && sr > 0.05) a.a += 0.35;
+        a.a += (r() - 0.5) * 0.9;
+        for (const fd of this.food) if (fd.amt > 0 && Math.hypot((fd.x - a.x) * asp, fd.y - a.y) < 1.6 * S + Math.sqrt(fd.amt) * 0.2 * S) { a.carry = true; fd.amt--; a.a += Math.PI; break; }
+      }
+      a.x += Math.cos(a.a) * sp / asp; a.y += Math.sin(a.a) * sp;
+      if (a.x < 0 || a.x > G.cols - 1) { a.a = Math.PI - a.a; a.x = clamp(a.x, 0, G.cols - 1); }
+      if (a.y < 0 || a.y > G.rows - 1) { a.a = -a.a; a.y = clamp(a.y, 0, G.rows - 1); }
+    }
+    this.food = this.food.map(fd => fd.amt <= 0 ? this.newFood(G) : fd);
+    for (let i = 0; i < G.n; i++) { const v = P[i]; if (v > 0.06) G.put(i % G.cols, (i / G.cols) | 0, v > 3 ? "=" : v > 0.8 ? ":" : ".", v > 3 ? 3 : v > 0.8 ? 2 : 1); else if (hash2(i % 251, (i / 251) | 0) > 0.95) G.put(i % G.cols, (i / G.cols) | 0, ".", 0); }
+    for (const fd of this.food) { const rr = Math.sqrt(fd.amt) * 0.28 * (G.rows / 22); for (let y = Math.floor(fd.y - rr); y <= fd.y + rr; y++) for (let x = Math.floor(fd.x - rr / asp); x <= fd.x + rr / asp; x++) if (Math.hypot((x - fd.x) * asp, y - fd.y) <= rr) G.put(x, y, "#", 6); }
+    G.text(nx - 1, ny, "(@)", 7);
+    let carrying = 0; for (const a of this.ants) { if (a.carry) carrying++; G.put(a.x, a.y, a.carry ? "o" : "x", a.carry ? 5 : 4); }
+    G.setPhase(`${carrying} ants carrying food · ${this.got} loads brought home`);
+  }
+};
+
+// ---------- 8. Metamorphosis ----------
+const meta = {
+  name: "Metamorphosis", scale: "monarch: about a month from egg to adult", color: "#ff9a2e",
+  text: "A butterfly's body is rebuilt completely. The caterpillar's only job is to eat and grow. Inside the chrysalis most of its body breaks down and reassembles as wings, legs and adult organs.",
+  watch: "Watch the leaf shrink as the caterpillar eats. The green chrysalis turns see-through just before the butterfly emerges, with its orange wings visible inside.",
+  terms: ["complete metamorphosis", "larva", "pupa", "chrysalis", "instar", "imago"],
+  legend: [["leaf", "#6fbf4a"], ["caterpillar", "#ffd84a"], ["chrysalis", "#5fd3a0"], ["wings", "#ff9a2e"]],
+  pal: ["#1a1f16", "#3d5a2a", "#6fbf4a", "#a9e07a", "#ffd84a", "#2b2b2b", "#f4f4f0", "#5fd3a0", "#ffd166", "#ff9a2e", "#7a5432", "#3a3a3a"],
+  init() {},
+  disc(G, cx, cy, rad, ch, k) { for (let y = Math.floor(cy - rad); y <= cy + rad; y++) for (let x = Math.floor(cx - rad / G.asp); x <= cx + rad / G.asp; x++) if (Math.hypot((x - cx) * G.asp, y - cy) <= rad) G.put(x, y, ch, k); },
+  wings(G, cx, cy, sc, open) {
+    for (let y = Math.floor(cy - sc * 1.3); y <= cy + sc * 1.3; y++) for (let x = Math.floor(cx - sc * 2.2 / G.asp); x <= cx + sc * 2.2 / G.asp; x++) {
+      const u = Math.abs((x - cx) * G.asp) / sc / Math.max(0.12, open), v = (y - cy) / sc;
+      if (Math.abs((x - cx) * G.asp) < sc * 0.1 && Math.abs(v) < 0.9) { G.put(x, y, "|", 5); continue; }
+      const fe = ((u - 0.95) / 0.95) ** 2 + ((v + 0.42) / 0.62) ** 2, he = ((u - 0.68) / 0.62) ** 2 + ((v - 0.45) / 0.52) ** 2, e = Math.min(fe, he);
+      if (e < 1) {
+        const spot = hash2(x * 5, y * 3) > 0.7 && e < 0.9;
+        if (e > 0.7) G.put(x, y, spot ? "." : "#", spot ? 6 : 5);
+        else if (frac(Math.atan2(v + (fe < he ? 0.42 : -0.45), u) * 1.6) < 0.12) G.put(x, y, ":", 5);
+        else G.put(x, y, e < 0.35 ? "@" : "%", 9);
+      }
+    }
+  },
+  frame(G, t) {
+    const per = 26, s = t % per, C = G.cols, R = G.rows, asp = G.asp, by = 2, bx0 = C * 0.08, Z = R / 22;
+    for (let x = Math.round(bx0); x < C; x++) G.put(x, by, x % 6 === 0 ? "+" : "=", 10);
+    const lx = C * 0.62, ly = R * 0.6, eat = sstep(3, 11, s), lr = 1 - 0.62 * eat;
+    G.line(lx - 2, by, lx - 1, ly - R * 0.28, 10);
+    for (let y = 0; y < R; y++) for (let x = 0; x < C; x++) {
+      const u = (x - lx) * asp, v = y - ly, a = Math.atan2(v, u), rr = Math.hypot(u / 1.5, v), edge = R * 0.26 * (lr + (eat > 0.05 ? 0.06 * Math.sin(a * 9) * eat : 0));
+      if (rr < edge) { const rib = Math.abs(v + u * 0.15) < 0.5; G.put(x, y, rib ? "-" : (rr > edge - 0.7 ? "%" : "\""), rib ? 1 : (rr > edge - 0.7 ? 3 : 2)); }
+    }
+    const hangX = C * 0.3;
+    let stage;
+    if (s < 3) { stage = "egg · hatches in about 4 days"; this.disc(G, lx + 2 * Z, ly + R * 0.08, 0.5 * Z, "O", 6); }
+    else if (s < 11) {
+      const q = (s - 3) / 8, segs = 10, size = mix(0.35, 0.9, q) * Z, hx = mix(lx + 6, lx - R * 0.3 * lr * 1.4 / asp, q * 0.9), hy = ly - R * 0.26 * lr * 0.4;
+      for (let k = segs - 1; k >= 0; k--) { const x = hx + k * size * 1.6 / asp * 0.9, y = hy + Math.sin(k * 0.7 - t * 4) * size * 0.6, band = k % 3; this.disc(G, x, y, size, band === 1 ? "#" : "@", band === 0 ? 4 : band === 1 ? 5 : 6); }
+      G.put(hx - size / asp, hy - size - 0.5, "'", 6);
+      stage = `caterpillar (larva) · eating · ${Math.round(mix(1, 2000, q * q))}× its hatching weight`;
+    } else if (s < 13) { const q = (s - 11) / 2; for (let k = 0; k < 7; k++) this.disc(G, hangX + Math.sin(k * 0.5 * q) * 1.2 * Z, by + 1.5 + k * 0.9 * Z, 0.85 * Z, "@", k % 3 === 0 ? 4 : k % 3 === 1 ? 5 : 6); G.line(hangX, by, hangX, by + 1, 6, "|"); stage = "hanging in a J · about to shed its skin"; }
+    else if (s < 19.5) {
+      const q = (s - 13) / 6.5, see = sstep(0.75, 1, q), len = R * 0.42, top = by + 1.5;
+      G.put(hangX, by + 1, "|", 6);
+      for (let y = Math.floor(top); y <= top + len; y++) for (let x = Math.floor(hangX - 4 * Z / asp); x <= hangX + 4 * Z / asp; x++) {
+        const v = (y - top) / len, w = Math.sin(Math.PI * clamp(v, 0, 1)) ** 0.75 * 2.1 * Z * (v < 0.25 ? 0.8 : 1), u = Math.abs(x - hangX) * asp;
+        if (u < w) { if (Math.abs(v - 0.28) < 0.04 && hash2(x, 3) > 0.3) G.put(x, y, ".", 8); else if (see > 0.1 && hash2(x * 3, y * 7) < see) G.put(x, y, hash2(x, y) > 0.7 ? "#" : "%", hash2(x, y) > 0.7 ? 5 : 9); else G.put(x, y, u > w - 0.7 ? "(" : "%", 7); }
+      }
+      stage = see > 0.1 ? "chrysalis turning clear · wings visible inside" : "chrysalis (pupa) · ~10 days · the body is being rebuilt";
+    } else if (s < 21.5) { const q = (s - 19.5) / 2; G.put(hangX, by + 1, "|", 6); this.wings(G, hangX, by + 2 + R * 0.18, R * 0.08 + R * 0.12 * q, 0.35 + 0.1 * Math.sin(t * 2)); stage = "emerging · pumping fluid into crumpled wings"; }
+    else { const q = (s - 21.5) / 4.5, x = hangX + q * C * 0.55 + Math.sin(t * 2) * 3, y = by + 2 + R * 0.25 - Math.sin(q * 3) * R * 0.15; this.wings(G, x, y, R * 0.2, 0.2 + 0.8 * Math.abs(Math.cos(t * 7))); stage = "adult (imago) · flies off to feed and breed"; }
+    G.setPhase(stage);
+  }
+};
+
+// ---------- gallery + fullscreen theater ----------
+const SCENES = [migration, murmuration, vflight, salmon, monarch, predprey, ants, meta];
+const grid = document.getElementById("grid"), plates = [];
+const legendHTML = s => s.legend.length ? `<div class="legend">${s.legend.map(([l, c]) => `<span><i style="background:${c}"></i>${l}</span>`).join("")}</div>` : "";
+SCENES.forEach(s => {
+  const card = document.createElement("article"); card.className = "plate";
+  card.innerHTML = `<canvas tabindex="0" role="button" aria-label="Open ${s.name} fullscreen"></canvas><div class="meta"><div class="row"><h2>${s.name}</h2><span class="open-hint">click to open fullscreen</span></div><span class="scale">${s.scale}</span><span class="phase" style="color:${s.color}"></span><p>${s.text}</p><p class="watch"><b>Watch for:</b> ${s.watch}</p>${legendHTML(s)}<div class="terms">${s.terms.map(x => `<span>${x}</span>`).join("")}</div></div>`;
+  grid.appendChild(card);
+});
+const th = document.getElementById("theater"), thCv = document.getElementById("th-canvas"), $ = id => document.getElementById(id);
+let thPlate = null, thIdx = -1, thPaused = false;
+function fillTheater(i) {
+  const s = SCENES[i]; $("th-name").textContent = s.name; $("th-scale").textContent = s.scale; $("th-phase").style.color = s.color; $("th-text").textContent = s.text; $("th-watch").textContent = s.watch;
+  $("th-legend").innerHTML = s.legend.map(([l, c]) => `<span><i style="background:${c}"></i>${l}</span>`).join(""); $("th-terms").innerHTML = s.terms.map(x => `<span>${x}</span>`).join("");
+}
+function openTheater(i) {
+  thIdx = i; th.hidden = false; document.body.classList.add("theater-open"); fillTheater(i);
+  try { if (th.requestFullscreen && !document.fullscreenElement) th.requestFullscreen().catch(() => {}); } catch (e) {}
+  requestAnimationFrame(() => { thPlate.attach(SCENES[i]); $("th-close").focus({ preventScroll: true }); });
+}
+function switchTheater(d) { thIdx = (thIdx + d + SCENES.length) % SCENES.length; fillTheater(thIdx); thPlate.attach(SCENES[thIdx]); }
+function closeTheater() {
+  if (th.hidden) return; th.hidden = true; document.body.classList.remove("theater-open");
+  try { if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); } catch (e) {}
+  const p = plates[thIdx]; if (p) { p.resize(); p.cv.focus({ preventScroll: true }); }
+  thIdx = -1;
+}
+function setPause(v) { thPaused = v; $("th-pause").setAttribute("aria-pressed", String(v)); $("th-pause").textContent = v ? "resume" : "pause"; }
+$("th-prev").addEventListener("click", () => switchTheater(-1));
+$("th-next").addEventListener("click", () => switchTheater(1));
+$("th-pause").addEventListener("click", () => setPause(!thPaused));
+$("th-close").addEventListener("click", closeTheater);
+thCv.addEventListener("click", () => setPause(!thPaused));
+document.addEventListener("fullscreenchange", () => { if (!document.fullscreenElement && !th.hidden) closeTheater(); });
+addEventListener("keydown", e => {
+  if (th.hidden) return;
+  if (e.key === "Escape") closeTheater(); else if (e.key === "ArrowRight") switchTheater(1); else if (e.key === "ArrowLeft") switchTheater(-1);
+  else if (e.key === " " && e.target.tagName !== "BUTTON") { e.preventDefault(); setPause(!thPaused); }
+});
+
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches, speed = reduce ? 0.5 : 1;
+const start = () => {
+  [...grid.children].forEach((card, i) => {
+    const p = new Plate(card.querySelector("canvas"), card.querySelector(".phase"), false); p.card = card; p.attach(SCENES[i]); plates.push(p);
+    const open = () => openTheater(i); p.cv.addEventListener("click", open); p.cv.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
+  });
+  thPlate = new Plate(thCv, $("th-phase"), true);
+  const io = new IntersectionObserver(es => es.forEach(e => { const p = plates.find(p => p.card === e.target); if (p) p.visible = e.isIntersecting; }), { rootMargin: "100px" });
+  plates.forEach(p => io.observe(p.card));
+  const ro = new ResizeObserver(es => es.forEach(e => { if (e.target === thCv) { if (!th.hidden) thPlate.resize(); return; } const p = plates.find(p => p.card === e.target); if (p && th.hidden) p.resize(); }));
+  plates.forEach(p => ro.observe(p.card)); ro.observe(thCv);
+  let last = performance.now();
+  const loop = now => {
+    requestAnimationFrame(loop); if (now - last < 1000 / 24 - 2) return;
+    const dt = Math.min(0.1, (now - last) / 1000) * speed; last = now;
+    if (!th.hidden) { if (!thPaused) thPlate.step(dt); return; }
+    for (const p of plates) if (p.visible) p.step(dt);
+  };
+  requestAnimationFrame(loop);
+};
+(document.fonts && document.fonts.load) ? Promise.race([document.fonts.load(`12px "IBM Plex Mono"`), new Promise(r => setTimeout(r, 1500))]).then(start, start) : start();
+})();
+</script>

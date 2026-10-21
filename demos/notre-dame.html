@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta charset="utf-8">
+<title>Notre-Dame in ASCII</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Cormorant+SC:wght@500&display=swap">
+<style>
+/* Layout: full-bleed text-mode canvas with the cathedral on a turntable; caption and time-of-day controls fade in on pointer movement. */
+:root {
+  color-scheme: dark;
+  --night: #07080c;
+  --stone: #e6dcc6;
+  --stone-dim: #958b78;
+  --gold: #e3b062;
+  --line: rgba(230, 220, 198, .2);
+  --f-name: "Cormorant SC", "Iowan Old Style", Georgia, serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+html, body { height: 100%; }
+body { background: var(--night); color: var(--stone); overflow: hidden; font-family: var(--f-mono);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+#c, #g { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+#g { filter: blur(6px) saturate(1.3); mix-blend-mode: screen; opacity: .75; pointer-events: none; }
+.vig { position: fixed; inset: 0; pointer-events: none; background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.5) 100%); }
+#ui { position: fixed; left: 0; right: 0; bottom: 0; display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px;
+  padding: 44px max(20px, calc(env(safe-area-inset-right, 0px) + 16px)) calc(env(safe-area-inset-bottom, 0px) + 18px) max(20px, calc(env(safe-area-inset-left, 0px) + 16px));
+  background: linear-gradient(to top, rgba(0,0,0,.7), transparent); transition: opacity .6s ease; pointer-events: none; }
+#ui > * { pointer-events: auto; }
+body.idle #ui { opacity: 0; }
+body.idle #ui > * { pointer-events: none; }
+body.idle { cursor: none; }
+.cap { display: grid; gap: 3px; min-width: 0; }
+h1 { margin: 0; font: 500 clamp(26px, 3.6vw, 40px)/1 var(--f-name); letter-spacing: .02em; text-wrap: balance; }
+.cap p { margin: 0; font-size: 12px; color: var(--stone-dim); }
+#phase { color: var(--gold); }
+nav { display: flex; flex-wrap: wrap; gap: 6px; }
+nav button { font: 500 12px/1 var(--f-mono); color: var(--stone); background: rgba(8,9,12,.55); border: 1px solid var(--line); border-radius: 3px; padding: 9px 11px; cursor: pointer; }
+nav button:hover { border-color: var(--stone-dim); }
+nav button:focus-visible { outline: 1px solid var(--gold); outline-offset: 2px; }
+nav button[aria-pressed="true"] { color: var(--gold); border-color: rgba(227,176,98,.55); }
+</style>
+
+<canvas id="c"></canvas><canvas id="g"></canvas>
+<div class="vig"></div>
+<div id="ui">
+  <div class="cap">
+    <h1>Notre-Dame de Paris</h1>
+    <p>Drag to turn it &middot; <span id="phase">golden hour</span></p>
+  </div>
+  <nav aria-label="Time of day">
+    <button data-m="auto" aria-pressed="true">cycle</button>
+    <button data-m="0.1" aria-pressed="false">day</button>
+    <button data-m="0.31" aria-pressed="false">golden hour</button>
+    <button data-m="0.66" aria-pressed="false">night</button>
+  </nav>
+</div>
+
+<script>
+(() => {
+"use strict";
+const RAMP = " .,:;-~=+*ox%#&@", LV = RAMP.length, TAU = Math.PI * 2;
+const clamp = (x, a, b) => x < a ? a : x > b ? b : x, mix = (a, b, t) => a + (b - a) * t;
+const sstep = (a, b, x) => { x = clamp((x - a) / (b - a), 0, 1); return x * x * (3 - 2 * x); };
+const frac = x => x - Math.floor(x);
+const PERM = new Uint8Array(512);
+{ let s = 11; const r = () => (s = (s * 16807) % 2147483647) / 2147483647, p = [...Array(256).keys()]; for (let i = 255; i > 0; i--) { const j = (r() * (i + 1)) | 0; [p[i], p[j]] = [p[j], p[i]]; } for (let i = 0; i < 512; i++) PERM[i] = p[i & 255]; }
+const hash2 = (x, y) => PERM[PERM[x & 255] + (y & 255)] / 255;
+
+// ---------- the cathedral as signed distance fields ----------
+// Object space: x runs west (-) to east (+) along the nave, y is up, z across. The spire at the crossing sits on the origin.
+function box(px, py, pz, hx, hy, hz) { const dx = Math.abs(px) - hx, dy = Math.abs(py) - hy, dz = Math.abs(pz) - hz; return Math.hypot(Math.max(dx, 0), Math.max(dy, 0), Math.max(dz, 0)) + Math.min(Math.max(dx, dy, dz), 0); }
+function seg2(px, py, ax, ay, bx, by) { const ex = bx - ax, ey = by - ay, qx = px - ax, qy = py - ay, h = clamp((qx * ex + qy * ey) / (ex * ex + ey * ey), 0, 1); return Math.hypot(qx - ex * h, qy - ey * h); }
+const RW = 0.2, RH = 0.27, RN = Math.hypot(RW, RH); // roof half-width and rise
+let MAT = 0; // 0 stone, 1 lead roof
+function sdf(x, y, z) {
+  const az = Math.abs(z);
+  // west front: lower façade block, the two towers, the gallery between them
+  let d = box(x + 1.165, y - 0.46, z, 0.085, 0.46, 0.42);
+  d = Math.min(d, box(x + 1.14, y - 1.15, az - 0.295, 0.11, 0.23, 0.125));
+  d = Math.min(d, box(x + 1.16, y - 0.955, z, 0.07, 0.035, 0.17));
+  // nave + side aisles, choir, apse and ambulatory
+  d = Math.min(d, box(x + 0.215, y - 0.3, z, 0.865, 0.3, RW));
+  d = Math.min(d, box(x + 0.215, y - 0.17, z, 0.865, 0.17, 0.36));
+  const ar = Math.hypot(x - 0.65, z);
+  d = Math.min(d, Math.max(ar - RW, y - 0.6, -y, 0.65 - x), Math.max(ar - 0.36, y - 0.34, -y, 0.65 - x));
+  // transept
+  d = Math.min(d, box(x, y - 0.3, z, 0.13, 0.3, 0.56));
+  // flying buttresses down both flanks (skipping the transept)
+  let k = Math.round(x / 0.16); if (k > -2 && k < 2) k = x < 0 ? -2 : 2; k = clamp(k, -6, 4);
+  const xr = x - k * 0.16;
+  const pier = box(xr, y - 0.27, az - 0.45, 0.022, 0.27, 0.03);
+  const pin = Math.max(Math.hypot(xr, az - 0.45) - 0.032 * (1 - (y - 0.54) / 0.13), 0.54 - y, y - 0.67) * 0.8;
+  const fly = Math.max(seg2(az, y, 0.45, 0.5, 0.2, 0.58) - 0.012, Math.abs(xr) - 0.012);
+  d = Math.min(d, pier, pin, fly);
+  let roof = 1e9;
+  // pitched lead roofs: nave (along x), transept (along z), half-cone over the apse
+  if (y > 0.55) {
+    roof = Math.max((az * RH + (y - 0.6) * RW - RW * RH) / RN, 0.6 - y, Math.abs(x + 0.215) - 0.865);
+    roof = Math.min(roof, Math.max((Math.abs(x) * RH + (y - 0.6) * RW - RW * RH) / RN, 0.6 - y, az - 0.56));
+    roof = Math.min(roof, Math.max((ar * RH + (y - 0.6) * RW - RW * RH) / RN, 0.6 - y, 0.65 - x));
+  }
+  // the spire, its octagonal drum and the rooster cross on top
+  const sr = Math.hypot(x, z);
+  roof = Math.min(roof, Math.max(sr - 0.068 * (1 - (y - 0.84) / 1.08), 0.82 - y, y - 1.92) * 0.85);
+  roof = Math.min(roof, Math.max(sr - 0.085, 0.78 - y, y - 0.98));
+  roof = Math.min(roof, box(x, y - 1.95, z, 0.004, 0.035, 0.004), box(x, y - 1.96, z, 0.004, 0.004, 0.022));
+  if (roof < d) { MAT = 1; return roof; }
+  MAT = 0; return d;
+}
+
+// equilateral Gothic arch in a face's 2D coordinates, signed (negative inside)
+function arch(a, b, ca, base, spring, w) {
+  const h = a - ca, d = b < spring ? Math.abs(h) - w / 2 : Math.max(Math.hypot(h - w / 2, b - spring) - w, Math.hypot(h + w / 2, b - spring) - w);
+  return Math.max(d, base - b);
+}
+// carved and glazed detail painted on the stone, by face. Returns null for plain stone.
+// kind: 0 dark opening, 1 blue glass, 2 red glass, 3 tracery/moulding
+function detail(x, y, z, nx, ny, nz) {
+  const az = Math.abs(z);
+  const rose = (a, b, R) => {
+    const r = Math.hypot(a, b); if (r > R * 1.12) return null;
+    if (r > R) return [3, 0];
+    const ang = Math.atan2(b, a), ring = r < R * 0.28 ? 0 : r < R * 0.62 ? 1 : 2, N = [1, 12, 24][ring], f = frac(ang / TAU * N + (ring === 2 ? 0.5 : 0));
+    if (Math.abs(r - R * 0.28) < R * 0.05 || Math.abs(r - R * 0.62) < R * 0.05 || (ring > 0 && (f < 0.1 || f > 0.9))) return [3, 0];
+    const seg = Math.floor(ang / TAU * N + 100);
+    return [(seg + ring) % 3 === 0 ? 2 : 1, 0];
+  };
+  const louver = (b) => [0, frac(b / 0.02) < 0.45 ? 1 : 0];
+  if (nx < -0.7 && x < -1.2) { // west front
+    if (y < 0.92) {
+      const r = rose(z, y - 0.6, 0.13); if (r) return r;
+      for (const [cz, w, sp] of [[0, 0.15, 0.19], [0.28, 0.11, 0.16], [-0.28, 0.11, 0.16]]) { const s = arch(z, y, cz, 0, sp, w); if (s < 0) return s > -0.018 ? [3, 0] : [0, 0]; }
+      if (y > 0.32 && y < 0.38 && frac(z / 0.03) < 0.55 && az < 0.4) return [0, 0];
+      if (y > 0.84 && y < 0.91 && frac(z / 0.024) < 0.5 && az < 0.4) return [0, 0];
+      if (az > 0.2 && arch(az, y, 0.295, 0.46, 0.68, 0.13) < 0) return [0, 0];
+    } else if (az > 0.17) { for (const cz of [0.235, 0.355]) if (arch(az, y, cz, 1.0, 1.24, 0.075) < 0) return louver(y); }
+  }
+  if (y > 0.95 && x < -1.0) { // tower flanks and backs
+    if (Math.abs(nz) > 0.7 && az > 0.4) for (const cx of [-1.2, -1.08]) if (arch(x, y, cx, 1.0, 1.24, 0.075) < 0) return louver(y);
+    if (nx > 0.7) for (const cz of [0.235, 0.355]) if (arch(az, y, cz, 1.0, 1.24, 0.075) < 0) return louver(y);
+  }
+  if (Math.abs(nz) > 0.7) {
+    if (az > 0.54 && Math.abs(x) < 0.13) { const r = rose(x, y - 0.4, 0.095); if (r) return r; if (arch(x, y, 0, 0, 0.15, 0.1) < 0) return [0, 0]; }
+    if (az > 0.18 && az < 0.22 && y > 0.37 && y < 0.57 && x > -1.08 && x < 0.65 && Math.abs(x) > 0.13) { const f = frac((x + 2) / 0.08); if (f > 0.3 && f < 0.7 && y < 0.53 + 0.04 * (1 - Math.abs(f - 0.5) * 5)) return [1, 0]; }
+    if (az > 0.34 && az < 0.38 && y > 0.08 && y < 0.28 && x > -1.08 && x < 0.65) { const f = frac((x + 2) / 0.08); if (f > 0.35 && f < 0.65) return [1, 0]; }
+  }
+  if (x > 0.66 && Math.abs(ny) < 0.5) { const a = Math.atan2(z, x - 0.65), r = Math.hypot(x - 0.65, z); const f = frac(a / 0.32);
+    if (r < 0.22 && y > 0.37 && y < 0.56 && f > 0.3 && f < 0.7) return [1, 0];
+    if (r > 0.34 && y > 0.08 && y < 0.27 && f > 0.35 && f < 0.65) return [2, 0]; }
+  return null;
+}
+
+// ---------- palettes, blended through the day ----------
+const P = {
+  stone: { day: [[18, 17, 16], [122, 115, 102], [214, 205, 184], [250, 245, 230]], gold: [[24, 13, 8], [150, 96, 56], [242, 176, 106], [255, 230, 182]], night: [[10, 8, 6], [106, 76, 42], [230, 170, 90], [255, 228, 166]] },
+  roof: { day: [[16, 22, 30], [70, 92, 112], [140, 164, 182], [210, 226, 236]], gold: [[22, 14, 26], [96, 70, 92], [176, 132, 136], [236, 196, 176]], night: [[3, 4, 10], [22, 28, 50], [70, 82, 122], [234, 238, 255]] },
+  blue: { day: [[6, 8, 14], [30, 44, 70], [64, 86, 120], [96, 118, 154]], gold: [[8, 8, 18], [40, 48, 100], [84, 102, 176], [136, 156, 226]], night: [[6, 8, 30], [32, 62, 194], [96, 144, 255], [204, 224, 255]] },
+  red: { day: [[10, 6, 6], [62, 32, 26], [106, 62, 42], [142, 98, 72]], gold: [[16, 6, 6], [122, 36, 30], [202, 98, 52], [242, 172, 102]], night: [[30, 6, 6], [194, 40, 30], [255, 152, 64], [255, 232, 164]] },
+};
+let PAL = [];
+function buildPal(wd, wg, wn) {
+  PAL = ["stone", "roof", "blue", "red"].map(key => {
+    const S = P[key], st = S.day.map((c, i) => c.map((v, j) => v * wd + S.gold[i][j] * wg + S.night[i][j] * wn)), o = [];
+    for (let l = 0; l < LV; l++) { const t = l / (LV - 1) * (st.length - 1), k = Math.min(st.length - 2, Math.floor(t)), f = t - k; o.push(`rgb(${st[k].map((c, j) => Math.round(mix(c, st[k + 1][j], f))).join(",")})`); }
+    return o;
+  });
+}
+function weights(tod) {
+  const wn = sstep(0.38, 0.48, tod) * (1 - sstep(0.86, 0.95, tod));
+  const wg = Math.max(Math.exp(-(((tod - 0.31) / 0.065) ** 2)), Math.exp(-(((tod - 0.93) / 0.045) ** 2))) * (1 - wn);
+  const wd = Math.max(0, 1 - wn - wg), s = wd + wg + wn;
+  return { wd: wd / s, wg: wg / s, wn: wn / s };
+}
+const phaseName = tod => tod < 0.24 || tod > 0.97 ? "day" : tod < 0.38 ? "golden hour" : tod < 0.48 ? "blue hour" : tod < 0.86 ? "night" : "dawn";
+
+// ---------- renderer ----------
+const cvs = document.getElementById("c"), ctx = cvs.getContext("2d", { alpha: false });
+const gcv = document.getElementById("g"), gctx = gcv.getContext("2d");
+let W, H, cw, chh, ox, oy, cols = 0, rows = 0, n = 0, U, V, PX, PY, VAL, CH, KEY, ORD;
+function resize() {
+  const DPR = Math.min(window.devicePixelRatio || 1, 2); W = innerWidth; H = innerHeight;
+  if (!W || !H) return;
+  cvs.width = Math.round(W * DPR); cvs.height = Math.round(H * DPR); gcv.width = Math.max(1, W / 3 | 0); gcv.height = Math.max(1, H / 3 | 0);
+  const fs = clamp(Math.round(Math.max(Math.min(H / 88, W / 150), Math.sqrt(W * H / (0.7 * 15000)))), 6, 18);
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.font = `${fs}px "IBM Plex Mono", ui-monospace, Menlo, monospace`; ctx.textBaseline = "top";
+  cw = ctx.measureText("M").width; chh = Math.round(fs * 1.16);
+  cols = Math.floor(W / cw); rows = Math.floor(H / chh); n = cols * rows; ox = (W - cols * cw) / 2; oy = (H - rows * chh) / 2;
+  U = new Float32Array(n); V = new Float32Array(n); PX = new Float32Array(n); PY = new Float32Array(n);
+  VAL = new Float32Array(n); CH = new Uint8Array(n); KEY = new Uint16Array(n); ORD = new Int32Array(n);
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) { const i = r * cols + c; PX[i] = ox + c * cw; PY[i] = oy + r * chh; U[i] = (ox + (c + 0.5) * cw - W / 2) / H; V[i] = (oy + (r + 0.5) * chh - H / 2) / H; }
+}
+
+// ---------- animation ----------
+let spin = 0.6, drag = null, vel = 0, T = 0, last = 0, mode = "auto";
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const BASE = TAU / (reduce ? 60 : 30), CYCLE = 100;
+// object-space bounds for the ray: x -1.26..1.02, y 0..1.99, z -0.57..0.57
+const BX0 = -1.27, BX1 = 1.03, BY0 = -0.01, BY1 = 2.0, BZ0 = -0.58, BZ1 = 0.58;
+function frame(dt) {
+  T += dt;
+  if (!drag) { vel = mix(vel, BASE, Math.min(1, dt * 1.2)); spin += vel * dt; }
+  const tod = mode === "auto" ? frac(T / CYCLE + 0.27) : +mode, S = weights(tod);
+  buildPal(S.wd, S.wg, S.wn);
+  const ca = Math.cos(spin), sa = Math.sin(spin), tilt = 0.32, ct = Math.cos(tilt), st = Math.sin(tilt);
+  const toObj = (x, y, z) => { const y1 = y * ct - z * st, z1 = y * st + z * ct; return [x * ca - z1 * sa, y1, x * sa + z1 * ca]; };
+  const ro = toObj(0, 0, -4.6); ro[1] += 0.82;
+  // key light: high sun by day, low warm sun at golden hour; floodlights from below at night
+  const sunW = S.wg > 0.5 ? [-0.75, 0.32, -0.45] : [-0.45, 0.8, -0.35];
+  const Lo = toObj(...sunW); { const l = Math.hypot(...Lo); Lo[0] /= l; Lo[1] /= l; Lo[2] /= l; }
+  const F = 1.75, night = S.wn, dayish = S.wd + S.wg;
+  for (let i = 0; i < n; i++) {
+    const u = U[i], v = V[i];
+    const rl = 1 / Math.hypot(u, v, F), rd = toObj(u * rl, -v * rl, F * rl);
+    // sky
+    const hz = clamp(0.5 - v, 0, 1);
+    let b = S.wd * (0.42 + 0.18 * hz) + S.wg * (0.5 * (1.1 - hz)) + S.wn * 0.05, c = 1;
+    if (night > 0.3 && v < 0.1) { const h = hash2(i * 7 + 13, (i / cols | 0) * 3); if (h > 0.992) { b = night * (0.3 + 0.3 * Math.sin(T * 2 + h * 900)); c = 2; } }
+    // ray vs bounding box
+    let t0 = 0, t1 = 1e9;
+    for (let a = 0; a < 3; a++) { const o = ro[a], dd = rd[a], lo = [BX0, BY0, BZ0][a], hi = [BX1, BY1, BZ1][a]; if (Math.abs(dd) < 1e-9) { if (o < lo || o > hi) { t0 = 1; t1 = 0; } continue; } let ta = (lo - o) / dd, tb = (hi - o) / dd; if (ta > tb) { const q = ta; ta = tb; tb = q; } if (ta > t0) t0 = ta; if (tb < t1) t1 = tb; }
+    let hit = false, x = 0, y = 0, z = 0, t = t0;
+    if (t0 < t1) {
+      for (let k = 0; k < 70; k++) { x = ro[0] + rd[0] * t; y = ro[1] + rd[1] * t; z = ro[2] + rd[2] * t; const d = sdf(x, y, z); if (d < 0.0025) { hit = true; break; } t += Math.max(d * 0.9, 0.002); if (t > t1) break; }
+    }
+    if (hit) {
+      const e = 0.0025, f1 = sdf(x + e, y - e, z - e), f2 = sdf(x - e, y - e, z + e), f3 = sdf(x - e, y + e, z - e), f4 = sdf(x + e, y + e, z + e);
+      let nx = f1 - f2 - f3 + f4, ny = -f1 - f2 + f3 + f4, nz = -f1 + f2 - f3 + f4; const nl = Math.hypot(nx, ny, nz) || 1; nx /= nl; ny /= nl; nz /= nl;
+      const ao = clamp(sdf(x + nx * 0.05, y + ny * 0.05, z + nz * 0.05) / 0.05, 0, 1);
+      sdf(x, y, z); const mat = MAT;
+      const diff = Math.max(0, nx * Lo[0] + ny * Lo[1] + nz * Lo[2]);
+      const dayL = 0.32 + 0.7 * diff;
+      const flood = (0.42 + 0.5 * clamp(1 - y / 2.3, 0, 1)) * (0.55 + 0.45 * Math.max(0, -ny * 0.3 + Math.abs(nx) * 0.5 + Math.abs(nz) * 0.5));
+      let light = mix(dayL, flood, night) * (0.55 + 0.45 * ao);
+      const dt_ = mat === 0 ? detail(x, y, z, nx, ny, nz) : null;
+      if (mat === 1) { b = light * (0.75 - (frac((Math.abs(nz) > Math.abs(nx) ? x : z) / 0.035) < 0.18 ? 0.2 : 0)) * (y > 0.98 ? 1.15 : 1); c = 1; if (night > 0.5) c = 0; }
+      else if (dt_) {
+        const kind = dt_[0];
+        if (kind === 0) { b = (dt_[1] ? 0.18 : 0.05) * (0.6 + 0.4 * light) + night * 0.04; c = 0; }
+        else if (kind === 3) { b = light * 0.8; c = 0; }
+        else { b = dayish * (0.16 + 0.06 * hash2(i, 3)) + night * (0.62 + 0.3 * hash2((x * 90) | 0, (y * 90) | 0)); c = kind === 1 ? 2 : 3; }
+      } else {
+        const course = frac(y / 0.03) < 0.12 ? 0.86 : 1;
+        b = light * course * (0.92 + 0.12 * hash2(i, 11)); c = 0;
+      }
+      b = clamp(b, 0, 1);
+    } else if (rd[1] < 0) {
+      // the parvis and the island, with the cathedral's shadow on it
+      const tg = -ro[1] / rd[1], gx = ro[0] + rd[0] * tg, gz = ro[2] + rd[2] * tg, gr = Math.hypot(gx + 0.1, gz * 1.6);
+      if (gr < 1.75) {
+        let sh = 1;
+        if (dayish > 0.2) { let s = 0.02; for (let k = 0; k < 28; k++) { const d = sdf(gx + Lo[0] * s, Lo[1] * s, gz + Lo[2] * s); if (d < 0.003) { sh = 0.35; break; } s += Math.max(d, 0.02); if (s > 2.5) break; } }
+        const edge = sstep(1.75, 1.55, gr), paving = frac(gx * 8) < 0.06 || frac(gz * 8) < 0.06 ? 0.85 : 1;
+        b = (dayish * 0.36 * sh + night * (0.18 + 0.2 * Math.exp(-gr * gr * 1.5))) * edge * paving + (1 - edge) * b * 0.6; c = 0;
+      }
+    }
+    VAL[i] = b; CH[i] = c;
+  }
+}
+function draw() {
+  ctx.fillStyle = "#07080c"; ctx.fillRect(0, 0, W, H);
+  const CNT = new Int32Array(4 * LV + 1);
+  for (let i = 0; i < n; i++) { let l = (VAL[i] * LV) | 0; if (l >= LV) l = LV - 1; if (l <= 0) { KEY[i] = 4 * LV; continue; } const kk = CH[i] * LV + l; KEY[i] = kk; CNT[kk]++; }
+  const start = new Int32Array(4 * LV + 1); let acc = 0; for (let kk = 0; kk < 4 * LV; kk++) { start[kk] = acc; acc += CNT[kk]; }
+  for (let i = 0; i < n; i++) if (KEY[i] < 4 * LV) ORD[start[KEY[i]]++] = i;
+  let cur = -1;
+  for (let j = 0; j < acc; j++) { const i = ORD[j], kk = KEY[i]; if (kk !== cur) { cur = kk; ctx.fillStyle = PAL[(kk / LV) | 0][kk % LV]; } ctx.fillText(RAMP[kk % LV], PX[i], PY[i]); }
+  if (cvs.width) { gctx.clearRect(0, 0, gcv.width, gcv.height); gctx.drawImage(cvs, 0, 0, gcv.width, gcv.height); }
+}
+const phaseEl = document.getElementById("phase");
+let shownPhase = "";
+function loop(now) {
+  requestAnimationFrame(loop);
+  if (now - last < 1000 / 30 - 2) return;
+  const dt = Math.min(0.1, (now - last) / 1000); last = now;
+  if (!n) { resize(); return; }
+  frame(dt); draw();
+  const p = phaseName(mode === "auto" ? frac(T / CYCLE + 0.27) : +mode);
+  if (p !== shownPhase) { shownPhase = p; phaseEl.textContent = p; }
+}
+
+cvs.addEventListener("pointerdown", e => { drag = { x: e.clientX, t: performance.now() }; cvs.setPointerCapture(e.pointerId); });
+cvs.addEventListener("pointermove", e => { if (!drag) return; const dx = e.clientX - drag.x, now = performance.now(); spin -= dx * 0.008; vel = -dx * 0.008 / Math.max(0.016, (now - drag.t) / 1000); drag = { x: e.clientX, t: now }; });
+const end = () => { drag = null; }; cvs.addEventListener("pointerup", end); cvs.addEventListener("pointercancel", end);
+document.querySelectorAll("nav button").forEach(b => b.addEventListener("click", () => {
+  mode = b.dataset.m;
+  document.querySelectorAll("nav button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+}));
+let idleT = 0; const wake = () => { document.body.classList.remove("idle"); clearTimeout(idleT); idleT = setTimeout(() => document.body.classList.add("idle"), 3000); };
+addEventListener("pointermove", wake); addEventListener("pointerdown", wake); addEventListener("keydown", wake);
+addEventListener("resize", () => { clearTimeout(resize.t); resize.t = setTimeout(resize, 120); });
+const go = () => { resize(); wake(); requestAnimationFrame(t => { last = t; loop(t); }); };
+(document.fonts && document.fonts.load) ? Promise.race([document.fonts.load(`16px "IBM Plex Mono"`), new Promise(r => setTimeout(r, 1500))]).then(go, go) : go();
+})();
+</script>

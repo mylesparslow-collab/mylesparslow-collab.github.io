@@ -1,0 +1,1030 @@
+<!doctype html>
+<html lang="en">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta charset="utf-8">
+<title>Hollow Hours</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IM+Fell+English+SC&display=swap">
+<style>
+/* Layout: one full-bleed animated text-mode canvas; a quiet caption bar fades in only when the pointer moves. */
+:root {
+  color-scheme: dark;
+  --void: #050508;
+  --bone: #d9d1bd;
+  --bone-dim: #8a8373;
+  --ember: #e0782a;
+  --line: rgba(217, 209, 189, .18);
+  --f-title: "IM Fell English SC", "Iowan Old Style", Georgia, serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+html, body { height: 100%; }
+body {
+  background: var(--void); color: var(--bone); overflow: hidden;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  font-family: var(--f-mono);
+}
+#stage { position: fixed; inset: 0; transition: opacity .7s ease; }
+#stage.out { opacity: 0; }
+#c, #g { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+#g { filter: blur(7px) saturate(1.25); mix-blend-mode: screen; opacity: .8; pointer-events: none; }
+.vig { position: fixed; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.55) 100%); }
+body.idle { cursor: none; }
+
+#ui {
+  position: fixed; left: 0; right: 0; bottom: 0;
+  padding: 48px max(20px, calc(env(safe-area-inset-right, 0px) + 16px)) calc(env(safe-area-inset-bottom, 0px) + 18px) max(20px, calc(env(safe-area-inset-left, 0px) + 16px));
+  background: linear-gradient(to top, rgba(0,0,0,.78), transparent);
+  display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px;
+  transition: opacity .6s ease, transform .6s ease;
+}
+body.idle #ui { opacity: 0; transform: translateY(8px); pointer-events: none; }
+.cap { min-width: 0; display: grid; gap: 2px; }
+.num { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--bone-dim); }
+h1 { margin: 0; font: 400 clamp(26px, 4vw, 40px)/1.05 var(--f-title); letter-spacing: .01em; text-wrap: balance; }
+.note { margin: 0; font-size: 12px; color: var(--bone-dim); }
+nav { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+nav button {
+  font: 500 12px/1 var(--f-mono); color: var(--bone); background: rgba(10,10,14,.55);
+  border: 1px solid var(--line); border-radius: 3px; padding: 9px 11px; cursor: pointer; letter-spacing: .04em;
+}
+nav button:hover { border-color: var(--bone-dim); }
+nav button:focus-visible { outline: 1px solid var(--ember); outline-offset: 2px; }
+nav button[aria-pressed="true"] { color: var(--ember); border-color: rgba(224,120,42,.5); }
+#dots { display: flex; gap: 4px; padding: 0 6px; }
+#dots button { padding: 9px 7px; min-width: 26px; }
+#dots button[aria-current="true"] { color: var(--void); background: var(--bone); border-color: var(--bone); }
+@media (max-width: 1100px) { #dots { display: none; } }
+</style>
+
+<div id="stage"><canvas id="c"></canvas><canvas id="g"></canvas></div>
+<div class="vig"></div>
+<div id="ui">
+  <div class="cap">
+    <span class="num" id="num"></span>
+    <h1 id="name"></h1>
+    <p class="note" id="note"></p>
+  </div>
+  <nav aria-label="Scenes">
+    <button id="prev" aria-label="Previous scene">&lsaquo; prev</button>
+    <div id="dots"></div>
+    <button id="next" aria-label="Next scene">next &rsaquo;</button>
+    <button id="auto" aria-pressed="true">cycle</button>
+    <button id="fs">fullscreen</button>
+  </nav>
+</div>
+
+<script>
+(() => {
+"use strict";
+// ---------- core helpers ----------
+const RAMP = " .,:;-~=+*ox%#&@";
+const LV = RAMP.length;
+const clamp = (x, a, b) => x < a ? a : x > b ? b : x;
+const mix = (a, b, t) => a + (b - a) * t;
+const sstep = (a, b, x) => { x = clamp((x - a) / (b - a), 0, 1); return x * x * (3 - 2 * x); };
+const TAU = Math.PI * 2;
+function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const PERM = new Uint8Array(512);
+{ const r = rng(1337), p = [...Array(256).keys()]; for (let i = 255; i > 0; i--) { const j = (r() * (i + 1)) | 0; [p[i], p[j]] = [p[j], p[i]]; } for (let i = 0; i < 512; i++) PERM[i] = p[i & 255]; }
+const hash2 = (x, y) => PERM[PERM[x & 255] + (y & 255)] / 255;
+function n2(x, y) {
+  const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi;
+  const u = xf * xf * (3 - 2 * xf), w = yf * yf * (3 - 2 * yf);
+  const a = hash2(xi, yi), b = hash2(xi + 1, yi), c = hash2(xi, yi + 1), d = hash2(xi + 1, yi + 1);
+  return a + (b - a) * u + (c - a) * w + (a - b - c + d) * u * w;
+}
+function fbm(x, y, o = 4) { let s = 0, a = 0.5, f = 1, nm = 0; for (let k = 0; k < o; k++) { s += a * n2(x * f + k * 17.1, y * f + k * 9.7); nm += a; a *= 0.5; f *= 2.03; } return s / nm; }
+const n1 = x => n2(x, 0.5);
+function sdTri(px, py, ax, ay, bx, by, cx, cy) {
+  const e0x = bx - ax, e0y = by - ay, e1x = cx - bx, e1y = cy - by, e2x = ax - cx, e2y = ay - cy;
+  const v0x = px - ax, v0y = py - ay, v1x = px - bx, v1y = py - by, v2x = px - cx, v2y = py - cy;
+  const h0 = clamp((v0x * e0x + v0y * e0y) / (e0x * e0x + e0y * e0y), 0, 1);
+  const h1 = clamp((v1x * e1x + v1y * e1y) / (e1x * e1x + e1y * e1y), 0, 1);
+  const h2 = clamp((v2x * e2x + v2y * e2y) / (e2x * e2x + e2y * e2y), 0, 1);
+  const q0x = v0x - e0x * h0, q0y = v0y - e0y * h0, q1x = v1x - e1x * h1, q1y = v1y - e1y * h1, q2x = v2x - e2x * h2, q2y = v2y - e2y * h2;
+  const s = Math.sign(e0x * e2y - e0y * e2x);
+  const d = Math.min(q0x * q0x + q0y * q0y, q1x * q1x + q1y * q1y, q2x * q2x + q2y * q2y);
+  const g = Math.min(s * (v0x * e0y - v0y * e0x), s * (v1x * e1y - v1y * e1x), s * (v2x * e2y - v2y * e2x));
+  return -Math.sqrt(d) * Math.sign(g);
+}
+function sdBox(px, py, bx, by) { const dx = Math.abs(px) - bx, dy = Math.abs(py) - by; return Math.hypot(Math.max(dx, 0), Math.max(dy, 0)) + Math.min(Math.max(dx, dy), 0); }
+
+// ---------- grid / renderer ----------
+const cvs = document.getElementById("c"), ctx = cvs.getContext("2d", { alpha: false });
+const gcv = document.getElementById("g"), gctx = gcv.getContext("2d");
+let W = 0, H = 0, DPR = 1, fs = 14, cw = 8, chh = 16, ox = 0, oy = 0;
+let PX, PY, KEY, ORD, CNT = new Int32Array(4 * LV + 1);
+const GC = [];
+const gs = code => GC[code] || (GC[code] = String.fromCharCode(code));
+function slopeGlyph(dx, dy) {
+  let d = Math.atan2(dy * chh, dx * cw) * 180 / Math.PI; if (d < 0) d += 180;
+  return d < 22.5 || d >= 157.5 ? 45 : d < 67.5 ? 92 : d < 112.5 ? 124 : 47;
+}
+const S = {
+  cols: 0, rows: 0, n: 0, A: 1, U: null, V: null, val: null, chn: null, gly: null,
+  toCell(u, v) { return [(u * H + W / 2 - ox) / cw - 0.5, (v * H + H / 2 - oy) / chh - 0.5]; },
+  idx(c, r) { c = Math.round(c); r = Math.round(r); return (c < 0 || r < 0 || c >= this.cols || r >= this.rows) ? -1 : r * this.cols + c; },
+  plot(c, r, code, v, ch, force) { const i = this.idx(c, r); if (i < 0) return; if (force || v >= this.val[i]) { this.val[i] = v; this.chn[i] = ch; this.gly[i] = code; } },
+  text(cc, r, str, v, ch) { const c0 = Math.round(cc - (str.length - 1) / 2); for (let k = 0; k < str.length; k++) if (str[k] !== " ") this.plot(c0 + k, r, str.charCodeAt(k), v, ch, true); },
+  line(c0, r0, c1, r1, v, ch, force) {
+    const dx = c1 - c0, dy = r1 - r0, steps = Math.ceil(Math.max(Math.abs(dx), Math.abs(dy))) || 1, code = slopeGlyph(dx, dy);
+    for (let s = 0; s <= steps; s++) this.plot(c0 + dx * s / steps, r0 + dy * s / steps, code, v, ch, force);
+  },
+  lineUV(u0, v0, u1, v1, v, ch, force) { const a = this.toCell(u0, v0), b = this.toCell(u1, v1); this.line(a[0], a[1], b[0], b[1], v, ch, force); },
+};
+
+function buildPal(p) {
+  const chans = p.slice(); while (chans.length < 4) chans.push(chans[0]);
+  return chans.map(stops => { const out = []; for (let l = 0; l < LV; l++) { const t = l / (LV - 1) * (stops.length - 1); const k = Math.min(stops.length - 2, Math.floor(t)); const f = t - k; const a = stops[k], b = stops[k + 1]; out.push(`rgb(${Math.round(mix(a[0], b[0], f))},${Math.round(mix(a[1], b[1], f))},${Math.round(mix(a[2], b[2], f))})`); } return out; });
+}
+
+function draw(sc) {
+  const { n, val, chn, gly } = S, cols = sc.colors;
+  ctx.fillStyle = sc.bg; ctx.fillRect(0, 0, W, H);
+  CNT.fill(0);
+  for (let i = 0; i < n; i++) {
+    let l = (val[i] * LV) | 0; if (l >= LV) l = LV - 1;
+    if (l <= 0) { if (!gly[i]) { KEY[i] = 4 * LV; continue; } l = 1; }
+    const k = chn[i] * LV + l; KEY[i] = k; CNT[k]++;
+  }
+  let acc = 0; const start = new Int32Array(4 * LV + 1);
+  for (let k = 0; k < 4 * LV; k++) { start[k] = acc; acc += CNT[k]; }
+  const total = acc;
+  for (let i = 0; i < n; i++) { const k = KEY[i]; if (k < 4 * LV) ORD[start[k]++] = i; }
+  let cur = -1;
+  for (let j = 0; j < total; j++) {
+    const i = ORD[j], k = KEY[i];
+    if (k !== cur) { cur = k; ctx.fillStyle = cols[(k / LV) | 0][k % LV]; }
+    ctx.fillText(gly[i] ? gs(gly[i]) : RAMP[k % LV], PX[i], PY[i]);
+  }
+  if (cvs.width && cvs.height) { gctx.clearRect(0, 0, gcv.width, gcv.height); gctx.drawImage(cvs, 0, 0, gcv.width, gcv.height); }
+}
+
+function resize() {
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  W = window.innerWidth; H = window.innerHeight;
+  cvs.width = Math.round(W * DPR); cvs.height = Math.round(H * DPR);
+  gcv.width = Math.max(1, Math.round(W / 3)); gcv.height = Math.max(1, Math.round(H / 3));
+  fs = clamp(Math.round(Math.min(H / 54, W / 96)), 9, 22);
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.font = `${fs}px "IBM Plex Mono", ui-monospace, Menlo, monospace`;
+  ctx.textBaseline = "top";
+  cw = ctx.measureText("M").width; chh = Math.round(fs * 1.16);
+  S.cols = Math.floor(W / cw); S.rows = Math.floor(H / chh); S.n = S.cols * S.rows; S.A = W / H;
+  ox = (W - S.cols * cw) / 2; oy = (H - S.rows * chh) / 2;
+  const n = S.n;
+  S.U = new Float32Array(n); S.V = new Float32Array(n); S.val = new Float32Array(n); S.chn = new Uint8Array(n); S.gly = new Uint16Array(n);
+  PX = new Float32Array(n); PY = new Float32Array(n); KEY = new Uint16Array(n); ORD = new Int32Array(n);
+  for (let r = 0; r < S.rows; r++) for (let c = 0; c < S.cols; c++) {
+    const i = r * S.cols + c; PX[i] = ox + c * cw; PY[i] = oy + r * chh;
+    S.U[i] = (ox + (c + 0.5) * cw - W / 2) / H; S.V[i] = (oy + (r + 0.5) * chh - H / 2) / H;
+  }
+  if (scene) scene.init(S);
+}
+
+// shared: gnarled tree, thick limbs into a silhouette mask, thin twigs as line glyphs
+function growTree(S, mask, twigs, x, y, ang, len, th, depth, r) {
+  const segs = [];
+  const grow = (x, y, a, len, th, d) => {
+    let cx = x, cy = y;
+    for (let p = 0; p < 3; p++) { a += (r() - 0.5) * 0.4; const nx = cx + Math.cos(a) * len / 3, ny = cy + Math.sin(a) * len / 3; segs.push([cx, cy, nx, ny, th]); cx = nx; cy = ny; }
+    if (d <= 0) return;
+    const kids = d > 5 ? 2 : (r() < 0.55 ? 2 : 3);
+    for (let k = 0; k < kids; k++) grow(cx, cy, a + (k - (kids - 1) / 2) * (0.55 + r() * 0.4) + (r() - 0.5) * 0.3, len * (0.66 + r() * 0.14), th * 0.62, d - 1);
+  };
+  grow(x, y, ang, len, th, depth);
+  const thin = 0.5 * chh / H;
+  for (const [x0, y0, x1, y1, t] of segs) {
+    if (t < thin * 0.55) { const a = S.toCell(x0, y0), b = S.toCell(x1, y1); const dx = b[0] - a[0], dy = b[1] - a[1], st = Math.ceil(Math.max(Math.abs(dx), Math.abs(dy))) || 1, code = slopeGlyph(dx, dy); for (let s = 0; s <= st; s++) { const i = S.idx(a[0] + dx * s / st, a[1] + dy * s / st); if (i >= 0) twigs.set(i, code); } continue; }
+    const rad = Math.max(t, thin * 0.6);
+    const a = S.toCell(Math.min(x0, x1) - rad, Math.min(y0, y1) - rad), b = S.toCell(Math.max(x0, x1) + rad, Math.max(y0, y1) + rad);
+    for (let rr = Math.max(0, Math.floor(a[1])); rr <= Math.min(S.rows - 1, Math.ceil(b[1])); rr++)
+      for (let cc = Math.max(0, Math.floor(a[0])); cc <= Math.min(S.cols - 1, Math.ceil(b[0])); cc++) {
+        const i = rr * S.cols + cc, px = S.U[i] - x0, py = S.V[i] - y0, ex = x1 - x0, ey = y1 - y0;
+        const h = clamp((px * ex + py * ey) / (ex * ex + ey * ey), 0, 1);
+        if (Math.hypot(px - ex * h, py - ey * h) < rad) { mask[i] = 1; twigs.delete(i); }
+      }
+  }
+}
+
+// ---------- scenes ----------
+const graveyard = {
+  name: "The Graveyard", note: "fog rolls in over the old stones", bg: "#06060b",
+  pal: [[[12, 12, 20], [120, 112, 92], [226, 216, 178], [255, 250, 228]],
+        [[10, 12, 20], [62, 78, 98], [146, 164, 182], [214, 226, 236]],
+        [[14, 14, 22], [150, 160, 200], [255, 255, 255]],
+        [[8, 6, 16], [60, 42, 92], [150, 112, 186]]],
+  init(S) {
+    const r = rng(7), { n, U, V, A } = S, m = this.mask = new Uint8Array(n);
+    this.star = new Float32Array(n); for (let i = 0; i < n; i++) this.star[i] = r();
+    const hill = u => 0.2 + 0.03 * Math.sin(u * 2.3 + 1) + 0.018 * Math.sin(u * 5.1 + 2);
+    for (let i = 0; i < n; i++) if (V[i] > hill(U[i])) m[i] = 1;
+    this.mu = A * (A > 1 ? 0.17 : 0.05); this.mv = -0.25;
+    const treeU = this.mu + Math.min(0.36, A * 0.18);
+    const fill = (u0, v0, u1, v1, test) => { const a = S.toCell(u0, v0), b = S.toCell(u1, v1); for (let rr = Math.max(0, Math.floor(a[1])); rr <= Math.min(S.rows - 1, Math.ceil(b[1])); rr++) for (let cc = Math.max(0, Math.floor(a[0])); cc <= Math.min(S.cols - 1, Math.ceil(b[0])); cc++) { const i = rr * S.cols + cc; if (test(U[i], V[i])) m[i] = 1; } };
+    const count = Math.max(4, Math.round(A * 7));
+    for (let k = 0; k < count; k++) {
+      const u = -A / 2 + (k + 0.2 + r() * 0.6) * (A / count);
+      if (Math.abs(u - treeU) < 0.05) continue;
+      const w = 0.03 + r() * 0.03, type = (r() * 3) | 0, h = w * (type === 1 ? 2.2 : 1.4 + r() * 1.1), base = hill(u) + 0.015, tilt = (r() - 0.5) * 0.28;
+      const c = Math.cos(tilt), s = Math.sin(tilt);
+      fill(u - h, base - h - 0.03, u + h, base + 0.02, (x, y) => {
+        const lx = x - u, ly = y - base, X = lx * c + ly * s, Y = -lx * s + ly * c;
+        if (Y > 0.02 || Y < -h) return false;
+        if (type === 0) return Math.abs(X) < w / 2 && (Y > -h + w / 2 || Math.hypot(X, Y + h - w / 2) < w / 2);
+        if (type === 1) return Math.abs(X) < w * 0.17 || (Math.abs(Y + h * 0.72) < w * 0.15 && Math.abs(X) < w * 0.5);
+        const tip = h * 0.14; if (Y > -h + tip) return Math.abs(X) < (w / 2) * (1 - 0.3 * (-Y / h));
+        return Math.abs(X) < (w / 2) * 0.72 * ((Y + h) / tip);
+      });
+    }
+    this.twigs = new Map();
+    growTree(S, m, this.twigs, treeU, hill(treeU) + 0.02, -Math.PI / 2 - 0.16, 0.17, 0.017, 7, r);
+    this.bats = [...Array(7)].map(() => ({ u0: r() * 9, sp: (0.04 + r() * 0.05) * (r() < 0.5 ? -1 : 1), v0: -0.42 + r() * 0.3, f: 1 + r(), ph: r() * TAU }));
+  },
+  frame(S, t) {
+    const { n, U, V, val, chn, gly, A } = S, m = this.mask, st = this.star, mu = this.mu, mv = this.mv, mr = 0.095;
+    for (let i = 0; i < n; i++) {
+      const u = U[i], v = V[i];
+      let b = 0.03 + 0.07 * sstep(-0.5, 0.2, v), c = 3;
+      if (st[i] > 0.993 && v < 0.08) { b = 0.22 + 0.4 * (0.5 + 0.5 * Math.sin(t * 1.7 + st[i] * 900)); c = 2; }
+      const du = u - mu, dv = v - mv, d = Math.sqrt(du * du + dv * dv);
+      if (d < mr) { const k = d / mr; b = (0.8 + 0.55 * (fbm(du * 24 + 3, dv * 24 + 5, 3) - 0.5)) * (0.7 + 0.3 * Math.sqrt(1 - k * k)); c = 0; }
+      else { const h = 0.34 * Math.exp(-(d - mr) * 10); if (h > b) { b = h; c = 0; } }
+      const bank = sstep(-0.06, 0.16, v) * (1 - sstep(0.18, 0.3, v));
+      if (bank > 0) { const f = bank * (0.2 + 0.32 * fbm(u * 3 + t * 0.02, v * 8, 3)); if (f > b) { b = f; c = 1; } }
+      if (v < 0.12) { const cl = sstep(0.5, 0.7, fbm(u * 1.6 + t * 0.022, v * 4.5 + 7, 4)); if (cl > 0) { const lit = 0.1 + 0.6 * Math.exp(-d * 4.5); b = mix(b, lit, cl * 0.85); if (cl > 0.35) c = 1; } }
+      if (m[i]) b = 0;
+      const g = sstep(0.1, 0.4, v);
+      if (g > 0) { const f = g * sstep(0.4, 0.75, fbm(u * 2.4 - t * 0.07, v * 7 + t * 0.03, 4) * 0.6 + fbm(u * 1.3 + t * 0.045 + 9, v * 4, 3) * 0.5) * 0.62; if (f > b) { b = f; c = 1; } }
+      val[i] = b; chn[i] = c;
+    }
+    for (const [i, code] of this.twigs) if (val[i] < 0.3 || chn[i] === 0) { val[i] = chn[i] === 0 ? 0.12 : 0.2; chn[i] = 3; gly[i] = code; }
+    const span = A + 0.4, frames = ["\\v/", "-v-", "/v\\", "-v-"];
+    for (const bt of this.bats) {
+      const u = ((bt.u0 + bt.sp * t) % span + span) % span - span / 2, v = bt.v0 + 0.03 * Math.sin(t * bt.f + bt.ph) + 0.01 * Math.sin(t * bt.f * 3.1);
+      const p = S.toCell(u, v); S.text(p[0], Math.round(p[1]), frames[((t * 9 + bt.ph) | 0) % 4], 0.5, 3);
+    }
+  }
+};
+
+const pumpkin = {
+  name: "The Lantern", note: "a candle burns inside the carved gourd", bg: "#070504",
+  pal: [[[16, 6, 2], [120, 40, 6], [232, 112, 22], [255, 196, 100]],
+        [[34, 16, 0], [205, 125, 22], [255, 218, 96], [255, 250, 222]],
+        [[6, 10, 4], [42, 72, 22], [118, 156, 56]],
+        [[8, 5, 10], [46, 24, 40], [98, 54, 72]]],
+  init() { const r = rng(31); this.embers = [...Array(34)].map(() => ({ u: (r() - 0.5), sp: 0.05 + r() * 0.09, ph: r() * TAU, off: r() })); },
+  frame(S, t) {
+    const { n, U, V, val, chn, gly } = S;
+    const flick = 0.74 + 0.26 * (n1(t * 7) * 0.6 + n1(t * 13 + 5) * 0.4);
+    const a = 0.75 * Math.sin(t * 0.42), bt = 0.1 * Math.sin(t * 0.3) - 0.06;
+    const ca = Math.cos(a), sa = Math.sin(a), cb = Math.cos(bt), sb = Math.sin(bt);
+    const toObj = (x, y, z) => { const X = x * ca - z * sa, Z = x * sa + z * ca; return [X, y * cb + Z * sb, -y * sb + Z * cb]; };
+    let BODY = 0, MAT = 0;
+    const face = (x, y) => {
+      const e1 = sdTri(x, y, -0.62, 0.40, -0.14, 0.24, -0.48, 0.06), e2 = sdTri(x, y, 0.62, 0.40, 0.48, 0.06, 0.14, 0.24);
+      const no = sdTri(x, y, -0.09, -0.06, 0.09, -0.06, 0, 0.1);
+      let mo = Math.max(Math.hypot(x, y - 0.2) - 0.74, -(Math.hypot(x, y - 0.42) - 0.8));
+      mo = Math.max(mo, -sdBox(x + 0.2, y + 0.38, 0.05, 0.06), -sdBox(x - 0.22, y + 0.48, 0.05, 0.05));
+      return Math.min(e1, e2, no, mo);
+    };
+    const sdf = (x, y, z) => {
+      const qy = y * 1.3, rxz = Math.hypot(x, z), r = Math.hypot(rxz, qy);
+      const s = Math.abs(Math.cos(Math.atan2(z, x) * 4)), groove = 0.08 * (1 - s) * (1 - s);
+      const b = (r - 1 + groove * rxz / (r + 1e-5)) * 0.72; BODY = b;
+      let d = Math.abs(b) - 0.045;
+      if (z < 0) d = Math.max(d, -face(x, y) * 0.9);
+      const px = x, py = y - 0.6, pz = z, ex = 0.07, ey = 0.38, ez = 0.04, h = clamp((px * ex + py * ey + pz * ez) / (ex * ex + ey * ey + ez * ez), 0, 1);
+      const stem = Math.hypot(px - ex * h, py - ey * h, pz - ez * h) - (0.085 - 0.02 * h);
+      if (stem < d) { MAT = 2; return stem; } MAT = 0; return d;
+    };
+    const ro = toObj(0, 0.05, -4.2), L0 = 1 / Math.hypot(-0.6, 0.7, -0.6), Lo = toObj(-0.6 * L0, 0.7 * L0, -0.6 * L0);
+    for (let i = 0; i < n; i++) {
+      const u = U[i], v = V[i];
+      let b = 0.035 + 0.1 * fbm(u * 2.4, v * 2.4 + t * 0.07, 3) * sstep(0.5, -0.3, v), c = 3;
+      const halo = 0.16 * flick * Math.exp(-(u * u + v * v) * 5); if (halo > b) { b = halo; c = 0; }
+      const pool = 0.42 * flick * Math.exp(-(u * u / 0.14 + (v - 0.33) * (v - 0.33) / 0.0016)); if (pool > b) { b = pool; c = 0; }
+      const rl = 1 / Math.hypot(u, v, 1.25), rd = toObj(u * rl, -v * rl, 1.25 * rl);
+      const B = ro[0] * rd[0] + ro[1] * rd[1] + ro[2] * rd[2], C = ro[0] * ro[0] + ro[1] * ro[1] + ro[2] * ro[2] - 1.15 * 1.15, disc = B * B - C;
+      if (disc > 0) {
+        const sq = Math.sqrt(disc); let tt = -B - sq; const t1 = -B + sq; let hit = false, x = 0, y = 0, z = 0;
+        for (let k = 0; k < 72; k++) { x = ro[0] + rd[0] * tt; y = ro[1] + rd[1] * tt; z = ro[2] + rd[2] * tt; const d = sdf(x, y, z); if (d < 0.0025) { hit = true; break; } tt += Math.max(d * 0.85, 0.003); if (tt > t1) break; }
+        if (hit) {
+          const e = 0.003;
+          const f1 = sdf(x + e, y - e, z - e), f2 = sdf(x - e, y - e, z + e), f3 = sdf(x - e, y + e, z - e), f4 = sdf(x + e, y + e, z + e);
+          let nx = f1 - f2 - f3 + f4, ny = -f1 - f2 + f3 + f4, nz = -f1 + f2 - f3 + f4; const nl = Math.hypot(nx, ny, nz) || 1; nx /= nl; ny /= nl; nz /= nl;
+          sdf(x, y, z);
+          const diff = Math.max(0, nx * Lo[0] + ny * Lo[1] + nz * Lo[2]);
+          if (MAT === 2) { b = 0.12 + 0.6 * diff; c = 2; }
+          else if (BODY < -0.04) { b = (0.6 + 0.32 * flick) * (0.8 + 0.2 * Math.max(0, -(nx * x + ny * y + nz * z))); c = 1; }
+          else if (Math.abs(BODY) < 0.04) { b = 0.45 + 0.45 * flick; c = 0; }
+          else { const rim = Math.pow(1 - Math.abs(nx * rd[0] + ny * rd[1] + nz * rd[2]), 3); b = 0.07 + 0.72 * diff + 0.28 * rim; c = 0; }
+        }
+      }
+      val[i] = b; chn[i] = c;
+    }
+    const sparks = [46, 39, 42, 46, 96];
+    for (const em of this.embers) {
+      const ph = (em.off + t * em.sp) % 1, v = -0.18 - ph * 0.42, u = em.u * 0.35 + 0.03 * Math.sin(t * 2 + em.ph) + ph * 0.06 * Math.sin(em.ph);
+      const p = S.toCell(u, v); S.plot(p[0], p[1], sparks[(em.ph * 3 | 0) % 5], (1 - ph) * 0.9 * flick, 1, true);
+    }
+  }
+};
+
+const cauldron = {
+  name: "The Cauldron", note: "something is brewing", bg: "#07050b",
+  pal: [[[12, 10, 18], [62, 56, 78], [134, 128, 154], [204, 198, 220]],
+        [[5, 20, 10], [40, 142, 62], [122, 242, 92], [222, 255, 182]],
+        [[22, 5, 30], [124, 30, 142], [232, 92, 202], [255, 222, 250]],
+        [[12, 8, 20], [72, 52, 102], [152, 122, 192], [212, 192, 242]]],
+  init(S) { this.F = new Float32Array(S.n); this.r = rng(5); this.bub = []; this.hammer = new Float32Array(S.n); for (let i = 0; i < S.n; i++) this.hammer[i] = this.r(); },
+  frame(S, t, dt) {
+    const { cols, rows, n, U, V, val, chn, gly } = S, F = this.F, r = this.r;
+    const avg = 1 / (rows * 0.3);
+    for (let x = 0; x < cols; x++) { const i = (rows - 1) * cols + x; F[i] = Math.abs(U[i]) < 0.37 ? 0.8 + 0.2 * r() : 0; }
+    for (let y = 0; y < rows - 1; y++) for (let x = 0; x < cols; x++) {
+      const src = (y + 1) * cols + x, rnd = r(), dx = Math.round(rnd * 2.6 - 1.3);
+      F[y * cols + clamp(x + dx, 0, cols - 1)] = Math.max(0, F[src] - rnd * avg * 2);
+    }
+    for (let i = 0; i < n; i++) {
+      const u = U[i], v = V[i];
+      let b = 0.03 + 0.06 * fbm(u * 1.5 + t * 0.02, v * 1.5, 3), c = 3;
+      const f = F[i]; if (f > 0.06 && f > b) { b = f; c = 2; }
+      if (v < -0.06) {
+        const h = -0.06 - v, xo = Math.sin(h * 6 - t * 1.1) * 0.05 * Math.min(1, h * 4) + (fbm(h * 2 - t * 0.15, 3.3, 2) - 0.5) * 0.35 * h;
+        const wd = 0.2 + h * 0.5, mk = Math.exp(-((u - xo) / wd) * ((u - xo) / wd) * 2.2) * (1 - sstep(0.22, 0.5, h));
+        const sm = sstep(0.42, 0.72, fbm((u - xo) * 4, (v + t * 0.13) * 4, 4)) * mk * 0.8;
+        if (sm > b) { b = sm; c = h < 0.07 ? 1 : 3; }
+      }
+      const ex = u / 0.31, ey = (v - 0.13) / 0.23, e = ex * ex + ey * ey;
+      if (e < 1 && v > -0.035) {
+        const sh = Math.exp(-((ex + 0.45) ** 2 + (ey + 0.15) ** 2) * 7) * 0.38;
+        b = 0.2 + 0.1 * this.hammer[i] + sh * 1.4 + (e > 0.84 ? 0.18 : 0) - 0.08 * ey; c = 0;
+        const fl = sstep(0.2, 1, ey) * (0.5 + 0.18 * Math.sin(t * 9 + u * 22)); if (fl > b) { b = fl; c = 2; }
+      }
+      if ((Math.abs(u - 0.19) < 0.025 || Math.abs(u + 0.19) < 0.025) && v > 0.29 && v < 0.4) { b = 0.2; c = 0; }
+      const rx = u / 0.335, ry = (v + 0.035) / 0.06, re = rx * rx + ry * ry;
+      if (re < 1) {
+        if (re > 0.62) { b = 0.3 + 0.32 * sstep(0, -1, ry) + 0.2 * sstep(0.3, 1, -rx); c = 0; }
+        else { b = 0.5 + 0.38 * fbm(u * 9 + t * 0.4, v * 28 - t * 0.8, 3); c = 1; }
+      }
+      val[i] = b; chn[i] = c;
+    }
+    if (r() < dt * 9) this.bub.push({ u: (r() - 0.5) * 0.44, v: -0.035 + (r() - 0.5) * 0.05, born: t, life: 0.6 + r() * 0.9 });
+    this.bub = this.bub.filter(bb => t - bb.born < bb.life);
+    for (const bb of this.bub) { const ph = (t - bb.born) / bb.life, p = S.toCell(bb.u, bb.v); S.plot(p[0], p[1], ph < 0.45 ? 111 : ph < 0.85 ? 79 : 42, 0.95, 1, true); if (ph > 0.85) { S.plot(p[0] - 1, p[1] - 1, 39, 0.8, 1, true); S.plot(p[0] + 1, p[1] - 1, 96, 0.8, 1, true); } }
+  }
+};
+
+const ghosts = {
+  name: "The Visitors", note: "they drift through on cold nights", bg: "#05070a",
+  pal: [[[10, 14, 20], [92, 132, 142], [192, 236, 230], [246, 255, 252]],
+        [[8, 12, 18], [30, 70, 82], [82, 152, 162]],
+        [[10, 10, 16], [62, 62, 82], [142, 142, 172]]],
+  init(S) {
+    const r = rng(11), K = 6; this.g = [];
+    for (let k = 0; k < K; k++) { const z = 0.4 + 0.6 * (k / (K - 1)); this.g.push({ z, s: 0.05 + 0.075 * z, u0: r() * 10, sp: (0.03 + 0.05 * z) * (r() < 0.5 ? -1 : 1), v0: -0.26 + r() * 0.36, ph: r() * TAU }); }
+    this.prev = new Float32Array(S.n); this.prevC = new Uint8Array(S.n);
+  },
+  frame(S, t) {
+    const { n, U, V, val, chn, A } = S, span = A + 0.7, P = this.prev, PC = this.prevC;
+    const gs_ = this.g.map(g => ({ g, u: ((g.u0 + g.sp * t) % span + span) % span - span / 2, v: g.v0 + 0.05 * Math.sin(t * 0.8 + g.ph), dir: Math.sign(g.sp) }));
+    for (let i = 0; i < n; i++) {
+      const u = U[i], v = V[i];
+      let b = 0.025 + 0.07 * fbm(u * 2, v * 2 + t * 0.05, 3), c = 2;
+      const dn = n2(u * 55 + t * 0.4, v * 55 - t * 0.25); if (dn > 0.92) { b = Math.max(b, (dn - 0.92) * 6); }
+      for (const q of gs_) {
+        const g = q.g, s = g.s, x = (u - q.u) / s, y = (v - q.v) / s;
+        if (x < -2 || x > 2 || y < -1.6 || y > 2.6) continue;
+        const yy = Math.max(0, y), xp = x - Math.sin(y * 1.7 - t * 2.6 + g.ph) * 0.2 * yy + q.dir * 0.2 * yy;
+        const dh = Math.hypot(xp, y) - 1, hem = 1.85 + 0.2 * Math.sin(xp * 5.5 + t * 4 + g.ph);
+        const db = Math.max(Math.abs(xp) - (1 + 0.1 * yy), Math.max(-y, y - hem));
+        const ay = 0.5 + 0.12 * Math.sin(t * 3 + g.ph), da = Math.min(Math.hypot(xp - 1.1, y - ay), Math.hypot(xp + 1.1, y - ay)) - 0.26;
+        const d = Math.min(dh, db, da);
+        if (d < 0) {
+          const mr = 0.12 + 0.06 * Math.sin(t * 1.7 + g.ph);
+          const hole = ((xp - 0.36) / 0.17) ** 2 + ((y + 0.12) / 0.27) ** 2 < 1 || ((xp + 0.36) / 0.17) ** 2 + ((y + 0.12) / 0.27) ** 2 < 1 || (xp / mr) ** 2 + ((y - 0.45) / (mr * 1.7)) ** 2 < 1;
+          if (hole) { b = Math.min(b, 0.01); c = 2; }
+          else { const gb = (0.66 + 0.22 * (0.4 - y * 0.25)) * (1 - 0.7 * sstep(0.8, 1.9, y)) * (0.55 + 0.45 * g.z) * (0.72 + 0.45 * n2(xp * 2.6 + t * 0.7 + g.ph, y * 2.2 - t * 1.4)); if (gb > b) { b = gb; c = 0; } }
+        } else { const gl = 0.3 * Math.exp(-d * 2.6) * g.z; if (gl > b) { b = gl; c = 1; } }
+      }
+      const pv = P[i] * 0.92; if (pv > b && b > 0.012) { b = pv; c = PC[i]; }
+      P[i] = b; PC[i] = c; val[i] = b; chn[i] = c;
+    }
+  }
+};
+
+const mouse = { u: 0, v: 0, at: -1e9 };
+const watchers = {
+  name: "The Watchers", note: "move your cursor. they follow it.", bg: "#060203",
+  pal: [[[16, 10, 10], [122, 110, 96], [226, 216, 192], [255, 250, 236]],
+        [[20, 0, 0], [122, 12, 16], [212, 42, 42]],
+        [[20, 10, 0], [152, 92, 12], [242, 192, 42], [255, 242, 152]],
+        [[8, 2, 4], [52, 10, 14], [96, 22, 26]]],
+  init(S) { this.r = rng(99); this.list = []; for (let k = 0; k < 6; k++) { this.spawn(S, 0); this.list[this.list.length - 1] && (this.list[this.list.length - 1].born = -this.r() * 3); } },
+  spawn(S, t) {
+    const r = this.r;
+    for (let k = 0; k < 30; k++) {
+      const w = 0.055 + r() * 0.11, u = (r() - 0.5) * (S.A - 2 * w - 0.04), v = (r() - 0.5) * (0.92 - 1.2 * w);
+      if (this.list.some(e => Math.hypot(u - e.u, (v - e.v) * 1.6) < (w + e.w) * 1.25)) continue;
+      this.list.push({ u, v, w, born: t, life: 6 + r() * 8, px: 0, py: 0, slit: r() < 0.6, seed: r() * 100, nb: t + 1 + r() * 4, ba: -9, o: 0 });
+      return;
+    }
+  },
+  frame(S, t, dt) {
+    const { n, U, V, val, chn, A } = S, r = this.r;
+    const live = performance.now() - mouse.at < 6000;
+    const tu = live ? mouse.u : A * 0.35 * Math.sin(t * 0.23) + 0.05 * Math.sin(t * 1.3), tv = live ? mouse.v : 0.3 * Math.sin(t * 0.31 + 1);
+    this.list = this.list.filter(e => t - e.born < e.life);
+    const max = Math.round(clamp(S.A * 7, 5, 13));
+    if (this.list.length < max && r() < dt * 2.4) this.spawn(S, t);
+    for (const e of this.list) {
+      const age = t - e.born; let o = sstep(0, 0.7, age) * (1 - sstep(e.life - 0.5, e.life, age));
+      if (t > e.nb) { e.ba = t; e.nb = t + 2 + r() * 5; }
+      const bl = t - e.ba; if (bl < 0.24) o *= Math.abs(bl - 0.12) / 0.12;
+      e.o = o;
+      const dx = (tu - e.u) / (e.w * 4), dy = (tv - e.v) / (e.w * 4), len = Math.max(1, Math.hypot(dx, dy));
+      const k = Math.min(1, dt * 7); e.px += (dx / len * 0.46 - e.px) * k; e.py += (dy / len * 0.2 - e.py) * k;
+    }
+    for (let i = 0; i < n; i++) {
+      const u = U[i], v = V[i];
+      let b = 0.08 + 0.22 * fbm(u * 2 + t * 0.03, v * 2 - t * 0.01, 4), c = 3;
+      for (const e of this.list) {
+        const nx = (u - e.u) / e.w, ny = (v - e.v) / e.w;
+        if (nx < -1.15 || nx > 1.15 || ny < -0.7 || ny > 0.7) continue;
+        const gl = 0.22 * e.o * Math.exp(-(nx * nx + ny * ny * 4) * 1.4); if (gl > b) { b = gl; c = 3; }
+        if (Math.abs(nx) >= 1) continue;
+        const hh = 0.5 * e.o * (1 - nx * nx);
+        if (Math.abs(ny) < hh) {
+          const ix = nx - e.px, iy = ny - e.py, rr = Math.hypot(ix, iy), ir = 0.4;
+          if (Math.hypot(ix + 0.13, iy + 0.13) < 0.075) { b = 1; c = 0; }
+          else if (rr < ir) {
+            const pup = e.slit ? Math.abs(ix) < 0.085 * (1 - (iy / ir) ** 2) : rr < 0.16;
+            if (pup) { b = 0.01; c = 3; }
+            else { const ang = Math.atan2(iy, ix); b = (0.4 + 0.34 * (0.5 + 0.5 * Math.cos(ang * 22 + e.seed + 3 * n2(ang * 3, e.seed)))) * (rr > ir * 0.82 ? 0.6 : 1); c = 2; }
+          } else {
+            b = 0.6 - 0.36 * (ny / hh) ** 2 - 0.15 * sstep(0.7, 1, Math.abs(nx)); c = 0;
+            if (rr > ir * 1.15 && Math.abs(n2(nx * 5 + e.seed, ny * 5) * 2 - 1) < 0.09) { b = 0.55; c = 1; }
+          }
+        } else if (Math.abs(ny) - hh < 0.07) { b = 0.34; c = 1; }
+      }
+      val[i] = b; chn[i] = c;
+    }
+  }
+};
+
+const manor = {
+  name: "The Manor", note: "someone is still home", bg: "#05060a",
+  pal: [[[6, 8, 14], [42, 52, 72], [112, 126, 152], [202, 212, 232]],
+        [[22, 10, 0], [152, 82, 22], [252, 182, 72], [255, 236, 172]],
+        [[10, 12, 20], [62, 76, 102], [132, 152, 182]],
+        [[30, 30, 50], [152, 142, 222], [232, 226, 255], [255, 255, 255]]],
+  init(S) {
+    const r = rng(3), { n, U, V, A } = S, m = this.m = new Uint8Array(n);
+    const sc = this.sc = Math.min(1, A / 0.95), hill = this.hill = u => 0.22 + 0.1 * u * u;
+    const inRect = (x, y, a, b, c, d) => x > a && x < c && y > b && y < d;
+    this.win = [];
+    for (const vr of [0.03, 0.12]) for (const uc of [-0.15, -0.05, 0.05, 0.15]) this.win.push([uc - 0.018, vr - 0.026, uc + 0.018, vr + 0.026]);
+    this.win.push([-0.298, -0.085, -0.262, -0.03], [-0.298, 0.03, -0.262, 0.085], [0.282, 0.1, 0.318, 0.15], [-0.016, -0.085, 0.016, -0.045]);
+    this.lit = this.win.map(() => r() < 0.55); this.ph = this.win.map(() => r() * 50);
+    for (let i = 0; i < n; i++) {
+      const u = U[i], v = V[i];
+      if (v > hill(u)) { m[i] = 3; continue; }
+      const x = u / sc, y = (v - 0.2) / sc + 0.2;
+      let house = inRect(x, y, -0.22, -0.02, 0.22, 0.3) || sdTri(x, y, -0.25, -0.02, 0.25, -0.02, 0, -0.15) < 0 ||
+        inRect(x, y, -0.34, -0.12, -0.22, 0.3) || sdTri(x, y, -0.36, -0.12, -0.2, -0.12, -0.28, -0.31) < 0 ||
+        inRect(x, y, 0.22, 0.06, 0.38, 0.3) || sdTri(x, y, 0.2, 0.06, 0.4, 0.06, 0.3, -0.03) < 0 ||
+        inRect(x, y, 0.1, -0.15, 0.14, -0.05) || inRect(x, y, -0.285, -0.36, -0.275, -0.3);
+      if (house) { m[i] = 1; this.win.forEach((w, k) => { if (inRect(x, y, w[0], w[1], w[2], w[3])) m[i] = 10 + k; }); }
+    }
+    this.twigs = new Map();
+    const tu = -A / 2 + Math.max(0.12, A * 0.12);
+    growTree(S, m, this.twigs, tu, hill(tu) + 0.02, -Math.PI / 2 + 0.25, 0.2, 0.016, 7, r);
+    this.flash = 0; this.next = 2.5; this.bolt = null; this.second = -1; this.r = r;
+    this.drops = [...Array(Math.round(S.cols * 0.7))].map(() => ({ x: r() * S.cols * 1.3, y: r() * S.rows, sp: 0.8 + r() * 0.6 }));
+  },
+  strike(S) {
+    const r = this.r, pts = []; let u = (r() - 0.5) * S.A * 0.8, v = -0.52;
+    while (v < this.hill(u) - 0.02) { pts.push([u, v]); u += (r() - 0.5) * 0.06; v += 0.02 + r() * 0.03; }
+    pts.push([u, v]); this.bolt = pts; this.flash = reduce ? 0.35 : 1;
+  },
+  frame(S, t, dt) {
+    const { n, U, V, val, chn, gly, A, cols, rows } = S, m = this.m, sc = this.sc;
+    if (t > this.next) { this.strike(S); this.second = t + 0.13; this.next = t + 4 + this.r() * 7; }
+    if (this.second > 0 && t > this.second) { this.flash = Math.max(this.flash, reduce ? 0.3 : 0.8); this.second = -1; }
+    this.flash *= Math.exp(-dt * 4.5); const fl = this.flash;
+    const roam = Math.floor(t / 3.5) % 4, passing = (t % 9) / 9;
+    for (let i = 0; i < n; i++) {
+      const u = U[i], v = V[i], mk = m[i];
+      let b, c = 0;
+      if (mk === 0) {
+        const cl = fbm(u * 1.4 + t * 0.05, v * 3.2 - t * 0.012, 5);
+        b = 0.13 + 0.4 * sstep(0.38, 0.72, cl) * (0.85 - v * 0.5);
+        const mg = 0.5 * Math.exp(-Math.hypot(u + A * 0.12, v + 0.1) * 3.2) * (0.5 + cl * 0.6); if (mg > b) b = mg;
+        b += fl * (0.3 + 0.65 * cl); if (fl > 0.25) c = 3;
+      } else if (mk >= 10) {
+        const k = mk - 10, w = this.win[k], x = u / sc, y = (v - 0.2) / sc + 0.2, lx = (x - w[0]) / (w[2] - w[0]), ly = (y - w[1]) / (w[3] - w[1]);
+        const on = this.lit[k] || (k < 4 && k === roam) || k === 4;
+        b = on ? 0.55 + 0.28 * n1(t * 6 + this.ph[k]) : 0.05 + fl * 0.05; c = 1;
+        if (k === 4 && passing < 0.3 && Math.abs(lx - (passing / 0.3 * 1.6 - 0.3)) < 0.32) b = 0.03;
+        if (Math.abs(lx - 0.5) < 0.1 || Math.abs(ly - 0.5) < 0.08) b = Math.min(b, 0.08);
+      } else { b = mk === 3 ? fl * 0.1 : 0; c = 3; }
+      val[i] = b; chn[i] = c;
+    }
+    for (const [i, code] of this.twigs) if (m[i] === 0) { val[i] = fl > 0.25 ? 0.02 : 0.16; chn[i] = 0; gly[i] = fl > 0.25 ? 0 : code; }
+    if (this.bolt && fl > 0.3) { const p = this.bolt; for (let k = 0; k < p.length - 1; k++) S.lineUV(p[k][0], p[k][1], p[k + 1][0], p[k + 1][1], 1, 3, true); }
+    for (const d of this.drops) {
+      d.y += d.sp * dt * rows * 0.9; d.x -= d.sp * dt * rows * 0.45;
+      if (d.y > rows) { d.y -= rows + 2; d.x = this.r() * cols * 1.3; }
+      if (d.x < 0) d.x += cols * 1.3;
+      S.plot(d.x, d.y, 47, 0.3 + fl * 0.5, 2, true);
+    }
+  }
+};
+
+const web = {
+  name: "The Web", note: "the spider comes down at midnight", bg: "#05060c",
+  pal: [[[10, 10, 16], [92, 96, 116], [192, 196, 216], [246, 248, 255]],
+        [[26, 0, 4], [112, 12, 22], [222, 32, 42], [255, 122, 112]],
+        [[10, 20, 30], [122, 182, 212], [232, 250, 255]],
+        [[5, 6, 14], [26, 30, 62], [62, 72, 122]]],
+  init(S) {
+    const r = rng(21); this.N = 15; this.ang = []; for (let k = 0; k < this.N; k++) this.ang.push(k / this.N * TAU + (r() - 0.5) * 0.25);
+    this.jit = [...Array(50)].map(() => [...Array(this.N)].map(() => r()));
+    this.dew = [...Array(46)].map(() => ({ j: 2 + (r() * 30 | 0), k: r() * this.N | 0, f: r(), ph: r() * TAU }));
+    this.cx = -S.A * (S.A > 1 ? 0.1 : 0.02); this.cy = -0.04;
+  },
+  frame(S, t) {
+    const { n, U, V, val, chn, A } = S, N = this.N, cx = this.cx, cy = this.cy;
+    for (let i = 0; i < n; i++) { const u = U[i], v = V[i]; val[i] = 0.03 + 0.24 * Math.exp(-Math.hypot(u - A * 0.42, v + 0.44) * 3) + 0.05 * fbm(u * 2 + t * 0.02, v * 2, 3); chn[i] = 3; }
+    const sx = 0.012 * Math.sin(t * 0.6), sy = 0.006 * Math.sin(t * 0.83);
+    const P = (rad, k) => { const a = this.ang[k % N]; return [cx + Math.cos(a) * rad + sx * rad * 2, cy + Math.sin(a) * rad + sy * rad * 2 + 0.03 * rad * rad]; };
+    const glint = a => Math.pow(Math.max(0, Math.cos(a - t * 0.35)), 24);
+    for (let k = 0; k < N; k++) { const a = P(0.012, k), b = P(1.4, k); S.lineUV(a[0], a[1], b[0], b[1], 0.3 + 0.5 * glint(this.ang[k]), 0); }
+    const ring = j => 0.04 + j * 0.026 + j * j * 0.0006;
+    for (let j = 0; j < 46; j++) {
+      const rad = ring(j); if (rad > 1.3) break;
+      for (let k = 0; k < N; k++) {
+        if (this.jit[j][k] < 0.05) continue;
+        const p0 = P(rad * (1 + 0.05 * (this.jit[j][k] - 0.5)), k), p1 = P(rad * (1 + 0.05 * (this.jit[j][(k + 1) % N] - 0.5)), k + 1);
+        const mu = (p0[0] + p1[0]) / 2, mv = (p0[1] + p1[1]) / 2 + 0.004 + rad * 0.012;
+        const bri = 0.26 + 0.6 * glint(Math.atan2(mv - cy, mu - cx));
+        S.lineUV(p0[0], p0[1], mu, mv, bri, 0); S.lineUV(mu, mv, p1[0], p1[1], bri, 0);
+      }
+    }
+    for (const d of this.dew) { const rad = ring(d.j), a = P(rad, d.k), b = P(rad, d.k + 1), tw = 0.5 + 0.5 * Math.sin(t * 2.5 + d.ph); const p = S.toCell(mix(a[0], b[0], d.f), mix(a[1], b[1], d.f) + 0.004); S.plot(p[0], p[1], tw > 0.7 ? 79 : 111, 0.5 + 0.5 * tw, 2, true); }
+    // spider, head down on its dragline
+    const e = 0.5 - 0.5 * Math.cos(t * 0.24), us = cx, ys = mix(-0.44, cy - 0.07, e), moving = Math.abs(Math.sin(t * 0.24));
+    const top = S.toCell(us, -0.52), att = S.toCell(us, ys - 0.082); S.line(top[0], top[1], att[0], att[1], 0.42, 0, true);
+    for (let side = -1; side <= 1; side += 2) for (let k = 0; k < 4; k++) {
+      const th = -1.15 + k * 0.6 + 0.09 * Math.sin(t * 7 + k * 1.7 + side) * (0.3 + moving);
+      const kx = us + side * Math.cos(th) * 0.05, ky = ys + Math.sin(th) * 0.05 - 0.02;
+      const th2 = th + 0.95, fx = kx + side * Math.cos(th2) * 0.055, fy = ky + Math.sin(th2) * 0.055;
+      S.lineUV(us, ys, kx, ky, 0.5, 1, true); S.lineUV(kx, ky, fx, fy, 0.45, 1, true);
+    }
+    const a0 = S.toCell(us - 0.04, ys - 0.1), a1 = S.toCell(us + 0.04, ys + 0.03);
+    for (let rr = Math.max(0, Math.floor(a0[1])); rr <= Math.min(S.rows - 1, Math.ceil(a1[1])); rr++) for (let cc = Math.max(0, Math.floor(a0[0])); cc <= Math.min(S.cols - 1, Math.ceil(a1[0])); cc++) {
+      const i = rr * S.cols + cc, ex = (U[i] - us) / 0.032, ey = (V[i] - (ys - 0.042)) / 0.042;
+      if (ex * ex + ey * ey < 1) { val[i] = (Math.abs(ey) < 0.6 && Math.abs(ex) < 0.42 * Math.abs(ey) + 0.06) ? 0.95 : 0.36 + 0.1 * (-ex - ey); chn[i] = 1; S.gly[i] = 0; }
+      else if (Math.hypot(U[i] - us, V[i] - ys) < 0.021) { val[i] = 0.32; chn[i] = 1; S.gly[i] = 0; }
+    }
+    const ey_ = S.toCell(us, ys + 0.013); S.plot(ey_[0] - 0.6, ey_[1], 46, 1, 1, true); S.plot(ey_[0] + 0.6, ey_[1], 46, 1, 1, true);
+  }
+};
+
+const catacombs = {
+  name: "The Catacombs", note: "keep walking. don't look at the dark end.", bg: "#060404",
+  pal: [[[10, 8, 8], [72, 60, 52], [152, 132, 112], [216, 202, 182]],
+        [[30, 8, 0], [172, 72, 12], [255, 172, 52], [255, 242, 192]],
+        [[30, 0, 0], [202, 22, 22], [255, 92, 82]]],
+  init() {},
+  frame(S, t) {
+    const { n, U, V, val, chn, gly } = S;
+    const cx = 0.06 * Math.sin(t * 0.4), cy = 0.04 * Math.sin(t * 0.29 + 1);
+    const flk = (k, s) => 0.75 + 0.25 * n1(t * 9 + k * 7.3 + s * 3.1);
+    for (let i = 0; i < n; i++) {
+      const du = U[i] - cx, dv = V[i] - cy, ad = Math.abs(du), av = Math.abs(dv);
+      const r = mix(Math.hypot(du, dv), Math.sqrt(Math.sqrt(ad ** 4 + av ** 4)), 0.5), a = Math.atan2(dv, du);
+      const z = 0.32 / Math.max(r, 0.002), tv = z + t * 1.1, tu = (a / TAU + 0.5) * 20;
+      const fog = Math.exp(-z * 0.22);
+      const row = Math.floor(tv * 2.5), bxf = tu + (row & 1) * 0.5, bx = bxf - Math.floor(bxf), by = tv * 2.5 - row;
+      let s = (bx < 0.07 || by < 0.1) ? 0.16 : 0.48 + 0.3 * hash2(Math.floor(bxf), row) + 0.14 * (n2(tu * 3, tv * 8) - 0.5);
+      if (tv / 3 - Math.floor(tv / 3) < 0.06) s = 0.85;
+      let light = 0, flame = 0;
+      const kk = Math.round((tv - 1.5) / 3);
+      for (let k = kk - 1; k <= kk + 1; k++) {
+        const dtv = tv - (k * 3 + 1.5);
+        for (let side = 0; side < 2; side++) {
+          let da = a - (side ? Math.PI : 0); da = Math.atan2(Math.sin(da), Math.cos(da));
+          const f = flk(k, side); light += f * Math.exp(-(dtv * dtv * 0.9 + da * da * 1.8));
+          const up = side ? da : -da;
+          if (up > 0 && up < 0.26 && Math.abs(dtv) < 0.06 * (1 - up / 0.26) * (0.8 + 0.4 * n1(t * 14 + k + side))) flame = Math.max(flame, (1 - up / 0.3) * f);
+          if (up < 0 && up > -0.09 && Math.abs(dtv) < 0.015) flame = -1;
+        }
+      }
+      let b = s * fog * (0.16 + 1.5 * light), c = light > 0.3 ? 1 : 0;
+      if (flame > 0) { b = Math.max(b, (0.4 + 0.6 * flame) * Math.min(1, fog * 3)); c = 1; } else if (flame < 0) b = 0.04;
+      val[i] = Math.min(1, b); chn[i] = c;
+    }
+    const ph = t % 17;
+    if (ph > 9 && ph < 14 && Math.abs(Math.sin(ph * 2.1)) > 0.12) { const p = S.toCell(cx, cy + 0.012); S.plot(p[0] - 1, p[1], 111, 0.95, 2, true); S.plot(p[0] + 1, p[1], 111, 0.95, 2, true); }
+  }
+};
+
+// ---------- classic horror films ----------
+function sdSeg(px, py, ax, ay, bx, by, r) { const ex = bx - ax, ey = by - ay, qx = px - ax, qy = py - ay, h = clamp((qx * ex + qy * ey) / (ex * ex + ey * ey), 0, 1); return Math.hypot(qx - ex * h, qy - ey * h) - r; }
+// old-film look: grain, gate flicker, scratches, iris vignette
+function filmFX(S, t, amt) {
+  const { n, U, V, val, cols, A } = S, fr = Math.floor(t * 24), flick = 0.9 + 0.1 * n1(t * 11);
+  const s1 = hash2(fr, 3) < 0.5 ? (hash2(fr, 5) * cols) | 0 : -1, s2 = hash2(fr, 7) < 0.25 ? (hash2(fr, 9) * cols) | 0 : -1;
+  for (let i = 0; i < n; i++) {
+    const c = i % cols; let b = val[i] * flick + (hash2(i + fr * 131, fr) - 0.5) * 0.09 * amt;
+    if (c === s1) b = b * 0.45; else if (c === s2) b = b + 0.25;
+    b *= 1 - 0.75 * sstep(0.32, 0.72, Math.hypot(U[i] / Math.max(1, A) * 1.1, V[i]));
+    val[i] = clamp(b, 0, 1);
+  }
+}
+
+const hallway = {
+  name: "The Hallway", note: "come play with us. forever, and ever, and ever.", bg: "#070403",
+  pal: [[[20, 8, 2], [150, 60, 12], [232, 112, 30], [255, 182, 92]],
+        [[14, 3, 2], [92, 16, 10], [172, 32, 22], [222, 72, 52]],
+        [[14, 12, 8], [110, 98, 74], [205, 190, 150], [245, 236, 205]],
+        [[8, 10, 16], [82, 112, 152], [172, 202, 236], [236, 246, 255]]],
+  init() {},
+  frame(S, t) {
+    const { n, U, V, val, chn } = S, cyc = 26, ph = t % cyc, loop = Math.floor(t / cyc);
+    const camZ = ph * 0.2, camX = 0.04 * Math.sin(t * 0.5), h = 0.3, ceil = 1.9, w = 0.75, endZ = 8.2;
+    const fade = sstep(0, 1.2, ph) * sstep(cyc, cyc - 1.2, ph);
+    const twins = loop % 2 === 1 && ph > 9 && !(ph > 17 && ph < 17.25) && !(ph > 21 && ph < 21.15);
+    const r3 = Math.sqrt(3);
+    for (let i = 0; i < n; i++) {
+      const dx = U[i], dy = -V[i];
+      const tF = dy < 0 ? h / -dy : 1e9, tC = dy > 0 ? (ceil - h) / dy : 1e9;
+      const tW = dx > 0 ? (w - camX) / dx : dx < 0 ? (-w - camX) / dx : 1e9, tE = endZ - camZ;
+      const tm = Math.min(tF, tC, tW, tE), x = camX + dx * tm, y = h + dy * tm, z = camZ + tm;
+      const lampZ = Math.round((z - 1) / 2) * 2 + 1, light = 0.5 + 0.65 * Math.exp(-(z - lampZ) * (z - lampZ) * 0.8);
+      let b, c;
+      if (tm === tF) {
+        const px = x * 2.4, pz = z * 2.4;
+        const ax = ((px % 1) + 1) % 1 - 0.5, az = ((pz % r3) + r3) % r3 - r3 / 2;
+        const bx = (((px - 0.5) % 1) + 1) % 1 - 0.5, bz = (((pz - r3 / 2) % r3) + r3) % r3 - r3 / 2;
+        const g = ax * ax + az * az < bx * bx + bz * bz ? [ax, az] : [bx, bz];
+        const hd = Math.max(Math.abs(g[0]) * 0.5 + Math.abs(g[1]) * 0.866, Math.abs(g[0]));
+        if (hd < 0.15) { b = 0.78; c = 0; } else if (hd < 0.25) { b = 0.32; c = 1; } else if (hd < 0.37) { b = 0.7; c = 1; } else if (hd < 0.43) { b = 0.3; c = 1; } else { b = 0.86; c = 0; }
+      } else if (tm === tW) {
+        c = 2; b = y < 0.55 ? 0.36 + (Math.abs(y - 0.53) < 0.02 ? 0.25 : 0) : 0.62;
+        const dz = ((z - 1.5) % 3 + 3) % 3;
+        if (dz < 0.5 && y < 1.32) { b = (dz < 0.04 || dz > 0.46 || y > 1.28) ? 0.5 : 0.24; c = 1; if (Math.abs(dz - 0.42) < 0.03 && Math.abs(y - 0.6) < 0.03) { b = 0.9; c = 0; } }
+      } else if (tm === tC) { b = 0.28; c = 2; if (Math.abs(z - lampZ) < 0.12 && Math.abs(x) < 0.18) b = 1; }
+      else { b = 0.5; c = 2; }
+      b *= Math.exp(-tm * 0.17) * light;
+      if (twins) {
+        const tz = endZ - 0.45 - camZ;
+        if (tz > 0 && tz < tm) {
+          const qx = camX + dx * tz, qy = h + dy * tz;
+          for (const xc of [-0.15, 0.15]) {
+            const lx = qx - xc;
+            const head = Math.hypot(lx, qy - 1.02) < 0.085, dress = qy > 0.28 && qy < 0.88 && Math.abs(lx) < 0.085 + (0.88 - qy) * 0.16;
+            const legs = qy <= 0.28 && qy > 0 && (Math.abs(lx - 0.035) < 0.018 || Math.abs(lx + 0.035) < 0.018);
+            const hand = Math.abs(qy - 0.56) < 0.025 && Math.abs(qx) < 0.15;
+            if (head || dress || legs || hand) { b = (head ? 0.62 : dress ? 0.7 : 0.55) * Math.exp(-tz * 0.12) * 1.2; c = 3; }
+          }
+        }
+      }
+      val[i] = b * fade; chn[i] = c;
+    }
+  }
+};
+
+const tape = {
+  name: "The Tape", note: "seven days", bg: "#030405",
+  pal: [[[8, 10, 12], [92, 102, 106], [192, 202, 202], [246, 250, 250]],
+        [[10, 9, 8], [62, 56, 50], [122, 112, 100]],
+        [[4, 8, 12], [30, 62, 92], [82, 132, 172]],
+        [[6, 6, 8], [30, 30, 36], [62, 62, 72]]],
+  init() {},
+  image(sx, sy, f) {
+    let b = sy < 0.05 ? 0.62 - 0.25 * sy : 0.46 - 0.12 * sy + 0.08 * (n2(sx * 14, sy * 30) - 0.5);
+    if (sy < 0.05 && sy > 0.05 - (0.12 + 0.28 * fbm(sx * 3 + 4, 1.3, 3))) b = 0.08;
+    const wx = sx / 0.32, top = (wx * wx + ((sy - 0.36) / 0.07) ** 2);
+    const inWell = Math.abs(wx) < 1 && sy > 0.36 && sy < 0.64;
+    if (inWell) { const row = Math.floor((sy - 0.36) / 0.045); b = 0.36 + 0.18 * hash2(Math.floor(sx * 9 + row * 0.5), row) - ((sy - 0.36) % 0.045 < 0.008 ? 0.12 : 0); }
+    if (top < 1) b = top > 0.62 ? 0.75 : 0.03;
+    const fe = clamp(f / 0.35, 0, 1), fw = clamp((f - 0.35) / 0.6, 0, 1), s = mix(0.2, 1.7, fw * fw);
+    const fx = 0.02 * Math.sin(f * 30) * fw, fy = fw > 0 ? mix(0.34, 1.9, fw * fw) : 0.34 + (1 - fe) * 0.24;
+    const lx = (sx - fx) / s, ly = (sy - fy) / s;
+    if (fw > 0 || sy < 0.36) {
+      const hair = ly > -1 && ly < -0.52 && Math.abs(lx) < 0.12 + 0.02 * Math.sin(ly * 40);
+      const dress = ly >= -0.75 && ly < 0 && Math.abs(lx) < 0.1 + 0.1 * (ly + 0.75);
+      const arm = ly > -0.72 && ly < -0.32 && (Math.abs(lx - 0.17) < 0.028 || Math.abs(lx + 0.17) < 0.028);
+      if (hair) b = 0.03; else if (dress) b = 0.85; else if (arm) b = 0.7;
+    }
+    return b;
+  },
+  frame(S, t) {
+    const { n, U, V, val, chn, cols, A } = S, cyc = 26, ph = t % cyc, fr = Math.floor(t * 30);
+    const sw = Math.min(0.42, A * 0.4), sh = sw * 0.75, cy = -0.03;
+    const noise = ph < 4 ? 1 : ph < 6 ? mix(1, 0.12, (ph - 4) / 2) : ph > 24.6 ? 1 : 0.12 + (ph > 22.5 ? (ph - 22.5) * 0.25 : 0);
+    const glitch = (hash2(fr, 11) < 0.06 ? 1 : 0) + (ph > 21 ? 0.6 : 0), roll = (t * 0.13) % 1, f = clamp((ph - 5) / 19, 0, 1);
+    for (let i = 0; i < n; i++) {
+      const u = U[i], v = V[i];
+      let b = 0.03, c = 3;
+      const glow = 0.3 * Math.exp(-(u * u * 6 + (v - sh - 0.12) ** 2 * 60)) * (v > cy + sh + 0.06 ? 1 : 0) + 0.15 * Math.exp(-(u * u + (v - cy) ** 2) * 6);
+      if (glow > b) { b = glow; c = 2; }
+      const bd = sdBox(u, v - cy, sw + 0.05, sh + 0.05) - 0.03;
+      if (bd < 0) { b = 0.14 + 0.1 * sstep(-0.015, 0, bd) + 0.04 * hash2(i, 1); c = 1; }
+      let sx = u / sw, sy = (v - cy) / sh; const r2 = sx * sx + sy * sy; sx *= 1 + 0.07 * r2; sy *= 1 + 0.07 * r2;
+      sx += (n1(sy * 9 + t * 25) - 0.5) * 0.08 * glitch;
+      if (Math.abs(sx) < 1 && Math.abs(sy) < 1 && sdBox(sx, sy, 0.94, 0.92) < 0.06) {
+        const st = hash2(i * 7 + fr * 131, fr * 3 + (i % cols));
+        let p = this.image(sx, sy, f);
+        p = mix(p, 0.15 + 0.75 * st, noise);
+        if (((i / cols) | 0) % 2) p *= 0.78;
+        const rb = ((sy * 0.5 + 0.5 - roll) % 1 + 1) % 1; if (rb < 0.07) p += 0.12;
+        b = clamp(p * (1 - 0.3 * r2), 0, 1); c = 0;
+      }
+      val[i] = b; chn[i] = c;
+    }
+  }
+};
+
+const nosferatu = {
+  name: "The Stairwell", note: "a shadow climbs the stairs", bg: "#080604",
+  pal: [[[10, 7, 4], [92, 68, 42], [192, 162, 116], [250, 236, 202]],
+        [[8, 6, 3], [60, 44, 28], [130, 108, 78]]],
+  init() {},
+  shape(x, y, t, step) {
+    const lx = x + y * 0.18;
+    const coat = (Math.hypot(lx / 0.13, (y + 0.48) / 0.45) - 1) * 0.13;
+    const head = Math.hypot(lx - 0.03, y + 0.95) - 0.072;
+    const ear = sdTri(lx, y, -0.03, -0.97, 0.02, -0.97, -0.04, -1.08);
+    const nose = sdTri(lx, y, 0.09, -0.98, 0.16, -0.92, 0.09, -0.9);
+    const hy = -0.82 + 0.03 * Math.sin(t * 0.8), hx = 0.37;
+    let d = Math.min(coat, head, ear, nose, sdSeg(lx, y, 0.04, -0.76, hx, hy, 0.028));
+    for (let k = 0; k < 4; k++) { const fx = hx + 0.15, fy = hy - 0.04 + k * 0.03; d = Math.min(d, sdSeg(lx, y, hx, hy, fx, fy, 0.009), sdSeg(lx, y, fx, fy, fx + 0.05, fy + 0.035, 0.006)); }
+    const sw = Math.sin(step);
+    d = Math.min(d, sdSeg(x, y, 0, -0.1, 0.07 * sw, 0, 0.022), sdSeg(x, y, 0, -0.1, -0.07 * sw, 0, 0.022));
+    return d;
+  },
+  frame(S, t) {
+    const { n, U, V, val, chn, A } = S, cyc = 19, p = ((t + 5) % cyc) / cyc;
+    const x0 = -A / 2 - 0.3, y0 = 0.44, x1 = A / 2 + 0.3, y1 = -0.2, slope = (y1 - y0) / (x1 - x0);
+    const stair = u => y0 + (u - x0) * slope;
+    const fu = mix(x0, x1, p), fv = stair(fu) - 0.012 * Math.abs(Math.sin(p * Math.PI * 16)), sc = 0.6, step = p * Math.PI * 16;
+    const lu = -A * 0.38, lv = 0.36;
+    for (let i = 0; i < n; i++) {
+      const u = U[i], v = V[i], sv = stair(u);
+      let b = (0.3 + 0.62 * Math.exp(-Math.hypot(u - lu, v - lv) * 0.85)) * (0.92 + 0.12 * fbm(u * 6, v * 6, 3)), c = 0;
+      if (v > sv + 0.01) { const sx = ((u / 0.07) % 1 + 1) % 1; b *= 0.55 * (sx < 0.12 ? 0.6 : 1) * (v - sv < 0.03 ? 1.25 : 1); c = 1; }
+      let shade = 1;
+      const rv = sv - 0.24;
+      shade = Math.min(shade, sstep(0.004, 0.016, Math.abs(v - rv)));
+      if (v > rv && v < sv) { const bx = ((u / 0.055) % 1 + 1) % 1; shade = Math.min(shade, 0.35 + 0.65 * sstep(0.06, 0.16, Math.abs(bx - 0.5) * 2)); }
+      const x = (u - fu) / sc, y = (v - fv) / (sc * 1.18);
+      if (x > -0.4 && x < 0.8 && y > -1.15 && y < 0.05) shade = Math.min(shade, sstep(-0.01, 0.035, this.shape(x, y, t, step)));
+      b *= 0.14 + 0.86 * shade;
+      val[i] = b; chn[i] = c;
+    }
+    filmFX(S, t, 1);
+  }
+};
+
+const lab = {
+  name: "The Laboratory", note: "it's alive", bg: "#040608",
+  pal: [[[10, 14, 24], [92, 132, 222], [192, 216, 255], [255, 255, 255]],
+        [[14, 8, 4], [112, 62, 30], [202, 122, 62], [255, 192, 122]],
+        [[5, 10, 10], [26, 62, 64], [62, 122, 122], [112, 182, 176]],
+        [[6, 6, 8], [30, 30, 38], [72, 72, 86]]],
+  init() { this.r = rng(77); this.bolt = null; this.life = 0; this.next = 1.2; this.flash = 0; },
+  gen(x0, y0, x1, y1, disp, depth, out) {
+    if (depth === 0) { out.push([x0, y0, x1, y1]); return; }
+    const r = this.r, mx = (x0 + x1) / 2, my = (y0 + y1) / 2, dx = x1 - x0, dy = y1 - y0, l = Math.hypot(dx, dy) || 1;
+    const ox = mx - dy / l * (r() - 0.5) * disp, oy = my + dx / l * (r() - 0.5) * disp;
+    this.gen(x0, y0, ox, oy, disp / 2, depth - 1, out); this.gen(ox, oy, x1, y1, disp / 2, depth - 1, out);
+    if (depth >= 3 && r() < 0.4) { const a = Math.atan2(dy, dx) + (r() - 0.5) * 1.6; this.gen(ox, oy, ox + Math.cos(a) * l * 0.35, oy + Math.sin(a) * l * 0.35, disp / 3, depth - 2, out); }
+  },
+  frame(S, t, dt) {
+    const { n, U, V, val, chn, A } = S, r = this.r, cx = Math.min(0.42, A * 0.38);
+    const a = (t / 2.6) % 1, ay = mix(0.27, -0.15, Math.pow(a, 1.3)), xr = mix(0.025, 0.16, (0.32 - ay) / 0.5);
+    if (t > this.next) { this.life = 0.45; this.next = t + 0.9 + r() * 2.4; this.flash = reduce ? 0.4 : 1; this.side = r() < 0.5 ? 1 : -1; this.tgt = r(); }
+    this.life -= dt; this.flash *= Math.exp(-dt * 6); const fl = this.flash;
+    const arcG = 0.55 + 0.25 * n1(t * 30);
+    for (let i = 0; i < n; i++) {
+      const u = U[i], v = V[i];
+      const G = arcG * Math.exp(-Math.hypot(u, (v - ay) * 1.1) * 2.1);
+      let b = 0.1 + G * 1.0 + 0.08 * fbm(u * 4, v * 4, 3) + fl * 0.35 * (1 - Math.abs(v)), c = 2;
+      const hd = sdBox(u, v + 0.31, 0.11, 0.11) - 0.015, neck = sdBox(u, v + 0.16, 0.07, 0.06), bolt = sdBox(Math.abs(u) - 0.13, v + 0.25, 0.025, 0.012);
+      const sh = v > -0.12 && Math.abs(u) < Math.min(0.36, 0.12 + (v + 0.12) * 3);
+      if (hd < 0 || neck < 0 || bolt < 0 || sh) { b = 0.015 + (hd > -0.012 && hd < 0 ? G * 0.35 : 0); c = 3; if (fl > 0.4 && Math.abs(v + 0.3) < 0.012 && Math.abs(Math.abs(u) - 0.045) < 0.012) { b = 0.7; c = 0; } }
+      if (Math.abs(u) < 0.2 && v > 0.32 && v < 0.4) { b = 0.3; c = 1; }
+      for (const s of [-1, 1]) {
+        const ux = u - s * cx;
+        if (Math.abs(ux) < 0.04 && v > -0.02 && v < 0.4) { b = 0.3 + 0.35 * (((v * 90) | 0) % 2) * (0.5 + G); c = 1; }
+        if (Math.hypot(ux, v + 0.06) < 0.06) { b = 0.35 + 0.4 * sstep(0.06, 0, Math.hypot(ux + 0.02, v + 0.08)) + fl * 0.3; c = 1; }
+      }
+      val[i] = b; chn[i] = c;
+    }
+    S.lineUV(-0.025, 0.32, -0.16, -0.18, 0.62, 1, true); S.lineUV(0.025, 0.32, 0.16, -0.18, 0.62, 1, true);
+    const N = 10; let px = -xr, py = ay;
+    for (let k = 1; k <= N; k++) { const q = k / N, x = mix(-xr, xr, q), y = ay - 0.035 * Math.sin(Math.PI * q) * (1 + a) + (k < N ? (n1(k * 3.7 + t * 24) - 0.5) * 0.04 : 0); S.lineUV(px, py, x, y, 1, 0, true); px = x; py = y; }
+    if (this.life > 0) {
+      const out = [], sx = this.side * cx, ex = this.tgt < 0.5 ? -sx : sx * 0.2 + (this.tgt - 0.5) * 0.4, ey = this.tgt < 0.5 ? -0.06 : -0.48;
+      this.gen(sx, -0.06, ex, ey, 0.18, 6, out);
+      for (const sg of out) S.lineUV(sg[0], sg[1], sg[2], sg[3], 0.7 + 0.3 * (this.life / 0.45), 0, true);
+    }
+  }
+};
+
+const drain = {
+  name: "The Drain", note: "we all go a little mad sometimes", bg: "#050505",
+  pal: [[[8, 8, 9], [96, 99, 104], [196, 200, 206], [250, 252, 255]],
+        [[12, 2, 2], [82, 8, 8], [152, 18, 16], [202, 42, 36]],
+        [[8, 8, 8], [82, 82, 84], [162, 162, 167], [236, 236, 240]],
+        [[4, 4, 5], [26, 26, 29], [56, 56, 62]]],
+  init() {},
+  frame(S, t) {
+    const { n, U, V, val, chn, gly } = S, cyc = 22, ph = t % cyc;
+    const e = sstep(11, 14, ph) * (1 - sstep(19, 21.5, ph)), rot = -t * 0.25, cr = Math.cos(rot), sr = Math.sin(rot);
+    for (let i = 0; i < n; i++) {
+      const x = U[i] * cr - V[i] * sr, y = U[i] * sr + V[i] * cr, r = Math.hypot(x, y), a = Math.atan2(y, x);
+      let db, dc = 0;
+      const lr = Math.log(r + 0.02);
+      const rip = Math.sin(r * 40 - t * 6) * 0.004, gx = ((x + rip) / 0.13 % 1 + 1) % 1, gy = ((y + rip) / 0.13 % 1 + 1) % 1;
+      db = (0.42 + 0.28 * Math.sin(a * 5 + lr * 9 + t * 3.2) * sstep(0.02, 0.2, r) + 0.12 * (fbm(x * 6, y * 6 - t * 0.3, 3) - 0.5)) * ((gx < 0.05 || gy < 0.05) ? 0.7 : 1) * (0.55 + 0.45 * sstep(0.06, 0.3, r));
+      if (Math.sin(a * 3 + lr * 7 + t * 3.2 + 1.3) > 0.82 && r < 0.42 && r > 0.07) { db = 0.5 + 0.3 * sstep(0.42, 0.1, r); dc = 1; }
+      if (r < 0.07) { if (r > 0.056) { db = 0.7; dc = 0; } else { db = Math.sin(a * 6) > 0.3 || r < 0.012 ? 0.03 : 0.48; dc = 0; } }
+      let eb = 0.2 + 0.1 * Math.abs(Math.sin(y * 90 + x * 10)) * sstep(0.2, 0.5, r), ec = 2;
+      const hh = 0.32 * (1 - (x / 0.78) ** 2);
+      if (Math.abs(x) < 0.78 && Math.abs(y) < hh) {
+        if (r < 0.17) { eb = r < 0.06 ? 0.02 : (0.38 + 0.3 * (0.5 + 0.5 * Math.cos(a * 26 + 3 * n2(a * 4, 2)))) * (r > 0.145 ? 0.55 : 1); }
+        else eb = 0.74 - 0.38 * (y / hh) ** 2;
+        if (Math.hypot(x + 0.06, y + 0.07) < 0.025) eb = 1;
+      } else if (Math.abs(x) < 0.8 && Math.abs(y) - hh < 0.025) eb = 0.06;
+      val[i] = mix(db, eb, e); chn[i] = e > 0.5 ? ec : dc;
+    }
+    if (e < 0.4) for (let k = 0; k < 7; k++) { const fr = Math.floor(t * 12); const p = S.toCell((hash2(fr, k) - 0.5) * S.A, hash2(k, fr) - 0.5); S.plot(p[0], p[1], k % 2 ? 46 : 111, 0.75 * (1 - e * 2), 0, true); }
+  }
+};
+
+const streetlamp = {
+  name: "The Streetlamp", note: "a visitor waits in the fog", bg: "#04050a",
+  pal: [[[6, 8, 14], [72, 80, 94], [172, 176, 182], [246, 240, 226]],
+        [[10, 8, 4], [122, 98, 52], [232, 202, 122], [255, 246, 202]],
+        [[6, 6, 10], [42, 42, 54], [92, 92, 112]],
+        [[3, 4, 10], [18, 22, 40], [40, 48, 82]]],
+  init(S) {
+    const r = rng(41), A = S.A; this.mask = new Uint8Array(S.n); this.twigs = new Map();
+    const tu = -A / 2 + 0.04; growTree(S, this.mask, this.twigs, tu, 0.34, -Math.PI / 2 - 0.12, 0.17, 0.018, 7, r);
+  },
+  frame(S, t) {
+    const { n, U, V, val, chn, gly, A } = S, m = this.mask;
+    const lu = -A * 0.18, lv = -0.27, hx = A * 0.14, wu = hx + Math.min(0.12, A * 0.1), wv = -0.24, gr = 0.33;
+    const bdx = -0.88, bdy = 0.48, mu = lu + 0.1;
+    const lf = 0.9 + 0.1 * n1(t * 3) - (hash2(Math.floor(t * 20), 4) < 0.02 ? 0.4 : 0), bf = 0.75 + 0.25 * n1(t * 0.6 + 3);
+    for (let i = 0; i < n; i++) {
+      const u = U[i], v = V[i];
+      const fog = fbm(u * 2 + t * 0.04, v * 3 + t * 0.01, 4);
+      let b = 0.04 + 0.16 * fog * sstep(0.5, -0.3, v), c = 3;
+      const ru = u - lu, rv = v - lv;
+      const cone = rv > 0 ? sstep(0.5, 0.28, Math.atan2(Math.abs(ru), rv)) * Math.exp(-rv * 1.4) : 0;
+      const L = (cone * 0.75 + 0.7 * Math.exp(-Math.hypot(ru, rv) * 11)) * lf * (0.45 + fog * 0.9);
+      const qu = u - wu, qv = v - wv, al = qu * bdx + qv * bdy, pp = Math.abs(qu * bdy - qv * bdx), wd = 0.03 + al * 0.2;
+      const Bm = al > 0 ? sstep(wd, wd * 0.4, pp) * Math.exp(-al * 0.9) * bf * (0.45 + fog * 0.95) : 0;
+      if (L > 0.05) { b += L; c = 0; }
+      if (Bm > L && Bm > 0.05) { b += Bm; c = 1; }
+      if (v > gr) { b = 0.05 + 0.4 * Math.exp(-(u - lu) * (u - lu) * 40) * sstep(gr, gr + 0.2, v) * lf * (0.6 + 0.4 * n2(u * 30, v * 8)) + 0.25 * Math.exp(-(u - wu) * (u - wu) * 30) * sstep(gr, gr + 0.15, v) * bf * 0.6; c = 0; }
+      if (u > hx && v < gr) {
+        b = u - hx < 0.008 ? 0.14 : 0.025; c = 2;
+        if (Math.abs(u - wu) < 0.04 && Math.abs(v - wv) < 0.055) { b = (Math.abs(u - wu) < 0.004 || Math.abs(v - wv) < 0.005) ? 0.3 : 0.95; c = 1; }
+        if (Math.abs(u - wu) < 0.04 && Math.abs(v - 0.12) < 0.055) { b = 0.06; c = 2; }
+      }
+      if (Math.abs(u - lu) < 0.006 && v > lv && v < gr) { b = 0.02; c = 3; }
+      if (Math.abs(u - lu) < 0.022 - (v - lv + 0.02) * 0.4 && v > lv - 0.025 && v < lv) { b = 1; c = 0; }
+      const mx = u - mu, my = v - gr;
+      if ((my > -0.27 && my < -0.24 && Math.abs(mx) < 0.024) || (my >= -0.24 && my < -0.225 && Math.abs(mx) < 0.04) || (my >= -0.225 && my < -0.19 && Math.abs(mx) < 0.017) || (my >= -0.19 && my < 0 && Math.abs(mx) < 0.032 + (my + 0.19) * 0.12) || (my > -0.06 && my < -0.01 && mx > 0.04 && mx < 0.075)) { b = 0.01; c = 3; }
+      if (m[i]) b = 0.015;
+      val[i] = b; chn[i] = c;
+    }
+    for (const [i, code] of this.twigs) { val[i] = 0.04; chn[i] = 2; gly[i] = code; }
+  }
+};
+
+const birds = {
+  name: "The Birds", note: "they keep gathering", bg: "#0b0c0f",
+  pal: [[[12, 13, 16], [92, 97, 106], [176, 181, 187], [228, 230, 232]],
+        [[4, 4, 6], [16, 16, 20], [30, 30, 36]],
+        [[10, 10, 12], [50, 52, 58], [96, 99, 106]]],
+  init(S) {
+    const r = this.r = rng(55), A = S.A;
+    this.poles = []; for (let p = -A / 2 - 0.2; p < A / 2 + 1.2; p += 1.05) this.poles.push(p + 0.25);
+    this.wires = [[-0.12, -0.085, 0.07], [-0.12, 0.085, 0.07], [-0.04, -0.06, 0.05], [-0.04, 0.06, 0.05]];
+    this.slots = [];
+    for (let w = 0; w < 4; w++) for (let u = -A / 2 + 0.04; u < A / 2 - 0.02; u += 0.034 + r() * 0.03) this.slots.push({ w, u, dir: r() < 0.5 ? -1 : 1, from: (r() - 0.5) * 2, j: r() });
+    for (let k = this.slots.length - 1; k > 0; k--) { const j = (r() * (k + 1)) | 0; [this.slots[k], this.slots[j]] = [this.slots[j], this.slots[k]]; }
+  },
+  wireY(w, u) {
+    const [y, off, sag] = this.wires[w], p0 = this.poles[0] + off, left = p0 + Math.floor((u - p0) / 1.05) * 1.05, q = (u - left) / 1.05;
+    return y + sag * 4 * q * (1 - q);
+  },
+  frame(S, t) {
+    const { n, U, V, val, chn, gly, A } = S, cyc = 52, ph = t % cyc, land = 40;
+    for (let i = 0; i < n; i++) {
+      const u = U[i], v = V[i];
+      let b = 0.55 - 0.25 * v + 0.14 * (fbm(u * 1.2 + t * 0.02, v * 2.5, 4) - 0.5), c = 0;
+      const tl = 0.37 - 0.06 * fbm(u * 5, 0.2, 3); if (v > tl) { b = 0.07; c = 2; }
+      for (const p of this.poles) { const du = u - p; if ((Math.abs(du) < 0.008 && v > -0.16 && v < tl) || (Math.abs(v + 0.12) < 0.006 && Math.abs(du) < 0.1) || (Math.abs(v + 0.04) < 0.006 && Math.abs(du) < 0.075)) { b = 0.05; c = 2; } }
+      val[i] = b; chn[i] = c;
+    }
+    for (let w = 0; w < 4; w++) { let pu = -A / 2 - 0.05, pv = this.wireY(w, pu); for (let u = pu + 0.025; u < A / 2 + 0.06; u += 0.025) { const v = this.wireY(w, u); S.lineUV(pu, pv, u, v, 0.04, 1, true); pu = u; pv = v; } }
+    const count = Math.min(this.slots.length, Math.floor(Math.pow(Math.min(ph, land) / land, 1.4) * this.slots.length * 1.05));
+    const sz = 0.022, frames = ["\\v/", "-v-", "/v\\", "-v-"];
+    for (let k = 0; k < count; k++) {
+      const s = this.slots[k], bu = s.u, bv = this.wireY(s.w, s.u), arrive = Math.pow((k + 1) / (this.slots.length * 1.05), 1 / 1.4) * land;
+      const ft = ph - arrive, off = ph > land ? ph - land - s.j * 2.5 : -1;
+      if (off > 0) { const p = S.toCell(bu + s.dir * off * 0.25 + Math.sin(off * 3 + k) * 0.02, bv - off * 0.3 - off * off * 0.05); S.text(p[0], Math.round(p[1]), frames[((t * 10 + k) | 0) % 4], 0.04, 1); continue; }
+      if (ft < 1.2) { const q = 1 - ft / 1.2, p = S.toCell(bu + s.from * q * 0.6, bv - q * 0.3); S.text(p[0], Math.round(p[1]), frames[((t * 10 + k) | 0) % 4], 0.04, 1); continue; }
+      const a0 = S.toCell(bu - sz, bv - sz * 1.4), a1 = S.toCell(bu + sz, bv);
+      for (let rr = Math.max(0, Math.floor(a0[1])); rr <= Math.min(S.rows - 1, Math.ceil(a1[1])); rr++) for (let cc = Math.max(0, Math.floor(a0[0])); cc <= Math.min(S.cols - 1, Math.ceil(a1[0])); cc++) {
+        const i = rr * S.cols + cc, x = (U[i] - bu) / sz * s.dir, y = (V[i] - bv) / sz;
+        const body = ((x - 0.05) / 0.55) ** 2 + ((y + 0.5) / 0.38) ** 2 < 1, head = Math.hypot(x + 0.45, y + 0.95) < 0.24, tail = x > 0.4 && x < 0.95 && Math.abs(y + 0.25 - (x - 0.4) * 0.4) < 0.1;
+        if (body || head || tail) { val[i] = 0.012; chn[i] = 1; gly[i] = 0; }
+      }
+    }
+  }
+};
+
+const SC = [pumpkin, graveyard, cauldron, watchers, manor, ghosts, web, catacombs, hallway, tape, nosferatu, lab, drain, streetlamp, birds];
+SC.forEach(s => s.colors = buildPal(s.pal));
+
+// ---------- loop + ui ----------
+const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const speed = reduce ? 0.4 : 1;
+let scene = null, idx = 0, T = 0, last = 0, auto = true, switching = false, autoAt = 0;
+const AUTO_SECS = 50;
+const $ = id => document.getElementById(id);
+const stage = $("stage");
+try { const v = localStorage.getItem("hh-auto"); if (v !== null) auto = v === "1"; } catch (e) {}
+
+const dots = $("dots");
+SC.forEach((s, k) => { const b = document.createElement("button"); b.textContent = String(k + 1); b.setAttribute("aria-label", s.name); b.addEventListener("click", () => go(k)); dots.appendChild(b); });
+
+function show(k) {
+  idx = (k + SC.length) % SC.length; scene = SC[idx]; T = 0; autoAt = performance.now();
+  scene.init(S);
+  $("num").textContent = `No. ${idx + 1} of ${SC.length}`; $("name").textContent = scene.name; $("note").textContent = scene.note;
+  [...dots.children].forEach((b, j) => b.setAttribute("aria-current", j === idx ? "true" : "false"));
+  try { history.replaceState(null, "", "#" + scene.name.split(" ")[1].toLowerCase()); } catch (e) {}
+}
+function go(k) {
+  if (switching) return; switching = true; stage.classList.add("out");
+  setTimeout(() => { show(k); stage.classList.remove("out"); switching = false; }, 700);
+}
+function setAuto(v) { auto = v; $("auto").setAttribute("aria-pressed", String(v)); autoAt = performance.now(); try { localStorage.setItem("hh-auto", v ? "1" : "0"); } catch (e) {} }
+
+$("prev").addEventListener("click", () => go(idx - 1));
+$("next").addEventListener("click", () => go(idx + 1));
+$("auto").addEventListener("click", () => setAuto(!auto));
+$("fs").addEventListener("click", () => { try { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().catch(() => {}); } catch (e) {} });
+window.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight") go(idx + 1); else if (e.key === "ArrowLeft") go(idx - 1);
+  else if (e.key === " ") { e.preventDefault(); setAuto(!auto); }
+  else if (e.key === "f" || e.key === "F") $("fs").click();
+  else if (/^[0-9]$/.test(e.key)) { const k = e.key === "0" ? 9 : +e.key - 1; if (k < SC.length) go(k); }
+  wake();
+});
+let idleT = 0;
+function wake() { document.body.classList.remove("idle"); clearTimeout(idleT); idleT = setTimeout(() => document.body.classList.add("idle"), 2600); }
+window.addEventListener("pointermove", e => { mouse.u = (e.clientX - W / 2) / H; mouse.v = (e.clientY - H / 2) / H; mouse.at = performance.now(); wake(); });
+window.addEventListener("pointerdown", wake);
+window.addEventListener("resize", () => { clearTimeout(resize.t); resize.t = setTimeout(resize, 120); });
+try { navigator.wakeLock && navigator.wakeLock.request("screen").catch(() => {}); } catch (e) {}
+
+function loop(now) {
+  requestAnimationFrame(loop);
+  if (now - last < 1000 / 30 - 2) return;
+  const dt = Math.min(0.1, (now - last) / 1000); last = now;
+  if (S.n === 0) { if (window.innerWidth && window.innerHeight) resize(), scene.init(S); return; }
+  T += dt * speed;
+  S.val.fill(0); S.chn.fill(0); S.gly.fill(0);
+  scene.frame(S, T, dt * speed);
+  draw(scene);
+  if (auto && !switching && now - autoAt > AUTO_SECS * 1000) go(idx + 1);
+}
+
+const start = () => {
+  resize();
+  setAuto(auto);
+  const h = (location.hash || "").slice(1);
+  const k = SC.findIndex(s => s.name.split(" ")[1].toLowerCase() === h);
+  show(k >= 0 ? k : 0);
+  wake();
+  requestAnimationFrame(t => { last = t; loop(t); });
+};
+(document.fonts && document.fonts.load) ? Promise.race([document.fonts.load(`16px "IBM Plex Mono"`), new Promise(r => setTimeout(r, 1500))]).then(start, start) : start();
+})();
+</script>

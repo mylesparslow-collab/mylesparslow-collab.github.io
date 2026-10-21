@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta charset="utf-8">
+<title>Aurora Lake</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Cormorant+Garamond:ital,wght@1,400&display=swap">
+<style>
+/* Layout: one full-bleed text-mode night scene; a whisper of a caption bottom-left that fades away when the viewer is still. */
+:root {
+  color-scheme: dark;
+  --night: #03040a;
+  --frost: #dfe9f2;
+  --frost-dim: #7f8ea0;
+  --aurora: #7dffbf;
+  --f-title: "Cormorant Garamond", "Iowan Old Style", Georgia, serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+html, body { height: 100%; }
+body { margin: 0; background: var(--night); color: var(--frost); overflow: hidden; font-family: var(--f-mono);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+#c, #g, #g2 { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+#c { cursor: crosshair; touch-action: none; }
+#g { filter: blur(5px) saturate(1.4); mix-blend-mode: screen; opacity: .85; pointer-events: none; }
+#g2 { filter: blur(22px) saturate(1.6); mix-blend-mode: screen; opacity: .55; pointer-events: none; }
+.vig { position: fixed; inset: 0; pointer-events: none; background: radial-gradient(ellipse 120% 90% at 50% 40%, transparent 50%, rgba(0,0,0,.6) 100%); }
+#cap { position: fixed; left: max(22px, calc(env(safe-area-inset-left, 0px) + 18px)); bottom: calc(env(safe-area-inset-bottom, 0px) + 22px);
+  display: grid; gap: 6px; transition: opacity 1.4s ease; max-width: min(520px, calc(100vw - 44px)); }
+body.idle #cap { opacity: 0; pointer-events: none; }
+body.idle #c { cursor: none; }
+h1 { margin: 0; font: italic 400 clamp(30px, 4vw, 46px)/1 var(--f-title); letter-spacing: .02em; color: var(--frost); }
+#cap p { margin: 0; font-size: 11.5px; line-height: 1.6; color: var(--frost-dim); letter-spacing: .03em; }
+#cap button { justify-self: start; font: 500 11.5px/1 var(--f-mono); color: var(--frost); background: rgba(6,10,18,.6); border: 1px solid rgba(223,233,242,.18); border-radius: 999px; padding: 8px 13px; cursor: pointer; letter-spacing: .04em; }
+#cap button:hover { border-color: rgba(223,233,242,.4); }
+#cap button:focus-visible { outline: 1px solid var(--aurora); outline-offset: 2px; }
+#cap button[aria-pressed="true"] { color: var(--aurora); border-color: rgba(125,255,191,.45); }
+</style>
+
+<canvas id="c"></canvas><canvas id="g2"></canvas><canvas id="g"></canvas>
+<div class="vig"></div>
+<div id="cap">
+  <h1>Aurora Lake</h1>
+  <p>Move across the water to ripple it. Click to let a lantern go.<br>The light breathes six times a minute; breathe with it if you like.</p>
+  <button id="snd" aria-pressed="false">sound off</button>
+</div>
+
+<script>
+(() => {
+"use strict";
+const TAU = Math.PI * 2;
+const clamp = (x, a, b) => x < a ? a : x > b ? b : x, mix = (a, b, t) => a + (b - a) * t;
+const sstep = (a, b, x) => { x = clamp((x - a) / (b - a), 0, 1); return x * x * (3 - 2 * x); };
+const frac = x => x - Math.floor(x);
+const PERM = new Uint8Array(512);
+{ let s = 1729; const r = () => (s = (s * 16807) % 2147483647) / 2147483647, p = [...Array(256).keys()]; for (let i = 255; i > 0; i--) { const j = (r() * (i + 1)) | 0; [p[i], p[j]] = [p[j], p[i]]; } for (let i = 0; i < 512; i++) PERM[i] = p[i & 255]; }
+const hash2 = (x, y) => PERM[PERM[x & 255] + (y & 255)] / 255;
+function n2(x, y) { const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi, u = xf * xf * (3 - 2 * xf), w = yf * yf * (3 - 2 * yf); const a = hash2(xi, yi), b = hash2(xi + 1, yi), c = hash2(xi, yi + 1), d = hash2(xi + 1, yi + 1); return a + (b - a) * u + (c - a) * w + (a - b - c + d) * u * w; }
+function fbm(x, y, o = 4) { let s = 0, a = 0.5, f = 1, nm = 0; for (let k = 0; k < o; k++) { s += a * n2(x * f + k * 17.1, y * f + k * 9.7); nm += a; a *= 0.5; f *= 2.03; } return s / nm; }
+function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+// ---------- materials: each has its own colour ramp and its own characters ----------
+const LV = 16;
+const MAT = [
+  { ramp: " ..::-=+*", st: [[3, 5, 12], [26, 36, 74], [110, 130, 196], [232, 238, 255]] },          // 0 sky and stars
+  { ramp: " .'`:;|!lI", st: [[2, 10, 8], [16, 110, 74], [86, 255, 172], [226, 255, 238]] },          // 1 aurora, green
+  { ramp: " .'`:;|!lI", st: [[8, 4, 18], [86, 38, 150], [196, 116, 255], [255, 222, 255]] },         // 2 aurora, violet
+  { ramp: " .,:;=%#@", st: [[4, 6, 11], [22, 30, 48], [72, 88, 120], [190, 204, 228]] },            // 3 mountains, snow, reeds
+  { ramp: " .-~~=+*#", st: [[2, 6, 10], [12, 40, 58], [62, 142, 162], [204, 242, 246]] },           // 4 water
+  { ramp: " .:+*oO@", st: [[20, 8, 0], [164, 82, 18], [255, 192, 92], [255, 246, 214]] },           // 5 warm light
+  { ramp: " .-~~=+*#", st: [[2, 10, 8], [16, 110, 74], [86, 255, 172], [226, 255, 238]] },          // 6 aurora reflected, green
+  { ramp: " .-~~=+*#", st: [[8, 4, 18], [86, 38, 150], [196, 116, 255], [255, 222, 255]] },         // 7 aurora reflected, violet
+];
+const NC = MAT.length;
+const COL = MAT.map(m => { const o = []; for (let l = 0; l < LV; l++) { const t = l / (LV - 1) * (m.st.length - 1), k = Math.min(m.st.length - 2, Math.floor(t)), f = t - k; o.push(`rgb(${m.st[k].map((c, j) => Math.round(mix(c, m.st[k + 1][j], f))).join(",")})`); } return o; });
+const CHR = MAT.map(m => { const o = []; for (let l = 0; l < LV; l++) o.push(m.ramp[Math.min(m.ramp.length - 1, Math.round(l / (LV - 1) * (m.ramp.length - 1)))]); return o; });
+
+// ---------- grid ----------
+const cvs = document.getElementById("c"), ctx = cvs.getContext("2d", { alpha: false });
+const g1 = document.getElementById("g"), g1c = g1.getContext("2d"), g2 = document.getElementById("g2"), g2c = g2.getContext("2d");
+let W, H, cw, chh, ox, oy, cols = 0, rows = 0, n = 0, A = 1, Vr, PX, PY, VAL, CH, GL, KEY, ORD, MW, colU;
+let aB1, aI1, aR1, aB2, aI2, aR2, rFar, rNear, snow;
+const VH = 0.03; // horizon line in screen space (v grows downward, 0 at centre)
+function resize() {
+  const DPR = Math.min(devicePixelRatio || 1, 2); W = innerWidth; H = innerHeight; if (!W || !H) return;
+  cvs.width = Math.round(W * DPR); cvs.height = Math.round(H * DPR);
+  g1.width = Math.max(1, W / 3 | 0); g1.height = Math.max(1, H / 3 | 0); g2.width = Math.max(1, W / 8 | 0); g2.height = Math.max(1, H / 8 | 0);
+  const fs = clamp(Math.round(Math.min(H / 80, W / 132)), 7, 16);
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.font = `${fs}px "IBM Plex Mono", ui-monospace, Menlo, monospace`; ctx.textBaseline = "top";
+  cw = ctx.measureText("M").width; chh = Math.round(fs * 1.18); A = W / H;
+  cols = Math.floor(W / cw); rows = Math.floor(H / chh); n = cols * rows; ox = (W - cols * cw) / 2; oy = (H - rows * chh) / 2;
+  PX = new Float32Array(n); PY = new Float32Array(n); VAL = new Float32Array(n); CH = new Uint8Array(n); GL = new Uint16Array(n); KEY = new Uint16Array(n); ORD = new Int32Array(n);
+  colU = new Float32Array(cols); Vr = new Float32Array(rows);
+  for (let c = 0; c < cols; c++) colU[c] = (ox + (c + 0.5) * cw - W / 2) / H;
+  for (let r = 0; r < rows; r++) Vr[r] = (oy + (r + 0.5) * chh - H / 2) / H;
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) { const i = r * cols + c; PX[i] = ox + c * cw; PY[i] = oy + r * chh; }
+  [aB1, aI1, aR1, aB2, aI2, aR2, rFar, rNear, snow] = [...Array(9)].map(() => new Float32Array(cols));
+  // the Milky Way: a faint diagonal river of dust, fixed in the sky
+  MW = new Float32Array(n);
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) { const u = colU[c], v = Vr[r], band = Math.exp(-((((v + 0.28) - (u * 0.35)) / 0.11) ** 2)); MW[r * cols + c] = band * (0.35 + 0.65 * fbm(u * 7, v * 7, 4)) * sstep(VH, -0.25, v); }
+  // two ranges of sharp peaks, the far one tall and snowy, the near one low and dark
+  const pr = rng(31), peaks = (N, h0, h1, w0, w1) => [...Array(N)].map(() => ({ p: (pr() - 0.5) * (A + 0.4), h: h0 + pr() * (h1 - h0), w: w0 + pr() * (w1 - w0) }));
+  const far = peaks(Math.round(6 + A * 4), 0.06, 0.2, 0.12, 0.3), near = peaks(Math.round(4 + A * 3), 0.025, 0.075, 0.18, 0.4);
+  const prof = (P, u) => { let h = 0; for (const k of P) h = Math.max(h, k.h * (1 - Math.abs(u - k.p) / k.w)); return h; };
+  for (let c = 0; c < cols; c++) { const u = colU[c]; rFar[c] = VH - 0.03 - prof(far, u) - 0.012 * fbm(u * 18, 0.5, 3); rNear[c] = VH - 0.006 - prof(near, u) - 0.008 * fbm(u * 22 + 4, 0.9, 3); snow[c] = clamp((VH - rFar[c] - 0.1) / 0.1, 0, 1); }
+  buildStars(); buildReeds();
+}
+const toCell = (u, v) => [(u * H + W / 2 - ox) / cw - 0.5, (v * H + H / 2 - oy) / chh - 0.5];
+function put(u, v, code, b, ch, onlyIfDim) { const p = toCell(u, v), c = Math.round(p[0]), r = Math.round(p[1]); if (c < 0 || r < 0 || c >= cols || r >= rows) return; const i = r * cols + c; if (onlyIfDim && VAL[i] > b) return; VAL[i] = b; CH[i] = ch; GL[i] = code; }
+
+// ---------- stars, wheeling slowly around the pole ----------
+let stars = [];
+function buildStars() {
+  const r = rng(99), N = Math.round(clamp(n / 26, 200, 900)), pu = A * 0.26, pv = -0.46;
+  stars = [...Array(N)].map(() => { const ang = r() * TAU, rad = Math.sqrt(r()) * Math.max(A, 1.2) * 1.05; const m = r() ** 3; return { ang, rad, m, tw: r() * TAU, pu, pv }; });
+}
+// ---------- reeds in the foreground ----------
+let reeds = [];
+function buildReeds() {
+  const r = rng(7); reeds = [];
+  for (const side of [-1, 1]) { const N = Math.round(14 + A * 6); for (let k = 0; k < N; k++) { const u = side * (A / 2 - r() * A * 0.16), h = 0.08 + r() * 0.2; reeds.push({ u, v0: 0.5 + r() * 0.02, h, bend: (r() - 0.5) * 0.05 - side * 0.02, ph: r() * TAU, head: r() < 0.35 }); } }
+}
+
+// ---------- the sky at any screen point (used directly and for reflections) ----------
+let BREATH = 1, AURA = 0;
+function sky(c, v, r) {
+  let b = 0.035 + 0.12 * sstep(-0.5, VH, v), ch = 0;
+  if (r >= 0 && r < rows && v < VH) b += MW[r * cols + c] * 0.16;
+  b += AURA * 0.32 * sstep(-0.15, VH, v);
+  // two curtains of aurora, the lower one bright green, rising into violet
+  let ag = 0, av = 0;
+  for (let k = 0; k < 2; k++) {
+    const base = k ? aB2[c] : aB1[c], I = k ? aI2[c] : aI1[c], ray = k ? aR2[c] : aR1[c], Hh = k ? 0.3 : 0.24;
+    const dv = base - v; if (dv < -0.03 || I < 0.01) continue;
+    const up = dv > 0 ? Math.exp(-dv / Hh) * sstep(0, 0.014, dv) : Math.exp(dv / 0.01) * 0.35;
+    const a = I * ray * up, gShare = Math.exp(-Math.max(dv, 0) / (k ? 0.05 : 0.085));
+    ag += a * gShare; av += a * (1 - gShare) * (k ? 1.15 : 0.9);
+  }
+  const a = ag + av;
+  if (a > 0.02) { b = Math.max(b, Math.min(1, a * 1.4 + b * 0.5)); ch = ag >= av ? 1 : 2; }
+  // a soft glow in the sky just behind the ridges, so the peaks stand out as silhouettes
+  if (v < rFar[c]) { const gl = AURA * 0.3 * Math.exp(-(rFar[c] - v) / 0.06); if (gl > 0.02 && ch === 0) b += gl; }
+  // the mountains themselves: solid dark, the far range a touch lighter than the near one
+  if (v > rFar[c] && v < VH) { b = v > rNear[c] ? 0.012 : 0.03 + AURA * 0.06 * Math.exp(-(v - rFar[c]) / 0.03); ch = 3; }
+  return [b, ch];
+}
+
+// ---------- living things: fireflies, lanterns, ripples, shooting stars ----------
+const R = rng(2024);
+const flies = [...Array(46)].map(() => ({ u: (R() - 0.5) * 1.6, g: VH + 0.05 + R() * 0.36, h: 0.01 + R() * 0.07, ph: R() * TAU, sp: 0.3 + R() * 0.6 }));
+let lanterns = [], ripples = [], meteor = null, nextMeteor = 6;
+const mouse = { u: 0, v: 0, at: -9, lastRip: 0 };
+
+function frame(t, dt) {
+  BREATH = 0.72 + 0.28 * (0.5 - 0.5 * Math.cos(t * TAU / 10));
+  // per-column aurora geometry
+  let tot = 0;
+  for (let c = 0; c < cols; c++) {
+    const u = colU[c];
+    aB1[c] = VH - 0.1 - 0.1 * fbm(u * 0.9 + t * 0.018, 1.3, 3) - 0.04 * Math.sin(u * 2.3 + t * 0.06);
+    aI1[c] = Math.pow(sstep(0.26, 0.5, fbm(u * 1.8 - t * 0.03, 4.2, 4)), 1.3) * (0.35 + 0.65 * Math.sin(u * 2.7 + t * 0.045) ** 2) * BREATH;
+    aR1[c] = 0.5 + 0.5 * Math.sin(u * 160 + 7 * fbm(u * 2.6 + t * 0.04, 7.7, 3) + t * 0.35) ** 2;
+    aB2[c] = VH - 0.28 - 0.09 * fbm(u * 0.7 - t * 0.012, 9.1, 3) - 0.03 * Math.sin(u * 1.4 - t * 0.04);
+    aI2[c] = sstep(0.38, 0.72, fbm(u * 1.2 + t * 0.022, 2.2, 4)) * (0.3 + 0.7 * Math.cos(u * 1.9 - t * 0.035) ** 2) * 0.75 * BREATH;
+    aR2[c] = 0.45 + 0.55 * Math.sin(u * 120 + 5 * fbm(u * 2 - t * 0.03, 3.3, 3) - t * 0.25) ** 2;
+    tot += aI1[c] + aI2[c] * 0.6;
+  }
+  AURA = tot / cols;
+  ripples = ripples.filter(rp => t - rp.t0 < 6);
+  for (let r = 0; r < rows; r++) {
+    const v = Vr[r];
+    for (let c = 0; c < cols; c++) {
+      const i = r * cols + c; let b, ch, gl = 0;
+      if (v < VH) { [b, ch] = sky(c, v, r); }
+      else {
+        // the lake: a mirror, broken gently by slow swells and by your ripples
+        const u = colU[c], d = v - VH, pp = 1 + d * 14;
+        let wy = Math.sin(v * 150 / (0.3 + d * 2) - t * 1.1 + Math.sin(u * 7 + t * 0.25) * 2) * 0.0028 * pp, wx = Math.sin(v * 80 / (0.3 + d) + t * 0.7) * 0.004 * pp;
+        for (const rp of ripples) { const age = t - rp.t0, du = u - rp.u, dvv = (v - rp.v) * 3.2, dist = Math.hypot(du, dvv), front = age * 0.11; const ring = Math.sin((dist - front) * 110) * Math.exp(-Math.abs(dist - front) * 22) * Math.exp(-age * 0.7) * rp.s; wy += ring * 0.012; wx += ring * 0.006; }
+        const vm = 2 * VH - v + wy, cm = clamp(Math.round(c + wx * H / cw), 0, cols - 1), rm = Math.round(r - 2 * d * H / chh);
+        [b, ch] = sky(cm, vm, rm);
+        b *= 0.62 * (1 - d * 0.55);
+        if (ch === 1) ch = 6; else if (ch === 2) ch = 7; else if (ch === 0) ch = 4;
+        const glint = frac(v * 220 + Math.sin(u * 30 + t * 0.6) * 1.5 - t * 0.2);
+        if (glint < 0.06) b = b * 1.4 + 0.02;
+        gl = 0;
+      }
+      VAL[i] = b; CH[i] = ch; GL[i] = gl;
+    }
+  }
+  // crisp ridge lines traced in slope characters, snow-lit by the aurora, mirrored in the lake
+  const rowOf = v => Math.round(toCell(0, v)[1]);
+  const mark = (c, r, code, b, mirrorV) => {
+    if (c < 0 || c >= cols || r < 0 || r >= rows) return; const i = r * cols + c; VAL[i] = b; CH[i] = 3; GL[i] = code;
+    const rr = rowOf(2 * VH - mirrorV); if (rr >= 0 && rr < rows) { const j = rr * cols + c; if (VAL[j] < b * 0.4) { VAL[j] = b * 0.32; CH[j] = 3; GL[j] = code === 47 ? 92 : code === 92 ? 47 : code; } }
+  };
+  for (const [ridge, isFar] of [[rFar, true], [rNear, false]]) {
+    for (let c = 0; c < cols; c++) {
+      if (isFar && rFar[c] > rNear[c]) continue;
+      const r0 = rowOf(ridge[c]), r1 = rowOf(ridge[Math.min(cols - 1, c + 1)]), rl = rowOf(ridge[Math.max(0, c - 1)]);
+      const b = isFar ? (0.3 + AURA * 0.6) * (0.75 + 0.35 * snow[c]) : 0.1 + AURA * 0.22;
+      const code = r1 < r0 && rl <= r0 ? 47 : r1 > r0 && rl >= r0 ? 92 : (rl > r0 && r1 > r0) ? 94 : 95;
+      mark(c, r0, code, b, ridge[c]);
+      for (let r = r1 + 1; r < r0; r++) mark(c, r, 47, b * 0.9, ridge[c]);
+      for (let r = r0 + 1; r < r1; r++) mark(c + 1, r, 92, b * 0.9, ridge[c]);
+    }
+  }
+  // stars, and their trembling reflections
+  for (const s of stars) {
+    const a = s.ang + t * 0.0045, u = s.pu + Math.cos(a) * s.rad, v = s.pv + Math.sin(a) * s.rad * 0.9;
+    if (v > VH - 0.004) continue;
+    const p = toCell(u, v), c = Math.round(p[0]); if (c < 0 || c >= cols) continue;
+    if (v > rFar[c]) continue;
+    const tw = 0.6 + 0.4 * Math.sin(t * (1.2 + s.m * 2) + s.tw), br = (0.25 + s.m * 0.75) * tw;
+    const code = s.m > 0.55 ? 42 : s.m > 0.2 ? 43 : 46;
+    put(u, v, code, br, 0, true);
+    if (s.m > 0.15) { const vr = 2 * VH - v, d = vr - VH; put(u + Math.sin(vr * 300 + t * 2) * 0.004 * (1 + d * 10), vr, s.m > 0.5 ? 43 : 46, br * 0.45, 4, true); }
+  }
+  // a shooting star now and then
+  if (!meteor && t > nextMeteor) meteor = { t0: t, u: (R() - 0.3) * A * 0.8, v: -0.48 + R() * 0.15, dx: 0.5 + R() * 0.3, dy: 0.22 + R() * 0.1 };
+  if (meteor) {
+    const q = (t - meteor.t0) / 0.9; if (q > 1) { meteor = null; nextMeteor = t + 8 + R() * 10; }
+    else for (let k = 0; k < 14; k++) { const qq = q - k * 0.02; if (qq < 0) break; const u = meteor.u + meteor.dx * qq * 0.6, v = meteor.v + meteor.dy * qq * 0.6; if (v < VH - 0.01) { put(u, v, k === 0 ? 42 : 92, (1 - k / 14) * (1 - q * 0.5), 0); put(u, 2 * VH - v, 92, (1 - k / 14) * 0.3, 4, true); } }
+  }
+  // fireflies over the water, each with a reflection
+  for (const f of flies) {
+    f.u += Math.sin(t * f.sp + f.ph) * 0.0008; f.h = clamp(f.h + Math.cos(t * f.sp * 1.3 + f.ph) * 0.0004, 0.006, 0.09);
+    if (f.u > A / 2 + 0.05) f.u = -A / 2 - 0.05; if (f.u < -A / 2 - 0.05) f.u = A / 2 + 0.05;
+    const glow = Math.pow(Math.max(0, Math.sin(t * 0.9 * f.sp + f.ph)), 4);
+    if (glow < 0.04) continue;
+    put(f.u, f.g - f.h, glow > 0.6 ? 42 : 43, 0.45 + 0.55 * glow, 5);
+    put(f.u, f.g + f.h, 46, 0.35 * glow, 5, true);
+  }
+  // lanterns rising into the aurora
+  lanterns = lanterns.filter(L => L.h < 1.2);
+  for (const L of lanterns) {
+    L.h += dt * (0.018 + L.h * 0.01); const sway = Math.sin(t * 0.7 + L.ph) * 0.01 * (1 + L.h * 3);
+    const u = L.u + sway + L.drift * L.h, v = L.g - L.h, flick = 0.8 + 0.2 * Math.sin(t * 9 + L.ph) * Math.sin(t * 5.3), fade = 1 - sstep(0.6, 1.15, L.h);
+    if (v > -0.55) { put(u, v, 64, 0.95 * flick * fade, 5); put(u, v + chh / H, 46, 0.35 * flick * fade, 5, true); }
+    const vr = L.g + L.h; if (vr < 0.52) { put(u + Math.sin(vr * 260 + t * 2) * 0.006, vr, 79, 0.5 * flick * fade * (1 - (vr - VH)), 5, true); }
+  }
+  // reeds against the water, swaying
+  for (const rd of reeds) {
+    const segs = 9, sw = Math.sin(t * 0.6 + rd.ph) * 0.012;
+    let pu = rd.u, pv = rd.v0;
+    for (let k = 1; k <= segs; k++) {
+      const q = k / segs, u = rd.u + (rd.bend + sw) * q * q, v = rd.v0 - rd.h * q;
+      const dx = (u - pu) * H / cw, dy = (v - pv) * H / chh, ang = Math.atan2(-dy, dx * cw / chh), code = Math.abs(ang - Math.PI / 2) < 0.3 ? 124 : ang < Math.PI / 2 ? 47 : 92;
+      put(u, v, code, 0.07, 3);
+      pu = u; pv = v;
+    }
+    if (rd.head) { put(pu, pv - chh / H, 48, 0.09, 3); put(pu, pv - 2 * chh / H, 124, 0.07, 3); }
+  }
+}
+
+function draw() {
+  ctx.fillStyle = "#03040a"; ctx.fillRect(0, 0, W, H);
+  const K = NC * LV, CNT = new Int32Array(K + 1);
+  for (let i = 0; i < n; i++) { let l = (VAL[i] * LV) | 0; if (l >= LV) l = LV - 1; if (l <= 0) { if (!GL[i]) { KEY[i] = K; continue; } l = 1; } const k = CH[i] * LV + l; KEY[i] = k; CNT[k]++; }
+  const start = new Int32Array(K + 1); let acc = 0; for (let k = 0; k < K; k++) { start[k] = acc; acc += CNT[k]; }
+  for (let i = 0; i < n; i++) if (KEY[i] < K) ORD[start[KEY[i]]++] = i;
+  let cur = -1;
+  for (let j = 0; j < acc; j++) { const i = ORD[j], k = KEY[i]; if (k !== cur) { cur = k; ctx.fillStyle = COL[(k / LV) | 0][k % LV]; } ctx.fillText(GL[i] ? String.fromCharCode(GL[i]) : CHR[(k / LV) | 0][k % LV], PX[i], PY[i]); }
+  if (cvs.width) { g1c.clearRect(0, 0, g1.width, g1.height); g1c.drawImage(cvs, 0, 0, g1.width, g1.height); g2c.clearRect(0, 0, g2.width, g2.height); g2c.drawImage(cvs, 0, 0, g2.width, g2.height); }
+}
+
+// ---------- sound: a slow, breathing pad, synthesised live ----------
+let audio = null;
+function startSound() {
+  const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
+  const ac = new AC(), master = ac.createGain(); master.gain.value = 0; master.connect(ac.destination);
+  const lp = ac.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 900; lp.Q.value = 0.4;
+  const dl = ac.createDelay(2), fb = ac.createGain(), wet = ac.createGain(); dl.delayTime.value = 0.61; fb.gain.value = 0.45; wet.gain.value = 0.35;
+  lp.connect(master); lp.connect(dl); dl.connect(fb); fb.connect(dl); dl.connect(wet); wet.connect(master);
+  const breath = ac.createGain(); breath.gain.value = 0.7; breath.connect(lp);
+  const lfo = ac.createOscillator(), lfoG = ac.createGain(); lfo.frequency.value = 0.1; lfoG.gain.value = 0.3; lfo.connect(lfoG); lfoG.connect(breath.gain); lfo.start();
+  for (const [f, type, g] of [[110, "sine", .22], [164.81, "triangle", .07], [220, "sine", .12], [246.94, "sine", .06], [329.63, "sine", .05], [493.88, "sine", .018]]) {
+    for (const det of [-4, 4]) { const o = ac.createOscillator(), og = ac.createGain(); o.type = type; o.frequency.value = f; o.detune.value = det; og.gain.value = g / 2; o.connect(og); og.connect(breath); o.start(); }
+  }
+  master.gain.linearRampToValueAtTime(0.5, ac.currentTime + 3);
+  return { ac, master };
+}
+const sndBtn = document.getElementById("snd");
+function setSound(on) {
+  if (on) { if (!audio) audio = startSound(); else { audio.ac.resume(); audio.master.gain.cancelScheduledValues(audio.ac.currentTime); audio.master.gain.linearRampToValueAtTime(0.5, audio.ac.currentTime + 1.5); } }
+  else if (audio) { audio.master.gain.cancelScheduledValues(audio.ac.currentTime); audio.master.gain.linearRampToValueAtTime(0, audio.ac.currentTime + 1); }
+  sndBtn.setAttribute("aria-pressed", String(on)); sndBtn.textContent = on ? "sound on" : "sound off";
+}
+sndBtn.addEventListener("click", e => { e.stopPropagation(); setSound(sndBtn.getAttribute("aria-pressed") !== "true"); });
+
+// ---------- interaction ----------
+let T = 0, last = 0;
+const toUV = e => [(e.clientX - W / 2) / H, (e.clientY - H / 2) / H];
+cvs.addEventListener("pointermove", e => {
+  const [u, v] = toUV(e); mouse.u = u; mouse.v = v; mouse.at = T;
+  if (v > VH + 0.01 && T - mouse.lastRip > 0.18) { ripples.push({ u, v, t0: T, s: 0.6 }); mouse.lastRip = T; if (ripples.length > 18) ripples.shift(); }
+});
+cvs.addEventListener("pointerdown", e => {
+  const [u, v] = toUV(e);
+  const g = v > VH + 0.02 ? v : VH + 0.06 + Math.random() * 0.1;
+  lanterns.push({ u, g, h: 0.005, ph: Math.random() * TAU, drift: (Math.random() - 0.5) * 0.15 });
+  if (lanterns.length > 40) lanterns.shift();
+  ripples.push({ u, v: g, t0: T, s: 1 });
+});
+addEventListener("keydown", e => { if (e.key === "s" || e.key === "S") setSound(sndBtn.getAttribute("aria-pressed") !== "true"); });
+let idleT = 0; const wake = () => { document.body.classList.remove("idle"); clearTimeout(idleT); idleT = setTimeout(() => document.body.classList.add("idle"), 4500); };
+addEventListener("pointermove", wake); addEventListener("pointerdown", wake); addEventListener("keydown", wake);
+addEventListener("resize", () => { clearTimeout(resize.t); resize.t = setTimeout(resize, 150); });
+
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches, speed = reduce ? 0.5 : 1;
+function loop(now) {
+  requestAnimationFrame(loop);
+  if (now - last < 1000 / 30 - 2) return;
+  const dt = Math.min(0.1, (now - last) / 1000) * speed; last = now;
+  if (!n) { resize(); return; }
+  T += dt; frame(T, dt); draw();
+}
+// a few lanterns already drifting up when the page opens
+for (let k = 0; k < 4; k++) lanterns.push({ u: (k - 1.5) * 0.18 + (Math.random() - 0.5) * 0.05, g: VH + 0.1 + Math.random() * 0.12, h: 0.05 + k * 0.12, ph: Math.random() * TAU, drift: (Math.random() - 0.5) * 0.1 });
+const go = () => { resize(); wake(); requestAnimationFrame(t => { last = t; loop(t); }); };
+(document.fonts && document.fonts.load) ? Promise.race([document.fonts.load(`14px "IBM Plex Mono"`), new Promise(r => setTimeout(r, 1500))]).then(go, go) : go();
+})();
+</script>

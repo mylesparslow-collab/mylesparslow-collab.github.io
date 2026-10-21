@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta charset="utf-8">
+<title>Skippy</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,600&display=swap">
+<style>
+/* Layout: one full-bleed text-mode canvas with a turntable cat; a small caption that fades when idle. */
+:root {
+  color-scheme: dark;
+  --night: #0b0806;
+  --cream: #efe2cc;
+  --cream-dim: #9a8b76;
+  --ginger: #e8913c;
+  --f-name: "Fraunces", Georgia, serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+html, body { height: 100%; }
+body { background: var(--night); color: var(--cream); overflow: hidden; font-family: var(--f-mono);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+#c, #g { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+#g { filter: blur(6px) saturate(1.2); mix-blend-mode: screen; opacity: .7; pointer-events: none; }
+.vig { position: fixed; inset: 0; pointer-events: none; background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,.6) 100%); }
+#cap { position: fixed; left: max(20px, calc(env(safe-area-inset-left, 0px) + 16px)); bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
+  display: grid; gap: 2px; transition: opacity .6s ease; pointer-events: none; }
+body.idle #cap { opacity: 0; }
+body.idle { cursor: none; }
+h1 { margin: 0; font: 600 clamp(28px, 4vw, 42px)/1 var(--f-name); color: var(--ginger); letter-spacing: .01em; }
+#cap p { margin: 0; font-size: 12px; color: var(--cream-dim); }
+</style>
+
+<canvas id="c"></canvas><canvas id="g"></canvas>
+<div class="vig"></div>
+<div id="cap"><h1>Skippy</h1><p>orange tabby, professional loaf. drag to spin him.</p></div>
+
+<script>
+(() => {
+"use strict";
+const RAMP = " .,:;-~=+*ox%#&@", LV = RAMP.length, TAU = Math.PI * 2;
+const clamp = (x, a, b) => x < a ? a : x > b ? b : x, mix = (a, b, t) => a + (b - a) * t;
+const sstep = (a, b, x) => { x = clamp((x - a) / (b - a), 0, 1); return x * x * (3 - 2 * x); };
+const PERM = new Uint8Array(512);
+{ let s = 7; const r = () => (s = (s * 16807) % 2147483647) / 2147483647, p = [...Array(256).keys()]; for (let i = 255; i > 0; i--) { const j = (r() * (i + 1)) | 0; [p[i], p[j]] = [p[j], p[i]]; } for (let i = 0; i < 512; i++) PERM[i] = p[i & 255]; }
+const hash2 = (x, y) => PERM[PERM[x & 255] + (y & 255)] / 255;
+function n2(x, y) { const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi, u = xf * xf * (3 - 2 * xf), w = yf * yf * (3 - 2 * yf); const a = hash2(xi, yi), b = hash2(xi + 1, yi), c = hash2(xi, yi + 1), d = hash2(xi + 1, yi + 1); return a + (b - a) * u + (c - a) * w + (a - b - c + d) * u * w; }
+
+// ---------- Skippy, as signed distance fields (object space: y up, face toward -z) ----------
+function ell(px, py, pz, rx, ry, rz) { const k0 = Math.hypot(px / rx, py / ry, pz / rz), k1 = Math.hypot(px / (rx * rx), py / (ry * ry), pz / (rz * rz)); return k0 * (k0 - 1) / (k1 || 1e-6); }
+function smin(a, b, k) { const h = clamp(0.5 + 0.5 * (b - a) / k, 0, 1); return mix(b, a, h) - k * h * (1 - h); }
+function cone(px, py, pz, ax, ay, az, bx, by, bz, r1, r2) { const ex = bx - ax, ey = by - ay, ez = bz - az, qx = px - ax, qy = py - ay, qz = pz - az, h = clamp((qx * ex + qy * ey + qz * ez) / (ex * ex + ey * ey + ez * ez), 0, 1); return Math.hypot(qx - ex * h, qy - ey * h, qz - ez * h) - mix(r1, r2, h); }
+const TAIL = [[0.3, -0.62, 0.82], [0.58, -0.7, 0.42], [0.6, -0.76, -0.05], [0.42, -0.8, -0.42], [0.16, -0.82, -0.62]];
+const EYE_Y = 0.3, EYE_X = 0.17, EYE_RX = 0.105, EYE_RY = 0.088;
+let LID = 0.55; // how open the eyes are (1 = wide), Skippy runs sleepy
+let MAT = 0;   // 0 fur, 2 nose
+function earD(x, y, z, s) { const zz = (z + 0.28) * 2.2 - 0.28; return cone(x, y, zz, s * 0.22, 0.46, -0.28, s * 0.33, 0.76, -0.3, 0.15, 0.025); }
+function sdf(x, y, z) {
+  let d = ell(x, y + 0.36, z - 0.16, 0.6, 0.44, 0.74);                      // loaf body
+  d = smin(d, ell(x, y - 0.25, z + 0.34, 0.42, 0.36, 0.38), 0.14);          // head
+  d = smin(d, ell(Math.abs(x) - 0.2, y - 0.14, z + 0.5, 0.22, 0.18, 0.2), 0.08); // cheeks
+  d = smin(d, ell(Math.abs(x) - 0.068, y - 0.115, z + 0.68, 0.1, 0.075, 0.085), 0.04); // muzzle pads
+  d = smin(d, ell(x, y - 0.045, z + 0.64, 0.075, 0.05, 0.07), 0.04);        // chin
+  d = smin(d, ell(x, y + 0.08, z + 0.42, 0.34, 0.3, 0.3), 0.12);            // chest
+  const ears = Math.min(earD(x, y, z, 1), earD(x, y, z, -1));
+  d = smin(d, ears, 0.05);
+  const paw = Math.min(ell(x - 0.2, y + 0.76, z + 0.55, 0.13, 0.08, 0.18), ell(x + 0.2, y + 0.76, z + 0.55, 0.13, 0.08, 0.18));
+  d = smin(d, paw, 0.06);
+  let tail = 1e9; for (let k = 0; k < TAIL.length - 1; k++) { const a = TAIL[k], b = TAIL[k + 1]; tail = Math.min(tail, cone(x, y, z, a[0], a[1], a[2], b[0], b[1], b[2], 0.1 - k * 0.008, 0.092 - k * 0.008)); }
+  d = smin(d, tail, 0.05);
+  const nose = ell(x, y - 0.175, z + 0.76, 0.056, 0.04, 0.034);
+  MAT = 0;
+  if (nose < d) { d = nose; MAT = 2; }
+  return d;
+}
+// fur colouring at a surface point: returns [brightness multiplier, channel]
+function furAt(x, y, z) {
+  const front = z < -0.5 && y < 0.2 && y > -0.05 && Math.abs(x) < 0.2;
+  const chest = z < -0.45 && y < -0.02 && y > -0.42 && Math.abs(x) < 0.17 + (y + 0.4) * 0.1;
+  const paws = y < -0.66 && z < -0.4;
+  if (front || chest || (paws && z < -0.62)) return [0.95, 1];
+  // inner ear
+  if (y > 0.5 && z < -0.3 && Math.min(earD(x, y, z, 1), earD(x, y, z, -1)) < 0.02 && Math.abs(Math.abs(x) - 0.27) < 0.07) return [0.75, 3];
+  let s;
+  if (y > 0.36 && z < -0.3) s = Math.sin(x * 34 + 2.2 * n2(y * 6, 1));                       // forehead tabby lines
+  else if (y > 0.05 && z < -0.25) s = Math.sin(y * 34 + Math.abs(x) * 8);                   // cheek stripes
+  else if (y < -0.6 && Math.hypot(x - 0.5, z) < 0.9 && Math.abs(y + 0.75) < 0.12) s = Math.sin((Math.atan2(z, x - 0.1)) * 22); // tail rings
+  else s = Math.sin(z * 15 + 1.8 * Math.sin(y * 5) + 1.4 * n2(x * 3, y * 3));             // side stripes
+  const dark = sstep(0.35, 0.95, s);
+  return [1 - 0.38 * dark, 0];
+}
+
+// ---------- text-mode renderer ----------
+const cvs = document.getElementById("c"), ctx = cvs.getContext("2d", { alpha: false });
+const gcv = document.getElementById("g"), gctx = gcv.getContext("2d");
+let W, H, cw, chh, ox, oy, cols = 0, rows = 0, n = 0, U, V, PX, PY, VAL, CH, GL, DEP, KEY, ORD;
+const PAL = [
+  [[22, 9, 3], [150, 68, 18], [236, 146, 62], [255, 214, 150]],   // ginger fur
+  [[20, 16, 12], [150, 136, 116], [238, 228, 208], [255, 252, 242]], // cream
+  [[26, 10, 10], [162, 82, 82], [238, 152, 148], [255, 212, 206]],  // pink
+  [[4, 6, 2], [92, 112, 32], [196, 204, 84], [242, 246, 172]],     // green-gold eyes
+].map(st => { const o = []; for (let l = 0; l < LV; l++) { const t = l / (LV - 1) * (st.length - 1), k = Math.min(st.length - 2, Math.floor(t)), f = t - k; o.push(`rgb(${st[k].map((c, j) => Math.round(mix(c, st[k + 1][j], f))).join(",")})`); } return o; });
+function resize() {
+  const DPR = Math.min(window.devicePixelRatio || 1, 2); W = innerWidth; H = innerHeight;
+  if (!W || !H) return;
+  cvs.width = Math.round(W * DPR); cvs.height = Math.round(H * DPR); gcv.width = Math.max(1, W / 3 | 0); gcv.height = Math.max(1, H / 3 | 0);
+  const fs = clamp(Math.round(Math.min(H / 78, W / 125)), 7, 16);
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.font = `${fs}px "IBM Plex Mono", ui-monospace, Menlo, monospace`; ctx.textBaseline = "top";
+  cw = ctx.measureText("M").width; chh = Math.round(fs * 1.16);
+  cols = Math.floor(W / cw); rows = Math.floor(H / chh); n = cols * rows; ox = (W - cols * cw) / 2; oy = (H - rows * chh) / 2;
+  U = new Float32Array(n); V = new Float32Array(n); PX = new Float32Array(n); PY = new Float32Array(n);
+  VAL = new Float32Array(n); CH = new Uint8Array(n); GL = new Uint16Array(n); DEP = new Float32Array(n); KEY = new Uint16Array(n); ORD = new Int32Array(n);
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) { const i = r * cols + c; PX[i] = ox + c * cw; PY[i] = oy + r * chh; U[i] = (ox + (c + 0.5) * cw - W / 2) / H; V[i] = (oy + (r + 0.5) * chh - H / 2) / H; }
+}
+function plotLine(c0, r0, c1, r1, val, ch, depth) {
+  const dx = c1 - c0, dy = r1 - r0, st = Math.ceil(Math.max(Math.abs(dx), Math.abs(dy))) || 1;
+  let d = Math.atan2(dy * chh, dx * cw) * 180 / Math.PI; if (d < 0) d += 180;
+  const g = d < 22.5 || d >= 157.5 ? 45 : d < 67.5 ? 92 : d < 112.5 ? 124 : 47;
+  for (let s = 1; s <= st; s++) { const c = Math.round(c0 + dx * s / st), r = Math.round(r0 + dy * s / st); if (c < 0 || r < 0 || c >= cols || r >= rows) continue; const i = r * cols + c; if (DEP[i] < depth - 0.02) continue; VAL[i] = val; CH[i] = ch; GL[i] = g; }
+}
+
+// ---------- animation ----------
+let spin = 0, drag = null, vel = 0, T = 0, last = 0, nextBlink = 2.5, blinkAt = -9;
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const BASE = TAU / (reduce ? 24 : 11);
+function frame(dt) {
+  T += dt;
+  if (!drag) { vel = mix(vel, BASE, Math.min(1, dt * 1.5)); spin += vel * dt; }
+  if (T > nextBlink) { blinkAt = T; nextBlink = T + 2.5 + Math.random() * 4; }
+  const bl = T - blinkAt; LID = 0.66 + 0.07 * Math.sin(T * 0.7); if (bl < 0.26) LID *= Math.abs(bl - 0.13) / 0.13;
+  const a = spin, ca = Math.cos(a), sa = Math.sin(a), tilt = 0.2, ct = Math.cos(tilt), st = Math.sin(tilt);
+  const bob = 0.012 * Math.sin(T * 1.6);
+  // world -> object: un-tilt camera, then un-spin
+  const toObj = (x, y, z) => { const y1 = y * ct - z * st, z1 = y * st + z * ct; return [x * ca - z1 * sa, y1, x * sa + z1 * ca]; };
+  const toWorld = (x, y, z) => { const X = x * ca + z * sa, Z = -x * sa + z * ca; return [X, y * ct + Z * st, -y * st + Z * ct]; };
+  const ro = toObj(0, -0.03 - bob, -4.5), L = toObj(-0.55, 0.62, -0.56), F = 1.85;
+  const ll = Math.hypot(L[0], L[1], L[2]); L[0] /= ll; L[1] /= ll; L[2] /= ll;
+  for (let i = 0; i < n; i++) {
+    const u = U[i], v = V[i];
+    let b = 0.035 + 0.1 * Math.exp(-(u * u + v * v) * 3.5), c = 0;
+    const pool = Math.exp(-(u * u / 0.12 + (v - 0.24) * (v - 0.24) / 0.0035));
+    b = Math.max(0.02, b - 0.06 * pool);
+    DEP[i] = 1e9; GL[i] = 0;
+    const rl = 1 / Math.hypot(u, v, F), rd = toObj(u * rl, -v * rl, F * rl);
+    const B = ro[0] * rd[0] + ro[1] * rd[1] + ro[2] * rd[2], C = ro[0] * ro[0] + ro[1] * ro[1] + ro[2] * ro[2] - 1.3 * 1.3, disc = B * B - C;
+    if (disc > 0) {
+      let t = -B - Math.sqrt(disc); const t1 = -B + Math.sqrt(disc); let hit = false, x = 0, y = 0, z = 0;
+      for (let k = 0; k < 64; k++) { x = ro[0] + rd[0] * t; y = ro[1] + rd[1] * t; z = ro[2] + rd[2] * t; const d = sdf(x, y, z); if (d < 0.003) { hit = true; break; } t += Math.max(d * 0.8, 0.004); if (t > t1) break; }
+      if (hit) {
+        const e = 0.003, f1 = sdf(x + e, y - e, z - e), f2 = sdf(x - e, y - e, z + e), f3 = sdf(x - e, y + e, z - e), f4 = sdf(x + e, y + e, z + e);
+        let nx = f1 - f2 - f3 + f4, ny = -f1 - f2 + f3 + f4, nz = -f1 + f2 - f3 + f4; const nl = Math.hypot(nx, ny, nz) || 1; nx /= nl; ny /= nl; nz /= nl;
+        sdf(x, y, z);
+        const diff = Math.max(0, nx * L[0] + ny * L[1] + nz * L[2]), rim = Math.pow(1 - Math.abs(nx * rd[0] + ny * rd[1] + nz * rd[2]), 2.5);
+        const lightv = 0.3 + 0.7 * diff + 0.25 * rim;
+        DEP[i] = t;
+        const ex = Math.abs(x) - EYE_X, ey = y - EYE_Y, er = (ex / EYE_RX) ** 2 + (ey / EYE_RY) ** 2, lidY = (LID * 2 - 1) * EYE_RY - ex * 0.25;
+        if (MAT === 0 && z < -0.5 && er < 1.25) {
+          if (er < 1 && ey < lidY) {
+            const slit = Math.abs(ex + 0.004) < 0.011 * (1 - (ey / EYE_RY) ** 2) + 0.003;
+            if (lidY - ey < 0.01) { b = 0.05; c = 0; }
+            else if (slit) { b = 0.02; c = 3; }
+            else { b = 0.72 + 0.25 * diff + (Math.hypot(ex + 0.03, ey - lidY + 0.028) < 0.016 ? 0.4 : 0); c = 3; }
+          } else { b = 0.12; c = 0; }
+        } else if (MAT === 2) { b = 0.45 + 0.4 * diff; c = 2; }
+        else { const f = furAt(x, y, z); b = lightv * f[0] * (0.9 + 0.2 * hash2(i, 7)); c = f[1]; if (c === 3) c = 2; }
+        // mouth line under the nose
+        if (MAT === 0 && z < -0.6 && Math.abs(x) < 0.012 && y > 0.1 && y < 0.15) b *= 0.4;
+        b = clamp(b, 0, 1);
+      }
+    }
+    VAL[i] = b; CH[i] = c;
+  }
+  // whiskers: 3 per side, drawn in screen space with depth test
+  const proj = (x, y, z) => { const w = toWorld(x, y, z); const cz = w[2] + 4.5, py = w[1] + 0.03 + bob; return [(w[0] * F / cz * H + W / 2 - ox) / cw - 0.5, (-py * F / cz * H + H / 2 - oy) / chh - 0.5, cz]; };
+  for (const s of [-1, 1]) for (let k = 0; k < 2; k++) {
+    const a0 = proj(s * 0.15, 0.12 - k * 0.035, -0.72), a1 = proj(s * (0.44 + k * 0.03), 0.15 - k * 0.06, -0.66 + k * 0.04);
+    plotLine(a0[0], a0[1], a1[0], a1[1], 0.6, 1, a0[2]);
+  }
+}
+function draw() {
+  ctx.fillStyle = "#0b0806"; ctx.fillRect(0, 0, W, H);
+  const CNT = new Int32Array(4 * LV + 1);
+  for (let i = 0; i < n; i++) { let l = (VAL[i] * LV) | 0; if (l >= LV) l = LV - 1; if (l <= 0) { if (!GL[i]) { KEY[i] = 4 * LV; continue; } l = 1; } const k = CH[i] * LV + l; KEY[i] = k; CNT[k]++; }
+  const start = new Int32Array(4 * LV + 1); let acc = 0; for (let k = 0; k < 4 * LV; k++) { start[k] = acc; acc += CNT[k]; }
+  for (let i = 0; i < n; i++) if (KEY[i] < 4 * LV) ORD[start[KEY[i]]++] = i;
+  let cur = -1;
+  for (let j = 0; j < acc; j++) { const i = ORD[j], k = KEY[i]; if (k !== cur) { cur = k; ctx.fillStyle = PAL[(k / LV) | 0][k % LV]; } ctx.fillText(GL[i] ? String.fromCharCode(GL[i]) : RAMP[k % LV], PX[i], PY[i]); }
+  if (cvs.width) { gctx.clearRect(0, 0, gcv.width, gcv.height); gctx.drawImage(cvs, 0, 0, gcv.width, gcv.height); }
+}
+function loop(now) {
+  requestAnimationFrame(loop);
+  if (now - last < 1000 / 30 - 2) return;
+  const dt = Math.min(0.1, (now - last) / 1000); last = now;
+  if (!n) { resize(); return; }
+  frame(dt); draw();
+}
+
+// drag to spin, with a little momentum
+cvs.addEventListener("pointerdown", e => { drag = { x: e.clientX, t: performance.now() }; cvs.setPointerCapture(e.pointerId); });
+cvs.addEventListener("pointermove", e => { if (!drag) return; const dx = e.clientX - drag.x, now = performance.now(); spin -= dx * 0.012; vel = -dx * 0.012 / Math.max(0.016, (now - drag.t) / 1000); drag = { x: e.clientX, t: now }; });
+const end = () => { drag = null; }; cvs.addEventListener("pointerup", end); cvs.addEventListener("pointercancel", end);
+let idleT = 0; const wake = () => { document.body.classList.remove("idle"); clearTimeout(idleT); idleT = setTimeout(() => document.body.classList.add("idle"), 3000); };
+addEventListener("pointermove", wake); addEventListener("pointerdown", wake);
+addEventListener("resize", () => { clearTimeout(resize.t); resize.t = setTimeout(resize, 120); });
+const go = () => { resize(); wake(); requestAnimationFrame(t => { last = t; loop(t); }); };
+(document.fonts && document.fonts.load) ? Promise.race([document.fonts.load(`16px "IBM Plex Mono"`), new Promise(r => setTimeout(r, 1500))]).then(go, go) : go();
+})();
+</script>
