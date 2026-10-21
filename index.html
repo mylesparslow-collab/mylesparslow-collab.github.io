@@ -184,6 +184,18 @@ footer { border-top: 1px solid var(--rule); padding-top: 1.25rem; display: flex;
   .toc a { transition: color 0.15s ease; }
 }
 span.note { font-style: italic; color: var(--muted); }
+/* Vertical video reels */
+.reels { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1rem; }
+.reels.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.reels video { display: block; width: 100%; height: auto; aspect-ratio: 9 / 16; border-radius: 6px; border: 1px solid var(--rule); background: #000; }
+@media (max-width: 820px) { .reels { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* Numbered pipeline */
+.flow { list-style: none; margin: 0; padding: 0; counter-reset: step; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1rem; }
+.flow li { counter-increment: step; display: grid; gap: 0.35rem; align-content: start; border-top: 3px solid var(--mark); padding-top: 0.7rem; }
+.flow b { font-family: var(--display); font-size: 1.1rem; }
+.flow b::before { content: counter(step) " · "; font-family: var(--mono); font-weight: 400; color: var(--accent); }
+.flow span { color: var(--muted); font-size: 0.96rem; }
+@media (max-width: 820px) { .flow { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 820px) { #thriftyvows .shots { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 </style>
 </head>
@@ -228,8 +240,14 @@ span.note { font-style: italic; color: var(--muted); }
       <div class="toc-col">
       <p class="toc-group"><a href="#g-commercial">Commercial</a></p>
       <a href="#fieldwork">Fieldwork <span>deal engine</span></a>
-      <a href="#rsc">RSC Tool <span>small business</span></a>
       <a href="#money">Money Desk <span>local AI workbench</span></a>
+      </div>
+      <div class="toc-col">
+      <p class="toc-group"><a href="#g-rsc">Refined Space Crafters</a></p>
+      <a href="#rsc">RSC Tool <span>office app</span></a>
+      <a href="#rscsite">rscrafters.com <span>website + blog</span></a>
+      <a href="#rscads">Ad studio <span>six animation styles</span></a>
+      <a href="#rsctiktok">TikTok on autopilot <span>scheduled posting</span></a>
       </div>
       <div class="toc-col">
       <p class="toc-group"><a href="#g-consumer">Consumer apps</a></p>
@@ -239,6 +257,7 @@ span.note { font-style: italic; color: var(--muted); }
       <p class="toc-group"><a href="#g-creative">Creative and media</a></p>
       <a href="#songs">Cat songs &amp; videos <span>Suno + animation</span></a>
       <a href="#catgpt">CatGPT <span>local AI + 9 games</span></a>
+      <a href="#clayexplainers">Clay explainers <span>Blender + local voice</span></a>
       <a href="#writing">Writing &amp; workflows <span>299k words</span></a>
       </div>
       <div class="toc-col">
@@ -1442,26 +1461,53 @@ span.note { font-style: italic; color: var(--muted); }
     </div>
   </details>
 
+  <!-- MONEY DESK -->
+  <details class="case" id="money">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Sister app · Local AI</span>
+      <h2>Money Desk</h2>
+      <p>A workbench for finding and doing paid work with local models, from scoring ideas to hunting gigs and bids and drafting the replies.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><span>No public demo yet: runs locally</span></p>
+    <dl class="stats">
+      <div><dt>Lines of code</dt><dd>9,800</dd></div>
+      <div><dt>Studio tools</dt><dd>11</dd></div>
+      <div><dt>Sales pipelines</dt><dd>5</dd></div>
+      <div><dt>Assist stages</dt><dd>5</dd></div>
+      <div><dt>Coach characters</dt><dd>29</dd></div>
+      <div><dt>Starter prompts</dt><dd>48</dd></div>
+    </dl>
+    <div class="more">
+      <div><h3>Research and ideas</h3><p>Ideas scored on demand, competition, effort and speed, with a skeptical-investor critique. Research briefs from web search mark which facts came from sources and which are guesses.</p></div>
+      <div><h3>Gig Hunter and RFP Hunter</h3><p>Every few hours it reads public job boards, scores what's left against ten skills and drafts replies. A separate tool ranks public government bids by fit, profit and complexity.</p></div>
+      <div><h3>A five-stage assist chain</h3><p>Brainstormer, Assessor, Planner, Executor and Content Creator, each seeing everything earlier stages produced, with prompts editable in the app.</p></div>
+      <div><h3>Model choice and resilience</h3><p>It picks the best installed model, retries without the reasoning flag for models that lack it, uses a vision model for photo listings, and runs long jobs on the server so a closed tab never loses a result.</p></div>
+    </div>
+    </div>
+  </details>
+  </section>
+
+  <!-- GROUP: REFINED SPACE CRAFTERS -->
+  <section class="group" id="g-rsc">
+    <div class="group-head">
+      <h2>Refined Space Crafters</h2>
+      <p>My family's design-build remodeling business in Saratoga Springs, New York. I'm using AI to run the whole thing with less paperwork: the office app, the public website, the ads and the posting schedule.</p>
+    </div>
   <!-- RSC -->
   <details class="case" id="rsc">
     <summary class="case-sum">
       <div class="shelf-head">
-      <span class="eyebrow">Case study 02 · Small business</span>
+      <span class="eyebrow">Case study 02 · Office app</span>
       <h2>RSC Tool</h2>
       <p class="sum">An operations app for a small family remodeling business. It runs entirely on one Mac, reads the business inbox with a local AI model, and never touches the books without the owner's approval.</p>
       </div>
     </summary>
     <div class="case-body">
-      <p class="links"><span>No public demo yet: it runs on the owner's Mac with real client data</span></p>
+      <p class="links"><a href="demos/rsc-tool/index.html">Click through the demo</a><a href="https://github.com/mylesparslow-collab/rsc-tool">Source on GitHub</a><span>The demo is the real app's pages filled with made-up jobs; saving and AI are switched off.</span></p>
 
-    <dl class="stats">
-      <div><dt>Lines of Python, 2,361 of them tests</dt><dd>9,408</dd></div>
-      <div><dt>Tests passing</dt><dd>207</dd></div>
-      <div><dt>Pages / routes</dt><dd>34 / 80</dd></div>
-      <div><dt>Local AI models</dt><dd>3</dd></div>
-      <div><dt>Tabs before / after redesign</dt><dd>14 / 5</dd></div>
-      <div><dt>Cloud AI calls</dt><dd>0</dd></div>
-    </dl>
 
     <div class="cols">
       <section class="block">
@@ -1510,6 +1556,23 @@ span.note { font-style: italic; color: var(--muted); }
     </div>
 
     <div class="cols">
+      <figure>
+        <img src="assets/rsc-job-tracker.jpg" alt="A job page for a made-up kitchen job: a five-stage tracker with the fourth stage, Do the work, get paid, highlighted, a Next box saying it is waiting on payment 1001-ALV-3, and totals for contract, paid, still owed, expenses and profit so far." width="1280" height="800" loading="lazy">
+        <figcaption>Every job shows its stage and the one next step, and the Next task button jumps to whatever needs doing. Made-up job from the demo.</figcaption>
+      </figure>
+      <section class="block">
+        <h3>Since the first version</h3>
+        <ul>
+          <li><strong>Never lost.</strong> A five-stage tracker on every job, a glowing next step, and a Next task button.</li>
+          <li><strong>One-click Send.</strong> The estimate goes to the client as a PDF from the owner's own Gmail, only when he presses Send.</li>
+          <li><strong>Every attachment read.</strong> Each PDF or photo in an email becomes its own item to review.</li>
+          <li><strong>A downloadable Mac app</strong>, built and released automatically when the version changes.</li>
+        </ul>
+        <p>In review now: a pricing check before an estimate goes out, a rough range and site-visit questions from a lead's photos, Google review requests, a weekly scorecard of leads and wins, and instant follow-up for website leads.</p>
+      </section>
+    </div>
+
+    <div class="cols">
       <section class="block">
         <h3>Decisions behind it</h3>
         <ul>
@@ -1529,33 +1592,179 @@ span.note { font-style: italic; color: var(--muted); }
     </div>
   </details>
 
-  <!-- MONEY DESK -->
-  <details class="case" id="money">
+  <!-- RSC WEBSITE -->
+  <details class="case" id="rscsite">
     <summary class="case-sum">
       <div class="shelf-head">
-      <span class="eyebrow">Sister app · Local AI</span>
-      <h2>Money Desk</h2>
-      <p>A workbench for finding and doing paid work with local models, from scoring ideas to hunting gigs and bids and drafting the replies.</p>
+      <span class="eyebrow">Case study 27 · Website</span>
+      <h2>rscrafters.com</h2>
+      <p class="sum">The business's public website, with a blog of plain-spoken repair and remodeling guides for local homeowners. It lives in the same repo as the app, and every change goes through a pull request with its own preview link. Merging is what makes it live.</p>
       </div>
     </summary>
     <div class="case-body">
-      <p class="links"><span>No public demo yet: runs locally</span></p>
-    <dl class="stats">
-      <div><dt>Lines of code</dt><dd>9,800</dd></div>
-      <div><dt>Studio tools</dt><dd>11</dd></div>
-      <div><dt>Sales pipelines</dt><dd>5</dd></div>
-      <div><dt>Assist stages</dt><dd>5</dd></div>
-      <div><dt>Coach characters</dt><dd>29</dd></div>
-      <div><dt>Starter prompts</dt><dd>48</dd></div>
-    </dl>
-    <div class="more">
-      <div><h3>Research and ideas</h3><p>Ideas scored on demand, competition, effort and speed, with a skeptical-investor critique. Research briefs from web search mark which facts came from sources and which are guesses.</p></div>
-      <div><h3>Gig Hunter and RFP Hunter</h3><p>Every few hours it reads public job boards, scores what's left against ten skills and drafts replies. A separate tool ranks public government bids by fit, profit and complexity.</p></div>
-      <div><h3>A five-stage assist chain</h3><p>Brainstormer, Assessor, Planner, Executor and Content Creator, each seeing everything earlier stages produced, with prompts editable in the app.</p></div>
-      <div><h3>Model choice and resilience</h3><p>It picks the best installed model, retries without the reasoning flag for models that lack it, uses a vision model for photo listings, and runs long jobs on the server so a closed tab never loses a result.</p></div>
+      <p class="links"><a href="https://rscrafters.com">Visit rscrafters.com</a><a href="https://rscrafters.com/blog/">Read the blog</a><a href="https://github.com/mylesparslow-collab/rsc-tool/tree/main/website">Source on GitHub</a></p>
+
+    <div class="shots">
+      <figure>
+        <img src="assets/rsc-site-home.jpg" alt="The rscrafters.com home page: the headline Know the price of every phase before we start, a Get a quote button, and a large photo of a finished rear deck." width="1280" height="800" loading="lazy">
+        <figcaption>The home page leads with how the business works: it looks first, then prices each phase in writing.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/rsc-site-blog.jpg" alt="The rscrafters.com blog index with guides grouped by topic." width="1280" height="800" loading="lazy">
+        <figcaption>The blog answers the questions people search for locally, from when a deck needs replacing to whether a job needs a permit.</figcaption>
+      </figure>
     </div>
+
+    <section class="block">
+      <h3>What's on it</h3>
+      <div class="grid3">
+        <div><h4>Pages for the work that pays</h4><p>Service pages for kitchens, bathrooms, decks and stairs, restoration and built-ins, and outdoor work, ordered by the jobs the business most wants. Town pages for Saratoga Springs, Wilton and the Capital Region help it show up in local search.</p></div>
+        <div><h4>A blog written to a brief</h4><p>Each post comes from a keyword plan and a writing brief: plain words, the builder's voice, local detail. The brief bans prices, license and insurance claims, invented testimonials and any claim of past work the business hasn't done.</p></div>
+        <div><h4>Safe at Home</h4><p>A page for aging-in-place work, built from research into local demand and funding programs. It invites a home safety visit and is careful not to claim experience the business doesn't have yet.</p></div>
+        <div><h4>A quote form that feeds the app</h4><p>The quote form asks for as little as possible. I'm wiring it into the office app, where each request becomes a new lead card waiting for the owner's OK.</p></div>
+        <div><h4>Checks that block bad pages</h4><p>The build fails on broken links and on banned wording, so a post that slips in a price or an unconfirmed claim can't go live.</p></div>
+        <div><h4>Found by search engines</h4><p>A sitemap and robots file are built with every page, and the site is verified in Google Search Console and Bing Webmaster Tools.</p></div>
+      </div>
+    </section>
+
+    <div class="cols">
+      <section class="block">
+        <h3>How it goes live</h3>
+        <ul>
+          <li><strong>One source.</strong> The site's only source is a folder in the app's repo. Nothing gets dragged, dropped or uploaded by hand.</li>
+          <li><strong>Previews on every change.</strong> A GitHub Action builds and checks each pull request and posts a preview link, so the owner can see a change before it's live.</li>
+          <li><strong>Merge to publish.</strong> On merge, the Action uploads the build to Cloudflare Pages and then checks that the live domain is serving it.</li>
+          <li><strong>Public means public.</strong> Draft notes and placeholders stay out of the live pages. Open questions are kept in the project's notes instead.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>Built for the owner to change</h3>
+        <p>The site folder has its own guide for the next AI session on the owner's computer: explain changes in plain words, edit on a branch, run the build, share the preview, and never publish any other way. That lets my dad ask for a change in a sentence without learning Git.</p>
+      </section>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>Built with Claude, first as a draft site I could share and review, then moved into the repo with Claude Code once the domain was live. Claude wrote the pages, the posts (from my brief and the business's real projects), the build and check scripts, and the deploy Action.</p></div>
     </div>
   </details>
+
+  <!-- RSC AD STUDIO -->
+  <details class="case" id="rscads">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 28 · Animation</span>
+      <h2>Ad studio</h2>
+      <p class="sum">Short vertical video ads for the business in six animation styles, from real Blender claymation to ads drawn entirely in text characters. One brand file drives every end card, so a new phone number means re-rendering only the end card, not every video.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="#clay-reel">Watch the clay ads</a><a href="demos/rsc-ads/ascii.html">ASCII demo</a><a href="demos/rsc-ads/dollhouse.html">Dollhouse demo</a><a href="demos/rsc-ads/blueprint.html">Blueprint demo</a><a href="demos/rsc-ads/paper-cut.html">Paper-cut demo</a></p>
+
+    <section class="block" id="clay-reel">
+      <h3>The claymation ads</h3>
+      <p>Each one has a different animal homeowner and the same beaver builder. They're the business's main TikTok style.</p>
+      <div class="reels">
+        <figure><video src="assets/video/clay-kitchen-island.mp4" poster="assets/video/clay-kitchen-island.jpg" controls playsinline preload="none" width="720" height="1280"></video><figcaption>Kitchen island</figcaption></figure>
+        <figure><video src="assets/video/clay-bath-shower.mp4" poster="assets/video/clay-bath-shower.jpg" controls playsinline preload="none" width="720" height="1280"></video><figcaption>Walk-in shower</figcaption></figure>
+        <figure><video src="assets/video/clay-sunroom.mp4" poster="assets/video/clay-sunroom.jpg" controls playsinline preload="none" width="720" height="1280"></video><figcaption>Sunroom</figcaption></figure>
+        <figure><video src="assets/video/clay-bookshelves.mp4" poster="assets/video/clay-bookshelves.jpg" controls playsinline preload="none" width="720" height="1280"></video><figcaption>Built-in bookshelves</figcaption></figure>
+        <figure><video src="assets/video/clay-squeaky-stair.mp4" poster="assets/video/clay-squeaky-stair.jpg" controls playsinline preload="none" width="720" height="1280"></video><figcaption>Repair tip: squeaky stair</figcaption></figure>
+        <figure><video src="assets/video/clay-grab-bars.mp4" poster="assets/video/clay-grab-bars.jpg" controls playsinline preload="none" width="720" height="1280"></video><figcaption>Safe at Home: grab bars</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="block">
+      <h3>Six styles</h3>
+      <div class="grid3">
+        <div><h4>Claymation</h4><p>Real 3D clay in Blender, rendered on cloud CPUs. Plasticine materials carry fingerprint and smudge texture and a slight frame-to-frame "boil", and the animation runs on twos like stop motion. Long renders are split by frame range across several AI sessions working in parallel, then joined.</p></div>
+        <div><h4>ASCII</h4><p>Every frame is drawn live in the browser from text characters wrapped around a 3D model of a real job from the website. Words are set as large characters so they read on a phone.</p></div>
+        <div><h4>Dollhouse</h4><p>A tilt-shift, cut-away room in three.js that builds itself phase by phase, with each phase ticking over to "Done · Paid". It sells the business's pay-as-each-phase-is-done terms without saying a price.</p></div>
+        <div><h4>Blueprint</h4><p>A floor plan draws itself on blueprint paper, then rises into a 3D model with real dimensions.</p></div>
+        <div><h4>Paper-cut</h4><p>Layered paper shapes with hand-cut edges, soft shadows and parallax, built in Remotion.</p></div>
+        <div><h4>Animal explainers</h4><p>Quick repair tips with a grandma rabbit and a beaver builder in Remotion. The characters share one skeleton rig with swappable skins, and a new video is a short JSON spec: the engine adds the timing, sound cues and checks for things like headlines that leave the screen too fast.</p></div>
+      </div>
+    </section>
+
+    <div class="gallery">
+      <figure><a href="demos/rsc-ads/ascii.html"><img src="assets/rsc-ad-ascii.jpg" alt="An ASCII ad player: a garden bridge over a pond drawn in coloured text characters, with the headline We built a bridge over it." width="1280" height="800" loading="lazy"></a><figcaption>ASCII: eight jobs from the website, playable in the page.</figcaption></figure>
+      <figure><a href="demos/rsc-ads/dollhouse.html"><img src="assets/rsc-ad-dollhouse.jpg" alt="An isometric dollhouse kitchen with a brick chimney and green cabinets; a list below marks the first two phases Done and Paid and the third Building." width="720" height="462" loading="lazy"></a><figcaption>Dollhouse: each phase lights up as it's paid.</figcaption></figure>
+      <figure><a href="demos/rsc-ads/blueprint.html"><img src="assets/rsc-ad-blueprint.jpg" alt="A blueprint-style ad: a deck plan drawn in white lines on blue, rising into a 3D frame." width="720" height="462" loading="lazy"></a><figcaption>Blueprint: the plan becomes the build.</figcaption></figure>
+      <figure><a href="demos/rsc-ads/paper-cut.html"><img src="assets/rsc-ad-papercut.jpg" alt="Four frames of a paper-cut ad about a soft deck board: the problem, a screwdriver test for rot, the fix, and the contact card." width="720" height="318" loading="lazy"></a><figcaption>Paper-cut: a repair tip in four beats.</figcaption></figure>
+    </div>
+
+    <div class="cols">
+      <section class="block">
+        <h3>Rules that keep it cheap and safe</h3>
+        <ul>
+          <li><strong>Preview before render.</strong> Every new ad starts as an HTML preview or storyboard. Nothing is rendered until my dad and I approve it, which saves hours of wasted renders.</li>
+          <li><strong>Modular end cards.</strong> Business name, phone, web address and tagline live in one brand file. The end card is its own segment, rendered separately and joined to the body, so a contact change re-renders only the card.</li>
+          <li><strong>Real sound, never synthesized.</strong> Effects are free-licence recordings, mixed to one loudness so music fits on top.</li>
+          <li><strong>Honest copy.</strong> No prices, no claims of jobs the business hasn't done, and no phone number in captions, where scrapers collect them.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>One place to review them</h3>
+        <p>Every ad set, in every style, sits in one private library page with its status: preview, rendered, scheduled or posted. That's where my dad and I review new sets and pick what goes out next.</p>
+      </section>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>Built with Claude Code from my art direction and feedback. Claude wrote the Blender scene scripts and clay material kit, the three.js and canvas animations, the Remotion projects, the sound mixing and the end-card tools. I chose the styles, rejected what didn't work (the first explainers were "way too fast"), and set the rules above.</p></div>
+    </div>
+  </details>
+
+  <!-- RSC TIKTOK -->
+  <details class="case" id="rsctiktok">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 29 · Automation</span>
+      <h2>TikTok on autopilot</h2>
+      <p class="sum">Finished ads post themselves to the business's TikTok on a schedule. Nobody uploads a video by hand, the business site never hosts them, and a weekly task keeps the queue full until every ad has gone out.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="https://www.tiktok.com/@rscrafters">@rscrafters on TikTok</a><a href="https://github.com/mylesparslow-collab/rsc-social-videos">The public video host</a></p>
+
+    <section class="block">
+      <h3>How a video gets posted</h3>
+      <ol class="flow">
+        <li><b>Render</b><span>An approved ad is rendered with its end card and gets a caption from a captions file, with local hashtags and no phone number.</span></li>
+        <li><b>Host</b><span>The MP4 is pushed to a public GitHub repo made only for videos, so it has a stable public address.</span></li>
+        <li><b>Queue</b><span>Claude schedules the post through Buffer's connector at set times in New York time, with TikTok's AI-generated label turned on.</span></li>
+        <li><b>Refill</b><span>Every Friday afternoon a scheduled task queues the next week's posts and records each one, so nothing posts twice.</span></li>
+        <li><b>Publish</b><span>At post time Buffer fetches the video from the host and publishes it to @rscrafters.</span></li>
+      </ol>
+    </section>
+
+    <div class="cols">
+      <section class="block">
+        <h3>Decisions behind it</h3>
+        <ul>
+          <li><strong>Buffer, not TikTok's own API.</strong> TikTok only lets unaudited apps post privately, so a free Buffer plan does the public posting instead. Its free tier caps the queue at ten posts, which is why the weekly refill exists.</li>
+          <li><strong>A repo as the video host.</strong> Buffer copies a video only when it posts, so the file has to stay up until then. A public repo is free, simple to push to from anywhere, and keeps the videos off the business's own website.</li>
+          <li><strong>Launch, then a steady pace.</strong> The clay ads launched with a three-a-day burst over three days, then settled at about five a week.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>What stays human</h3>
+        <p>Following, commenting and replying are done by hand. TikTok quietly undoes automated follows, and real replies from the business matter more than volume. Profile changes behind TikTok's bot check also need a person to press Save.</p>
+      </section>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>Built with Claude, using Buffer's MCP connector to schedule posts and a Claude scheduled task for the weekly refill. Claude also set up the TikTok profile and wrote the captions and the growth plan.</p></div>
+    </div>
+  </details>
+
+  <section class="shelf">
+    <div class="shelf-head">
+      <span class="eyebrow">Also for the business</span>
+      <h2>Smaller pieces</h2>
+    </div>
+    <div class="more">
+      <div><h3>Email routing and lead alerts</h3><p>Addresses on the business domain that forward to the owner's inbox, plus a Cloudflare Email Worker that sends me a short summary whenever a new lead writes in. Built and waiting to go live.</p></div>
+      <div><h3>Business in a box</h3><p>A running playbook of every workflow done for this business, from the website to the ads, each with what it took and what could be automated. It's the spec for offering the same setup to other small contractors.</p></div>
+      <div><h3>Market and pricing research</h3><p>A study of the local remodeling market that set the app's pricing checks and pointed the marketing at the job sizes worth chasing.</p></div>
+      <div><h3>Aging-in-place research</h3><p>A report on local demand, funding programs, competitors and training for home-safety work, with a plan for starting from no experience.</p></div>
+    </div>
+  </section>
   </section>
 
   <!-- GROUP: CONSUMER APPS -->
@@ -1900,6 +2109,35 @@ span.note { font-style: italic; color: var(--muted); }
   </details>
 
   <!-- WRITING -->
+  <!-- CLAY EXPLAINERS -->
+  <details class="case" id="clayexplainers">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 30 · Animation</span>
+      <h2>Clay explainers</h2>
+      <p class="sum">Two half-minute claymation explainers on subjects I care about, made with the same Blender clay kit as the business ads and narrated with takes I made on a voice model running on my own laptop.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+    <div class="cols">
+      <div class="reels two">
+        <figure><video src="assets/video/one-struggle.mp4" poster="assets/video/one-struggle.jpg" controls playsinline preload="none" width="720" height="1280"></video><figcaption>One Struggle</figcaption></figure>
+        <figure><video src="assets/video/where-the-40-goes.mp4" poster="assets/video/where-the-40-goes.jpg" controls playsinline preload="none" width="720" height="1280"></video><figcaption>Where the $40 Goes</figcaption></figure>
+      </div>
+      <section class="block">
+        <h3>One Struggle</h3>
+        <p>Ethiopia's wars in thirty seconds: the Tigray war of 2020 to 2022 and the fighting in Amhara and Oromia since, told with clay maps and charts. The map is built from real region boundaries, and every figure on screen comes from a source list kept with the script.</p>
+        <h3>Where the $40 Goes</h3>
+        <p>A mock infomercial about respite care in Pennsylvania. Medicaid pays roughly forty dollars an hour for a respite worker, but much of it stays with the agency, and the state tracks hours billed rather than what workers are paid. The rates come from the state's published fee schedule, and the worker's share is labelled as an estimate on screen.</p>
+        <h3>How they were made</h3>
+        <p>Each started as a written plan and a storyboard of test stills before any full render. The scenes are Blender scripts built on the clay kit from the business ads. I made the narration with VoxCPM, a voice model running locally on my Mac, and the shots are timed to the pauses in my takes. Sound effects are free-licence recordings.</p>
+      </section>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>Built with Claude Code from my topics, scripts and edits: it researched and sourced the facts, wrote the Blender scenes and assembled the video. The narration takes are mine, made with a local model rather than a cloud service.</p></div>
+    </div>
+  </details>
+
   <details class="case" id="writing">
     <summary class="case-sum">
       <div class="shelf-head">
@@ -2300,6 +2538,10 @@ span.note { font-style: italic; color: var(--muted); }
       <div><h4>VigilMark</h4><p><strong>Built with:</strong> Google Gemini.<br><strong>Runs on:</strong> no AI model: scoring is plain, explainable rules.</p></div>
       <div><h4>Fieldwork</h4><p><strong>Built with:</strong> ChatGPT and Codex, including the native Mac app.<br><strong>Runs on:</strong> an optional local model through Ollama, whose output the app labels an unverified hypothesis; scoring, readiness and every gate are plain rules.</p></div>
       <div><h4>RSC Tool</h4><p><strong>Built with:</strong> Claude Code.<br><strong>Runs on:</strong> small local models (for example Llama or Qwen), chosen so it runs on a modest desktop.</p></div>
+      <div><h4>rscrafters.com</h4><p><strong>Built with:</strong> Claude, then Claude Code.<br><strong>Runs on:</strong> no AI: a static site built and checked by a GitHub Action and hosted on Cloudflare Pages.</p></div>
+      <div><h4>Ad studio</h4><p><strong>Built with:</strong> Claude Code.<br><strong>Made in:</strong> Blender for the clay, three.js and canvas for the browser ads, Remotion for paper-cut and the explainers, FFmpeg for sound and joins.</p></div>
+      <div><h4>TikTok on autopilot</h4><p><strong>Built with:</strong> Claude, Buffer's MCP connector and a weekly Claude scheduled task.<br><strong>Runs on:</strong> Buffer, pulling videos from a public GitHub repo.</p></div>
+      <div><h4>Clay explainers</h4><p><strong>Built with:</strong> Claude Code and Blender.<br><strong>Voice:</strong> VoxCPM, running locally on my Mac.</p></div>
       <div><h4>ME/CFS evidence map</h4><p><strong>Built with:</strong> Claude, including extraction, audits and the genetics pipeline.<br><strong>Runs on:</strong> no AI at query time: grading and statistics are plain code over the extracted table.</p></div>
       <div><h4>Clear Aftercare</h4><p><strong>Built with:</strong> Claude.<br><strong>Runs on:</strong> Claude, inside the user’s own Claude account. Calendar files are built in the page.</p></div>
       <div><h4>Trauma guideline citation audit</h4><p><strong>Built with:</strong> Claude for extraction and grading, ChatGPT as an independent second grader.<br><strong>Runs on:</strong> the reference-shift test is plain code.</p></div>

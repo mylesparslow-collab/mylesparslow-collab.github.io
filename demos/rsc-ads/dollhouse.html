@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- rsc-brand written by social/brand/sync.py from social/brand/brand.json; edit that file and run sync.py, not this block -->
+<script id="rsc-brand">window.RSC_BRAND = {"business": "Refined Space Crafters", "phone": "518-932-9919", "web": "rscrafters.com", "tagline": "Design + Build  ·  Saratoga Springs & Wilton", "cta": "Call or text for a home visit", "cta_short": "Call or text", "cta_split": ["Call or text", "for a home visit"], "styles": {"ascii": {"tagline": "Design + build · Saratoga Springs, NY", "close": ["Send us a photo of the job.", "We'll set up a visit."], "script": "Design + build, Saratoga Springs. Call or text {phone}. {web}. Send us a photo of the job."}, "dollhouse": {"tagline": "Design + build · Saratoga Springs & Wilton"}, "papercut": {"program": "Safe at Home"}}, "colors": {"navy": "#243447", "accent": "#E0703C", "accentDark": "#B9532A", "cream": "#FFF8EC"}, "fonts": {"display": "Fredoka", "body": "Nunito"}};
+(function () {
+  // data-brand="phone" | "styles.dollhouse.tagline" ...; data-brand-case="upper"; data-brand-lines="2" puts the last word on its own line
+  function get(path) { return path.split('.').reduce(function (o, k) { return o == null ? o : o[k]; }, window.RSC_BRAND); }
+  function fill() {
+    document.querySelectorAll('[data-brand]').forEach(function (el) {
+      var v = get(el.getAttribute('data-brand')); if (v == null) return;
+      v = String(v); if (el.getAttribute('data-brand-case') === 'upper') v = v.toUpperCase();
+      el.textContent = '';
+      if (el.getAttribute('data-brand-lines') === '2' && v.indexOf(' ') > 0) {
+        var i = v.lastIndexOf(' ');
+        el.appendChild(document.createTextNode(v.slice(0, i))); el.appendChild(document.createElement('br'));
+        el.appendChild(document.createTextNode(v.slice(i + 1)));
+      } else el.textContent = v;
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fill); else fill();
+})();</script>
+<!-- /rsc-brand -->
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dollhouse Ads</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800;900&display=swap" rel="stylesheet">
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+} }
+</script>
+<style>
+  :root { --navy:#1B2736; --ink:#F4EFE6; --accent:#E0703C; --sage:#9DBF95; --muted:#8B98A8; }
+  html, body { margin:0; height:100%; background:#10161F; overflow:hidden; }
+  body { font-family:Inter, system-ui, sans-serif; }
+  #stage { position:absolute; left:0; right:0; top:56px; bottom:0; display:flex; align-items:center; justify-content:center; }
+  body.render #stage { top:0; }
+  #wrap { position:relative; width:1080px; height:1920px; flex:none; overflow:hidden; background:var(--navy); }
+  canvas { position:absolute; inset:0; display:block; width:100%; height:100%; }
+  .layer { position:absolute; inset:0; pointer-events:none; }
+  #vignette { background:radial-gradient(ellipse 75% 60% at 50% 46%, rgba(0,0,0,0) 55%, rgba(5,9,15,.55) 100%); }
+  #topband { background:linear-gradient(180deg, rgba(16,23,33,.92) 0%, rgba(16,23,33,.75) 18%, rgba(16,23,33,0) 30%); }
+  .head { position:absolute; left:60px; right:60px; top:110px; text-align:center; color:var(--ink);
+          font-weight:900; font-size:84px; line-height:1.06; letter-spacing:-1.5px; opacity:0;
+          text-shadow:0 4px 24px rgba(0,0,0,.45); }
+  .head em { font-style:normal; color:var(--accent); }
+  #tracker { position:absolute; left:70px; right:70px; top:1370px; opacity:0; }
+  .row { display:flex; align-items:center; height:104px; margin-bottom:14px; padding:0 26px; border-radius:26px;
+         background:rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.08); color:var(--muted);
+         font-weight:800; font-size:44px; }
+  .row .n { width:62px; height:62px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+            background:rgba(255,255,255,.1); color:var(--muted); font-size:34px; margin-right:24px; flex:none; }
+  .row .lbl { flex:1; white-space:nowrap; }
+  .row .chip { font-size:34px; font-weight:800; padding:12px 24px; border-radius:40px; white-space:nowrap; opacity:0; }
+  .row.building { color:var(--ink); border-color:rgba(224,112,60,.6); }
+  .row.building .n { background:var(--accent); color:#fff; }
+  .row.building .chip { opacity:1; color:var(--accent); border:3px solid var(--accent); }
+  .row.paid { color:var(--ink); background:rgba(157,191,149,.16); border-color:rgba(157,191,149,.55); }
+  .row.paid .n { background:var(--sage); color:#14202C; }
+  .row.paid .chip { opacity:1; color:#14202C; background:var(--sage); border:3px solid var(--sage); }
+  #end { position:absolute; inset:0; background:radial-gradient(ellipse at 50% 30%, #2E445C 0%, #18222F 75%);
+         color:var(--ink); text-align:center; opacity:0; }
+  #end .lead { position:absolute; top:330px; left:60px; right:60px; font-size:60px; font-weight:800; line-height:1.15; color:#F3D9C4; }
+  #end .name { position:absolute; top:600px; left:0; right:0; font-size:96px; font-weight:900; letter-spacing:-2px; line-height:1.04; }
+  #end .bar { position:absolute; top:830px; left:470px; width:140px; height:10px; border-radius:5px; background:var(--accent); }
+  #end .cot { position:absolute; top:960px; left:0; right:0; font-size:52px; font-weight:800; letter-spacing:6px; color:#D6DEE6; }
+  #end .phone { position:absolute; top:1050px; left:50px; right:50px; height:200px; border-radius:100px; background:var(--accent);
+                font-size:118px; font-weight:900; line-height:200px; letter-spacing:-2px; color:#fff; }
+  #end .web { position:absolute; top:1310px; left:0; right:0; font-size:96px; font-weight:900; color:#F2B48F; letter-spacing:-1px; }
+  #end .tag { position:absolute; top:1480px; left:0; right:0; font-size:40px; font-weight:700; color:#AEBBC9; }
+  #bar { position:fixed; left:0; right:0; top:0; height:56px; display:flex; align-items:center; gap:6px; padding:0 10px;
+         overflow-x:auto; background:#0B1018; z-index:5; font:600 14px Inter, sans-serif; box-sizing:border-box; }
+  #bar button { flex:none; padding:8px 12px; border-radius:8px; border:1px solid #2C3A4C; background:#16202D; color:#C9D2DC; font:inherit; cursor:pointer; }
+  #bar button.on { background:#E0703C; border-color:#E0703C; color:#fff; }
+  #bar span { flex:none; color:#8B98A8; margin-left:auto; padding-left:8px; }
+  body.render #bar { display:none; }
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<div id="stage"><div id="wrap">
+  <div class="layer" id="gl"></div>
+  <div class="layer" id="vignette"></div>
+  <div class="layer" id="topband"></div>
+  <div class="head" id="h1"></div>
+  <div class="head" id="h2">Pay as each phase <em>is finished.</em></div>
+  <div class="head" id="h3"></div>
+  <div id="tracker"></div>
+  <div id="end">
+    <div class="lead">A written price for every phase.<br>You pay as each one is finished.</div>
+    <div class="name" data-brand="business" data-brand-lines="2"></div>
+    <div class="bar"></div>
+    <div class="cot" data-brand="cta_short" data-brand-case="upper"></div>
+    <div class="phone" data-brand="phone"></div>
+    <div class="web" data-brand="web"></div>
+    <div class="tag" data-brand="styles.dollhouse.tagline"></div>
+  </div>
+</div></div>
+
+<script type="module">
+import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { HorizontalTiltShiftShader } from 'three/addons/shaders/HorizontalTiltShiftShader.js';
+import { VerticalTiltShiftShader } from 'three/addons/shaders/VerticalTiltShiftShader.js';
+
+const W = 1080, H = 1920, DUR = 15.5;
+// Same timeline for every ad: four build windows; each phase is "paid" at the end of its window.
+const P = [[2.3, 4.6], [4.6, 6.9], [6.9, 9.2], [9.2, 11.5]];
+const T_H1 = [0.0, 2.3], T_H2 = [2.3, 11.6], T_H3 = [11.6, 13.4], T_END = 13.4;
+
+// ---------- helpers ----------
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const ramp = (t, a, b) => clamp((t - a) / (b - a));
+const eOut = x => 1 - Math.pow(1 - x, 3);
+const eInOut = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+const eBack = x => { const c = 1.9; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+const fade = (t, [a, b], fi = .35, fo = .3) => Math.min(eOut(ramp(t, a, a + fi)), 1 - ramp(t, b - fo, b));
+function rand(seed) { let s = seed; return () => (s = (s * 16807) % 2147483647) / 2147483647; }
+
+// ---------- renderer (shared) ----------
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1); renderer.setSize(W, H, false);
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+document.getElementById('gl').appendChild(renderer.domElement);
+const pmrem = new THREE.PMREMGenerator(renderer);
+const envTex = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+// ---------- textures ----------
+function canvasTex(w, h, draw, rep = [1, 1]) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  draw(c.getContext('2d'), w, h);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(...rep); t.anisotropy = 4;
+  return t;
+}
+const TEX = {
+  brick: (rep = [1, 3]) => canvasTex(256, 256, (g, w, h) => {
+    g.fillStyle = '#d9cbb8'; g.fillRect(0, 0, w, h);
+    const r = rand(7), bh = 32, bw = 64, cols = ['#A8532F', '#B9643A', '#9A4A2A', '#C2733F', '#8E4426', '#B05A35'];
+    for (let y = 0; y < h / bh; y++) for (let x = -1; x < w / bw + 1; x++) {
+      const off = y % 2 ? bw / 2 : 0;
+      g.fillStyle = cols[Math.floor(r() * cols.length)]; g.fillRect(x * bw + off + 3, y * bh + 3, bw - 6, bh - 6);
+      g.fillStyle = 'rgba(0,0,0,' + (0.05 + r() * 0.12) + ')'; g.fillRect(x * bw + off + 3, y * bh + bh - 9, bw - 6, 6);
+    }
+  }, rep),
+  subway: (rep = [4, 2], grout = '#c9cfd2') => canvasTex(256, 256, (g, w, h) => {
+    g.fillStyle = grout; g.fillRect(0, 0, w, h);
+    const bh = 32, bw = 64;
+    for (let y = 0; y < h / bh; y++) for (let x = -1; x < w / bw + 1; x++) {
+      const off = y % 2 ? bw / 2 : 0, gr = g.createLinearGradient(0, y * bh, 0, y * bh + bh);
+      gr.addColorStop(0, '#ffffff'); gr.addColorStop(1, '#e6ebee');
+      g.fillStyle = gr; g.fillRect(x * bw + off + 2, y * bh + 2, bw - 4, bh - 4);
+    }
+  }, rep),
+  squares: (rep, base = 214, spread = 18, line = '#b9b4ab', n = 4, tint = [0, -2, -6], seed = 3) => canvasTex(256, 256, (g) => {
+    const r = rand(seed), s = 256 / n;
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+      const v = base + Math.floor(r() * spread);
+      g.fillStyle = `rgb(${v + tint[0]},${v + tint[1]},${v + tint[2]})`; g.fillRect(x * s, y * s, s, s);
+      g.strokeStyle = line; g.lineWidth = 2; g.strokeRect(x * s + 1, y * s + 1, s - 2, s - 2);
+    }
+  }, rep),
+  marble: (rep) => canvasTex(256, 256, (g) => {           // dark marble-look tile
+    const r = rand(21);
+    for (let y = 0; y < 2; y++) for (let x = 0; x < 2; x++) {
+      g.fillStyle = '#2f3236'; g.fillRect(x * 128, y * 128, 128, 128);
+      g.strokeStyle = 'rgba(220,220,225,.35)'; g.lineWidth = 1.5;
+      for (let k = 0; k < 4; k++) { g.beginPath(); g.moveTo(x * 128 + r() * 128, y * 128); g.bezierCurveTo(x * 128 + r() * 128, y * 128 + 40, x * 128 + r() * 128, y * 128 + 90, x * 128 + r() * 128, y * 128 + 128); g.stroke(); }
+      g.strokeStyle = '#1b1d20'; g.lineWidth = 3; g.strokeRect(x * 128 + 1, y * 128 + 1, 126, 126);
+    }
+  }, rep),
+  shaker: (face, panel, panelHi, edge) => canvasTex(128, 256, (g, w, h) => {
+    g.fillStyle = face; g.fillRect(0, 0, w, h);
+    g.fillStyle = panel; g.fillRect(20, 22, w - 40, h - 44);
+    g.fillStyle = panelHi; g.fillRect(24, 26, w - 48, h - 52);
+    g.strokeStyle = edge; g.lineWidth = 3; g.strokeRect(2, 2, w - 4, h - 4);
+  }),
+  grime: (base, seed = 11, cracks = true) => canvasTex(128, 128, (g, w, h) => {
+    g.fillStyle = base; g.fillRect(0, 0, w, h);
+    const r = rand(seed);
+    for (let i = 0; i < 400; i++) { g.fillStyle = `rgba(60,50,40,${r() * 0.14})`; g.fillRect(r() * w, r() * h, 2 + r() * 4, 2 + r() * 4); }
+    if (cracks) { g.strokeStyle = 'rgba(50,40,30,.4)'; g.lineWidth = 2; g.beginPath(); g.moveTo(10, 30); g.lineTo(50, 60); g.lineTo(44, 100); g.moveTo(90, 10); g.lineTo(80, 50); g.stroke(); }
+  }),
+  siding: (rep, col = '#E9E4D8') => canvasTex(128, 128, (g, w, h) => {
+    g.fillStyle = col; g.fillRect(0, 0, w, h);
+    for (let y = 0; y < 8; y++) { const gr = g.createLinearGradient(0, y * 16, 0, y * 16 + 16); gr.addColorStop(0, 'rgba(0,0,0,.16)'); gr.addColorStop(.25, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, y * 16, w, 16); }
+  }, rep),
+  planks: (rep, col = '#8E9196', seed = 4) => canvasTex(256, 256, (g, w, h) => {   // composite / wood boards
+    const r = rand(seed);
+    for (let y = 0; y < 8; y++) { const v = r() * 14 - 7; g.fillStyle = shade(col, v); g.fillRect(0, y * 32, w, 32);
+      g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 3; g.beginPath(); g.moveTo(0, y * 32 + 1); g.lineTo(w, y * 32 + 1); g.stroke();
+      for (let k = 0; k < 6; k++) { g.strokeStyle = 'rgba(255,255,255,.05)'; g.beginPath(); const yy = y * 32 + 5 + r() * 22; g.moveTo(0, yy); g.lineTo(w, yy + r() * 4 - 2); g.stroke(); } }
+  }, rep),
+  grass: (rep) => canvasTex(256, 256, (g, w, h) => {
+    g.fillStyle = '#6f9a4f'; g.fillRect(0, 0, w, h); const r = rand(31);
+    for (let i = 0; i < 2500; i++) { g.fillStyle = r() > .5 ? 'rgba(140,190,90,.5)' : 'rgba(60,100,40,.45)'; g.fillRect(r() * w, r() * h, 2, 3 + r() * 3); }
+  }, rep),
+  wood: (rep, col = '#B98552') => canvasTex(128, 128, (g, w, h) => {
+    g.fillStyle = col; g.fillRect(0, 0, w, h); const r = rand(17);
+    for (let i = 0; i < 26; i++) { g.strokeStyle = `rgba(80,45,20,${0.08 + r() * 0.15})`; g.lineWidth = 1 + r() * 2; g.beginPath(); const y = r() * h; g.moveTo(0, y); g.bezierCurveTo(40, y + r() * 6 - 3, 90, y + r() * 6 - 3, w, y + r() * 4 - 2); g.stroke(); }
+  }, rep),
+  carpet: () => canvasTex(64, 64, (g, w, h) => { g.fillStyle = '#7A3B3B'; g.fillRect(0, 0, w, h); const r = rand(5); for (let i = 0; i < 300; i++) { g.fillStyle = `rgba(30,10,10,${r() * .3})`; g.fillRect(r() * w, r() * h, 2, 2); } g.fillStyle = '#C9A857'; g.fillRect(0, 4, w, 3); g.fillRect(0, h - 7, w, 3); }),
+};
+function shade(hex, d) { const c = new THREE.Color(hex); c.offsetHSL(0, 0, d / 255); return '#' + c.getHexString(); }
+
+// ---------- kit: building blocks each ad uses ----------
+function makeKit(root) {
+  const items = [], glows = [], lights = [], dusts = [], paints = [];
+  const M = (o) => new THREE.MeshStandardMaterial(Object.assign({ roughness: 0.75 }, o));
+  const K = {
+    M, root, items, glows, lights, dusts, paints, rand,
+    box(w, h, d, m, x = 0, y = 0, z = 0, r = 0, parent = root) {
+      const g = r ? new RoundedBoxGeometry(w, h, d, 2, r) : new THREE.BoxGeometry(w, h, d);
+      const mesh = new THREE.Mesh(g, m); mesh.position.set(x, y, z);
+      mesh.castShadow = mesh.receiveShadow = true; parent.add(mesh); return mesh;
+    },
+    // a box that sits on y (base) so it can grow upward from the floor
+    post(w, h, d, m, x, y, z, parent = root) { const g = K.group(x, y, z, parent); K.box(w, h, d, m, 0, h / 2, 0, 0, g); return g; },
+    cyl(r1, r2, h, m, x, y, z, seg = 16, parent = root) {
+      const mesh = new THREE.Mesh(new THREE.CylinderGeometry(r1, r2, h, seg), m); mesh.position.set(x, y, z);
+      mesh.castShadow = mesh.receiveShadow = true; parent.add(mesh); return mesh;
+    },
+    sphere(r, m, x, y, z, parent = root) { const s = new THREE.Mesh(new THREE.SphereGeometry(r, 16, 12), m); s.position.set(x, y, z); s.castShadow = true; parent.add(s); return s; },
+    group(x = 0, y = 0, z = 0, parent = root) { const g = new THREE.Group(); g.position.set(x, y, z); parent.add(g); return g; },
+    // animate obj during phase p, `delay` s after the phase starts. kinds: drop slide pop grow sweepX sweepZ sweepY hang out fall
+    add(obj, p, delay = 0, kind = 'drop', opts = {}) { items.push({ obj, p, delay, kind, dur: opts.dur ?? 0.55, opts, base: obj.position.clone(), scale0: obj.scale.clone() }); return obj; },
+    glow(p, m, col = '#ffd2a0') { glows.push({ p, m, col }); },
+    light(obj, max, p = 3, at = 'end') { lights.push({ obj, max, p, at }); return obj; },   // light or emissive material
+    dust(p, x, z, n = 10, delay = 0.4, spread = 1.6) { const r = rand(Math.floor(x * 31 + z * 7) + 1); const m = new THREE.MeshBasicMaterial({ color: '#d8cfc2', transparent: true, opacity: 0, depthWrite: false });
+      const balls = []; for (let i = 0; i < n; i++) { const s = new THREE.Mesh(new THREE.SphereGeometry(0.3 + r() * 0.35, 12, 10), m); s.position.set(x + (r() - .5) * spread, 0.3, z + (r() - .5) * spread); root.add(s); balls.push({ s, r: r() }); }
+      dusts.push({ p, delay, m, balls }); },
+    paint(mesh, p, delay, to, dur = 0.5) { mesh.material = mesh.material.clone(); paints.push({ m: mesh.material, from: mesh.material.color.clone(), to: new THREE.Color(to), p, delay, dur }); },
+    // a dollhouse room: floor, back wall (z=0) and left wall (x=0), cut caps, model plinth
+    shell({ rx, rz, wh = 8.5, wall, floor, win = null, winLeft = null, plinth = '#7A5A3E' }) {
+      const WT = 0.5, cut = M({ color: '#2B3A4C', roughness: .9 });
+      K.box(rx + WT + 0.6, 1.0, rz + WT + 0.6, M({ color: plinth, roughness: .6 }), (rx - WT) / 2 + 0.3, -0.5, (rz - WT) / 2 + 0.3, 0.12);
+      K.box(rx, 0.08, rz, floor, rx / 2, 0.04, rz / 2);
+      let glass = null;
+      const glassM = () => glass ??= M({ color: '#9fd0f0', emissive: '#7fc4f2', emissiveIntensity: .25, roughness: .1 });
+      const trim = M({ color: '#FBF8F2' });
+      if (win) { const [x0, x1, y0, y1] = win;
+        K.box(x0 + WT, wh, WT, wall, (x0 - WT) / 2, wh / 2, -WT / 2); K.box(rx - x1, wh, WT, wall, (rx + x1) / 2, wh / 2, -WT / 2);
+        K.box(x1 - x0, y0, WT, wall, (x0 + x1) / 2, y0 / 2, -WT / 2); K.box(x1 - x0, wh - y1, WT, wall, (x0 + x1) / 2, (wh + y1) / 2, -WT / 2);
+        const g = K.box(x1 - x0, y1 - y0, 0.06, glassM(), (x0 + x1) / 2, (y0 + y1) / 2, -WT / 2); g.castShadow = false;
+        K.box(x1 - x0 + 0.3, 0.14, 0.3, trim, (x0 + x1) / 2, y0 - 0.02, 0.1); K.box(0.1, y1 - y0, 0.12, trim, (x0 + x1) / 2, (y0 + y1) / 2, -0.1);
+      } else K.box(rx + WT, wh, WT, wall, (rx - WT) / 2, wh / 2, -WT / 2);
+      if (winLeft) { const [z0, z1, y0, y1] = winLeft;
+        K.box(WT, wh, z0, wall, -WT / 2, wh / 2, z0 / 2); K.box(WT, wh, rz - z1, wall, -WT / 2, wh / 2, (rz + z1) / 2);
+        K.box(WT, y0, z1 - z0, wall, -WT / 2, y0 / 2, (z0 + z1) / 2); K.box(WT, wh - y1, z1 - z0, wall, -WT / 2, (wh + y1) / 2, (z0 + z1) / 2);
+        const g = K.box(0.06, y1 - y0, z1 - z0, glassM(), -WT / 2, (y0 + y1) / 2, (z0 + z1) / 2); g.castShadow = false;
+        K.box(0.3, 0.14, z1 - z0 + 0.3, trim, 0.1, y0 - 0.02, (z0 + z1) / 2);
+      } else K.box(WT, wh, rz, wall, -WT / 2, wh / 2, rz / 2);
+      K.box(rx + WT, 0.06, WT, cut, (rx - WT) / 2, wh + 0.03, -WT / 2);
+      K.box(WT, 0.06, rz, cut, -WT / 2, wh + 0.03, rz / 2);
+      if (glass) K.light(glass, 1.15, 3, 'end');
+      return { glass, trim };
+    },
+    pendant(x, top, z, drop, m, lightCol = '#ffcf8a', p = 3, delay = 0.7) {
+      const g = K.group(x, top, z);
+      K.cyl(0.025, 0.025, drop, M({ color: '#222' }), 0, -drop / 2, 0, 6, g);
+      K.sphere(0.42, m, 0, -drop - 0.25, 0, g);
+      const pl = new THREE.PointLight(lightCol, 0, 9, 1.6); pl.position.y = -drop - 0.5; g.add(pl); K.light(pl, 7, p);
+      K.add(g, p, delay, 'hang'); return g;
+    },
+    bulbMat() { const m = M({ color: '#fff6e0', emissive: '#ffd79a', emissiveIntensity: 0, roughness: .2 }); K.light(m, 2.6); return m; },
+  };
+  return K;
+}
+
+// =====================================================================
+// ADS. Each one: copy, camera, and build(K) which places pieces per phase.
+// =====================================================================
+const ADS = {};
+
+// ---------- 1. the brick kitchen ----------
+ADS.kitchen = {
+  name: 'Brick kitchen', h1: 'Paying for the whole kitchen <em>up front?</em>', h3: 'One phase at a time. <em>Paid the same way.</em>',
+  phases: ['Open the chimney', 'Cabinets', 'Counters + tile', 'Appliances + lights'],
+  target: [6.2, 2.6, 5.2], viewH: 32.5,
+  build(K) {
+    const { M } = K;
+    const mat = {
+      wall: M({ color: '#EDE6DA' }), floor: M({ map: TEX.squares([3, 2.5]) }), cab: M({ color: '#B7CBB1' }),
+      door: M({ map: TEX.shaker('#C3D6BE', '#A9BFA4', '#B7CBB1', '#8FA78A') }), counter: M({ color: '#F7F6F2', roughness: .25 }),
+      wood: M({ color: '#C8925A', roughness: .55 }), steel: M({ color: '#D9DDE0', metalness: .9, roughness: .28 }), dark: M({ color: '#1E2328', roughness: .4 }),
+      knob: M({ color: '#3A3F44', metalness: .7, roughness: .35 }), sink: M({ color: '#cfd4d8', metalness: .8, roughness: .3 }),
+      brick: M({ map: TEX.brick(), roughness: .95 }), plaster: M({ map: TEX.grime('#B9B2A6') }),
+    };
+    const WH = 8.5;
+    K.shell({ rx: 12, rz: 10, wall: mat.wall, floor: mat.floor, win: [8.4, 10.6, 4.0, 7.2] });
+    // phase 1: chimney with a plaster skin that falls off
+    const CZ0 = 5.6, CZ1 = 7.4, CD = 1.3;
+    K.box(CD, WH, CZ1 - CZ0, mat.brick, CD / 2, WH / 2, (CZ0 + CZ1) / 2); K.glow(0, mat.brick, '#ff9a5a');
+    const r = rand(5), ny = 7;
+    for (let j = 0; j < ny; j++) {
+      for (let i = 0; i < 3; i++) { const cw = (CZ1 - CZ0 + 0.08) / 3, ch = WH / ny;
+        K.add(K.box(0.12, ch, cw, mat.plaster, CD + 0.06, ch * (j + .5), CZ0 - 0.04 + cw * (i + .5)), 0, 0.2 + r() * 0.8 + (ny - j) * 0.05, 'fall', { sx: r() - .5, dur: 0.9 }); }
+      const ch = WH / ny;
+      K.add(K.box(CD + 0.12, ch, 0.12, mat.plaster, CD / 2 + 0.06, ch * (j + .5), CZ1 + 0.06), 0, 0.2 + r() * 0.8 + (ny - j) * 0.05, 'fall', { sx: r() - .5, dur: 0.9 });
+    }
+    K.dust(0, CD + 1.3, (CZ0 + CZ1) / 2, 14, 0.4, 2.2);
+    // phase 2: cabinets
+    const baseCab = (x0, x1, z0, z1, n, delay, axis = 'x') => {
+      const w = x1 - x0, d = z1 - z0, h = 2.9, g = K.group((x0 + x1) / 2, 0, (z0 + z1) / 2);
+      K.box(w, h - 0.3, d, mat.cab, 0, 0.3 + (h - 0.3) / 2, 0, 0.04, g); K.box(w - 0.1, 0.3, d - 0.25, mat.dark, 0, 0.15, -0.1, 0, g);
+      const span = axis === 'x' ? w : d;
+      for (let i = 0; i < n; i++) { const dw = span / n - 0.08, c = -span / 2 + span / n * (i + .5);
+        if (axis === 'x') { K.box(dw, h - 0.45, 0.06, mat.door, c, 0.3 + (h - 0.3) / 2, d / 2 + 0.03, 0, g); K.sphere(0.07, mat.knob, c + dw / 2 - 0.2, h - 0.6, d / 2 + 0.1, g); }
+        else { K.box(0.06, h - 0.45, dw, mat.door, w / 2 + 0.03, 0.3 + (h - 0.3) / 2, c, 0, g); K.sphere(0.07, mat.knob, w / 2 + 0.1, h - 0.6, c + dw / 2 - 0.2, g); } }
+      K.add(g, 1, delay, 'drop');
+    };
+    const upperCab = (x0, x1, delay) => {
+      const w = x1 - x0, h = 2.6, d = 1.1, g = K.group((x0 + x1) / 2, 5.4, d / 2), n = Math.max(1, Math.round(w / 1.4));
+      K.box(w, h, d, mat.cab, 0, h / 2, 0, 0.04, g);
+      for (let i = 0; i < n; i++) { const dw = w / n - 0.08, c = -w / 2 + w / n * (i + .5); K.box(dw, h - 0.16, 0.06, mat.door, c, h / 2, d / 2 + 0.03, 0, g); K.sphere(0.07, mat.knob, c + (i % 2 ? -1 : 1) * (dw / 2 - 0.2), 0.35, d / 2 + 0.1, g); }
+      K.box(w + 0.1, 0.12, d + 0.12, mat.wood, 0, h + 0.06, 0.03, 0, g);
+      K.add(g, 1, delay, 'drop');
+    };
+    baseCab(3.4, 5.2, 0, 2.1, 1, 0.15); baseCab(7.6, 12, 0, 2.1, 3, 0.4); baseCab(0, 2.1, 2.6, 5.6, 2, 0.65, 'z'); baseCab(4.6, 9.0, 5.6, 7.4, 3, 0.9);
+    upperCab(3.4, 5.2, 1.1); upperCab(7.6, 8.4, 1.25); upperCab(10.7, 12, 1.4);
+    K.glow(1, mat.cab); K.glow(1, mat.door);
+    // phase 3: counters, sink, tile, shelf
+    [[3.35, 5.25, -0.02, 2.25], [7.55, 12.0, -0.02, 2.25], [-0.02, 2.25, 2.55, 5.6], [4.4, 9.2, 5.45, 7.6]].forEach(([x0, x1, z0, z1], i) =>
+      K.add(K.box(x1 - x0, 0.16, z1 - z0, mat.counter, (x0 + x1) / 2, 2.98, (z0 + z1) / 2, 0.04), 2, 0.1 + i * 0.2, 'slide'));
+    const sink = K.group(9.5, 3.07, 1.0); K.box(1.6, 0.04, 1.1, mat.sink, 0, 0, 0, 0, sink); K.box(0.08, 0.7, 0.08, mat.steel, 0, 0.35, -0.45, 0, sink); K.box(0.08, 0.08, 0.45, mat.steel, 0, 0.68, -0.25, 0, sink);
+    K.add(sink, 2, 0.9, 'pop');
+    const tile = (x0, x1, y0, y1, left = false) => { const rows = 4, rh = (y1 - y0) / rows;
+      for (let i = 0; i < rows; i++) { const m = M({ map: TEX.subway([Math.max(1, (x1 - x0)), 0.5]), roughness: .3 });
+        const b = left ? K.box(0.05, rh, x1 - x0, m, 0.03, y0 + rh * (i + .5), (x0 + x1) / 2) : K.box(x1 - x0, rh, 0.05, m, (x0 + x1) / 2, y0 + rh * (i + .5), 0.03);
+        b.castShadow = false; K.add(b, 2, 0.6 + i * 0.22, left ? 'sweepZ' : 'sweepX', { dur: 0.35 }); } };
+    tile(3.4, 5.2, 3.06, 5.4); tile(7.6, 12, 3.06, 5.4); tile(5.2, 7.6, 3.06, 5.4); tile(2.6, 5.6, 3.06, 5.0, true);
+    const shelf = K.group(0.5, 6.2, 4.1); K.box(1.0, 0.12, 2.8, mat.wood, 0, 0, 0, 0, shelf);
+    const cols = ['#c0392b', '#2e86c1', '#f4d03f', '#27ae60', '#8e44ad', '#e67e22']; for (let i = 0; i < 8; i++) K.box(0.5, 0.55 + (i % 3) * 0.08, 0.16, M({ color: cols[i % 6] }), -0.1, 0.36, -1.1 + i * 0.2, 0, shelf);
+    K.add(shelf, 2, 1.1, 'pop'); K.glow(2, mat.counter, '#fff1d6');
+    // phase 4: fridge, range, hood, pendants, clock
+    const fridge = K.group(1.8, 0, 1.25); K.box(3.0, 6.0, 2.4, mat.steel, 0, 3.0, 0, 0.08, fridge);
+    K.box(0.04, 3.9, 0.04, mat.dark, 0, 4.0, 1.22, 0, fridge); K.box(3.0, 0.04, 0.04, mat.dark, 0, 2.05, 1.22, 0, fridge);
+    K.box(0.07, 1.4, 0.12, mat.knob, -0.18, 4.0, 1.3, 0, fridge); K.box(0.07, 1.4, 0.12, mat.knob, 0.18, 4.0, 1.3, 0, fridge); K.box(1.4, 0.07, 0.12, mat.knob, 0, 1.75, 1.3, 0, fridge);
+    K.add(fridge, 3, 0.1, 'drop');
+    const range = K.group(6.4, 0, 1.05); K.box(2.4, 2.95, 2.1, mat.steel, 0, 1.475, 0, 0.05, range);
+    K.box(1.8, 1.1, 0.06, mat.dark, 0, 1.2, 1.06, 0, range); K.box(1.5, 0.06, 0.1, mat.knob, 0, 1.95, 1.1, 0, range); K.box(2.3, 0.05, 2.0, mat.dark, 0, 2.97, 0, 0, range);
+    for (let i = 0; i < 5; i++) { const k = K.cyl(0.09, 0.09, 0.1, mat.knob, -0.8 + i * 0.4, 2.55, 1.1, 12, range); k.rotation.x = Math.PI / 2; }
+    K.add(range, 3, 0.4, 'drop');
+    const hood = K.group(6.4, 5.6, 0.75); { const g = new THREE.CylinderGeometry(0.55, 1.45, 1.1, 4, 1); g.rotateY(Math.PI / 4); g.scale(1.2, 1, 0.72);
+      const m = new THREE.Mesh(g, mat.steel); m.position.y = 0.55; m.castShadow = true; hood.add(m); K.box(0.9, 1.8, 0.6, mat.steel, 0, 2.0, -0.2, 0, hood); }
+    K.add(hood, 3, 0.6, 'drop');
+    const bulb = K.bulbMat(); K.pendant(5.8, WH + 0.2, 6.5, 2.6, bulb); K.pendant(7.8, WH + 0.2, 6.5, 2.6, bulb);
+    const clock = K.group(CD + 0.04, 4.6, (CZ0 + CZ1) / 2); { const f = K.cyl(0.42, 0.42, 0.08, M({ color: '#f5f1e8' }), 0, 0, 0, 24, clock); f.rotation.z = Math.PI / 2; }
+    K.box(0.02, 0.28, 0.04, mat.dark, 0.05, 0.12, 0, 0, clock); K.add(clock, 3, 1.0, 'pop');
+    return [new THREE.Vector3(3.2, 4.5, 6.5), new THREE.Vector3(7, 5.5, 5), new THREE.Vector3(7, 5, 4), new THREE.Vector3(6, 7, 6)];
+  },
+};
+
+// ---------- 2. subway-tile bath ----------
+ADS.bath = {
+  name: 'Subway-tile bath', h1: 'Bathroom stuck <em>in 1985?</em>', h3: 'A walk-in shower, <em>one phase at a time.</em>',
+  phases: ['Tear out the old tub', 'Shower + niche tile', 'Vanity + floor', 'Glass, mirror + lights'],
+  target: [4.4, 2.8, 3.9], viewH: 24,
+  build(K) {
+    const { M } = K;
+    const wall = M({ color: '#B9C4BE' }), oldFloor = M({ map: TEX.squares([3, 3], 196, 20, '#a89e90', 4, [10, 4, -8], 9) });
+    K.shell({ rx: 9, rz: 8, wh: 8.5, wall, floor: oldFloor, winLeft: [5.2, 6.8, 5.0, 7.2] });
+    // the old stuff (removed in phase 1)
+    const pink = M({ color: '#E7A9B6', roughness: .4 }), oak = M({ color: '#A86F3C' }), oldTile = M({ map: TEX.squares([3, 2], 225, 8, '#d9b9c0', 6, [10, -4, 0], 2), roughness: .4 });
+    const tub = K.group(2.6, 0, 1.4); K.box(5.0, 1.8, 2.6, pink, 0, 0.9, 0, 0.1, tub); K.box(4.4, 0.2, 2.0, M({ color: '#f2d0d7' }), 0, 1.75, 0, 0.05, tub);
+    K.add(tub, 0, 0.3, 'out', { dur: 0.6 });
+    const surround = []; for (let i = 0; i < 3; i++) surround.push(K.add(K.box(5.0, 1.4, 0.06, oldTile, 2.6, 2.4 + i * 1.4, 0.04), 0, 0.1 + i * 0.12, 'out', { dur: 0.45 }));
+    const oldVan = K.group(6.9, 0, 0.95); K.box(2.6, 2.6, 1.8, oak, 0, 1.3, 0, 0.04, oldVan); K.box(2.7, 0.12, 1.9, M({ color: '#E9D7B8' }), 0, 2.66, 0, 0, oldVan);
+    K.add(oldVan, 0, 0.75, 'out', { dur: 0.5 });
+    K.dust(0, 3, 1.8, 12, 0.5, 3);
+    // phase 2: shower walls in white subway tile, niche, valve, dark pan
+    const tileM = (rep) => M({ map: TEX.subway(rep, '#7f8b92'), roughness: .25 });
+    for (let i = 0; i < 5; i++) {
+      K.add(K.box(3.7, 1.5, 0.06, tileM([3.7, 0.75]), 1.85, 0.15 + 1.5 * (i + .5), 0.04), 1, 0.1 + i * 0.16, 'sweepX', { dur: 0.3 });
+      K.add(K.box(0.06, 1.5, 3.7, tileM([3.7, 0.75]), 0.04, 0.15 + 1.5 * (i + .5), 1.85), 1, 0.2 + i * 0.16, 'sweepZ', { dur: 0.3 });
+    }
+    const niche = K.group(1.85, 4.0, 0.1); K.box(1.4, 1.1, 0.04, M({ color: '#7f8a90' }), 0, 0, 0, 0, niche);
+    K.box(1.5, 0.08, 0.2, M({ color: '#f4f4f2' }), 0, -0.55, 0.08, 0, niche);
+    ['#3a7ca5', '#e9e2d0', '#5c946e'].forEach((c, i) => K.box(0.18, 0.42, 0.14, M({ color: c, roughness: .3 }), -0.35 + i * 0.35, -0.29, 0.06, 0.03, niche));
+    K.add(niche, 1, 1.1, 'pop');
+    const black = M({ color: '#1d1f22', metalness: .5, roughness: .35 });
+    const valve = K.group(1.85, 0, 0.12); K.cyl(0.03, 0.03, 2.4, black, 0, 5.6, 0.04, 8, valve); K.cyl(0.32, 0.32, 0.06, black, 0, 6.9, 0.35, 20, valve).rotation.x = 0.3;
+    K.box(0.06, 0.06, 0.4, black, 0, 6.85, 0.18, 0, valve); K.cyl(0.18, 0.18, 0.06, black, 0, 3.2, 0.03, 16, valve).rotation.x = Math.PI / 2;
+    K.add(valve, 1, 1.35, 'pop');
+    const pan = K.box(3.6, 0.12, 3.6, M({ map: TEX.squares([6, 6], 70, 14, '#2a2c2f', 8, [0, 0, 2], 4), roughness: .5 }), 1.85, 0.14, 1.85);
+    K.add(pan, 1, 0.0, 'sweepX', { dur: 0.35 });
+    K.add(K.box(0.3, 0.35, 3.7, M({ color: '#f1f1ee' }), 3.75, 0.18, 1.85), 1, 0.3, 'slide');
+    // phase 3: dark marble-look floor, white shaker vanity with black hardware, toilet
+    const floorT = M({ map: TEX.marble([2.5, 2]), roughness: .35 });
+    K.add(K.box(5.2, 0.05, 8, floorT, 6.4, 0.105, 4), 2, 0.0, 'sweepX', { dur: 0.45 });
+    K.add(K.box(3.8, 0.05, 4.3, floorT, 1.9, 0.105, 5.85), 2, 0.15, 'sweepZ', { dur: 0.4 });
+    const van = K.group(6.8, 0, 0.95), white = M({ color: '#F5F4EF' });
+    K.box(3.0, 2.6, 1.8, white, 0, 1.4, 0, 0.04, van);
+    const vdoor = M({ map: TEX.shaker('#FBFAF6', '#E7E5DE', '#F2F0EA', '#d6d3cb') });
+    K.box(1.42, 2.1, 0.06, vdoor, -0.74, 1.35, 0.92, 0, van); K.box(1.42, 2.1, 0.06, vdoor, 0.74, 1.35, 0.92, 0, van);
+    K.box(0.06, 0.5, 0.1, black, -0.15, 1.9, 0.99, 0, van); K.box(0.06, 0.5, 0.1, black, 0.15, 1.9, 0.99, 0, van);
+    K.box(3.1, 0.14, 1.9, M({ color: '#fbfbf9', roughness: .2 }), 0, 2.77, 0, 0.03, van);
+    K.box(1.2, 0.05, 0.9, M({ color: '#e3e6e8', roughness: .2 }), 0, 2.85, 0.1, 0, van);
+    const fau = K.group(0, 2.85, -0.6, van); K.cyl(0.05, 0.05, 0.45, black, 0, 0.22, 0, 8, fau); K.box(0.07, 0.07, 0.45, black, 0, 0.43, 0.2, 0, fau);
+    K.add(van, 2, 0.5, 'drop'); K.glow(2, white, '#fff1d6');
+    const toilet = K.group(1.0, 0, 6.2); K.box(1.0, 1.4, 1.6, white, 0.1, 0.7, 0, 0.25, toilet); K.box(0.7, 1.4, 1.5, white, -0.3, 2.0, 0, 0.12, toilet);
+    K.add(toilet, 2, 0.95, 'drop');
+    // phase 4: frameless glass, black mirror, sconces
+    const glass = M({ color: '#a8d4e6', transparent: true, opacity: .42, roughness: .05, metalness: .2, emissive: '#5c8fa6', emissiveIntensity: .15 });
+    const gp = K.box(0.05, 6.4, 2.6, glass, 3.75, 3.55, 1.4); gp.castShadow = false; K.add(gp, 3, 0.1, 'slide', { dur: 0.6 });
+    K.add(K.box(0.07, 0.07, 2.6, black, 3.75, 6.75, 1.4), 3, 0.2, 'slide');
+    const mir = K.group(6.8, 5.4, 0.06); K.box(2.2, 2.6, 0.08, black, 0, 0, 0, 0.04, mir); K.box(2.0, 2.4, 0.04, M({ color: '#cfd8dd', metalness: .95, roughness: .05 }), 0, 0, 0.04, 0, mir);
+    K.add(mir, 3, 0.45, 'pop');
+    const bulb = K.bulbMat();
+    [5.25, 8.35].forEach((x, i) => { const s = K.group(x, 5.9, 0.12); K.box(0.12, 0.6, 0.08, black, 0, 0, 0, 0, s); K.sphere(0.2, bulb, 0, 0.1, 0.25, s);
+      const pl = new THREE.PointLight('#ffd49a', 0, 7, 1.5); pl.position.set(0, 0, 0.6); s.add(pl); K.light(pl, 5); K.add(s, 3, 0.75 + i * 0.15, 'pop'); });
+    return [new THREE.Vector3(2, 4, 2), new THREE.Vector3(2, 5, 3), new THREE.Vector3(6.5, 4.5, 3.5), new THREE.Vector3(5, 6, 4)];
+  },
+};
+
+// ---------- 3. staircase restoration ----------
+ADS.stairs = {
+  name: 'Staircase restoration', h1: 'Worn stairs you <em>walk past every day?</em>', h3: 'Restored <em>phase by phase.</em>',
+  phases: ['Strip the old carpet', 'Paint treads + risers', 'Newel + handrail', 'Landing rail + light'],
+  target: [5.4, 3.6, 3.6], viewH: 27,
+  build(K) {
+    const { M } = K;
+    const wall = M({ color: '#D9CDB8' }), floor = M({ map: TEX.planks([2, 3], '#A7774A', 8), roughness: .55 });
+    K.shell({ rx: 11, rz: 8, wh: 10, wall, floor, win: [0.6, 2.2, 7.2, 9.4] });
+    const N = 10, RUN = 0.6, RISE = 0.62, Z0 = 0, Z1 = 3.2, X0 = 8.0;
+    const body = M({ color: '#8A9AA3' }), oldWood = M({ color: '#7d6852', roughness: .9 });
+    const stepX = i => X0 - i * RUN;   // left edge of step i's tread; steps climb toward -x
+    for (let i = 0; i < N; i++) { const h = (i + 1) * RISE; K.box(RUN, h, Z1 - Z0, body, stepX(i) + RUN / 2, h / 2, (Z0 + Z1) / 2); }
+    const LH = N * RISE, LX1 = stepX(N - 1);
+    K.box(LX1, LH, Z1 - Z0, body, LX1 / 2, LH / 2, (Z0 + Z1) / 2);
+    // old finish: dull treads/risers under a worn carpet runner
+    const treads = [], risers = [], carpet = M({ map: TEX.carpet() });
+    for (let i = 0; i < N; i++) {
+      const h = (i + 1) * RISE, x = stepX(i);
+      const tr = K.box(RUN + 0.08, 0.07, Z1 - Z0 + 0.06, oldWood, x + RUN / 2 + 0.02, h + 0.035, (Z0 + Z1) / 2); treads.push(tr);
+      const rs = K.box(0.04, RISE - 0.02, Z1 - Z0, oldWood, x + RUN + 0.02, h - RISE / 2, (Z0 + Z1) / 2); risers.push(rs);
+      const cg = K.group(x + RUN / 2, h, 1.6); K.box(RUN + 0.02, 0.06, 2.0, carpet, 0, 0.09, 0, 0, cg); K.box(0.05, RISE, 2.0, carpet, RUN / 2 + 0.05, -RISE / 2 + 0.06, 0, 0, cg);
+      K.add(cg, 0, 0.15 + i * 0.09, 'out', { dur: 0.35 });
+      K.paint(tr, 1, 0.1 + i * 0.1, '#A9713F'); K.paint(rs, 1, 0.55 + i * 0.08, '#FAF8F2');
+      treads[i].material.roughness = .5;
+    }
+    K.dust(0, 6.0, 1.6, 12, 0.5, 3.5);
+    K.glow(1, treads[0].material, '#ffd2a0');
+    // phase 3: turned newel, handrail, balusters
+    const railWood = M({ map: TEX.wood([1, 1], '#7A4B2A'), roughness: .45 }), white = M({ color: '#FAF8F2' });
+    const prof = [[0, 0], [0.26, 0], [0.26, 0.6], [0.18, 0.7], [0.14, 1.0], [0.2, 1.3], [0.12, 1.6], [0.12, 2.3], [0.2, 2.6], [0.24, 2.9], [0.24, 3.4], [0.3, 3.5], [0.3, 3.6], [0.12, 3.8], [0.05, 3.95], [0, 4.0]];
+    const lathe = new THREE.Mesh(new THREE.LatheGeometry(prof.map(([x, y]) => new THREE.Vector2(x, y)), 20), railWood); lathe.castShadow = true;
+    const newel = K.group(X0 + 0.25, RISE, Z1 - 0.25); newel.add(lathe); K.add(newel, 2, 0.1, 'grow', { dur: 0.5 });
+    // rail from the newel up to the landing, at 3 ft above the nosings
+    const a = new THREE.Vector3(X0 + 0.25, RISE + 3.55, Z1 - 0.25), b = new THREE.Vector3(LX1 + 0.1, LH + 3.0, Z1 - 0.25);
+    const len = a.distanceTo(b), mid = a.clone().add(b).multiplyScalar(.5);
+    const rail = K.group(mid.x, mid.y, mid.z); const rb = K.box(len, 0.22, 0.26, railWood, 0, 0, 0, 0.06, rail); rail.rotation.z = -Math.atan2(b.y - a.y, a.x - b.x);
+    K.add(rail, 2, 0.55, 'slide', { dur: 0.5 });
+    for (let i = 1; i < N; i++) { const x = stepX(i) + RUN / 2, top = a.y + (b.y - a.y) * ((X0 + 0.25 - x) / (X0 + 0.25 - b.x));
+      const h0 = (i + 1) * RISE + 0.07; const bl = K.post(0.11, top - h0, 0.11, white, x, h0, Z1 - 0.25); K.add(bl, 2, 0.9 + i * 0.07, 'grow', { dur: 0.3 }); }
+    K.glow(2, railWood, '#ffbf80');
+    // phase 4: square landing newel and rail along the landing edge, a pendant on
+    const sq = K.post(0.4, 3.9, 0.4, white, LX1 - 0.2, LH, Z1 - 0.25); K.box(0.52, 0.16, 0.52, white, 0, 3.98, 0, 0.04, sq); K.add(sq, 3, 0.1, 'grow', { dur: 0.45 });
+    const lrail = K.box(LX1 - 0.2, 0.22, 0.26, railWood, (LX1 - 0.2) / 2, LH + 3.0, Z1 - 0.25, 0.06); K.add(lrail, 3, 0.45, 'sweepX', { dur: 0.4 });
+    for (let k = 0; k < 6; k++) { const x = 0.25 + k * ((LX1 - 0.6) / 5); K.add(K.post(0.11, 2.9, 0.11, white, x, LH + 0.05, Z1 - 0.25), 3, 0.65 + k * 0.06, 'grow', { dur: 0.3 }); }
+    const bulb = K.bulbMat(); K.pendant(5.2, 10.2, 5.2, 2.6, bulb, '#ffcf8a', 3, 0.9);
+    return [new THREE.Vector3(5, 5, 3), new THREE.Vector3(6, 5, 5), new THREE.Vector3(6, 6, 5), new THREE.Vector3(2, 8.5, 4)];
+  },
+};
+
+// ---------- 4. composite deck and stair ----------
+ADS.deck = {
+  name: 'Composite deck', h1: 'Deck boards <em>going soft?</em>', h3: 'Your new deck, <em>built one phase at a time.</em>',
+  phases: ['Footings + framing', 'Composite boards', 'Black aluminum rail', 'Stair to the patio'],
+  target: [6.2, 2.4, 6.0], viewH: 30,
+  build(K) {
+    const { M } = K;
+    const RX = 13, RZ = 12, DH = 2.6;
+    K.box(RX + 0.6, 1.0, RZ + 0.6, M({ color: '#5E4630', roughness: .7 }), RX / 2, -0.5, RZ / 2, 0.12);       // plinth
+    K.box(RX, 0.1, RZ, M({ map: TEX.grass([3, 3]), roughness: 1 }), RX / 2, 0.05, RZ / 2);
+    const conc = M({ map: TEX.squares([3, 2], 176, 22, '#8f877a', 3, [6, 0, -10], 13), roughness: .9 });
+    K.box(5.5, 0.1, 3.6, conc, 9.6, 0.11, 10.0);                                                             // stamped patio
+    // house wall with French doors (z = 0)
+    const siding = M({ map: TEX.siding([3, 4], '#E2DCCD') }), trim = M({ color: '#FBF8F2' });
+    const WH = 10, WT = 0.5, D0 = 4.6, D1 = 7.6, DY0 = DH, DY1 = DH + 6.8;
+    K.box(D0, WH, WT, siding, D0 / 2, WH / 2, -WT / 2); K.box(RX - D1, WH, WT, siding, (RX + D1) / 2, WH / 2, -WT / 2);
+    K.box(D1 - D0, DY0, WT, siding, (D0 + D1) / 2, DY0 / 2, -WT / 2); K.box(D1 - D0, WH - DY1, WT, siding, (D0 + D1) / 2, (WH + DY1) / 2, -WT / 2);
+    const glass = M({ color: '#9fd0f0', emissive: '#ffd9a0', emissiveIntensity: .05, roughness: .1 }); K.light(glass, 0.9);
+    K.box(D1 - D0, DY1 - DY0, 0.06, glass, (D0 + D1) / 2, (DY0 + DY1) / 2, -WT / 2);
+    for (let k = 0; k <= 2; k++) K.box(0.12, DY1 - DY0, 0.14, trim, D0 + k * (D1 - D0) / 2, (DY0 + DY1) / 2, -0.15);
+    for (let k = 1; k < 4; k++) K.box(D1 - D0, 0.07, 0.1, trim, (D0 + D1) / 2, DY0 + k * (DY1 - DY0) / 4, -0.15);
+    K.box(D1 - D0 + 0.4, 0.2, 0.2, trim, (D0 + D1) / 2, DY1 + 0.1, -0.1);
+    K.box(RX + WT, 0.06, WT, M({ color: '#2B3A4C' }), RX / 2, WH + 0.03, -WT / 2);
+    K.box(1.4, 3.2, 2.0, M({ color: '#5f8a49' }), 11.8, 1.6, 1.5, 0.6); K.box(1.6, 2.4, 1.8, M({ color: '#6b9853' }), 0.9, 1.2, 9.6, 0.6);   // shrubs
+    // phase 1: posts on footings, beam and joists
+    const fr = M({ map: TEX.wood([1, 1], '#B08955'), roughness: .8 }), X0 = 1.0, X1 = 11.5, Z1 = 7.0;
+    [X0 + 0.3, 4.8, 8.2, X1 - 0.3].forEach((x, i) => { K.add(K.cyl(0.45, 0.45, 0.25, M({ color: '#a9a49b' }), x, 0.2, Z1 - 0.4), 0, i * 0.1, 'pop');
+      K.add(K.post(0.4, DH - 0.6, 0.4, fr, x, 0.3, Z1 - 0.4), 0, 0.2 + i * 0.1, 'grow', { dur: 0.35 }); });
+    K.add(K.box(X1 - X0, 0.6, 0.35, fr, (X0 + X1) / 2, DH - 0.55, Z1 - 0.4), 0, 0.7, 'slide');
+    K.add(K.box(X1 - X0, 0.5, 0.2, fr, (X0 + X1) / 2, DH - 0.5, 0.15), 0, 0.75, 'slide');
+    for (let k = 0; k < 9; k++) K.add(K.box(0.15, 0.5, Z1, fr, X0 + 0.1 + k * (X1 - X0 - 0.2) / 8, DH - 0.5, Z1 / 2), 0, 0.85 + k * 0.08, 'drop', { dur: 0.4 });
+    K.dust(0, 6, 6.5, 8, 0.3, 6);
+    // phase 2: gray composite boards with a dark picture-frame border
+    const gray = M({ map: TEX.planks([1, 1], '#8D9095', 6), roughness: .6 }), dark = M({ map: TEX.planks([1, 1], '#4B4744', 2), roughness: .6 });
+    const NB = 12, bw = (Z1 - 0.9) / NB;
+    for (let k = 0; k < NB; k++) K.add(K.box(X1 - X0 - 0.9, 0.12, bw - 0.03, gray, (X0 + X1) / 2, DH + 0.06, 0.45 + bw * (k + .5)), 1, 0.1 + k * 0.09, 'sweepX', { dur: 0.3 });
+    K.add(K.box(X1 - X0, 0.13, 0.45, dark, (X0 + X1) / 2, DH + 0.065, Z1 - 0.225), 1, 1.25, 'sweepX', { dur: 0.3 });
+    K.add(K.box(0.45, 0.13, Z1, dark, X1 - 0.225, DH + 0.065, Z1 / 2), 1, 1.35, 'sweepZ', { dur: 0.3 });
+    K.add(K.box(0.45, 0.13, Z1, dark, X0 + 0.225, DH + 0.065, Z1 / 2), 1, 1.35, 'sweepZ', { dur: 0.3 });
+    K.add(K.box(X1 - X0, 0.13, 0.45, dark, (X0 + X1) / 2, DH + 0.065, 0.225), 1, 1.25, 'sweepX', { dur: 0.3 });
+    K.glow(1, gray, '#ffe2b8');
+    // phase 3: black aluminum posts, top rail, balusters (gap for the stair at x 7.6..10.2)
+    const blk = M({ color: '#202225', metalness: .6, roughness: .4 }), RH = 3.0, SG0 = 7.6, SG1 = 10.2;
+    const front = [[X0 + 0.2, SG0], [SG1, X1 - 0.2]], posts = [X0 + 0.2, 4.4, SG0, SG1, X1 - 0.2];
+    posts.forEach((x, i) => K.add(K.post(0.24, RH + 0.1, 0.24, blk, x, DH + 0.12, Z1 - 0.2), 2, 0.1 + i * 0.08, 'grow', { dur: 0.35 }));
+    [1.6, 4.3].forEach((z, i) => K.add(K.post(0.24, RH + 0.1, 0.24, blk, X1 - 0.2, DH + 0.12, z), 2, 0.5 + i * 0.08, 'grow', { dur: 0.35 }));
+    front.forEach(([a, b], i) => { K.add(K.box(b - a, 0.16, 0.22, blk, (a + b) / 2, DH + RH + 0.1, Z1 - 0.2), 2, 0.6 + i * 0.1, 'sweepX', { dur: 0.35 });
+      const n = Math.round((b - a) / 0.42); for (let k = 1; k < n; k++) K.add(K.post(0.05, RH - 0.25, 0.05, blk, a + k * (b - a) / n, DH + 0.3, Z1 - 0.2), 2, 0.9 + k * 0.03 + i * 0.25, 'grow', { dur: 0.25 }); });
+    K.add(K.box(0.22, 0.16, Z1 - 0.6, blk, X1 - 0.2, DH + RH + 0.1, (Z1 - 0.2) / 2 + 0.2), 2, 0.75, 'sweepZ', { dur: 0.35 });
+    for (let k = 1; k < 14; k++) K.add(K.post(0.05, RH - 0.25, 0.05, blk, X1 - 0.2, DH + 0.3, 0.4 + k * (Z1 - 0.8) / 14), 2, 1.0 + k * 0.03, 'grow', { dur: 0.25 });
+    K.glow(2, blk, '#ffcf8a');
+    // phase 4: four steps with white risers down to the patio, lights on
+    const NS = 4, rise = DH / (NS + 0.0), run = 0.95;
+    for (let s = 0; s < NS; s++) { const y = DH - rise * (s + 1), z = Z1 + run * s;
+      const g = K.group((SG0 + SG1) / 2, 0, z + run / 2);
+      K.box(SG1 - SG0 - 0.1, 0.12, run + 0.05, gray, 0, y + rise - 0.06 + 0.06, 0, 0, g);
+      K.box(SG1 - SG0 - 0.1, rise, 0.06, M({ color: '#FAF8F2' }), 0, y + rise / 2, run / 2, 0, g);
+      K.box(0.18, y + rise, run, fr, -(SG1 - SG0) / 2 + 0.1, (y + rise) / 2, 0, 0, g); K.box(0.18, y + rise, run, fr, (SG1 - SG0) / 2 - 0.1, (y + rise) / 2, 0, 0, g);
+      K.add(g, 3, 0.1 + s * 0.2, 'drop', { dur: 0.45 }); }
+    const bulb = K.bulbMat();
+    [D0 - 0.6, D1 + 0.6].forEach((x, i) => { const l = K.group(x, DH + 5.2, 0.1); K.box(0.4, 0.7, 0.35, blk, 0, 0, 0.15, 0, l); K.sphere(0.15, bulb, 0, 0, 0.35, l);
+      const pl = new THREE.PointLight('#ffcf8a', 0, 8, 1.4); pl.position.set(0, -0.3, 0.9); l.add(pl); K.light(pl, 6); K.add(l, 3, 0.95 + i * 0.12, 'pop'); });
+    return [new THREE.Vector3(6, 4, 4), new THREE.Vector3(6, 5, 4), new THREE.Vector3(8, 6, 6), new THREE.Vector3(9, 4, 9)];
+  },
+};
+
+// ---------- 5. glass office ----------
+ADS.office = {
+  name: 'Glass office', h1: 'Need privacy <em>without losing the windows?</em>', h3: 'Built in phases. <em>Paid in phases.</em>',
+  phases: ['Frame the partition', 'Glass + transoms', 'French doors', 'Built-ins + lights'],
+  target: [6.3, 2.9, 5.0], viewH: 31,
+  build(K) {
+    const { M } = K;
+    const wall = M({ color: '#E9E6DF' }), floor = M({ map: TEX.planks([3, 4], '#B48A5E', 12), roughness: .5 });
+    K.shell({ rx: 13, rz: 10, wh: 9, wall, floor, win: [1.6, 4.6, 3.6, 7.6] });
+    K.box(3.0, 4.0, 0.06, M({ color: '#9fd0f0', emissive: '#7fc4f2', emissiveIntensity: .35, roughness: .1 }), 9.6, 5.6, -0.22);   // second window
+    K.box(3.3, 0.14, 0.3, M({ color: '#FBF8F2' }), 9.6, 3.58, 0.1);
+    // phase 1: oak frame for the partition along x = 6.6
+    const oak = M({ map: TEX.wood([1, 1], '#B88452'), roughness: .5 }), PX = 6.6, TH = 9, TR = 7.2;
+    const studs = [0.1, 1.9, 3.7, 5.5, 7.1, 8.7, 9.9];
+    K.add(K.box(0.3, 0.25, 10, oak, PX, 0.2, 5), 0, 0.05, 'sweepZ', { dur: 0.4 });
+    studs.forEach((z, i) => K.add(K.post(0.3, TH - 0.35, 0.22, oak, PX, 0.3, z), 0, 0.3 + i * 0.1, 'grow', { dur: 0.35 }));
+    K.add(K.box(0.3, 0.25, 10, oak, PX, TH - 0.12, 5), 0, 1.1, 'slide');
+    K.add(K.box(0.3, 0.2, 10, oak, PX, TR, 5), 0, 1.25, 'sweepZ', { dur: 0.4 });
+    K.dust(0, PX + 0.8, 5, 8, 0.2, 5);
+    K.glow(0, oak, '#ffc890');
+    // phase 2: glass panes and transoms
+    const glass = M({ color: '#a8d4e6', transparent: true, opacity: .42, roughness: .05, metalness: .2, emissive: '#5c8fa6', emissiveIntensity: .15 });
+    for (let i = 0; i < studs.length - 1; i++) { const z0 = studs[i] + 0.11, z1 = studs[i + 1] - 0.11; if (i === 4) continue;   // door bay (7.1..8.7)
+      const g = K.box(0.05, TR - 0.4, z1 - z0, glass, PX, (TR + 0.3) / 2 + 0.05, (z0 + z1) / 2); g.castShadow = false; K.add(g, 1, 0.1 + i * 0.15, 'sweepY', { dur: 0.35 }); }
+    for (let i = 0; i < studs.length - 1; i++) { const z0 = studs[i] + 0.11, z1 = studs[i + 1] - 0.11;
+      const g = K.box(0.05, TH - TR - 0.35, z1 - z0, glass, PX, (TH + TR) / 2 - 0.08, (z0 + z1) / 2); g.castShadow = false; K.add(g, 1, 1.0 + i * 0.08, 'sweepZ', { dur: 0.3 }); }
+    // phase 3: French doors with divided lites in the door bay
+    const door = (z0, z1, d) => { const g = K.group(PX, 0, (z0 + z1) / 2), w = z1 - z0, h = TR - 0.4;
+      K.box(0.14, h, 0.12, oak, 0, 0.3 + h / 2, -w / 2 + 0.06, 0, g); K.box(0.14, h, 0.12, oak, 0, 0.3 + h / 2, w / 2 - 0.06, 0, g);
+      K.box(0.14, 0.14, w, oak, 0, 0.37, 0, 0, g); K.box(0.14, 0.14, w, oak, 0, 0.3 + h - 0.07, 0, 0, g);
+      for (let k = 1; k < 5; k++) K.box(0.08, 0.05, w, oak, 0, 0.3 + k * h / 5, 0, 0, g); K.box(0.08, h, 0.05, oak, 0, 0.3 + h / 2, 0, 0, g);
+      const gl = K.box(0.03, h - 0.2, w - 0.2, glass, 0, 0.3 + h / 2, 0, 0, g); gl.castShadow = false;
+      K.sphere(0.07, M({ color: '#b08a50', metalness: .8, roughness: .3 }), 0.12, 3.6, (z0 < 7.9 ? 1 : -1) * (w / 2 - 0.2), g);
+      K.add(g, 2, d, 'pop', { dur: 0.5 }); };
+    door(7.21, 7.9, 0.2); door(7.9, 8.59, 0.45);
+    K.glow(2, glass, '#ffe9c8');
+    // phase 4: built-in desk, bookcase, credenza; desk lamp and pendants on
+    const paint = M({ color: '#3F5A6E' }), top = M({ map: TEX.wood([1, 1], '#C49461'), roughness: .45 });
+    const desk = K.group(3.3, 0, 1.2); K.box(4.6, 0.18, 2.2, top, 0, 2.6, 0, 0.03, desk); K.box(1.4, 2.5, 2.0, paint, -1.5, 1.25, 0, 0.03, desk); K.box(1.4, 2.5, 2.0, paint, 1.5, 1.25, 0, 0.03, desk);
+    K.box(0.9, 0.6, 0.08, M({ color: '#16191c' }), 0, 3.25, -0.4, 0, desk); K.add(desk, 3, 0.1, 'drop');
+    const book = K.group(0.65, 0, 6.6); K.box(1.1, 7.0, 3.2, paint, 0, 3.5, 0, 0.03, book);
+    const cols = ['#c0392b', '#e9e2d0', '#2e86c1', '#d4ac0d', '#5c946e', '#8e44ad'];
+    for (let s = 0; s < 4; s++) { K.box(1.0, 0.08, 3.0, top, 0.08, 1.2 + s * 1.6, 0, 0, book); for (let k = 0; k < 9; k++) K.box(0.7, 0.9 + (k % 3) * 0.12, 0.2, M({ color: cols[(k + s) % 6] }), 0.25, 1.24 + s * 1.6 + (0.45 + (k % 3) * 0.06), -1.2 + k * 0.28, 0, book); }
+    K.add(book, 3, 0.3, 'drop');
+    const cred = K.group(9.6, 0, 1.0); K.box(4.4, 2.6, 1.7, paint, 0, 1.3, 0, 0.03, cred); K.box(4.5, 0.14, 1.8, top, 0, 2.67, 0, 0.03, cred);
+    for (let k = 0; k < 3; k++) K.box(1.36, 2.1, 0.06, M({ map: TEX.shaker('#46647A', '#3A5568', '#41606F', '#2f4757') }), -1.45 + k * 1.45, 1.3, 0.87, 0, cred);
+    K.add(cred, 3, 0.5, 'drop');
+    const bulb = K.bulbMat(); K.pendant(3.3, 9.2, 4.6, 3.0, bulb, '#ffcf8a', 3, 0.75); K.pendant(9.6, 9.2, 4.6, 3.0, bulb, '#ffcf8a', 3, 0.85);
+    return [new THREE.Vector3(6.6, 5, 5), new THREE.Vector3(6.6, 5, 5), new THREE.Vector3(7.5, 4, 8), new THREE.Vector3(6, 6, 5)];
+  },
+};
+
+// =====================================================================
+// engine
+// =====================================================================
+const scene = new THREE.Scene(); scene.background = new THREE.Color('#1B2736');
+scene.environment = envTex; scene.environmentIntensity = 0.35;
+const hemi = new THREE.HemisphereLight('#c9dcf2', '#3a3027', 0.5); scene.add(hemi);
+const sun = new THREE.DirectionalLight('#fff1dc', 1.2); scene.add(sun, sun.target);
+sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.02;
+const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 200);
+const composer = new EffectComposer(renderer); composer.setPixelRatio(1); composer.setSize(W, H);
+composer.addPass(new RenderPass(scene, cam));
+const hts = new ShaderPass(HorizontalTiltShiftShader), vts = new ShaderPass(VerticalTiltShiftShader);
+hts.uniforms.h.value = 3.2 / W; vts.uniforms.v.value = 3.2 / H; hts.uniforms.r.value = vts.uniforms.r.value = 0.5;
+composer.addPass(hts); composer.addPass(vts); composer.addPass(new OutputPass());
+
+let AD, K, zones = [], root = null;
+const $ = id => document.getElementById(id);
+function load(id) {
+  if (root) { scene.remove(root); root.traverse(o => { o.geometry?.dispose(); }); zones.forEach(z => scene.remove(z)); }
+  AD = ADS[id]; root = new THREE.Group(); scene.add(root);
+  K = makeKit(root);
+  const zp = AD.build(K);
+  zones = zp.map((p, i) => { const l = new THREE.PointLight(['#ffb27a', '#ffd6a8', '#fff0dc', '#ffcf8a'][i], 0, 13, 1.4); l.position.copy(p); scene.add(l); return l; });
+  const [tx, ty, tz] = AD.target;
+  sun.position.set(tx + 13, 26, tz + 10); sun.target.position.set(tx, 0, tz);
+  const s = AD.viewH * 0.55; Object.assign(sun.shadow.camera, { left: -s, right: s, top: s, bottom: -s, near: 1, far: 70 }); sun.shadow.camera.updateProjectionMatrix();
+  cam.left = -AD.viewH * W / H / 2; cam.right = -cam.left; cam.top = AD.viewH / 2; cam.bottom = -AD.viewH / 2;
+  $('h1').innerHTML = AD.h1; $('h3').innerHTML = AD.h3;
+  $('tracker').innerHTML = AD.phases.map((p, i) => `<div class="row" id="r${i}"><div class="n">${i + 1}</div><div class="lbl">${p}</div><div class="chip">Building</div></div>`).join('');
+  document.querySelectorAll('#bar button').forEach(b => b.classList.toggle('on', b.dataset.id === id));
+}
+
+function setT(t) {
+  const [tx, ty, tz] = AD.target, TGT = new THREE.Vector3(tx, ty, tz);
+  const a = THREE.MathUtils.degToRad(45 + 7 * Math.sin(t * 0.32) - 4 * ramp(t, 0, 13)), el = THREE.MathUtils.degToRad(33), dist = 60;
+  cam.position.set(tx + dist * Math.cos(el) * Math.sin(a), ty + dist * Math.sin(el), tz + dist * Math.cos(el) * Math.cos(a));
+  cam.lookAt(TGT); cam.zoom = 1.0 + 0.1 * eInOut(ramp(t, 0, 13));
+  cam.setViewOffset(W, H, 0, 70, W, H); cam.updateProjectionMatrix();
+
+  for (const it of K.items) {
+    const st = P[it.p][0] + 0.15 + it.delay, p = ramp(t, st, st + it.dur), o = it.obj, b = it.base, s0 = it.scale0;
+    o.position.copy(b); o.scale.copy(s0); o.rotation.x = o.rotation.x; o.visible = true;
+    switch (it.kind) {
+      case 'drop': o.visible = p > 0; o.position.y = b.y + (1 - eBack(p)) * 6; o.scale.setScalar(0.001 + 0.999 * Math.min(1, p * 2.2)); break;
+      case 'slide': o.visible = p > 0; o.position.y = b.y + (1 - eOut(p)) * 3; break;
+      case 'hang': o.visible = p > 0; o.position.y = b.y + (1 - eBack(p)) * 4; break;
+      case 'pop': o.visible = p > 0; o.scale.setScalar(0.001 + 0.999 * eBack(p)); break;
+      case 'grow': o.visible = p > 0; o.scale.y = Math.max(0.001, eOut(p)); break;
+      case 'sweepX': o.visible = p > 0; o.scale.x = Math.max(0.001, eOut(p)); break;
+      case 'sweepZ': o.visible = p > 0; o.scale.z = Math.max(0.001, eOut(p)); break;
+      case 'sweepY': o.visible = p > 0; o.scale.y = Math.max(0.001, eOut(p)); break;
+      case 'out': { const q = 1 - eOut(p) ; o.visible = q > 0.002; o.position.y = b.y + p * p * 1.2; o.scale.setScalar(Math.max(0.001, q)); break; }
+      case 'fall': { const f = p * p, sx = it.opts.sx ?? 0;
+        o.position.set(b.x + f * (1.2 + sx), b.y - f * b.y, b.z + sx * f * 1.2); o.rotation.set(f * sx * 2.8, 0, f * 1.1);
+        const q = 1 - ramp(p, 0.7, 1); o.visible = q > 0.002; o.scale.setScalar(Math.max(0.001, q)); break; }
+    }
+  }
+  for (const d of K.dusts) { const st = P[d.p][0] + d.delay, dp = ramp(t, st, st + 1.6); d.m.opacity = 0.55 * Math.sin(Math.PI * dp);
+    for (const bb of d.balls) { bb.s.position.y = 0.3 + dp * (1.5 + bb.r * 2); bb.s.scale.setScalar(0.6 + dp * 1.4); } }
+  for (const pt of K.paints) { const st = P[pt.p][0] + 0.15 + pt.delay; pt.m.color.copy(pt.from).lerp(pt.to, eOut(ramp(t, st, st + pt.dur))); }
+  // lights: come on at the end of their phase, with a short flicker
+  for (const L of K.lights) { const at = P[L.p][1], on = eOut(ramp(t, at - 0.25, at + 0.35));
+    const flick = t > at - 0.25 && t < at - 0.05 ? (Math.sin(t * 90) > 0 ? 1 : 0.3) : 1;
+    if (L.obj.isLight) L.obj.intensity = L.max * on * flick;
+    else { L.obj.userData.e0 ??= L.obj.emissiveIntensity; L.obj.emissiveIntensity = L.obj.userData.e0 + (L.max - L.obj.userData.e0) * on * flick; } }
+  // mood warms as each phase is paid; the finished phase pulses once
+  const paidN = P.reduce((s, [, b]) => s + eOut(ramp(t, b - 0.05, b + 0.45)), 0);
+  hemi.intensity = 0.45 + 0.08 * paidN; sun.intensity = 0.95 + 0.12 * paidN;
+  hemi.color.setHSL(0.58 - 0.035 * paidN, 0.45 - 0.05 * paidN, 0.82);
+  renderer.toneMappingExposure = 0.9 + 0.035 * paidN;
+  zones.forEach((z, i) => { z.intensity = [5, 5.5, 4, 4.5][i] * (AD.zoneK ?? 1) * eOut(ramp(t, P[i][1] - 0.05, P[i][1] + 0.45)); });
+  for (const g of K.glows) { const u = t - P[g.p][1]; const pulse = u > -0.05 && u < 0.9 ? Math.sin(Math.PI * clamp((u + 0.05) / 0.95)) : 0;
+    g.m.emissive.set(g.col); g.m.emissiveIntensity = Math.max(g.m.userData.e0 ?? 0, 0.45 * pulse); }
+
+  // overlays
+  $('h1').style.opacity = fade(t, T_H1, 0.01, 0.35); $('h2').style.opacity = fade(t, T_H2); $('h3').style.opacity = fade(t, T_H3);
+  for (const id of ['h1', 'h2', 'h3']) { const o = +$(id).style.opacity; $(id).style.transform = `translateY(${(1 - o) * 24}px)`; }
+  const tr = fade(t, [T_H2[0] - 0.2, T_END + 0.4]);
+  $('tracker').style.opacity = tr; $('tracker').style.transform = `translateY(${(1 - tr) * 40}px)`;
+  P.forEach(([a, b], i) => { const r = $('r' + i), paid = t >= b;
+    r.classList.toggle('paid', paid); r.classList.toggle('building', t >= a && t < b);
+    r.querySelector('.chip').textContent = paid ? 'Done · Paid ✓' : 'Building';
+    r.style.transform = `scale(${paid ? 1 + 0.07 * Math.sin(Math.PI * clamp((t - b) / 0.35)) : 1})`; });
+  const e = eInOut(ramp(t, T_END, T_END + 0.6));
+  $('end').style.opacity = e; $('end').style.transform = `translateY(${(1 - e) * 120}px)`;
+  [...$('end').children].forEach((c, k) => { const s = eOut(ramp(t, T_END + 0.3 + k * 0.18, T_END + 0.8 + k * 0.18)); c.style.opacity = s; c.style.translate = `0 ${(1 - s) * 30}px`; });
+  composer.render();
+  const clk = $('clock'); if (clk) clk.textContent = t.toFixed(1) + ' s';
+}
+
+// ---------- page ----------
+const qs = new URLSearchParams(location.search), render = qs.has('render');
+if (render) document.body.classList.add('render');
+$('bar').innerHTML = Object.entries(ADS).map(([id, a]) => `<button data-id="${id}">${a.name}</button>`).join('') + '<span id="clock"></span>';
+let t0 = performance.now();
+$('bar').onclick = e => { const id = e.target.dataset?.id; if (id) { load(id); t0 = performance.now(); try { history.replaceState(null, '', '?ad=' + id); } catch (_) {} } };
+load(ADS[qs.get('ad')] ? qs.get('ad') : 'kitchen');
+window.setT = setT; window.load = load; window.DUR = DUR; window.ADS = Object.keys(ADS);
+window.ready = document.fonts.ready.then(() => true);
+function fit() { const s = render ? 1 : Math.min(innerWidth / W, (innerHeight - 56) / H); $('wrap').style.transform = `scale(${s})`; }
+addEventListener('resize', fit); fit();
+if (!render) { const loop = () => { const t = ((performance.now() - t0) / 1000) % (DUR + 1.0); setT(Math.min(t, DUR)); requestAnimationFrame(loop); }; requestAnimationFrame(loop); }
+else setT(0);
+</script>
+</body>
+</html>
