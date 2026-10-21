@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="A guided walkthrough of Thrifty Vows, a budget-first wedding planner for iPhone and Mac, with its budget split and guest-cost lever to try in the browser.">
+<title>Thrifty Vows Walkthrough</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Nunito:wght@400;600;700&display=swap">
+<style>
+/* Thrifty Vows 2.0 "Blush & Petal": rose for actions, blush cream ground, sage for money saved, champagne for neutral highlights. */
+:root {
+  color-scheme: light;
+  --bg: #fdf4f2;
+  --card: #ffffff;
+  --blush: #f9e1e6;
+  --rule: #f0d6d9;
+  --ink: #2f2228;
+  --muted: #7a6269;
+  --rose: #b83f63;
+  --rose-soft: #e9a3b6;
+  --sage: #4e7f57;
+  --sage-soft: #e3efe4;
+  --champ: #f5ecd9;
+  --champ-ink: #7a5c22;
+  --serif: "Fraunces", "New York", Georgia, serif;
+  --round: "Nunito", ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #1c1417; --card: #2a1f23; --blush: #3a2a30; --rule: #45333a; --ink: #f6e9ec; --muted: #c4a9b1;
+    --rose: #e58aa4; --rose-soft: #7d3a50; --sage: #8fc39a; --sage-soft: #23352a; --champ: #3a3122; --champ-ink: #e6cc95;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #1c1417; --card: #2a1f23; --blush: #3a2a30; --rule: #45333a; --ink: #f6e9ec; --muted: #c4a9b1;
+  --rose: #e58aa4; --rose-soft: #7d3a50; --sage: #8fc39a; --sage-soft: #23352a; --champ: #3a3122; --champ-ink: #e6cc95;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--round); font-size: 1.0625rem; line-height: 1.6; }
+.wrap { max-width: 68rem; margin: 0 auto; padding: 2rem 1rem 5rem; display: grid; gap: 4.5rem; }
+a { color: var(--rose); text-underline-offset: 0.18em; }
+:focus-visible { outline: 2px solid var(--rose); outline-offset: 3px; border-radius: 4px; }
+h1, h2, h3 { font-family: var(--serif); font-weight: 600; line-height: 1.1; margin: 0; text-wrap: balance; }
+p { margin: 0; }
+.eyebrow { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+
+/* Top */
+.top { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; font-size: 0.95rem; }
+.theme-btn { font: inherit; font-weight: 700; font-size: 0.85rem; color: var(--ink); background: var(--card); border: 1px solid var(--rule); border-radius: 999px; padding: 0.35rem 0.9rem; cursor: pointer; }
+.hero { display: grid; grid-template-columns: auto 1fr; gap: 1.5rem; align-items: center; }
+.hero img { width: 96px; height: 96px; border-radius: 22px; box-shadow: 0 10px 30px rgba(184, 63, 99, 0.25); }
+.hero h1 { font-size: clamp(2.3rem, 6vw, 3.6rem); }
+.hero .lede { grid-column: 1 / -1; max-width: 46rem; font-size: 1.2rem; color: var(--muted); }
+.pills { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.pills span { background: var(--blush); color: var(--rose); font-weight: 700; font-size: 0.85rem; border-radius: 999px; padding: 0.25rem 0.8rem; }
+
+/* Walkthrough player */
+.player { display: grid; grid-template-columns: minmax(0, 20rem) minmax(0, 1fr); gap: 3rem; align-items: center; }
+.phone { position: relative; aspect-ratio: 720 / 1262; border-radius: 2.6rem; padding: 0.7rem; background: #2b1f24; box-shadow: 0 30px 60px -20px rgba(80, 30, 45, 0.45); }
+.screen { position: relative; width: 100%; height: 100%; border-radius: 2rem; overflow: hidden; background: #fdf4f2; }
+.screen img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.5s ease, transform 0.6s ease; transform: scale(1.02); }
+.screen img.on { opacity: 1; transform: none; }
+.tap { position: absolute; width: 2.4rem; height: 2.4rem; margin: -1.2rem 0 0 -1.2rem; border-radius: 50%; border: 3px solid var(--rose); background: rgba(184, 63, 99, 0.18); opacity: 0; pointer-events: none; }
+.tap.go { animation: tap 1.2s ease 0.6s 1 both; }
+@keyframes tap { 0% { opacity: 0; transform: scale(0.4); } 30% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1.6); } }
+.story { display: grid; gap: 1.25rem; }
+.story .step { font-size: 0.85rem; font-weight: 700; color: var(--rose); letter-spacing: 0.08em; text-transform: uppercase; }
+.story h2 { font-size: clamp(1.8rem, 4vw, 2.5rem); }
+.story p.say { font-size: 1.15rem; max-width: 34rem; min-height: 6.5em; }
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; }
+.controls button { font: inherit; font-weight: 700; font-size: 0.95rem; border-radius: 999px; padding: 0.5rem 1.1rem; cursor: pointer; border: 1px solid var(--rule); background: var(--card); color: var(--ink); }
+.controls button.primary { background: var(--rose); border-color: var(--rose); color: #fff; }
+:root[data-theme="dark"] .controls button.primary { color: #2a1f23; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .controls button.primary { color: #2a1f23; } }
+.bar { height: 4px; border-radius: 4px; background: var(--rule); overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; background: var(--rose); }
+.chapters { display: flex; flex-wrap: wrap; gap: 0.4rem; list-style: none; margin: 0; padding: 0; }
+.chapters button { font: inherit; font-size: 0.85rem; font-weight: 600; border: 0; border-radius: 999px; padding: 0.25rem 0.7rem; background: var(--blush); color: var(--ink); cursor: pointer; }
+.chapters button[aria-current="step"] { background: var(--rose); color: #fff; }
+:root[data-theme="dark"] .chapters button[aria-current="step"] { color: #2a1f23; }
+
+/* Sections */
+.head { display: grid; gap: 0.6rem; max-width: 46rem; }
+.head h2 { font-size: clamp(1.7rem, 4vw, 2.3rem); }
+.head p { color: var(--muted); }
+.card { background: var(--card); border: 1px solid var(--rule); border-radius: 1.4rem; padding: 1.5rem; }
+.lab { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.25rem; margin-top: 1.5rem; }
+.field { display: grid; gap: 0.35rem; margin-bottom: 1.2rem; }
+.field label { font-weight: 700; display: flex; justify-content: space-between; gap: 1rem; }
+.field label output { font-family: var(--serif); font-size: 1.25rem; color: var(--rose); }
+input[type="range"] { width: 100%; accent-color: var(--rose); }
+.big { font-family: var(--serif); font-size: clamp(2.2rem, 6vw, 3rem); line-height: 1; }
+.kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; margin-top: 1rem; }
+.kpi { border-radius: 1rem; padding: 0.9rem 1rem; background: var(--blush); }
+.kpi.sage { background: var(--sage-soft); }
+.kpi.champ { background: var(--champ); }
+.kpi small { display: block; font-weight: 700; font-size: 0.8rem; color: var(--muted); }
+.kpi b { font-family: var(--serif); font-size: 1.45rem; font-weight: 600; }
+.up { color: var(--rose); } .down { color: var(--sage); }
+.split { display: grid; gap: 0.45rem; }
+.row { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr) 4.8rem; gap: 0.6rem; align-items: center; font-size: 0.92rem; }
+.row .track { height: 0.6rem; border-radius: 1rem; background: var(--blush); overflow: hidden; }
+.row .track i { display: block; height: 100%; border-radius: 1rem; background: var(--rose); transition: width 0.25s ease; }
+.row.pg .track i { background: var(--champ-ink); }
+.row span:last-child { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; }
+.key { display: flex; gap: 1rem; flex-wrap: wrap; font-size: 0.85rem; color: var(--muted); margin-bottom: 0.75rem; }
+.key i { display: inline-block; width: 0.7rem; height: 0.7rem; border-radius: 50%; margin-right: 0.35rem; vertical-align: -0.05rem; background: var(--rose); }
+.key i.pg { background: var(--champ-ink); }
+.note { font-size: 0.88rem; color: var(--muted); margin-top: 1rem; }
+
+/* Savings */
+.saved { background: var(--sage-soft); border-radius: 1.4rem; padding: 1.5rem; display: grid; gap: 0.3rem; margin-top: 1.5rem; }
+.saved small { font-weight: 700; color: var(--sage); }
+.saved .big { color: var(--sage); }
+.saved p { font-family: var(--serif); font-size: 1.2rem; }
+.tips { display: grid; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); gap: 0.9rem; margin-top: 1rem; }
+.tip { background: var(--card); border: 1px solid var(--rule); border-radius: 1.2rem; padding: 1.1rem 1.2rem; display: grid; gap: 0.5rem; align-content: start; }
+.tip h3 { font-size: 1.1rem; }
+.tip p { font-size: 0.93rem; color: var(--muted); }
+.tip .foot { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; margin-top: 0.3rem; }
+.tip .foot small { color: var(--sage); font-weight: 700; }
+.tip button { font: inherit; font-weight: 700; font-size: 0.85rem; border-radius: 999px; padding: 0.3rem 0.85rem; cursor: pointer; border: 1px solid var(--rose); background: transparent; color: var(--rose); }
+.tip button[aria-pressed="true"] { background: var(--sage); border-color: var(--sage); color: #fff; }
+:root[data-theme="dark"] .tip button[aria-pressed="true"] { color: #1c1417; }
+
+/* Gallery */
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); gap: 1.25rem; margin-top: 1.5rem; }
+.gallery figure { margin: 0; display: grid; gap: 0.5rem; }
+.gallery img { width: 100%; height: auto; border-radius: 1.4rem; border: 1px solid var(--rule); display: block; }
+.gallery figcaption { font-size: 0.85rem; color: var(--muted); }
+footer { font-size: 0.9rem; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 1.5rem; }
+
+@media (max-width: 760px) {
+  .player, .lab { grid-template-columns: 1fr; }
+  .phone { width: 100%; max-width: 17rem; margin: 0 auto; }
+  .story p.say { min-height: 0; }
+  .row { grid-template-columns: 7.5rem minmax(0, 1fr) 4.2rem; }
+  .hero img { width: 72px; height: 72px; border-radius: 17px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .screen img, .row .track i { transition: none; }
+  .tap.go { animation: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <a href="../index.html#thriftyvows">← Back to the portfolio</a>
+    <button type="button" class="theme-btn" id="theme">Dark mode</button>
+  </div>
+
+  <header class="hero">
+    <img src="../assets/thriftyvows-icon.jpg" alt="The Thrifty Vows app icon: two interlocking white rings with sparkles on a rose gradient." width="96" height="96">
+    <div>
+      <span class="eyebrow">iPhone and Mac · SwiftUI</span>
+      <h1>Thrifty Vows</h1>
+    </div>
+    <p class="lede">A wedding planner built around one number: what the couple can actually afford. Every screen answers two questions: how much is this costing us, and how much have we saved?</p>
+    <div class="pills"><span>No account</span><span>No ads</span><span>No vendor lead-selling</span><span>Works offline</span></div>
+  </header>
+
+  <!-- WALKTHROUGH -->
+  <section aria-labelledby="tour-h">
+    <div class="head">
+      <span class="eyebrow">Walkthrough · about a minute</span>
+      <h2 id="tour-h">A tour of the sample wedding</h2>
+      <p>The app opens with a sample wedding already loaded, Sam and Alex's, so there is something to explore before typing anything. Press play, or pick a chapter.</p>
+    </div>
+    <div class="player" style="margin-top:2rem">
+      <div class="phone" aria-hidden="true">
+        <div class="screen" id="screen"><span class="tap" id="tap"></span></div>
+      </div>
+      <div class="story" aria-live="polite">
+        <span class="step" id="step">1 of 8</span>
+        <h2 id="title">Welcome</h2>
+        <p class="say" id="say"></p>
+        <div class="bar" aria-hidden="true"><i id="progress"></i></div>
+        <div class="controls">
+          <button type="button" id="prev" aria-label="Previous screen">←</button>
+          <button type="button" class="primary" id="play">Play</button>
+          <button type="button" id="next" aria-label="Next screen">→</button>
+        </div>
+        <ol class="chapters" id="chapters" aria-label="Chapters"></ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- BUDGET LAB -->
+  <section aria-labelledby="lab-h">
+    <div class="head">
+      <span class="eyebrow">Try it</span>
+      <h2 id="lab-h">The guest-count lever</h2>
+      <p>Guest count is the biggest cost driver in a wedding, so the app makes that trade-off visible in dollars. This is the app's own budget split and guest-cost maths, running in your browser.</p>
+    </div>
+    <div class="lab">
+      <div class="card">
+        <div class="field">
+          <label for="budget">Total budget <output id="budget-out" for="budget"></output></label>
+          <input type="range" id="budget" min="3000" max="30000" step="500" value="12000">
+        </div>
+        <div class="field">
+          <label for="plan">Guests you planned for <output id="plan-out" for="plan"></output></label>
+          <input type="range" id="plan" min="10" max="200" step="5" value="60">
+        </div>
+        <div class="field">
+          <label for="invite">What if we invite… <output id="invite-out" for="invite"></output></label>
+          <input type="range" id="invite" min="2" max="300" step="1" value="60">
+        </div>
+        <span class="eyebrow">Each guest costs about</span>
+        <div class="big" id="per-guest"></div>
+        <p class="note">in food, drink, cake, stationery and favors, the four categories that grow with headcount.</p>
+        <div class="kpis">
+          <div class="kpi"><small>Projected total</small><b id="projected"></b></div>
+          <div class="kpi" id="change-box"><small>Change</small><b id="change"></b></div>
+          <div class="kpi champ"><small>Fixed costs</small><b id="fixed"></b></div>
+          <div class="kpi sage"><small>Average per guest</small><b id="avg"></b></div>
+        </div>
+      </div>
+      <div class="card">
+        <span class="eyebrow">Recommended split for a budget wedding</span>
+        <div class="key" style="margin-top:0.6rem"><span><i></i>Fixed</span><span><i class="pg"></i>Grows with guests</span></div>
+        <div class="split" id="split"></div>
+        <p class="note">Food and venue get the biggest shares, and a contingency line is kept on purpose so surprises don't hurt. Couples can edit every share in the app.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SAVINGS -->
+  <section aria-labelledby="save-h">
+    <div class="head">
+      <span class="eyebrow">Try it</span>
+      <h2 id="save-h">Savings you can count</h2>
+      <p>The app ships with about 40 concrete savings tips, each with a typical saving. Tapping "I did this" adds it to a running total on the home screen. A few of them:</p>
+    </div>
+    <div class="saved" aria-live="polite">
+      <small>Saved so far</small>
+      <div class="big" id="saved">$0</div>
+      <p id="saved-line">Tap a tip you'd use.</p>
+    </div>
+    <div class="tips" id="tips"></div>
+  </section>
+
+  <!-- GALLERY -->
+  <section aria-labelledby="gal-h">
+    <div class="head">
+      <span class="eyebrow">Screens</span>
+      <h2 id="gal-h">Thrifty Vows 2.0, "Blush &amp; Petal"</h2>
+      <p>Rose for actions, blush cream behind everything, sage for money saved and champagne for neutral highlights, with serif headings over rounded body text. Dark mode is designed, not inverted.</p>
+    </div>
+    <div class="gallery" id="gallery"></div>
+  </section>
+
+  <footer>
+    <p>Screenshots come from the app running in the iPhone simulator with its built-in sample wedding. Every name, venue and figure is invented. <a href="../index.html#thriftyvows">Read the full case study</a>.</p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var themeBtn = document.getElementById("theme");
+  function isDark() {
+    var t = root.getAttribute("data-theme");
+    if (t) return t === "dark";
+    return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+  }
+  function syncThemeBtn() { themeBtn.textContent = isDark() ? "Light mode" : "Dark mode"; }
+  themeBtn.addEventListener("click", function () { root.setAttribute("data-theme", isDark() ? "light" : "dark"); syncThemeBtn(); });
+  syncThemeBtn();
+
+  var money = function (n) { return "$" + Math.round(n).toLocaleString("en-US"); };
+
+  /* Walkthrough. x and y place the tap hint on the next control used, in percent of the screen. */
+  var steps = [
+    { img: "welcome", alt: "Welcome screen: A beautiful wedding that doesn't cost a fortune, with fields for the couple's names and the wedding date.", title: "Welcome", say: "Setup asks for names, a date and a budget, then builds the budget, checklist and seating plan. There is no sign-up: everything stays on the device.", x: 50, y: 62 },
+    { img: "home", alt: "Home: 243 days until I do, a budget ring at 67 percent, $6,880 saved and $706 per guest, then the next tasks.", title: "Home", say: "The home screen leads with the countdown, a budget ring, the running total saved and the real cost per guest. No other major wedding app leads with either of those last two.", x: 50, y: 43 },
+    { img: "budget", alt: "Budget: a $12,000 total with $8,070 committed and $3,930 left, then a planned versus committed bar chart by category.", title: "Budget", say: "The budget is split across 13 categories using a recommended allocation. A chart compares what was planned with what's been committed, so overspending shows up early.", x: 50, y: 10 },
+    { img: "guests", alt: "Guests: 12 coming, 4 waiting, 2 can't come, 1 to invite, filter chips and a list of invitations with RSVP status.", title: "Guests", say: "Guests carry a side, an A-list or B-list mark, plus-ones, meal choices and RSVP status. Swipe to RSVP, filter by answer, and export the list as CSV.", x: 22, y: 17 },
+    { img: "checklist", alt: "Checklist: 14 percent of the way there, 5 of 36 done, with dated tasks grouped six to nine months out.", title: "Checklist", say: "About 35 tasks are dated backwards from the wedding day and grouped by phase, each with a money-saving note. Move the date and the open tasks move with it.", x: 10, y: 28 },
+    { img: "more", alt: "More: vendors with 1 booked of 4, seating with 9 tables, DIY projects, savings tips with $6,880 saved, and settings.", title: "Vendors, seating and DIY", say: "Vendors are compared quote by quote, and booking one writes its price into the budget. Seating warns about full tables, and DIY projects weigh making against buying.", x: 50, y: 60 },
+    { img: "savings", alt: "Savings: $6,880 saved so far, that's a honeymoon weekend, and tips like choosing an off-peak date that typically saves $2,500.", title: "Savings", say: "Every tip shows a typical saving. Tapping “I did this” logs it, and the total turns into something real: $6,880 is a honeymoon weekend.", x: 50, y: 24 },
+    { img: "home-dark", alt: "Home screen in dark mode with a deep plum background and pink accents.", title: "Dark mode", say: "Dark mode gets its own palette of plum, pink and sage. The same app also runs natively on the Mac.", x: -10, y: -10 }
+  ];
+  var screen = document.getElementById("screen");
+  var tap = document.getElementById("tap");
+  var chapters = document.getElementById("chapters");
+  var imgs = steps.map(function (s, i) {
+    var im = new Image();
+    im.src = "../assets/thriftyvows-" + s.img + ".jpg";
+    im.alt = s.alt;
+    im.width = 720; im.height = 1262;
+    if (i > 1) im.loading = "lazy";
+    screen.insertBefore(im, tap);
+    var li = document.createElement("li");
+    var b = document.createElement("button");
+    b.type = "button"; b.textContent = s.title;
+    b.addEventListener("click", function () { stop(); show(i); });
+    li.appendChild(b); chapters.appendChild(li);
+    return im;
+  });
+  var chapterBtns = chapters.querySelectorAll("button");
+  var cur = 0, timer = null, started = 0, raf = 0, DUR = 7000;
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var playBtn = document.getElementById("play");
+  var bar = document.getElementById("progress");
+
+  function show(i) {
+    cur = (i + steps.length) % steps.length;
+    imgs.forEach(function (im, k) { im.classList.toggle("on", k === cur); });
+    chapterBtns.forEach(function (b, k) { if (k === cur) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current"); });
+    var s = steps[cur];
+    document.getElementById("step").textContent = (cur + 1) + " of " + steps.length;
+    document.getElementById("title").textContent = s.title;
+    document.getElementById("say").textContent = s.say;
+    tap.classList.remove("go");
+    if (timer && !reduce && s.x >= 0) {
+      tap.style.left = s.x + "%"; tap.style.top = s.y + "%";
+      void tap.offsetWidth; tap.classList.add("go");
+    }
+    started = performance.now();
+    bar.style.width = timer ? "0%" : ((cur + 1) / steps.length * 100) + "%";
+  }
+  function tick(now) {
+    if (!timer) return;
+    var p = Math.min(1, (now - started) / DUR);
+    bar.style.width = (p * 100) + "%";
+    if (p >= 1) {
+      if (cur === steps.length - 1) { stop(); return; }
+      show(cur + 1);
+    }
+    raf = requestAnimationFrame(tick);
+  }
+  function play() {
+    if (cur === steps.length - 1) cur = 0;
+    timer = true; playBtn.textContent = "Pause";
+    show(cur);
+    raf = requestAnimationFrame(tick);
+  }
+  function stop() { timer = null; cancelAnimationFrame(raf); playBtn.textContent = "Play"; bar.style.width = ((cur + 1) / steps.length * 100) + "%"; }
+  playBtn.addEventListener("click", function () { if (timer) stop(); else play(); });
+  document.getElementById("prev").addEventListener("click", function () { stop(); show(cur - 1); });
+  document.getElementById("next").addEventListener("click", function () { stop(); show(cur + 1); });
+  document.addEventListener("keydown", function (e) {
+    if (e.target.tagName === "INPUT") return;
+    if (e.key === "ArrowRight") { stop(); show(cur + 1); }
+    if (e.key === "ArrowLeft") { stop(); show(cur - 1); }
+  });
+  show(0);
+
+  /* Budget lab: the app's BudgetDefaults shares and GuestCostCalculator maths. */
+  var cats = [
+    ["Venue", 0.25, false], ["Food & Drink", 0.28, true], ["Photo & Video", 0.10, false], ["Attire & Beauty", 0.08, false],
+    ["Flowers & Decor", 0.07, false], ["Music", 0.05, false], ["Rings", 0.04, false], ["Cake & Desserts", 0.03, true],
+    ["Stationery", 0.02, true], ["Officiant & License", 0.02, false], ["Transport", 0.02, false], ["Favors & Gifts", 0.01, true],
+    ["Contingency", 0.03, false]
+  ];
+  var split = document.getElementById("split");
+  var rows = cats.map(function (c) {
+    var r = document.createElement("div");
+    r.className = "row" + (c[2] ? " pg" : "");
+    r.innerHTML = '<span></span><span class="track"><i></i></span><span></span>';
+    r.firstChild.textContent = c[0];
+    split.appendChild(r);
+    return r;
+  });
+  var $ = function (id) { return document.getElementById(id); };
+  function calc() {
+    var B = +$("budget").value, N0 = +$("plan").value, N = +$("invite").value;
+    var perGuestTotal = 0, fixed = 0;
+    cats.forEach(function (c, i) {
+      var amt = B * c[1];
+      if (c[2]) perGuestTotal += amt; else fixed += amt;
+      rows[i].querySelector("i").style.width = (c[1] / 0.28 * 100) + "%";
+      rows[i].lastChild.textContent = money(amt);
+    });
+    var each = perGuestTotal / N0;
+    var projected = fixed + each * N;
+    var diff = projected - B;
+    $("budget-out").textContent = money(B);
+    $("plan-out").textContent = N0;
+    $("invite-out").textContent = N + " guests";
+    $("per-guest").textContent = money(each);
+    $("projected").textContent = money(projected);
+    $("fixed").textContent = money(fixed);
+    $("avg").textContent = money(projected / Math.max(N, 1));
+    var ch = $("change");
+    ch.textContent = (diff >= 0 ? "+" : "−") + money(Math.abs(diff));
+    ch.className = diff > 0.5 ? "up" : diff < -0.5 ? "down" : "";
+  }
+  var lastPlan = 60;
+  $("plan").addEventListener("input", function () {
+    /* Keep the what-if slider on the plan until the visitor moves it away. */
+    if (+$("invite").value === lastPlan) $("invite").value = this.value;
+    lastPlan = +this.value; calc();
+  });
+  ["budget", "invite"].forEach(function (id) { $(id).addEventListener("input", calc); });
+  calc();
+
+  /* Savings tips, from the app's tip library. */
+  var tips = [
+    ["Venue", "Choose an off-peak date", "Fridays, Sundays and November to March dates often cost 20–50% less than peak Saturdays.", 2500],
+    ["Venue", "Use a public or community space", "Parks, community halls, libraries and university gardens rent for a fraction of wedding venues.", 4000],
+    ["Food & Drink", "Serve brunch or lunch instead of dinner", "Daytime menus cost less per head and guests drink less.", 2000],
+    ["Food & Drink", "Hire a food truck", "Food trucks often charge $15–25 per head with no service fees.", 2500],
+    ["Photo & Video", "Hire a newer photographer", "Talented photographers building a portfolio often charge half the going rate.", 1500],
+    ["Attire & Beauty", "Buy pre-owned or sample attire", "Resale sites and sample sales cut 50–80% off retail.", 900],
+    ["Flowers & Decor", "Buy wholesale flowers and arrange them yourself", "Warehouse clubs and online wholesalers sell bulk stems cheaply.", 1000],
+    ["Music", "Use a playlist and a rented speaker", "Assign a friend to run it and handle announcements.", 1000],
+    ["Rings", "Choose lab-grown or alternative stones", "Lab-grown diamonds and moissanite cost far less than mined diamonds.", 1500]
+  ];
+  var total = 0, tipsEl = $("tips");
+  /* Same thresholds and wording as the app's savings header. */
+  function line(t) {
+    if (t === 0) return "Tap a tip you'd use.";
+    if (t < 1000) return "That's a fancy dinner for two.";
+    if (t < 3000) return "That's a weekend away.";
+    return "That's a honeymoon weekend.";
+  }
+  tips.forEach(function (t) {
+    var d = document.createElement("article");
+    d.className = "tip";
+    d.innerHTML = '<span class="eyebrow"></span><h3></h3><p></p><div class="foot"><small></small><button type="button" aria-pressed="false">I did this</button></div>';
+    d.querySelector(".eyebrow").textContent = t[0];
+    d.querySelector("h3").textContent = t[1];
+    d.querySelector("p").textContent = t[2];
+    d.querySelector("small").textContent = "Typically saves " + money(t[3]);
+    var b = d.querySelector("button");
+    b.addEventListener("click", function () {
+      var on = b.getAttribute("aria-pressed") !== "true";
+      b.setAttribute("aria-pressed", String(on));
+      b.textContent = on ? "Saved " + money(t[3]) : "I did this";
+      total += on ? t[3] : -t[3];
+      $("saved").textContent = money(total);
+      $("saved-line").textContent = line(total);
+    });
+    tipsEl.appendChild(d);
+  });
+
+  /* Gallery */
+  var gal = $("gallery");
+  steps.concat([{ img: "v1-home", alt: "The first version's home screen in stock iOS styling, for comparison.", title: "Version 1, before the redesign" }]).forEach(function (s) {
+    var f = document.createElement("figure");
+    var im = new Image();
+    im.src = "../assets/thriftyvows-" + s.img + ".jpg"; im.alt = s.alt; im.loading = "lazy"; im.width = 720; im.height = 1262;
+    var c = document.createElement("figcaption"); c.textContent = s.title;
+    f.appendChild(im); f.appendChild(c); gal.appendChild(f);
+  });
+})();
+</script>
+</body>
+</html>
