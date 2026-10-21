@@ -1,0 +1,1197 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>ASCII ads</title></head>
+<body style="margin:0">
+
+<!-- rsc-brand written by social/brand/sync.py from social/brand/brand.json; edit that file and run sync.py, not this block -->
+<script id="rsc-brand">window.RSC_BRAND = {"business": "Refined Space Crafters", "phone": "518-932-9919", "web": "rscrafters.com", "tagline": "Design + Build  ·  Saratoga Springs & Wilton", "cta": "Call or text for a home visit", "cta_short": "Call or text", "cta_split": ["Call or text", "for a home visit"], "styles": {"ascii": {"tagline": "Design + build · Saratoga Springs, NY", "close": ["Send us a photo of the job.", "We'll set up a visit."], "script": "Design + build, Saratoga Springs. Call or text {phone}. {web}. Send us a photo of the job."}, "dollhouse": {"tagline": "Design + build · Saratoga Springs & Wilton"}, "papercut": {"program": "Safe at Home"}}, "colors": {"navy": "#243447", "accent": "#E0703C", "accentDark": "#B9532A", "cream": "#FFF8EC"}, "fonts": {"display": "Fredoka", "body": "Nunito"}};
+(function () {
+  // data-brand="phone" | "styles.dollhouse.tagline" ...; data-brand-case="upper"; data-brand-lines="2" puts the last word on its own line
+  function get(path) { return path.split('.').reduce(function (o, k) { return o == null ? o : o[k]; }, window.RSC_BRAND); }
+  function fill() {
+    document.querySelectorAll('[data-brand]').forEach(function (el) {
+      var v = get(el.getAttribute('data-brand')); if (v == null) return;
+      v = String(v); if (el.getAttribute('data-brand-case') === 'upper') v = v.toUpperCase();
+      el.textContent = '';
+      if (el.getAttribute('data-brand-lines') === '2' && v.indexOf(' ') > 0) {
+        var i = v.lastIndexOf(' ');
+        el.appendChild(document.createTextNode(v.slice(0, i))); el.appendChild(document.createElement('br'));
+        el.appendChild(document.createTextNode(v.slice(i + 1)));
+      } else el.textContent = v;
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fill); else fill();
+})();</script>
+<!-- /rsc-brand -->
+<title>Refined Project Ads</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Courier+Prime:wght@700&family=Libre+Caslon+Text:wght@400;700&family=Libre+Franklin:wght@400;500;600&display=swap">
+<style>
+/* Layout: one dark screening room. A 9:16 phone-shaped stage, controls under it, the script beside it on wide screens. */
+:root{
+  --room:#121815;      /* page, darker than the ad so the frame reads */
+  --ink:#1C2420;       /* the ad's own background, spruce charcoal */
+  --paper:#EEF1ED;
+  --moss:#A9B3AC;
+  --barn:#C9583F;      /* barn red, lifted for a dark ground */
+  --brass:#D9A93A;
+  --line:rgba(238,241,237,.14);
+  --display:"Libre Caslon Text",Georgia,"Times New Roman",serif;
+  --text:"Libre Franklin","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{background:var(--room);color:var(--paper);font-family:var(--text);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 28px;box-sizing:border-box}
+.wrap{max-width:1040px;margin:0 auto;display:grid;grid-template-columns:auto minmax(0,1fr);gap:40px;align-items:start}
+@media (max-width:860px){.wrap{grid-template-columns:minmax(0,1fr);gap:24px}}
+.col-stage{display:flex;flex-direction:column;gap:14px;align-items:center;min-width:0}
+.stage{position:relative;width:min(100%, calc((100dvh - 150px) * 9 / 16));min-width:240px;max-width:100%;aspect-ratio:9/16;background:#090c0b;
+  border-radius:14px;overflow:hidden;box-shadow:0 0 0 1px var(--line),0 30px 80px rgba(0,0,0,.45)}
+@media (max-width:860px){.stage{width:min(100%,520px)}}
+.stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:pointer}
+.stage .fallback[hidden]{display:none}
+.stage .fallback{position:absolute;inset:0;display:grid;place-items:center;padding:24px;text-align:center;color:var(--moss)}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;width:100%;max-width:520px}
+button,.seg label{font:500 13px/1 var(--text);color:var(--paper);background:transparent;border:1px solid var(--line);border-radius:999px;padding:9px 14px;cursor:pointer}
+button:hover,.seg label:hover{border-color:var(--moss)}
+button:focus-visible,.seg input:focus-visible+label,input[type=range]:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+.seg{display:inline-flex;gap:4px}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg input:checked+label{background:var(--paper);color:var(--ink);border-color:var(--paper)}
+.scrub{display:flex;align-items:center;gap:10px;width:100%;max-width:520px}
+.scrub input{flex:1;accent-color:var(--brass);min-width:0}
+.time{font:500 12px/1 var(--mono);color:var(--moss);font-variant-numeric:tabular-nums;min-width:86px;text-align:right}
+.side{min-width:0;padding-top:6px}
+.eyebrow{font:600 11px/1.2 var(--text);letter-spacing:.14em;text-transform:uppercase;color:var(--brass);margin:0 0 10px}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(28px,3.4vw,40px);line-height:1.1;margin:0 0 12px;text-wrap:balance}
+.note{color:var(--moss);max-width:52ch;margin:0 0 22px}
+.note strong{color:var(--paper);font-weight:600}
+.script{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.script li{border-bottom:1px solid var(--line)}
+.script button{all:unset;box-sizing:border-box;display:grid;grid-template-columns:52px minmax(0,1fr);gap:14px;width:100%;padding:12px 4px;cursor:pointer}
+.script button:hover .what{color:var(--paper)}
+.script button:focus-visible{outline:2px solid var(--brass);outline-offset:-2px}
+.script .ts{font:500 12px/1.6 var(--mono);color:var(--brass);font-variant-numeric:tabular-nums}
+.script .what{color:var(--moss)}
+.script .what b{display:block;font-family:var(--display);font-weight:400;font-size:18px;line-height:1.3;color:var(--paper)}
+.script li.on .ts{color:var(--barn)}
+.fine{font-size:13px;color:var(--moss);margin-top:18px;max-width:56ch}
+.picker{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 18px}
+</style>
+
+<div class="wrap">
+  <div class="col-stage">
+    <div class="stage" id="stage">
+      <canvas id="gl" aria-label="Animated ASCII ad for Refined Space Crafters. Click to pause or play."></canvas>
+      <div class="fallback" id="fallback" hidden>This preview needs WebGL, which this browser has turned off.</div>
+    </div>
+    <div class="scrub">
+      <input type="range" id="scrub" min="0" max="20" step="0.01" value="0" aria-label="Position in the ad">
+      <span class="time" id="time">00.0 / 20.0 s</span>
+    </div>
+    <div class="controls">
+      <button id="play" type="button">Pause</button>
+      <button id="restart" type="button">Restart</button>
+      <div class="seg" role="radiogroup" aria-label="Character grid">
+        <input type="radio" name="detail" id="d-bold" value="96"><label for="d-bold">Bold</label>
+        <input type="radio" name="detail" id="d-fine" value="128" checked><label for="d-fine">Fine</label>
+        <input type="radio" name="detail" id="d-ultra" value="176"><label for="d-ultra">Ultra</label>
+      </div>
+      <button id="raw" type="button" aria-pressed="false">Show source</button>
+    </div>
+  </div>
+
+  <div class="side">
+    <p class="eyebrow">Project ads · drafts for review · not posted</p>
+    <h1>Eight jobs from the website</h1>
+    <div class="seg picker" role="radiogroup" aria-label="Which ad">
+      <input type="radio" name="ad" id="ad-bridge" value="bridge" checked><label for="ad-bridge">Garden bridge</label>
+      <input type="radio" name="ad" id="ad-kitchen" value="kitchen"><label for="ad-kitchen">Brick kitchen</label>
+      <input type="radio" name="ad" id="ad-mosaic" value="mosaic"><label for="ad-mosaic">River mosaic</label>
+      <input type="radio" name="ad" id="ad-deck" value="deck"><label for="ad-deck">Rear deck</label>
+      <input type="radio" name="ad" id="ad-bulkhead" value="bulkhead"><label for="ad-bulkhead">Cellar bulkhead</label>
+      <input type="radio" name="ad" id="ad-stairs" value="stairs"><label for="ad-stairs">Cellar stairs</label>
+      <input type="radio" name="ad" id="ad-tin" value="tin"><label for="ad-tin">Tin ceiling</label>
+      <input type="radio" name="ad" id="ad-oshower" value="oshower"><label for="ad-oshower">Outdoor shower</label>
+    </div>
+    <p class="note">Each ad is 20 seconds, vertical, and drawn entirely in characters around a 3D model of a job on the website. Each one builds the project in front of you and ends on the same contact card. Lettering is Courier Prime. <strong>Nothing has been posted or scheduled.</strong> Click a line to jump to it.</p>
+    <ol class="script" id="script"></ol>
+    <p class="fine">Every word is drawn as large characters so it reads on a phone. Space bar pauses. "Show source" shows the picture the characters are made from. Link straight to one ad by adding #bridge, #kitchen, #mosaic, #deck, #bulkhead, #stairs, #tin or #oshower to the address.</p>
+  </div>
+</div>
+
+<script>
+const RB = window.RSC_BRAND, RBW = RB.business.split(' '), RB_NAME = [RBW[0], RBW.slice(1).join(' ')], RB_SCRIPT = RB.styles.ascii.script.replace('{phone}', RB.phone).replace('{web}', RB.web);
+
+(() => {
+'use strict';
+const T = 20;                       // loop length, seconds
+const SW = 540, SH = 960, SS = 4/3; // scene units and supersampling
+const CELL_ASPECT = 0.6;            // glyph width / height
+
+// ---------- palette (scene colors are drawn on black; the shader adds the ink ground) ----------
+const C_PAPER = [0.93,0.94,0.91], C_BRASS = [0.95,0.71,0.27], C_BARN = [0.86,0.36,0.25], C_MOSS = [0.55,0.63,0.58];
+const C_WALL = [0.60,0.60,0.55], C_ROOF = [0.47,0.30,0.25], C_FOUND = [0.34,0.36,0.33], C_WOOD = [0.62,0.47,0.32];
+const C_DARK = [0.0,0.0,0.0];
+const BG = [0.035,0.047,0.043];          // deep spruce, darker than the brand ink so characters pop
+const PAL = [[0.93,0.95,0.92],[0.92,0.42,0.30],[0.97,0.76,0.33],[0.62,0.70,0.65]]; // literal text: paper, barn, brass, moss
+
+// ---------- math ----------
+const clamp = (x,a=0,b=1) => Math.min(b,Math.max(a,x));
+const seg = (t,a,b) => clamp((t-a)/(b-a));
+const ease = x => x<.5 ? 4*x*x*x : 1-Math.pow(-2*x+2,3)/2;
+const eOut = x => 1-Math.pow(1-x,3);
+const eBack = x => { const c=1.70158, c3=c+1; return 1 + c3*Math.pow(x-1,3) + c*Math.pow(x-1,2); };
+const lerp = (a,b,k) => a+(b-a)*k;
+const hash = i => { const s = Math.sin(i*127.1+311.7)*43758.5453; return s-Math.floor(s); };
+const rgb = (c,m=1,a=1) => `rgba(${Math.round(clamp(c[0]*m)*255)},${Math.round(clamp(c[1]*m)*255)},${Math.round(clamp(c[2]*m)*255)},${a})`;
+const mixc = (a,b,k) => [lerp(a[0],b[0],k),lerp(a[1],b[1],k),lerp(a[2],b[2],k)];
+const norm = v => { const l=Math.hypot(v[0],v[1],v[2])||1; return [v[0]/l,v[1]/l,v[2]/l]; };
+const dot = (a,b) => a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+
+function makeView(cam) {
+  const {yaw,pitch,dist,target} = cam;
+  const pos = [target[0]+dist*Math.sin(yaw)*Math.cos(pitch), target[1]+dist*Math.sin(pitch), target[2]+dist*Math.cos(yaw)*Math.cos(pitch)];
+  const fw = norm([target[0]-pos[0],target[1]-pos[1],target[2]-pos[2]]);
+  const r = norm([-fw[2],0,fw[0]]);
+  const u = [r[1]*fw[2]-r[2]*fw[1], r[2]*fw[0]-r[0]*fw[2], r[0]*fw[1]-r[1]*fw[0]];
+  return {pos, proj(p){
+    const d=[p[0]-pos[0],p[1]-pos[1],p[2]-pos[2]];
+    const Z=Math.max(0.1,dot(d,fw));
+    return [cam.cx + dot(d,r)*cam.f/Z, cam.cy - dot(d,u)*cam.f/Z, Z];
+  }};
+}
+
+// ---------- scene canvas ----------
+const scv = document.createElement('canvas');
+scv.width = Math.round(SW*SS); scv.height = Math.round(SH*SS);
+const sx = scv.getContext('2d');
+// lettering goes on its own layer so the shader can give strokes a clean, solid fill
+const mcv = document.createElement('canvas');
+mcv.width = scv.width; mcv.height = scv.height;
+const mk = mcv.getContext('2d');
+const tmp = document.createElement('canvas');
+tmp.width = Math.round(SW*SS); tmp.height = Math.round(160*SS);
+const tx = tmp.getContext('2d');
+
+let cols = 128, rows = 137;
+let textBuf = new Uint8Array(cols*rows*4);
+
+const SCRAMBLE = '#%&*+=:/\\<>?!@$';
+const GLYPH = ch => ch === '·' ? 95 : clamp(ch.charCodeAt(0)-32, 0, 94);
+// literal characters, drawn two cells wide and two rows tall so they stay readable
+function putBig(str, col, row, color, alpha, prog=1, t=0, box=false, sc=2) {
+  const a = Math.round(clamp(alpha)*255); if (a<=0) return;
+  for (let i=0;i<str.length;i++){
+    let ch = str[i];
+    const h = hash(i*7.3+str.length);
+    if (prog < 1) {
+      if (prog < h*0.55) { if (!box) continue; ch = ' '; }
+      else if (prog < 0.45 + h*0.55) ch = ch===' ' ? ' ' : SCRAMBLE[Math.floor(hash(i+Math.floor(t*18)*3.1)*SCRAMBLE.length)];
+    }
+    if (ch===' ' && !box) continue;
+    const g = GLYPH(ch);
+    for (let qy=0;qy<sc;qy++) for (let qx=0;qx<sc;qx++){
+      const c = col + i*sc + qx, r = row + qy;
+      if (c<0||c>=cols||r<0||r>=rows) continue;
+      const k = (r*cols+c)*4;
+      textBuf[k]=g; textBuf[k+1]=color + (sc-1)*4; textBuf[k+2]=a; textBuf[k+3]=1 + qx + qy*16;
+    }
+  }
+}
+function lit(str, fx, fy, color, tIn, tOut, t, opts={}) {
+  if (t < tIn || t > tOut + 0.4) return;
+  const prog = seg(t, tIn, tIn + (opts.dur||0.8));
+  const alpha = 1 - seg(t, tOut, tOut+0.4);
+  const sc = opts.sc||2, w = str.length*sc;
+  let col = fx==='c' ? Math.round((cols-w)/2) : (opts.align==='r' ? Math.round(cols*fx) - w : Math.round(cols*fx));
+  putBig(str, col, Math.round(rows*fy), color, alpha, prog, t, opts.box, sc);
+}
+const scL = () => Math.max(4, Math.floor(cols/16));   // headline characters
+const scS = () => Math.max(2, Math.round(cols/42));   // labels
+// a headline set in large characters, one line under the next
+function hl(lines, fy, color, tIn, tOut, t, big) {
+  const sc = big || scL();
+  const r0 = Math.round(rows*fy);
+  lines.forEach((s,i) => lit(s, 'c', (r0 + i*(sc+2))/rows, color, tIn + i*0.2, tOut, t, {sc, box:true, dur:0.7}));
+}
+const toGrid = (x,y) => [x/SW*cols, y/SH*rows];
+const fromGrid = (c,r) => [c/cols*SW, r/rows*SH];
+
+// ---------- motes of sawdust drifting in the light ----------
+function drawMotes(t, alpha) {
+  for (let i=0;i<64;i++){
+    const a=hash(i), b=hash(i+91), c=hash(i+313);
+    const sp = 9 + a*22;
+    const y = ((b*SH*1.2 - t*sp) % (SH*1.2) + SH*1.2) % (SH*1.2) - SH*0.1;
+    const x = a*SW + Math.sin(t*(0.3+c*0.5) + i)*18;
+    const r = 0.8 + c*1.7;
+    const tw = 0.5 + 0.5*Math.sin(t*(1+c*2) + i*1.3);
+    sx.fillStyle = rgb(i%3===0 ? C_BRASS : C_PAPER, 1, (0.18 + 0.32*tw)*alpha);
+    sx.beginPath(); sx.arc(x,y,r,0,Math.PI*2); sx.fill();
+  }
+}
+
+
+// ---------- a small 3D kit: parts made of faces and lines, moved and tinted over time ----------
+let M = null;
+function newModel() { return {faces:[], lines:[], parts:{}}; }
+function part(name) { return M.parts[name] || (M.parts[name] = {off:[0,0,0], alpha:1, tint:C_BRASS, tk:0}); }
+function F(pts, n, col, p='base', o={}) {
+  const c = [0,1,2].map(k => pts.reduce((s,q)=>s+q[k],0)/pts.length);
+  part(p); M.faces.push({pts, n, col, p, c, ...o});
+}
+function L(a, b, col, p='base', w=1.3, o={}) { part(p); M.lines.push({a, b, col, p, w, ...o}); }
+function box(x0,x1,y0,y1,z0,z1,col,p='base',o={}) {
+  const sk = o.skip || 'bottom';
+  if (!sk.includes('front'))  F([[x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]],[0,0,1],col,p,o);
+  if (!sk.includes('back'))   F([[x1,y0,z0],[x0,y0,z0],[x0,y1,z0],[x1,y1,z0]],[0,0,-1],col,p,o);
+  if (!sk.includes('right'))  F([[x1,y0,z1],[x1,y0,z0],[x1,y1,z0],[x1,y1,z1]],[1,0,0],col,p,o);
+  if (!sk.includes('left'))   F([[x0,y0,z0],[x0,y0,z1],[x0,y1,z1],[x0,y1,z0]],[-1,0,0],col,p,o);
+  if (!sk.includes('top'))    F([[x0,y1,z1],[x1,y1,z1],[x1,y1,z0],[x0,y1,z0]],[0,1,0],col,p,o);
+  if (!sk.includes('bottom')) F([[x0,y0,z0],[x1,y0,z0],[x1,y0,z1],[x0,y0,z1]],[0,-1,0],col,p,o);
+}
+const add3 = (a,b) => [a[0]+b[0],a[1]+b[1],a[2]+b[2]];
+const EDGE = [0.88,0.89,0.85];
+
+function drawModel(V, t, light) {
+  const items = [];
+  for (const f of M.faces) {
+    const P = M.parts[f.p]; if (P.alpha <= 0.01) continue;
+    const c = add3(f.c, P.off);
+    if (!f.ds && dot(f.n, [V.pos[0]-c[0], V.pos[1]-c[1], V.pos[2]-c[2]]) <= 0) continue;
+    const pp = f.pts.map(q => V.proj(add3(q, P.off)));
+    items.push({f, P, pp, z: pp.reduce((s,q)=>s+q[2],0)/pp.length + (f.far||0)});
+  }
+  for (const l of M.lines) {
+    const P = M.parts[l.p]; if (P.alpha <= 0.01) continue;
+    const A = V.proj(add3(l.a,P.off)), B = V.proj(add3(l.b,P.off));
+    items.push({l, P, A, B, z: (A[2]+B[2])/2 - 0.02 + (l.far||0)});
+  }
+  items.sort((a,b) => b.z - a.z);
+  sx.lineCap = 'round'; sx.lineJoin = 'round';
+  for (const it of items) {
+    const P = it.P;
+    if (it.f) {
+      const f = it.f;
+      const col = mixc(f.col, P.tint, P.tk);
+      // fills stay well below the edge brightness so outlines and seams read as lines
+      const shade = f.emissive ? 0.9 + 0.08*Math.sin(t*1.7) : (0.22 + 0.4*Math.max(0, dot(f.n, light)));
+      sx.fillStyle = rgb(col, shade, P.alpha*(f.a ?? 1));
+      sx.beginPath(); it.pp.forEach((q,i) => i ? sx.lineTo(q[0],q[1]) : sx.moveTo(q[0],q[1])); sx.closePath(); sx.fill();
+      if (f.edge !== false) {
+        sx.strokeStyle = rgb(mixc(f.ec || EDGE, P.tint, P.tk*0.6), 1, P.alpha*(f.ea ?? 0.9)); sx.lineWidth = f.ew || 1.3;
+        sx.stroke();
+      }
+    } else {
+      const l = it.l;
+      sx.strokeStyle = rgb(mixc(l.col, P.tint, P.tk), 1, P.alpha*(l.a ?? 1)); sx.lineWidth = l.w;
+      sx.beginPath(); sx.moveTo(it.A[0],it.A[1]); sx.lineTo(it.B[0],it.B[1]); sx.stroke();
+    }
+  }
+}
+
+function groundGrid(V, y, cx, cz, step, R, alpha) {
+  sx.lineWidth = 0.9;
+  for (let i=-8;i<=8;i++) for (let j=-8;j<8;j++) for (const dir of [0,1]) {
+    const a = dir ? [cx+i*step, y, cz+j*step] : [cx+j*step, y, cz+i*step];
+    const b = dir ? [cx+i*step, y, cz+(j+1)*step] : [cx+(j+1)*step, y, cz+i*step];
+    const r = Math.hypot((a[0]+b[0])/2-cx, (a[2]+b[2])/2-cz);
+    const al = Math.pow(Math.max(0,1-r/R),2)*0.5*alpha;
+    if (al < 0.02) continue;
+    const A=V.proj(a), B=V.proj(b);
+    sx.strokeStyle = rgb(C_MOSS,1,al); sx.beginPath(); sx.moveTo(A[0],A[1]); sx.lineTo(B[0],B[1]); sx.stroke();
+  }
+}
+
+// a callout: a pin on the model, a leader line, and a label in large characters
+function pin(V, t, label, p3, slot, tIn, tOut, color=0) {
+  if (t < tIn || t > tOut + 0.4) return;
+  const k = seg(t, tIn, tIn+0.55), al = 1 - seg(t, tOut, tOut+0.4);
+  const [x,y] = V.proj(p3);
+  const S = scS(), w = label.length*S + 2;
+  const col = slot[2]==='r' ? Math.round(cols*slot[0]) - w : Math.round(cols*slot[0]);
+  const row = Math.round(rows*slot[1]);
+  const ax = slot[2]==='r' ? fromGrid(col-1,0)[0] : fromGrid(col + w + 1,0)[0];
+  const ay = fromGrid(0,row+S/2)[1];
+  const e = eOut(k);
+  const pc = color===2 ? C_BRASS : C_BARN;
+  sx.strokeStyle = rgb(pc,1,0.95*al); sx.lineWidth = 1.6;
+  sx.beginPath(); sx.moveTo(x,y); sx.lineTo(lerp(x,ax,e), lerp(y,ay,e)); sx.stroke();
+  const s = 7*eBack(k);
+  sx.fillStyle = rgb(pc,1.1,al);
+  sx.beginPath(); sx.moveTo(x,y-s); sx.lineTo(x+s,y); sx.lineTo(x,y+s); sx.lineTo(x-s,y); sx.closePath(); sx.fill();
+  const pk = ((t-tIn)%1.6)/1.6;
+  sx.strokeStyle = rgb(pc,1,(1-pk)*0.7*al); sx.lineWidth=1.4; sx.beginPath(); sx.arc(x,y,8+pk*20,0,Math.PI*2); sx.stroke();
+  putBig(label, slot[2]==='r' ? col+2 : col, row, color, al, seg(t,tIn+0.25,tIn+0.9), t, true, S);
+}
+// a falling or sliding dot in 3D
+function dot3(V, p, r, col, a) {
+  const [x,y] = V.proj(p);
+  sx.fillStyle = rgb(col,1,a); sx.beginPath(); sx.arc(x,y,r,0,Math.PI*2); sx.fill();
+}
+const C_WATER = [0.58,0.78,0.92], C_FRESH = [0.86,0.68,0.44], C_PAINT = [0.90,0.90,0.86];
+
+// ---------- the four project ads (from the website's project list) ----------
+const C_SAGE = [0.55,0.72,0.56], C_REDPAINT = [0.92,0.28,0.2], C_BRICK = [0.80,0.38,0.26], C_STEEL = [0.74,0.78,0.82];
+const C_SIDING = [0.52,0.58,0.66], C_BLACKRAIL = [0.30,0.32,0.34];
+const MORTAR = [0.05,0.04,0.04];
+// polygon on a horizontal plane, for water and banks
+function flatEllipse(V, cx, cz, rx, rz, y, col, a, wob=0, t=0) {
+  sx.fillStyle = rgb(col,1,a); sx.beginPath();
+  for (let i=0;i<40;i++){ const ang=i/40*Math.PI*2, r=1+wob*Math.sin(ang*5+t);
+    const q=V.proj([cx+Math.cos(ang)*rx*r, y, cz+Math.sin(ang)*rz*r]); i?sx.lineTo(q[0],q[1]):sx.moveTo(q[0],q[1]); }
+  sx.closePath(); sx.fill();
+}
+function ring(V, cx, cz, rx, rz, y, col, a, w) {
+  sx.strokeStyle = rgb(col,1,a); sx.lineWidth = w; sx.beginPath();
+  for (let i=0;i<=40;i++){ const ang=i/40*Math.PI*2; const q=V.proj([cx+Math.cos(ang)*rx, y, cz+Math.sin(ang)*rz]); i?sx.lineTo(q[0],q[1]):sx.moveTo(q[0],q[1]); }
+  sx.stroke();
+}
+const arcY = x => 0.25 + 0.8*(1 - (x/2.6)*(x/2.6));
+const N_PLANK = 24;
+// river pattern for the mosaic: deep water, current, foam, and the green banks
+function riverColor(u, v, t) {
+  const w = Math.sin(u*9 + Math.sin(v*5)*1.2 + t*0.0) * 0.5 + 0.5;
+  const band = v + 0.08*Math.sin(u*7.0);
+  if (band < 0.16 || band > 0.86) return [0.32,0.56,0.30];
+  if (band < 0.22 || band > 0.80) return [0.62,0.78,0.48];
+  const f = Math.sin(u*14 + band*20) > 0.82 ? 1 : 0;
+  if (f) return [0.92,0.96,0.98];
+  return mixc([0.12,0.30,0.70], [0.22,0.66,0.72], w);
+}
+const MOS = {cols:30, rows:9, x0:-2.4, x1:2.4, y0:1.25, y1:2.45};
+
+const ADS = {
+  bridge: {
+    name: 'Garden bridge',
+    heads: [['A pond in','the way?'], ['We built a','bridge over it.'], ['Curved, red,','built by hand.']],
+    lows:  ['FROM OUR PROJECTS', 'STRINGERS FIRST, THEN PLANKS', 'SPECIALTY WORK WELCOME'],
+    script: [
+      'A backyard pond, water rippling, no way across.',
+      'Two curved stringers arc over the water, then the planks drop in one at a time.',
+      'Rails rise along both sides and the whole bridge is painted red.',
+    ],
+    build() {
+      for (const z of [-0.5,0.5]) for (let i=0;i<16;i++){
+        const x0 = -2.6 + i*5.2/16, x1 = x0 + 5.2/16;
+        L([x0,arcY(x0)-0.12,z],[x1,arcY(x1)-0.12,z],C_WOOD,'str',4);
+      }
+      for (let i=0;i<N_PLANK;i++){
+        const x0 = -2.6 + i*5.2/N_PLANK + 0.02, x1 = x0 + 5.2/N_PLANK - 0.04;
+        const y0 = arcY(x0), y1 = arcY(x1);
+        const n = norm([-(y1-y0), x1-x0, 0]);
+        F([[x0,y0,0.55],[x1,y1,0.55],[x1,y1,-0.55],[x0,y0,-0.55]], n, C_WOOD, 'p'+i, {ew:1.2});
+        F([[x0,y0-0.05,0.55],[x1,y1-0.05,0.55],[x1,y1,0.55],[x0,y0,0.55]], [0,0,1], mixc(C_WOOD,[0,0,0],0.3), 'p'+i, {ew:0.8});
+      }
+      for (const z of [-0.55,0.55]) {
+        for (let i=0;i<=8;i++){ const x=-2.5+i*5.0/8; L([x,arcY(x),z],[x,arcY(x)+0.85,z],C_WOOD,'rail',3); }
+        for (let i=0;i<20;i++){ const x0=-2.5+i*5/20, x1=x0+5/20;
+          L([x0,arcY(x0)+0.85,z],[x1,arcY(x1)+0.85,z],C_WOOD,'rail',3.2);
+          L([x0,arcY(x0)+0.45,z],[x1,arcY(x1)+0.45,z],C_WOOD,'rail',1.6); }
+      }
+      for (const [x,z,s] of [[-3.3,0.9,0.35],[-3.0,-1.1,0.25],[3.2,1.0,0.3],[3.5,-0.6,0.4],[2.9,-1.4,0.22]])
+        box(x-s,x+s,-0.05,s*0.7,z-s*0.8,z+s*0.8,[0.5,0.52,0.5],'base',{ew:1});
+    },
+    update(t) {
+      const red = ease(seg(t,11.6,13.0));
+      const s = part('str'); s.alpha = seg(t,4.9,5.6); s.off=[0,(1-ease(seg(t,4.9,5.9)))*-0.6,0];
+      s.tint = C_REDPAINT; s.tk = red;
+      for (let i=0;i<N_PLANK;i++){
+        const p = part('p'+i), t0 = 5.8 + i*0.13;
+        p.alpha = seg(t,t0,t0+0.2); p.off = [0, 1.2*(1-eOut(seg(t,t0,t0+0.45))), 0];
+        p.tint = C_REDPAINT; p.tk = Math.max(0, Math.min(1, red*1.4 - (i/N_PLANK)*0.4));
+      }
+      const r = part('rail'); r.alpha = seg(t,10.2,10.6); r.off = [0,-0.9*(1-ease(seg(t,10.2,11.2))),0];
+      r.tint = C_REDPAINT; r.tk = red;
+    },
+    under(V, t) {
+      flatEllipse(V, 0, 0, 4.2, 2.6, -0.02, [0.22,0.36,0.22], 1);
+      flatEllipse(V, 0, 0, 3.2, 1.75, 0, [0.10,0.24,0.42], 1, 0.03, t*0.6);
+      for (let k=0;k<5;k++){ const ph = ((t*0.22 + k/5) % 1);
+        ring(V, -0.6+0.4*Math.sin(k), 0.2, 0.3+ph*2.8, 0.18+ph*1.6, 0.01, C_WATER, (1-ph)*0.8, 1.6); }
+    },
+    extra(V, t) {
+      pin(V, t, 'NEW STRINGERS', [-1.6,arcY(-1.6)-0.12,0.5], [0.04,0.36,'l'], 5.6, 9.5);
+      pin(V, t, 'HAND-BUILT RAILS', [1.4,arcY(1.4)+0.85,0.55], [0.96,0.84,'r'], 11.0, 14.4, 2);
+    },
+    cam: t => ({target:[0,0.5,0], dist:13.5, yaw:-0.7+0.07*t, pitch:0.42+0.05*Math.sin(t*0.35), f:1000}),
+  },
+
+  kitchen: {
+    name: 'Brick kitchen',
+    heads: [['Love the old','brick?'], ['Keep it.'], ['We build the','kitchen','around it.']],
+    lows:  ['THE ORIGINAL CHIMNEY STAYS', 'SAGE CABINETS GO IN', 'ONE TEAM DESIGNS AND BUILDS'],
+    script: [
+      'An empty kitchen corner with the original brick chimney.',
+      'The chimney is kept. Sage base cabinets slide in on both sides and the fridge goes in.',
+      'White counters drop on, the uppers go up, and the pendant lights come on.',
+    ],
+    build() {
+      const PL = [0.62,0.58,0.52];
+      F([[0,0,0],[4,0,0],[4,2.6,0],[0,2.6,0]],[0,0,1],PL,'base',{edge:false,far:10});
+      F([[0,0,2.6],[0,0,0],[0,2.6,0],[0,2.6,2.6]],[1,0,0],PL,'base',{edge:false,far:10});
+      F([[0,0,0],[4,0,0],[4,0,2.6],[0,0,2.6]],[0,1,0],[0.5,0.38,0.26],'base',{edge:false,far:11});
+      for (let z=0.2; z<2.6; z+=0.2) L([0,0.002,z],[4,0.002,z],[0.08,0.06,0.04],'base',1.2,{far:10.5});
+      box(1.6,2.3,0,2.6,0,0.38,C_BRICK,'brick',{skip:'bottom back top'});
+      for (let y=0.09, row=0; y<2.6; y+=0.09, row++) {
+        L([1.6,y,0.385],[2.3,y,0.385],MORTAR,'brick',1.3);
+        for (let x=1.6+(row%2?0.11:0.22); x<2.3; x+=0.22) L([x,y-0.09,0.385],[x,y,0.385],MORTAR,'brick',1.1);
+      }
+      const base = (x0,x1,p) => { box(x0,x1,0.08,0.9,0,0.6,C_SAGE,p);
+        for (let x=x0+0.5; x<x1-0.1; x+=0.5) L([x,0.1,0.605],[x,0.88,0.605],[0.05,0.07,0.05],p,1.4);
+        L([x0,0.62,0.605],[x1,0.62,0.605],[0.05,0.07,0.05],p,1.4); };
+      base(0.05,1.55,'baseL'); base(2.35,3.2,'baseR');
+      box(3.28,3.95,0,1.95,0,0.7,C_STEEL,'fridge');
+      L([3.615,0.1,0.705],[3.615,1.9,0.705],[0.1,0.1,0.12],'fridge',1.4);
+      box(0.02,1.58,0.9,0.95,0,0.64,[0.94,0.94,0.92],'counterL'); box(2.32,3.22,0.9,0.95,0,0.64,[0.94,0.94,0.92],'counterR');
+      const up = (x0,x1,p) => { box(x0,x1,1.45,2.25,0,0.34,C_SAGE,p);
+        for (let x=x0+0.5; x<x1-0.1; x+=0.5) L([x,1.47,0.345],[x,2.23,0.345],[0.05,0.07,0.05],p,1.4); };
+      up(0.05,1.55,'upL'); up(2.35,3.2,'upR');
+      for (const x of [0.7,2.8]) { L([x,2.6,0.9],[x,2.15,0.9],[0.5,0.5,0.48],'lights',1.2); box(x-0.1,x+0.1,2.0,2.15,0.8,1.0,C_BRASS,'lights',{emissive:true}); }
+    },
+    update(t) {
+      const b = part('brick'); b.tint = C_BRASS; b.tk = seg(t,1.4,2.2)*(1-seg(t,4.6,5.2))*0.35*(0.6+0.4*Math.sin(t*4));
+      const slide = (p,t0,dz=1.6) => { const q=part(p); q.alpha=seg(t,t0,t0+0.25); q.off=[0,0,dz*(1-eOut(seg(t,t0,t0+0.7)))]; };
+      slide('baseL',5.4); slide('baseR',6.0); slide('fridge',6.7);
+      const drop = (p,t0,dy) => { const q=part(p); q.alpha=seg(t,t0,t0+0.2); q.off=[0,dy*(1-eOut(seg(t,t0,t0+0.6))),0]; };
+      drop('counterL',10.2,0.8); drop('counterR',10.45,0.8); drop('upL',11.0,1.2); drop('upR',11.3,1.2);
+      const l = part('lights'); l.alpha = seg(t,12.0,12.3); l.tk = 0;
+    },
+    extra(V, t) {
+      pin(V, t, 'ORIGINAL BRICK', [1.95,1.3,0.38], [0.96,0.36,'r'], 1.9, 9.5);
+      pin(V, t, 'SAGE CABINETS', [0.8,0.6,0.6], [0.04,0.84,'l'], 6.2, 9.5);
+      pin(V, t, 'WHITE COUNTERS', [2.8,0.93,0.64], [0.96,0.84,'r'], 11.0, 14.4, 2);
+    },
+    cam: t => ({target:[2.0,1.1,0.8], dist:10.0, yaw:0.45+0.03*t, pitch:0.28+0.04*Math.sin(t*0.4), f:1000}),
+  },
+
+  mosaic: {
+    name: 'River mosaic',
+    heads: [['Some jobs are','one of a kind.'], ['A river in','glass tile.'], ['We take those','on too.']],
+    lows:  ['FROM OUR PROJECTS', 'SARATOGA ROWING ASSOCIATION', 'SPECIALTY WORK WELCOME'],
+    script: [
+      'A bare gallery wall and a wood ledge. Hundreds of glass tiles drift in the air.',
+      'The tiles fly to the wall and lock into a mosaic of the river, left to right.',
+      'Cable lights come on above it and the water shimmers.',
+    ],
+    build() {
+      F([[-3.2,0,0],[3.2,0,0],[3.2,3.1,0],[-3.2,3.1,0]],[0,0,1],[0.70,0.71,0.69],'base',{edge:false,far:10});
+      F([[-3.2,0,0],[3.2,0,0],[3.2,0,2.5],[-3.2,0,2.5]],[0,1,0],[0.42,0.32,0.22],'base',{edge:false,far:11});
+      for (let x=-3; x<3.2; x+=0.4) L([x,0.002,0],[x,0.002,2.5],[0.08,0.06,0.04],'base',1.2,{far:10.5});
+      box(-2.6,2.6,1.0,1.08,0,0.2,C_WOOD);
+      for (const y of [2.85]) L([-3.2,y,0.35],[3.2,y,0.35],[0.6,0.6,0.58],'cable',1.2);
+    },
+    update(t) {},
+    extra(V, t) {
+      const {cols:nc, rows:nr, x0, x1, y0, y1} = MOS;
+      const tw = (x1-x0)/nc, th = (y1-y0)/nr;
+      const lit = ease(seg(t,10.4,11.4));
+      const tiles = [];
+      for (let j=0;j<nr;j++) for (let i=0;i<nc;i++){
+        const h = hash(i*31+j*7);
+        const arrive = 5.0 + (i/nc)*3.6 + h*0.6;
+        const k = eOut(seg(t, arrive-0.9, arrive));
+        const u = i/nc, v = 1 - j/nr;
+        // scattered home: a slow cloud in front of the wall
+        const sxw = Math.sin(t*0.6 + h*9)*0.25;
+        const fx = (hash(i+j*91)-0.5)*5.6 + sxw, fy = 0.6 + hash(i*3+j*17)*2.4 + Math.cos(t*0.5+h*7)*0.15, fz = 0.9 + hash(i*5+j*3)*1.4;
+        const tx0 = x0 + i*tw, ty0 = y1 - (j+1)*th;
+        const cx = lerp(fx, tx0+tw/2, k), cy = lerp(fy, ty0+th/2, k), cz = lerp(fz, 0.02, k);
+        const sz = lerp(0.6, 1, k);
+        let col = riverColor(u, v, t);
+        const shim = lit * 0.25 * Math.sin(t*2.4 - u*10 + v*3);
+        col = col.map(c => clamp(c*(0.85 + 0.15*lit) + shim*0.6*c));
+        const a = (t < 0.6 ? 0 : seg(t,0.6,1.6));
+        tiles.push({cx,cy,cz,sz,col,a, tw:tw*0.9, th:th*0.9});
+      }
+      tiles.sort((p,q)=>q.cz-p.cz);
+      for (const T of tiles) {
+        const hw = T.tw*T.sz/2, hh = T.th*T.sz/2;
+        const P = [[T.cx-hw,T.cy-hh,T.cz],[T.cx+hw,T.cy-hh,T.cz],[T.cx+hw,T.cy+hh,T.cz],[T.cx-hw,T.cy+hh,T.cz]].map(p=>V.proj(p));
+        sx.fillStyle = rgb(T.col,1,T.a); sx.beginPath(); P.forEach((q,i)=>i?sx.lineTo(q[0],q[1]):sx.moveTo(q[0],q[1])); sx.closePath(); sx.fill();
+      }
+      // cable lights
+      for (let i=0;i<7;i++){ const x=-2.4+i*0.8;
+        const [bx,by] = V.proj([x,2.75,0.35]);
+        sx.fillStyle = rgb(C_BRASS,1,0.25+0.75*lit); sx.beginPath(); sx.arc(bx,by,3.5+2*lit,0,Math.PI*2); sx.fill();
+        if (lit>0){ const [wx,wy]=V.proj([x,2.3,0.02]); const g=sx.createRadialGradient(wx,wy,2,wx,wy,60); g.addColorStop(0,rgb(C_BRASS,1,0.22*lit)); g.addColorStop(1,'rgba(0,0,0,0)'); sx.fillStyle=g; sx.fillRect(wx-60,wy-60,120,120); }
+      }
+      pin(V, t, 'GLASS TILE', [-1.2,1.9,0.02], [0.04,0.84,'l'], 7.6, 9.5);
+      pin(V, t, 'CABLE LIGHTS', [0.8,2.75,0.35], [0.96,0.84,'r'], 11.0, 14.4, 2);
+    },
+    cam: t => ({target:[0,1.7,0.3], dist:9.4, yaw:-0.38+0.04*t, pitch:0.1+0.03*Math.sin(t*0.4), f:1000}),
+  },
+
+  deck: {
+    name: 'Rear deck',
+    heads: [['Where does','the back door','lead?'], ['A deck the','width of','the house.'], ['Sage rails,','black','balusters.']],
+    lows:  ['FROM OUR PROJECTS', 'POSTS, BEAM, JOISTS, BOARDS', 'DESIGNED AND BUILT BY US'],
+    script: [
+      'The back of a gray house. The back door opens onto nothing.',
+      'Posts and a beam go up, joists drop in, and the boards run across the full width.',
+      'Sage rails and dark balusters rise around the edge and the stairs go in.',
+    ],
+    build() {
+      F([[-4,0,0],[4,0,0],[4,5.4,0],[-4,5.4,0]],[0,0,1],C_SIDING,'base',{edge:false,far:20});
+      for (let y=0.2; y<5.4; y+=0.22) L([-4,y,0.005],[4,y,0.005],[0.05,0.06,0.07],'base',1.3,{far:15});
+      F([[-4.3,5.4,0.4],[4.3,5.4,0.4],[4.3,7.4,-2.2],[-4.3,7.4,-2.2]],norm([0,1,0.77]),[0.36,0.37,0.4],'base');
+      const glass = (x0,x1,y0,y1) => { F([[x0,y0,0.01],[x1,y0,0.01],[x1,y1,0.01],[x0,y1,0.01]],[0,0,1],C_BRASS,'base',{emissive:true,far:10});
+        L([(x0+x1)/2,y0,0.02],[(x0+x1)/2,y1,0.02],[0,0,0],'base',1.8,{far:9}); };
+      glass(-0.55,0.55,1.0,3.1);
+      glass(-3.0,-2.0,1.6,3.0); glass(2.0,3.0,1.6,3.0); glass(-2.6,-1.6,3.7,5.0); glass(1.6,2.6,3.7,5.0);
+      for (const x of [-3.85,-1.3,1.3,3.85]) box(x-0.09,x+0.09,0,0.85,3.35,3.53,C_WOOD,'posts');
+      box(-4,4,0.7,0.9,3.3,3.55,mixc(C_WOOD,[0,0,0],0.2),'beam');
+      for (let x=-3.9; x<=3.9; x+=0.5) box(x-0.03,x+0.03,0.75,0.95,0.02,3.5,mixc(C_WOOD,[0,0,0],0.15),'joists',{far:0.3});
+      for (let i=0;i<14;i++){ const z0 = 0.04 + i*0.255;
+        box(-4.05,4.05,0.95,1.0,z0,z0+0.22,[0.62,0.6,0.58],'b'+i,{ew:1.2}); }
+      const RAIL = [];
+      for (const x of [-4,-3,-2,-1,1,2,3,4]) RAIL.push([[x,3.62],[x,3.62]]);
+      for (const z of [0.6,1.6,2.6]) { RAIL.push([[-4,z],[-4,z]]); RAIL.push([[4,z],[4,z]]); }
+      for (const [[x,z]] of RAIL) box(x-0.06,x+0.06,1.0,2.0,z-0.06,z+0.06,C_SAGE,'rails');
+      const topRail = (a,b) => { L([a[0],2.0,a[1]],[b[0],2.0,b[1]],C_SAGE,'rails',4);
+        const n = Math.round(Math.hypot(b[0]-a[0],b[1]-a[1])/0.13);
+        for (let i=1;i<n;i++){ const k=i/n; L([lerp(a[0],b[0],k),1.05,lerp(a[1],b[1],k)],[lerp(a[0],b[0],k),1.95,lerp(a[1],b[1],k)],C_BLACKRAIL,'rails',1.5); } };
+      topRail([-4,3.62],[-0.7,3.62]); topRail([0.7,3.62],[4,3.62]); topRail([-4,0.05],[-4,3.62]); topRail([4,0.05],[4,3.62]);
+      for (let i=0;i<4;i++){ const y=1.0-(i+1)*0.25, z0=3.62+i*0.3;
+        box(-0.7,0.7,y,y+0.05,z0,z0+0.28,[0.62,0.6,0.58],'stairs',{ew:1.2}); }
+      L([-0.7,2.0,3.62],[-0.7,1.0,4.82],C_SAGE,'stairs',3); L([0.7,2.0,3.62],[0.7,1.0,4.82],C_SAGE,'stairs',3);
+    },
+    update(t) {
+      const rise = (p,t0,dy=-1.4) => { const q=part(p); q.alpha=seg(t,t0,t0+0.2); q.off=[0,dy*(1-eOut(seg(t,t0,t0+0.6))),0]; };
+      rise('posts',5.0); rise('beam',5.6,1.2); rise('joists',6.2,1.2);
+      for (let i=0;i<14;i++) rise('b'+i, 7.0 + i*0.15, 0.7);
+      rise('rails',10.2,-1.0); rise('stairs',11.4,-0.8);
+      if (t < 4.9) for (const p of ['posts','beam','joists','rails','stairs']) part(p).alpha = 0;
+    },
+    under(V, t) { groundGrid(V, 0, 0, 2.5, 0.7, 7, 1); },
+    extra(V, t) {
+      pin(V, t, 'BACK DOOR', [0,2.0,0.02], [0.96,0.36,'r'], 1.9, 4.5);
+      pin(V, t, 'FULL WIDTH', [3.6,1.0,1.6], [0.96,0.84,'r'], 9.0, 9.7);
+      pin(V, t, 'SAGE RAILS', [-2,2.0,3.62], [0.04,0.84,'l'], 11.0, 14.4, 2);
+    },
+    cam: t => ({target:[0,2.2,2.0], dist:20, yaw:-0.62+0.06*t, pitch:0.34+0.04*Math.sin(t*0.35), f:1000}),
+  },
+
+  bulkhead: {
+    name: 'Cellar bulkhead',
+    heads: [['Rusty cellar','doors?'], ['New steps','go in first.'], ['Then a new','bulkhead','on top.']],
+    lows:  ['FROM OUR PROJECTS', 'THE OLD DOORS COME OFF', 'NEW FRAME, NEW DOORS'],
+    script: [
+      'The side of a house with an old, rusted steel bulkhead over the cellar stairs.',
+      'The old doors lift off. New concrete steps rise into place, down to the lit cellar door.',
+      'A new white bulkhead drops on and one door swings open.',
+    ],
+    build() {
+      F([[-3.2,0,0],[3.2,0,0],[3.2,3.4,0],[-3.2,3.4,0]],[0,0,1],C_WALL,'base',{edge:false,far:20});
+      F([[-3.2,0,0.004],[3.2,0,0.004],[3.2,0.85,0.004],[-3.2,0.85,0.004]],[0,0,1],C_FOUND,'base',{edge:false,far:19});
+      for (let y=1.05; y<3.4; y+=0.2) L([-3.2,y,0.006],[3.2,y,0.006],[0.07,0.07,0.06],'base',1.3,{far:15});
+      for (let y=0.28, r=0; y<0.85; y+=0.28, r++) { L([-3.2,y,0.006],[3.2,y,0.006],MORTAR,'base',1.2,{far:15});
+        for (let x=-3.2+(r%2?0.2:0.45); x<3.2; x+=0.5) L([x,y-0.28,0.006],[x,y,0.006],MORTAR,'base',1.1,{far:15}); }
+      F([[1.6,1.5,0.01],[2.5,1.5,0.01],[2.5,2.7,0.01],[1.6,2.7,0.01]],[0,0,1],C_BRASS,'base',{emissive:true,far:10});
+      L([2.05,1.5,0.02],[2.05,2.7,0.02],[0,0,0],'base',1.8,{far:9}); L([1.6,2.1,0.02],[2.5,2.1,0.02],[0,0,0],'base',1.8,{far:9});
+      // the stairwell, seen with the doors off
+      const DK = [0.13,0.13,0.12];
+      F([[-0.85,-1.9,0.02],[-0.85,-1.9,1.9],[-0.85,0,1.9],[-0.85,0,0.02]],[1,0,0],DK,'pit',{far:4,ec:[0.3,0.3,0.28]});
+      F([[0.85,-1.9,1.9],[0.85,-1.9,0.02],[0.85,0,0.02],[0.85,0,1.9]],[-1,0,0],DK,'pit',{far:4,ec:[0.3,0.3,0.28]});
+      F([[-0.85,-1.9,0.02],[0.85,-1.9,0.02],[0.85,0,0.02],[-0.85,0,0.02]],[0,0,1],DK,'pit',{far:4.5,edge:false});
+      F([[-0.4,-1.85,0.03],[0.4,-1.85,0.03],[0.4,-0.35,0.03],[-0.4,-0.35,0.03]],[0,0,1],C_BRASS,'pit',{emissive:true,far:3.5});
+      for (let i=0;i<6;i++){ const y=-(i+1)*0.28, z1=1.85-i*0.27, z0=z1-0.27;
+        box(-0.8,0.8,y-0.05,y,z0,z1,[0.66,0.66,0.62],'s'+i,{skip:'bottom back left right',ew:1.2});
+        F([[-0.8,y,z1],[0.8,y,z1],[0.8,y+0.28,z1],[-0.8,y+0.28,z1]],[0,0,1],[0.5,0.5,0.47],'s'+i,{ew:1}); }
+      // a bulkhead: two cheeks, a front, and two sloped doors. The right door is kept so it can swing.
+      const yT = z => 1.1 - (z/1.9)*0.75, SN = norm([0,1.9,0.75]);
+      const shell = (col, p, o={}) => {
+        F([[-0.9,0,1.9],[-0.9,0,0.02],[-0.9,1.1,0.02],[-0.9,0.35,1.9]],[-1,0,0],col,p,o);
+        F([[0.9,0,0.02],[0.9,0,1.9],[0.9,0.35,1.9],[0.9,1.1,0.02]],[1,0,0],col,p,o);
+        F([[-0.9,0,1.9],[0.9,0,1.9],[0.9,0.35,1.9],[-0.9,0.35,1.9]],[0,0,1],col,p,o);
+      };
+      const leaf = (x0, x1, col, p, rib) => {
+        F([[x0,yT(0.02)+0.01,0.02],[x1,yT(0.02)+0.01,0.02],[x1,yT(1.9)+0.01,1.9],[x0,yT(1.9)+0.01,1.9]],SN,col,p,{ds:true,ew:1.4});
+        for (let z=0.3; z<1.8; z+=0.3) L([x0+0.04,yT(z)+0.02,z],[x1-0.04,yT(z)+0.02,z],rib,p,1.3);
+        const hx = x0 < 0 ? x1-0.12 : x0+0.12;
+        L([hx,yT(1.4)+0.03,1.4],[hx,yT(1.6)+0.03,1.6],[0.1,0.1,0.1],p,2.6);
+      };
+      const RUST = [0.56,0.30,0.18];
+      shell(RUST,'old'); leaf(-0.9,0,RUST,'old',[0.2,0.1,0.06]); leaf(0,0.9,RUST,'old',[0.2,0.1,0.06]);
+      for (let k=0;k<14;k++){ const x=-0.85+hash(k*5)*1.7, z=0.15+hash(k*9)*1.6;
+        L([x,yT(z)+0.02,z],[x+0.08*(hash(k)-0.5),yT(z+0.18)+0.02,z+0.18],[0.92,0.5,0.22],'old',1.8); }
+      shell(C_PAINT,'newc',{ew:1.2}); leaf(-0.9,0,C_PAINT,'newL',[0.35,0.36,0.34]);
+      const f0 = M.faces.length, l0 = M.lines.length;
+      leaf(0,0.9,C_PAINT,'newR',[0.35,0.36,0.34]);
+      this.swing = [...M.faces.slice(f0), ...M.lines.slice(l0)];
+      for (const o of this.swing) { if (o.pts) { o.p0 = o.pts; o.n0 = o.n; o.c0 = o.c; } else { o.a0 = o.a; o.b0 = o.b; } }
+    },
+    update(t) {
+      const o = part('old'); o.tint = C_BARN; o.tk = seg(t,1.4,2.2)*(1-seg(t,4.6,5.0))*0.35*(0.6+0.4*Math.sin(t*4));
+      o.off = [0, 2.2*ease(seg(t,4.9,6.0)), 0.6*ease(seg(t,4.9,6.0))]; o.alpha = 1 - seg(t,5.4,6.0);
+      const pit = part('pit'); pit.alpha = seg(t,5.3,5.9);
+      for (let i=0;i<6;i++){ const q=part('s'+i), t0=6.0+i*0.3; q.alpha=seg(t,t0,t0+0.2); q.off=[0,-0.9*(1-eOut(seg(t,t0,t0+0.6))),0]; }
+      const drop = (p,t0) => { const q=part(p); q.alpha=seg(t,t0,t0+0.2); q.off=[0,1.4*(1-eOut(seg(t,t0,t0+0.6))),0]; };
+      drop('newc',10.1); drop('newL',10.5); drop('newR',10.75);
+      // the right door swings open on its outside hinge
+      const H0 = [0.9,1.1,0.02], k = norm([0,-0.75,1.88]);
+      const ang = -1.85*ease(seg(t,11.7,13.0)), c = Math.cos(ang), s = Math.sin(ang);
+      const rd = v => { const cr=[k[1]*v[2]-k[2]*v[1], k[2]*v[0]-k[0]*v[2], k[0]*v[1]-k[1]*v[0]], kd=dot(k,v)*(1-c);
+        return [v[0]*c+cr[0]*s+k[0]*kd, v[1]*c+cr[1]*s+k[1]*kd, v[2]*c+cr[2]*s+k[2]*kd]; };
+      const rp = p => add3(rd([p[0]-H0[0],p[1]-H0[1],p[2]-H0[2]]), H0);
+      for (const f of this.swing) { if (f.p0) { f.pts = f.p0.map(rp); f.n = rd(f.n0); f.c = rp(f.c0); } else { f.a = rp(f.a0); f.b = rp(f.b0); } }
+    },
+    under(V, t) { groundGrid(V, 0, 0, 1.4, 0.6, 6, 1); },
+    extra(V, t) {
+      pin(V, t, 'RUSTED STEEL', [-0.45,0.85,0.7], [0.04,0.36,'l'], 1.9, 4.5);
+      pin(V, t, 'NEW STEPS', [0,-0.84,1.0], [0.96,0.84,'r'], 7.2, 9.6);
+      pin(V, t, 'NEW BULKHEAD', [-0.45,0.8,0.8], [0.04,0.84,'l'], 11.2, 14.4, 2);
+    },
+    cam: t => ({target:[0,0.1,1.0], dist:10.5, yaw:-0.6+0.04*t, pitch:0.55+0.03*Math.sin(t*0.4), f:1000}),
+  },
+
+  stairs: {
+    name: 'Cellar stairs',
+    heads: [['Cellar stairs','feel shaky?'], ['We take them','out and','rebuild.'], ['Solid steps','and a','handrail.']],
+    lows:  ['FROM OUR PROJECTS', 'NEW STRINGERS, NEW TREADS', 'A RAIL TO HOLD ON THE WAY DOWN'],
+    script: [
+      'A dim cellar stair: old treads tilted, one missing, the whole thing wobbling.',
+      'The old treads fall away. New stringers slide in and fresh treads drop on, bottom to top.',
+      'A handrail and balusters rise along the open side and the door at the top lights up.',
+    ],
+    build() {
+      F([[-0.62,0,-0.6],[-0.62,0,3.6],[-0.62,3.4,3.6],[-0.62,3.4,-0.6]],[1,0,0],[0.24,0.25,0.23],'base',{edge:false,far:20});
+      for (let y=0.3, r=0; y<3.4; y+=0.3, r++) { L([-0.615,y,-0.6],[-0.615,y,3.6],MORTAR,'base',1.3,{far:15});
+        for (let z=-0.6+(r%2?0.25:0.5); z<3.6; z+=0.55+0.15*hash(r*7+z)) L([-0.615,y-0.3,z],[-0.615,y,z],MORTAR,'base',1.2,{far:15}); }
+      F([[-0.62,0,-0.6],[1.2,0,-0.6],[1.2,3.4,-0.6],[-0.62,3.4,-0.6]],[0,0,1],[0.42,0.42,0.39],'base',{edge:false,far:18});
+      F([[-0.45,2.4,-0.59],[0.45,2.4,-0.59],[0.45,3.35,-0.59],[-0.45,3.35,-0.59]],[0,0,1],C_BRASS,'door',{emissive:true,far:12});
+      box(-0.62,0.62,2.3,2.4,-0.6,0.44,[0.5,0.48,0.45],'base',{far:2});
+      // old stairs: dark, tilted treads, one missing, sagging stringer
+      const OLD = [0.72,0.56,0.40];
+      for (let i=0;i<8;i++){ if (i===5) continue;
+        const y=(i+1)*0.3, z1=3.0-i*0.32, z0=z1-0.32, d=(hash(i*3+1)-0.5)*0.14;
+        F([[-0.5,y-d,z0],[0.5,y+d,z0],[0.5,y+d,z1],[-0.5,y-d,z1]],[0,1,0],OLD,'o'+i,{ew:1.2,ec:[0.62,0.56,0.48]});
+        F([[-0.5,y-d-0.05,z1],[0.5,y+d-0.05,z1],[0.5,y+d,z1],[-0.5,y-d,z1]],[0,0,1],mixc(OLD,[0,0,0],0.3),'o'+i,{ew:1,ec:[0.62,0.56,0.48]});
+        L([-0.2+hash(i)*0.3,y+0.005,z0+0.05],[0.1+hash(i)*0.3,y+0.005,z1-0.06],[0.08,0.06,0.05],'o'+i,1.2); }
+      for (const x of [-0.52,0.52]) for (let i=0;i<8;i++){
+        const za=3.1-i*0.32, zb=za-0.32, sag=k=>-0.12*Math.sin(Math.PI*k);
+        L([x,i*0.3+sag(i/8),za],[x,(i+1)*0.3+sag((i+1)/8),zb],OLD,'ostr',4); }
+      // new stairs: two cut stringers, treads with risers
+      for (const x of [-0.53,0.53]) {
+        const pts = [];
+        for (let i=0;i<8;i++){ const z1=3.0-i*0.32; pts.push([x,i*0.3,z1],[x,(i+1)*0.3,z1]); }
+        pts.push([x,2.4,0.44],[x,2.4,0.3],[x,1.95,0.3],[x,0,2.55]);
+        F(pts,[1,0,0],C_FRESH,'str',{ew:1.3});
+      }
+      for (let i=0;i<8;i++){ const y=(i+1)*0.3, z1=3.0-i*0.32, z0=z1-0.32;
+        box(-0.55,0.58,y-0.05,y,z0,z1+0.03,mixc(C_FRESH,[1,1,1],0.12),'n'+i,{ew:1.2,skip:'bottom back left'});
+        F([[-0.55,y-0.3,z1+0.02],[0.58,y-0.3,z1+0.02],[0.58,y-0.05,z1+0.02],[-0.55,y-0.05,z1+0.02]],[0,0,1],C_PAINT,'n'+i,{ew:1}); }
+      // handrail on the open side
+      const rail = z => (3.0 - z)/0.32*0.3 + 0.9;
+      box(0.6,0.72,0,1.25,2.86,2.98,C_WOOD,'rail'); box(0.6,0.72,2.4,3.3,0.32,0.44,C_WOOD,'rail');
+      L([0.66,rail(2.92)+0.35,2.92],[0.66,rail(0.38),0.38],mixc(C_WOOD,[0,0,0],0.1),'rail',5);
+      for (let i=0;i<8;i++) for (const f of [0.25,0.75]){ const z=3.0-(i+f)*0.32;
+        L([0.66,(i+1)*0.3,z],[0.66,rail(z),z],C_PAINT,'rail',1.6); }
+    },
+    update(t) {
+      for (let i=0;i<8;i++){ const q = part('o'+i);
+        q.off = [0, 0.025*Math.sin(t*11+i*1.7)*seg(t,1.2,1.6)*(1-seg(t,4.4,4.9)), 0];
+        const tf = 4.95 + i*0.09; q.off[1] -= 2.2*Math.pow(seg(t,tf,tf+0.7),2); q.alpha = 1 - seg(t,tf+0.35,tf+0.7); }
+      const os = part('ostr'); os.alpha = 1 - seg(t,5.3,5.9); os.off = [0,-0.6*seg(t,5.3,5.9),0];
+      const st = part('str'); st.alpha = seg(t,5.6,5.9); st.off = [1.6*(1-eOut(seg(t,5.6,6.4))),0,0];
+      for (let i=0;i<8;i++){ const q=part('n'+i), t0=6.3+i*0.26; q.alpha=seg(t,t0,t0+0.2); q.off=[0,0.9*(1-eOut(seg(t,t0,t0+0.5))),0]; }
+      const r = part('rail'); r.alpha = seg(t,10.2,10.5); r.off = [0,-1.2*(1-ease(seg(t,10.2,11.2))),0];
+      const d = part('door'); d.alpha = 0.3 + 0.7*seg(t,11.6,12.4);
+    },
+    under(V, t) { groundGrid(V, 0, 0.4, 2.0, 0.6, 6, 1); },
+    extra(V, t) {
+      pin(V, t, 'LOOSE TREADS', [0.3,1.2,2.0], [0.96,0.36,'r'], 1.9, 4.5);
+      pin(V, t, 'NEW TREADS', [0.4,1.5,1.55], [0.96,0.84,'r'], 7.6, 9.6);
+      pin(V, t, 'HANDRAIL', [0.66,2.12,1.7], [0.96,0.36,'r'], 11.2, 14.4, 2);
+    },
+    cam: t => ({target:[0,1.4,1.4], dist:8.2, yaw:1.0+0.03*t, pitch:0.2+0.03*Math.sin(t*0.4), f:1000}),
+  },
+
+  tin: {
+    name: 'Tin ceiling',
+    heads: [['A cracked','ceiling?'], ['Tin-look','tiles go up.'], ['Copper,','corner to','corner.']],
+    lows:  ['FROM OUR PROJECTS', 'ROW BY ROW FROM THE CORNER', 'CROWN MOLDING TO FINISH'],
+    script: [
+      'Looking up into a room corner: an old plaster ceiling full of cracks and a bare bulb.',
+      'Copper tin-look tiles fly up and fit into place, row by row from the corner out.',
+      'Crown molding runs along the walls, a pendant lights up, and the copper catches the light.',
+    ],
+    build() {
+      const WL = [0.40,0.39,0.35];
+      F([[-2,0,-2],[1.8,0,-2],[1.8,2.6,-2],[-2,2.6,-2]],[0,0,1],WL,'base',{edge:false,far:20});
+      F([[-2,0,1.8],[-2,0,-2],[-2,2.6,-2],[-2,2.6,1.8]],[1,0,0],mixc(WL,[0,0,0],0.1),'base',{edge:false,far:20});
+      L([-2,0,-2],[-2,2.6,-2],[0.7,0.7,0.66],'base',1.4,{far:16});
+      F([[-2,1.0,-1.4],[-2,1.0,-0.2],[-2,2.1,-0.2],[-2,2.1,-1.4]],[1,0,0],C_BRASS,'base',{emissive:true,far:15});
+      L([-1.99,1.55,-1.4],[-1.99,1.55,-0.2],[0,0,0],'base',1.8,{far:14}); L([-1.99,1.0,-0.8],[-1.99,2.1,-0.8],[0,0,0],'base',1.8,{far:14});
+      F([[-2,2.6,-2],[1.8,2.6,-2],[1.8,2.6,1.8],[-2,2.6,1.8]],[0,-1,0],[0.2,0.2,0.18],'plaster',{edge:false,far:30,emissive:true});
+      // cracks: jagged random walks across the plaster
+      const crack = (x, z, a, n, w, seed) => { for (let s=0;s<n;s++){ const d = a + (s%2 ? 0.75 : -0.75) + (hash(seed*31+s)-0.5)*0.6;
+          const nx=x+Math.cos(d)*0.16, nz=z+Math.sin(d)*0.16; L([x,2.598,z],[nx,2.598,nz],[0.92,0.88,0.8],'plaster',w,{far:29});
+          if (s===4 && w>3) crack(nx, nz, a+1.1, 6, 2.2, seed+7); x=nx; z=nz; } };
+      for (let c=0;c<5;c++) crack(-1.8+hash(c*13)*3.0, -1.8+hash(c*17)*3.0, hash(c*5)*6.28, 14, 3.6, c);
+      L([0,2.6,0],[0,2.2,0],[0.5,0.5,0.48],'bulb',1.2); box(-0.07,0.07,2.06,2.2,-0.07,0.07,C_BRASS,'bulb',{emissive:true});
+      // tiles: 8 x 8, each with a raised square and a center diamond
+      const N=8, S=3.8/N;
+      for (let i=0;i<N;i++) for (let j=0;j<N;j++){
+        const x0=-2+i*S, z0=-2+j*S, x1=x0+S, z1=z0+S, y=2.59, p='t'+i+'_'+j, m=0.09;
+        const col = mixc([0.78,0.47,0.29],[0.9,0.6,0.36],hash(i*7+j*3)*0.4);
+        F([[x0,y,z0],[x1,y,z0],[x1,y,z1],[x0,y,z1]],[0,-1,0],col,p,{ew:1.3,ec:[0.98,0.78,0.5]});
+        const q=[[x0+m,z0+m],[x1-m,z0+m],[x1-m,z1-m],[x0+m,z1-m]];
+        for (let k=0;k<4;k++){ const a=q[k], b=q[(k+1)%4]; L([a[0],y-0.004,a[1]],[b[0],y-0.004,b[1]],[0.98,0.8,0.55],p,1.2); }
+        const cx=(x0+x1)/2, cz=(z0+z1)/2, r=S*0.2, dm=[[cx-r,cz],[cx,cz-r],[cx+r,cz],[cx,cz+r]];
+        for (let k=0;k<4;k++){ const a=dm[k], b=dm[(k+1)%4]; L([a[0],y-0.004,a[1]],[b[0],y-0.004,b[1]],[0.35,0.18,0.1],p,1.4); }
+      }
+      // crown molding: a sloped cove where each wall meets the ceiling
+      F([[-2,2.42,-1.99],[1.8,2.42,-1.99],[1.8,2.585,-1.82],[-2,2.585,-1.82]],norm([0,-1,1]),C_PAINT,'crown',{ew:1.4,far:2});
+      F([[-1.99,2.42,1.8],[-1.99,2.42,-2],[-1.82,2.585,-1.82],[-1.82,2.585,1.8]],norm([1,-1,0]),C_PAINT,'crown',{ew:1.4,far:2});
+      L([0,2.58,0],[0,2.25,0],[0.3,0.3,0.3],'pend',1.6); box(-0.16,0.16,2.12,2.25,-0.16,0.16,C_BRASS,'pend',{emissive:true});
+    },
+    update(t) {
+      const pl = part('plaster'); pl.tint = C_BARN; pl.tk = seg(t,1.4,2.2)*(1-seg(t,4.6,5.2))*0.6*(0.6+0.4*Math.sin(t*4));
+      const b = part('bulb'); b.alpha = (1 - seg(t,10.6,11.0)) * (Math.sin(t*23)*Math.sin(t*7.3) > 0.7 ? 0.35 : 1);
+      const lit = ease(seg(t,11.4,12.4));
+      for (let i=0;i<8;i++) for (let j=0;j<8;j++){
+        const q = part('t'+i+'_'+j), t0 = 5.1 + (i+j)/14*3.5 + hash(i*11+j)*0.3;
+        q.alpha = seg(t,t0-0.35,t0-0.1); q.off = [0,-1.6*(1-eOut(seg(t,t0-0.35,t0))),0];
+        q.tint = C_BRASS; q.tk = lit*0.45*Math.max(0, Math.sin(t*2.2 - (i+j)*0.45));
+      }
+      const c = part('crown'); c.alpha = seg(t,10.1,10.4); c.off = [0,-0.5*(1-eOut(seg(t,10.1,10.9))),0];
+      const pd = part('pend'); pd.alpha = seg(t,11.0,11.4); pd.off = [0,0.3*(1-eOut(seg(t,11.0,11.6))),0];
+    },
+    extra(V, t) {
+      const lit = ease(seg(t,11.4,12.4));
+      if (lit > 0) { const [wx,wy] = V.proj([0,2.2,0]); const g = sx.createRadialGradient(wx,wy,4,wx,wy,180);
+        g.addColorStop(0,rgb(C_BRASS,1,0.28*lit)); g.addColorStop(1,'rgba(0,0,0,0)'); sx.fillStyle=g; sx.fillRect(wx-180,wy-180,360,360); }
+      pin(V, t, 'CRACKED PLASTER', [-0.6,2.6,-0.9], [0.04,0.84,'l'], 1.9, 4.5);
+      pin(V, t, 'TIN-LOOK TILES', [-1.05,2.59,-1.05], [0.04,0.84,'l'], 7.4, 9.6);
+      pin(V, t, 'COPPER FINISH', [0.6,2.59,-0.6], [0.96,0.84,'r'], 12.0, 14.4, 2);
+    },
+    cam: t => ({target:[-0.6,2.5,-0.6], dist:4.8, yaw:0.785+0.12*Math.sin(t*0.25), pitch:-0.3-0.04*Math.sin(t*0.3), f:1000}),
+  },
+
+  oshower: {
+    name: 'Outdoor shower',
+    heads: [['Rinse off','before you','come in.'], ['A cedar','shower in','the yard.'], ['Closed by a','sliding','barn door.']],
+    lows:  ['FROM OUR PROJECTS', 'CEDAR BOARDS, ONE BY ONE', 'IT ROLLS ON A TRACK'],
+    script: [
+      'The back wall of a house with a shower head on a bare wall, water running onto the grass.',
+      'Corner posts go up and cedar boards stack up both sides, one at a time, then a slatted floor.',
+      'A barn door hangs on a black track, rolls shut, then rolls open again.',
+    ],
+    build() {
+      F([[-3,0,0],[3,0,0],[3,3.6,0],[-3,3.6,0]],[0,0,1],C_WALL,'base',{edge:false,far:20});
+      for (let y=0.2; y<3.6; y+=0.2) L([-3,y,0.005],[3,y,0.005],[0.07,0.07,0.06],'base',1.3,{far:15});
+      F([[1.7,1.4,0.01],[2.6,1.4,0.01],[2.6,2.8,0.01],[1.7,2.8,0.01]],[0,0,1],C_BRASS,'base',{emissive:true,far:10});
+      L([2.15,1.4,0.02],[2.15,2.8,0.02],[0,0,0],'base',1.8,{far:9}); L([1.7,2.1,0.02],[2.6,2.1,0.02],[0,0,0],'base',1.8,{far:9});
+      L([0,0.9,0.03],[0,2.0,0.03],C_STEEL,'base',3,{far:0.5}); L([0,2.0,0.03],[0,2.0,0.3],C_STEEL,'base',3);
+      box(-0.12,0.12,1.9,1.98,0.22,0.4,C_STEEL,'base');
+      box(-0.04,0.04,1.2,1.3,0.03,0.12,C_BRASS,'base');
+      const CED = [0.80,0.50,0.32];
+      for (const x of [-0.9,0.9]) box(x-0.06,x+0.06,0,2.15,1.5,1.62,mixc(CED,[0,0,0],0.2),'posts');
+      for (let k=0;k<11;k++){ const y=0.12+k*0.18, col=mixc(CED,[0.95,0.7,0.5],hash(k*3)*0.35);
+        box(-0.93,-0.87,y,y+0.165,0.02,1.5,col,'b'+k,{ew:1.1});
+        box(0.87,0.93,y,y+0.165,0.02,1.5,mixc(CED,[0.95,0.7,0.5],hash(k*5)*0.35),'b'+k,{ew:1.1}); }
+      for (let i=0;i<8;i++){ const x0=-0.85+i*0.215; box(x0,x0+0.17,0.05,0.1,0.05,1.5,mixc(CED,[0,0,0],0.1),'floor',{ew:1}); }
+      L([-2.7,2.22,1.72],[0.95,2.22,1.72],C_BLACKRAIL,'track',5);
+      const DC = mixc(CED,[0.95,0.7,0.5],0.15);
+      box(-0.88,0.88,0.12,2.06,1.66,1.72,DC,'door',{ew:1.3});
+      for (let x=-0.66; x<0.8; x+=0.22) L([x,0.15,1.725],[x,2.03,1.725],mixc(DC,[0,0,0],0.55),'door',1.2);
+      for (const y of [0.3,1.1,1.88]) L([-0.85,y,1.73],[0.85,y,1.73],mixc(DC,[0,0,0],0.35),'door',3.2);
+      L([-0.85,0.3,1.735],[0.85,1.1,1.735],mixc(DC,[0,0,0],0.35),'door',3); L([-0.85,1.1,1.735],[0.85,1.88,1.735],mixc(DC,[0,0,0],0.35),'door',3);
+      for (const x of [-0.6,0.6]) L([x,2.06,1.74],[x,2.22,1.74],C_BLACKRAIL,'door',3);
+      L([0.7,0.95,1.75],[0.7,1.3,1.75],C_BLACKRAIL,'door',3);
+    },
+    update(t) {
+      const rise = (p,t0,dy=-1.2) => { const q=part(p); q.alpha=seg(t,t0,t0+0.2); q.off=[0,dy*(1-eOut(seg(t,t0,t0+0.55))),0]; };
+      rise('posts',5.0,-2.2);
+      for (let k=0;k<11;k++) rise('b'+k, 5.7 + k*0.22, 0.9);
+      rise('floor',8.3,0.6);
+      const tr = part('track'); tr.alpha = seg(t,10.1,10.4);
+      const d = part('door'), slide = 1 - ease(seg(t,11.2,12.3)) + ease(seg(t,13.0,14.0));
+      d.alpha = seg(t,10.4,10.6); d.off = [-1.8*slide, 0.8*(1-eOut(seg(t,10.4,11.0))), 0];
+      if (t < 4.9) for (const p of ['posts','floor','track','door']) part(p).alpha = 0;
+    },
+    under(V, t) { groundGrid(V, 0, 0, 1.4, 0.6, 6, 1); },
+    extra(V, t) {
+      const open = 1 - ease(seg(t,11.2,12.3)) + ease(seg(t,13.0,14.0));
+      const flow = (1 - seg(t,4.6,5.0)) + seg(t,12.9,13.4)*(1-seg(t,14.4,15.0));
+      if (flow > 0.01) for (let k=0;k<46;k++){
+        const ph = (t*1.3 + hash(k)) % 1, y = 1.94 - ph*1.85;
+        const x = (hash(k*3)-0.5)*0.7*ph, z = 0.31 + (hash(k*7)-0.3)*0.55*ph;
+        if (t > 9 && x < 0.88 - 1.8*open) continue;
+        dot3(V, [x,y,z], 1.7, C_WATER, 0.85*flow*seg(t,0.4,1.0));
+      }
+      pin(V, t, 'A BARE WALL', [-0.6,1.4,0.02], [0.04,0.36,'l'], 1.9, 4.5);
+      pin(V, t, 'CEDAR BOARDS', [0.9,1.2,0.9], [0.96,0.84,'r'], 7.6, 9.6);
+      pin(V, t, 'BARN DOOR', [0.7-1.8*open,1.6,1.74], [0.96,0.36,'r'], 11.4, 14.4, 2);
+    },
+    cam: t => ({target:[0,1.1,0.9], dist:9.5, yaw:0.5+0.03*t, pitch:0.25+0.03*Math.sin(t*0.4), f:1000}),
+  },
+};
+
+// ---------- one frame ----------
+let AD = ADS.bridge, adKey = 'bridge';
+function setAd(key) {
+  adKey = key; AD = ADS[key];
+  M = newModel(); AD.build();
+}
+function camera(t) {
+  const c = AD.cam(t);
+  const k3 = ease(seg(t,14.4,15.6));
+  c.cx = 270; c.cy = lerp(600, 230, k3); c.f *= lerp(1, 0.42, k3);
+  c.k3 = k3;
+  return c;
+}
+function renderScene(t) {
+  textBuf.fill(0);
+  sx.setTransform(1,0,0,1,0,0);
+  sx.fillStyle = '#000'; sx.fillRect(0,0,scv.width,scv.height);
+  sx.setTransform(SS,0,0,SS,0,0);
+  mk.setTransform(1,0,0,1,0,0); mk.fillStyle = '#000'; mk.fillRect(0,0,mcv.width,mcv.height); mk.setTransform(SS,0,0,SS,0,0);
+  const loopFade = 1 - seg(t,19.3,19.95);
+
+  for (const p of Object.values(M.parts)) { p.off=[0,0,0]; p.alpha=1; p.tk=0; p.tint=C_BRASS; }
+  AD.update(t);
+  const cam = camera(t);
+  const V = makeView(cam);
+  const fade = seg(t,0,0.5) * loopFade;
+  for (const p of Object.values(M.parts)) p.alpha *= fade;
+  const light = norm([-0.5+0.3*Math.sin(t*0.2), 0.85, 0.7]);
+  sx.globalAlpha = 1;
+  if (AD.under) AD.under(V, t);
+  drawModel(V, t, light);
+  AD.extra(V, t);
+
+  const H = AD.heads, Lo = AD.lows;
+  hl(H[0], 0.075, 0, 0.45, 4.55, t);
+  hl(H[1], 0.075, 0, 4.85, 9.75, t);
+  hl(H[2], 0.075, 0, 10.0, 14.6, t);
+  lit(Lo[0], 'c', 0.935, 3, 1.4, 4.55, t, {dur:1.0, sc:scS(), box:true});
+  lit(Lo[1], 'c', 0.935, 3, 6.2, 9.75, t, {dur:1.0, sc:scS(), box:true});
+  lit(Lo[2], 'c', 0.935, 2, 12.0, 14.6, t, {dur:1.0, sc:scS(), box:true});
+  // end card, shared by every ad
+  hl(RB_NAME, 0.425, 0, 15.1, 19.3, t);
+  lit(RB.styles.ascii.tagline.toUpperCase(), 'c', 0.585, 3, 15.7, 19.3, t, {dur:0.9, sc:scS(), box:true});
+  lit(RB.cta_short.toUpperCase(), 'c', 0.645, 0, 16.0, 19.3, t, {dur:0.7, sc:scS(), box:true});
+  lit(RB.phone, 'c', 0.675, 2, 16.1, 19.3, t, {dur:0.9, sc:scL(), box:true});
+  lit(RB.web, 'c', 0.775, 0, 16.4, 19.3, t, {dur:0.9, sc:Math.max(3, Math.floor(cols/19)), box:true});
+  lit(RB.styles.ascii.close[0], 'c', 0.87, 3, 16.9, 19.3, t, {dur:0.8, sc:scS(), box:true});
+  lit(RB.styles.ascii.close[1], 'c', 0.9, 3, 17.1, 19.3, t, {dur:0.8, sc:scS(), box:true});
+
+  drawMotes(t, (0.55 + 0.45*seg(t,0,1))*loopFade);
+  if (t < 0.5) { sx.setTransform(1,0,0,1,0,0); sx.fillStyle = `rgba(0,0,0,${1-seg(t,0,0.5)})`; sx.fillRect(0,0,scv.width,scv.height); }
+}
+
+
+// ---------- WebGL: scene -> characters ----------
+const cv = document.getElementById('gl');
+const gl = cv.getContext('webgl', {antialias:false, alpha:false, premultipliedAlpha:false, preserveDrawingBuffer:true});
+if (!gl) { document.getElementById('fallback').hidden = false; return; }
+const lodExt = gl.getExtension('EXT_shader_texture_lod');
+
+const VS = `attribute vec2 p; uniform float uFlip; varying vec2 vUv;
+void main(){ vUv = vec2(p.x*.5+.5, mix(p.y*.5+.5, .5-p.y*.5, uFlip)); gl_Position = vec4(p,0.,1.); }`;
+// pass 1: one fragment per character cell. Picks a glyph from shape (line direction) or density, and a tint.
+const FS1 = `precision highp float;
+uniform sampler2D uScene, uMask, uLut, uText; uniform vec2 uGrid, uCell;
+uniform vec3 uP0,uP1,uP2,uP3; varying vec2 vUv;
+float lum(vec3 c){ return max(c.r, max(c.g, c.b)); }
+// Reads one cell of a layer. Returns tint in rgb and the glyph index in a (-1 when the cell is empty).
+vec4 pick(sampler2D tex, vec2 cell, float txt){
+  vec3 acc = vec3(0.); float sw=0., mx=0.; vec2 m = vec2(0.); float cxx=0., cyy=0., cxy=0.;
+  for (int j=0;j<4;j++) for (int i=0;i<4;i++){
+    vec2 o = (vec2(float(i),float(j))+.5)/4.;
+    vec3 c = texture2D(tex, (cell+o)/uGrid).rgb;
+    float w = lum(c); acc += c; sw += w; mx = max(mx,w);
+    vec2 q = o-.5; m += q*w; cxx += q.x*q.x*w; cyy += q.y*q.y*w; cxy += q.x*q.y*w;
+  }
+  if (txt > .5 && mx < .1) return vec4(0.,0.,0.,-1.);
+  acc /= 16.; float I = sw/16.;
+  vec2 mu = m/max(sw,1e-4);
+  cxx = cxx/max(sw,1e-4)-mu.x*mu.x; cyy = cyy/max(sw,1e-4)-mu.y*mu.y; cxy = cxy/max(sw,1e-4)-mu.x*mu.y;
+  float an = sqrt((cxx-cyy)*(cxx-cyy)+4.*cxy*cxy)/max(cxx+cyy,1e-5);
+  float fill = I/max(mx,1e-4);
+  vec3 hue = acc/max(lum(acc),1e-4);
+  hue = clamp(mix(vec3(dot(hue,vec3(.333))), hue, 1.3), 0., 1.);   // push material colors apart
+  float idx; float bright;
+  if (mx > .2 && fill < .6 && an > .5) {
+    float rx = cxx*uCell.x*uCell.x, ry = cyy*uCell.y*uCell.y, rxy = cxy*uCell.x*uCell.y;
+    float th = .5*atan(2.*rxy, rx-ry);
+    float k = floor(th/3.14159265*4.+.5);
+    if (abs(k) > 1.5) idx = 92.;            // |
+    else if (k > .5) idx = 60.;             // backslash
+    else if (k < -.5) idx = 15.;            // /
+    else idx = mu.y > .17 ? 63. : 13.;      // _ or -
+    bright = min(1., mx*1.12);
+  } else if (txt > .5) {
+    // lettering: solid strokes read as one dense glyph so words stay legible
+    idx = I > .42 ? 3. : I > .2 ? 11. : 26.;  // # + :
+    bright = min(1., mx*1.05);
+  } else {
+    float v = pow(I, .82);
+    idx = floor(texture2D(uLut, vec2((v*255.+.5)/256., .5)).r*255.+.5);
+    bright = mix(.58, 1., I);
+  }
+  return vec4(hue*bright, idx);
+}
+void main(){
+  vec2 cell = floor(vUv*uGrid);
+  vec4 r = pick(uMask, cell, 1.);
+  if (r.a < 0.) r = pick(uScene, cell, 0.);
+  vec3 tint = r.rgb; float idx = r.a;
+  vec4 tx = texture2D(uText, (cell+.5)/uGrid);
+  if (tx.a > .002) {
+    idx = floor(tx.r*255.+.5);
+    float cid = mod(floor(tx.g*255.+.5), 4.);
+    vec3 pc = cid < .5 ? uP0 : cid < 1.5 ? uP1 : cid < 2.5 ? uP2 : uP3;
+    tint = pc*tx.b;
+  }
+  gl_FragColor = vec4(tint, idx/255.);
+}`;
+// pass 2: draw each cell's glyph from the atlas at screen resolution, over the ink ground with a soft glow.
+const FS2 = (lodExt ? '#extension GL_EXT_shader_texture_lod : enable\n' : '') + `precision highp float;
+uniform sampler2D uCells, uAtlas, uAtlasBig, uText, uScene, uMask; uniform vec2 uGrid; uniform vec3 uBg; uniform float uRaw, uTime, uLod0;
+varying vec2 vUv;
+void main(){
+  if (uRaw > .5) { vec3 s = max(texture2D(uScene, vUv).rgb, texture2D(uMask, vUv).rgb); gl_FragColor = vec4(uBg + s*(1.-uBg), 1.); return; }
+  vec2 g = vUv*uGrid, cell = floor(g), f = fract(g);
+  vec4 d = texture2D(uCells, (cell+.5)/uGrid);
+  float idx = floor(d.a*255.+.5);
+  vec4 tx = texture2D(uText, (cell+.5)/uGrid);
+  vec2 ap = vec2(mod(idx,16.), floor(idx/16.));
+  float cov;
+  if (tx.a > .002) {
+    // literal lettering: one character spans sc x sc cells, drawn from a large atlas so it stays sharp
+    float gb = floor(tx.g*255.+.5);
+    float sc = floor(gb/4.)+1.; float qa = floor(tx.a*255.+.5)-1.;
+    vec2 lf = (vec2(mod(qa,16.), floor(qa/16.)) + f)/sc;
+    vec2 uv = (ap + lf)/vec2(16.,8.);
+    ${lodExt ? 'cov = texture2DLodEXT(uAtlasBig, uv, max(0., uLod0 - log2(sc))).r;' : 'cov = texture2D(uAtlasBig, uv).r;'}
+  } else {
+    cov = texture2D(uAtlas, (ap + f)/vec2(16.,6.)).r;
+  }
+  vec3 glow = texture2D(uCells, vUv).rgb * (tx.a > .002 ? .2 : 1.);
+  vec2 q = vUv-.5;
+  float vig = 1. - dot(q*vec2(1.1,.9), q*vec2(1.1,.9))*.9;
+  vec2 sp = (vUv-vec2(.5,.6))*vec2(1.25,1.); float spot = exp(-dot(sp,sp)*7.);   // soft light behind the model
+  vec3 col = uBg*vig + vec3(.035,.075,.07)*spot + glow*.09 + d.rgb*cov;
+  gl_FragColor = vec4(col, 1.);
+}`;
+function prog(vs, fs) {
+  const mk = (type,src) => { const s=gl.createShader(type); gl.shaderSource(s,src); gl.compileShader(s);
+    if (!gl.getShaderParameter(s,gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
+  const p = gl.createProgram(); gl.attachShader(p,mk(gl.VERTEX_SHADER,vs)); gl.attachShader(p,mk(gl.FRAGMENT_SHADER,fs)); gl.linkProgram(p);
+  if (!gl.getProgramParameter(p,gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+  const u = {}; const n = gl.getProgramParameter(p,gl.ACTIVE_UNIFORMS);
+  for (let i=0;i<n;i++){ const nm = gl.getActiveUniform(p,i).name; u[nm] = gl.getUniformLocation(p,nm); }
+  return {p,u};
+}
+const P1 = prog(VS,FS1), P2 = prog(VS,FS2);
+const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,buf);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,1,1]), gl.STATIC_DRAW);
+function tex(filter) { const t=gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D,t);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,filter); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,filter);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE); return t; }
+const tBig = tex(gl.LINEAR), tMask = tex(gl.LINEAR), tScene = tex(gl.LINEAR), tLut = tex(gl.NEAREST), tText = tex(gl.NEAREST), tAtlas = tex(gl.LINEAR), tCells = tex(gl.LINEAR);
+const fbo = gl.createFramebuffer();
+
+// glyph order by measured ink coverage, so density tracks brightness evenly
+const RAMP = " .':;~=+*o#%@";
+function buildLut() {
+  const c = document.createElement('canvas'); c.width = 48; c.height = 80; const x = c.getContext('2d', {willReadFrequently:true});
+  const cov = [];
+  for (const ch of RAMP) {
+    x.fillStyle='#000'; x.fillRect(0,0,48,80); x.fillStyle='#fff';
+    x.font = '600 66px "IBM Plex Mono", ui-monospace, monospace'; x.textAlign='center'; x.textBaseline='middle'; x.fillText(ch,24,42);
+    const d = x.getImageData(0,0,48,80).data; let s=0; for (let i=0;i<d.length;i+=4) s+=d[i];
+    cov.push({ch, v:s/(48*80*255)});
+  }
+  const max = Math.max(...cov.map(c=>c.v));
+  cov.forEach(c => c.v/=max);
+  const lut = new Uint8Array(256*4);
+  for (let i=0;i<256;i++){
+    const v = i/255; let best=cov[0], bd=9;
+    if (i >= 7) for (const c of cov) { if (c.ch===' ') continue; const dd=Math.abs(c.v - v); if (dd<bd){bd=dd;best=c;} }
+    lut[i*4] = GLYPH(best.ch);
+  }
+  gl.bindTexture(gl.TEXTURE_2D,tLut);
+  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,256,1,0,gl.RGBA,gl.UNSIGNED_BYTE,lut);
+}
+// atlas drawn at the on-screen cell size so glyphs stay crisp
+function buildAtlas(cw, ch) {
+  const gw = Math.max(4, Math.ceil(cw)), gh = Math.max(6, Math.ceil(ch));
+  const c = document.createElement('canvas'); c.width = gw*16; c.height = gh*6; const x = c.getContext('2d');
+  x.fillStyle='#000'; x.fillRect(0,0,c.width,c.height); x.fillStyle='#fff';
+  x.font = `600 ${gh*0.84}px "IBM Plex Mono", ui-monospace, monospace`; x.textAlign='center'; x.textBaseline='middle';
+  const mw = x.measureText('M').width, sxk = Math.min(1, gw*0.94/mw);
+  for (let i=0;i<96;i++){
+    const chr = i===95 ? '·' : String.fromCharCode(32+i);
+    x.save(); x.translate((i%16)*gw + gw/2, Math.floor(i/16)*gh + gh*0.53); x.scale(sxk,1); x.fillText(chr,0,0); x.restore();
+  }
+  gl.bindTexture(gl.TEXTURE_2D,tAtlas);
+  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,c);
+}
+
+// large glyphs (64 x 128 per cell, power-of-two sheet) for lettering that spans several cells
+const BIG_H = 128;
+const FONTS = {
+  plex:    '600 {s}px "IBM Plex Mono", monospace',
+  xanh:    '400 {s}px "Xanh Mono", monospace',
+  courier: '700 {s}px "Courier Prime", monospace',
+  space:   '700 {s}px "Space Mono", monospace',
+  caslon:  '700 {s}px "Libre Caslon Text", Georgia, serif',
+};
+let fontKey = 'courier';
+function buildBigAtlas() {
+  const gw = 64, gh = BIG_H;
+  const c = document.createElement('canvas'); c.width = gw*16; c.height = gh*8; const x = c.getContext('2d');
+  x.fillStyle='#000'; x.fillRect(0,0,c.width,c.height); x.fillStyle='#fff';
+  const k0 = (gw/gh)/CELL_ASPECT, cellW = gw/k0;
+  x.font = FONTS[fontKey].replace('{s}', 100);
+  // size from a typical lowercase letter, so proportional faces fill their cells too
+  const adv = x.measureText('n').width/100;
+  const size = Math.min(gh*0.9, cellW*0.86/adv);
+  x.font = FONTS[fontKey].replace('{s}', size.toFixed(1)); x.textAlign='center'; x.textBaseline='middle';
+  for (let i=0;i<96;i++){
+    const chr = i===95 ? '·' : String.fromCharCode(32+i);
+    const k = Math.min(k0, gw*0.98/Math.max(1, x.measureText(chr).width));   // pre-squeeze for the 0.6 cell; narrow wide letters only
+    x.save(); x.translate((i%16)*gw + gw/2, Math.floor(i/16)*gh + gh*0.52); x.scale(k,1); x.fillText(chr,0,0); x.restore();
+  }
+  gl.bindTexture(gl.TEXTURE_2D,tBig);
+  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,c);
+  gl.generateMipmap(gl.TEXTURE_2D);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);
+}
+
+let W=0, H=0, detail = 128;
+function layout() {
+  const r = cv.getBoundingClientRect();
+  const dpr = Math.min(window.devicePixelRatio||1, 2.5);
+  W = Math.max(2, Math.round(r.width*dpr)); H = Math.max(2, Math.round(r.height*dpr));
+  cv.width = W; cv.height = H;
+  cols = detail; rows = Math.round(cols*(16/9)*CELL_ASPECT);
+  textBuf = new Uint8Array(cols*rows*4);
+  buildAtlas(W/cols, H/rows);
+  gl.bindTexture(gl.TEXTURE_2D,tCells);
+  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,cols,rows,0,gl.RGBA,gl.UNSIGNED_BYTE,null);
+  gl.bindFramebuffer(gl.FRAMEBUFFER,fbo);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,tCells,0);
+  gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+}
+
+let raw = false;
+function draw(t) {
+  renderScene(t);
+  gl.bindTexture(gl.TEXTURE_2D,tScene); gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,scv);
+  gl.bindTexture(gl.TEXTURE_2D,tText); gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,cols,rows,0,gl.RGBA,gl.UNSIGNED_BYTE,textBuf);
+  gl.bindTexture(gl.TEXTURE_2D,tMask); gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,mcv);
+  gl.bindBuffer(gl.ARRAY_BUFFER,buf);
+  // pass 1
+  gl.bindFramebuffer(gl.FRAMEBUFFER,fbo); gl.viewport(0,0,cols,rows);
+  gl.useProgram(P1.p);
+  let loc = gl.getAttribLocation(P1.p,'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+  gl.uniform1f(P1.u.uFlip,0); gl.uniform2f(P1.u.uGrid,cols,rows); gl.uniform2f(P1.u.uCell,SW/cols,SH/rows);
+  gl.uniform3fv(P1.u.uP0,PAL[0]); gl.uniform3fv(P1.u.uP1,PAL[1]); gl.uniform3fv(P1.u.uP2,PAL[2]); gl.uniform3fv(P1.u.uP3,PAL[3]);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,tScene); gl.uniform1i(P1.u.uScene,0);
+  gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D,tLut); gl.uniform1i(P1.u.uLut,1);
+  gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D,tText); gl.uniform1i(P1.u.uText,2);
+  gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_2D,tMask); gl.uniform1i(P1.u.uMask,3);
+  gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+  // pass 2
+  gl.bindFramebuffer(gl.FRAMEBUFFER,null); gl.viewport(0,0,W,H);
+  gl.useProgram(P2.p);
+  loc = gl.getAttribLocation(P2.p,'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+  gl.uniform1f(P2.u.uFlip,1); gl.uniform2f(P2.u.uGrid,cols,rows); gl.uniform3fv(P2.u.uBg,BG); gl.uniform1f(P2.u.uRaw, raw?1:0); gl.uniform1f(P2.u.uTime,t);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,tCells); gl.uniform1i(P2.u.uCells,0);
+  gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D,tAtlas); gl.uniform1i(P2.u.uAtlas,1);
+  gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D,tText); gl.uniform1i(P2.u.uText,2);
+  gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_2D,tScene); gl.uniform1i(P2.u.uScene,3);
+  gl.activeTexture(gl.TEXTURE4); gl.bindTexture(gl.TEXTURE_2D,tMask); gl.uniform1i(P2.u.uMask,4);
+  gl.activeTexture(gl.TEXTURE5); gl.bindTexture(gl.TEXTURE_2D,tBig); gl.uniform1i(P2.u.uAtlasBig,5);
+  gl.uniform1f(P2.u.uLod0, Math.log2(BIG_H/(H/rows)));
+  gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+}
+
+
+// ---------- playback ----------
+const $ = id => document.getElementById(id);
+const list = $('script');
+const BEATS = [0.4, 4.8, 10.0, 15.0];
+function buildScript() {
+  list.textContent = '';
+  const rowsTxt = [
+    ...AD.heads.map((h,i) => [BEATS[i], h.join(' '), AD.script[i] + (AD.lows[i] ? ' Bottom line: ' + AD.lows[i].toLowerCase().replace(/^./, c=>c.toUpperCase()) + '.' : '')]),
+    [BEATS[3], RB.business, RB_SCRIPT],
+  ];
+  rowsTxt.forEach(([ts,head,what]) => {
+    const li = document.createElement('li');
+    li.innerHTML = `<button type="button"><span class="ts">${ts.toFixed(1).padStart(4,'0')}s</span><span class="what"><b></b></span></button>`;
+    li.querySelector('b').textContent = head;
+    li.querySelector('.what').append(what);
+    li.querySelector('button').addEventListener('click', () => { now = ts; if (!playing) frame(); });
+    list.append(li);
+  });
+}
+
+const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let playing = !reduce, now = reduce ? 12.8 : 0, last = performance.now();
+const btn = $('play'), scrub = $('scrub'), timeEl = $('time');
+function setPlaying(p){ playing = p; btn.textContent = p ? 'Pause' : 'Play'; last = performance.now(); if (p) requestAnimationFrame(loop); }
+function ui() {
+  scrub.value = now.toFixed(2);
+  timeEl.textContent = `${now.toFixed(1).padStart(4,'0')} / ${T.toFixed(1)} s`;
+  const lis = list.children; let on = 0; BEATS.forEach((ts,i)=>{ if (now >= ts-0.1) on = i; });
+  for (let i=0;i<lis.length;i++) lis[i].classList.toggle('on', i===on);
+}
+function frame(){ draw(now); ui(); }
+function loop(ts) {
+  if (!playing) return;
+  const dt = Math.min(0.1, (ts-last)/1000); last = ts;
+  now = (now + dt) % T;
+  frame();
+  requestAnimationFrame(loop);
+}
+function pickAd(key) {
+  if (!ADS[key]) key = 'bridge';
+  setAd(key); buildScript(); now = 0;
+  const r = document.getElementById('ad-'+key); if (r) r.checked = true;
+  if (!playing) frame();
+}
+btn.addEventListener('click', () => setPlaying(!playing));
+cv.addEventListener('click', () => setPlaying(!playing));
+$('restart').addEventListener('click', () => { now = 0; if (!playing) setPlaying(true); });
+scrub.addEventListener('input', () => { now = parseFloat(scrub.value); if (!playing) frame(); });
+$('raw').addEventListener('click', e => { raw = !raw; e.currentTarget.setAttribute('aria-pressed', raw); e.currentTarget.textContent = raw ? 'Show characters' : 'Show source'; if (!playing) frame(); });
+document.querySelectorAll('input[name=detail]').forEach(r => r.addEventListener('change', () => { detail = +r.value; layout(); if (!playing) frame(); }));
+document.querySelectorAll('input[name=font]').forEach(r => r.addEventListener('change', () => { fontKey = r.value; buildBigAtlas(); if (!playing) frame(); }));
+window.__font = k => { fontKey = k; buildBigAtlas(); frame(); };
+document.querySelectorAll('input[name=ad]').forEach(r => r.addEventListener('change', () => pickAd(r.value)));
+document.addEventListener('keydown', e => { if (e.code==='Space' && e.target===document.body) { e.preventDefault(); setPlaying(!playing); } });
+window.addEventListener('hashchange', () => pickAd(location.hash.slice(1)));
+
+// seek hooks for frame checks
+window.__seek = t => { now = t; frame(); };
+window.__pause = () => setPlaying(false);
+window.__ad = k => pickAd(k);
+
+setAd(ADS[location.hash.slice(1)] ? location.hash.slice(1) : 'bridge');
+{ const r = document.getElementById('ad-'+adKey); if (r) r.checked = true; }
+buildScript();
+const fontsReady = Promise.race([
+  Promise.all(['plex','courier'].map(k => document.fonts.load(FONTS[k].replace('{s}',20)))),
+  new Promise(r=>setTimeout(r,2500)),
+]);
+fontsReady.then(() => {
+  buildLut(); buildBigAtlas(); layout(); frame();
+  new ResizeObserver(() => { layout(); if (!playing) frame(); }).observe(cv);
+  if (playing) { last = performance.now(); requestAnimationFrame(loop); } else btn.textContent = 'Play';
+});
+})();
+</script>
+</body>
+</html>
