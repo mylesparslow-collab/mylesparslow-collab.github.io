@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Conflion features list for a law firm's IT team: deployment, sign-in, walls and confidentiality, data protection, audit, AI, integrations, scale and what is not yet verified.">
+<title>Conflion Features for IT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f2eee3; --surface: #fbf9f3; --rule: #ddd3bf; --ink: #15120f; --muted: #5f4e40;
+  --accent: #6b3f22; --mark: #a9822f; --mark-soft: #ede1c1;
+  --ok: #2f5d3a; --part: #8a5a12; --no: #8b2a1f;
+  --display: "Bricolage Grotesque", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+  --body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 1.0625rem; line-height: 1.6; margin: 0; }
+.wrap { max-width: 56rem; margin: 0 auto; padding: 2.5rem 1rem 4rem; display: grid; gap: 2.75rem; }
+a { color: var(--accent); text-underline-offset: 0.18em; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+h1, h2, h3 { font-family: var(--display); line-height: 1.1; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2.1rem, 6vw, 3.2rem); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.01em; }
+h3 { font-size: 1.1rem; font-weight: 700; }
+p, ul { margin: 0; }
+ul { padding-left: 1.2rem; display: grid; gap: 0.4rem; }
+.eyebrow { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.back { font-family: var(--mono); font-size: 0.85rem; }
+header { display: grid; gap: 1rem; }
+.lede { font-size: 1.15rem; }
+.links { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; font-family: var(--mono); font-size: 0.85rem; }
+.note { background: var(--mark-soft); border-radius: 6px; padding: 0.9rem 1.1rem; font-size: 0.95rem; display: grid; gap: 0.5rem; }
+.toc { display: flex; flex-wrap: wrap; gap: 0.35rem 1rem; font-family: var(--mono); font-size: 0.8rem; }
+section { display: grid; gap: 1rem; border-top: 2px solid var(--ink); padding-top: 1rem; scroll-margin-top: 1rem; }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem 2rem; }
+.grid > div { display: grid; gap: 0.45rem; align-content: start; border-top: 1px solid var(--rule); padding-top: 0.7rem; min-width: 0; }
+.grid ul { font-size: 0.97rem; }
+.tablewrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+th, td { text-align: left; vertical-align: top; padding: 0.55rem 0.6rem; border-bottom: 1px solid var(--rule); }
+th { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+td:first-child { font-weight: 600; min-width: 9rem; }
+.st { font-family: var(--mono); font-size: 0.78rem; white-space: nowrap; font-weight: 500; }
+.st.ok { color: var(--ok); } .st.part { color: var(--part); } .st.no { color: var(--no); }
+.legend { font-size: 0.9rem; color: var(--muted); }
+code { font-family: var(--mono); font-size: 0.86em; }
+footer { border-top: 1px solid var(--rule); padding-top: 1rem; font-family: var(--mono); font-size: 0.8rem; color: var(--muted); }
+@media (max-width: 680px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <a class="back" href="../index.html#conflara">&larr; Back to Conflion</a>
+    <span class="eyebrow">Conflion · For IT and security reviewers</span>
+    <h1>Conflion features list for IT</h1>
+    <p class="lede">Conflion is a conflicts-checking and new business intake system for law firms. This page lists what it does and how it is built, for the people who would install, secure and support it. Each integration and control says plainly whether it is built and tested, or still unverified against the real system.</p>
+    <p class="links"><a href="conflion-workflow-guide.html">Step-by-step workflow guide</a></p>
+    <div class="note">
+      <p><strong>Status:</strong> Conflion is a working prototype, not yet run at a firm. It has about 1,100 automated tests, all on fictional data. It has not had an independent penetration test and holds no certifications, including SOC 2.</p>
+      <p>Where AI is used, it suggests or helps draft, and a person reviews and decides. By default the AI model runs on the firm's own hardware.</p>
+    </div>
+    <nav class="toc" aria-label="Sections">
+      <a href="#deploy">Deployment</a><a href="#signin">Sign-in and access</a><a href="#walls">Walls and confidentiality</a><a href="#data">Data protection</a><a href="#audit">Audit</a><a href="#ai">AI</a><a href="#integrations">Integrations</a><a href="#scale">Scale</a><a href="#ops">Operations</a><a href="#functions">Functions</a><a href="#open">Not yet verified</a>
+    </nav>
+  </header>
+
+  <section id="deploy">
+    <h2>Deployment options</h2>
+    <p>All four options run from the same code.</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Option</th><th>What it is</th><th>Data store</th></tr></thead>
+      <tbody>
+        <tr><td>Firm server</td><td>Node.js 22 server in a Docker image (distroless, no shell), run with docker compose behind the firm's own HTTPS proxy (Caddy, nginx or a cloud gateway). Binds to 127.0.0.1 by default.</td><td>PostgreSQL 16</td></tr>
+        <tr><td>Desktop app</td><td>Windows, macOS and Linux app. It either connects to the firm server or runs everything on one computer. Supports silent install and an IT policy file that fixes settings for every user.</td><td>Firm server, or an embedded Postgres on that computer</td></tr>
+        <tr><td>Hosted</td><td>One separate install per firm, in a chosen data region, with start-up checks that refuse a mismatched region.</td><td>PostgreSQL per firm</td></tr>
+        <tr><td>Browser demo</td><td>A single web page with fictional data, for evaluation only.</td><td>The browser's local storage</td></tr>
+      </tbody>
+    </table></div>
+    <p class="legend">In production mode the server refuses to start with unsafe settings and says which setting to fix.</p>
+  </section>
+
+  <section id="signin">
+    <h2>Sign-in, sessions and access</h2>
+    <div class="grid">
+      <div>
+        <h3>Single sign-on</h3>
+        <ul>
+          <li>Microsoft Entra ID through OpenID Connect, with PKCE, state and nonce, and token signatures checked.</li>
+          <li>Multi-factor and device rules are left to Entra Conditional Access.</li>
+          <li>Each account is bound to its Entra identity at first sign-in. Automatic account creation is off by default.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Sessions</h3>
+        <ul>
+          <li>Random session tokens; only their hashes are stored. Cookies are Secure, HttpOnly and SameSite.</li>
+          <li>12-hour absolute and 30-minute idle limits.</li>
+          <li>Disabling an account or changing its role ends its sessions at once.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Roles</h3>
+        <ul>
+          <li>Requester, secretary, lawyer, approver (practice leaders, finance, general counsel), conflicts analyst and administrator, each with its own view.</li>
+          <li>Every change is checked on the server against the person's role and what they may see. The browser's view is never trusted.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Web protections</h3>
+        <ul>
+          <li>Strict Content Security Policy, CSRF defences, and rate limits per user and per address.</li>
+          <li>The page makes no third-party requests in server mode; fonts are bundled.</li>
+          <li>CSV exports are protected against spreadsheet formula injection.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="walls">
+    <h2>Ethical walls and confidentiality</h2>
+    <div class="grid">
+      <div>
+        <h3>Enforced in what the server sends</h3>
+        <ul>
+          <li>A screened person's browser never receives the walled matter, its files, notes, searches or audit lines. This server-side filter is the security boundary, not the screen.</li>
+          <li>Automated tests scan everything a screened user receives for walled names and numbers.</li>
+          <li>Blocked attempts are logged, and there is a "who saw what" access log.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Confidential clients, matters and searches</h3>
+        <ul>
+          <li>Normal, confidential and highly confidential levels, with named access lists.</li>
+          <li>Others whose search matches a hidden record are told only that there is a confidential match and to contact the conflicts team.</li>
+          <li>Confidential searches can be seen only by the searcher and designated conflicts staff.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Wall workflow</h3>
+        <ul>
+          <li>Exclusionary and team-only walls over single matters or whole clients.</li>
+          <li>Acknowledgments and periodic re-acknowledgment, notices and fee exclusion.</li>
+          <li>Deny-list exports for the document system and time entry.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Waivers and approvers</h3>
+        <ul>
+          <li>Waiver drafts and summaries warn when they name someone the recipient is not cleared to hear about.</li>
+          <li>An approver with a disclosed interest in a party is routed around to an alternate, and both are told why.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="data">
+    <h2>Data protection</h2>
+    <ul>
+      <li>All firm data stays on infrastructure the firm chooses. Nothing is sent to the vendor.</li>
+      <li>Attachments are encrypted by the app with AES-256-GCM before they are stored on disk or in S3-compatible storage. Each file's checksum is verified on every download.</li>
+      <li>Uploads are checked by their content, not their name. Programs, scripts, archives, macro-enabled and password-protected Office files are refused. ClamAV virus scanning is optional.</li>
+      <li>The database relies on disk or managed-database encryption. Field-level encryption was left out because it would break search.</li>
+      <li>The backup script refuses to write an unencrypted dump. Restore steps are documented and were drilled.</li>
+      <li>In server mode the browser keeps no firm data in local storage.</li>
+      <li>Support without firm data: an administrator can save a support bundle in which names are replaced by placeholders. A leak check against every value in the database blocks saving if any firm data slipped through.</li>
+    </ul>
+  </section>
+
+  <section id="audit">
+    <h2>Audit trail</h2>
+    <ul>
+      <li>Every change is an entry in an append-only log. Database triggers refuse edits and deletions.</li>
+      <li>Each entry's hash covers the one before it, keyed with a secret held apart from the database, so the chain cannot be rebuilt by someone who only has the database.</li>
+      <li>The server checks the whole chain at start and every 15 minutes, and stops writing if it fails. A daily anchor kept outside the database shows if the newest entries are deleted.</li>
+      <li>Searchable by text, person, action and date. Every search run has its own number with who ran it, when and what it covered.</li>
+    </ul>
+  </section>
+
+  <section id="ai">
+    <h2>AI: on the firm's own hardware by default</h2>
+    <div class="grid">
+      <div>
+        <h3>What it helps with</h3>
+        <ul>
+          <li>Suggesting which hits are likely the same entity, with a one-line reason. The analyst decides.</li>
+          <li>Suggesting parties from a pasted email. The requester confirms each one.</li>
+          <li>Helping draft memos, waiver first drafts and file summaries for a person to edit.</li>
+          <li>Suggesting column matches when importing data. An administrator confirms them.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>How it is contained</h3>
+        <ul>
+          <li>The model runs locally through Ollama or any compatible local server. A model outside the private network is refused unless an administrator allows it.</li>
+          <li>The model has no tools and no network access. Outputs must match a fixed format, and names it returns must appear in the source text.</li>
+          <li>Each use is logged with the model name. Prompts and answers are not logged.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>External AI is off by default</h3>
+        <ul>
+          <li>Turning it on needs IT to configure it on the server and an administrator to accept a data-handling notice. Both steps are audited.</li>
+          <li>It never receives walled, restricted or confidential records, health information, or clients whose guidelines bar AI.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Limits</h3>
+        <ul>
+          <li>No accuracy study has been run against a real firm's decisions.</li>
+          <li>An optional hit order learned from the firm's own past decisions is off by default and never hides or decides a hit.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="integrations">
+    <h2>Integrations and their status</h2>
+    <p class="legend"><span class="st ok">Built and tested</span> means automated tests run it. <span class="st part">Unverified</span> means it is written, but only tested against stand-ins, not the real system. <span class="st no">Not built</span> means what it says.</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>System</th><th>What Conflion does</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Aderant (report files)</td><td>Reads Entity Manager entities, Expert clients and matters, and billing status from CSV or Excel exports, through a shared folder or upload, and writes import files back for opened matters. Columns are guessed and confirmed by a person.</td><td><span class="st ok">Built and tested</span> with made-up reports. Billing and party column names still need checking against a real export.</td></tr>
+        <tr><td>Aderant (live API)</td><td>Nightly pull of clients, matters and parties; push of opened matters with any billing hold noted.</td><td><span class="st part">Unverified</span>: endpoints are assumptions. Sends nothing until switched on.</td></tr>
+        <tr><td>iManage</td><td>Files documents, creates each new matter's folders from its records area, and applies walls to workspaces.</td><td><span class="st part">Unverified</span>: endpoints assumed, tested against a stand-in. Off until an administrator turns it on.</td></tr>
+        <tr><td>SharePoint and Microsoft 365</td><td>Files documents, creates matter folders, and applies walls through site permissions and group membership.</td><td><span class="st part">Unverified</span>: written to documented Microsoft Graph endpoints, not run against a tenant.</td></tr>
+        <tr><td>Outlook add-in</td><td>Starts an intake from an email.</td><td><span class="st part">Unverified</span>: not run in a real Microsoft 365 tenant.</td></tr>
+        <tr><td>Email (SMTP)</td><td>Task, approval, reminder and waiver emails. Requests with health information are named only by number.</td><td><span class="st part">Unverified</span> against a real mail server.</td></tr>
+        <tr><td>Company data (GLEIF, SEC EDGAR, OpenCorporates)</td><td>Links a party to its public-register record and adds parents, subsidiaries and former names a person picks. Re-checked nightly; changes are listed for a person to accept.</td><td><span class="st part">Unverified</span>: tested against recorded answers, not the live services.</td></tr>
+        <tr><td>D&amp;B and S&amp;P Capital IQ</td><td>Imports the firm's own exports with column mapping and preview.</td><td><span class="st ok">Built and tested</span> with sample exports. Live API connections are <span class="st no">not built</span>.</td></tr>
+        <tr><td>OFAC sanctions list</td><td>Screens parties against the official SDN list file.</td><td><span class="st ok">Built and tested</span></td></tr>
+        <tr><td>Data migration</td><td>Import wizard with presets for Aderant Expert, Clio and a generic layout. A dry run shows new parties, matches and possible duplicates before anything is written.</td><td><span class="st ok">Built and tested</span> on sample files.</td></tr>
+        <tr><td>E-signature services</td><td>None. Conflion never signs for anyone. Letters and waivers count only when signed copies are uploaded with each signer named.</td><td>By design</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section id="scale">
+    <h2>Scale</h2>
+    <p>Measured on synthetic firms with invented names, on one server:</p>
+    <ul>
+      <li>Stores and searches 1,000,000 parties. Name search took 17 ms typically and 167 ms at the 95th percentile.</li>
+      <li>After someone else's change, a browser fetches only what changed, about 1 KB, instead of the whole data set. Each person's copy is still filtered so walls hold.</li>
+      <li>Saving an intake or opening a matter took tens of milliseconds at 250,000 parties.</li>
+      <li>Runs as one server process today. Running several copies for high availability would need a shared rate limiter and event bus.</li>
+    </ul>
+  </section>
+
+  <section id="ops">
+    <h2>Operations and support</h2>
+    <ul>
+      <li>An operations runbook covers daily, weekly and quarterly jobs, backups and restores, upgrades and rollback, monitoring, and incident response. The backup, restore, upgrade and rollback steps were drilled with docker compose and Postgres 16.</li>
+      <li>A separate test environment lets the conflicts team try rule, form and template changes on a test firm. Only setup moves to live, through a reviewed, audited step.</li>
+      <li>Onboarding includes role walkthroughs, a help drawer, a first-week checklist and a practice firm with fictional data.</li>
+      <li>Continuous integration runs type checks, tests, the build and an image scan.</li>
+    </ul>
+  </section>
+
+  <section id="functions">
+    <h2>What it does for the firm</h2>
+    <div class="grid">
+      <div>
+        <h3>Conflicts search</h3>
+        <ul>
+          <li>Fuzzy, phonetic, nickname, alias and former-name matching, with rare words weighted more.</li>
+          <li>Expansion through corporate families and personal links.</li>
+          <li>Single, batch and Boolean search; numbered search runs; earlier searches shown for each party.</li>
+          <li>Pending intakes, prospective clients and declined matters are searchable.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Intake</h3>
+        <ul>
+          <li>Quick check that converts into a new business form.</li>
+          <li>Guided intake, optional tabbed forms, a public intake form, and a pro bono form with its own numbering.</li>
+          <li>Practice area and records area on every new matter.</li>
+          <li>A no-code form builder with conditions and answer-based routing.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Review and approvals</h3>
+        <ul>
+          <li>Hits grouped by party, risk-ranked with reasons, one-click and bulk decisions.</li>
+          <li>Approval routes from firm rules, alternates, deadlines and overdue flags.</li>
+          <li>Finance checks for credit, retainer and rate discounts.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Waivers and letters</h3>
+        <ul>
+          <li>Waiver drafts from templates, reviewed and approved by a lawyer, sent with private response links and reminders.</li>
+          <li>Engagement letters from editable templates, exported as Word.</li>
+          <li>Outside counsel guideline records with flags the rest of the system follows.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Opening, changes and closing</h3>
+        <ul>
+          <li>Client.matter numbering, special numbers with a reason, and a billing hold until signed papers are in.</li>
+          <li>Change forms for lawyers, parties, billing, closing and reopening.</li>
+          <li>Closing checks for the final bill and trust balance, with retention dates.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Laterals and compliance</h3>
+        <ul>
+          <li>Lateral hire questionnaire, batch search, screening checks and walls before the start date.</li>
+          <li>Tracking for business-associate agreements, joint-representation consents and founder acknowledgments.</li>
+          <li>Reports with CSV export and a report builder.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="open">
+    <h2>Not yet verified or not built</h2>
+    <ul>
+      <li>An independent penetration test. Only a self-run test has been done, and its one finding was fixed.</li>
+      <li>Sign-in through a real Entra tenant behind a real TLS proxy.</li>
+      <li>Live Aderant, iManage, SharePoint, Microsoft 365, Outlook and mail server connections (see the table above).</li>
+      <li>SOC 2: not certified, and no report exists. A readiness document maps controls to the criteria.</li>
+      <li>Code-signing certificates for the Windows and Mac apps.</li>
+      <li>Key rotation for file encryption, and more than one server process per firm.</li>
+      <li>Politically exposed person and adverse-media screening.</li>
+    </ul>
+  </section>
+
+  <footer>Conflion is a prototype. All sample firms, people and matters are fictional.</footer>
+</main>
+</body>
+</html>
