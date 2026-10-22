@@ -1,0 +1,1126 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conflion Matter Walkthrough</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<script>/* A light or dark choice made with the page's own button wins over the device setting. */ try { const th = localStorage.getItem('newton-theme'); if (th === 'light' || th === 'dark') document.documentElement.dataset.theme = th; } catch (e) {}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Pixelify+Sans:wght@500;600&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+/* Layout: one 800x480 scene, scaled to fit, with Newton living inside it; his speech bubble sits under it, chapter dots under that. */
+:root {
+  --bg: #e6efe8;
+  --stage: #f4f8f4;
+  --surface: #ffffff;
+  --surface-2: #eef4ef;
+  --line: #cddbd1;
+  --ink: #17251e;
+  --muted: #55675d;
+  --green: #2c6a4f;
+  --green-2: #3f8a68;
+  --on-green: #ffffff;
+  --mint: #d8eadf;
+  --amber-bg: #f8ead2;
+  --amber: #8a5a12;
+  --tabby: #e9903f;
+  --brass: #d2ad6a;
+  --navy: #1f3b6e;
+  --brand: var(--green); --on-brand: var(--on-green); --brand-2: var(--green-2);
+  --hi: #b4322a; --hi-bg: #fbe2de;
+  --mid: #93650c; --mid-bg: #fbefd4;
+  --lo: #2c6a4f; --lo-bg: #dcefe3;
+  --shadow: 0 14px 34px rgba(23, 50, 36, .14);
+  --f-display: 'Fredoka', 'Baloo 2', ui-rounded, 'Nunito', system-ui, sans-serif;
+  --f-ui: 'Source Sans 3', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --f-pixel: 'Pixelify Sans', ui-monospace, 'SF Mono', monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1813; --stage: #14221b; --surface: #1b2c23; --surface-2: #213429; --line: #2f4638;
+    --ink: #e5efe8; --muted: #a2b6aa; --green: #4f9e78; --green-2: #6cb891; --on-green: #08130d; --mint: #23402f;
+    --amber-bg: #3a2f1c; --amber: #f0c47a; --tabby: #f2a55c; --brass: #e2c07f; --navy: #6d8fd0;
+    --hi: #ff8f84; --hi-bg: #45231f; --mid: #f0c47a; --mid-bg: #3d321c; --lo: #7fd0a6; --lo-bg: #1f3a2b;
+    --shadow: 0 14px 34px rgba(0, 0, 0, .45);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1813; --stage: #14221b; --surface: #1b2c23; --surface-2: #213429; --line: #2f4638;
+  --ink: #e5efe8; --muted: #a2b6aa; --green: #4f9e78; --green-2: #6cb891; --on-green: #08130d; --mint: #23402f;
+  --amber-bg: #3a2f1c; --amber: #f0c47a; --tabby: #f2a55c; --brass: #e2c07f; --navy: #6d8fd0;
+  --hi: #ff8f84; --hi-bg: #45231f; --mid: #f0c47a; --mid-bg: #3d321c; --lo: #7fd0a6; --lo-bg: #1f3a2b;
+  --shadow: 0 14px 34px rgba(0, 0, 0, .45);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--f-ui);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 32px;
+}
+.page { max-width: 960px; margin: 0 auto; display: grid; gap: 14px; }
+header.top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+header.top h1 { font-family: var(--f-display); font-weight: 600; font-size: clamp(1.35rem, 3.6vw, 1.9rem); margin: 0; text-wrap: balance; letter-spacing: -.01em; }
+header.top .tag { font-family: var(--f-pixel); font-size: .8rem; color: var(--green); background: var(--mint); padding: 3px 9px; border-radius: 999px; }
+
+/* Stage */
+.wrap { position: relative; width: 100%; aspect-ratio: 800 / 480; max-width: 100%; border-radius: 22px; overflow: hidden; background: var(--stage); box-shadow: var(--shadow); border: 1px solid var(--line); }
+.vp { position: absolute; left: 0; top: 0; width: 800px; height: 480px; transform-origin: 0 0; font-size: 17px; }
+.bg { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.blob { position: absolute; border-radius: 50%; background: var(--mint); opacity: .7; animation: drift 18s ease-in-out infinite alternate; }
+.blob.b2 { animation-duration: 23s; animation-direction: alternate-reverse; background: var(--amber-bg); }
+.blob.b3 { animation-duration: 29s; }
+@keyframes drift { to { transform: translate(40px, -26px) scale(1.12); } }
+.paw { position: absolute; width: 22px; height: 22px; opacity: .14; color: var(--green); animation: paw 14s linear infinite; }
+@keyframes paw { 0% { transform: translateY(40px) rotate(0); opacity: 0; } 15% { opacity: .16; } 85% { opacity: .16; } 100% { transform: translateY(-520px) rotate(80deg); opacity: 0; } }
+.sc { position: absolute; inset: 0; }
+canvas.fx { position: absolute; inset: 0; pointer-events: none; z-index: 40; }
+
+/* Newton */
+.newton { position: absolute; left: 0; top: 0; width: 132px; height: 120px; z-index: 30; will-change: transform; }
+.nt-shadow { position: absolute; left: 22px; right: 22px; bottom: -6px; height: 12px; border-radius: 50%; background: rgba(20, 40, 28, .16); }
+.nt-body { position: absolute; inset: 0; transform-origin: 50% 100%; }
+.nt-body img { position: absolute; bottom: 0; left: 50%; image-rendering: pixelated; transform: translateX(-50%); }
+.nt-body.flip img { transform: translateX(-50%) scaleX(-1); }
+.zzz { position: absolute; font-family: var(--f-pixel); color: var(--green); font-size: 22px; animation: zz 2.6s ease-out infinite; }
+@keyframes zz { from { transform: translate(0, 0) scale(.6); opacity: 0; } 30% { opacity: 1; } to { transform: translate(30px, -70px) scale(1.2); opacity: 0; } }
+
+/* Speech bubble */
+.bubble { position: relative; background: var(--surface); border: 2px solid var(--ink); border-radius: 20px; padding: 14px 18px 14px 18px; min-height: 5.6em; box-shadow: 4px 5px 0 var(--ink); display: flex; gap: 12px; align-items: flex-start; }
+.bubble .tail { position: absolute; top: -14px; left: 12%; width: 24px; height: 14px; transition: left .9s cubic-bezier(.2, .8, .2, 1); }
+.bubble .tail::before { content: ""; position: absolute; inset: 0; background: var(--ink); clip-path: polygon(0 100%, 50% 0, 100% 100%); }
+.bubble .tail::after { content: ""; position: absolute; left: 4px; right: 4px; top: 5px; bottom: -3px; background: var(--surface); clip-path: polygon(0 100%, 50% 0, 100% 100%); }
+.bubble .who { font-family: var(--f-pixel); font-size: .78rem; color: var(--tabby); flex: none; padding-top: 4px; letter-spacing: .04em; }
+.bubble p { margin: 0; font-family: var(--f-display); font-weight: 500; font-size: clamp(1.02rem, 2.4vw, 1.3rem); line-height: 1.38; min-width: 0; text-wrap: pretty; }
+.bubble p .caret { display: inline-block; width: .5em; height: 1em; vertical-align: -.12em; background: var(--tabby); margin-left: 2px; border-radius: 2px; animation: blink 1s steps(2) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+/* Controls */
+.controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.btn { font: 600 .95rem var(--f-ui); color: var(--ink); background: var(--surface); border: 1.5px solid var(--line); border-radius: 999px; padding: 8px 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; }
+.btn:hover { border-color: var(--green); }
+.btn:focus-visible, .dot:focus-visible, .play-big:focus-visible { outline: 3px solid var(--tabby); outline-offset: 2px; }
+.btn.primary { background: var(--green); border-color: var(--green); color: var(--on-green); min-width: 104px; justify-content: center; }
+.btn svg { width: 16px; height: 16px; }
+.now { margin-left: auto; font-size: .92rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.now b { color: var(--ink); }
+.progress { height: 6px; border-radius: 999px; background: var(--surface-2); overflow: hidden; border: 1px solid var(--line); }
+.progress i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--green), var(--tabby)); border-radius: inherit; }
+.shell { max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: 236px minmax(0, 1fr); gap: 22px; align-items: start; }
+.shell .page { margin: 0; max-width: none; }
+.menu { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); background: var(--surface); border: 1.5px solid var(--line); border-radius: 18px; padding: 12px 10px; display: grid; gap: 2px; max-height: calc(100vh - 32px); overflow: auto; }
+.menu .mh { font: 600 .74rem var(--f-pixel); letter-spacing: .06em; color: var(--muted); padding: 10px 8px 4px; text-transform: uppercase; }
+.menu .mh:first-child { padding-top: 2px; }
+.menu .mh.extra { color: var(--amber); }
+.menu button { all: unset; box-sizing: border-box; cursor: pointer; font: 500 .92rem var(--f-ui); color: var(--ink); padding: 6px 8px 6px 10px; border-radius: 9px; display: flex; gap: 8px; align-items: baseline; line-height: 1.3; }
+.menu button .i { font: 600 .72rem var(--f-ui); color: var(--muted); font-variant-numeric: tabular-nums; min-width: 1.4em; }
+.menu button:hover { background: var(--surface-2); }
+.menu button:focus-visible { outline: 3px solid var(--tabby); outline-offset: 1px; }
+.menu button[aria-current="true"] { background: var(--mint); font-weight: 600; }
+.menu button[aria-current="true"] .i { color: var(--green); }
+.menu button.seen .i::after { content: " ✓"; color: var(--green); }
+.menu-btn { display: none; margin-left: auto; }
+@media (max-width: 900px) {
+  .shell { grid-template-columns: minmax(0, 1fr); }
+  .menu { display: none; position: static; max-height: none; grid-row: 2; }
+  .menu.open { display: grid; }
+  .shell .page { grid-row: 1; }
+  .menu-btn { display: inline-flex; }
+  .shell { gap: 0; }
+  .menu.open { margin-top: -6px; margin-bottom: 14px; }
+}
+.dot { font: 600 .8rem var(--f-ui); border: 1.5px solid var(--line); background: var(--surface); color: var(--muted); border-radius: 999px; padding: 5px 10px; cursor: pointer; }
+.dot[aria-current="true"] { background: var(--mint); border-color: var(--green); color: var(--ink); }
+.dot.seen { color: var(--ink); }
+.note { font-size: .84rem; color: var(--muted); margin: 2px 0 0; line-height: 1.45; }
+
+/* Mock app pieces (inside the 800x480 scene) */
+.win { position: absolute; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; }
+.win-bar { height: 38px; display: flex; align-items: center; gap: 12px; padding: 0 14px; border-bottom: 1px solid var(--line); background: var(--surface-2); font-size: 15px; }
+.win-bar .dots { display: flex; gap: 6px; } .win-bar .dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
+.brand { display: inline-flex; align-items: center; gap: 7px; font: 600 16px var(--f-ui); }
+.brand svg { width: 20px; height: 20px; }
+.pill { font: 700 10px var(--f-ui); letter-spacing: .08em; text-transform: uppercase; background: var(--mint); color: var(--green); padding: 3px 7px; border-radius: 999px; }
+.win-title { margin-left: auto; color: var(--muted); font-size: 14px; }
+.win-body { position: absolute; left: 0; right: 0; top: 38px; bottom: 0; padding: 18px 22px; overflow: hidden; }
+.h2 { font: 600 26px/1.15 var(--f-display); margin: 0 0 4px; }
+.sub { color: var(--muted); font-size: 15px; margin: 0 0 12px; }
+.gbtn { display: inline-flex; align-items: center; justify-content: center; background: var(--green); color: var(--on-green); font: 600 15px var(--f-ui); border-radius: 9px; padding: 8px 14px; }
+.obtn { display: inline-flex; align-items: center; justify-content: center; background: var(--surface); border: 1.5px solid var(--line); color: var(--ink); font: 600 14px var(--f-ui); border-radius: 9px; padding: 6px 11px; }
+.badge { display: inline-flex; align-items: center; gap: 5px; font: 700 12px var(--f-ui); border-radius: 999px; padding: 3px 9px; }
+.badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.b-hi { color: var(--hi); background: var(--hi-bg); } .b-mid { color: var(--mid); background: var(--mid-bg); } .b-lo { color: var(--lo); background: var(--lo-bg); }
+.field { display: grid; gap: 3px; }
+.field label { font: 600 12px var(--f-ui); color: var(--muted); letter-spacing: .02em; }
+.input { min-height: 32px; border: 1.5px solid var(--line); border-radius: 8px; padding: 5px 10px; font-size: 15px; background: var(--surface); white-space: nowrap; overflow: hidden; }
+.input.on { border-color: var(--green); box-shadow: 0 0 0 3px var(--mint); }
+.ghost { color: var(--muted); opacity: .6; }
+.kbd { font: 700 12px var(--f-ui); border: 1.5px solid var(--ink); border-bottom-width: 3px; border-radius: 6px; padding: 1px 6px; background: var(--surface); }
+.tick { width: 22px; height: 22px; flex: none; }
+.tick path { fill: none; stroke: var(--green); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; }
+.cursor { position: absolute; left: 0; top: 0; width: 26px; height: 30px; z-index: 35; pointer-events: none; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .25)); }
+.ripple { position: absolute; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; border: 3px solid var(--tabby); z-index: 34; pointer-events: none; }
+.look { position: absolute; width: 60px; height: 60px; margin: -30px 0 0 -30px; border-radius: 50%; border: 3px dashed var(--tabby); z-index: 33; pointer-events: none; }
+
+/* Scene specifics */
+.title-tile { position: absolute; left: 330px; top: 70px; width: 150px; height: 150px; }
+.title-tile svg, .logo-box svg { width: 100%; height: 100%; display: block; }
+.title-word { position: absolute; left: 200px; top: 236px; width: 560px; text-align: center; font: 700 76px/1 var(--f-display); letter-spacing: -.02em; color: var(--ink); }
+.title-word span { display: inline-block; }
+.title-sub { position: absolute; left: 200px; top: 326px; width: 560px; text-align: center; display: flex; justify-content: center; gap: 10px; align-items: center; }
+.title-sub .pill { font-size: 14px; padding: 5px 12px; }
+.title-sub em { font: 500 20px var(--f-display); font-style: normal; color: var(--muted); }
+.play-big { position: absolute; left: 400px; top: 380px; transform: translateX(-50%); font: 600 18px var(--f-display); background: var(--green); color: var(--on-green); border: 0; border-radius: 999px; padding: 12px 26px; cursor: pointer; box-shadow: 0 6px 0 rgba(20, 60, 40, .35); display: inline-flex; gap: 10px; align-items: center; animation: nudge 2.4s ease-in-out infinite; }
+@keyframes nudge { 50% { transform: translateX(-50%) translateY(-4px); } }
+
+.seg { display: inline-flex; position: relative; background: var(--surface-2); border: 1.5px solid var(--line); border-radius: 999px; padding: 4px; }
+.seg span { position: relative; z-index: 1; padding: 7px 16px; font-weight: 600; font-size: 15px; }
+.seg .knob { position: absolute; top: 4px; bottom: 4px; left: 4px; width: 50%; border-radius: 999px; background: var(--navy); }
+.menu-row { display: flex; align-items: center; gap: 8px; height: 23px; font-size: 14.5px; overflow: hidden; white-space: nowrap; }
+.menu-row i { width: 7px; height: 7px; border-radius: 2px; background: var(--line); flex: none; }
+.person { width: 40px; height: 54px; position: relative; }
+.person::before { content: ""; position: absolute; left: 10px; top: 0; width: 20px; height: 20px; border-radius: 50%; background: var(--c, var(--green)); }
+.person::after { content: ""; position: absolute; left: 3px; top: 23px; width: 34px; height: 30px; border-radius: 17px 17px 6px 6px; background: var(--c, var(--green)); }
+
+.dtn { background: var(--amber-bg); border-left: 5px solid var(--amber); border-radius: 12px; padding: 12px 16px; }
+.eyebrow { font: 700 11px var(--f-ui); letter-spacing: .12em; text-transform: uppercase; color: var(--amber); }
+.dtn h3 { font: 600 19px/1.25 var(--f-display); margin: 4px 0 10px; min-height: 24px; }
+.big { border: 1.5px solid var(--line); border-radius: 12px; padding: 10px 12px; background: var(--surface); }
+.big b { display: block; font-size: 15px; } .big small { color: var(--muted); font-size: 12.5px; }
+.big.g { background: var(--green); color: var(--on-green); border-color: var(--green); } .big.g small { color: var(--on-green); opacity: .85; }
+
+.nextbar { display: flex; align-items: center; gap: 10px; background: var(--mint); border-radius: 10px; padding: 7px 12px; font-size: 15px; height: 42px; overflow: hidden; }
+.nextbar .what { position: relative; flex: 1; height: 22px; overflow: hidden; }
+.nextbar .what span { position: absolute; left: 0; top: 0; white-space: nowrap; }
+.sec { border: 1.5px solid var(--line); border-radius: 12px; padding: 10px 14px; display: grid; gap: 8px; background: var(--surface); }
+.sec-h { display: flex; align-items: center; gap: 9px; font: 600 16px var(--f-display); }
+.num { width: 24px; height: 24px; border-radius: 50%; background: var(--green); color: var(--on-green); display: grid; place-items: center; font: 700 13px var(--f-ui); flex: none; }
+.ring { position: absolute; width: 64px; height: 64px; }
+.ring circle { fill: none; stroke-width: 7; }
+.ring .bgc { stroke: var(--surface-2); } .ring .fg { stroke: var(--green); stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; transform: rotate(-90deg); transform-origin: 50% 50%; }
+.ring-lbl { position: absolute; width: 64px; text-align: center; font: 700 15px var(--f-ui); font-variant-numeric: tabular-nums; }
+
+.res { display: flex; align-items: center; gap: 12px; border: 1.5px solid var(--line); border-left: 5px solid var(--c); border-radius: 12px; padding: 10px 14px; background: var(--surface); }
+.res b { font-size: 16px; } .res small { display: block; color: var(--muted); font-size: 13px; }
+.res .why { margin-left: auto; text-align: right; font-size: 13px; color: var(--muted); max-width: 210px; }
+
+.steps { display: flex; gap: 8px; position: relative; }
+.step { font: 600 13px var(--f-ui); border-radius: 999px; padding: 6px 12px; background: var(--surface-2); color: var(--muted); position: relative; z-index: 1; }
+.step.on { background: var(--green); color: var(--on-green); }
+.choices { display: flex; gap: 7px; flex-wrap: wrap; }
+.stamp { position: absolute; border: 4px solid var(--green); color: var(--green); border-radius: 10px; padding: 8px 14px; font: 700 20px var(--f-display); text-transform: uppercase; letter-spacing: .04em; background: var(--surface); transform: rotate(-7deg); white-space: nowrap; }
+.stamp small { display: block; font: 600 13px var(--f-ui); text-transform: none; letter-spacing: 0; }
+.slot { display: inline-flex; font: 700 40px/1 var(--f-display); font-variant-numeric: tabular-nums; background: var(--surface-2); border-radius: 12px; padding: 8px 12px; border: 1.5px solid var(--line); }
+.slot .col { height: 40px; overflow: hidden; display: inline-block; }
+.slot .col div { display: flex; flex-direction: column; }
+.slot .col span { height: 40px; display: block; }
+.lock { width: 46px; height: 54px; position: relative; }
+.lock .shackle { position: absolute; left: 9px; top: 0; width: 28px; height: 30px; border: 6px solid var(--amber); border-bottom: 0; border-radius: 16px 16px 0 0; transform-origin: 90% 100%; }
+.lock .body { position: absolute; left: 0; bottom: 0; width: 46px; height: 32px; border-radius: 8px; background: var(--amber); }
+.doc { width: 46px; height: 58px; border-radius: 6px; background: var(--surface); border: 2px solid var(--ink); position: relative; }
+.doc::before { content: ""; position: absolute; left: 8px; right: 8px; top: 12px; height: 26px; background: repeating-linear-gradient(var(--line) 0 3px, transparent 3px 8px); }
+.doc::after { content: ""; position: absolute; left: 8px; bottom: 7px; width: 20px; height: 8px; border-bottom: 2px solid var(--green); border-radius: 0 0 10px 10px; }
+.checkrow { display: flex; align-items: center; gap: 10px; font-size: 15px; padding: 8px 10px; border-radius: 10px; background: var(--surface-2); }
+.card3 { border: 1.5px solid var(--line); border-radius: 14px; background: var(--surface); padding: 12px; position: absolute; }
+.card3 h4 { margin: 0 0 6px; font: 600 15px var(--f-ui); color: var(--muted); }
+.flipper { perspective: 600px; }
+.fee { font: 700 30px var(--f-display); text-align: center; padding: 16px 0 6px; backface-visibility: hidden; }
+.fee small { display: block; font: 600 14px var(--f-ui); color: var(--muted); }
+.coin { position: absolute; width: 44px; height: 14px; border-radius: 50%; background: var(--brass); border: 2px solid var(--amber); }
+.cal { position: relative; width: 110px; height: 110px; perspective: 500px; margin: 4px auto 6px; }
+.cal .pg { position: absolute; inset: 0; border-radius: 12px; background: var(--surface); border: 2px solid var(--ink); overflow: hidden; transform-origin: 50% 0; text-align: center; backface-visibility: hidden; }
+.cal .pg b { display: block; background: var(--green); color: var(--on-green); font: 700 14px var(--f-ui); padding: 4px 0; letter-spacing: .1em; }
+.cal .pg span { display: block; font: 700 44px/1.1 var(--f-display); padding-top: 4px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; font: 600 13px var(--f-ui); background: var(--surface-2); border: 1.5px solid var(--line); border-radius: 999px; padding: 4px 10px; white-space: nowrap; }
+.sheet { position: absolute; border: 1.5px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface); font-size: 13.5px; }
+.sheet .r { display: grid; grid-template-columns: 1.5fr 1.4fr 1fr .8fr; border-bottom: 1px solid var(--line); }
+.sheet .r > div { padding: 6px 9px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-right: 1px solid var(--line); }
+.sheet .r.hd { background: var(--mint); font-weight: 700; }
+.file { position: absolute; width: 74px; height: 92px; border-radius: 8px; background: var(--surface); border: 2.5px solid var(--green); display: grid; place-items: center; font: 700 17px var(--f-ui); color: var(--green); }
+.file::before { content: ""; position: absolute; right: -2px; top: -2px; width: 22px; height: 22px; background: var(--stage); border-left: 2.5px solid var(--green); border-bottom: 2.5px solid var(--green); border-radius: 0 0 0 6px; }
+.dest { position: absolute; width: 140px; padding: 14px 10px; border-radius: 14px; border: 2px dashed var(--line); text-align: center; font: 600 17px var(--f-display); background: var(--surface); }
+.plane { position: absolute; left: 0; top: 0; width: 34px; height: 34px; offset-anchor: center; offset-rotate: auto; z-index: 32; }
+.helper { position: absolute; display: inline-flex; gap: 8px; align-items: center; background: var(--surface); border: 1.5px solid var(--line); border-radius: 999px; padding: 8px 14px; font: 600 15px var(--f-ui); box-shadow: var(--shadow); }
+.helper .n { background: var(--green); color: var(--on-green); border-radius: 999px; padding: 1px 8px; font-size: 13px; }
+.pop { position: absolute; background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); padding: 12px 14px; width: 300px; }
+.menubar { position: absolute; left: 188px; top: 22px; width: 592px; height: 32px; display: flex; gap: 22px; align-items: center; padding: 0 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; font-size: 14.5px; }
+.menubar b { font-weight: 700; }
+.dropdown { position: absolute; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); padding: 5px; width: 230px; font-size: 14.5px; }
+.dropdown div { padding: 6px 10px; border-radius: 6px; }
+.dropdown .sep { height: 1px; padding: 0; background: var(--line); margin: 4px 6px; }
+.dropdown .hl { background: var(--green); color: var(--on-green); }
+.opt { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 8px; font-size: 14.5px; }
+.opt small { color: var(--muted); font-size: 12px; }
+.opt.sel { background: var(--mint); }
+.desk { position: absolute; inset: 0; background: linear-gradient(160deg, var(--mint), var(--stage) 60%, var(--amber-bg)); }
+.dock { position: absolute; left: 230px; top: 384px; width: 520px; height: 78px; border-radius: 22px; background: color-mix(in srgb, var(--surface) 78%, transparent); border: 1px solid var(--line); display: flex; align-items: flex-end; justify-content: center; gap: 22px; padding-bottom: 10px; backdrop-filter: blur(6px); }
+.appicon { width: 58px; height: 58px; position: relative; }
+.appicon svg { width: 100%; height: 100%; display: block; }
+.applbl { position: absolute; font: 600 14px var(--f-ui); text-align: center; white-space: nowrap; transform: translateX(-50%); }
+.ghosticon { width: 46px; height: 46px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); }
+.folder { position: absolute; width: 170px; text-align: center; font: 600 14px var(--f-ui); }
+.folder .f { width: 96px; height: 70px; margin: 0 auto 8px; border-radius: 6px 10px 10px 10px; background: var(--c); position: relative; }
+.folder .f::before { content: ""; position: absolute; left: 0; top: -10px; width: 40px; height: 14px; border-radius: 6px 6px 0 0; background: var(--c); }
+.outro-chips { position: absolute; left: 186px; top: 230px; width: 590px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.outro-chips .chip { font-size: 14px; background: var(--surface); }
+
+@media (prefers-reduced-motion: reduce) {
+  .blob, .paw, .play-big, .zzz { animation: none; }
+}
+:root {
+  --logo: #1f3b6e;
+  --bg: #e7ecf3; --stage: #f5f7fb; --surface-2: #eef2f7; --line: #cfd8e4; --muted: #55627a; --ink: #172033;
+  --green: #1f3b6e; --green-2: #33589a; --on-green: #ffffff; --mint: #dfe7f3;
+  --shadow: 0 14px 34px rgba(20, 32, 60, .14);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #0d121b; --stage: #131a26; --surface: #19222f; --surface-2: #1f2a3b; --line: #2e3b52; --muted: #a3b0c6; --ink: #e6ebf3; --green: #84a6e6; --green-2: #a2bdf0; --on-green: #0a1222; --mint: #1e2b45; }
+}
+:root[data-theme="dark"] { --bg: #0d121b; --stage: #131a26; --surface: #19222f; --surface-2: #1f2a3b; --line: #2e3b52; --muted: #a3b0c6; --ink: #e6ebf3; --green: #84a6e6; --green-2: #a2bdf0; --on-green: #0a1222; --mint: #1e2b45; }
+svg.lines { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; }
+.ln { fill: none; stroke: var(--brand); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; }
+.ln.alt { stroke: var(--tabby); stroke-dasharray: 1; }
+.node { background: var(--surface); border: 2px solid var(--line); border-radius: 14px; padding: 9px 12px; text-align: center; box-shadow: var(--shadow); }
+.node b { display: block; font-size: 15px; } .node small { display: block; color: var(--muted); font-size: 12.5px; }
+.node.me { border-color: var(--tabby); background: var(--amber-bg); }
+.token { position: absolute; left: 0; top: 0; width: 18px; height: 18px; border-radius: 50%; background: var(--tabby); border: 3px solid var(--surface); box-shadow: 0 0 0 2px var(--tabby); offset-anchor: center; offset-rotate: 0deg; z-index: 20; }
+.packet { position: absolute; left: 0; top: 0; width: 12px; height: 12px; border-radius: 3px; background: var(--brand); offset-anchor: center; offset-rotate: 0deg; z-index: 20; }
+.mk { background-image: linear-gradient(var(--amber-bg), var(--amber-bg)); background-size: 0% 100%; background-repeat: no-repeat; transition: background-size .6s ease; border-radius: 4px; }
+.mk.on { background-size: 100% 100%; font-weight: 700; color: var(--amber); }
+.hitrow { display: grid; grid-template-columns: 22px minmax(0, 1fr) 110px 74px; gap: 10px; align-items: center; border: 1.5px solid var(--line); border-radius: 10px; padding: 7px 10px; background: var(--surface); }
+.hitrow b { font-size: 15px; display: block; } .hitrow small { color: var(--muted); font-size: 12.5px; }
+.cb { width: 20px; height: 20px; border: 2px solid var(--line); border-radius: 5px; display: grid; place-items: center; }
+.cb .tick { width: 16px; height: 16px; }
+.meter { height: 8px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.meter i { display: block; height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, var(--lo), var(--mid), var(--hi)); background-size: 110px 100%; }
+.letter { border: 1.5px solid var(--line); border-radius: 10px; padding: 12px 16px; font: 15.5px/1.55 Georgia, 'Source Serif 4', serif; background: var(--surface); }
+.letter p { margin: 0 0 8px; }
+.caret-on::after { content: ""; display: inline-block; width: 2px; height: 1em; background: var(--tabby); margin-left: 1px; vertical-align: -.1em; animation: blink 1s steps(2) infinite; }
+.tree { display: grid; gap: 4px; }
+.trow { display: flex; align-items: center; gap: 8px; font-size: 14.5px; }
+.fld { width: 18px; height: 13px; border-radius: 2px 4px 4px 4px; background: var(--brass); position: relative; flex: none; }
+.brick { width: 36px; height: 24px; border-radius: 4px; background: var(--tabby); border: 2px solid color-mix(in srgb, var(--tabby) 60%, var(--ink)); }
+.shade { position: absolute; inset: 0; display: grid; place-items: center; background: color-mix(in srgb, var(--surface) 55%, transparent); font-weight: 700; font-size: 14px; }
+.colchip { border: 2px solid var(--line); border-radius: 10px; padding: 7px 12px; font: 600 14px var(--f-ui); background: var(--surface); }
+.colchip:not(.f) { font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 13px; }
+.counts { display: flex; gap: 22px; font-size: 15px; margin-top: 4px; flex-wrap: wrap; } .counts b { font: 700 22px var(--f-display); font-variant-numeric: tabular-nums; }
+.mini-file { position: absolute; left: 0; top: 0; background: var(--surface); border: 2px solid var(--brand); color: var(--brand); border-radius: 8px; padding: 3px 9px; font: 700 12px var(--f-ui); offset-anchor: center; offset-rotate: 0deg; z-index: 20; white-space: nowrap; }
+.radar { border-radius: 50%; border: 2px solid var(--line); background: repeating-radial-gradient(circle, transparent 0 24px, var(--line) 24px 25px); position: absolute; overflow: hidden; }
+.radar::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 0deg, color-mix(in srgb, var(--brand) 45%, transparent), transparent 25%); animation: sweep 2.4s linear infinite; }
+@keyframes sweep { to { transform: rotate(360deg); } }
+.bars { display: flex; align-items: flex-end; gap: 12px; height: 150px; padding: 6px 4px 0; border-bottom: 1.5px solid var(--line); }
+.bar { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; position: relative; }
+.bar i { display: block; width: 100%; height: 0; background: var(--brand); border-radius: 6px 6px 0 0; }
+.bar span { position: absolute; bottom: -20px; font-size: 12px; color: var(--muted); }
+.chain { display: grid; gap: 8px; }
+.blk { border: 2px solid var(--line); border-radius: 10px; padding: 6px 12px; background: var(--surface); position: relative; display: flex; justify-content: space-between; align-items: center; }
+.blk b { font-size: 14.5px; } .blk small { font: 12px ui-monospace, Menlo, monospace; color: var(--muted); }
+.blk + .blk::before { content: ""; position: absolute; left: 50%; top: -10px; width: 3px; height: 10px; background: var(--brass); }
+.house { position: absolute; border: 3px dashed var(--brand); border-radius: 26px; }
+.orbit { position: absolute; width: 14px; height: 14px; border-radius: 4px; background: var(--brand); offset-anchor: center; offset-rotate: 0deg; }
+.cloud { position: absolute; width: 120px; height: 60px; border-radius: 40px; background: var(--surface-2); border: 2px solid var(--line); display: grid; place-items: center; font: 600 13px var(--f-ui); color: var(--muted); }
+.cross { position: absolute; inset: -6px; }
+.cross::before, .cross::after { content: ""; position: absolute; left: 50%; top: 50%; width: 130%; height: 5px; background: var(--hi); border-radius: 3px; transform: translate(-50%, -50%) rotate(25deg) scaleX(var(--k, 0)); }
+.cross::after { transform: translate(-50%, -50%) rotate(-25deg) scaleX(var(--k, 0)); }
+.tabs { display: flex; gap: 2px; border-bottom: 1.5px solid var(--line); position: relative; flex-wrap: nowrap; overflow: hidden; }
+.tab { font: 600 13px var(--f-ui); padding: 7px 8px; color: var(--muted); white-space: nowrap; }
+.tab.on { color: var(--ink); }
+.tabs .ul { position: absolute; bottom: -1px; height: 3px; left: 0; width: 0; background: var(--tabby); border-radius: 2px; }
+.why-list { display: grid; gap: 10px; }
+.why-row { display: flex; align-items: center; gap: 14px; background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px; padding: 10px 14px; }
+.why-row .ic { width: 38px; height: 38px; border-radius: 12px; background: var(--mint); display: grid; place-items: center; font: 700 18px var(--f-display); color: var(--brand); flex: none; }
+.why-row b { font-size: 16px; display: block; } .why-row small { color: var(--muted); font-size: 13.5px; }
+.bigcloud { position: absolute; border-radius: 120px 140px 60px 60px; background: var(--surface-2); border: 2px dashed var(--line); }
+.bigcloud .cl { position: absolute; left: 24px; top: 18px; font: 600 15px var(--f-display); color: var(--muted); }
+.bldg { position: absolute; width: 96px; height: 70px; border: 2px solid var(--line); border-radius: 8px 8px 4px 4px; background: var(--surface); display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 8px 10px 22px; }
+.bldg i { background: var(--mint); border-radius: 2px; height: 10px; }
+.bldg span { position: absolute; left: 0; right: 0; bottom: 3px; text-align: center; font: 600 12px var(--f-ui); }
+.bldg.you { border-color: var(--tabby); }
+.bolt { position: absolute; z-index: 25; } .bolt svg { width: 100%; height: 100%; } .bolt path { fill: var(--tabby); stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; }
+.dtn.red { border-left-color: var(--hi); background: var(--hi-bg); } .dtn.red .eyebrow { color: var(--hi); }
+.facts { display: grid; gap: 6px; font-size: 14.5px; margin-top: 4px; } .facts b { margin-right: 6px; }
+.island { position: absolute; border-radius: 50%; background: radial-gradient(closest-side, var(--mint), transparent); }
+.shield { position: absolute; left: 96px; top: -6px; width: 40px; height: 46px; } .shield path { fill: var(--brand); stroke: var(--surface); stroke-width: 3; }
+.lane { display: grid; gap: 70px; } .lane .node.far { border-style: dashed; }
+.src { font-size: 13px; color: var(--muted); line-height: 1.45; }
+.timeline { display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px; }
+.mo { height: 46px; border-radius: 6px; background: var(--surface-2); border: 1px solid var(--line); display: grid; place-items: end center; padding-bottom: 3px; font: 600 11px var(--f-ui); color: var(--muted); }
+.coins { position: relative; height: 150px; }
+.piece { padding: 14px 10px; text-align: center; font: 600 16px var(--f-display); background: var(--surface); border: 2px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); transform-origin: 0 0; }
+.onebox { position: absolute; border: 3px solid var(--brand); border-radius: 20px; background: color-mix(in srgb, var(--mint) 60%, transparent); }
+.cmp { display: grid; border: 1.5px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--surface); }
+.cr { display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr; border-bottom: 1px solid var(--line); align-items: center; }
+.cr:last-child { border-bottom: 0; }
+.cr > div { padding: 12px 12px; font-size: 15px; text-align: center; } .cr > div:first-child { text-align: left; font-weight: 600; }
+.cr.hd > div { font: 700 15px var(--f-display); } .cr.hd .us { color: var(--brand); }
+.mark { display: inline-block; padding: 3px 10px; border-radius: 999px; font: 700 13px var(--f-ui); }
+.mark.good { background: var(--lo-bg); color: var(--lo); } .mark.bad { background: var(--hi-bg); color: var(--hi); }
+.sources { font-size: .86rem; color: var(--muted); background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px; padding: 10px 16px; }
+.sources summary { cursor: pointer; font-weight: 600; color: var(--ink); }
+.sources ol { margin: 8px 0 4px; padding-left: 1.3em; display: grid; gap: 4px; line-height: 1.45; }
+.sources a { color: var(--brand); overflow-wrap: anywhere; }
+/* Matter walkthrough: simple tables and cards inside one still screen. */
+.tb { border: 1.5px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface); font-size: 13.5px; }
+.tr { display: grid; border-bottom: 1px solid var(--line); align-items: center; }
+.tr:last-child { border-bottom: 0; }
+.tr > div { padding: 6px 9px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tr.th { background: var(--surface-2); font-weight: 700; font-size: 12.5px; color: var(--muted); }
+.tr.hl { background: var(--mint); }
+.tr .r { text-align: right; font-variant-numeric: tabular-nums; }
+.kv { display: grid; grid-template-columns: 128px 1fr; gap: 4px 10px; font-size: 14px; }
+.kv > span:nth-child(odd) { color: var(--muted); font-weight: 600; font-size: 13px; }
+.cast { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.cast .big b { font-size: 14.5px; }
+.who { display: inline-flex; align-items: center; gap: 6px; font: 600 13px var(--f-ui); }
+.who i { width: 22px; height: 22px; border-radius: 50%; background: var(--c, var(--brand)); color: #fff; display: grid; place-items: center; font: 700 10px var(--f-ui); font-style: normal; }
+.ai { color: var(--tabby); font-weight: 700; }
+.pane { border: 1.5px solid var(--line); border-radius: 12px; padding: 10px 12px; background: var(--surface); }
+.pane h4 { margin: 0 0 6px; font: 600 14px var(--f-display); }
+.money { font: 700 24px var(--f-display); font-variant-numeric: tabular-nums; }
+.paper { border: 1.5px solid var(--line); border-radius: 10px; padding: 10px 14px; font: 14px/1.5 Georgia, 'Source Serif 4', serif; background: var(--surface); }
+.paper p { margin: 0 0 6px; }
+.flowrow { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.flowrow .arrow { color: var(--muted); font-weight: 700; }
+.strike { text-decoration: line-through; color: var(--muted); }
+.badge { font-size: 12.5px; }
+.eyebrow { font-size: 12.5px; }
+.who i { width: 26px; height: 26px; font-size: 11px; }
+.blk small { font-size: 12.5px; }
+
+</style>
+
+<div class="shell">
+<nav class="menu" id="menu" aria-label="Sections of the tour"></nav>
+<div class="page">
+  <header class="top">
+    <h1>One matter, start to finish, with Newton</h1>
+    <span class="tag" id="sceneCount"></span>
+    <button class="btn menu-btn" id="menuBtn" aria-expanded="false" aria-controls="menu">Menu</button>
+  </header>
+
+  <div class="wrap" id="wrap">
+    <div class="vp" id="vp">
+      <div class="bg" aria-hidden="true">
+        <div class="blob" style="left:-60px;top:-80px;width:260px;height:260px"></div>
+        <div class="blob b2" style="left:600px;top:330px;width:260px;height:220px"></div>
+        <div class="blob b3" style="left:520px;top:-120px;width:200px;height:200px"></div>
+      </div>
+      <canvas class="fx" id="fx" width="800" height="480" aria-hidden="true"></canvas>
+      <div class="newton" id="newton" aria-hidden="true"><div class="nt-shadow"></div><div class="nt-body" id="ntBody"><img id="ntImg" alt=""></div></div>
+      <svg class="cursor" id="cursor" viewBox="0 0 26 30" aria-hidden="true"><path d="M2 2 L2 24 L8 18.5 L12.5 28 L16.5 26 L12 17 L20 17 Z" fill="#ffffff" stroke="#17251e" stroke-width="2" stroke-linejoin="round"/></svg>
+    </div>
+  </div>
+
+  <div class="bubble" id="bubble" aria-live="polite">
+    <div class="tail" id="tail"></div>
+    <span class="who">NEWTON</span>
+    <p id="say"></p>
+  </div>
+
+  <div class="controls">
+    <button class="btn" id="prev" aria-label="Previous scene"><svg viewBox="0 0 16 16"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Back</button>
+    <button class="btn primary" id="play"><svg viewBox="0 0 16 16" id="playIcon"><path d="M4 2.5v11l9.5-5.5z" fill="currentColor"/></svg><span id="playLbl">Play</span></button>
+    <button class="btn" id="next" aria-label="Next scene">Next<svg viewBox="0 0 16 16"><path d="m6 3 5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <button class="btn" id="replay">Replay</button>
+    <button class="btn" id="sound" aria-pressed="false">Sound off</button>
+    <button class="btn" id="theme" type="button"></button>
+    <span class="now" id="now"></span>
+  </div>
+  <div class="progress" aria-hidden="true"><i id="bar"></i></div>
+  <p class="note">Example data only: the firm, people and matters are made up. Space plays or pauses; the arrow keys move between scenes.</p>
+</div>
+</div>
+
+<script>
+const SPR = {"p":{"a":"#2a1d2e","b":"#f2a0a8","c":"#c47d87","d":"#eeb47b","e":"#c47a3a","f":"#e9a05a","g":"#6d4b3d","h":"#b5632a","i":"#fbf3e6","j":"#b9c25a","k":"#1e1a22","l":"#ffffff","m":"#838746","n":"#fffaf0","o":"#d9bba8","p":"#e8c9aa"},"f":{"open":{"w":44,"h":40,"rows":[".6a2.20a2.14",".5a4.18a4.13",".5ab2a.18ab2a.13",".4a2cb2a2.14a2b2ca2.12",".4a2dcb2a.14ab2cea2.12",".4a2dfb3a2.10a2b3e2a2.12",".4agdfb4a12b4e2ga.12",".3a2df2c4a12c4fe2a2.11",".3agdf6h2i8h2f5e2ga.11",".2a2df6hfhi8hfhf4e3a2.10",".2agdf5h3f2i6f2h3f4e2ga.10",".a2df6h2f4i4f4h2f5e2a2.9","a2gdf12i4f11e2ga.9","a2df13i4f11e3a2.8","a2df5jkljf4i4f4jkljf4e2a2.8","a2df5jk2jf4i4f4jk2jf4e2a2.8","a2df5mk2mf3i6f3mk2mf4e2a2.8","a2df5m4f2i8f2m4f3e3a2.8","a2ef4n2f4i3b4i3f4n2f3e2a2.8","a3e2f4n3i5c2i5n3f4e2aea.8",".a2e3hf4i3o2i4o2i3f4he3a2.5a2.2",".2aeae2hfn2i3o2i4o2i3n2fhe2a2.6a4.",".3a2e2n2f3i12f3n2e2a2.6ae2a2",".5a2e3f2i12f2e3a2.7a2e2a2",".6a2e2fi14fe2a2.8a2e2a2",".6a2ef2i14e3a2.8a2e2a2",".5a2e2f3i12f3e2a2.7a2e2a2",".4a2e2f4i12f4e2a2.5a2fe2a2",".4a2e2f3i14f3e2a2.5afe2a2.",".3a2e2f4i14f4e2a2.3a2e2a2.2",".3a2e2f5i12f5e2a2.3a2e2a2.2",".2a2e2f7i10f7e2a2.2afe2a2.2",".2a2e2f6i12f6e2a5fe2a2.2",".2a2e2f8i8f8e2a3f2e2a2.3",".2a2e2f3i2f4i6f4i2f3e2a3f2e2a2.3",".2a2e2fi5ef3i4f3ei5e2aeafe2a2.5",".2a2pi6pae2i6e2api4pae6a2.5",".3a2p6a4ep4ea4p4a3e4a.7",".3a9.2a8.2a10.10",".4a8.2a8.2a10.10"]},"blink":{"w":44,"h":40,"rows":[".6a2.20a2.14",".5a4.18a4.13",".5ab2a.18ab2a.13",".4a2cb2a2.14a2b2ca2.12",".4a2dcb2a.14ab2cea2.12",".4a2dfb3a2.10a2b3e2a2.12",".4agdfb4a12b4e2ga.12",".3a2df2c4a12c4fe2a2.11",".3agdf6h2i8h2f5e2ga.11",".2a2df6hfhi8hfhf4e3a2.10",".2agdf5h3f2i6f2h3f4e2ga.10",".a2df6h2f4i4f4h2f5e2a2.9","a2gdf12i4f11e2ga.9","a2df13i4f11e3a2.8","a2df13i4f12e2a2.8","a2df13i4f12e2a2.8","a2df3k6f3i6f3k6f2e2a2.8","a2df3k6f2i8f2k6fe3a2.8","a2ef4n2f4i3b4i3f4n2f3e2a2.8","a3e2f4n3i5c2i5n3f4e2aea.8",".a2e3hf4i3o2i4o2i3f4he3a2.5a2.2",".2aeae2hfn2i3o2i4o2i3n2fhe2a2.6a4.",".3a2e2n2f3i12f3n2e2a2.6ae2a2",".5a2e3f2i12f2e3a2.7a2e2a2",".6a2e2fi14fe2a2.8a2e2a2",".6a2ef2i14e3a2.8a2e2a2",".5a2e2f3i12f3e2a2.7a2e2a2",".4a2e2f4i12f4e2a2.5a2fe2a2",".4a2e2f3i14f3e2a2.5afe2a2.",".3a2e2f4i14f4e2a2.3a2e2a2.2",".3a2e2f5i12f5e2a2.3a2e2a2.2",".2a2e2f7i10f7e2a2.2afe2a2.2",".2a2e2f6i12f6e2a5fe2a2.2",".2a2e2f8i8f8e2a3f2e2a2.3",".2a2e2f3i2f4i6f4i2f3e2a3f2e2a2.3",".2a2e2fi5ef3i4f3ei5e2aeafe2a2.5",".2a2pi6pae2i6e2api4pae6a2.5",".3a2p6a4ep4ea4p4a3e4a.7",".3a9.2a8.2a10.10",".4a8.2a8.2a10.10"]},"up":{"w":44,"h":40,"rows":[".6a2.20a2.14",".5a4.18a4.13",".5ab2a.18ab2a.13",".4a2cb2a2.14a2b2ca2.12",".4a2dcb2a.14ab2cea2.12",".4a2dfb3a2.10a2b3e2a2.12",".4agdfb4a12b4e2ga.12",".3a2df2c4a12c4fe2a2.11",".3agdf6h2i8h2f5e2ga.11",".2a2df6hfhi8hfhf4e3a2.10",".2agdf5h3f2i6f2h3f4e2ga.10",".a2df6h2f4i4f4h2f5e2a2.9","a2gdf12i4f11e2ga.9","a2df13i4f11e3a2.8","a2df5lk3f4i4f4lk3f4e2a2.8","a2df5k4f4i4f4k4f4e2a2.8","a2df5j4f3i6f3j4f4e2a2.8","a2df5m4f2i8f2m4f3e3a2.8","a2ef4n2f4i3b4i3f4n2f3e2a2.8","a3e2f4n3i5c2i5n3f4e2aea.8",".a2e3hf4i3o2i4o2i3f4he3a2.5a2.2",".2aeae2hfn2i3o2i4o2i3n2fhe2a2.6a4.",".3a2e2n2f3i12f3n2e2a2.6ae2a2",".5a2e3f2i12f2e3a2.7a2e2a2",".6a2e2fi14fe2a2.8a2e2a2",".6a2ef2i14e3a2.8a2e2a2",".5a2e2f3i12f3e2a2.7a2e2a2",".4a2e2f4i12f4e2a2.5a2fe2a2",".4a2e2f3i14f3e2a2.5afe2a2.",".3a2e2f4i14f4e2a2.3a2e2a2.2",".3a2e2f5i12f5e2a2.3a2e2a2.2",".2a2e2f7i10f7e2a2.2afe2a2.2",".2a2e2f6i12f6e2a5fe2a2.2",".2a2e2f8i8f8e2a3f2e2a2.3",".2a2e2f3i2f4i6f4i2f3e2a3f2e2a2.3",".2a2e2fi5ef3i4f3ei5e2aeafe2a2.5",".2a2pi6pae2i6e2api4pae6a2.5",".3a2p6a4ep4ea4p4a3e4a.7",".3a9.2a8.2a10.10",".4a8.2a8.2a10.10"]},"side":{"w":44,"h":40,"rows":[".6a2.20a2.14",".5a4.18a4.13",".5ab2a.18ab2a.13",".4a2cb2a2.14a2b2ca2.12",".4a2dcb2a.14ab2cea2.12",".4a2dfb3a2.10a2b3e2a2.12",".4agdfb4a12b4e2ga.12",".3a2df2c4a12c4fe2a2.11",".3agdf6h2i8h2f5e2ga.11",".2a2df6hfhi8hfhf4e3a2.10",".2agdf5h3f2i6f2h3f4e2ga.10",".a2df6h2f4i4f4h2f5e2a2.9","a2gdf12i4f11e2ga.9","a2df13i4f11e3a2.8","a2df7k2lkf2i4f6k2lkf2e2a2.8","a2df7k4f2i4f6k4f2e2a2.8","a2df7j2k2fi6f5j2k2f2e2a2.8","a2df7m2k2i8f4m2k2fe3a2.8","a2ef4n2f3i4b4i3f4n2f3e2a2.8","a3e2f4n3i5c2i5n3f4e2aea.8",".a2e3hf4i3o2i4o2i3f4he3a2.5a2.2",".2aeae2hfn2i3o2i4o2i3n2fhe2a2.6a4.",".3a2e2n2f3i12f3n2e2a2.6ae2a2",".5a2e3f2i12f2e3a2.7a2e2a2",".6a2e2fi14fe2a2.8a2e2a2",".6a2ef2i14e3a2.8a2e2a2",".5a2e2f3i12f3e2a2.7a2e2a2",".4a2e2f4i12f4e2a2.5a2fe2a2",".4a2e2f3i14f3e2a2.5afe2a2.",".3a2e2f4i14f4e2a2.3a2e2a2.2",".3a2e2f5i12f5e2a2.3a2e2a2.2",".2a2e2f7i10f7e2a2.2afe2a2.2",".2a2e2f6i12f6e2a5fe2a2.2",".2a2e2f8i8f8e2a3f2e2a2.3",".2a2e2f3i2f4i6f4i2f3e2a3f2e2a2.3",".2a2e2fi5ef3i4f3ei5e2aeafe2a2.5",".2a2pi6pae2i6e2api4pae6a2.5",".3a2p6a4ep4ea4p4a3e4a.7",".3a9.2a8.2a10.10",".4a8.2a8.2a10.10"]},"happy":{"w":44,"h":40,"rows":[".6a2.20a2.14",".5a4.18a4.13",".5ab2a.18ab2a.13",".4a2cb2a2.14a2b2ca2.12",".4a2dcb2a.14ab2cea2.12",".4a2dfb3a2.10a2b3e2a2.12",".4agdfb4a12b4e2ga.12",".3a2df2c4a12c4fe2a2.11",".3agdf6h2i8h2f5e2ga.11",".2a2df6hfhi8hfhf4e3a2.10",".2agdf5h3f2i6f2h3f4e2ga.10",".a2df6h2f4i4f4h2f5e2a2.9","a2gdf12i4f11e2ga.9","a2df13i4f11e3a2.8","a2df7k2f4i4f6k2f4e2a2.8","a2df7k2f4i4f6k2f4e2a2.8","a2df3k2f4k2fi6fk2f4k2f2e2a2.8","a2df3k2f4k2i8k2f4k2fe3a2.8","a2ef4n2f3i4b4i4f3n2f3e2a2.8","a3e2f4n3i5c2i5n3f4e2aea.8",".a2e3hf4i3o2i4o2i3f4he3a2.5a2.2",".2aeae2hfn2i3o2i4o2i3n2fhe2a2.6a4.",".3a2e2n2f3i12f3n2e2a2.6ae2a2",".5a2e3f2i12f2e3a2.7a2e2a2",".6a2e2fi14fe2a2.8a2e2a2",".6a2ef2i14e3a2.8a2e2a2",".5a2e2f3i12f3e2a2.7a2e2a2",".4a2e2f4i12f4e2a2.5a2fe2a2",".4a2e2f3i14f3e2a2.5afe2a2.",".3a2e2f4i14f4e2a2.3a2e2a2.2",".3a2e2f5i12f5e2a2.3a2e2a2.2",".2a2e2f7i10f7e2a2.2afe2a2.2",".2a2e2f6i12f6e2a5fe2a2.2",".2a2e2f8i8f8e2a3f2e2a2.3",".2a2e2f3i2f4i6f4i2f3e2a3f2e2a2.3",".2a2e2fi5ef3i4f3ei5e2aeafe2a2.5",".2a2pi6pae2i6e2api4pae6a2.5",".3a2p6a4ep4ea4p4a3e4a.7",".3a9.2a8.2a10.10",".4a8.2a8.2a10.10"]},"meow":{"w":44,"h":40,"rows":[".6a2.20a2.14",".5a4.18a4.13",".5ab2a.18ab2a.13",".4a2cb2a2.14a2b2ca2.12",".4a2dcb2a.14ab2cea2.12",".4a2dfb3a2.10a2b3e2a2.12",".4agdfb4a12b4e2ga.12",".3a2df2c4a12c4fe2a2.11",".3agdf6h2i8h2f5e2ga.11",".2a2df6hfhi8hfhf4e3a2.10",".2agdf5h3f2i6f2h3f4e2ga.10",".a2df6h2f4i4f4h2f5e2a2.9","a2gdf12i4f11e2ga.9","a2df13i4f11e3a2.8","a2df5jkljf4i4f4jkljf4e2a2.8","a2df5jk2jf4i4f4jk2jf4e2a2.8","a2df5mk2mf3i6f3mk2mf4e2a2.8","a2df5m4f2i8f2m4f3e3a2.8","a2ef4n2f4i3b4i3f4n2f3e2a2.8","a3e2f4n3i5c2i5n3f4e2aea.8",".a2e3hf4i5k4i5f4he3a2.5a2.2",".2aeae2hfn2i5k4i5n2fhe2a2.6a4.",".3a2e2n2f3i12f3n2e2a2.6ae2a2",".5a2e3f2i12f2e3a2.7a2e2a2",".6a2e2fi14fe2a2.8a2e2a2",".6a2ef2i14e3a2.8a2e2a2",".5a2e2f3i12f3e2a2.7a2e2a2",".4a2e2f4i12f4e2a2.5a2fe2a2",".4a2e2f3i14f3e2a2.5afe2a2.",".3a2e2f4i14f4e2a2.3a2e2a2.2",".3a2e2f5i12f5e2a2.3a2e2a2.2",".2a2e2f7i10f7e2a2.2afe2a2.2",".2a2e2f6i12f6e2a5fe2a2.2",".2a2e2f8i8f8e2a3f2e2a2.3",".2a2e2f3i2f4i6f4i2f3e2a3f2e2a2.3",".2a2e2fi5ef3i4f3ei5e2aeafe2a2.5",".2a2pi6pae2i6e2api4pae6a2.5",".3a2p6a4ep4ea4p4a3e4a.7",".3a9.2a8.2a10.10",".4a8.2a8.2a10.10"]},"yawn":{"w":44,"h":40,"rows":[".6a2.20a2.14",".5a4.18a4.13",".5ab2a.18ab2a.13",".4a2cb2a2.14a2b2ca2.12",".4a2dcb2a.14ab2cea2.12",".4a2dfb3a2.10a2b3e2a2.12",".4agdfb4a12b4e2ga.12",".3a2df2c4a12c4fe2a2.11",".3agdf6h2i8h2f5e2ga.11",".2a2df6hfhi8hfhf4e3a2.10",".2agdf5h3f2i6f2h3f4e2ga.10",".a2df6h2f4i4f4h2f5e2a2.9","a2gdf12i4f11e2ga.9","a2df13i4f11e3a2.8","a2df13i4f12e2a2.8","a2df13i4f12e2a2.8","a2df3k6f3i6f3k6f2e2a2.8","a2df3k6f2i8f2k6fe3a2.8","a2ef4n2f4i3b4i3f4n2f3e2a2.8","a3e2f4n3i5b2i5n3f4e2aea.8",".a2e3hf4i3k2b4k2i3f4he3a2.5a2.2",".2aeae2hfn2i3k2c4k2i3n2fhe2a2.6a4.",".3a2e2n2f3i12f3n2e2a2.6ae2a2",".5a2e3f2i12f2e3a2.7a2e2a2",".6a2e2fi14fe2a2.8a2e2a2",".6a2ef2i14e3a2.8a2e2a2",".5a2e2f3i12f3e2a2.7a2e2a2",".4a2e2f4i12f4e2a2.5a2fe2a2",".4a2e2f3i14f3e2a2.5afe2a2.",".3a2e2f4i14f4e2a2.3a2e2a2.2",".3a2e2f5i12f5e2a2.3a2e2a2.2",".2a2e2f7i10f7e2a2.2afe2a2.2",".2a2e2f6i12f6e2a5fe2a2.2",".2a2e2f8i8f8e2a3f2e2a2.3",".2a2e2f3i2f4i6f4i2f3e2a3f2e2a2.3",".2a2e2fi5ef3i4f3ei5e2aeafe2a2.5",".2a2pi6pae2i6e2api4pae6a2.5",".3a2p6a4ep4ea4p4a3e4a.7",".3a9.2a8.2a10.10",".4a8.2a8.2a10.10"]},"tail":{"w":44,"h":40,"rows":[".6a2.20a2.14",".5a4.18a4.13",".5ab2a.18ab2a.13",".4a2cb2a2.14a2b2ca2.12",".4a2dcb2a.14ab2cea2.12",".4a2dfb3a2.10a2b3e2a2.12",".4agdfb4a12b4e2ga.12",".3a2df2c4a12c4fe2a2.11",".3agdf6h2i8h2f5e2ga.11",".2a2df6hfhi8hfhf4e3a2.10",".2agdf5h3f2i6f2h3f4e2ga.10",".a2df6h2f4i4f4h2f5e2a2.9","a2gdf12i4f11e2ga.9","a2df13i4f11e3a2.8","a2df5jkljf4i4f4jkljf4e2a2.8","a2df5jk2jf4i4f4jk2jf4e2a2.8","a2df5mk2mf3i6f3mk2mf4e2a2.8","a2df5m4f2i8f2m4f3e3a2.8","a2ef4n2f4i3b4i3f4n2f3e2a2.5a3","a3e2f4n3i5c2i5n3f4e2a2.4ag2a2",".a2e3hf4i3o2i4o2i3f4he3a2.4ae2a2",".2aeae2hfn2i3o2i4o2i3n2fhe2a2.5a2e2a2",".3a2e2n2f3i12f3n2e2a2.5a2e2a2",".5a2e3f2i12f2e3a2.6a2fe2a2",".6a2e2fi14fe2a2.7afe2a2.",".6a2ef2i14e3a2.6a2e2a2.2",".5a2e2f3i12f3e2a2.5a2e2a2.2",".4a2e2f4i12f4e2a2.4a2e2a2.2",".4a2e2f3i14f3e2a2.4a2e2a2.2",".3a2e2f4i14f4e2a2.3a2e2a2.2",".3a2e2f5i12f5e2a2.3a2e2a2.2",".2a2e2f7i10f7e2a2.2afe2a2.2",".2a2e2f6i12f6e2a5fe2a2.2",".2a2e2f8i8f8e2a3f2e2a2.3",".2a2e2f3i2f4i6f4i2f3e2a3f2e2a2.3",".2a2e2fi5ef3i4f3ei5e2aeafe2a2.5",".2a2pi6pae2i6e2api4pae6a2.5",".3a2p6a4ep4ea4p4a3e4a.7",".3a9.2a8.2a10.10",".4a8.2a8.2a10.10"]},"sleep":{"w":50,"h":26,"rows":[".19a14.17",".17a2ga2g4a2g4a2.16",".15a2g2dh2d4h2df3h2e2ga2.11",".13a2g2d2h3f3h3f3h3e3g2a2.9",".11a2g2d2fh3f3h3f3h3f4e2g2a2.7",".9a2g2d2f3h2f4h2f4h2f7e2g2a2.5",".4a2.3agd2f28e2g2.5",".3a3.2a2df31e3a2.3",".3ab2a4df32e2g2.3",".2a2cb2a3df34e2a2.",".2agdcb2agdf34e2ga.",".a2df2c2gdf2e2f31e3a2","a3df4dfe2a2ef31e2a2","a2df7e2a3ef30e2a2","a2dfk4f3e2a3df29e2a2","a2dfk4f3e3a2df28e3a2","a2pi3b2f4e2a2ef29e2a2","a3i3c2f3e2a2e4f27e2a2",".a2p2i6pa3e14f17e2a2",".3a2p6a3e17f13e3a2.",".3a10i2pa13e2f13e2a3.",".5a7i3pa14e3f9e3a2.3",".9a3pi2pa3.8a3e12a5.3",".11a2p2a2.12a2e10a4.5",".11a6.12a14.7",".12a4.14a12.8"]}}};
+const WALK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADQAAAAoCAYAAACxbNkLAAAWfmNhQlgAABZ+anVtYgAAAB5qdW1kYzJwYQARABCAAACqADibcQNjMnBhAAAAFlhqdW1iAAAAR2p1bWRjMm1hABEAEIAAAKoAOJtxA3VybjpjMnBhOjYyNDBjMGY5LTI3M2ItNGY1Ny1hZmQyLTBlNmIxMTYyMzA2NgAAAAOTanVtYgAAAClqdW1kYzJhcwARABCAAACqADibcQNjMnBhLmFzc2VydGlvbnMAAAAAuGp1bWIAAABEanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5pbmdyZWRpZW50LnYzAAAAABhjMnNomWobDby/dx7CvgbBy/yasAAAAGxjYm9yo2lkYzpmb3JtYXRpaW1hZ2UvcG5namluc3RhbmNlSUR4LHhtcDppaWQ6ODAxYmNhM2UtMzI4YS00M2U0LWI1NzctYjYzZmYwNzg1OGZmbHJlbGF0aW9uc2hpcGhwYXJlbnRPZgAAAeJqdW1iAAAAQWp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuYWN0aW9ucy52MgAAAAAYYzJzaPXyXv/hf6bV+Cu+y0ljCEwAAAGZY2JvcqJnYWN0aW9uc4KiZmFjdGlvbmtjMnBhLm9wZW5lZGpwYXJhbWV0ZXJzoWtpbmdyZWRpZW50c4GiY3VybHgtc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5pbmdyZWRpZW50LnYzZGhhc2hYIOTKi71mK3Ke8oioPwlAL0KAfE09E6TAnaDgGbTkdlw0pGZhY3Rpb254HWNvbS5hbnRocm9waWMuY2xhdWRlLnByb3ZpZGVkanBhcmFtZXRlcnOheB9jb20uYW50aHJvcGljLm9yaWdpbi1jb25maWRlbmNlZ3Vua25vd25rZGVzY3JpcHRpb254ZkNsYXVkZSBwcm92aWRlZCB0aGlzIGZpbGUgYXQgdGhlIHJlcXVlc3Qgb2YgYSB1c2VyIGFuZCBtYXkgaGF2ZSBjcmVhdGVkIG9yIG1vZGlmaWVkIHRoZSBmaWxlIGNvbnRlbnRzLm1zb2Z0d2FyZUFnZW50oWRuYW1lZkNsYXVkZXJhbGxBY3Rpb25zSW5jbHVkZWT1AAAAyGp1bWIAAABAanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5oYXNoLmRhdGEAAAAAGGMyc2jzo2dWaSPDJXUd9/i9ABPGAAAAgGNib3KlY2FsZ2ZzaGEyNTZjcGFkTQAAAAAAAAAAAAAAAABkaGFzaFggZ8DviONel1W8Vg7/yrYPsyQHgPVRMQoJg+IDWFEGHkJkbmFtZW5qdW1iZiBtYW5pZmVzdGpleGNsdXNpb25zgaJlc3RhcnQYIWZsZW5ndGgZFooAAAI+anVtYgAAACdqdW1kYzJjbAARABCAAACqADibcQNjMnBhLmNsYWltLnYyAAAAAg9jYm9ypWNhbGdmc2hhMjU2aXNpZ25hdHVyZXhNc2VsZiNqdW1iZj0vYzJwYS91cm46YzJwYTo2MjQwYzBmOS0yNzNiLTRmNTctYWZkMi0wZTZiMTE2MjMwNjYvYzJwYS5zaWduYXR1cmVqaW5zdGFuY2VJRHgseG1wOmlpZDozNWRhNGJiMC00ZjViLTRmMjctYmE5YS02YjhjNzJiNDc0OTlyY3JlYXRlZF9hc3NlcnRpb25zg6JjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFgg5MqLvWYrcp7yiKg/CUAvQoB8TT0TpMCdoOAZtOR2XDSiY3VybHgqc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5hY3Rpb25zLnYyZGhhc2hYIGH25RpvpRqybujV/X2DYsC9n+IJ6PlNTSKqhjbLkTL9omN1cmx4KXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaGFzaC5kYXRhZGhhc2hYIJI3ySkw+0BjOy2JZ9hZiZ6Dmc81ral8RUbDsE2PH9qVdGNsYWltX2dlbmVyYXRvcl9pbmZvo2RuYW1lb0FudGhyb3BpYyBGaWxlc2d2ZXJzaW9uZTEuMC4wa3NwZWNWZXJzaW9uZTIuNC4wAAAQOGp1bWIAAAAoanVtZGMyY3MAEQAQgAAAqgA4m3EDYzJwYS5zaWduYXR1cmUAAAAQCGNib3LShFkCEqIBJhghWQIKMIICBjCCAY2gAwIBAgIUQOWgCu7COdC+uIP6BkIFPWdVEwAwCgYIKoZIzj0EAwMwSTEXMBUGA1UEChMOQW50aHJvcGljLCBQQkMxLjAsBgNVBAMTJUFudGhyb3BpYyBDb250ZW50IENyZWRlbnRpYWxzIFJvb3QgQ0EwHhcNMjYwODA3MTg0MzU2WhcNMjgwODA2MTk0MzU2WjBEMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEpMCcGA1UEAxMgQW50aHJvcGljIENsYXVkZSBDb250ZW50IFNpZ25pbmcwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAASYegpry1AYBRTVNL1CpTlbROnY3dey+UrsF9C3phYrATN3ZHf93Mo8RQN0KOUuOn19P4oWNFWe5n2/She9N7eTo1gwVjAOBgNVHQ8BAf8EBAMCB4AwFQYDVR0lBA4wDAYKKwYBBAGD6F4CATAMBgNVHRMBAf8EAjAAMB8GA1UdIwQYMBaAFM5R4gSBTmRbI/jjxM+aPpzB11zCMAoGCCqGSM49BAMDA2cAMGQCMDFzHRSeAXrSy1WOzkbhPZ6Km2wGTmZ/2gK18k8BQGXyqz88Rdrz6CTX9flAnYNVxgIwcF9c3fVhqmJKpi+UhasNUMko69cyX6STPfta3Q8EjyzDjzoyrol46FP6VFHhvUcJoWNwYWRZDZ4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2WEB770wf2GlfC3ziJQj7FoS6ktHD5BIqBMtSVCJNMsDUVd4zp/aY+7qiXbazxArd+L30X2mfDYg2NSvCmWQ6QgZOTCllqwAAAuVJREFUeJztlzFoE1EYx38RJykErIuU0EKaDhmuDkqq1MXOUoqVunQR7NzRhGwtdXEX6iJkcYh0dalDGzFqh5pCwITaSnFrB6HgICUO57u8vHt393KXlBvuP+Xe+77vff/7/u/7LpAgQYIECRIkcJDPWJ18xuqE3b8ynLTCQU5Ul3TQPsSMEEB9rUR9rRR6PzaExBtvHB4BduJ+FZmz0lr5xYYQ2EnmsgcuUjp5LU1fMGelXTGuDj/NYIiEy48zAP9J2Xtq0oIs2KS2G7Z/86SRAgNC4jDhMCyoieeyBwCUsxnF0l5vt7p+243fzq6v5PIZqzNnpR29RszZ8wzoVscUuakJwK6SHCfwDi1NXzhOl4G93X32dvc9n3UQ1c1nrI4noaA5ECfILzwWTUHG7fu3tM93SnUAfv46ZHwsy9eNGXJTE7Rbxz32sWrbJhgfy/ruG1dI7SaXjddvZwB49sSu1PVHLwEoAGfNGlTWAR9CzZNGSr4ztk7TQLfnR0U/d/LLx1Mju8AKrVTO2VweAXpJmSZiAt3Ed+Vx8wYAz7+/6Vn/826Ha9KzLyFRiZWK1XGTsiFkqCbVz7rpDBIykyF/OQAYSUdIY3N5hJXKObVXD529T1tbANxdWOjxCVpXu1kQVDI/6jsALDzdcNaaJ42UUVMQ90mQ+Xt65LLRrfmtm0JXlbNmzZWf+B2bOSTmifik0REBm8yDxXXPOLEhJNBuHTukVKhkdN3WuP3K98jrwKiQp35uasJVJZmQ1+gI9aWgfm4MCoN4UbGTnB+p0fws35rvRaW0/9NCE/LTelR4NQQTRKpQu3VMoViNEqJvBN2jyJJTZ4LAaH7WyC7IT/UNagqRCE3Or7oOkLshQKFYNepOsp9cdeGrxq+V7nV08UN1uUKxaiS1sHL8/GIRCB6iOvRdocn51YHa6fx0sjO16+t/jSj3h2oZ8Nazqd2g44cmpMLrwCC7YcTv6w7pEoqyNoz4/wB0lILtA3Rm1gAAAABJRU5ErkJggg==';
+
+/* ---------- Newton's sprites, decoded from Kitty Trivia's run-length rows ---------- */
+const FR = {};
+for (const name in SPR.f) {
+  const { w, h, rows } = SPR.f[name];
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const g = c.getContext('2d');
+  rows.forEach((row, y) => { let x = 0; for (const m of row.matchAll(/(\D)(\d*)/g)) { const n = m[2] ? +m[2] : 1; if (m[1] !== '.') { g.fillStyle = SPR.p[m[1]]; g.fillRect(x, y, n, 1); } x += n; } });
+  FR[name] = { src: c.toDataURL(), w, h };
+}
+FR.walk = { src: WALK, w: 52, h: 40 };
+
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $ = (id) => document.getElementById(id);
+const vp = $('vp'), wrap = $('wrap'), ntEl = $('newton'), ntBody = $('ntBody'), ntImg = $('ntImg'), cursor = $('cursor');
+const fx = $('fx'), fxg = fx.getContext('2d');
+
+/* ---------- small helpers ---------- */
+function h(tag, cls, html, parent, style) { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; if (style) Object.assign(e.style, style); if (parent) parent.appendChild(e); return e; }
+function abs(el, x, y, w, hh) { Object.assign(el.style, { position: 'absolute', left: x + 'px', top: y + 'px' }); if (w) el.style.width = w + 'px'; if (hh) el.style.height = hh + 'px'; return el; }
+const SPRING = 'linear(0, 0.22 6%, 0.86 16%, 1.13 25%, 1.07 33%, 0.97 43%, 1.01 57%, 1)';
+const BOUNCE = 'linear(0, 0.36 18%, 1 36%, 0.82 48%, 1 60%, 0.94 70%, 1 80%, 0.985 90%, 1)';
+function A(el, k, o = {}) {
+  return el.animate(k, { duration: RM ? 1 : (o.duration ?? 500), delay: o.delay || 0, easing: o.easing || 'cubic-bezier(.2,.8,.2,1)', fill: o.fill || 'both', iterations: RM ? 1 : (o.iterations || 1), direction: o.direction || 'normal' });
+}
+const pop = (el, delay = 0, dur = 650) => A(el, [{ transform: 'scale(.2)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }], { delay, duration: dur, easing: SPRING });
+const rise = (el, delay = 0, dist = 26, dur = 600) => A(el, [{ transform: `translateY(${dist}px)`, opacity: 0 }, { transform: 'translateY(0)', opacity: 1 }], { delay, duration: dur });
+const slideIn = (el, delay = 0, dx = 60, dur = 650) => A(el, [{ transform: `translateX(${dx}px)`, opacity: 0 }, { transform: 'translateX(0)', opacity: 1 }], { delay, duration: dur, easing: SPRING });
+const fadeOut = (el, delay = 0, dur = 300) => A(el, [{ opacity: 1 }, { opacity: 0 }], { delay, duration: dur });
+const wipe = (el, delay = 0, dur = 700) => A(el, [{ clipPath: 'inset(0 100% 0 0 round 12px)' }, { clipPath: 'inset(0 0 0 0 round 12px)' }], { delay, duration: dur, easing: 'cubic-bezier(.7,0,.2,1)' });
+const tickSvg = () => '<svg class="tick" viewBox="0 0 24 24"><path pathLength="1" d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+const drawTick = (svg, delay = 0) => A(svg.querySelector('path'), [{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { delay, duration: 420, easing: 'ease-out' });
+const LOGO = (fill = 'var(--logo, var(--green))', stroke = '#fff') => `<svg viewBox="0 0 32 32" aria-hidden="true"><rect x="1" y="1" width="30" height="30" rx="7" fill="${fill}"/><path d="M21.75 11.18A7.5 7.5 0 1 0 21.75 20.82" fill="none" stroke="${stroke}" stroke-width="2.6" stroke-linecap="round"/><circle cx="23" cy="16" r="1.75" fill="#d2ad6a"/></svg>`;
+function scale() { const r = vp.getBoundingClientRect(); return r.width / 800; }
+function posOf(el, ax = .5, ay = .5) { const s = scale(), v = vp.getBoundingClientRect(), r = el.getBoundingClientRect(); return { x: (r.left - v.left + r.width * ax) / s, y: (r.top - v.top + r.height * ay) / s }; }
+function win(p, title, o = {}) {
+  const x = o.x ?? 188, y = o.y ?? 22, w = o.w ?? 592, hh = o.h ?? 436;
+  const el = abs(h('div', 'win', null, p), x, y, w, hh);
+  h('div', 'win-bar', `<span class="dots"><i></i><i></i><i></i></span><span class="brand">${LOGO()}${BRAND_NAME}</span><span class="win-title">${title}</span>`, el);
+  const body = h('div', 'win-body', null, el);
+  return { el, body };
+}
+
+/* ---------- sound (off until the viewer turns it on) ---------- */
+let AC = null, soundOn = false;
+function tone(f1, f2, dur, type = 'sine', vol = .08, when = 0) {
+  if (!soundOn || !AC) return;
+  const t0 = AC.currentTime + when, o = AC.createOscillator(), g = AC.createGain();
+  o.type = type; o.frequency.setValueAtTime(f1, t0); o.frequency.exponentialRampToValueAtTime(f2, t0 + dur);
+  g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(vol, t0 + .012); g.gain.exponentialRampToValueAtTime(.0001, t0 + dur);
+  o.connect(g).connect(AC.destination); o.start(t0); o.stop(t0 + dur + .02);
+}
+const sfx = {
+  pop: () => tone(420, 900, .12),
+  tick: () => tone(1700, 1500, .03, 'square', .015),
+  click: () => tone(900, 600, .05, 'triangle', .06),
+  stamp: () => { tone(160, 60, .22, 'sine', .22); tone(90, 50, .3, 'triangle', .1); },
+  chime: () => { tone(660, 660, .3, 'sine', .07); tone(990, 990, .4, 'sine', .06, .12); },
+  meow: () => { tone(650, 1050, .14, 'triangle', .06); tone(1050, 560, .26, 'triangle', .06, .14); },
+  whoosh: () => tone(300, 1400, .35, 'sawtooth', .02),
+  coin: () => { tone(1300, 1300, .08, 'square', .03); tone(1950, 1950, .2, 'square', .025, .07); },
+};
+
+/* ---------- the clock: scene time only moves while playing, so pausing freezes everything ---------- */
+let cur = 0, t = 0, playing = false, lastNow = performance.now(), actions = [], typers = [], layer = null, sceneTalkUntil = 0;
+const at = (ms, fn) => actions.push({ at: ms, fn, done: false });
+const later = (ms, fn) => at(t + ms, fn);
+function type(el, text, start, cps = 26, cb) { typers.push({ el, text, start, cps, cb, done: false }); }
+
+/* Newton */
+const nt = { x: 36, y: 336, flip: false, walking: false, face: null, nextIdle: 2500, idleFace: null, idleUntil: 0, sleeping: false };
+function setFrame(name) { const f = FR[name]; if (ntImg.dataset.f === name) return; ntImg.dataset.f = name; ntImg.src = f.src; ntImg.style.width = f.w * 3 + 'px'; ntImg.style.height = f.h * 3 + 'px'; }
+function placeNewton(x, y) { ntEl.getAnimations().forEach(a => a.cancel()); ntBody.getAnimations().forEach(a => a.cancel()); nt.x = x; nt.y = y; ntEl.style.transform = `translate(${x}px,${y}px)`; nt.walking = false; ntBody.classList.remove('flip'); aimTail(); }
+function moveNewton(x, y, dur = 1200) {
+  const fx0 = nt.x, fy0 = nt.y;
+  ntEl.getAnimations().forEach(a => { a.commitStyles?.(); a.cancel(); });
+  ntBody.classList.toggle('flip', x < fx0);
+  nt.walking = true; nt.x = x; nt.y = y;
+  const dist = Math.hypot(x - fx0, y - fy0), hops = Math.max(2, Math.round(dist / 80));
+  A(ntEl, [{ transform: `translate(${fx0}px,${fy0}px)` }, { transform: `translate(${x}px,${y}px)` }], { duration: dur, easing: 'ease-in-out', fill: 'forwards' });
+  A(ntBody, [
+    { transform: 'translateY(0) scale(1,1)' }, { transform: 'translateY(-2px) scale(1.07,.9)', offset: .12 },
+    { transform: 'translateY(-24px) scale(.95,1.06)', offset: .5 }, { transform: 'translateY(0) scale(1.08,.9)', offset: .88 }, { transform: 'translateY(0) scale(1,1)' }
+  ], { duration: dur / hops, iterations: hops, fill: 'none', easing: 'linear' });
+  later(dur, () => { nt.walking = false; ntBody.classList.remove('flip'); aimTail(); });
+  aimTail(x);
+}
+function hopInPlace(n = 2) { A(ntBody, [{ transform: 'translateY(0) scale(1,1)' }, { transform: 'translateY(-30px) scale(.94,1.08)', offset: .45 }, { transform: 'translateY(0) scale(1.1,.88)', offset: .85 }, { transform: 'translateY(0) scale(1,1)' }], { duration: 480, iterations: n, fill: 'none', easing: 'ease-out' }); }
+function aimTail(x = nt.x) { $('tail').style.left = `calc(${((x + 66) / 800 * 100).toFixed(1)}% - 12px)`; }
+
+/* Speech */
+function say(text, face) { const p = $('say'); p.textContent = ''; const span = h('span', null, '', p); h('span', 'caret', '', p); typers = typers.filter(ty => ty.el !== span && ty.el.parentNode); type(span, text, t, RM ? 9999 : 34, () => { p.querySelector('.caret')?.remove(); }); if (face) nt.face = face; sfx.meow(); }
+
+/* Pointer + "look here" ring */
+function cursorTo(x, y, dur = 700) { cursor.getAnimations().forEach(a => { a.commitStyles?.(); a.cancel(); }); const cs = getComputedStyle(cursor).transform; A(cursor, [{ transform: cs === 'none' ? 'translate(820px,500px)' : cs, opacity: 1 }, { transform: `translate(${x - 3}px,${y - 2}px)`, opacity: 1 }], { duration: dur, easing: 'cubic-bezier(.5,0,.2,1)', fill: 'forwards' }); }
+function cursorAt(el, dur) { const p = posOf(el); cursorTo(p.x, p.y, dur); return p; }
+function clickAt(p) { sfx.click(); const r = abs(h('div', 'ripple', '', layer), p.x, p.y); A(r, [{ transform: 'scale(.4)', opacity: 1 }, { transform: 'scale(3.2)', opacity: 0 }], { duration: 520, easing: 'ease-out' }); A(cursor, [{ scale: '1' }, { scale: '.82' }, { scale: '1' }], { duration: 200, fill: 'none' }); }
+function hideCursor() { cursor.getAnimations().forEach(a => a.cancel()); cursor.style.transform = 'translate(820px,500px)'; }
+function look(el) { const p = posOf(el); const r = abs(h('div', 'look', '', layer), p.x, p.y); A(r, [{ transform: 'scale(.5) rotate(0)', opacity: 0 }, { transform: 'scale(1.15) rotate(60deg)', opacity: 1, offset: .4 }, { transform: 'scale(1) rotate(120deg)', opacity: 0 }], { duration: 1400, iterations: 2 }); }
+
+/* Confetti and dust on the shared canvas */
+const parts = [];
+const CONF = ['#2c6a4f', '#e9903f', '#d2ad6a', '#6cb891', '#b4322a', '#1f3b6e'];
+function confetti(x, y, n = 70, spread = 1) { if (RM) return; for (let i = 0; i < n; i++) { const a = -Math.PI / 2 + (Math.random() - .5) * 2.2 * spread, v = 5 + Math.random() * 7; parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, r: Math.random() * 6.28, vr: (Math.random() - .5) * .4, w: 6 + Math.random() * 6, hh: 4 + Math.random() * 5, c: CONF[i % CONF.length], life: 1, g: .22, kind: 'c' }); } }
+function dust(x, y, n = 16) { if (RM) return; for (let i = 0; i < n; i++) { const a = Math.random() * 6.28, v = 1.5 + Math.random() * 3; parts.push({ x, y, vx: Math.cos(a) * v * 1.6, vy: Math.sin(a) * v * .5, r: 0, vr: 0, w: 3 + Math.random() * 5, hh: 0, c: 'rgba(120,140,128,.55)', life: 1, g: -.02, kind: 'd' }); } }
+function stepFx(dt) {
+  fxg.clearRect(0, 0, 800, 480);
+  for (let i = parts.length - 1; i >= 0; i--) {
+    const p = parts[i], k = dt / 16.7; p.x += p.vx * k; p.y += p.vy * k; p.vy += p.g * k; p.vx *= .99; p.r += p.vr * k; p.life -= (p.kind === 'd' ? .025 : .006) * k;
+    if (p.life <= 0 || p.y > 520) { parts.splice(i, 1); continue; }
+    fxg.globalAlpha = Math.max(0, Math.min(1, p.life * 1.5)); fxg.fillStyle = p.c;
+    if (p.kind === 'd') { fxg.beginPath(); fxg.arc(p.x, p.y, p.w * (1.4 - p.life), 0, 6.28); fxg.fill(); }
+    else { fxg.save(); fxg.translate(p.x, p.y); fxg.rotate(p.r); fxg.scale(1, Math.cos(p.r * 2)); fxg.fillRect(-p.w / 2, -p.hh / 2, p.w, p.hh); fxg.restore(); }
+  }
+  fxg.globalAlpha = 1;
+}
+
+/* Rolling digits for a matter number */
+function slot(parent, text) {
+  const el = h('div', 'slot', '', parent); const cols = [];
+  for (const ch of text) { if (/\d/.test(ch)) { const c = h('span', 'col', '', el), inner = h('div', null, '', c); for (let r = 0; r < 3; r++) for (let d = 0; d < 10; d++) h('span', null, String(d), inner); cols.push({ inner, d: +ch }); } else h('span', null, ch, el); }
+  return { el, roll(delay = 0) { cols.forEach((c, i) => A(c.inner, [{ transform: 'translateY(0)' }, { transform: `translateY(${-(20 + c.d) * 40}px)` }], { delay: delay + i * 70, duration: 1300, easing: SPRING })); } };
+}
+
+/* ---------- the scenes ---------- */
+const BRAND_NAME = "Conflion";
+/* Scenes both tours share, built from a small config so each tour speaks only about its own product. */
+const svgEl = (tag, attrs, parent) => { const e = document.createElementNS('http://www.w3.org/2000/svg', tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+function localScene(L, c) {
+  const svg = svgEl('svg', { viewBox: '0 0 800 480', width: 800, height: 480, class: 'lines' }); L.appendChild(svg);
+  const house = abs(h('div', 'house', '', L), 190, 30, 420, 330); A(house, [{ clipPath: 'inset(0 100% 0 0 round 26px)' }, { clipPath: 'inset(0 0 0 0 round 26px)' }], { duration: 900, easing: 'cubic-bezier(.7,0,.2,1)' });
+  const lab = abs(h('div', 'chip', c.place, L), 214, 16); lab.style.background = 'var(--surface)'; pop(lab, 600);
+  const spots = [[300, 90], [500, 90], [300, 230], [500, 230]];
+  const nodes = c.nodes.map(([a, b], i) => { const d = abs(h('div', 'node', `<b>${a}</b><small>${b}</small>`, L), spots[i][0] - 85, spots[i][1], 170); pop(d, 900 + i * 220); at(900 + i * 220, sfx.pop); return d; });
+  const loop = "path('M 300 130 C 400 70, 500 70, 500 130 C 560 200, 560 230, 500 270 C 400 320, 300 320, 300 270 C 240 230, 240 200, 300 130 Z')";
+  for (let i = 0; i < 6; i++) { const o = h('div', 'orbit', '', L); o.style.offsetPath = loop; A(o, [{ offsetDistance: '0%' }, { offsetDistance: '100%' }], { delay: 1800 + i * 500, duration: 6000, iterations: 3, easing: 'linear' }); o.style.opacity = '.85'; }
+  const cloud = abs(h('div', 'cloud', c.cloud + '<div class="cross"></div>', L), 650, 150); rise(cloud, 3600);
+  const pk = h('div', 'packet', '', L); pk.style.opacity = '0';
+  at(4600, () => { pk.style.opacity = '1'; pk.style.offsetPath = "path('M 500 190 C 560 160, 600 160, 640 180')"; A(pk, [{ offsetDistance: '0%' }, { offsetDistance: '100%', offset: .55 }, { offsetDistance: '0%' }], { duration: 1500, easing: 'ease-in-out', fill: 'forwards' }); sfx.whoosh(); });
+  at(5400, () => { A(cloud.querySelector('.cross'), [{ '--k': 0 }, { '--k': 1 }], { duration: 1, fill: 'forwards' }); cloud.querySelector('.cross').style.setProperty('--k', 1); A(cloud, [{ transform: 'translateX(0)' }, { transform: 'translateX(-6px)' }, { transform: 'translateX(6px)' }, { transform: 'none' }], { duration: 300, fill: 'none' }); sfx.stamp(); });
+  const ch = abs(h('div', null, '', L), 190, 380, 590); Object.assign(ch.style, { display: 'flex', gap: '8px', flexWrap: 'wrap' });
+  c.chips.forEach((x, i) => { const e = h('span', 'chip', x, ch); rise(e, 7000 + i * 300, 10); });
+  at(300, () => say(c.say1)); at(6800, () => say(c.say2, 'happy'));
+}
+function whyScene(L, c) {
+  h('div', 'h2', c.head, L, { position: 'absolute', left: '190px', top: '26px', fontSize: '30px' });
+  const list = abs(h('div', 'why-list', '', L), 190, 80, 590);
+  c.rows.forEach(([ic, a, b], i) => {
+    const r = h('div', 'why-row', `<span class="ic">${ic}</span><div><b>${a}</b><small>${b}</small></div><span style="margin-left:auto">${tickSvg()}</span>`, list);
+    A(r, [{ transform: 'translateX(120px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { delay: 600 + i * 650, duration: 700, easing: SPRING });
+    A(r.querySelector('.ic'), [{ transform: 'scale(0) rotate(-90deg)' }, { transform: 'none' }], { delay: 900 + i * 650, duration: 600, easing: SPRING });
+    drawTick(r, 1100 + i * 650); at(900 + i * 650, sfx.pop);
+  });
+  at(300, () => say(c.say1)); at(c.at2 || 6400, () => say(c.say2, 'happy'));
+}
+/* One complicated matter, start to finish: the forms-off run of scripts/matter-walkthrough.ts, told by Newton.
+   Every screen is one still, whole view; things appear, tick and fill in inside it, and nothing zooms or pans.
+   All names are made up. */
+const SECTIONS = [
+  ['Welcome', [0, 1]], ['Intake', [2, 3]], ['Conflicts', [4, 5, 6]], ['Approvals and opening', [7, 8, 9]],
+  ['Waivers, screens and letters', [10, 11, 12, 13, 14]], ['Working the matter', [15, 16, 17]], ['AI tools', [18]],
+  ['Client portal and re-checks', [19, 20]], ['Money', [21, 22, 23, 24, 25, 26]], ['Closing', [27, 28]],
+];
+const WHO = {
+  P: ['Priya Raman', '#1f3b6e', 'PR'], D: ['Dana Whitfield', '#2c6a4f', 'DW'], M: ['Marcus Bell', '#8a5a12', 'MB'], R: ['Rosa Delgado', '#5b3a6b', 'RD'],
+  S: ['Sam Ortiz', '#1f6f78', 'SO'], E: ['Elena Sorensen', '#b4322a', 'ES'], T: ['Rita Okonkwo', '#3c4148', 'RO'],
+};
+const who = (k, extra = '') => `<span class="who" style="--c:${WHO[k][1]}"><i>${WHO[k][2]}</i>${WHO[k][0]}${extra}</span>`;
+const show = (el, delay = 0, d = 10) => rise(el, delay, d, 450);
+const tag = (p, text, cls = 'b-lo', style) => h('span', 'badge ' + cls, text, p, style);
+/* A result row with a coloured left edge (custom properties can't go through Object.assign). */
+const resRow = (p, html, c, style) => { const e = h('div', 'res', html, p, style); e.style.setProperty('--c', c); return e; };
+function screen(L, title, head, sub) {
+  const { el, body } = win(L, title); rise(el, 0, 18);
+  if (head) h('div', 'h2', head, body, { fontSize: '22px' });
+  if (sub) h('div', 'sub', sub, body, { marginBottom: '10px' });
+  return body;
+}
+/* A table whose rows are their own grids, so each row can appear on its own. A cell starting with ">" is right-aligned. */
+function table(p, cols, head, rows, style) {
+  const t = h('div', 'tb', '', p, style);
+  const mk = (cells, cls) => { const r = h('div', 'tr' + (cls ? ' ' + cls : ''), cells.map(c => (String(c).startsWith('>') ? `<div class="r">${String(c).slice(1)}</div>` : `<div>${c}</div>`)).join(''), t); r.style.gridTemplateColumns = cols; return r; };
+  if (head) mk(head, 'th');
+  return { el: t, rows: rows.map(r => mk(r)) };
+}
+const tickOn = (p, delay) => { const s = h('span', null, tickSvg(), p, { marginLeft: 'auto', display: 'inline-flex' }); drawTick(s, delay); return s; };
+
+const SCENES = [
+  /* 0 */ { title: 'Hello', nt: [60, 330], dur: 7500,
+    build(L, rest) {
+      const tile = h('div', 'title-tile', LOGO(), L);
+      const word = h('div', 'title-word', 'One matter', L); word.style.fontSize = '64px';
+      const sub = h('div', 'title-sub', '<span class="pill">Start to finish</span><em>at Ashford &amp; Vale, with Newton</em>', L);
+      if (rest) {
+        const b = h('button', 'play-big', '<svg width="16" height="16" viewBox="0 0 16 16"><path d="M4 2.5v11l9.5-5.5z" fill="currentColor"/></svg>Play the walkthrough', L);
+        b.addEventListener('click', () => { unlockAudio(); play(); });
+        $('say').textContent = "Hi, I'm Newton! Let's follow one complicated matter through Conflion, from the first form to the closed file. Press play, or pick a part from the menu.";
+        return;
+      }
+      A(tile, [{ transform: 'translateY(-200px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 900, easing: BOUNCE });
+      rise(word, 700, 30, 700); rise(sub, 1400);
+      at(400, sfx.pop);
+      at(300, () => say("Hi, I'm Newton! Let's follow one complicated matter through Conflion, from the first form all the way to the closed file.", 'happy'));
+      at(2600, () => confetti(400, 200, 50));
+      at(4800, () => hopInPlace(2));
+    } },
+
+  /* 1 */ { title: 'Meet the matter', nt: [36, 336], dur: 13500,
+    build(L) {
+      const b = screen(L, 'Matter overview', 'Tessaline Maritime v. Kestrel Farms Group', 'Cargo loss and joint venture dissolution · Litigation');
+      const g = h('div', 'cast', '', b);
+      const cards = [
+        ['New clients', 'Tessaline Maritime Holdings Inc. and its founder, Ines Varga-Holt, together'],
+        ['The other side', 'Kestrel Farms Group, Inc., a current client of the firm'],
+        ['Also adverse', 'Vantage Biotech Ltd., a former client'],
+        ['Also named', 'Korvath Maritime Trading FZE and Brightmoor Health Plan'],
+      ].map(([a, c], i) => { const d = h('div', 'big', `<b>${a}</b><small style="font-size:13px">${c}</small>`, g); show(d, 600 + i * 350); return d; });
+      const team = h('div', null, '', b, { display: 'flex', flexWrap: 'wrap', gap: '6px 14px', marginTop: '10px' });
+      [['P', ' · lawyer'], ['M', ' · partner'], ['R', ' · secretary'], ['D', ' · conflicts'], ['E', ' · general counsel'], ['S', ' · admin and billing']].forEach(([k, r], i) => { const e = h('span', null, who(k, `<span style="color:var(--muted);font-weight:500">${r}</span>`), team); show(e, 3800 + i * 200); });
+      const fee = h('div', 'facts', '<div><b>Fee estimate</b>$450,000, hourly · <b>Court</b>Superior Court, County of Bayport</div>', b, { marginTop: '10px' });
+      show(fee, 6400);
+      at(300, () => say('Here is our matter. Two new clients, a current client and a former client on the other side, and a company that sounds a lot like a sanctions listing.'));
+      at(7200, () => say('Add a partner with a seat on the other side\'s board and some health records, and it touches nearly every part of Conflion.'));
+    } },
+
+  /* 2 */ { title: 'A draft becomes a request', nt: [36, 336], dur: 13000,
+    build(L) {
+      const b = screen(L, 'New intake', 'New business intake', 'Rosa prepares it for Priya; Priya sends it.');
+      const kv = h('div', 'kv', '', b);
+      const rows = [['Client', 'Tessaline Maritime Holdings Inc.'], ['Co-client', 'Ines Varga-Holt (founder)'], ['Matter', 'Cargo loss and joint venture dissolution'], ['Responsible', 'Priya Raman'], ['Fee estimate', '$450,000 · Hourly'], ['Health data', 'Yes'], ['Parties', '6 names']];
+      rows.forEach(([k, v], i) => { const a = h('span', null, k, kv), c = h('span', null, '', kv); show(a, 300 + i * 160, 6); type(c, v, 400 + i * 160, 60); });
+      const st = h('div', null, '', b, { display: 'flex', gap: '10px', alignItems: 'center', marginTop: '10px' });
+      const draft = h('span', 'chip', `${who('R')} saved a draft`, st); show(draft, 2600);
+      const send = h('span', 'gbtn', 'Send to conflicts', st); show(send, 3400);
+      at(4600, () => { cursorAt(send, 600); });
+      at(5300, () => { clickAt(posOf(send)); hideCursor(); });
+      const done = h('div', 'dtn', '<div class="eyebrow">Sent</div><h3 style="margin:2px 0 0;min-height:0">NBI-1045 · in conflicts review · 2 hits found</h3>', b, { marginTop: '10px', padding: '8px 14px' });
+      wipe(done, 5600, 600); at(5600, sfx.chime);
+      at(300, () => say('Rosa, Priya\'s secretary, fills in the intake and saves it as a draft for her.'));
+      at(5400, () => say('Priya checks it and sends it. It becomes request NBI-1045, and the conflicts search has already run.'));
+    } },
+
+  /* 3 */ { title: 'The route builds itself', nt: [36, 336], dur: 13000,
+    build(L) {
+      const b = screen(L, 'NBI-1045 · Approvals', 'Who has to approve', 'Built from the firm\'s rules and the answers on the form.');
+      const steps = [['Conflicts analyst', 'every request'], ['Practice group leader', 'every request'], ['Finance / credit', 'new client over $100,000'], ['Privacy officer', 'health information in the matter'], ['General counsel', 'fee estimate over $250,000']];
+      const t = table(b, '30px 1fr 1.2fr', ['', 'Step', 'Why it is on the route'], steps.map(([s, w], i) => [`<span class="num">${i + 1}</span>`, `<b>${s}</b>`, w]));
+      t.rows.forEach((r, i) => { show(r, 600 + i * 600); at(600 + i * 600, sfx.tick); });
+      [2, 3, 4].forEach((k, i) => at(4200 + i * 400, () => { t.rows[k].classList.add('hl'); }));
+      at(300, () => say('Conflion builds the approval route on its own. Every request goes to the conflicts team and a practice group leader.'));
+      at(5000, () => say('This one is a new client, carries health records and has a big fee, so finance, the privacy officer and the general counsel join the route too.'));
+    } },
+
+  /* 4 */ { title: 'What the search found', nt: [36, 336], dur: 14000,
+    build(L) {
+      const b = screen(L, 'NBI-1045 · Conflicts review', 'What the search found', 'Two hits, a sanctions match and a lawyer\'s declared interest.');
+      const items = [
+        ['b-hi', 'Current client', 'Kestrel Farms Group, Inc.', 'Open matter 010031.0001, directly adverse'],
+        ['b-mid', 'Former client', 'Vantage Biotech Ltd.', 'Closed matter 010001.0001'],
+        ['b-hi', 'Sanctions list', 'Korvath Maritime Trading FZE', 'Matches an entry on the firm\'s watch list'],
+        ['b-mid', 'Lawyer\'s interest', 'Marcus Bell', 'Board seat at Kestrel Farms, a declared relationship (Rule 1.7(b))'],
+      ];
+      const g = h('div', null, '', b, { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' });
+      items.forEach(([c, k, n, d], i) => { const r = resRow(g, `<div><span class="badge ${c}">${k}</span><b style="display:block;margin-top:6px;font-size:15px">${n}</b><small>${d}</small></div>`, c === 'b-hi' ? 'var(--hi)' : 'var(--mid)', { padding: '10px 12px', alignItems: 'flex-start', minHeight: '118px' }); show(r, 700 + i * 700); at(700 + i * 700, sfx.pop); });
+      at(300, () => say('The search checked every party against everything the firm knows. Four things need a person\'s attention.'));
+      at(5600, () => say('A current client on the other side, a former client, a sanctions look-alike, and Marcus\'s seat on the other side\'s board.'));
+    } },
+
+  /* 5 */ { title: 'AI suggests, Dana decides', nt: [36, 336], dur: 15000,
+    build(L) {
+      const b = screen(L, 'NBI-1045 · Hits', 'Each hit, decided by a person', 'The firm\'s local AI model suggests; Dana makes every call.');
+      const t = table(b, '1.25fr 1.15fr 1.3fr', ['Hit', 'AI suggestion', 'Dana\'s decision'], [
+        ['Kestrel Farms Group, Inc.', '<span class="ai">✦</span> conflict', ''],
+        ['Vantage Biotech Ltd.', '<span class="ai">✦</span> same company', ''],
+        ['Korvath Maritime FZE', '—', ''],
+        ['Marcus Bell\'s board seat', '—', ''],
+      ]);
+      t.rows.forEach((r, i) => show(r, 500 + i * 250));
+      const dec = [['Waiver: Rule 1.7(a)(1)', 'b-mid'], ['Screen: Rule 1.9', 'b-mid'], ['False positive', 'b-lo'], ['Disclosed in writing', 'b-lo']];
+      dec.forEach(([d, c], i) => at(4200 + i * 900, () => { const cell = t.rows[i].children[2]; const e = tag(cell, d, c); pop(e, 0, 450); sfx.stamp(); }));
+      at(3000, () => { const n = h('span', 'chip', 'accepted', t.rows[0].children[1], { marginLeft: '6px', fontSize: '12.5px', padding: '1px 7px' }); pop(n, 0, 400); });
+      at(3500, () => { t.rows[1].children[1].innerHTML = '<span class="strike"><span class="ai">✦</span> same company</span> rejected'; sfx.tick(); });
+      const q = h('div', 'dtn', '<div class="eyebrow">Clearance question</div><div style="font-size:14px">"Did you work on the earlier matter for this company?" · Answer: <b>no objection</b></div>', b, { marginTop: '12px', padding: '9px 14px' });
+      wipe(q, 8600, 600);
+      at(300, () => say('The firm\'s own AI model looks at the hits first and leaves a suggestion, marked with a star. It never decides anything.'));
+      at(4200, () => say('Dana accepts one suggestion, rejects another, and records a decision and a reason for every hit.'));
+      at(8800, () => say('She also asks the lawyers on the old matter if they worked on it. The answer comes back: no objection.'));
+    } },
+
+  /* 6 */ { title: 'Routing around a conflicted partner', nt: [36, 336], dur: 13500,
+    build(L) {
+      const svg = svgEl('svg', { viewBox: '0 0 800 480', width: 800, height: 480, class: 'lines' }); L.appendChild(svg);
+      const head = abs(h('div', 'h2', 'Practice group leader step', L), 200, 30); head.style.fontSize = '24px';
+      const a = abs(h('div', 'node', '<b>Conflicts analyst</b><small>Dana Whitfield · signed off</small>', L), 200, 100, 170); show(a, 300);
+      const m = abs(h('div', 'node', '<b>Marcus Bell</b><small>usual practice group leader</small>', L), 420, 100, 170); show(m, 900);
+      const e = abs(h('div', 'node', '<b>Elena Sorensen</b><small>alternate approver</small>', L), 420, 260, 170); e.style.opacity = '0';
+      const nx = abs(h('div', 'node', '<b>Finance, privacy, GC</b><small>next on the route</small>', L), 620, 180, 150); show(nx, 1200);
+      const l1 = svgEl('path', { d: 'M 370 140 L 420 140', pathLength: 1, class: 'ln' }, svg); A(l1, [{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { delay: 1300, duration: 400 });
+      at(2800, () => { const f = abs(h('div', 'badge b-hi', 'Recorded interest in a party on this form', L), 420, 66); pop(f, 0, 450); A(m, [{ opacity: 1 }, { opacity: .4 }], { delay: 300, duration: 400, fill: 'forwards' }); sfx.chime(); });
+      at(4400, () => { e.style.opacity = '1'; pop(e, 0, 500); const d = svgEl('path', { d: 'M 370 150 C 395 200, 395 300, 420 300', pathLength: 1, class: 'ln alt' }, svg); A(d, [{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { duration: 600 }); const d2 = svgEl('path', { d: 'M 590 300 C 610 300, 610 220, 620 220', pathLength: 1, class: 'ln alt' }, svg); A(d2, [{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { delay: 600, duration: 500 }); sfx.pop(); });
+      const chips = abs(h('div', null, '', L), 200, 380, 580); Object.assign(chips.style, { display: 'flex', gap: '8px', flexWrap: 'wrap' });
+      ['Marcus cannot approve this request', 'Both are told why', 'The audit trail records it'].forEach((c, i) => { const x = h('span', 'chip', c, chips); show(x, 6600 + i * 300); });
+      at(300, () => say('Next stop is the practice group leader. Normally that is Marcus, but he sits on the other side\'s board.'));
+      at(4400, () => say('So Conflion takes him off this step and sends it to the alternate, Elena. Marcus can\'t approve it even if he tries.'));
+    } },
+
+  /* 7 */ { title: 'Approved, with a condition', nt: [36, 336], dur: 13000,
+    build(L) {
+      const b = screen(L, 'NBI-1045 · Approvals', 'Every step signed off', '');
+      const rows = [['Conflicts analyst', 'Dana Whitfield', 'Waiver and screen to follow'], ['Practice group leader', 'Elena Sorensen, as alternate', 'Approved'], ['Finance / credit', 'Sam Ortiz, as delegate', 'Approved'], ['Privacy officer', 'Sam Ortiz', 'Approved'], ['General counsel', 'Elena Sorensen', 'Approved with a condition']];
+      const t = table(b, '1fr 1.15fr 1.15fr', ['Step', 'By', 'Result'], rows);
+      t.rows.forEach((r, i) => { show(r, 400 + i * 550); at(400 + i * 550, sfx.tick); });
+      const c = h('div', 'dtn', '<div class="eyebrow">Condition from the general counsel</div><h3 style="margin:2px 0 0">Retainer of $50,000 in trust before substantive work</h3>', b, { marginTop: '12px' });
+      wipe(c, 3800, 600); at(3800, sfx.chime);
+      const ok = h('div', null, '', b, { marginTop: '10px' }); const st = tag(ok, 'Approved: ready to open', 'b-lo'); pop(st, 6000, 500);
+      at(300, () => say('The rest of the route moves quickly. Sam signs for finance as the delegate, then for privacy.'));
+      at(3800, () => say('The general counsel approves with a condition: a $50,000 retainer goes into trust before the real work starts.'));
+    } },
+
+  /* 8 */ { title: 'Open now, bill later', nt: [36, 336], dur: 14000,
+    build(L) {
+      const b = screen(L, 'Open the matter', '', '');
+      const row = h('div', null, '', b, { display: 'flex', alignItems: 'center', gap: '14px' });
+      const sl = slot(row, '011072.0001'); sl.roll(500); at(500, sfx.whoosh);
+      tag(row, 'Open · billing on hold', 'b-mid');
+      const cols = h('div', null, '', b, { display: 'grid', gridTemplateColumns: '1.25fr 1fr', gap: '12px', marginTop: '12px' });
+      const holds = h('div', 'pane', '<h4>Billing waits for</h4>', cols);
+      ['Approval condition acknowledged', 'Signed engagement letter, every signature', 'Waiver with informed written consent', 'Business associate agreement', 'Joint representation consents', 'Founder acknowledgement', 'Ethical screen in place'].forEach((x, i) => { const e = h('div', 'trow', `<span class="badge b-mid" style="padding:2px 6px"></span>${x}`, holds, { fontSize: '13.5px', marginBottom: '3px' }); show(e, 1800 + i * 220, 6); });
+      const tree = h('div', 'pane tree', '<h4>Matter folders, made in the document system</h4>', cols);
+      ['011072.0001 Tessaline', 'Correspondence', 'Pleadings', 'Discovery', 'Experts', 'Court orders', 'Billing'].forEach((n, i) => { const r = h('div', 'trow', `<span class="fld"></span>${n}`, tree, { paddingLeft: i ? '16px' : 0, fontSize: '13.5px' }); show(r, 5000 + i * 200, 6); at(5000 + i * 200, sfx.tick); });
+      at(300, () => say('Dana opens the matter right away. It gets its number, 011072.0001, while the paperwork is still out.'));
+      at(4800, () => say('Opening sets up the matter\'s folders in the document system. Billing stays on hold until everything on the left is in.'));
+    } },
+
+  /* 9 */ { title: 'On hold means on hold', nt: [36, 336], dur: 12500,
+    build(L) {
+      const b = screen(L, 'Time and billing', 'While billing is on hold', '');
+      const g = h('div', null, '', b, { display: 'grid', gap: '10px' });
+      const t1 = resRow(g, '<div><b>Priya records 1.5 hours</b><small>Review cargo manifests and joint venture agreement</small></div><div class="why"></div>', 'var(--mid)', {  }); show(t1, 500);
+      at(1800, () => { t1.querySelector('.why').innerHTML = '<span class="badge b-mid">Asks her to confirm the hold</span>'; sfx.chime(); });
+      at(3400, () => { t1.querySelector('.why').innerHTML = '<span class="badge b-lo">Saved, marked on hold</span>'; sfx.tick(); });
+      const t2 = resRow(g, '<div><b>Sam tries to start a pre-bill</b><small>The matter is on billing hold</small></div><div class="why"></div>', 'var(--hi)', {  }); show(t2, 4600);
+      at(5800, () => { t2.querySelector('.why').innerHTML = '<span class="badge b-hi">Not allowed yet</span>'; sfx.stamp(); });
+      const t3 = resRow(g, '<div><b>The billing system is told</b><small>New matter sent across, marked on hold, with the reason</small></div><div class="why"></div>', 'var(--lo)', {  }); show(t3, 7400);
+      at(8400, () => { t3.querySelector('.why').innerHTML = '<span class="badge b-lo">Sent</span>'; sfx.pop(); });
+      at(300, () => say('On hold really means on hold. Priya can record her time, but Conflion asks her to confirm she knows billing is on hold.'));
+      at(4600, () => say('A pre-bill can\'t be started yet, and the billing system is told the new matter is on hold, and why.'));
+    } },
+
+  /* 10 */ { title: 'The waiver draft', nt: [36, 336], dur: 15500,
+    build(L) {
+      const b = screen(L, 'Waiver · Kestrel Farms Group', 'Waiver draft for the lawyer\'s review', '');
+      const flow = h('div', 'flowrow', '', b, { marginBottom: '10px' });
+      ['Dana drafts it', 'Priya edits and approves', 'Sent to Jordan Pell at Kestrel'].forEach((s, i) => { if (i) h('span', 'arrow', '→', flow); const c = h('span', 'chip', s, flow); show(c, 300 + i * 4200); });
+      const p = h('div', 'paper', '<p>Dear Jordan Pell,</p><p class="tx"></p>', b);
+      type(p.querySelector('.tx'), 'The firm has been asked to act for Tessaline Maritime Holdings Inc. in a claim against Kestrel Farms Group, Inc. Our work for you on unrelated matters will continue.', 1400, 60);
+      const warn = h('div', 'dtn red', '<div class="eyebrow">Approval stopped</div><div style="font-size:14px">The draft names Tessaline to the other side. Tessaline has to agree to be named first.</div>', b, { marginTop: '10px', padding: '9px 14px' });
+      wipe(warn, 5400, 600); at(5400, sfx.chime);
+      const okk = h('div', 'dtn', '<div class="eyebrow">Tessaline agrees in writing</div><div style="font-size:14px">Dana records it, and Priya\'s approval goes through.</div>', b, { marginTop: '8px', padding: '9px 14px' });
+      wipe(okk, 8400, 600); at(8400, sfx.pop);
+      at(300, () => say('Kestrel is a current client, so it has to consent. Dana drafts the waiver and sends it to Priya, who edits it by typing straight into the draft.'));
+      at(5400, () => say('When Priya approves, Conflion stops her: the letter names Tessaline, and Tessaline hasn\'t agreed to be named yet.'));
+      at(9600, () => say('Once Tessaline agrees, the approval goes through, and the consent request goes to Kestrel\'s contact.'));
+    } },
+
+  /* 11 */ { title: 'Signed copy or nothing', nt: [36, 336], dur: 13000,
+    build(L) {
+      const b = screen(L, 'Waiver · Kestrel Farms Group', 'Recording the consent', '');
+      const r1 = resRow(b, '<div><b>Mark the waiver received</b><small>with no signed copy attached</small></div><div class="why"></div>', 'var(--hi)', { marginBottom: '10px' }); show(r1, 400);
+      at(1600, () => { r1.querySelector('.why').innerHTML = '<span class="badge b-hi">Not allowed</span>'; sfx.stamp(); });
+      const up = h('div', 'pane', '', b);
+      up.innerHTML = '<div style="display:flex;gap:12px;align-items:center"><div class="doc" style="width:36px;height:46px"></div><div><b>waiver-signed.pdf</b><div class="sub" style="margin:0">Signed by: Jordan Pell, for Kestrel Farms Group, Inc.</div></div></div>';
+      show(up, 3800); at(3800, sfx.pop);
+      const c = h('div', 'checkrow', '<span>Confirm as Kestrel Farms Group\'s informed written consent</span>', b, { marginTop: '10px' }); show(c, 6000);
+      at(7000, () => { tickOn(c, 0); sfx.chime(); });
+      const done = h('div', null, '', b, { marginTop: '10px' }); pop(tag(done, 'Waiver complete: one billing hold cleared', 'b-lo'), 8000, 500);
+      at(300, () => say('Conflion won\'t count a waiver as received until someone uploads the signed copy.'));
+      at(3800, () => say('Dana uploads it, names who signed, reads it, and confirms it as Kestrel\'s informed written consent.'));
+    } },
+
+  /* 12 */ { title: 'The ethical screen', nt: [36, 336], dur: 13000,
+    build(L) {
+      const b = screen(L, 'Ethical walls', 'W-0004 · Screen: Vantage Biotech Ltd.', 'Rule 1.9 screen for the former-client hit.');
+      const g = h('div', null, '', b, { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' });
+      const team = h('div', 'pane', '<h4>Matter team</h4>', g); [who('P'), who('M')].forEach((x, i) => { const e = h('div', null, x, team, { marginBottom: '6px' }); show(e, 500 + i * 250); });
+      const scr = h('div', 'pane', '<h4>Screened</h4><div>The lawyer from the earlier Vantage matter</div>', g); show(scr, 1400);
+      const steps = h('div', null, '', b, { display: 'grid', gap: '8px', marginTop: '12px' });
+      ['Written notice to the former client recorded', 'Screened lawyer acknowledges the screen', 'Screened people are never sent this matter, its files or notes'].forEach((x, i) => { const r = h('div', 'checkrow', `<span>${x}</span>`, steps); show(r, 3200 + i * 1100); at(3800 + i * 1100, () => { tickOn(r, 0); sfx.tick(); }); });
+      at(300, () => say('For the former client, Dana puts up an ethical screen around the lawyer who worked on the old Vantage matter.'));
+      at(4400, () => say('The notice is recorded and the screened lawyer acknowledges it. From now on, the server never sends them this matter at all.'));
+    } },
+
+  /* 13 */ { title: 'The engagement letter', nt: [36, 336], dur: 15000,
+    build(L) {
+      const b = screen(L, 'Engagement letter', 'Engagement letter', '');
+      const flow = h('div', 'flowrow', '', b);
+      ['Ready', 'Sent', 'Client copy back', 'Firm copy back', 'Signed'].forEach((s, i) => { if (i) h('span', 'arrow', '→', flow); const c = h('span', 'step', s, flow); at(600 + i * 2000, () => { c.classList.add('on'); sfx.tick(); }); });
+      const no = h('div', 'dtn red', '<div class="eyebrow">No sign button</div><div style="font-size:14px">Conflion never signs for anyone. A letter counts as signed only from uploaded signed copies.</div>', b, { marginTop: '12px', padding: '9px 14px' });
+      wipe(no, 2400, 600);
+      const t = table(b, '1.3fr 1.6fr', ['Signed copy', 'Signed by'], [['engagement-letter-client.pdf', 'Tessaline Maritime Holdings Inc.; Ines Varga-Holt'], ['engagement-letter-firm.pdf', 'Priya Raman, for the firm']], { marginTop: '10px' });
+      show(t.rows[0], 4600); show(t.rows[1], 6600);
+      let n; at(5000, () => { n = h('div', 'sub', 'Still waiting: the firm\'s signature', b, { margin: '6px 0 0' }); show(n, 0, 4); });
+      at(8600, () => { n.textContent = 'Signed by the clients and the firm'; n.style.color = 'var(--green)'; n.style.fontWeight = '600'; });
+      at(300, () => say('Next, the engagement letter is marked ready and sent. There is no sign button anywhere in Conflion.'));
+      at(4600, () => say('The clients\' signed copy comes back with both signatures, but the letter still waits for the firm\'s signature.'));
+      at(8600, () => say('When the firm\'s signed copy is uploaded too, the letter counts as signed.', 'happy'));
+    } },
+
+  /* 14 */ { title: 'Every document in, hold lifted', nt: [36, 336], dur: 14000,
+    build(L) {
+      const b = screen(L, 'Opening checklist', 'Before billing can start', '');
+      const list = h('div', null, '', b, { display: 'grid', gap: '5px' });
+      const docs = [['Signed engagement letter', 'Clients and firm'], ['Waiver with informed written consent', 'Kestrel Farms Group'], ['Ethical screen in place', 'W-0004'], ['Business associate agreement', 'Brightmoor Health Plan and the firm'], ['Joint representation consents', 'Tessaline and Ines Varga-Holt'], ['Founder acknowledgement', 'Ines Varga-Holt'], ['GC\'s condition acknowledged', '$50,000 retainer in trust first']];
+      const rs = docs.map(([a, c], i) => { const r = h('div', 'checkrow', `<span><b style="font-size:14px">${a}</b> <span style="color:var(--muted);font-size:13px">· ${c}</span></span>`, list, { padding: '3px 10px', fontSize: '14px', minHeight: '32px' }); show(r, 300 + i * 200, 6); return r; });
+      rs.forEach((r, i) => at(i < 3 ? 1800 : 3200 + (i - 3) * 900, () => { tickOn(r, 0); sfx.tick(); }));
+      const done = h('div', 'dtn', '<div class="eyebrow">Billing hold lifted</div><div style="font-size:14px">Nothing holds billing now, and the billing team records it.</div>', b, { marginTop: '8px', padding: '6px 14px' });
+      wipe(done, 7200, 600); at(7200, () => { sfx.chime(); confetti(480, 380, 40, .7); });
+      at(300, () => say('The rest of the paperwork comes in: the health plan\'s business associate agreement, the joint representation consents and the founder\'s acknowledgement.'));
+      at(7200, () => say('Once Priya acknowledges the general counsel\'s condition, nothing holds billing, and the hold is lifted.', 'happy'));
+    } },
+
+  /* 15 */ { title: 'Tasks and team notes', nt: [36, 336], dur: 12500,
+    build(L) {
+      const b = screen(L, '011072.0001 · Workspace', 'Matter workspace', 'Checklist: New litigation matter');
+      const t = table(b, '1.7fr .8fr .8fr', ['Task', 'Priority', 'Due'], [['Litigation hold letter to client', '<span class="badge b-hi">Urgent</span>', 'in 2 days'], ['Calendar response deadline', '<span class="badge b-mid">High</span>', 'in 3 days'], ['Collect cargo temperature logs', '<span class="badge b-lo">Normal</span>', 'in 14 days']]);
+      t.rows.forEach((r, i) => { show(r, 600 + i * 400); at(600 + i * 400, sfx.tick); });
+      const note = h('div', 'pane', `<h4>Team note · ${WHO.P[0]}</h4><div class="tx" style="font-size:14px"></div>`, b, { marginTop: '12px' }); show(note, 3600);
+      type(note.querySelector('.tx'), '@Marcus Bell the client wants a call on the JV accounting claim this week.', 4000, 40);
+      at(6600, () => { const e = h('span', 'chip', '✉ Email sent to Marcus Bell', note, { marginTop: '8px' }); pop(e, 0, 450); sfx.whoosh(); });
+      at(300, () => say('Now the team gets to work. Priya applies the firm\'s litigation checklist, and three tasks land on the matter.'));
+      at(4000, () => say('She leaves a team note that mentions Marcus, so he gets an email. Every earlier wording of a note is kept.'));
+    } },
+
+  /* 16 */ { title: 'Court deadlines, checked twice', nt: [36, 336], dur: 13000,
+    build(L) {
+      const b = screen(L, '011072.0001 · Deadlines', 'Count deadlines from a rule', 'California complaint response · counted from the service date');
+      const t = table(b, '1.6fr 1fr 1.1fr', ['Deadline', 'Date', 'Status'], [['Response to complaint', 'Nov 19, 2026', ''], ['Second date from the same rule', 'counted', '']]);
+      t.rows.forEach((r, i) => show(r, 600 + i * 300));
+      at(1400, () => { t.rows.forEach(r => { r.children[2].innerHTML = '<span class="badge b-mid">Unverified</span>'; }); sfx.tick(); });
+      const v = h('div', 'pane', `<div style="display:flex;align-items:center;gap:10px">${who('M')}<span class="obtn">I checked it: verify</span></div>`, b, { marginTop: '12px' }); show(v, 3600);
+      at(5200, () => { clickAt(posOf(v.querySelector('.obtn'))); t.rows[0].children[2].innerHTML = '<span class="badge b-lo">Verified by Marcus Bell</span>'; sfx.chime(); });
+      const rule = h('div', 'sub', 'The person who entered a deadline can\'t verify it themselves.', b, { marginTop: '10px' }); show(rule, 7200);
+      at(300, () => say('Priya counts the court deadlines from the date the papers were served. Each new date starts as unverified.'));
+      at(5000, () => say('A second person has to check it. Marcus verifies the response deadline. Priya can\'t verify her own.'));
+    } },
+
+  /* 17 */ { title: 'Finding the complaint', nt: [36, 336], dur: 12000,
+    build(L) {
+      const b = screen(L, 'Documents', 'Document search', '');
+      const box = h('div', 'input on', '', b, { fontSize: '16px' }); const s = h('span', null, '', box); type(s, 'cross-complaint', 1800, 14);
+      const up = h('div', 'chip', '⬆ Cross-complaint.pdf uploaded to 011072.0001', b, { marginTop: '10px' }); show(up, 400);
+      const res = h('div', 'pane', '<b>Cross-complaint.pdf</b> <span class="badge b-lo">011072.0001</span><div style="font-size:14px;margin-top:4px">Kestrel Farms Group, Inc. alleges breach of the joint venture agreement. The <mark>cross-complaint</mark> was served by personal delivery.</div>', b, { marginTop: '12px' });
+      show(res, 3800); at(3800, sfx.pop);
+      const wl = h('div', 'sub', 'Results follow walls: a screened person\'s search finds nothing from this matter.', b, { marginTop: '10px' }); show(wl, 6400);
+      at(300, () => say('The other side files a cross-complaint. Priya uploads it to the matter, and document search finds it straight away.'));
+      at(6400, () => say('Search follows the walls too, so a screened lawyer\'s search finds nothing from this matter.'));
+    } },
+
+  /* 18 */ { title: 'AI tools on the matter', nt: [36, 336], dur: 15500,
+    build(L) {
+      const b = screen(L, 'AI tools', 'AI tools: they suggest, people decide', 'All three run on the firm\'s own model.');
+      const g = h('div', null, '', b, { display: 'grid', gap: '9px' });
+      const c1 = h('div', 'pane', '<h4><span class="ai">✦</span> Deadline Finder</h4><div style="font-size:13.5px">"A case management conference is set for December 4, 2026 at 9:00 a.m."</div><div class="act" style="margin-top:6px"></div>', g); show(c1, 500);
+      at(2400, () => { const e = h('span', 'badge b-lo', 'Priya adds it to the calendar, with its quote', c1.querySelector('.act')); pop(e, 0, 450); sfx.tick(); });
+      const c2 = h('div', 'pane', '<h4><span class="ai">✦</span> Win your case</h4><div style="font-size:13.5px">A first assessment of the quickest ways to end the case, saved as a tool note for the lawyers to check.</div>', g); show(c2, 5200);
+      const c3 = h('div', 'pane', '<h4><span class="ai">✦</span> Document summary</h4><div style="font-size:13.5px">A summary of the cross-complaint, drafted by the model.</div><div class="act" style="margin-top:6px"></div>', g); show(c3, 8200);
+      at(9800, () => { const e = h('span', 'badge b-lo', 'Confirmed by Dana Whitfield', c3.querySelector('.act')); pop(e, 0, 450); sfx.chime(); });
+      at(300, () => say('Deadline Finder reads the cross-complaint and suggests a court date with the sentence it came from. Priya decides to add it.'));
+      at(5200, () => say('Win your case gives a first assessment, saved to the matter for the lawyers to weigh.'));
+      at(8200, () => say('And the model drafts a summary of the document. It only counts once Dana confirms it.'));
+    } },
+
+  /* 19 */ { title: 'The client portal', nt: [36, 336], dur: 13000,
+    build(L) {
+      const b = screen(L, '011072.0001 · Client portal', 'Client portal', '');
+      const inv = resRow(b, `<div><b>Invite: Ines Varga-Holt</b><small>ines.varga-holt@example.com · English</small></div><div class="why"></div>`, 'var(--brand)', {  }); show(inv, 400);
+      at(1600, () => { inv.querySelector('.why').innerHTML = '<span class="badge b-lo">Invited</span>'; sfx.whoosh(); });
+      const g = h('div', null, '', b, { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '10px' });
+      const d = h('div', 'pane', '<h4>Shared with the client</h4><div style="font-size:14px">Cross-complaint.pdf</div>', g); show(d, 3200);
+      const r = h('div', 'pane', '<h4>Asked of the client</h4><div style="font-size:14px">Upload the cargo temperature logs · due in 10 days</div>', g); show(r, 4400);
+      const m = h('div', 'pane', `<h4>Message from Priya</h4><div class="tx" style="font-size:14px"></div>`, b, { marginTop: '10px' }); show(m, 6000);
+      type(m.querySelector('.tx'), 'We have the cross-complaint; please upload the temperature logs.', 6300, 40);
+      at(300, () => say('Priya invites Ines to the client portal, where she can see the matter without a single email attachment.'));
+      at(4400, () => say('Priya shares the cross-complaint, asks for the cargo temperature logs, and sends a message, all in one place.'));
+    } },
+
+  /* 20 */ { title: 'A new name, checked again', nt: [36, 336], dur: 12500,
+    build(L) {
+      const b = screen(L, '011072.0001 · Conflicts re-checks', 'The family grows', '');
+      const rel = h('div', 'flowrow', '<span class="chip">Meridian Energy Holdings, Inc.</span><span class="arrow">parent of →</span><span class="chip">the client</span>', b); show(rel, 400);
+      const rc = resRow(b, '<div><b>Conflicts re-check on the parent</b><small>Started on its own when the link was added</small></div><div class="why"></div>', 'var(--mid)', { marginTop: '12px' }); show(rc, 2200);
+      at(3400, () => { rc.querySelector('.why').innerHTML = '<span class="badge b-mid">4 hits to review</span>'; sfx.chime(); });
+      const rv = h('div', 'pane', `<div style="display:flex;gap:10px;align-items:center">${who('D')}<span style="font-size:14px">"Parent is an existing client; no adversity."</span></div>`, b, { marginTop: '10px' }); show(rv, 5600);
+      at(7000, () => { tickOn(rv.firstChild, 0); sfx.tick(); });
+      at(300, () => say('Midway through, Dana learns the client has a corporate parent and links it.'));
+      at(3400, () => say('Conflion re-checks the matter against the parent on its own. Dana reviews the four hits and records why they are fine.'));
+    } },
+
+  /* 21 */ { title: 'The retainer goes into trust', nt: [36, 336], dur: 12000,
+    build(L) {
+      const b = screen(L, 'Trust accounts', 'Client ledger · 011072.0001', '');
+      const t = table(b, '.8fr 1.7fr 1fr .9fr', ['Date', 'Deposit', '>Amount', 'Status'], [['Nov 2026', 'Wire WIRE-77120 from Tessaline', '>$50,000.00', '']]);
+      show(t.rows[0], 600); at(600, sfx.coin);
+      at(2600, () => { t.rows[0].children[3].innerHTML = '<span class="badge b-mid">In transit</span>'; });
+      at(5000, () => { t.rows[0].children[3].innerHTML = '<span class="badge b-lo">Cleared</span>'; sfx.chime(); });
+      const bal = h('div', 'pane', '<div class="sub" style="margin:0">Held in trust for this matter</div><div class="money">$50,000.00</div>', b, { marginTop: '12px', width: '260px' }); show(bal, 5400);
+      const cond = h('div', 'chip', '✓ The general counsel\'s condition is met', b, { marginTop: '10px' }); show(cond, 7000);
+      at(300, () => say('Tessaline wires the $50,000 retainer. It goes into the firm\'s trust account, on the matter\'s own client ledger.'));
+      at(5000, () => say('Two days later the deposit clears, and the general counsel\'s condition is met.'));
+    } },
+
+  /* 22 */ { title: 'A month of time', nt: [36, 336], dur: 13000,
+    build(L) {
+      const b = screen(L, 'My time', 'Time and expenses · 011072.0001', '');
+      const t = table(b, '1.05fr 2.1fr .55fr', ['Who', 'Work', '>Hours'], [
+        ['Priya Raman', 'Draft answer to cross-complaint', '>3.6'], ['Priya Raman', 'Research successor liability', '>2.5'], ['Marcus Bell', 'Strategy conference with founder', '>1.0'],
+        ['Marcus Bell (by Rosa)', 'Review case management statement', '>0.5'], ['Keiko Tran, paralegal', 'Organize cargo temperature logs', '>4.0'], ['Priya Raman', 'Telephone call with opposing counsel', '>0.2'], ['Priya Raman (timer)', 'Prepare deposition outline', '>0.7'],
+      ], { fontSize: '13px' });
+      t.rows.forEach((r, i) => { show(r, 400 + i * 300, 6); at(400 + i * 300, sfx.tick); });
+      const ex = h('div', 'flowrow', '<span class="chip">Expense: filing fee $435.00</span><span class="chip">Expense: deposition transcript $1,850.00</span>', b, { marginTop: '10px' }); show(ex, 3200);
+      const fin = h('div', null, '', b, { marginTop: '8px' }); pop(tag(fin, 'Finalized by each timekeeper', 'b-lo'), 5600, 450);
+      at(300, () => say('Over the next month the team records its time: lawyers, a paralegal, Rosa entering time for Marcus, and a running timer.'));
+      at(5600, () => say('Expenses go on the matter too, and each timekeeper finalizes their own entries.'));
+    } },
+
+  /* 23 */ { title: 'Checked against the client\'s guidelines', nt: [36, 336], dur: 13000,
+    build(L) {
+      const b = screen(L, 'Bill review', 'Check against guidelines', 'Tessaline billing guidelines 2026');
+      const rules = h('div', 'paper', '', b, { fontSize: '13.5px', padding: '8px 12px' });
+      ['Time entries in 0.1 hour increments', 'No block billing', 'Internal conferences are not billable', 'Calls under 0.3 hours are not billable'].forEach((x, i) => { const e = h('div', null, '• ' + x, rules); show(e, 300 + i * 200, 4); });
+      const fl = resRow(b, '<div><b>10 flags on this bill</b><small>Each shows the rule, the quote and the money at risk</small></div>', 'var(--mid)', { marginTop: '10px' }); show(fl, 2400); at(2400, sfx.chime);
+      const one = h('div', 'pane', '<div style="font-size:14px"><b>Telephone call with opposing counsel · 0.2 h</b></div><div class="flowrow act" style="margin-top:6px"><span class="obtn">Write down</span><span class="obtn">Edit narrative</span><span class="obtn">Accept as exception</span><span class="obtn">Leave</span></div>', b, { marginTop: '10px' }); show(one, 4400);
+      at(6400, () => { const bt = one.querySelectorAll('.obtn')[2]; clickAt(posOf(bt)); bt.style.borderColor = 'var(--brand)'; bt.style.background = 'var(--mint)'; const n = h('div', 'sub', 'Reason: client agreed to this call in writing.', one, { margin: '6px 0 0' }); show(n, 0, 4); });
+      at(300, () => say('Before anything goes out, Sam checks the time against Tessaline\'s own billing guidelines.'));
+      at(4400, () => say('Each flag shows the rule and the money at risk. For the short phone call, the client agreed in writing, so Sam records an exception.'));
+    } },
+
+  /* 24 */ { title: 'The first bill', nt: [36, 336], dur: 14000,
+    build(L) {
+      const b = screen(L, 'Billing · Pre-bills', 'From pre-bill to bill', 'First interim bill · client matter ID TMH-2026-014');
+      const flow = h('div', 'flowrow', '', b);
+      ['Pre-bill', 'Line revised', '5% courtesy discount', 'Issued as invoice 1046'].forEach((s, i) => { if (i) h('span', 'arrow', '→', flow); const c = h('span', 'step', s, flow); at(500 + i * 1300, () => { c.classList.add('on'); sfx.tick(); }); });
+      const g = h('div', null, '', b, { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '14px' });
+      const due = h('div', 'pane', '<div class="sub" style="margin:0">Invoice 1046 · amount due</div><div class="money">$7,441.13</div>', g); show(due, 5600);
+      const led = h('div', 'pane', '<h4>E-billing file: LEDES 1998B</h4><div class="chk"></div>', g); show(led, 6600);
+      [['Format check passed', 7600], ['Submitted to the client\'s e-billing portal', 8600], ['Accepted', 9600]].forEach(([x, tm]) => at(tm, () => { const e = h('div', 'trow', `${tickSvg()}${x}`, led.querySelector('.chk'), { fontSize: '13.5px' }); drawTick(e, 0); sfx.tick(); }));
+      at(300, () => say('Sam builds the pre-bill, revises a line and adds a five percent courtesy discount. Then he issues it as invoice 1046.'));
+      at(6600, () => say('Tessaline bills electronically, so Conflion makes the LEDES file and checks its format before it goes to the client\'s portal.'));
+    } },
+
+  /* 25 */ { title: 'Paid from trust, reconciled', nt: [36, 336], dur: 13500,
+    build(L) {
+      const b = screen(L, 'Trust accounts', 'Paying the bill, balancing the month', '');
+      const t = table(b, '1.6fr .9fr .9fr', ['Ledger entry', '>Amount', '>Balance'], [['Retainer deposit', '>$50,000.00', '>$50,000.00'], ['Invoice 1046, paid after it was sent', '>−$7,441.13', '>$42,558.87']]);
+      show(t.rows[0], 400); show(t.rows[1], 1800); at(1800, sfx.coin);
+      const rec = h('div', 'pane', '<h4>Month-end three-way reconciliation · November 2026</h4><div class="flowrow"><span class="chip">Bank statement</span><span class="arrow">=</span><span class="chip">Trust journal</span><span class="arrow">=</span><span class="chip">Client ledgers</span></div><div class="act" style="margin-top:8px"></div>', b, { marginTop: '12px' });
+      show(rec, 4200);
+      at(6200, () => { pop(tag(rec.querySelector('.act'), 'Balanced, prepared by Sam Ortiz', 'b-lo'), 0, 450); sfx.chime(); });
+      at(7800, () => { pop(tag(rec.querySelector('.act'), 'Reviewed by Rita Okonkwo', 'b-lo', { marginLeft: '8px' }), 0, 450); sfx.tick(); });
+      at(300, () => say('Once the bill has gone to the client, it is paid from the retainer, and the matter\'s trust ledger drops to $42,558.87.'));
+      at(4200, () => say('At month end, Sam balances the bank, the trust journal and every client ledger, and Rita, a second person, reviews it.'));
+    } },
+
+  /* 26 */ { title: 'Final bill and refund', nt: [36, 336], dur: 13000,
+    build(L) {
+      const b = screen(L, 'Billing', 'The case settles', '');
+      const t = table(b, '1.6fr .9fr .9fr', ['Step', '>Amount', '>Trust balance'], [['Final time: mediation, settlement', '>4.1 hours', '>$42,558.87'], ['Final bill, paid from the retainer', '>−$1,742.50', '>$40,816.37'], ['Unused retainer refunded to Tessaline', '>−$40,816.37', '>$0.00']]);
+      t.rows.forEach((r, i) => { show(r, 600 + i * 1700); at(600 + i * 1700, i ? sfx.coin : sfx.tick); });
+      const z = h('div', 'pane', '<div class="sub" style="margin:0">Matter\'s trust ledger</div><div class="money">$0.00</div>', b, { marginTop: '12px', width: '240px' }); show(z, 6200);
+      at(300, () => say('The case settles at mediation. Priya records her final time, and the final bill is paid from what is left of the retainer.'));
+      at(4400, () => say('The unused $40,816.37 goes back to Tessaline, and the matter\'s trust ledger is at zero.'));
+    } },
+
+  /* 27 */ { title: 'Closing the matter', nt: [36, 336], dur: 13500,
+    build(L) {
+      const b = screen(L, 'Close the matter', 'Closing 011072.0001', '');
+      const list = h('div', null, '', b, { display: 'grid', gap: '7px' });
+      ['Final bill issued', 'Trust balance is zero', 'Open tasks and court dates finished', 'Closing letter sent to Ms. Varga-Holt'].forEach((x, i) => { const r = h('div', 'checkrow', `<span>${x}</span>`, list); show(r, 400 + i * 300, 6); at(1600 + i * 600, () => { tickOn(r, 0); sfx.tick(); }); });
+      const st = h('div', 'pane', '<div class="kv"><span>Closed</span><span>Feb 4, 2027</span><span>Keep until</span><span>Feb 4, 2034</span></div>', b, { marginTop: '12px', width: '320px' }); show(st, 4600);
+      const after = h('div', 'flowrow', '<span class="badge b-hi">New time: not allowed</span><span class="badge b-hi">New tasks: not allowed</span>', b, { marginTop: '10px' }); show(after, 7600); at(7600, sfx.stamp);
+      at(300, () => say('With the bill paid and trust at zero, Dana closes the matter with its closing letter.'));
+      at(4600, () => say('Conflion sets the date the file can be destroyed, and once it\'s closed, nobody can add time or tasks to it.'));
+    } },
+
+  /* 28 */ { title: 'The whole story, on the record', nt: [36, 336], dur: 13000, last: true,
+    build(L) {
+      const b = screen(L, 'Audit trail', 'The whole story, on the record', '');
+      const c = h('div', 'counts', '', b);
+      [['135', 'changes, every one in the sealed audit trail'], ['49', 'entries telling the request\'s story'], ['17', 'emails to the people who had to act']].forEach(([n, l], i) => { const e = h('div', null, `<b>${n}</b> ${l}`, c, { display: 'grid' }); show(e, 400 + i * 500); });
+      const chain = h('div', 'chain', '', b, { marginTop: '14px' });
+      [['Opened matter 011072.0001', 'Dana Whitfield'], ['Recorded hit decision', 'Dana Whitfield'], ['Closed matter', 'Dana Whitfield']].forEach(([a, w], i) => { const e = h('div', 'blk', `<b>${a}</b><small>${w}</small>`, chain); show(e, 2200 + i * 400); });
+      const ok = h('div', null, '', b, { marginTop: '12px' }); pop(tag(ok, 'Audit chain verified · a replay of the log matches the data', 'b-lo'), 4400, 500);
+      at(4600, () => { sfx.chime(); confetti(480, 300, 60, .8); hopInPlace(3); });
+      at(300, () => say('Every one of those steps is in the sealed audit trail, with who did it and when, and the chain checks out.'));
+      at(6400, () => say("That's one matter, start to finish! Use the menu to see any part again.", 'happy'));
+    } },
+];
+
+/* ---------- running the show ---------- */
+const menu = $('menu'), menuBtn = $('menuBtn');
+const seen = new Set(), mButtons = [];
+const narrow = matchMedia('(max-width: 900px)');
+function placeMenu() { const hd = document.querySelector('header.top'); if (narrow.matches) hd.after(menu); else document.querySelector('.shell').prepend(menu); }
+placeMenu(); narrow.addEventListener?.('change', placeMenu);
+SECTIONS.forEach(([name, idx]) => {
+  h('div', 'mh' + (/additional/i.test(name) ? ' extra' : ''), name, menu);
+  idx.forEach(i => { const b = h('button', null, `<span class="i">${i + 1}</span><span>${SCENES[i].title}</span>`, menu); b.type = 'button'; b.addEventListener('click', () => { unlockAudio(); enter(i); play(); if (narrow.matches) toggleMenu(false); }); mButtons[i] = b; });
+});
+function toggleMenu(open) { menu.classList.toggle('open', open); menuBtn.setAttribute('aria-expanded', String(open)); }
+menuBtn.addEventListener('click', () => toggleMenu(!menu.classList.contains('open')));
+$('sceneCount').textContent = SCENES.length + ' short scenes';
+const sectionOf = (i) => (SECTIONS.find(([, idx]) => idx.includes(i)) || [''])[0];
+
+function enter(i, rest = false) {
+  cur = i; t = 0; actions = []; typers = []; parts.length = 0; nt.face = null; nt.sleeping = false; seen.add(i);
+  vp.querySelectorAll('.sc, .look, .ripple').forEach(n => n.remove());
+  hideCursor();
+  layer = h('div', 'sc', '', null); vp.insertBefore(layer, ntEl);
+  const S = SCENES[i]; placeNewton(...S.nt);
+  if (!rest && !RM) A(layer, [{ clipPath: `circle(0px at ${nt.x + 66}px ${nt.y + 60}px)` }, { clipPath: `circle(1000px at ${nt.x + 66}px ${nt.y + 60}px)` }], { duration: 750, easing: 'cubic-bezier(.6,0,.3,1)', fill: 'none' });
+  S.build(layer, rest);
+  mButtons.forEach((b, k) => { b.setAttribute('aria-current', k === i ? 'true' : 'false'); b.classList.toggle('seen', seen.has(k) && k !== i); });
+  $('now').innerHTML = `${sectionOf(i)} · scene <b>${i + 1}</b> of ${SCENES.length}`;
+  menuBtn.textContent = 'Menu · ' + sectionOf(i);
+  if (rest) $('bar').style.width = '0%';
+}
+function play() { if (playing) return; if (layer.querySelector('.play-big')) enter(0); playing = true; document.getAnimations().forEach(a => { if (a.playState === 'paused') a.play(); }); $('playLbl').textContent = 'Pause'; $('playIcon').innerHTML = '<path d="M4 2.5h3v11H4zM9 2.5h3v11H9z" fill="currentColor"/>'; }
+function pause() { playing = false; document.getAnimations().forEach(a => { if (a.playState === 'running' && !(a instanceof CSSAnimation)) a.pause(); }); $('playLbl').textContent = 'Play'; $('playIcon').innerHTML = '<path d="M4 2.5v11l9.5-5.5z" fill="currentColor"/>'; }
+function unlockAudio() { if (soundOn && AC && AC.state === 'suspended') AC.resume(); }
+
+$('play').addEventListener('click', () => { unlockAudio(); if (playing) pause(); else { if (SCENES[cur].last && t >= SCENES[cur].dur) enter(0); play(); } });
+$('prev').addEventListener('click', () => { enter(Math.max(0, cur - 1)); play(); });
+$('next').addEventListener('click', () => { enter(Math.min(SCENES.length - 1, cur + 1)); play(); });
+$('replay').addEventListener('click', () => { unlockAudio(); enter(0); play(); });
+const darkMQ = matchMedia('(prefers-color-scheme: dark)');
+const themeNow = () => document.documentElement.dataset.theme || (darkMQ.matches ? 'dark' : 'light');
+function showTheme() { const d = themeNow() === 'dark'; $('theme').textContent = d ? 'Light mode' : 'Dark mode'; $('theme').setAttribute('aria-label', d ? 'Switch to light mode' : 'Switch to dark mode'); }
+$('theme').addEventListener('click', () => { const next = themeNow() === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = next; try { localStorage.setItem('newton-theme', next); } catch (e) {} showTheme(); });
+darkMQ.addEventListener?.('change', showTheme); showTheme();
+$('sound').addEventListener('click', (e) => {
+  soundOn = !soundOn; e.currentTarget.setAttribute('aria-pressed', String(soundOn)); e.currentTarget.textContent = soundOn ? 'Sound on' : 'Sound off';
+  if (soundOn && !AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch { AC = null; } }
+  if (AC && AC.state === 'suspended') AC.resume();
+  if (soundOn) sfx.meow();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.target.closest && e.target.closest('button') && (e.key === ' ' || e.key === 'Enter')) return;
+  if (e.key === ' ') { e.preventDefault(); $('play').click(); }
+  else if (e.key === 'ArrowRight') $('next').click();
+  else if (e.key === 'ArrowLeft') $('prev').click();
+});
+
+function fit() { vp.style.transform = `scale(${wrap.clientWidth / 800})`; }
+new ResizeObserver(fit).observe(wrap); fit();
+
+function loop(now) {
+  const dt = Math.min(50, now - lastNow); lastNow = now;
+  const S = SCENES[cur];
+  if (playing) {
+    t += dt;
+    for (let k = 0; k < actions.length; k++) { const a = actions[k]; if (!a.done && a.at <= t) { a.done = true; a.fn(); } }
+    if (t >= S.dur) { if (!S.last) enter(cur + 1); else { t = S.dur; pause(); } }
+    stepFx(dt);
+  }
+  let talking = false;
+  for (const ty of typers) {
+    if (ty.done || t < ty.start) continue;
+    const n = Math.min(ty.text.length, Math.floor((t - ty.start) * ty.cps / 1000));
+    if (ty.el.textContent.length !== n) { ty.el.textContent = ty.text.slice(0, n); }
+    if (n >= ty.text.length) { ty.done = true; ty.cb && ty.cb(); }
+    else if (ty.el.closest('#say')) talking = true;
+  }
+  // Newton's face: walking, talking (mouth flaps), a scene's mood, or idle fidgets.
+  let f = 'open';
+  if (nt.sleeping) f = 'sleep';
+  else if (nt.walking) f = 'walk';
+  else if (talking) f = (Math.floor(now / 150) % 3 === 0) ? 'meow' : (nt.face || 'open');
+  else if (now < nt.idleUntil) f = nt.idleFace;
+  else {
+    f = nt.face || 'open';
+    if (now > nt.nextIdle) { const r = Math.random(); nt.idleFace = r < .55 ? 'blink' : r < .7 ? 'side' : r < .82 ? 'up' : r < .94 ? 'tail' : 'yawn'; nt.idleUntil = now + (nt.idleFace === 'blink' ? 140 : 900); nt.nextIdle = now + 1800 + Math.random() * 2600; }
+  }
+  setFrame(f);
+  $('bar').style.width = (Math.min(1, t / S.dur) * 100).toFixed(2) + '%';
+  requestAnimationFrame(loop);
+}
+
+enter(0, true);
+requestAnimationFrame(loop);
+</script>

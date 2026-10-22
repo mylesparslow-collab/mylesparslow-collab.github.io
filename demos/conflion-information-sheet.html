@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conflion Information Sheet</title>
+<meta name="description" content="What Conflion does, how a matter moves through it, how its AI is used, how confidentiality is protected, and how a firm runs it.">
+<script>/* A light or dark choice made with the page's own button wins over the device setting. */ try { const th = localStorage.getItem('newton-theme'); if (th === 'light' || th === 'dark') document.documentElement.dataset.theme = th; } catch (e) {}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Pixelify+Sans:wght@500;600&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<style>
+/* Newton's Conflion palette: navy brand, tabby accent, brass dot from the logo. */
+:root {
+  --bg: #e7ecf3; --stage: #f5f7fb; --surface: #ffffff; --surface-2: #eef2f7; --line: #cfd8e4;
+  --ink: #172033; --muted: #55627a; --brand: #1f3b6e; --brand-2: #33589a; --on-brand: #ffffff; --mint: #dfe7f3;
+  --tabby: #c76a1c; --tabby-bg: #fbecdc; --brass: #d2ad6a;
+  --lo: #2c6a4f; --lo-bg: #dcefe3;
+  --shadow: 0 10px 28px rgba(20, 32, 60, .10);
+  --f-display: 'Fredoka', ui-rounded, 'Nunito', system-ui, sans-serif;
+  --f-ui: 'Source Sans 3', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --f-pixel: 'Pixelify Sans', ui-monospace, 'SF Mono', monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d121b; --stage: #131a26; --surface: #19222f; --surface-2: #1f2a3b; --line: #2e3b52;
+    --ink: #e6ebf3; --muted: #a3b0c6; --brand: #84a6e6; --brand-2: #a2bdf0; --on-brand: #0a1222; --mint: #1e2b45;
+    --tabby: #f2a55c; --tabby-bg: #3a2a1b; --brass: #e2c07f; --lo: #7fd0a6; --lo-bg: #1f3a2b;
+    --shadow: 0 10px 28px rgba(0, 0, 0, .4); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d121b; --stage: #131a26; --surface: #19222f; --surface-2: #1f2a3b; --line: #2e3b52;
+  --ink: #e6ebf3; --muted: #a3b0c6; --brand: #84a6e6; --brand-2: #a2bdf0; --on-brand: #0a1222; --mint: #1e2b45;
+  --tabby: #f2a55c; --tabby-bg: #3a2a1b; --brass: #e2c07f; --lo: #7fd0a6; --lo-bg: #1f3a2b;
+  --shadow: 0 10px 28px rgba(0, 0, 0, .4); color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 76px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.55 var(--f-ui); -webkit-text-size-adjust: 100%; }
+a { color: var(--brand); text-underline-offset: 2px; }
+.wrap { max-width: 980px; margin: 0 auto; padding: 0 16px; }
+
+/* Top bar */
+.bar { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+.bar .wrap { display: flex; align-items: center; gap: 12px; min-height: 56px; }
+.brand { display: flex; align-items: center; gap: 8px; font: 600 1.15rem var(--f-display); color: var(--ink); text-decoration: none; }
+.brand svg { width: 28px; height: 28px; }
+.bar .spacer { flex: 1; }
+.btn { font: 600 .9rem var(--f-ui); color: var(--ink); background: var(--surface); border: 1.5px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer; text-decoration: none; white-space: nowrap; }
+.btn:hover { border-color: var(--brand); }
+.btn:focus-visible, a:focus-visible { outline: 3px solid var(--tabby); outline-offset: 2px; }
+.back { font-size: .9rem; }
+
+/* Hero */
+.hero { padding: 36px 0 8px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: end; }
+.eyebrow { font: 600 .78rem var(--f-pixel); letter-spacing: .06em; text-transform: uppercase; color: var(--tabby); }
+h1 { font: 700 clamp(2rem, 6vw, 3.1rem)/1.08 var(--f-display); margin: 6px 0 12px; letter-spacing: -.01em; text-wrap: balance; }
+.lede { font-size: 1.12rem; color: var(--muted); margin: 0 0 10px; max-width: 46em; text-wrap: pretty; }
+.version { font-size: .88rem; color: var(--muted); margin: 0; }
+.cat { width: 132px; height: 120px; image-rendering: pixelated; display: block; }
+.cat.sm { width: 66px; height: 60px; }
+
+/* Newton's speech bubble */
+.say { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px; align-items: center; background: var(--surface); border: 2px solid var(--ink); border-radius: 18px; padding: 12px 18px 12px 12px; box-shadow: 4px 4px 0 var(--ink); margin: 18px 0 8px; }
+.say p { margin: 0; font: 500 1.06rem/1.4 var(--f-display); text-wrap: pretty; }
+.say .who { display: block; font: 600 .74rem var(--f-pixel); color: var(--tabby); letter-spacing: .05em; margin-bottom: 2px; }
+
+/* Section menu */
+nav.toc { margin: 22px 0 8px; display: flex; flex-wrap: wrap; gap: 8px; }
+nav.toc a { font: 600 .92rem var(--f-ui); text-decoration: none; color: var(--brand); background: var(--mint); padding: 6px 12px; border-radius: 999px; }
+nav.toc a:hover { background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--brand); }
+
+/* Sections */
+section { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: clamp(18px, 4vw, 34px); margin: 22px 0; box-shadow: var(--shadow); }
+h2 { font: 600 clamp(1.5rem, 4vw, 2rem)/1.15 var(--f-display); margin: 0 0 6px; display: flex; align-items: center; gap: 10px; }
+h2 .num { font: 600 .8rem var(--f-pixel); color: var(--on-brand); background: var(--brand); border-radius: 8px; padding: 3px 8px; }
+h3 { font: 600 1.2rem/1.25 var(--f-display); margin: 26px 0 8px; }
+.intro { color: var(--muted); font-size: 1.05rem; margin: 0 0 14px; max-width: 48em; }
+p { margin: 0 0 12px; }
+ul { padding-left: 1.2em; margin: 0 0 12px; }
+li { margin: 0 0 6px; }
+li::marker { color: var(--tabby); }
+.new { font: 600 .68rem var(--f-pixel); letter-spacing: .05em; color: var(--tabby); background: var(--tabby-bg); border-radius: 6px; padding: 2px 6px; vertical-align: 2px; margin-left: 4px; white-space: nowrap; }
+
+/* Cards */
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin: 14px 0; }
+.card { background: var(--stage); border: 1.5px solid var(--line); border-radius: 16px; padding: 14px 16px; }
+.card b { display: block; font: 600 1.05rem var(--f-display); margin-bottom: 4px; }
+.card p { margin: 0; color: var(--muted); font-size: .97rem; }
+.card .ic { width: 30px; height: 30px; border-radius: 9px; background: var(--mint); color: var(--brand); display: grid; place-items: center; margin-bottom: 8px; }
+.card .ic svg { width: 18px; height: 18px; }
+
+/* Feature groups */
+.feat { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+.feat > div { border: 1.5px solid var(--line); border-radius: 16px; padding: 14px 16px 6px; }
+.feat h3 { margin: 0 0 8px; font-size: 1.1rem; }
+.feat ul { font-size: .97rem; }
+
+/* Tables */
+.tbl { overflow-x: auto; margin: 12px 0 16px; border: 1.5px solid var(--line); border-radius: 14px; }
+table { border-collapse: collapse; width: 100%; font-size: .96rem; }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+tr:last-child td { border-bottom: 0; }
+th { background: var(--surface-2); font-weight: 700; }
+td:first-child { font-weight: 600; }
+.num-r { text-align: right; white-space: nowrap; }
+
+/* The matter's journey */
+ol.flow { list-style: none; padding: 0; margin: 16px 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; counter-reset: s; }
+ol.flow li { margin: 0; counter-increment: s; background: var(--stage); border: 1.5px solid var(--line); border-radius: 14px; padding: 10px 12px; position: relative; }
+ol.flow li::before { content: counter(s); font: 600 .78rem var(--f-pixel); color: var(--on-brand); background: var(--brand); border-radius: 6px; padding: 1px 7px; }
+ol.flow li b { display: block; font: 600 1rem var(--f-display); margin-top: 6px; }
+ol.flow li small { color: var(--muted); font-size: .88rem; }
+ol.flow li.hold { border-color: var(--tabby); background: var(--tabby-bg); }
+ol.flow li.hold::before { background: var(--tabby); color: #fff; }
+.steps { counter-reset: n; list-style: none; padding: 0; }
+.steps > li { counter-increment: n; padding-left: 44px; position: relative; margin-bottom: 14px; }
+.steps > li::before { content: counter(n); position: absolute; left: 0; top: 0; width: 30px; height: 30px; border-radius: 50%; background: var(--mint); color: var(--brand); font: 600 .95rem var(--f-display); display: grid; place-items: center; }
+
+/* Callouts */
+.note { background: var(--mint); border-radius: 14px; padding: 12px 16px; margin: 14px 0; }
+.note b { color: var(--brand); }
+.note.warm { background: var(--tabby-bg); }
+.note.warm b { color: var(--tabby); }
+
+/* Deployment picture */
+.arch { display: grid; grid-template-columns: 1fr auto 1.2fr auto 1fr; align-items: center; gap: 8px; margin: 16px 0; }
+.arch .box { border: 1.5px solid var(--line); background: var(--stage); border-radius: 14px; padding: 10px 12px; text-align: center; font-size: .92rem; }
+.arch .box b { display: block; font: 600 1rem var(--f-display); }
+.arch .box.core { border: 2px solid var(--brand); background: var(--mint); }
+.arch .stack { display: grid; gap: 6px; }
+.arch .stack .box { padding: 6px 10px; }
+.arch .arr { color: var(--muted); font-size: 1.4rem; text-align: center; }
+.house { border: 2px dashed var(--brand); border-radius: 18px; padding: 12px; position: relative; }
+.house > .tag { position: absolute; top: -12px; left: 14px; background: var(--surface); color: var(--brand); font: 600 .74rem var(--f-pixel); padding: 0 6px; letter-spacing: .05em; }
+
+/* FAQ */
+details.faq { border-bottom: 1px solid var(--line); padding: 10px 0; }
+details.faq:last-of-type { border-bottom: 0; }
+details.faq summary { cursor: pointer; font: 600 1.05rem var(--f-display); list-style: none; display: flex; gap: 10px; align-items: baseline; }
+details.faq summary::-webkit-details-marker { display: none; }
+details.faq summary::before { content: '+'; color: var(--tabby); font: 600 1.2rem var(--f-display); width: 14px; flex: none; }
+details.faq[open] summary::before { content: '–'; }
+details.faq p { margin: 8px 0 4px 24px; color: var(--muted); }
+
+footer { text-align: center; color: var(--muted); font-size: .88rem; padding: 10px 0 40px; }
+footer .say { text-align: left; max-width: 640px; margin: 0 auto 18px; }
+
+@media (max-width: 760px) {
+  body { font-size: 16px; }
+  .hero { grid-template-columns: 1fr; padding-top: 24px; }
+  .hero .cat { display: none; }
+  ol.flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .arch { grid-template-columns: 1fr; }
+  .arch .arr { transform: rotate(90deg); }
+  .bar .brand span { display: none; }
+}
+@media print {
+  .bar, nav.toc, #theme { display: none; }
+  body { background: #fff; }
+  section { box-shadow: none; break-inside: auto; }
+  details.faq p { display: block; }
+}
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="wrap">
+    <a class="back btn" href="../index.html#conflara">← Back to Conflion</a>
+    <span class="spacer"></span>
+    <span class="brand" aria-label="Conflion"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="1" y="1" width="30" height="30" rx="7" fill="var(--brand)"/><path d="M21.75 11.18A7.5 7.5 0 1 0 21.75 20.82" fill="none" stroke="var(--on-brand)" stroke-width="2.6" stroke-linecap="round"/><circle cx="23" cy="16" r="1.75" fill="#d2ad6a"/></svg><span>Conflion</span></span>
+    <button class="btn" id="theme" type="button"></button>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="hero">
+    <div>
+      <div class="eyebrow">Conflicts · New business intake</div>
+      <h1>Conflion Information Sheet</h1>
+      <p class="lede">What Conflion does, how a matter moves through it, how its AI is used, how confidentiality is protected, how it connects to a firm's systems, and how a firm would roll it out.</p>
+      <p class="version">Version 2.0 · describes Conflion build 3e303ad · 18 October 2026</p>
+    </div>
+    <img class="cat" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAAoCAYAAACFFRgXAAAESElEQVR4AcSWPWgUURSFX9IJQkQkIiJKfiyCRAslFppCwSKNRQKCIKkMKAiCIhgslIgWWivYihZiKhu7QDTLKhYxwhaKP2An0SooYoLyjZzhzpv3ZmdmIwon986995x75u0zm24X+Te0Y/g3iLRrl9EEdQWChq2gzesuEc9q2Vz9MjFoGGJzZtoB8vUEmqCuZs6w3nzp/cdEE3FqICnU+AEXoAVd2tR4roKcYZGHRlachLVIvTpRGonm2pM6EgknapjuYP8bQgIWciIgKZT4wSyAm453YBaNoOGjwz30ctBiTJQBAuKQW8R22JlQnjGMCYaunRl1v5b/3mE+Qgv6VWC55IO7dyX0E3vXkqidyUOJHxnDzPtvzrWwuHVs1YHXraeuCMwAyyVnh+DvUr0opob1pvZ0feKrZ4tu/+F9fjn6zCyc2ECdU04NI1r0xlpMxMi32YtQgqDHDLMMKJIDXQvyop30fSSGy5yuiBhRjjHlirZmZ9VXlOmqp9wts+3elOVAC8tGOKBovt1uy01OmELR3aX/L1HllFPDMUOLfc4dmG663skHjjw2F6vDifF1LWLcUL2tYZF2bu9XWit2ytfStoZfLixr1tmc4ubx24QM/Jrl2DxDqvDQ1jBap88NOEAu+MZUJ/o9uICexbu3n+xjqTw13GrM5Qi9J++4KxceualtW1IwZA39mJ13FvSBZiwXLTTpg47u8NT9FccbA8TAl4dnHWCJICP0wYbx0eTPUP5OIKcmMCseES2gvnax+96pjSoXxu7W56UufwIh++3EErD683s6+qE57wCFkUuTDpBTA+QADlzAM0CbHeQCpkNe+J4AmkuuhB2ESLNn6yaHMDmnA8jrAC6Aiyba5OwC7AfULKxR5YlhhiBAJhfG7jYcizgdYL92+w6OOqBZRWpAz3DgArTQVK9M5KoAZjGdGqaAaYBxsHB1zAH/42O2KtBAC6AN2AVCWpgL1TOGNSARRFUj8p+IWAU+R5raUUWL2aBhGhZ1fv1YPqdrnzvJg4b1cejuaAH3UXnZCIcXBnCkqR3UqiBnWEIS1qIqorFZaUlbu/x51edm9vgtlzOcmzAF/z6aVjStw0EMs7pK9t5nDOvNdAI6EQTWC9LUDu2Uvp5DZpnJGKZQBO5jUT/Uq8MJ6aiWGtab6c11EhpUrGIgNitt7dJu7eA6KPdjathvxJ6r3Mkqs5gGsb2qVzbMqQEJxCIzINYP1TlZELu/cEoZ5qQABKHIjN+DC8TtJBYaZgnQAnK9PTXfmF9jFg51QA6o88yvK91jnSw96oCvb8CskDM8cPy8G7n82CGsIcWvrecOIURBaIYaPcAsHPEV2UFPZonMq18UU8N6kyMT1x1LQqCHGMvAi5sTuVlq9ACzcHwtavQ0Qy5QwwtQzcbUsC0iGAIzCAFyxP05avSYAeT+DDWBeXDoRqMLiKO+HzOG2w375P/x/AcAAP//3SV87gAAAAZJREFUAwAb17c3qoUFNQAAAABJRU5ErkJggg==" alt="" width="44" height="40">
+  </div>
+
+  <div class="say">
+    <img class="cat sm" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAAoCAYAAACFFRgXAAAENklEQVR4AcTWMYgdZRQF4D/bCULEQitB1FgEiRbKptAtFCzSWCQgCGInaGUhgqmUSCy0VrAVrExlYxeIcVlRRCMsqEQjdqJWQRETlG/kDP+bNzNvZjbqwtl7595zzz3z7897u1UGfo7ecewvGGgvLtOEpQK9hmvBOl+6JHO1Vp2nPyX2Gja4d+Z0AfmNBE1YqrlmOG9+6fL3jSZxNWgKC36ZBVrGo63meQ7WDGf46PbVEuEsSm9JjEajef2DJRLNzKBh3SN3fyU0sNCJQFOY8AsXzLb0A5il0Wv4sWOH9daQxUxMAYHMyGsM7ag5ffmKYSaQXn1up/z58z932J+whv4c1LPyI/fe2Yw/ef/1JmZn8zDh14ph/O6buxY13nj8WoEv9z8sY8CBelZuR9DdlfpYbA3nTevT7Q5+9tEX5cFHHuiWB59xzQwRlpxya5jo2BtnscjIr+deNNILPRxchEQ55FrIx3bqd9EYnnK6GWQkOWPJE+tazU0/MabnnvJWzG56U8shC6dGMzDG37S7nm1OWGHs7ur/m5hzyq3hTYYeOr1XYBNvqG8W6n6uRV3blE82vEnov+oPGnYaECOfnj1eQA3Ubz35prCC1HAgTbOgBqnPjYOGNwnFWB9vrFfzv/3mSv04KW8N7++eXxlwGj9c+bzc9tRbK/XLX18skOLv5y6UGqnjQJ5FWjRpez7QHX723avFGwMx+Om95wtYFKjXuOnkTvNvqP8T5HVPnjmRFqhDdtn9ztM3K23E1v6Plw51WYTqbydL4Nofv7XU7/YuFFDYfumZAnI1kIMZs+AZaNshD5ju8+J7AsJrrkRNNKh5+PZbCmG50wH5EpgFszRpy+0C+0GtRm00eWMYyYBheXDi7d3mDjsdqL927zq+UyDcRDXIsxmzwDTN9KZEVwVwmW4NKzANjMPHr5wo0P3z4c4FDVpAG+yCPi3m+uorhkOICNHUxKkfV7hBdyaa2RHe1NhruDu85OOn1nC69fNB8l7D+XPk7mSB+5h8ajTjhcFMNLNDbQ7WDEcowlk0R3SIG61oZ1eXn/r5M/d1W2XN8BqjKnTvY9UaTJfMEGM2V6m+9yuG82Y5gZwIgRuFaGZHdkY/z31mcVYMK4zBfRzr9/WWzPTppNYazpvlzXMSISbOMTDEjXZ2ZXd2uA7Ju7E13G0MPc+5k3O4TMPQ3tRnG3ZqEIGhiAND/b66k4Wh+2tmkmEnBQaCMTPdnlnI7EHiqGFLIAvkeXu1rrFuDdeMOshB3bOPq9zjnKyeOvj6BtxgzfA9T7xQtl9+vxAOKfGX/YuFEFHo46jpAa6ZzCfaoRezIn76Y7E1nDd59NRrxZI+6BGzDD55/dQaV00PcM10tdT0wpEHarxAanVsDddFgn3AIQRy4l2emh4OyLsctQAfHj67ewgyk343rhjeRO4O/x/PfwMAAP//LqUrPwAAAAZJREFUAwAJFL83C6U4MAAAAABJRU5ErkJggg==" alt="Newton, Conflion's help cat" width="44" height="40">
+    <p><span class="who">NEWTON</span>Hi, I'm Newton. This sheet is the whole of Conflion on one page. Every firm, person and matter in it is made up, and wherever AI appears, it suggests and a person decides.</p>
+  </div>
+
+  <nav class="toc" aria-label="Sections">
+    <a href="#overview">Overview</a><a href="#journey">How a matter moves</a><a href="#features">Features</a><a href="#ai">AI assistance</a><a href="#security">Security</a><a href="#data">Data and integrations</a><a href="#it">Running it</a><a href="#rollout">Rollout and FAQ</a>
+  </nav>
+
+  <!-- 1 -->
+  <section id="overview">
+    <h2><span class="num">01</span>Overview</h2>
+    <p class="intro">Conflion is a conflicts-checking and new business intake system for law firms. It replaces email and PDF intake with one place where a request is entered, every party is searched, each hit is decided by the conflicts team, approvals go to the right people, waivers and ethical walls are recorded, and the matter is opened.</p>
+    <div class="cards">
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v4h-4"/></svg></div><b>The whole life of a matter</b><p>Quick checks, intake, pro bono, search, review, approvals, waivers, letters, walls, laterals, opening, the matter workspace and closing, with one audit trail.</p></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/></svg></div><b>The firm keeps its data</b><p>Runs on the firm's own server, with sign-in through the firm's Microsoft 365 accounts. Nothing goes outside unless an administrator deliberately turns it on.</p></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v5M12 16v5M3 12h5M16 12h5"/></svg></div><b>Private, advisory AI</b><p>An optional model on the firm's own hardware suggests and helps draft. A conflicts analyst or lawyer always decides.</p></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="M3 12h18M9 5v7M15 12v7"/></svg></div><b>Walls enforced on the server</b><p>People screened from a matter are never sent it at all. Every change goes into a tamper-evident audit trail.</p></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v16M6 20h12M5 8h14"/><path d="m5 8-3 6h6zM19 8l-3 6h6z"/></svg></div><b>Rules for the firm's states</b><p>Waivers, engagement letters and lateral screens follow the conflict rules of the state each matter is in.</p></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m4 4 16 16"/></svg></div><b>Never signs for anyone</b><p>Engagement letters and waivers count as signed only when a person uploads the signed copy and records who signed it.</p></div>
+    </div>
+    <h3>Key facts</h3>
+    <div class="tbl"><table>
+      <thead><tr><th scope="col">Question</th><th scope="col">Answer</th></tr></thead>
+      <tbody>
+        <tr><td>Who uses it</td><td>Lawyers and secretaries (requests and their own tasks), approvers (practice group leaders, general counsel, finance), the conflicts team, and administrators</td></tr>
+        <tr><td>Where it runs</td><td>On the firm's own server, or as a desktop app for Windows, macOS and Linux that connects to it or runs everything on one computer</td></tr>
+        <tr><td>Sign-in</td><td>The firm's Microsoft 365 accounts (Entra ID), so multi-factor and device rules follow the firm's own policy</td></tr>
+        <tr><td>Database</td><td>PostgreSQL, the widely used open-source database</td></tr>
+        <tr><td>Billing system</td><td>Stays the system of record; Conflion exchanges clients, matters and billing status with it (Aderant is supported, and Clio and spreadsheet exports import)</td></tr>
+        <tr><td>Document management</td><td>Creates matter workspaces and folders in iManage or SharePoint when a matter opens</td></tr>
+        <tr><td>AI</td><td>Optional; runs on the firm's own hardware by default, with an optional backup model; advisory only</td></tr>
+        <tr><td>Conflict rules</td><td>18 states and D.C. have their own rule profiles; every other state follows the ABA Model Rules</td></tr>
+        <tr><td>Audit</td><td>Every change recorded with who, what and when, in a log that shows any tampering</td></tr>
+        <tr><td>Size</td><td>Load-tested with a simulated firm of 200 lawyers and up to 250,000 party names</td></tr>
+        <tr><td>Training</td><td>Role walkthroughs, Quick answers, a help assistant, a glossary, printable quick-start sheets and a test firm with made-up data</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- 2 -->
+  <section id="journey">
+    <h2><span class="num">02</span>How a matter moves</h2>
+    <p class="intro">A new matter goes from a lawyer's first question to an open, billable matter in eight steps, and Conflion shows everyone what it is waiting on at each one.</p>
+    <ol class="flow" aria-label="The eight steps">
+      <li><b>Quick check</b><small>optional, names only</small></li>
+      <li><b>New intake</b><small>the full request</small></li>
+      <li><b>Conflicts search</b><small>every party</small></li>
+      <li><b>Conflicts review</b><small>each hit decided</small></li>
+      <li><b>Approvals</b><small>the firm's routing</small></li>
+      <li><b>Matter opened</b><small>number, billing, folders</small></li>
+      <li class="hold"><b>Billing on hold</b><small>until signed copies</small></li>
+      <li><b>Billable</b><small>paperwork complete</small></li>
+    </ol>
+    <ol class="steps">
+      <li><b>Quick check (optional).</b> A lawyer or secretary sends just the party names, or pastes an email and lets Conflion find the parties in it. The check gets its own number and is searched at once. If the work goes ahead, the same record becomes a full intake, keeping every decision already made.</li>
+      <li><b>New business intake.</b> The requester fills in the client, matter, parties and roles, practice area and records area, offices, lawyers, fee estimate and billing details, plus the firm's own questions. A live preview shows possible conflicts for each party as it is typed. Pro bono matters have their own intake with eligibility questions and no fee fields.</li>
+      <li><b>Conflicts search.</b> Every party is searched against clients, adverse parties, related companies, former and prospective clients, declined matters, pending requests and lawyers' declared relationships. Each search gets a permanent number (S-2026-000123) that can be cited. New parties are also screened against sanctions lists.</li>
+      <li><b>Conflicts review.</b> The conflicts team sees hits grouped by party and ranked by risk, with the reason and any earlier decisions on the same party. They decide each hit, ask responsible lawyers for clearance, record waivers and put up ethical walls. A conflicts summary goes back to the lawyer.</li>
+      <li><b>Approvals.</b> The request follows the firm's route: for example the practice group leader, finance, and the general counsel for restricted, high-fee or high-risk work. Approvers approve, approve with conditions, or send it back. An approver with a declared interest in a party is routed around, and an alternate approves instead.</li>
+      <li><b>Matter opening.</b> The conflicts team opens the matter. It gets its client.matter number (for example 011072.0001), new parties join the database, the billing record is prepared, and the matter's folders can be created in the document system.</li>
+      <li><b>Billing hold.</b> Opening does not wait for paperwork, but billing does. Until the signed engagement letter, signed waivers and any required documents are uploaded and every conflicts item is closed, the matter shows <i>Open · billing on hold</i>.</li>
+      <li><b>After opening.</b> The matter workspace holds the team's tasks, notes and timeline. Change monitoring re-checks the matter's parties when the firm's data changes and lists any new hit nobody has reviewed. When the matter ends it is closed with a retention date.</li>
+    </ol>
+    <h3>Who does what</h3>
+    <div class="tbl"><table>
+      <thead><tr><th scope="col">Role</th><th scope="col">What they do in Conflion</th></tr></thead>
+      <tbody>
+        <tr><td>Lawyer</td><td>Sends quick checks and new matters, answers questions, reviews waiver drafts, works in the matters they are on, and sees their own requests and tasks</td></tr>
+        <tr><td>Secretary</td><td>Prepares and converts requests for their lawyers, and works on their lawyers' matters</td></tr>
+        <tr><td>Approver</td><td>Approves, conditions or returns requests at their step</td></tr>
+        <tr><td>Conflicts analyst</td><td>Reviews hits, runs searches, records waivers and walls, opens and closes matters</td></tr>
+        <tr><td>Administrator</td><td>Sets up the firm: people, approval routes, intake questions, templates, connections and AI settings</td></tr>
+      </tbody>
+    </table></div>
+    <p>Every request shows a next-step line that says in plain words what it is waiting on and who has it. Lawyers get a task list on their home page, and emails go out for approvals, walls and conflicts summaries.</p>
+  </section>
+
+  <!-- 3 -->
+  <section id="features">
+    <h2><span class="num">03</span>Features</h2>
+    <p class="intro">Conflicts, intake, approvals, waivers, walls, laterals, matter opening and the matter workspace live in one system. <span class="new">NEW</span> marks what arrived in this release.</p>
+    <div class="feat">
+      <div>
+        <h3>Conflicts search</h3>
+        <ul>
+          <li>Name matching that catches misspellings, sound-alikes, nicknames (Bill and William), aliases, former names and partly typed words. Rare words count more than common ones.</li>
+          <li>Corporate families up to the ultimate parent and back down, and personal links such as spouses and officers.</li>
+          <li>One Search page for standard, Boolean and batch searches; switching keeps what was typed, and each batch line is checked as it is typed. <span class="new">NEW</span></li>
+          <li>Permanent search numbers that can be cited and looked up.</li>
+          <li>Confidential searches, a duplicate search warning, and a list of earlier searches for any name.</li>
+          <li>Sanctions screening against the OFAC list and other lists the firm loads.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Intake</h3>
+        <ul>
+          <li>Guided new business intake in short steps, with a live conflicts preview.</li>
+          <li>Quick check, with the parties found in a pasted email or description for the requester to confirm. <span class="new">NEW</span></li>
+          <li>Pro bono intake with eligibility questions and its own numbering.</li>
+          <li>Practice area and records area on every new matter form.</li>
+          <li>The firm's own questions, added without programming and shown only where they apply.</li>
+          <li>Practice screens for health care, cannabis, an insurer as client, public bodies and political work, which ask the right questions and can add approval steps.</li>
+          <li>Name suggestions in lawyer and staff fields, accepted with Tab. Nothing fills in by itself.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Review and approvals</h3>
+        <ul>
+          <li>Hits ranked by risk with a plain reason, earlier decisions alongside, and one-click or bulk decisions with notes.</li>
+          <li>Clearance requests to responsible lawyers, and lawyer relationship disclosures shown as FYIs.</li>
+          <li>Approval routes built from the firm's rules, with deadlines, overdue flags and delegates.</li>
+          <li>Routing around an approver's declared interest, with both people told and the audit trail updated.</li>
+          <li>A conflicts report for lawyers, with a PDF download.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>State conflict rules <span class="new">NEW</span></h3>
+        <ul>
+          <li>A home state and the other states the firm works in, set once; each office has its own state.</li>
+          <li>A request follows its office's state, or a state the conflicts team picks, such as the court's.</li>
+          <li>Waiver consent wording, engagement letter checks (including California's and New York's) and non-engagement letters follow the matter's state.</li>
+          <li>Lateral screens follow each state's version of Rule 1.10 and name the stricter state.</li>
+          <li>18 states and D.C. are profiled; every other state uses the ABA Model Rules and says so on screen.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Waivers and letters</h3>
+        <ul>
+          <li>Waiver records with informed written consent, sent to clients by a secure link, with reminders.</li>
+          <li>Waiver drafts from templates, which a lawyer edits and approves from a task.</li>
+          <li>Engagement letters from the firm's editable templates, exported to Word.</li>
+          <li>Drafts are edited by typing into the document itself, and every save is logged.</li>
+          <li>Letters never name another client unless that client agreed to be named.</li>
+          <li>Outside counsel guidelines per client, broken into key terms and flagged on that client's requests.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Ethical walls and laterals</h3>
+        <ul>
+          <li>Walls that keep named people out, or let only the team in, over a matter or a whole client.</li>
+          <li>Enforced on the server: a screened person is never sent the walled matter, its files, notes or audit lines.</li>
+          <li>Acknowledgments, wall notices, certifications and screened-person lists for other systems.</li>
+          <li>A secure questionnaire for a lateral candidate's prior matters, a batch search of what they list, and walls up before the start date.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Matter workspace <span class="new">NEW</span></h3>
+        <ul>
+          <li>Tasks with an owner, due date and priority, linked to the matter's key dates if wanted.</li>
+          <li>Task checklists and document templates set up by administrators; templates fill in from the matter.</li>
+          <li>Team notes that keep every earlier wording.</li>
+          <li>One timeline of everything that happened on the matter.</li>
+          <li>A lead list that follows prospective clients from first contact to hired or declined. A hired lead starts an intake that goes through the ordinary conflicts check.</li>
+          <li>Walls and confidentiality hide tasks, notes and timelines from anyone they keep out.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Opening, monitoring and reports</h3>
+        <ul>
+          <li>Client.matter numbering, with chosen numbers for the conflicts team (with a reason, checked to be free).</li>
+          <li>An opening checklist split into what opening needs and what billing needs.</li>
+          <li>Change monitoring that re-checks open matters when data changes and each night, listing only new hits.</li>
+          <li>Company families from public registers (GLEIF, SEC EDGAR, OpenCorporates) and the firm's own data exports. Nothing is added until an analyst picks it.</li>
+          <li>Standard reports, a report builder and an ethics pack; reports fold away until opened, and every table sorts by any column. <span class="new">NEW</span></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Help and ease of use <span class="new">NEW</span></h3>
+        <ul>
+          <li>Quick answers to everyday questions, each with a <i>Take me there</i> button.</li>
+          <li>An assistant that answers questions in plain words from Conflion's own help, using the firm's AI model. Its answers are marked as drafts.</li>
+          <li>Role walkthroughs that point at things but never click, submit or decide.</li>
+          <li>A command palette (Cmd or Ctrl + K) to jump to any page, request, matter, party or search number.</li>
+          <li>Day or night mode, text size, font choice including an easy-reading font, and color schemes checked against the WCAG AA contrast standard.</li>
+          <li>Newton the help cat, if the firm wants him.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section id="ai">
+    <h2><span class="num">04</span>AI assistance</h2>
+    <p class="intro">Conflion's AI is optional, runs on the firm's own hardware by default, and only suggests or helps draft. A conflicts analyst or lawyer reviews everything and makes every decision.</p>
+    <div class="tbl"><table>
+      <thead><tr><th scope="col">Task</th><th scope="col">What the AI does</th><th scope="col">What a person does</th></tr></thead>
+      <tbody>
+        <tr><td>Hit triage</td><td>Suggests whether a hit is likely the same entity and likely a conflict, with a one-line reason, marked ✦</td><td>The analyst decides; the suggestion never records a decision</td></tr>
+        <tr><td>Finding parties</td><td>Suggests parties and roles from a pasted email or matter description</td><td>The requester accepts or rejects each one; names not in the text are thrown out</td></tr>
+        <tr><td>Conflicts memo</td><td>Helps draft a memo from the decisions already recorded</td><td>The analyst edits it</td></tr>
+        <tr><td>Import columns</td><td>Suggests which column of an export feeds each field</td><td>The administrator confirms</td></tr>
+        <tr><td>Letters and guidelines</td><td>Lists key terms from a letter or a client's outside counsel guidelines</td><td>A lawyer checks them</td></tr>
+        <tr><td>Waiver first drafts</td><td>Helps fill a waiver template, using the rules of the matter's state</td><td>A lawyer edits and approves it</td></tr>
+        <tr><td>Help questions</td><td>Answers from Conflion's own help pages, marked as a draft</td><td>The person follows the steps themselves</td></tr>
+      </tbody>
+    </table></div>
+    <p>Search results, risk levels, reports, approvals, walls and signed documents never depend on the AI. With no model connected, Conflion works fully.</p>
+    <h3>Where it runs</h3>
+    <ul>
+      <li><b>On the firm's own hardware (default).</b> The model runs on a server or workstation inside the firm through standard local model software such as Ollama or LM Studio. Client names stay on the firm's network.</li>
+      <li><b>One-click model setup.</b> <span class="new">NEW</span> An administrator picks the model from a list of the ones installed, and Conflion checks it before using it.</li>
+      <li><b>A backup model.</b> <span class="new">NEW</span> A second local model can take over only when the main one can't be reached. It is never an outside provider.</li>
+      <li><b>The server decides where AI calls go.</b> Every call goes to one address the firm sets, and a model outside the firm's private network is refused unless an administrator deliberately allows it.</li>
+    </ul>
+    <h3>An outside provider, only if the firm chooses</h3>
+    <p>A firm can choose its own account with an outside provider instead, such as Anthropic directly, Claude through its AWS or Google Cloud account, or any provider with a standard chat interface. It takes two separate steps, IT configuring it on the server and an administrator accepting a written data-handling notice, and both are recorded. Even then, Conflion never sends:</p>
+    <ul>
+      <li>restricted or highly confidential requests, or confidential ones unless an administrator allows it;</li>
+      <li>requests someone marked "Keep this request away from outside AI services";</li>
+      <li>anything with a hit behind an ethical wall;</li>
+      <li>anything for a client whose outside counsel guidelines bar AI use, or its corporate family;</li>
+      <li>health information requests and matters, or import files.</li>
+    </ul>
+    <p>Each task sends a fixed, minimal set of fields, and the server writes "Sent to external AI" with the fields sent to the audit trail before anything leaves.</p>
+    <h3>Safeguards</h3>
+    <ul>
+      <li>Documents and emails are treated as untrusted text, so instructions hidden in them are not followed.</li>
+      <li>The model has no internet access, and its answers must fit a fixed format or they are discarded.</li>
+      <li>AI notes follow the same walls and confidentiality rules as everything else.</li>
+      <li>Every AI use is recorded with the task and model name, and every suggestion is marked ✦ on screen.</li>
+      <li>Optional add-on tools, such as Party Finder for listing every party to search and Guideline Guard for checking a prebill against a client's guidelines, each stay off until an administrator turns them on.</li>
+    </ul>
+  </section>
+
+  <!-- 5 -->
+  <section id="security">
+    <h2><span class="num">05</span>Security and confidentiality</h2>
+    <p class="intro">Conflion is built around one rule: a person screened from a matter must never receive it. The server decides what each person is sent, every change is recorded in a tamper-evident log, and the firm keeps its data on systems it controls.</p>
+    <div class="say">
+      <img class="cat sm" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAAoCAYAAACFFRgXAAAEQUlEQVR4AcSWPWgUURSFX9IJQkQkIiKKMRZBooWSFJpCwSKNRQKCIOkCWgmKYLBQIlporaClKCKmsrELRBNWsdAIWyj+gJ1Eq6CICcr35Ax337w3OzMbUTh779x7z7lnXp7ZdLvEv4Ftg79Bol27jCaoKxA1bAVtXneJeFbL5uqXiVHDEBvTUw6QryXQBHU1c4b15ovvP3pNxKkBX6jxARegBV3a1HiugpxhkQeGlp2EtUi9OlEaXnP1cR0Jz0kaptvf94bgwUJOBPhCiQ9mAdxsvAOzaEQNHxnsoZeDFmOiDBAQh9witcPOxPIWw5hg6PKpEfdr6e8d5kdoQb8KLJe8f/cOTz++d9VH7fQPJT5aDDMfvjnXwuL60RUHXjefuCIwAyyXnB1CuEv1opgZ1pva0w2JL5++cvsP7QvLyWdm4aQG6pxyZhjRojfWYiJGvs2cgxIFPWaYZUCRHOhakBftpB/CGy5zuiJiRDnGlCvamp1VX1Gmq55yt8y2e1OWAy0sG+GAovl2uy3XnzCFortL/1+iyilnhlOGeifuuQNTjQypuVS9iK9rkeLG6m0Nb9/aF+OVrnXKDxe1NXznwbCzsAIbx27YR5+HNcsl90MdfLQ1/GJ+yVloV2hMdaLtWS45feHd209KS8fMcHNhNkfqPXHTXTz70E1u2ZSBIWvox8ycs6APNGO5aKFJH3R0hyfvLjveGCAGvtw/7QBLBBmhD9aNjfg/Q/k7gZyawKx4RLSA+trF7tsn16tcGLubnxe7wgmE7LcTS8DKz+/Z6IfGnAMUhs5POEBODZADOHABzwBtdpALmI554XsCaM5fCTsIkWbP5g0OYXJOB5DXAVwAF020ydkF2A+oWVijyr1hhiBAJhdGby04FnE6wH7t7hwecUCzitSAnuHABWihqV6ZyFUBzGI6M0wB0wDjYP7SqAPhj4/ZqkADLYA2YBeIaWEuVm8xrAGJIKoakf9ExCoIOdLUjipazEYN07Co8+vH8jld+9xJHjWsH4fujhZwH5WXjXB4YQBHmtpBrQpyhiUkYS2qIpqalZa0tSucV312ek/YcjnDuQlTCO+jaSXTOhzEMKurZO99i2G9mU5AJ4LAWkGa2qGd0tdzzCwzLYYpFIH7WNSP9epwYjqqZYb1ZnpznYQGFasYSM1KW7u0Wzu4DsrDmBkOG6nnKneyyiymQWqv6pUNc2pAAqnIDEj1Y3VOFqTuL5xShjkpAEEoMhP24AJxO4mFhlkCtIBcb08tNBbWmIVDHZAD6jzz60r3WCdLjzrg6xswK+QM7zp2xg1deOQQ1pDi1+YzhxCiIDZDjR5gFo74iuygJ7NE5tUviplhvcnh8SuOJTHQQ4xl4Pm18dwsNXqAWTihFjV6miEXqOEFqGZjZtgWEYyBGYQAOeLhHDV6zADycIaawDw4eHWhC4ijfhhbDLcbDsn/4/kPAAAA///UMhT4AAAABklEQVQDADohyzeAyPT2AAAAAElFTkSuQmCC" alt="" width="44" height="40">
+      <p><span class="who">NEWTON</span>Hiding isn't done by the screen. If you're walled from a matter, your browser never gets it, so there's nothing to peek at.</p>
+    </div>
+    <h3>Who can see what</h3>
+    <ul>
+      <li><b>Each person gets only their own view.</b> Lawyers, secretaries and approvers get their own requests, the matters they work on and the records their tasks need. The conflicts team and administrators see what their work needs, still subject to confidentiality levels.</li>
+      <li><b>Walls are enforced before data leaves the server,</b> in every screen, search, export, timeline and AI note.</li>
+      <li><b>Confidentiality levels.</b> Any client, matter or request can be normal, confidential or highly confidential, with named people allowed in. A matter takes the higher of its own level and its client's.</li>
+      <li><b>What others see of a hidden record</b> is only "Match on a confidential record. Contact the conflicts team," with no name, matter or count.</li>
+      <li><b>Every opening of a walled or confidential record is logged,</b> including blocked attempts.</li>
+      <li><b>Losing access takes effect at once.</b> Disabling an account or changing a role ends that person's sessions and live updates immediately.</li>
+    </ul>
+    <h3>Sign-in and the audit trail</h3>
+    <ul>
+      <li>Sign-in through Entra ID, so multi-factor and conditional access follow the firm's policy. Accounts are created by an administrator.</li>
+      <li>Sessions end after 30 minutes idle and 12 hours in total (both adjustable).</li>
+      <li>Every change is appended to a log the database itself refuses to edit or delete. Each entry is linked to the one before by a keyed fingerprint, checked at start-up and every 15 minutes, and the log alone can rebuild all of the firm's data.</li>
+    </ul>
+    <h3>Protecting the data</h3>
+    <div class="tbl"><table>
+      <thead><tr><th scope="col">Area</th><th scope="col">How it is protected</th></tr></thead>
+      <tbody>
+        <tr><td>In transit</td><td>HTTPS only, with strict browser security settings; the app loads no third-party content</td></tr>
+        <tr><td>Database</td><td>PostgreSQL on the firm's server, reached only by the app over a private network, with an app account that cannot change the database's structure</td></tr>
+        <tr><td>Uploaded files</td><td>Encrypted with AES-256 before they are stored, with virus scanning that can be found and turned on in one click <span class="new">NEW</span></td></tr>
+        <tr><td>Keys</td><td>The file encryption key can be rotated, re-encrypting every stored file <span class="new">NEW</span></td></tr>
+        <tr><td>Backups</td><td>Every copy encrypted; an unencrypted backup is refused; restore steps tested</td></tr>
+        <tr><td>Logs</td><td>Ids, timings and error codes only, never party names, search terms or document text</td></tr>
+        <tr><td>Waiver links</td><td>Long random secrets stored only as fingerprints, with expiry and revocation</td></tr>
+        <tr><td>Software supply</td><td>A full list of the software components (SBOM) built with every change, plus dependency and code scanning on every change <span class="new">NEW</span></td></tr>
+        <tr><td>Alerts</td><td>Bursts of failed sign-ins are flagged, and failed health checks can post to the firm's own alerting <span class="new">NEW</span></td></tr>
+        <tr><td>Leaving</td><td>A full export of the firm's data, then a destructive clean-up that runs as a dry run first <span class="new">NEW</span></td></tr>
+      </tbody>
+    </table></div>
+    <h3>Support without client data</h3>
+    <p>An administrator can produce a support bundle in which every name, email, id and piece of free text is replaced by a placeholder. Conflion checks it against every name in the firm's records before it can be saved, and nothing is sent automatically. When support needs to see a problem happen, Conflion can build a test firm of made-up records the same size and shape as the firm's data.</p>
+    <h3>How it is tested</h3>
+    <ul>
+      <li>Over 1,000 automated tests, including tests that inspect everything each kind of user is sent and check that no walled or highly confidential name, number or file appears in it.</li>
+      <li>Tests that feed the AI hostile documents designed to trick it, and confirm nothing but the advisory note changes.</li>
+      <li>Security testing of a production-mode install covering walls, confidentiality, sign-in, file handling and attempts to act as another user.</li>
+    </ul>
+  </section>
+
+  <!-- 6 -->
+  <section id="data">
+    <h2><span class="num">06</span>Data and integrations</h2>
+    <p class="intro">A firm's existing conflicts records come in through a checked import, the billing system stays the system of record, and the document system can receive matter folders and walls.</p>
+    <h3>Bringing in existing records</h3>
+    <ol class="steps">
+      <li><b>Choose the file.</b> Presets recognise Aderant and Clio layouts; any other CSV or Excel export is matched by its column headings.</li>
+      <li><b>Match the columns.</b> Conflion suggests which column feeds each field, and a person confirms each one.</li>
+      <li><b>Match the role values.</b> The old system's words for client, adverse party and so on are mapped to Conflion's roles.</li>
+      <li><b>Dry run.</b> Before anything is saved, Conflion shows the new parties, the matches to existing records, possible duplicates and any warnings.</li>
+      <li><b>Import, with undo.</b> A recent import can be undone while nothing else depends on it, and an import can be tried first in the test firm.</li>
+    </ol>
+    <h3>The billing system</h3>
+    <p>Conflion never changes billing data. With Aderant it can work from uploaded reports, a shared folder read each night, or a live connection. Client, matter and entity names come in, along with each matter's billing status, which only the conflicts team sees. Newly opened matters go back with their client, matter number, office and lawyers, and whether they are on billing hold. A nightly pull never merges records on its own; a close name is listed for review.</p>
+    <h3>Document management and Microsoft 365</h3>
+    <ul>
+      <li><b>Matter folders.</b> When a matter opens, Conflion can create its workspace and the folders its records area calls for in iManage or SharePoint. It is off until an administrator turns it on.</li>
+      <li><b>Filing.</b> Documents attached in Conflion can be filed to iManage or SharePoint. Confidential and walled records are not filed unless an administrator allows each case.</li>
+      <li><b>Walls in other systems.</b> Conflion can apply its walls to iManage workspaces, SharePoint folders and Microsoft 365 groups, in plan, read-only or enforce mode.</li>
+      <li><b>Outlook.</b> An add-in can start an intake from an open email, sending it only to the firm's own Conflion server.</li>
+      <li><b>Email</b> goes through the firm's own mail server. Emails about sensitive requests name them by number only.</li>
+    </ul>
+  </section>
+
+  <!-- 7 -->
+  <section id="it">
+    <h2><span class="num">07</span>Running it</h2>
+    <p class="intro">Conflion runs on one server inside the firm, alongside a PostgreSQL database and, if wanted, a local AI model. A firm of 200 lawyers was load-tested on a modest four-core, 15 GB machine.</p>
+    <div class="house">
+      <span class="tag">INSIDE THE FIRM</span>
+      <div class="arch" role="img" aria-label="Lawyers and staff reach the Conflion server through the firm's HTTPS proxy. The Conflion server is the only part that talks to the database, the local AI model and the firm's other systems.">
+        <div class="box"><b>Lawyers and staff</b>browser or desktop app</div>
+        <div class="arr" aria-hidden="true">→</div>
+        <div class="box core"><b>Conflion server</b>behind the firm's HTTPS proxy, checks every request</div>
+        <div class="arr" aria-hidden="true">→</div>
+        <div class="stack">
+          <div class="box">PostgreSQL</div><div class="box">Local AI model</div><div class="box">Entra ID · mail</div><div class="box">Billing · documents</div>
+        </div>
+      </div>
+    </div>
+    <h3>System status and one-click setup <span class="new">NEW</span></h3>
+    <p>Administrators get one System status page that puts every part of Conflion, and every system it talks to, on one map marked Working, Needs attention, Down or Not set up, checked again every 30 seconds. Each part has its own setup block: one click where Conflion can do the job itself (the AI model, the backup model, virus scanning), the right settings page where a person must choose, or a ready-made request to copy for IT. "Set up what I can" does every one-click step at once. A trace follows any request, search or matter through every step and out to each connected system.</p>
+    <h3>What firm IT provides</h3>
+    <ul>
+      <li>A Linux server or virtual machine with Docker, behind an HTTPS reverse proxy with a certificate.</li>
+      <li>An Entra ID app registration for sign-in, a mail relay, and encrypted backup storage off the server.</li>
+      <li>If AI is wanted, a machine for the local model. As an estimate, one modern desktop-class machine with a capable graphics processor or Apple silicon keeps up with a firm of about 200 lawyers, because triage runs in the background.</li>
+    </ul>
+    <h3>Performance at size</h3>
+    <p>The load test played all 229 people of a simulated 200-lawyer firm at once, each with their own sign-in and live screen.</p>
+    <div class="tbl"><table>
+      <thead><tr><th scope="col">Party names</th><th scope="col" class="num-r">Changes per second</th><th scope="col" class="num-r">Change reaches every screen (typical / slow)</th><th scope="col" class="num-r">Server memory</th></tr></thead>
+      <tbody>
+        <tr><td>50,000</td><td class="num-r">1</td><td class="num-r">0.4 s / 0.5 s</td><td class="num-r">1.0 GB</td></tr>
+        <tr><td>50,000</td><td class="num-r">10</td><td class="num-r">0.4 s / 0.7 s</td><td class="num-r">1.2 GB</td></tr>
+        <tr><td>250,000</td><td class="num-r">1</td><td class="num-r">0.7 s / 1.0 s</td><td class="num-r">2.4 GB</td></tr>
+        <tr><td>250,000</td><td class="num-r">5</td><td class="num-r">0.9 s / 1.6 s</td><td class="num-r">3.0 GB</td></tr>
+      </tbody>
+    </table></div>
+    <p>One change a second is about 29,000 changes in an eight-hour day. Every run had no failed requests, every simultaneous edit was resolved correctly, and the audit log rebuilt the data exactly.</p>
+    <h3>Day to day</h3>
+    <div class="tbl"><table>
+      <thead><tr><th scope="col">When</th><th scope="col">Job</th></tr></thead>
+      <tbody>
+        <tr><td>Every 5 minutes</td><td>Health check: server up, audit chain intact, latest backup recent</td></tr>
+        <tr><td>Nightly</td><td>Encrypted database backup</td></tr>
+        <tr><td>Daily</td><td>Record the audit log's latest fingerprint outside the database</td></tr>
+        <tr><td>Monthly</td><td>Security updates through a normal release</td></tr>
+        <tr><td>Quarterly</td><td>Restore drill on a scratch server</td></tr>
+      </tbody>
+    </table></div>
+    <h3>Trying changes safely</h3>
+    <p>A separate test firm with made-up data lets the conflicts team and administrators try approval routes, intake questions, imports, templates and AI settings without touching real records. Test data never reaches live data, never sends email and never calls an outside AI. When a change works, an administrator reviews the differences and promotes it, and the promotion is recorded.</p>
+  </section>
+
+  <!-- 8 -->
+  <section id="rollout">
+    <h2><span class="num">08</span>Rollout and FAQ</h2>
+    <p class="intro">The safest path is a pilot that shows Conflion finds what the firm's current process finds, on the firm's own past searches, before anyone relies on it.</p>
+    <ol class="steps">
+      <li><b>IT and security review.</b> Firm IT reviews this sheet and the security documentation, and installs Conflion on a test server inside the firm.</li>
+      <li><b>Load a copy of the records</b> through the checked import, and connect the billing system by report upload.</li>
+      <li><b>Side-by-side test on past searches.</b> Past searches with known outcomes are run again in Conflion, and the conflicts team labels each hit without knowing which system found it. A built-in pilot page measures the time from intake to cleared and the hits each system found that the other missed.</li>
+      <li><b>Parallel running.</b> For a set period, new requests go through both the current process and Conflion.</li>
+      <li><b>Go-live decision.</b> Leadership decides on go-live, which features to switch on, and the firm's approval routes and templates.</li>
+    </ol>
+    <p>A pilot can also start with names only, or entirely on made-up data in the test firm.</p>
+    <h3>Frequently asked questions</h3>
+    <details class="faq"><summary>Does Conflion replace the billing system?</summary><p>No. The billing system stays the source of client, matter and billing records. Conflion reads from it and sends opened matters back.</p></details>
+    <details class="faq"><summary>Who owns and holds the data?</summary><p>The firm. On a firm server, the data never leaves the firm's systems. It sits in a standard PostgreSQL database and can be exported in full at any time.</p></details>
+    <details class="faq"><summary>Does the AI make conflicts decisions?</summary><p>No. It suggests and helps draft, every suggestion is marked ✦, and a person decides. The firm can run Conflion with no AI at all.</p></details>
+    <details class="faq"><summary>Does client information go to an outside AI company?</summary><p>Not unless the firm deliberately turns that on, in two separate steps. Even then, walled, restricted, highly confidential and health information records are never sent, and every call is logged.</p></details>
+    <details class="faq"><summary>What if the firm works in several states?</summary><p>Each office and request follows its own state's conflict rules for waivers, letters and lateral screens, and the request shows which state applies and why.</p></details>
+    <details class="faq"><summary>Can a lawyer see a matter they are walled from?</summary><p>The server never sends it to them, in any screen, search, export, timeline or AI note. Attempts to open walled records are logged.</p></details>
+    <details class="faq"><summary>Does Conflion sign engagement letters or waivers?</summary><p>Never. People upload signed copies and record who signed.</p></details>
+    <details class="faq"><summary>What if the server stops?</summary><p>Every change is saved with its audit entry before anyone sees it, so a restart loses nothing. Nightly encrypted backups and a tested restore cover the loss of the server itself.</p></details>
+    <details class="faq"><summary>How are new people trained?</summary><p>Each role gets a short walkthrough the first time, plus Quick answers, the help assistant, a glossary, printable quick-start sheets, and a test firm to practise in.</p></details>
+  </section>
+</main>
+
+<footer class="wrap">
+  <div class="say">
+    <img class="cat sm" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAAoCAYAAACFFRgXAAAENklEQVR4AcTWMYgdZRQF4D/bCULEQitB1FgEiRbKptAtFCzSWCQgCGInaGUhgqmUSCy0VrAVrExlYxeIcVlRRCMsqEQjdqJWQRETlG/kDP+bNzNvZjbqwtl7595zzz3z7897u1UGfo7ecewvGGgvLtOEpQK9hmvBOl+6JHO1Vp2nPyX2Gja4d+Z0AfmNBE1YqrlmOG9+6fL3jSZxNWgKC36ZBVrGo63meQ7WDGf46PbVEuEsSm9JjEajef2DJRLNzKBh3SN3fyU0sNCJQFOY8AsXzLb0A5il0Wv4sWOH9daQxUxMAYHMyGsM7ag5ffmKYSaQXn1up/z58z932J+whv4c1LPyI/fe2Yw/ef/1JmZn8zDh14ph/O6buxY13nj8WoEv9z8sY8CBelZuR9DdlfpYbA3nTevT7Q5+9tEX5cFHHuiWB59xzQwRlpxya5jo2BtnscjIr+deNNILPRxchEQ55FrIx3bqd9EYnnK6GWQkOWPJE+tazU0/MabnnvJWzG56U8shC6dGMzDG37S7nm1OWGHs7ur/m5hzyq3hTYYeOr1XYBNvqG8W6n6uRV3blE82vEnov+oPGnYaECOfnj1eQA3Ubz35prCC1HAgTbOgBqnPjYOGNwnFWB9vrFfzv/3mSv04KW8N7++eXxlwGj9c+bzc9tRbK/XLX18skOLv5y6UGqnjQJ5FWjRpez7QHX723avFGwMx+Om95wtYFKjXuOnkTvNvqP8T5HVPnjmRFqhDdtn9ztM3K23E1v6Plw51WYTqbydL4Nofv7XU7/YuFFDYfumZAnI1kIMZs+AZaNshD5ju8+J7AsJrrkRNNKh5+PZbCmG50wH5EpgFszRpy+0C+0GtRm00eWMYyYBheXDi7d3mDjsdqL927zq+UyDcRDXIsxmzwDTN9KZEVwVwmW4NKzANjMPHr5wo0P3z4c4FDVpAG+yCPi3m+uorhkOICNHUxKkfV7hBdyaa2RHe1NhruDu85OOn1nC69fNB8l7D+XPk7mSB+5h8ajTjhcFMNLNDbQ7WDEcowlk0R3SIG61oZ1eXn/r5M/d1W2XN8BqjKnTvY9UaTJfMEGM2V6m+9yuG82Y5gZwIgRuFaGZHdkY/z31mcVYMK4zBfRzr9/WWzPTppNYazpvlzXMSISbOMTDEjXZ2ZXd2uA7Ju7E13G0MPc+5k3O4TMPQ3tRnG3ZqEIGhiAND/b66k4Wh+2tmkmEnBQaCMTPdnlnI7EHiqGFLIAvkeXu1rrFuDdeMOshB3bOPq9zjnKyeOvj6BtxgzfA9T7xQtl9+vxAOKfGX/YuFEFHo46jpAa6ZzCfaoRezIn76Y7E1nDd59NRrxZI+6BGzDD55/dQaV00PcM10tdT0wpEHarxAanVsDddFgn3AIQRy4l2emh4OyLsctQAfHj67ewgyk343rhjeRO4O/x/PfwMAAP//LqUrPwAAAAZJREFUAwAJFL83C6U4MAAAAABJRU5ErkJggg==" alt="" width="44" height="40">
+    <p><span class="who">NEWTON</span>That's Conflion. Want to see it move? <a href="conflion-full-process.html">Watch my animated pitch.</a></p>
+  </div>
+  Conflion Information Sheet · Version 2.0 · build 3e303ad · 18 October 2026<br>All firms, people and matters are fictional.
+</footer>
+
+<script>
+const darkMQ = matchMedia('(prefers-color-scheme: dark)');
+const themeNow = () => document.documentElement.dataset.theme || (darkMQ.matches ? 'dark' : 'light');
+const themeBtn = document.getElementById('theme');
+function showTheme() {
+  const next = themeNow() === 'dark' ? 'light' : 'dark';
+  themeBtn.textContent = next === 'dark' ? 'Dark mode' : 'Light mode';
+  themeBtn.setAttribute('aria-label', 'Switch to ' + next + ' mode');
+}
+themeBtn.addEventListener('click', () => {
+  const next = themeNow() === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next;
+  try { localStorage.setItem('newton-theme', next); } catch (e) {}
+  showTheme();
+});
+darkMQ.addEventListener('change', showTheme);
+showTheme();
+</script>
+</body>
+</html>
