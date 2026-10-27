@@ -1,4 +1,4 @@
-/* Appearance controls: presets, custom colours, fonts, size, corners, density, backdrop.
+/* Appearance controls: presets, custom colours, fonts, size, corners, density, backdrop, texture.
    Applies saved settings on every page that loads it; builds the panel only where #appearance-btn exists. */
 (function () {
   'use strict';
@@ -25,7 +25,7 @@
     typewriter: ['Typewriter', 'ui-monospace, Menlo, Consolas, monospace', 'ui-monospace, Menlo, Consolas, monospace']
   };
   var COLORS = [['bg', 'Background'], ['surface', 'Panels'], ['ink', 'Text'], ['muted', 'Secondary text'], ['accent', 'Links and labels'], ['mark', 'Highlight']];
-  var DEF = { preset: 'eggshell', custom: null, font: 'editorial', size: 100, radius: 6, density: 1, backdrop: 'none' };
+  var DEF = { preset: 'eggshell', custom: null, font: 'editorial', size: 100, radius: 6, density: 1, backdrop: 'none', texture: 'grain' };
   var S;
 
   function load() {
@@ -43,6 +43,7 @@
     S.size = Math.min(130, Math.max(85, +S.size || 100));
     S.radius = Math.min(20, Math.max(0, +S.radius));
     S.density = [0.8, 1, 1.25].indexOf(+S.density) < 0 ? 1 : +S.density;
+    if (S.texture !== 'none') S.texture = 'grain';
   }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
   function cur() { return S.preset === 'custom' ? S.custom : PRESETS[S.preset]; }
@@ -70,6 +71,8 @@
     st.setProperty('--radius', S.radius + 'px');
     st.setProperty('--density', S.density);
     root.setAttribute('data-backdrop', S.backdrop);
+    root.setAttribute('data-texture', S.texture);
+    if (cur().dark) root.setAttribute('data-dark', ''); else root.removeAttribute('data-dark');
     backdrop();
     syncUI();
   }
@@ -126,6 +129,7 @@
     h += '<div class="ap-row"><label class="ap-label" for="ap-radius">Corners <output id="ap-radius-o"></output></label><input id="ap-radius" type="range" min="0" max="20" step="2"></div>';
     h += seg('Spacing', 'density', [['0.8', 'Compact'], ['1', 'Normal'], ['1.25', 'Airy']]);
     h += seg('Backdrop', 'backdrop', [['none', 'None'], ['glow', 'Soft glow'], ['grid', 'Grid'], ['rain', 'Rain']]);
+    h += seg('Texture', 'texture', [['grain', 'Paper grain'], ['none', 'None']]);
     h += '<div class="ap-row ap-foot"><button type="button" class="ap-reset">Reset to defaults</button></div>';
     panel.innerHTML = h;
     document.body.appendChild(panel);
@@ -144,6 +148,7 @@
       else if (d.font) S.font = d.font;
       else if (d.density) S.density = +d.density;
       else if (d.backdrop) S.backdrop = d.backdrop;
+      else if (d.texture) S.texture = d.texture;
       else if (b.classList.contains('ap-reset')) { S = JSON.parse(JSON.stringify(DEF)); }
       else return;
       save(); apply();
@@ -170,6 +175,7 @@
     panel.querySelectorAll('[data-font]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.font === S.font)); });
     panel.querySelectorAll('[data-density]').forEach(function (b) { b.setAttribute('aria-pressed', String(+b.dataset.density === S.density)); });
     panel.querySelectorAll('[data-backdrop]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.backdrop === S.backdrop)); });
+    panel.querySelectorAll('[data-texture]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.texture === S.texture)); });
     panel.querySelectorAll('input[data-color]').forEach(function (i) { i.value = c[i.dataset.color]; });
     panel.querySelector('#ap-size').value = S.size; panel.querySelector('#ap-size-o').textContent = S.size + '%';
     panel.querySelector('#ap-radius').value = S.radius; panel.querySelector('#ap-radius-o').textContent = S.radius + 'px';
