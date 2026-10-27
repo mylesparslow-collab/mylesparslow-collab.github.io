@@ -254,8 +254,6 @@ span.note { font-style: italic; color: var(--muted); }
 }
 @keyframes settle { from { opacity: 0.2; transform: translateY(16px); } to { opacity: 1; transform: none; } }
 
-/* "with AI" decodes once per visit */
-.decode { display: inline-block; white-space: nowrap; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
 @media print { .finder, .find-empty, .readbar, .backtop, .fleuron, .cmp-line, .cmp-tag { display: none !important; } .compare img.after { display: none; } }
@@ -3004,7 +3002,7 @@ span.note { font-style: italic; color: var(--muted); }
 })();
 </script>
 <script>
-/* Picture index, find and surprise, count-up numbers, before/after sliders, reading bar, and the headline decode. */
+/* Picture index, find and surprise, count-up numbers, before/after sliders and reading bar. */
 (function () {
   var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   var $$ = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
@@ -3121,27 +3119,6 @@ span.note { font-style: italic; color: var(--muted); }
   window.addEventListener('resize', onScroll);
   onScroll();
 
-  // "with AI" resolves out of random glyphs on the first visit of a session.
-  var em = document.querySelector('.intro h1 em'), seen = false;
-  try { seen = sessionStorage.getItem('decoded') === '1'; sessionStorage.setItem('decoded', '1'); } catch (e) {}
-  if (em && !reduced && !seen) {
-    var word = em.textContent, glyphs = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#%&*+=?';
-    var real = document.createElement('span'); real.className = 'sr-only'; real.textContent = word;
-    var vis = document.createElement('span'); vis.className = 'decode'; vis.setAttribute('aria-hidden', 'true');
-    em.textContent = ''; em.appendChild(real); em.appendChild(vis);
-    vis.textContent = word; vis.style.minWidth = vis.getBoundingClientRect().width + 'px';
-    var start = performance.now(), dur = 900;
-    (function frame(now) {
-      var k = Math.min(1, (now - start) / dur), out = '';
-      for (var i = 0; i < word.length; i++) {
-        var settle = (i + 1) / word.length;
-        out += word[i] === ' ' || k >= settle ? word[i] : glyphs[Math.floor(Math.random() * glyphs.length)];
-      }
-      vis.textContent = out;
-      if (k < 1) requestAnimationFrame(frame);
-      else em.textContent = word;
-    })(start);
-  }
 })();
 </script>
 </body>
