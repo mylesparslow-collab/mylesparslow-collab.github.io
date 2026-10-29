@@ -213,6 +213,12 @@ span.note { font-style: italic; color: var(--muted); }
 .tile:focus-visible { outline: none; }
 .tile:focus-visible .thumb { outline: 2px solid var(--accent); outline-offset: 3px; }
 .ix-more { font-family: var(--mono); font-size: 0.85rem; }
+.ix-grid.ix-feature .tile.big { grid-column: span 2; }
+.ix-feature .tile.big .lbl strong { font-size: 1.35rem; }
+@media (max-width: 960px) { .ix-grid.ix-feature { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ix-grid.ix-feature .tile.big { grid-column: auto; } }
+@media (max-width: 640px) { .ix-grid.ix-feature { grid-template-columns: minmax(0, 1fr); } .ix-grid.ix-feature .tile.big { grid-column: auto; } }
+.sub-case { border-top: 1px solid var(--rule); padding-top: 1.5rem; display: grid; gap: 1.5rem; }
+.sub-case > h3 { font-family: var(--display); font-size: 1.5rem; font-weight: 800; }
 @media (prefers-reduced-motion: no-preference) {
   .tile .thumb img { transition: transform 1.6s cubic-bezier(.2, .7, .2, 1), opacity 0.6s ease; }
   .tile:hover .thumb img, .tile:focus-visible .thumb img { transform: scale(1.06); }
@@ -288,7 +294,7 @@ span.note { font-style: italic; color: var(--muted); }
     </dl>
     <nav class="index" id="index" aria-label="Projects">
       <div class="finder">
-        <label for="find" class="eyebrow">All 43 projects</label>
+        <label for="find" class="eyebrow">All 45 projects</label>
         <span class="find-box"><input id="find" type="search" placeholder="Find a project" autocomplete="off" aria-describedby="find-hint"><kbd id="find-hint" aria-label="Press slash to search">/</kbd></span>
         <button type="button" class="ap-btn" id="surprise">Surprise me</button>
       </div>
@@ -315,6 +321,13 @@ span.note { font-style: italic; color: var(--muted); }
         </div>
       </div>
       <div class="ix-group">
+        <p class="ix-head"><a href="#g-design">Design and 3D</a><span>2 projects</span></p>
+        <div class="ix-grid ix-feature">
+        <a class="tile big" href="#specimenroom" data-hay="specimen room design archive + site builder design archive + site builder a live design reference archive of 1,520 working specimens in 31 cabinets, from palettes, type and shaders to scroll effects, ornament and ascii art, plus a website builder that assembles a whole one-page site from them. every specimen can be tuned on the spot and copied as standalone code."><span class="thumb"><img src="assets/thumbs/specimenroom.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"><img class="alt" data-src="assets/thumbs/specimenroom-2.jpg" alt="" decoding="async"></span><span class="lbl"><strong>Specimen Room</strong><small>design archive + site builder</small></span></a>
+        <a class="tile big" href="#ringstudio" data-hay="ring studio 3d ring builder 3d ring builder an engagement-ring builder in the browser. pick a stone, a setting and a band and the ring is rebuilt to scale in millimetres, with diamonds that refract light the way real ones do, a live price estimate, try-on over a photo of your hand, and a casting file a jeweler can open."><span class="thumb"><img src="assets/thumbs/ringstudio.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"><img class="alt" data-src="assets/thumbs/ringstudio-2.jpg" alt="" decoding="async"></span><span class="lbl"><strong>Ring Studio</strong><small>3D ring builder</small></span></a>
+        </div>
+      </div>
+      <div class="ix-group">
         <p class="ix-head"><a href="#g-commercial">Commercial</a><span>2 projects</span></p>
         <div class="ix-grid">
         <a class="tile" href="#fieldwork" data-hay="fieldwork deal engine operations software an evidence-first mac app for data-licensing deal scouts. it researches established businesses from public sources, checks them against buyer requirements, prepares outreach for human approval, collects owner consent and keeps a commission ledger. it prepares research and drafts, and a person makes every outreach, consent and introduction decision."><span class="thumb"><img src="assets/thumbs/fieldwork.jpg" alt="" width="560" height="360" loading="lazy" decoding="async"><img class="alt" data-src="assets/thumbs/fieldwork-2.jpg" alt="" decoding="async"></span><span class="lbl"><strong>Fieldwork</strong><small>deal engine</small></span></a>
@@ -337,12 +350,13 @@ span.note { font-style: italic; color: var(--muted); }
         </div>
       </div>
       <div class="ix-group">
-        <p class="ix-head"><a href="#g-creative">Creative and media</a><span>4 projects</span></p>
+        <p class="ix-head"><a href="#g-creative">Creative and media</a><span>5 projects</span></p>
         <div class="ix-grid">
         <a class="tile" href="#songs" data-hay="cat songs &amp; videos suno + animation music &amp; animation a repeatable way to write songs with suno, and a toolkit that turns a finished song into a timed storyboard and an animated music video starring my cats."><span class="thumb type"><span>Music &amp; animation</span><b>Cat songs &amp; videos</b></span><span class="lbl"><strong>Cat songs &amp; videos</strong><small>Suno + animation</small></span></a>
         <a class="tile" href="#catgpt" data-hay="catgpt local ai + 9 games local ai a control panel for the ai models running on my mac that grew into a cat-themed home for chat, creative tools and games, hosted by three pixel-art cats: newton, skippy and simba."><span class="thumb"><img src="assets/thumbs/catgpt.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"><img class="alt" data-src="assets/thumbs/catgpt-2.jpg" alt="" decoding="async"></span><span class="lbl"><strong>CatGPT</strong><small>local AI + 9 games</small></span></a>
         <a class="tile" href="#clayexplainers" data-hay="clay explainers blender + local voice animation two half-minute claymation explainers on subjects i care about, made with the same blender clay kit as the business ads and narrated with takes i made on a voice model running on my own laptop."><span class="thumb"><img src="assets/thumbs/clayexplainers.jpg" alt="" width="360" height="640" loading="lazy" decoding="async" style="object-position: 50% 62%"><img class="alt" data-src="assets/thumbs/clayexplainers-2.jpg" alt="" decoding="async" style="object-position: 50% 62%"></span><span class="lbl"><strong>Clay explainers</strong><small>Blender + local voice</small></span></a>
         <a class="tile" href="#writing" data-hay="writing &amp; workflows 299k words writing &amp; workflows a historical series, a science-fiction novel and a screenplay package, each built with a process i can repeat. led by no ear cut twice."><span class="thumb"><img src="assets/thumbs/writing.jpg" alt="" width="560" height="840" loading="lazy" decoding="async"></span><span class="lbl"><strong>Writing &amp; workflows</strong><small>299k words</small></span></a>
+        <a class="tile" href="#kittykart" data-hay="kitty kart godot kart racer godot kart racer a kart racer starring my three cats, made in godot with clay-look models built in blender from code. eight tracks, drifting and items, a second player in split screen, and it runs in a phone browser with touch controls."><span class="thumb"><img src="assets/thumbs/kittykart.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"><img class="alt" data-src="assets/thumbs/kittykart-2.jpg" alt="" decoding="async"></span><span class="lbl"><strong>Kitty Kart</strong><small>Godot kart racer</small></span></a>
         </div>
       </div>
       <div class="ix-group">
@@ -358,13 +372,12 @@ span.note { font-style: italic; color: var(--muted); }
         </div>
       </div>
       <div class="ix-group">
-        <p class="ix-head"><a href="#g-aitools">AI tools and experiments</a><span>5 projects</span></p>
+        <p class="ix-head"><a href="#g-aitools">AI tools and experiments</a><span>4 projects</span></p>
         <div class="ix-grid">
         <a class="tile" href="#blackbox" data-hay="blackbox agent recorder developer tool a flight recorder for ai coding agents. it captures what claude code actually did, prompts, tool calls, file edits, failures and subagent handoffs, and lets you replay a session, trace a file change back to the agent that made it, and see how a failure was recovered. nothing leaves the mac."><span class="thumb"><img src="assets/thumbs/blackbox.jpg" alt="" width="560" height="337" loading="lazy" decoding="async"><img class="alt" data-src="assets/thumbs/blackbox-2.jpg" alt="" decoding="async"></span><span class="lbl"><strong>BLACKBOX</strong><small>agent recorder</small></span></a>
         <a class="tile" href="#agentforge" data-hay="agentforge local ai agents local ai a mac app for running ai agents on models that live on your own computer. you point an agent at a project folder, choose how much it may touch, and approve each change. it also covers chat, chat with your documents and visual agent workflows, all inside a retro terminal look built from text characters."><span class="thumb"><img src="assets/thumbs/agentforge.jpg" alt="" width="560" height="330" loading="lazy" decoding="async"><img class="alt" data-src="assets/thumbs/agentforge-2.jpg" alt="" decoding="async"></span><span class="lbl"><strong>AgentForge</strong><small>local AI agents</small></span></a>
         <a class="tile" href="#xray" data-hay="argument x-ray reading tool reading tool persuasive writing hides its structure. this tool maps a text into its thesis, claims, evidence, unstated assumptions and objections, then flags the weak links so you can see what is actually supported."><span class="thumb type"><span>Reading tool</span><b>Argument X-ray</b></span><span class="lbl"><strong>Argument X-ray</strong><small>reading tool</small></span></a>
         <a class="tile" href="#boardroom" data-hay="boardroom of one decision tool decision tool ask one ai for advice and you tend to get one balanced, agreeable answer that hides the real disagreement. this tool seats five advisers with fixed temperaments and lets them argue your decision, then vote."><span class="thumb type"><span>Decision tool</span><b>Boardroom of One</b></span><span class="lbl"><strong>Boardroom of One</strong><small>decision tool</small></span></a>
-        <a class="tile" href="#specimenroom" data-hay="specimen room design archive design archive a live design reference archive: 1,080 working specimens in 31 cabinets, from palettes, type and shaders to scroll effects, ornament and ascii art. every specimen can be tuned on the spot and copied as standalone code."><span class="thumb"><img src="assets/thumbs/specimenroom.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"><img class="alt" data-src="assets/thumbs/specimenroom-2.jpg" alt="" decoding="async"></span><span class="lbl"><strong>Specimen Room</strong><small>design archive</small></span></a>
         </div>
       </div>
       <div class="ix-group">
@@ -1365,6 +1378,219 @@ span.note { font-style: italic; color: var(--muted); }
   </section>
 
   <div class="fleuron" aria-hidden="true"><svg viewBox="0 0 64 20" width="64" height="20"><path fill="currentColor" d="M32 2c2.4 3.6 5.8 6 10.5 7-4.7 1-8.1 3.4-10.5 7-2.4-3.6-5.8-6-10.5-7C26.2 8 29.6 5.6 32 2zM14 10a2.2 2.2 0 1 1-4.4 0 2.2 2.2 0 0 1 4.4 0zm40.4 0a2.2 2.2 0 1 1-4.4 0 2.2 2.2 0 0 1 4.4 0zM5 10a1.3 1.3 0 1 1-2.6 0A1.3 1.3 0 0 1 5 10zm56.6 0a1.3 1.3 0 1 1-2.6 0 1.3 1.3 0 0 1 2.6 0z"/></svg></div>
+  <!-- GROUP: DESIGN AND 3D -->
+  <section class="group" id="g-design">
+    <div class="group-head">
+      <h2>Design and 3D</h2>
+      <p>Two large builds from the last week: a design archive that has become the parts bin for my other sites, and a 3D ring builder good enough to put in front of a jeweler.</p>
+    </div>
+  <!-- SPECIMEN ROOM -->
+  <details class="case" id="specimenroom">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 39 · Design archive + website builder</span>
+      <h2>Specimen Room</h2>
+      <p class="sum">A live design reference archive of 1,520 working specimens in 31 cabinets, from palettes, type and shaders to scroll effects, ornament and ASCII art, plus a website builder that assembles a whole one-page site from them. Every specimen can be tuned on the spot and copied as standalone code.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><span>No public link yet</span></p>
+
+    <dl class="stats">
+      <div><dt>Live specimens</dt><dd>1,520</dd></div>
+      <div><dt>Cabinets</dt><dd>31</dd></div>
+      <div><dt>Specimens with live controls</dt><dd>1,322</dd></div>
+      <div><dt>Gradients and shaders</dt><dd>133</dd></div>
+      <div><dt>ASCII and glyph pieces</dt><dd>150</dd></div>
+      <div><dt>Site themes in the builder</dt><dd>14</dd></div>
+    </dl>
+
+    <figure class="wide">
+      <img src="assets/specimen-room-home.jpg" alt="The Specimen Room home page: 1,520 specimens in 31 cabinets, a cabinet rail with counts, the headline Every pattern, palette, shader and glyph we keep coming back to, a tally per cabinet, and a set of 24 mesh gradients running on the bench." width="1440" height="900" loading="lazy">
+      <figcaption>The front of the archive. The rail lists every cabinet, and a random specimen sits on the bench, running live.</figcaption>
+    </figure>
+
+    <section class="block">
+      <h3>How it grew</h3>
+      <p>The archive went from 825 specimens to 1,520 in three days, in batches. Each batch was rendered, screenshotted wing by wing and checked before it went in, and every specimen keeps a permanent accession number, so nothing already cited moves.</p>
+      <dl class="stats">
+        <div><dt>Oct 26</dt><dd>825</dd></div>
+        <div><dt>Oct 26</dt><dd>947</dd></div>
+        <div><dt>Oct 27</dt><dd>1,080</dd></div>
+        <div><dt>Oct 27</dt><dd>1,211</dd></div>
+        <div><dt>Oct 28</dt><dd>1,248</dd></div>
+        <div><dt>Oct 28</dt><dd>1,520</dd></div>
+      </dl>
+      <p>The later batches came from three places: ideas rebuilt from scratch, ports from openly licensed libraries (shadcn, daisyUI, Tremor, Magic UI, Paper Shaders and others) with each license kept on the specimen, and a batch of form and section specimens written by Gemini from a house guide and held to the same checks.</p>
+    </section>
+
+    <div class="cols">
+      <section class="block">
+        <h3>What each specimen gives you</h3>
+        <ul>
+          <li><strong>A live sample,</strong> drawn in the browser rather than shown as a picture.</li>
+          <li><strong>Controls</strong> built from the specimen's own settings, so a palette, a seed or a speed can be changed and seen at once.</li>
+          <li><strong>Standalone code</strong> that reproduces exactly what is on screen, with a copy button.</li>
+          <li><strong>A permanent accession number,</strong> its source and its license, so a specimen can be cited in a brief.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>How a page with 1,520 live pieces stays fast</h3>
+        <ul>
+          <li><strong>Loaded by cabinet:</strong> each cabinet's code arrives only when one of its specimens is about to be seen.</li>
+          <li><strong>Mounted near the screen only,</strong> a few per frame, and stopped again when scrolled away. Animation also pauses in background tabs.</li>
+          <li><strong>A WebGL budget:</strong> browsers keep about 16 live 3D contexts, so the archive holds at most 9 and unloads the ones farthest from the middle of the screen.</li>
+          <li><strong>Sealed styles:</strong> every specimen renders in its own shadow root, so no specimen's CSS can leak into another.</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="shots">
+      <figure>
+        <img src="assets/specimen-room-sheet.jpg" alt="A specimen sheet for Voronoi Stained Glass: a large live panel of coloured glass cells on the left and, on the right, its accession number, description, tags, sliders for seed, palette and density, the standalone code and its provenance." width="1440" height="900" loading="lazy">
+        <figcaption>A specimen sheet: the live piece, its controls, the code and where the idea came from.</figcaption>
+      </figure>
+      <div class="block">
+        <h3>Where this site's effects came from</h3>
+        <p>The picture index, the numbers that count up, the paper grain, the shader backdrops, the before-and-after sliders and the reading bar on this page were all chosen from the archive and rebuilt to fit this site's colours and appearance settings.</p>
+      </div>
+    </div>
+
+    <div class="sub-case">
+      <h3>Specimen Builder: a website from the archive</h3>
+      <p>Describe a business in a sentence, such as a record shop with a listening bar, and the builder lays out a one-page site from the archive's navigation bars, heroes, sections, forms and footers. Then it makes the result look like one site instead of a collage of seven.</p>
+      <figure class="wide">
+        <img src="assets/specimen-builder-app.jpg" alt="Specimen Builder: a library of specimens on the left with live previews and Add to page buttons, a record shop's page in the middle with a dark hero for a new album, and a Goes well with panel on the right suggesting a team section and a call-to-action band." width="1440" height="900" loading="lazy">
+        <figcaption>Library, page and suggestions. The panel on the right only offers blocks that fit the slot after the selected one.</figcaption>
+      </figure>
+      <div class="cols">
+        <section class="block">
+          <h3>What makes it helpful</h3>
+          <ul>
+            <li><strong>Starts from a brief.</strong> Claude picks a starter page of five to eight blocks and says why each fits. Without Claude, a local scorer fills the same slots from the brief's words, so it always works.</li>
+            <li><strong>One theme for the whole site.</strong> Fourteen themes built from the archive's own palettes and type pairings, or "from this block" to borrow the look of one you like.</li>
+            <li><strong>Copy for your business.</strong> Claude rewrites each block's text for the brief, keeping lengths close, and every line can be edited by hand.</li>
+            <li><strong>Exports one file</strong> that rebuilds the page on load, as a normal web page or a page ready to publish on Claude.</li>
+          </ul>
+        </section>
+        <section class="block">
+          <h3>The hard part: one site, not a collage</h3>
+          <p>Every specimen arrives with its own fonts, colours and invented brand. The re-skin pass reads every colour in a block, sorts it by tone against that block's own background, and maps it onto the theme's ramp, with strong colours becoming the accent. Fonts follow the theme, and the shop's name replaces each specimen's fake brand in headers and footers. A final pass pushes any text below the AA contrast standard back toward legibility.</p>
+          <p>Checked on 231 blocks across seven cabinets with no render errors, and on 156 text pairs in three themes with none below AA. The same check on the unthemed page finds failures, so it can fail.</p>
+        </section>
+      </div>
+      <div class="shots">
+        <figure>
+          <img src="assets/specimen-builder-themes.jpg" alt="The theme picker open over the record shop page: fourteen themes such as Darkroom, Desert Night, Newsprint, Sun-faded Poster and Porcelain and Cobalt, each shown as colour swatches and an Aa sample in its fonts." width="1440" height="900" loading="lazy">
+          <figcaption>Fourteen site themes, each a palette and a type pairing from the archive.</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/specimen-builder-export.jpg" alt="The exported record shop page in the Darkroom theme: an album hero, a gallery of frames, a menu, video testimonials, a booking widget, a newsletter sign-up and a footer, all in the same dark red and orange palette." width="1440" height="2000" loading="lazy">
+          <figcaption>An exported page in one theme. Seven blocks from seven different specimens, one palette and one set of fonts.</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>Built with Claude Code under my direction. I chose what goes into each cabinet and judged every specimen; Claude wrote the specimens, the catalog, the archive's viewer and the Specimen Builder, and Gemini added two batches of form and section specimens following a written guide. When the first version of the builder produced collages, I said so, and the second version was rebuilt around the theme and re-skin pass.</p></div>
+    </div>
+  </details>
+  <!-- RING STUDIO -->
+  <details class="case" id="ringstudio">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 40 · 3D product builder</span>
+      <h2>Ring Studio</h2>
+      <p class="sum">An engagement-ring builder in the browser. Pick a stone, a setting and a band and the ring is rebuilt to scale in millimetres, with diamonds that refract light the way real ones do, a live price estimate, try-on over a photo of your hand, and a casting file a jeweler can open.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="demos/ring-studio/">Design a ring in Ring Studio</a><span>Works on a phone; try-on asks for your camera or a photo and never uploads it</span></p>
+
+    <dl class="stats">
+      <div><dt>Stone shapes</dt><dd>12</dd></div>
+      <div><dt>Gemstones, each with its own optics</dt><dd>22</dd></div>
+      <div><dt>Head styles</dt><dd>8</dd></div>
+      <div><dt>Accent layouts, from three-stone to double halo</dt><dd>6</dd></div>
+      <div><dt>Band styles</dt><dd>6</dd></div>
+      <div><dt>Metals</dt><dd>5</dd></div>
+    </dl>
+
+    <figure class="wide">
+      <img src="assets/ringstudio-app.jpg" alt="Ring Studio: a 3 carat oval diamond on a yellow gold split-shank ring with a hidden halo, the line 3.00 ct oval, 11.5 by 8.2 mm, covers 54 percent of her finger width, an estimate of $4,600 to $10,650, view buttons for catalogue, top, profile, side, sparkle, finger, spin, try on, photo, video and true size, and the builder panel with shapes, carat and stones." width="1280" height="800" loading="lazy">
+      <figcaption>The builder. The headline restates the stone in millimetres, how much of the finger it covers and what it should cost.</figcaption>
+    </figure>
+
+    <div class="cols">
+      <section class="block">
+        <h3>Built like a jeweler would build it</h3>
+        <ul>
+          <li><strong>Stones cut to real proportions.</strong> The round brilliant uses angles from the top of the grading scale, and every shape's size comes from its standard weight formula, so a 3 ct oval and a 3 ct emerald show their real difference face up.</li>
+          <li><strong>Settings from real jewelry CAD.</strong> Prong thickness, head height and the swell of the band under the head were measured from openly licensed casting models and matched.</li>
+          <li><strong>Halos, side stones, pavé bands, split shanks, cathedral arches and twists,</strong> each fitted around the chosen center stone rather than placed as a fixed part.</li>
+          <li><strong>A casting file.</strong> The ring downloads as an STL at true size, metal alone or with every stone in its seat, which a jeweler's CAD program opens.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>Why the stones look real</h3>
+        <ul>
+          <li><strong>Light is traced through each stone</strong> wavelength by wavelength, with each gem's measured refractive index and dispersion. That is where the coloured flashes of fire come from.</li>
+          <li><strong>Four lighting rooms,</strong> from a catalogue light tent to store spotlights and candlelight, because a stone only sparkles against light and dark around it.</li>
+          <li><strong>A light performance map</strong> shows the stone from above the way a gem lab's ASET scope does, so a badly proportioned stone looks bad here too.</li>
+          <li><strong>Photo mode</strong> path-traces the metal for a catalogue-quality still, and video mode records a turntable clip.</li>
+        </ul>
+      </section>
+    </div>
+
+    <figure class="wide">
+      <img src="assets/ringstudio-stones.jpg" alt="Twenty-four renders of the same oval solitaire in yellow gold, one per gemstone: lab diamond, royal blue, cornflower, teal, pink and padparadscha sapphire, moissanite, white and yellow sapphire, ruby, emerald, aquamarine, morganite, tanzanite, red spinel, three garnets, peridot, amethyst, citrine and Paraíba tourmaline." width="1600" height="753" loading="lazy">
+      <figcaption>Every gemstone in the same setting. Each has its own body colour, refraction and dispersion.</figcaption>
+    </figure>
+
+    <div class="gallery">
+      <figure>
+        <img src="assets/ringstudio-celeste-y18.jpg" alt="A cushion-cut diamond in a halo of small diamonds on a yellow gold band." width="900" height="900" loading="lazy">
+        <figcaption>Halo, cushion cut.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/ringstudio-ines-r14.jpg" alt="A round brilliant on six prongs over a rose gold pavé band." width="900" height="900" loading="lazy">
+        <figcaption>Six prongs over a pavé band.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/ringstudio-wren-plat.jpg" alt="A long oval diamond on four slim claws, in platinum." width="900" height="900" loading="lazy">
+        <figcaption>A plain solitaire in platinum.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/ringstudio-vesper-y18.jpg" alt="A round diamond in a full bezel on a twisted rope band in yellow gold." width="900" height="900" loading="lazy">
+        <figcaption>Bezel on a twisted band. All four are renders from the builder, not photos.</figcaption>
+      </figure>
+    </div>
+
+    <div class="cols">
+      <section class="block">
+        <h3>Help with the decision, not just the picture</h3>
+        <ul>
+          <li><strong>What it should cost:</strong> a range built from current online retail listings, scaled by the stone's grade, plus the metal's weight in grams worked out from the ring's own volume.</li>
+          <li><strong>Try-on:</strong> a hand-tracking model finds the ring finger in a photo or the live camera and sits the ring on it, with a soft shadow on the skin. It all runs on the phone.</li>
+          <li><strong>Compare:</strong> pin up to three builds and see them side by side, or copy a short design code to share one.</li>
+          <li><strong>True size</strong> shows the ring at its real size on screen.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>Ready for a real store</h3>
+        <p>The builder drops into a jeweler's own site. I built four invented jewelry shops around it, each in a different style, where every product photo in the catalogue is rendered from the builder itself, so a store can add a design without a photo shoot. The pitch to a store: a modern site, online booking and a ring builder its customers can play with.</p>
+        <figure>
+          <img src="assets/ringstudio-heads.jpg" alt="Close-up renders of eight head styles and settings: 4-prong, 6-prong, claw, compass, double, trellis, bezel and half bezel, plus side views, an emerald cut, a three-stone and a split shank." width="1600" height="565" loading="lazy">
+          <figcaption>Head styles, checked close up against real settings.</figcaption>
+        </figure>
+      </section>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>Built with Claude Code over two days and more than twenty published versions. I set the bar, a builder that could sit on a real jeweler's site, and reviewed every round against real ring photos; Claude wrote the 3D modelling, the optics, the pricing, try-on and the demo stores, researched openly licensed ring CAD to check its proportions against, and rendered the comparison sheets used to judge each change.</p></div>
+    </div>
+  </details>
+  </section>
+
+  <div class="fleuron" aria-hidden="true"><svg viewBox="0 0 64 20" width="64" height="20"><path fill="currentColor" d="M32 2c2.4 3.6 5.8 6 10.5 7-4.7 1-8.1 3.4-10.5 7-2.4-3.6-5.8-6-10.5-7C26.2 8 29.6 5.6 32 2zM14 10a2.2 2.2 0 1 1-4.4 0 2.2 2.2 0 0 1 4.4 0zm40.4 0a2.2 2.2 0 1 1-4.4 0 2.2 2.2 0 0 1 4.4 0zM5 10a1.3 1.3 0 1 1-2.6 0A1.3 1.3 0 0 1 5 10zm56.6 0a1.3 1.3 0 1 1-2.6 0 1.3 1.3 0 0 1 2.6 0z"/></svg></div>
   <!-- GROUP: COMMERCIAL -->
   <section class="group" id="g-commercial">
     <div class="group-head">
@@ -2193,6 +2419,62 @@ span.note { font-style: italic; color: var(--muted); }
     </div>
     </div>
   </details>
+  <!-- KITTY KART -->
+  <details class="case" id="kittykart">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 41 · Game</span>
+      <h2>Kitty Kart</h2>
+      <p class="sum">A kart racer starring my three cats, made in Godot with clay-look models built in Blender from code. Eight tracks, drifting and items, a second player in split screen, and it runs in a phone browser with touch controls.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="demos/kitty-kart/">Play Kitty Kart in the browser</a><span>About 45 MB to load. Keyboard, Xbox controller or touch</span></p>
+
+    <dl class="stats">
+      <div><dt>Tracks</dt><dd>8</dd></div>
+      <div><dt>Racers per race</dt><dd>6</dd></div>
+      <div><dt>Players, split screen</dt><dd>2</dd></div>
+      <div><dt>Items</dt><dd>3</dd></div>
+      <div><dt>Laps</dt><dd>3</dd></div>
+      <div><dt>Platforms</dt><dd>Mac + web</dd></div>
+    </dl>
+
+    <div class="shots">
+      <figure>
+        <img src="assets/kittykart-menu.jpg" alt="The Kitty Kart menu: three clay cats in go-karts on coloured podiums, Newton the orange tabby in red, Skippy the light ginger in green and Simba the long-haired black cat in purple, with a card describing each." width="1600" height="900" loading="lazy">
+        <figcaption>Choose your cat: Newton, Skippy or Simba, each with their own kart.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/kittykart-race.jpg" alt="A race indoors: a cat kart on a patterned rug track under a Kitty Kart start arch, with yarn balls on the floor, a minimap, the lap counter and first place." width="1600" height="900" loading="lazy">
+        <figcaption>An indoor track, with a minimap, lap counter and position.</figcaption>
+      </figure>
+    </div>
+
+    <div class="cols">
+      <section class="block">
+        <h3>The game</h3>
+        <ul>
+          <li><strong>Eight tracks,</strong> from Garden Grand Prix and Sandcastle Shores to a toy track across a kitchen floor, a moonlit fish market, Frosty Peaks and Cardboard Canyon, each with its own sky, fog, hills and jumps.</li>
+          <li><strong>Drifting that pays off:</strong> hold drift through a corner and the sparks go blue, orange, then purple; let go for a mini-turbo.</li>
+          <li><strong>Items from ? boxes:</strong> a fish for a boost, a hairball to shoot ahead, a pickle to drop behind as a trap.</li>
+          <li><strong>Race the other two cats and three alley cats,</strong> or bring a second controller for top and bottom split screen.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>How it is made</h3>
+        <ul>
+          <li><strong>Every model is a script.</strong> Cats, karts, items and scenery are built in Blender by code, with parts named so the game can colour each cat and spin the wheels.</li>
+          <li><strong>A plasticine shader</strong> gives everything lumps that re-roll a few times a second and tabby stripes, so it looks hand-made.</li>
+          <li><strong>Tracks are generated</strong> from a loop of points: road, curbs or toy rails, hills, ramps, boost pads and scenery, with repeated props drawn in batches so it stays smooth on a phone.</li>
+          <li><strong>Touch controls</strong> laid out from the phone's own screen size, plus sounds, a pause menu and a how-to-play screen.</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>Built with Claude Code in Godot 4 and Blender. I picked the cats, the tracks and the feel, and played each build; Claude wrote the game, generated the models and tracks, mixed the sound effects from credited Freesound clips, and exported the Mac app and the web version.</p></div>
+    </div>
+  </details>
   </section>
 
   <div class="fleuron" aria-hidden="true"><svg viewBox="0 0 64 20" width="64" height="20"><path fill="currentColor" d="M32 2c2.4 3.6 5.8 6 10.5 7-4.7 1-8.1 3.4-10.5 7-2.4-3.6-5.8-6-10.5-7C26.2 8 29.6 5.6 32 2zM14 10a2.2 2.2 0 1 1-4.4 0 2.2 2.2 0 0 1 4.4 0zm40.4 0a2.2 2.2 0 1 1-4.4 0 2.2 2.2 0 0 1 4.4 0zM5 10a1.3 1.3 0 1 1-2.6 0A1.3 1.3 0 0 1 5 10zm56.6 0a1.3 1.3 0 1 1-2.6 0 1.3 1.3 0 0 1 2.6 0z"/></svg></div>
@@ -2631,67 +2913,6 @@ span.note { font-style: italic; color: var(--muted); }
     <div class="made"><b>How it was built</b><p>Claude Code built the page and wrote the four example debates. It has its own look, an after-hours boardroom with a brass-nameplate table and a chair's resolution sealed in wax, so it reads as a separate product.</p></div>
     </div>
   </details>
-  <!-- SPECIMEN ROOM -->
-  <details class="case" id="specimenroom">
-    <summary class="case-sum">
-      <div class="shelf-head">
-      <span class="eyebrow">Case study 39 · Design archive</span>
-      <h2>Specimen Room</h2>
-      <p class="sum">A live design reference archive: 1,080 working specimens in 31 cabinets, from palettes, type and shaders to scroll effects, ornament and ASCII art. Every specimen can be tuned on the spot and copied as standalone code.</p>
-      </div>
-    </summary>
-    <div class="case-body">
-      <p class="links"><span>No public link yet</span></p>
-
-    <dl class="stats">
-      <div><dt>Live specimens</dt><dd>1,080</dd></div>
-      <div><dt>Cabinets</dt><dd>31</dd></div>
-      <div><dt>Specimens with live controls</dt><dd>955</dd></div>
-      <div><dt>Of my own projects in its Our Work cabinet</dt><dd>43</dd></div>
-      <div><dt>Scroll-driven effects</dt><dd>20</dd></div>
-      <div><dt>ASCII and glyph pieces</dt><dd>150</dd></div>
-    </dl>
-
-    <figure class="wide">
-      <img src="assets/specimen-room-home.jpg" alt="The Specimen Room home page: a cabinet rail on the left with counts for each cabinet, the headline Every pattern, palette, shader and glyph we keep coming back to, a tally of specimens per cabinet, and a string-art specimen on the bench." width="1440" height="900" loading="lazy">
-      <figcaption>The front of the archive. The rail lists every cabinet, and a random specimen sits on the bench, running live.</figcaption>
-    </figure>
-
-    <div class="cols">
-      <section class="block">
-        <h3>What each specimen gives you</h3>
-        <ul>
-          <li><strong>A live sample,</strong> drawn in the browser rather than shown as a picture.</li>
-          <li><strong>Controls</strong> built from the specimen's own settings, so a palette, a seed or a speed can be changed and seen at once.</li>
-          <li><strong>Standalone code</strong> that reproduces exactly what is on screen, with a copy button.</li>
-          <li><strong>A permanent accession number,</strong> its source and its license, so a specimen can be cited in a brief.</li>
-        </ul>
-      </section>
-      <section class="block">
-        <h3>How a page with 1,080 live pieces stays fast</h3>
-        <ul>
-          <li><strong>Loaded by cabinet:</strong> each cabinet's code arrives only when one of its specimens is about to be seen.</li>
-          <li><strong>Mounted near the screen only,</strong> a few per frame, and stopped again when scrolled away. Animation also pauses in background tabs.</li>
-          <li><strong>A WebGL budget:</strong> browsers keep about 16 live 3D contexts, so the archive holds at most 9 and unloads the ones farthest from the middle of the screen.</li>
-          <li><strong>Sealed styles:</strong> every specimen renders in its own shadow root, so no specimen's CSS can leak into another.</li>
-        </ul>
-      </section>
-    </div>
-
-    <div class="shots">
-      <figure>
-        <img src="assets/specimen-room-sheet.jpg" alt="A specimen sheet for Voronoi Stained Glass: a large live panel of coloured glass cells on the left and, on the right, its accession number, description, tags, sliders for seed, palette and density, the standalone code and its provenance." width="1440" height="900" loading="lazy">
-        <figcaption>A specimen sheet: the live piece, its controls, the code and where the idea came from.</figcaption>
-      </figure>
-      <div class="block">
-        <h3>Where this site's effects came from</h3>
-        <p>The picture index, the numbers that count up, the paper grain, the before-and-after sliders and the reading bar on this page were all chosen from the archive and rebuilt to fit this site's colours and appearance settings.</p>
-      </div>
-    </div>
-
-    <div class="made"><b>How it was built</b><p>Built with Claude under my direction. I chose what goes into each cabinet and judged every specimen; Claude wrote the specimens, the catalog and the archive's viewer.</p></div>
-    </div>
-  </details>
   </section>
 
   <div class="fleuron" aria-hidden="true"><svg viewBox="0 0 64 20" width="64" height="20"><path fill="currentColor" d="M32 2c2.4 3.6 5.8 6 10.5 7-4.7 1-8.1 3.4-10.5 7-2.4-3.6-5.8-6-10.5-7C26.2 8 29.6 5.6 32 2zM14 10a2.2 2.2 0 1 1-4.4 0 2.2 2.2 0 0 1 4.4 0zm40.4 0a2.2 2.2 0 1 1-4.4 0 2.2 2.2 0 0 1 4.4 0zM5 10a1.3 1.3 0 1 1-2.6 0A1.3 1.3 0 0 1 5 10zm56.6 0a1.3 1.3 0 1 1-2.6 0 1.3 1.3 0 0 1 2.6 0z"/></svg></div>
@@ -2940,7 +3161,9 @@ span.note { font-style: italic; color: var(--muted); }
       <div><h4>BLACKBOX</h4><p><strong>Built with:</strong> Claude Code, from my specification package.<br><strong>Runs on:</strong> no AI: it records and analyzes Claude Code sessions with plain rules, entirely on the Mac.</p></div>
       <div><h4>ASCII and generative art</h4><p><strong>Built with:</strong> Claude Code, for all seven pieces and the Swift port of Prism Trip into AgentForge.<br><strong>Runs on:</strong> no AI at runtime: every frame is plain code in the browser (or in Swift, inside AgentForge).</p></div>
       <div><h4>Argument X-ray</h4><p><strong>Built with:</strong> Claude Code, which also wrote the examples and analyses.<br><strong>Runs on:</strong> no live AI on this site: worked examples plus 45 browser rules. The Claude-account version maps pasted text live.</p></div>
-      <div><h4>Specimen Room</h4><p><strong>Built with:</strong> Claude.<br><strong>Runs on:</strong> no AI at runtime: a static page of hand-built specimens.</p></div>
+      <div><h4>Specimen Room</h4><p><strong>Built with:</strong> Claude Code, with two batches of form and section specimens added by Gemini from a written house guide.<br><strong>Runs on:</strong> no AI at runtime. Its Specimen Builder asks Claude to pick blocks and rewrite copy when it runs on Claude, and falls back to a local scorer everywhere else.</p></div>
+      <div><h4>Ring Studio</h4><p><strong>Built with:</strong> Claude Code.<br><strong>Runs on:</strong> no AI model for the ring itself: optics, geometry and pricing are plain code. Try-on uses Google's MediaPipe hand-tracking model, running in the browser.</p></div>
+      <div><h4>Kitty Kart</h4><p><strong>Built with:</strong> Claude Code, in Godot and Blender.<br><strong>Runs on:</strong> no AI at runtime: the rival cats are plain steering code.</p></div>
       <div><h4>Boardroom of One</h4><p><strong>Built with:</strong> Claude Code, which also wrote the four example debates.<br><strong>Runs on:</strong> no live AI on this site: written examples plus templates. The Claude-account version runs the five advisers live.</p></div>
       <div><h4>Horror screenwriting</h4><p><strong>Built with:</strong> Claude, driven by a 16-section system prompt that produced the CORPUS package and the FINE-TUNED pitch.</p></div>
       <div><h4>Novels</h4><p><strong>Drafted with:</strong> Claude, working from plans, outlines and research documents produced by ChatGPT.</p></div>
