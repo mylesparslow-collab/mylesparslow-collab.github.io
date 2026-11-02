@@ -1,0 +1,789 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Northfield Content Engine</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#FBF9F5; --bg-2:#F1EDE4; --paper:#FFFFFF; --fg:#16233B; --muted:#5E6676; --line:#E3DED2;
+  --brass:#A9823E; --brass-deep:#8A6628; --brass-tint:#F4ECDA;
+  --ink:#16233B; --on-ink:#FFFFFF; --on-ink-muted:#C3CAD8; --warn-bg:#FFF4E0; --warn-fg:#7A4B00; --ok:#2F7A4E;
+  --head:"Fraunces",Georgia,serif; --font:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0F1726; --bg-2:#162033; --paper:#1A2740; --fg:#ECEFF6; --muted:#A5AFC2; --line:#2B3956;
+  --brass:#C9A25C; --brass-deep:#D9B677; --brass-tint:#2B2A25; --ink:#0A101C; --warn-bg:#3A2C12; --warn-fg:#F2C77A; --ok:#7FD0A0; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#0F1726; --bg-2:#162033; --paper:#1A2740; --fg:#ECEFF6; --muted:#A5AFC2; --line:#2B3956;
+  --brass:#C9A25C; --brass-deep:#D9B677; --brass-tint:#2B2A25; --ink:#0A101C; --warn-bg:#3A2C12; --warn-fg:#F2C77A; --ok:#7FD0A0; color-scheme:dark }
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-size:15px;line-height:1.55}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3,h4{margin:0;line-height:1.2;text-wrap:balance;font-family:var(--head);font-weight:600}
+p{margin:0}
+a{color:var(--brass-deep)}
+.eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--brass-deep)}
+.portnote{background:var(--bg-2);border-bottom:1px solid var(--line);font-size:12px;color:var(--muted);text-align:center;padding:6px 16px}
+header.top{background:var(--ink);color:var(--on-ink)}
+header.top .wrap{padding-block:40px 36px;display:grid;gap:14px}
+header.top h1{font-size:clamp(26px,4vw,40px)}
+header.top p{max-width:62ch;color:var(--on-ink-muted)}
+header.top .eyebrow{color:var(--brass)}
+.demo-note{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:3px;padding:6px 10px;font-size:13px;width:fit-content;max-width:100%}
+.demo-note b{color:var(--brass)}
+section.band{padding-block:36px}
+section.band.alt{background:var(--bg-2)}
+.sec-head{display:grid;gap:6px;margin-bottom:22px}
+.sec-head h2{font-size:24px}
+.sec-head p{color:var(--muted);max-width:68ch}
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}
+.flow .step{background:var(--paper);border:1px solid var(--line);border-radius:3px;padding:16px 16px 18px;display:grid;gap:6px;align-content:start;min-width:0}
+.flow .step .n{font-size:11px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;font-weight:600}
+.flow .step h3{font-size:16px}
+.flow .step p{font-size:13.5px;color:var(--muted)}
+.voice{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.voice .rule{border-left:3px solid var(--brass);padding:2px 0 2px 14px;min-width:0}
+.voice .rule h3{font-size:15px;margin-bottom:4px}
+.voice .rule p{font-size:13.5px;color:var(--muted)}
+.controls{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.controls .wrap{padding-block:12px;display:grid;gap:10px}
+.days{display:flex;gap:6px;overflow-x:auto;scrollbar-width:thin;padding-bottom:2px}
+.days button{flex:0 0 auto;border:1px solid var(--line);background:var(--paper);color:var(--fg);font:inherit;font-size:13px;padding:7px 12px;border-radius:3px;cursor:pointer;display:grid;line-height:1.2;text-align:left;min-width:92px}
+.days button small{font-size:11px;color:var(--muted)}
+.days button[aria-pressed="true"]{background:var(--ink);color:var(--on-ink);border-color:var(--ink)}
+.days button[aria-pressed="true"] small{color:var(--on-ink-muted)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chips .lbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-right:4px}
+.chips button{border:1px solid var(--line);background:var(--paper);color:var(--fg);font:inherit;font-size:12.5px;padding:5px 10px;border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.av{width:22px;height:22px;border-radius:50%;background:var(--ink);color:#fff;display:inline-grid;place-items:center;font-size:10px;font-weight:700;flex:none;letter-spacing:.02em}
+.av.firm{background:var(--brass)}
+.chips button[aria-pressed="true"]{background:var(--brass-tint);border-color:var(--brass);color:var(--brass-deep);font-weight:600}
+button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+.countrow{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between}
+.count{font-size:13px;color:var(--muted)}
+.btn{border:1px solid var(--line);background:var(--paper);color:var(--fg);font:inherit;font-size:13px;padding:7px 12px;border-radius:3px;cursor:pointer;font-weight:500}
+.btn.primary{background:var(--brass-deep);border-color:var(--brass-deep);color:#fff}
+.btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.btn[aria-pressed="true"]{background:var(--ink);color:var(--on-ink);border-color:var(--ink)}
+.posts{display:grid;gap:16px;padding-block:24px 40px}
+.post{background:var(--paper);border:1px solid var(--line);border-radius:3px;display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);overflow:hidden}
+.post.approved{border-color:var(--ok)}
+.post.skipped{opacity:.55}
+.post .media{background:var(--bg-2);position:relative;min-height:200px}
+.post .media svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.post .media .tag{position:absolute;left:10px;top:10px;background:var(--ink);color:var(--on-ink);font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:4px 8px;border-radius:2px;z-index:1}
+.post .media .cap{position:absolute;left:0;right:0;bottom:0;padding:8px 12px;font-size:11.5px;color:#fff;background:linear-gradient(transparent,rgba(10,16,28,.75));z-index:1}
+.post .body{padding:18px 20px 20px;display:grid;gap:12px;min-width:0;align-content:start}
+.post .meta{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;font-size:12.5px;color:var(--muted)}
+.post .meta .who{display:inline-flex;align-items:center;gap:7px;color:var(--fg);font-weight:600}
+.pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:2px 8px;font-size:11.5px}
+.post h3{font-size:18px}
+.caption{white-space:pre-wrap;font-size:14px;max-width:70ch;background:var(--bg-2);border-radius:3px;padding:12px 14px;border:1px solid var(--line)}
+.caption[contenteditable="true"]{outline:2px solid var(--brass);background:var(--paper)}
+.caption .tags{display:block;margin-top:8px;color:var(--brass-deep);font-size:13px}
+.kv{display:grid;grid-template-columns:110px minmax(0,1fr);gap:4px 12px;font-size:13px;margin:0}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;min-width:0}
+.check{display:flex;flex-wrap:wrap;gap:6px}
+.check span{font-size:11.5px;border-radius:2px;padding:2px 7px;background:var(--brass-tint);color:var(--brass-deep);font-weight:500}
+.check span.warn{background:var(--warn-bg);color:var(--warn-fg)}
+.note{background:var(--warn-bg);color:var(--warn-fg);border-radius:3px;padding:10px 12px;font-size:13px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-top:1px solid var(--line);padding-top:12px}
+.status{font-size:12.5px;color:var(--muted);margin-left:auto}
+.status.ok{color:var(--ok);font-weight:600}
+.preview{border:1px solid var(--line);border-radius:6px;background:var(--bg);padding:12px;max-width:420px;display:grid;gap:8px}
+.preview .ph-row{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600}
+.preview .ph-row small{font-weight:400;color:var(--muted)}
+.preview .pimg{aspect-ratio:1/1;border-radius:4px;overflow:hidden;position:relative;background:var(--bg-2)}
+.preview.fb .pimg,.preview.li .pimg{aspect-ratio:16/9}
+.preview .pimg svg{position:absolute;inset:0;width:100%;height:100%}
+.preview .ptxt{font-size:13px;white-space:pre-wrap;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
+.preview .react{font-size:12px;color:var(--muted);display:flex;gap:14px}
+.scripts{display:grid;gap:16px}
+.script{background:var(--paper);border:1px solid var(--line);border-radius:3px;padding:20px;display:grid;gap:14px;min-width:0}
+.script .head{display:grid;gap:4px}
+.script .head h3{font-size:18px}
+.script .head .meta{font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.script .hook{font-size:15px;font-weight:500;border-left:3px solid var(--brass);padding-left:12px}
+.beats{width:100%;border-collapse:collapse;font-size:13.5px}
+.beats th{text-align:left;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600;padding:0 10px 8px 0;border-bottom:1px solid var(--line)}
+.beats td{vertical-align:top;padding:9px 10px 9px 0;border-bottom:1px solid var(--line)}
+.beats td:first-child{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--muted);width:60px}
+.beats td:nth-child(2){width:28%}
+.table-wrap{overflow-x:auto}
+.script .foot{display:grid;gap:6px;font-size:13px}
+.mix{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.mix .m{border:1px solid var(--line);border-radius:3px;padding:14px;background:var(--paper);display:grid;gap:4px;min-width:0}
+.mix .m .big{font-family:var(--head);font-size:28px;font-weight:600;color:var(--brass-deep);font-variant-numeric:tabular-nums}
+.mix .m .l{font-size:13px}
+.mix .m .s{font-size:12px;color:var(--muted)}
+.next{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.next .card{background:var(--paper);border:1px solid var(--line);border-radius:3px;padding:16px;display:grid;gap:6px;min-width:0}
+.next .card h3{font-size:15.5px}
+.next .card p{font-size:13.5px;color:var(--muted)}
+footer{padding-block:28px 40px;font-size:12.5px;color:var(--muted)}
+footer .wrap{display:grid;gap:6px}
+@media (max-width:720px){
+  .post{grid-template-columns:1fr}
+  .post .media{min-height:180px;aspect-ratio:16/10}
+  .kv{grid-template-columns:1fr}
+  .status{margin-left:0;width:100%}
+}
+@media (prefers-reduced-motion:no-preference){ .post,.script{transition:border-color .15s} .post:hover,.script:hover{border-color:var(--brass)} }
+</style></head>
+<body>
+<div class="portnote">Portfolio demo · fictional brokerage, sample data. Built by Myles Parslow.</div>
+<header class="top">
+  <div class="wrap">
+    <span class="eyebrow">Northfield Realty · Social content engine</span>
+    <h1>One week of posts and video scripts, drafted from what the firm already has</h1>
+    <p>Every item below was generated from Northfield's live sources: the listing feed, sample client reviews, the guides on the website, the neighborhood pages and the team roster. The engine drafts, a person approves, and the scheduler posts. Shown here: the week of Monday, November 9 through Sunday, November 15.</p>
+    <span class="demo-note"><b>Demo</b> Nothing here has been posted. Every draft waits for approval. Try the Approve, Edit and Preview buttons.</span>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">How it works</span>
+      <h2>Sources in, approved posts out</h2>
+      <p>The engine watches four feeds and writes a draft the moment something changes. Each agent gets their own queue in their own voice. Nothing publishes until a person taps approve.</p>
+    </div>
+    <div class="flow">
+      <div class="step"><span class="n">Trigger</span><h3>Something happens</h3><p>A listing goes live, drops in price, goes under contract or closes. A new 5-star review lands. A guide is published. A neighborhood comes up in rotation.</p></div>
+      <div class="step"><span class="n">Draft</span><h3>The engine writes</h3><p>Caption, hashtags, image pick, carousel slides or a 30 to 60 second video script, in the firm voice or the agent's voice, with the listing number and sources attached.</p></div>
+      <div class="step"><span class="n">Check</span><h3>Every draft is screened</h3><p>Fair-housing language, MLS attribution, commission wording, no made-up facts. Anything flagged is held for a human.</p></div>
+      <div class="step"><span class="n">Approve</span><h3>Dana or the agent taps approve</h3><p>Drafts land in a shared queue. Edit, approve or skip from a phone in under a minute.</p></div>
+      <div class="step"><span class="n">Post</span><h3>Scheduled at the best times</h3><p>Instagram, Facebook, LinkedIn and TikTok, with each agent's handle tagged on their own posts. Results feed back into next week's mix.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="band alt">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Voice rules</span>
+      <h2>What every draft is held to</h2>
+    </div>
+    <div class="voice">
+      <div class="rule"><h3>Sounds like a top-tier brokerage</h3><p>Confident, warm, specific. Boutique and independent, never "small". The track record shows up in the details, not as a boast.</p></div>
+      <div class="rule"><h3>Fair-housing safe by construction</h3><p>Homes and neighborhoods are described by what they are: architecture, light, parks, commute, price. Never who they are "for", never schools, safety or demographics.</p></div>
+      <div class="rule"><h3>Facts come from the feed</h3><p>Prices, addresses and listing numbers are pulled, never typed. Beds, baths and square footage appear only when the listing record supplies them. No invented client stories.</p></div>
+      <div class="rule"><h3>Fees stated carefully, never as the hook</h3><p>Fee structures are mentioned in context when a seller topic calls for it, worded exactly as on the site, with "commissions are negotiable". They never lead.</p></div>
+      <div class="rule"><h3>Each agent sounds like themselves</h3><p>Agents get first-person drafts tied to their own listings and reviews. The broker's personal account is a separate, optional track that stays off until she opts in.</p></div>
+      <div class="rule"><h3>Always a next step</h3><p>Every post ends with one clear action: see the listing, read the guide, get a home valuation or message the agent.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="controls" id="posts">
+  <div class="wrap">
+    <div class="days" id="days" role="tablist" aria-label="Day of week"></div>
+    <div class="chips" id="accounts"><span class="lbl">Account</span></div>
+    <div class="countrow">
+      <div class="count" id="count"></div>
+      <div class="chips"><span class="count" id="appr"></span><button class="btn primary" type="button" id="apprAll">Approve all shown</button><button class="btn" type="button" id="reset">Reset</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="posts" id="postList"></div>
+</div>
+
+<section class="band alt" id="video">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Short video</span>
+      <h2>Scripts for Reels, TikTok and Shorts</h2>
+      <p>Each script is built to be filmed on a phone in one take, or assembled from listing photos with on-screen text. Timings are for a 9:16 vertical cut. Filter above to see one person's scripts.</p>
+    </div>
+    <div class="scripts" id="scriptList"></div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">The mix</span>
+      <h2>What a week looks like once it runs</h2>
+    </div>
+    <div class="mix">
+      <div class="m"><span class="big">7</span><span class="l">firm posts</span><span class="s">one a day, every day</span></div>
+      <div class="m"><span class="big">14</span><span class="l">agent posts</span><span class="s">two per agent, tagged and shareable</span></div>
+      <div class="m"><span class="big">9</span><span class="l">video scripts</span><span class="s">two for the firm, one per agent</span></div>
+      <div class="m"><span class="big">4</span><span class="l">source types</span><span class="s">listings, reviews, guides, neighborhoods</span></div>
+      <div class="m"><span class="big">~20 min</span><span class="l">of human time</span><span class="s">to approve the whole week</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="band alt">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">If Northfield says yes</span>
+      <h2>What turning it on involves</h2>
+    </div>
+    <div class="next">
+      <div class="card"><h3>Week 1: connect the sources</h3><p>The listing feed from the local MLS, sample client reviews, the guides on the website, and each agent's handles.</p></div>
+      <div class="card"><h3>Week 2: voice samples and approval</h3><p>Each agent records a two-minute voice memo about how they talk to clients. Drafts flow into a shared queue; Dana sets who approves what.</p></div>
+      <div class="card"><h3>Week 3: live, with a safety net</h3><p>Posts go out on schedule. Anything the screen flags is held. A weekly summary shows what performed and adjusts next week's mix.</p></div>
+      <div class="card"><h3>Later: listing launch kit</h3><p>The same trigger that drafts a "just listed" post can also produce the flyer, the email to the agent's sphere and the open-house reminder.</p></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Prepared for Northfield Realty, a fictional independent brokerage. All listings, addresses, prices, reviews and people shown are invented sample data. Illustrations are generic. Equal Housing Opportunity.</p>
+    <p>Drafts only. No content on this page has been published to any social account. Portfolio demo · fictional brokerage, sample data. Built by Myles Parslow.</p>
+  </div>
+</footer>
+
+<script>
+const ACCOUNTS = [
+  {id:'firm', name:'Northfield Realty', short:'Northfield', role:'Firm accounts', handle:'@northfieldrealty', ini:'N'},
+  {id:'sam', name:'Sam Whitfield', short:'Sam', role:'REALTOR', ini:'SW'},
+  {id:'priya', name:'Priya Nair', short:'Priya', role:'Associate Broker', ini:'PN'},
+  {id:'elena', name:'Elena Ruiz', short:'Elena', role:'REALTOR', ini:'ER'},
+  {id:'marcus', name:'Marcus Bell', short:'Marcus', role:'REALTOR', ini:'MB'},
+  {id:'theo', name:'Theo Grant', short:'Theo', role:'REALTOR', ini:'TG'},
+  {id:'jordan', name:'Jordan Kim', short:'Jordan', role:'REALTOR', ini:'JK'},
+  {id:'dana', name:'Dana Reyes', short:'Dana (optional)', role:'Broker/Owner · optional track', ini:'DR'}
+];
+const DAYS = [
+  {id:'mon', l:'Mon', d:'Nov 9'},{id:'tue', l:'Tue', d:'Nov 10'},{id:'wed', l:'Wed', d:'Nov 11'},{id:'thu', l:'Thu', d:'Nov 12'},
+  {id:'fri', l:'Fri', d:'Nov 13'},{id:'sat', l:'Sat', d:'Nov 14'},{id:'sun', l:'Sun', d:'Nov 15'}
+];
+const FH = 'Fair housing ✓';
+const POSTS = [
+ // FIRM
+ {day:'mon', acct:'firm', time:'11:30 AM', platforms:'Instagram carousel · Facebook', format:'Carousel, 6 slides', scene:'kitchen', tag:'Just listed',
+  title:'Just listed: 214 Linden Ct, Elm Hollow',
+  caption:`Just listed in Elm Hollow. 214 Linden Ct, offered at $489,000.
+
+A fresh white kitchen with a quartz-topped island, stainless appliances and a wall of cabinetry, opening through sliding doors to a deck framed by trees. Wide-plank hardwood runs through the main level. Listed by Northfield Realty, MLS # NF-100214.
+
+Showings are open now. Tap the link in bio for the full gallery, or call (555) 010-2040.`,
+  tags:'#ElmHollow #JustListed #NorthfieldRealty #HomesForSale',
+  slides:'1 kitchen hero · 2 island detail · 3 deck and trees · 4 main living · 5 exterior · 6 price, MLS #, "Schedule a showing"',
+  source:'Listing feed: MLS # NF-100214 (new status: Active). Photos 01, 03, 05, 07.',
+  cta:'Link in bio → listing page on northfield-realty.example',
+  checks:[FH,'MLS # attached','Price from feed','Features from photos only']},
+ {day:'tue', acct:'firm', time:'8:00 AM', platforms:'Instagram carousel · LinkedIn', format:'Carousel, 5 slides', scene:'winter', ph:'Slide design: bold text on navy, winter exterior', tag:'From the guides',
+  title:'Selling between December and March works in your favor',
+  caption:`Thinking about listing this winter? Three things sellers should know.
+
+1. Fewer homes on the market means yours gets more attention.
+2. Winter buyers are serious. Nobody tours houses in January for fun.
+3. Warm lighting, a clear walkway and a tidy entry photograph beautifully in cold months.
+
+Our full winter selling guide is on the site, with a prep checklist and pricing notes. Link in bio.`,
+  tags:'#SellYourHome #WinterMarket #NorthfieldRealty',
+  slides:'1 "Selling this winter?" · 2 less competition · 3 serious buyers · 4 what photographs well · 5 "Read the guide"',
+  source:'Guide: Selling a Home in Winter.',
+  cta:'Read the guide → free home valuation form',
+  checks:[FH,'No market predictions','No fee claims']},
+ {day:'wed', acct:'firm', time:'12:15 PM', platforms:'Instagram · Facebook · Google Business post', format:'Single image, quote card', scene:'quote', ph:'Quote card: five stars, the review in large type, "Lena B. · Buyer"', tag:'Client review',
+  title:'Review spotlight: Lena B.',
+  caption:`"Sample quote, fictional: buying solo felt daunting, but every question got a clear, unhurried answer." — Lena B., buyer (sample)
+
+This is the job. Thank you, Lena.
+
+If you're buying on your own and want someone in your corner, we'd be glad to talk. (555) 010-2040.`,
+  tags:'#ClientReview #FiveStars #NorthfieldRealty',
+  source:'Sample quote, fictional.',
+  cta:'Message or call the office',
+  checks:[FH,'Sample quote, fictional']},
+ {day:'thu', acct:'firm', time:'5:30 PM', platforms:'Instagram carousel · Pinterest', format:'Carousel, 7 slides', scene:'street', ph:'Neighborhood scenes: tree-lined streets, shingle and stone homes', tag:'Neighborhood',
+  title:'Neighborhood guide: Cedar Ridge',
+  caption:`Cedar Ridge. A tree-lined neighborhood with curving lanes, deep lots and houses in shingle, stone and Tudor styles under a canopy of old trees.
+
+Why people ask us about it: the walk to the shops on Hollis St, the paths along the creek, and houses with the kind of porches you don't find in new construction.
+
+Our full Cedar Ridge guide covers history, architecture and what to know before you buy or sell there. Link in bio.`,
+  tags:'#CedarRidge #Neighborhoods #NorthfieldRealty',
+  slides:'1 cover · 2 history · 3 architecture · 4 creek paths · 5 Hollis St · 6 "what to know before buying" · 7 "Read the guide"',
+  source:'Guide: Cedar Ridge Homes for Sale & Neighborhood Guide. Neighborhood rotation: week 1 of 8.',
+  cta:'Read the guide → set a listing alert for Cedar Ridge',
+  checks:[FH,'History worded as sources state','No school or safety language']},
+ {day:'fri', acct:'firm', time:'11:00 AM', platforms:'Instagram carousel · Facebook', format:'Carousel, 5 slides', scene:'kitchen2', tag:'Featured listing',
+  title:'Featured: 58 Aspen Ln, Willow Bend',
+  caption:`On the quiet side of our map: 58 Aspen Ln in Willow Bend, offered at $339,000.
+
+A kitchen built for cooking, with a farmhouse sink, butcher-block counters, an island with seating for four, and a window over the sink that looks straight into the trees. Open to the living room and bright all day. Listed by Northfield Realty, MLS # NF-200058.
+
+Full gallery and showing requests at the link in bio.`,
+  tags:'#WillowBend #JustListed #NorthfieldRealty',
+  slides:'1 kitchen · 2 island seating · 3 living room · 4 exterior · 5 price, MLS #, "Request a showing"',
+  source:'Listing feed: MLS # NF-200058 (Active). Photos 01, 02, 04, 09.',
+  cta:'Link in bio → listing page',
+  checks:[FH,'MLS # attached','Price from feed']},
+ {day:'sat', acct:'firm', time:'10:00 AM', platforms:'Instagram · LinkedIn · Facebook', format:'Single image', scene:'house2', tag:'Sold',
+  title:'Sold: 901 Sycamore Ave, Highview, $1,150,000',
+  caption:`Sold. 901 Sycamore Ave, Highview, at $1,150,000.
+
+From starter homes to estates, our agents represent sellers at every price point with the same preparation: a pricing analysis built on real comparables, professional photography and a launch plan. Listing courtesy of Northfield Realty, MLS # NF-100901.
+
+Curious what your home would bring in today's market? Request a free valuation at the link in bio.`,
+  tags:'#JustSold #Highview #NorthfieldRealty',
+  source:'Listing feed: MLS # NF-100901 (Closed, $1,150,000).',
+  cta:'Free home valuation',
+  checks:[FH,'Sale price from feed','No commission language']},
+ {day:'sun', acct:'firm', time:'9:00 AM', platforms:'Instagram carousel · Facebook', format:'Carousel, 4 slides', scene:'house3', ph:'Text slides on white with brass accents; a house exterior on the cover', tag:'From the guides',
+  title:'Homestead credits, explained in four slides',
+  caption:`Own your home? Find out whether a homestead credit applies to you.
+
+Many areas offer a homestead credit for owner-occupied homes. Check your local rules to see whether you qualify.
+
+Our guide gives a general overview and points you to the official source for details. Link in bio.`,
+  tags:'#Homeowners #PropertyTax #HomesteadCredit #NorthfieldRealty',
+  slides:'1 "Does it apply to you?" · 2 what it does · 3 who may qualify · 4 "Check your local rules" with the official link',
+  source:'Guide: Homestead Credits, General Overview.',
+  cta:'Read the guide',
+  checks:[FH,'Points to official source','General info, not tax advice']},
+
+ // SAM
+ {day:'mon', acct:'sam', time:'7:30 AM', platforms:'Instagram · Facebook', format:'Single image, talking-to-camera', scene:'porch', ph:'Sam on a front stoop, phone in hand, natural light', tag:'Buyer education',
+  title:'How I prep buyers for their first showing week',
+  caption:`Your first week of showings sets the tone for the whole search. Here's how I set my buyers up for it.
+
+Before we see anything, we've talked to a lender and know the real monthly number, not just the price. We've agreed on three things you won't compromise on. And you have my cell, so when a listing you like hits, we're in the door fast.
+
+Starting your search? Our first-time buyer guide is linked in my bio, and my phone is (555) 010-2041.`,
+  tags:'#FirstTimeHomeBuyer #BuyerTips #NorthfieldRealty',
+  source:'Guide: First-Time Home Buyer Guide. Agent profile.',
+  cta:'DM or call Sam',
+  checks:[FH,'No lender named','No rate claims']},
+ {day:'thu', acct:'sam', time:'12:00 PM', platforms:'Instagram carousel · Facebook', format:'Carousel, 5 slides', scene:'house1', tag:'Listing',
+  title:'77 Birchwood Dr, Brookside, $398,000',
+  caption:`Come see this one with me. 77 Birchwood Dr, offered at $398,000.
+
+A blue Dutch Colonial with a gambrel roof, a deep covered front porch, a detached garage and a lawn that steps up from the sidewalk. Warm light in every front window at dusk. Listed by Northfield Realty, MLS # NF-200077.
+
+I'm hosting showings this weekend. Message me for a time.`,
+  tags:'#Brookside #DutchColonial #JustListed #NorthfieldRealty',
+  slides:'1 twilight exterior · 2 porch · 3 interior (from feed) · 4 garage/yard · 5 price, MLS #, "Message Sam"',
+  source:'Listing feed: MLS # NF-200077 (Active). Photo 01 and gallery.',
+  cta:'Message Sam for a showing',
+  checks:[FH,'MLS # attached','Price from feed','Features from photos only']},
+
+ // PRIYA
+ {day:'tue', acct:'priya', time:'8:30 AM', platforms:'LinkedIn · Instagram carousel', format:'Carousel, 6 slides', scene:'timeline', ph:'Timeline: offer accepted → deposit → inspection → appraisal → title → settlement', tag:'Buyer education',
+  title:'After the offer is accepted: the timeline',
+  caption:`Offer accepted. Now what? Here's the usual order of events between "yes" and the keys.
+
+Deposit within days. Home inspection, typically within the first week or two. Appraisal ordered by the lender. Title search and settlement scheduled. Final walk-through, then closing.
+
+As Associate Broker at Northfield, I've walked hundreds of contracts through this stretch. The full step-by-step is in our guide, linked in my profile. Questions about a contract you're in right now? (555) 010-2042.`,
+  tags:'#HomeBuying #UnderContract #NorthfieldRealty',
+  slides:'1 "Offer accepted. Now what?" · 2 deposit · 3 inspection · 4 appraisal · 5 title and walk-through · 6 "Read the guide"',
+  source:'Guide: What Happens After an Accepted Offer? Agent profile (Associate Broker).',
+  cta:'Read the guide / call Priya',
+  checks:[FH,'Timeframes hedged ("typically")','No legal advice']},
+ {day:'fri', acct:'priya', time:'5:00 PM', platforms:'LinkedIn · Facebook', format:'Single image', scene:'street', ph:'Photo: commuter train platform at dusk', tag:'Relocation',
+  title:'Moving to the city from out of town',
+  caption:`More of my clients are making the move than ever. The usual questions: how's the commute, which neighborhoods, how much house does the same budget buy?
+
+Short version: the neighborhoods range from compact blocks in Larkfield to the big lots of Stonebridge, and the commuter rail makes a workday in town workable.
+
+Our full relocation guide is linked in my profile. Happy to compare notes on your situation.`,
+  tags:'#Relocation #Neighborhoods #NorthfieldRealty',
+  source:'Guide: Relocating to the City. Neighborhood guides: Larkfield, Stonebridge.',
+  cta:'Read the guide / message Priya',
+  checks:[FH,'No price comparisons stated as fact','Transit claims general']},
+
+ // ELENA
+ {day:'wed', acct:'elena', time:'9:00 AM', platforms:'Instagram carousel · Pinterest', format:'Carousel, 7 slides', scene:'living', ph:'Before-and-after pairs from a camera-ready prep: cleared counters, styled bed, open blinds', tag:'Seller education',
+  title:'Camera-ready in a weekend: my room-by-room list',
+  caption:`The photos are the first showing. Here's the list I send every seller before the photographer comes.
+
+Kitchen: counters bare except one bowl of fruit. Living room: pull furniture off the walls, open every blind. Bedrooms: white bedding, nightstands cleared. Bathrooms: nothing on the counter, fresh towels. Exterior: walkway swept, car out of the driveway.
+
+The full checklist is on our site, linked in my bio. Want me to walk your home with you before photos? That's part of the job. (555) 010-2045.`,
+  tags:'#HomeStaging #SellYourHome #ListingPhotos #NorthfieldRealty',
+  slides:'1 cover · 2 kitchen · 3 living · 4 bedrooms · 5 baths · 6 exterior · 7 "Get the full checklist"',
+  source:'Guide: How to Get Your Home Camera-Ready for Listing Photos. Agent profile.',
+  cta:'Get the checklist / message Elena',
+  checks:[FH,'No fee hook']},
+ {day:'sat', acct:'elena', time:'10:30 AM', platforms:'Instagram · Facebook', format:'Single image', scene:'park', ph:'Photo: Ashford Park gardens, tulip beds and the lawn', tag:'Neighborhood',
+  title:'Ashford Park, on a Saturday',
+  caption:`Ashford Park is where I send people who want a grand house and a real neighborhood around it. Winding streets, Georgian and Tudor homes and the gardens at its heart.
+
+If you've only seen it in tulip season, go in November. The trees do the work.
+
+Thinking about buying or selling in Ashford Park? Our neighborhood guide is in my bio, and I'm always up for a walk-through.`,
+  tags:'#AshfordPark #Neighborhoods #NorthfieldRealty',
+  source:'Guide: Ashford Park Homes for Sale & Neighborhood Guide.',
+  cta:'Read the guide / listing alert for Ashford Park',
+  checks:[FH,'History worded as sources state']},
+
+ // MARCUS
+ {day:'mon', acct:'marcus', time:'6:00 PM', platforms:'Instagram · Facebook', format:'Quote card', scene:'quote', ph:'Quote card, five stars, "Buyer, Stonebridge"', tag:'Client review',
+  title:'Review: a Stonebridge buyer',
+  caption:`"Sample quote, fictional: a smooth, well-explained search from the first tour to the keys." — Buyer, Stonebridge (sample)
+
+Thank you. Every closing like this one is why I do this.
+
+If you're starting a search anywhere in or around Stonebridge, let's talk. (555) 010-2044.`,
+  tags:'#ClientReview #Stonebridge #NorthfieldRealty',
+  source:'Sample quote, fictional, agent: Marcus Bell.',
+  cta:'Message Marcus',
+  checks:[FH,'Sample quote, fictional','Client not named beyond the review']},
+ {day:'thu', acct:'marcus', time:'8:00 AM', platforms:'Instagram carousel · LinkedIn', format:'Carousel, 5 slides', scene:'keys', ph:'Text slides: "Down payment help" with simple icons', tag:'Buyer education',
+  title:'Down payment help exists. Most buyers never ask.',
+  caption:`If the down payment is what's keeping you renting, read this.
+
+Many areas offer down payment and closing cost assistance for eligible first-time buyers, through approved lenders. Eligibility depends on income, purchase price and location, so the details matter.
+
+Our guide explains how these programs work and links to the official sites. I'm glad to connect you with a lender who works with them. Link in my bio.`,
+  tags:'#FirstTimeHomeBuyer #DownPaymentAssistance #NorthfieldRealty',
+  slides:'1 "Renting because of the down payment?" · 2 what programs are · 3 eligibility basics · 4 how to start · 5 "Read the guide"',
+  source:'Guide: Down Payment Help for First-Time Buyers.',
+  cta:'Read the guide / message Marcus',
+  checks:[FH,'No dollar amounts','Points to official program site']},
+
+ // THEO
+ {day:'tue', acct:'theo', time:'12:30 PM', platforms:'Instagram carousel · Facebook', format:'Carousel, 5 slides', scene:'townhome', tag:'Listing',
+  title:'32 Tanner Pl, Larkfield, $219,000',
+  caption:`New on my list: 32 Tanner Pl in Larkfield, offered at $219,000.
+
+A contemporary townhome with a brick courtyard entry, big windows front and back, planters along the walk and mature trees overhead. A quiet cul-de-sac close to everything. Listed by Northfield Realty, MLS # NF-200032.
+
+Want to see it this week? Message me. (555) 010-2046.`,
+  tags:'#Larkfield #Townhome #JustListed #NorthfieldRealty',
+  slides:'1 twilight exterior · 2 courtyard · 3 interiors from feed · 4 trees/cul-de-sac · 5 price, MLS #, "Message Theo"',
+  source:'Listing feed: MLS # NF-200032 (Active). Photo 01 and gallery.',
+  cta:'Message Theo',
+  checks:[FH,'MLS # attached','Price from feed']},
+ {day:'sun', acct:'theo', time:'11:00 AM', platforms:'Instagram · TikTok (photo mode)', format:'Single image', scene:'condo', ph:'Photo: tree-lined main street at golden hour', tag:'Neighborhood',
+  title:'Foundry St, in one paragraph',
+  caption:`The Foundry St district is the city's newest neighborhood and it shows: glass towers, a landscaped promenade, restaurants at street level and parks on either side.
+
+Condos here come with doormen, gyms and views that make the decision for you. If that's your speed, our downtown guide is in my bio.`,
+  tags:'#Condos #CityLiving #NorthfieldRealty',
+  source:'Guide: Foundry St Homes for Sale & Neighborhood Guide.',
+  cta:'Read the guide / listing alert',
+  checks:[FH,'Amenities only, no "who lives here"']},
+
+ // JORDAN
+ {day:'wed', acct:'jordan', time:'6:30 PM', platforms:'Instagram · Facebook', format:'Quote card', scene:'quote', ph:'Quote card, five stars, "Seller, Willow Bend"', tag:'Client review',
+  title:'Review: a Willow Bend seller',
+  caption:`"Sample quote, fictional: clear pricing advice and steady communication right through closing." — Seller, Willow Bend (sample)
+
+Thank you for trusting me with your home. From the first pricing conversation to the closing table, that's the whole job and I love it.
+
+Thinking of selling? Let's talk about what your home could bring. (555) 010-2047.`,
+  tags:'#ClientReview #WillowBend #NorthfieldRealty',
+  source:'Sample quote, fictional, agent: Jordan Kim.',
+  cta:'Free home valuation / message Jordan',
+  checks:[FH,'Sample quote, fictional']},
+ {day:'fri', acct:'jordan', time:'9:00 AM', platforms:'Instagram carousel · LinkedIn', format:'Carousel, 6 slides', scene:'chart', ph:'Slides: a simplified comparable-sales table, a "price vs. days on market" sketch', tag:'Seller education',
+  title:'How I price a home (it isn\'t an automated estimate)',
+  caption:`The most important decision a seller makes happens before the sign goes up: the list price.
+
+Here's what goes into mine. Recent sales within a few blocks, adjusted for condition and size. What's active right now, because that's your competition. Where buyers are searching, since a price just under a search threshold gets seen by more people. And your timeline.
+
+Our full pricing guide is linked in my bio. Want a personal pricing analysis for your home? That's free, and usually ready within a day.`,
+  tags:'#HomePricing #SellYourHome #NorthfieldRealty',
+  slides:'1 "The number that matters most" · 2 comparable sales · 3 active competition · 4 search thresholds · 5 timing · 6 "Request a pricing analysis"',
+  source:'Guide: How to Price Your Home to Sell. Site FAQ: valuation usually within 24 hours.',
+  cta:'Free home valuation',
+  checks:[FH,'No specific prices','"Usually" on turnaround']},
+
+ // DANA
+ {day:'tue', acct:'dana', time:'7:00 AM', platforms:'LinkedIn · Instagram', format:'Single image, portrait', scene:'office', ph:'Dana at the office, or a candid at a closing table', tag:'Founder note',
+  title:'Why a numbers-first broker prices homes differently',
+  caption:`I founded Northfield Realty on a simple idea: I don't guess at a list price. I build it.
+
+Every seller we represent gets a pricing analysis grounded in real comparable sales and current competition, not a number that feels right. That discipline is still the core of how this firm works.
+
+If you're weighing a sale, I'd welcome the conversation. (555) 010-2040.`,
+  tags:'#BrokerOwner #RealEstate #NorthfieldRealty',
+  source:'Site FAQ and About page.',
+  cta:'Free home valuation',
+  checks:[FH,'Facts from site','Held until Dana opts in'],
+  hold:'Optional track. Nothing goes out under Dana\'s name unless she approves it herself. Shown so she can see what her own queue would look like.'},
+ {day:'sat', acct:'dana', time:'9:30 AM', platforms:'LinkedIn · Instagram', format:'Carousel, 4 slides', scene:'map', ph:'World map with the city marked', tag:'International buyers',
+  title:'Buying from abroad',
+  caption:`A growing share of our buyers never set foot in the city before they own here. Some are relocating for work; some are investing from overseas.
+
+I handle the parts that trip people up: financing as a non-resident, documents and signatures from another country, and touring remotely so you can decide with confidence.
+
+Our international buyer guide is on the site. If that's you, let's talk. hello@example.com.`,
+  tags:'#InternationalBuyers #RealEstate #NorthfieldRealty',
+  slides:'1 "Buying from abroad?" · 2 financing · 3 documents · 4 remote touring, "Read the guide"',
+  source:'Guide: International Buyers.',
+  cta:'Read the guide / email Dana',
+  checks:[FH,'No nationality-based targeting','Held until Dana opts in'],
+  hold:'Optional track. Held for Dana\'s personal approval.'}
+];
+
+const SCRIPTS = [
+ {acct:'firm', day:'mon', title:'Just listed: 214 Linden Ct', len:'30 s', kind:'Photo reel with on-screen text, firm voice',
+  hook:'"The kitchen is why you\'ll book the showing."',
+  beats:[
+   ['0–3 s','Kitchen hero photo, slow push in','On-screen: "Just listed · Elm Hollow"'],
+   ['3–9 s','Island detail, pendant lights','On-screen: "Quartz island. Stainless. New."'],
+   ['9–15 s','Sliding doors, deck and trees','On-screen: "Deck off the kitchen. Trees in every window."'],
+   ['15–22 s','Main living, hardwood floors','On-screen: "Wide-plank hardwood through the main level."'],
+   ['22–27 s','Exterior','On-screen: "214 Linden Ct · $489,000"'],
+   ['27–30 s','Brand end card','On-screen: "Northfield Realty · MLS # NF-100214 · Link in bio"']],
+  audio:'Trending instrumental, low. No voiceover needed.', cta:'Link in bio', source:'Listing feed NF-100214, photos 01, 03, 05, 07, 12.'},
+ {acct:'firm', day:'thu', title:'What HOA fees cover, in 45 seconds', len:'45 s', kind:'Agent to camera (any agent), captions on',
+  hook:'"Thinking about a townhome or condo? Someone will mention the HOA fee, and you should know what it covers."',
+  beats:[
+   ['0-5 s','Agent to camera, townhome row behind','Hook line above.'],
+   ['5-15 s','Cut to on-screen text over a facade','"An HOA fee is a regular payment that helps fund shared spaces and services in the community."'],
+   ['15-28 s','Agent to camera','"Two things to check: what is included, and how much is it per month? Both are in the community documents before you make an offer."'],
+   ['28-38 s','On-screen text','"Typical items can include grounds care, shared amenities and building insurance. It varies by community."'],
+   ['38-45 s','Agent to camera, end card','"Full explainer on our site. Link in bio. Northfield Realty."']],
+  audio:'Natural sound, captions burned in.', cta:'Read the HOA guide', source:'Guide: What HOA Fees Cover.'},
+ {acct:'sam', day:'thu', title:'Older home walk-through: what I check first', len:'40 s', kind:'Sam to camera inside a listing',
+  hook:'"Walking into an older home for the first time? Here\'s where my eyes go."',
+  beats:[
+   ['0–4 s','Sam at the front door','Hook line.'],
+   ['4–12 s','Looks up at the ceiling in the front room','"One: the roof. I want to know when it was last done and whether there\'s a warranty."'],
+   ['12–20 s','Hand on the shared wall','"Two: the walls. Any cracks, any sound, any sign of water."'],
+   ['20–30 s','Basement stairs','"Three: the basement. Moisture, the main drain, where the utilities are."'],
+   ['30–36 s','Back to camera, kitchen','"Four: parking and easements. Ask before you fall in love."'],
+   ['36–40 s','End card','"Full buying guide on our site. I\'m Sam with Northfield Realty."']],
+  audio:'Natural sound, captions.', cta:'Read the guide / message Sam', source:'Guide: Buying an Older Home. Filmed in any active Northfield listing with the seller\'s OK.'},
+ {acct:'priya', day:'tue', title:'Transfer taxes, fast', len:'45 s', kind:'Priya to camera with on-screen numbers',
+  hook:'"The closing costs people forget to budget for? Transfer taxes."',
+  beats:[
+   ['0–5 s','Priya at a desk, settlement folder','Hook line.'],
+   ['5–15 s','On-screen text','"Transfer taxes vary by location."'],
+   ['15–27 s','Priya to camera','"Who pays is negotiated in the contract. Customarily it\'s split, but every deal is different."'],
+   ['27–38 s','On-screen text','"First-time buyers may qualify for a break. Ask your agent and title company."'],
+   ['38–45 s','End card','"The full breakdown is on our site. Priya Nair, Associate Broker, Northfield Realty."']],
+  audio:'Natural sound, captions.', cta:'Read the transfer tax guide', source:'Guide: Transfer Taxes Explained. No specific rates stated; local rates are deferred to sources.'},
+ {acct:'elena', day:'wed', title:'Five things before the photographer arrives', len:'35 s', kind:'Elena walking through a prepped home, quick cuts',
+  hook:'"Your photographer is coming tomorrow. Do these five things tonight."',
+  beats:[
+   ['0–4 s','Elena in the entry','Hook line.'],
+   ['4–10 s','Kitchen counters, clearing','"One: counters bare. One bowl of fruit, that\'s it."'],
+   ['10–16 s','Opening blinds','"Two: every blind open, every light on, including lamps."'],
+   ['16–22 s','Bedroom, smoothing white bedding','"Three: white bedding and clear nightstands."'],
+   ['22–28 s','Bathroom','"Four: nothing on the bathroom counter. Fresh towels."'],
+   ['28–35 s','Front walk, end card','"Five: car out of the driveway, walkway swept. Full checklist on our site. Elena Ruiz, Northfield Realty."']],
+  audio:'Upbeat instrumental, captions.', cta:'Get the camera-ready checklist', source:'Guide: How to Get Your Home Camera-Ready for Listing Photos.'},
+ {acct:'marcus', day:'thu', title:'Pre-approval vs. pre-qualification', len:'30 s', kind:'Marcus to camera, two-column on-screen text',
+  hook:'"These two words sound the same. Sellers treat them very differently."',
+  beats:[
+   ['0–4 s','Marcus to camera','Hook line.'],
+   ['4–12 s','On-screen: "Pre-qualified"','"Pre-qualified means a lender took your word for it. Quick, but it doesn\'t carry weight with a seller."'],
+   ['12–22 s','On-screen: "Pre-approved"','"Pre-approved means they verified income, assets and credit. That letter goes with your offer, and it gets taken seriously."'],
+   ['22–30 s','End card','"Before we tour, get pre-approved. I can connect you with lenders who move fast. Marcus Bell, Northfield Realty."']],
+  audio:'Natural sound, captions.', cta:'Message Marcus', source:'Guide: First-Time Home Buyer Guide (pre-approval section).'},
+ {acct:'theo', day:'tue', title:'32 Tanner Pl in 20 seconds', len:'20 s', kind:'Photo reel, Theo voiceover',
+  hook:'"A brick courtyard, big windows and a quiet cul-de-sac, for $219,000."',
+  beats:[
+   ['0–4 s','Twilight exterior','VO: hook line.'],
+   ['4–9 s','Courtyard and planters','VO: "You walk in through your own courtyard."'],
+   ['9–14 s','Interior photos from the feed','VO: "Light front and back, all day."'],
+   ['14–20 s','Trees, end card','VO: "32 Tanner Pl. Message me to see it this week." On-screen: "MLS # NF-200032 · Theo Grant · Northfield Realty"']],
+  audio:'Theo voiceover over light music.', cta:'Message Theo', source:'Listing feed NF-200032 and gallery.'},
+ {acct:'jordan', day:'fri', title:'What a pricing analysis actually includes', len:'40 s', kind:'Jordan to camera with a printed report',
+  hook:'"When I say \'free pricing analysis,\' here\'s what you actually get."',
+  beats:[
+   ['0–4 s','Jordan holding a report','Hook line.'],
+   ['4–13 s','Flips to comparables page','"Page one: the homes near yours that sold in the last few months, and what made each one different from yours."'],
+   ['13–22 s','Flips to active listings','"Page two: what\'s on the market right now. That\'s your competition the day you list."'],
+   ['22–32 s','Flips to strategy page','"Page three: a price range, a recommended list price and why, and a plan for the first two weeks."'],
+   ['32–40 s','End card','"It\'s free and usually ready within a day. Jordan Kim, Northfield Realty."']],
+  audio:'Natural sound, captions.', cta:'Request a free pricing analysis', source:'Guide: How to Price Your Home to Sell. Site FAQ on valuation turnaround.'},
+ {acct:'dana', day:'sat', title:'Buying from another country: three things', len:'45 s', kind:'Dana to camera (optional track, held for her approval)',
+  hook:'"I\'ve helped buyers purchase here from three continents. Three things come up every single time."',
+  beats:[
+   ['0–5 s','Dana at the office','Hook line.'],
+   ['5–17 s','On-screen: "1. Financing"','"Non-resident financing exists, but the lender list is short and the down payment is usually higher. We start there."'],
+   ['17–29 s','On-screen: "2. Documents"','"Signing from abroad takes planning: notarization, apostilles, sometimes a power of attorney. We map it out before you\'re under contract."'],
+   ['29–40 s','On-screen: "3. Seeing it"','"Video walk-throughs, a local inspector you can trust, and an agent who answers at odd hours."'],
+   ['40–45 s','End card','"I\'m Dana Reyes, broker and owner of Northfield Realty. The full guide is on our site."']],
+  audio:'Natural sound, captions.', cta:'Read the international buyer guide', source:'Guide: International Buyers. Held until Dana opts in to a personal track.'}
+];
+
+// ---------- illustrated scenes (inline SVG) ----------
+const PAL = [
+  ['#16233b','#2c4268','#a9823e'],['#24364f','#4a6283','#d2ad66'],['#2b2f45','#5b5f80','#c99a4b'],['#1d3a40','#3f6b72','#b9944d']
+];
+function houseSvg(c,variant){
+  const [a,b,g]=c;
+  const roof = variant===1 ? 'M70 120 L160 62 L250 120 Z' : variant===2 ? 'M60 120 L110 70 L210 70 L260 120 Z' : 'M64 122 L160 70 L256 122 Z';
+  return `<defs><linearGradient id="sk${variant}${a.slice(1)}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${b}"/><stop offset="1" stop-color="#f1e3c8"/></linearGradient></defs>
+  <rect width="320" height="200" fill="url(#sk${variant}${a.slice(1)})"/>
+  <circle cx="262" cy="42" r="16" fill="${g}" opacity=".85"/>
+  <path d="M0 150 Q80 138 160 148 T320 142 V200 H0Z" fill="#5e7a5a"/>
+  <rect x="0" y="162" width="320" height="38" fill="#4b6648"/>
+  <path d="M130 200 L150 162 H178 L202 200Z" fill="#d9ceb8" opacity=".9"/>
+  <rect x="82" y="118" width="156" height="50" fill="#efe5d2"/>
+  <path d="${roof}" fill="${a}"/>
+  <rect x="150" y="136" width="22" height="32" fill="${g}"/>
+  <rect x="98" y="130" width="30" height="24" fill="#fff6dc" stroke="${a}" stroke-width="2"/>
+  <rect x="196" y="130" width="30" height="24" fill="#fff6dc" stroke="${a}" stroke-width="2"/>
+  <rect x="212" y="84" width="12" height="26" fill="${a}"/>
+  <g fill="#3d5a3b"><circle cx="46" cy="140" r="22"/><rect x="43" y="150" width="6" height="26" fill="#5a4a3a"/><circle cx="282" cy="144" r="18"/><rect x="279" y="152" width="6" height="24" fill="#5a4a3a"/></g>`;
+}
+function interiorSvg(c,kind){
+  const [a,b,g]=c;
+  if(kind==='kitchen'||kind==='kitchen2'){
+    return `<rect width="320" height="200" fill="#f4ede0"/><rect y="150" width="320" height="50" fill="#c9b08a"/>
+    <rect x="0" y="30" width="110" height="60" fill="${a}"/><g stroke="#f4ede0" stroke-width="2"><path d="M37 30V90M74 30V90"/></g>
+    <rect x="0" y="100" width="320" height="52" fill="#fff"/><rect x="0" y="94" width="320" height="8" fill="#d9d3c7"/>
+    <rect x="${kind==='kitchen'?150:40}" y="118" width="${kind==='kitchen'?150:170}" height="46" fill="${a}"/><rect x="${kind==='kitchen'?140:30}" y="110" width="${kind==='kitchen'?170:190}" height="10" fill="#fdfbf6"/>
+    <g fill="${g}"><circle cx="190" cy="62" r="10"/><circle cx="230" cy="62" r="10"/><path d="M190 30V52M230 30V52" stroke="${a}" stroke-width="2"/></g>
+    <rect x="236" y="40" width="70" height="52" fill="#cfe3ea" stroke="${a}" stroke-width="3"/><path d="M271 40V92M236 66H306" stroke="${a}" stroke-width="2"/>
+    <g fill="#7b8a96"><rect x="130" y="82" width="26" height="14" rx="2"/></g>`;
+  }
+  if(kind==='living'){
+    return `<rect width="320" height="200" fill="#f1e8d8"/><rect y="150" width="320" height="50" fill="#b99a6c"/>
+    <rect x="200" y="30" width="90" height="80" fill="#cfe3ea" stroke="${a}" stroke-width="4"/><path d="M245 30V110M200 70H290" stroke="${a}" stroke-width="3"/>
+    <rect x="40" y="104" width="150" height="46" rx="8" fill="${a}"/><rect x="30" y="118" width="26" height="34" rx="6" fill="${b}"/><rect x="174" y="118" width="26" height="34" rx="6" fill="${b}"/>
+    <rect x="70" y="92" width="90" height="16" rx="6" fill="${g}"/><rect x="82" y="160" width="100" height="14" rx="3" fill="#e5d7b9"/>
+    <path d="M250 150V120" stroke="#5a4a3a" stroke-width="3"/><path d="M232 118 Q250 92 268 118Z" fill="#f6dfa4"/>`;
+  }
+  return '';
+}
+function sceneSvg(kind,i){
+  const c=PAL[i%PAL.length];
+  let inner='';
+  if(kind==='house1'||kind==='townhome') inner=houseSvg(c,1);
+  else if(kind==='house2') inner=houseSvg(c,2);
+  else if(kind==='house3'||kind==='winter') inner=houseSvg(c,3)+(kind==='winter'?'<g fill="#fff" opacity=".85"><circle cx="40" cy="30" r="2"/><circle cx="90" cy="60" r="2"/><circle cx="150" cy="24" r="2"/><circle cx="220" cy="70" r="2"/><circle cx="290" cy="30" r="2"/><circle cx="260" cy="110" r="2"/><rect y="160" width="320" height="40" opacity=".7"/></g>':'');
+  else if(kind==='kitchen'||kind==='kitchen2'||kind==='living') inner=interiorSvg(c,kind);
+  else if(kind==='porch') inner=houseSvg(c,3)+`<circle cx="160" cy="92" r="14" fill="${c[2]}"/><rect x="150" y="104" width="20" height="32" rx="6" fill="${c[0]}"/>`;
+  else if(kind==='street'||kind==='park'){
+    inner=`<rect width="320" height="200" fill="${c[1]}"/><rect y="120" width="320" height="80" fill="#4b6648"/><path d="M130 200 L150 110 H170 L230 200Z" fill="#cfc6b3"/>
+    <g fill="#35523a"><circle cx="40" cy="96" r="38"/><circle cx="280" cy="90" r="42"/><circle cx="90" cy="110" r="26"/><circle cx="236" cy="112" r="26"/></g>
+    <g fill="#5a4a3a"><rect x="37" y="120" width="7" height="50"/><rect x="276" y="120" width="8" height="52"/></g>
+    ${kind==='park'?'<g><circle cx="30" cy="170" r="6" fill="#e0709a"/><circle cx="50" cy="178" r="6" fill="#f0c04a"/><circle cx="270" cy="172" r="6" fill="#e0709a"/><circle cx="292" cy="180" r="6" fill="#f0c04a"/></g>':'<rect x="60" y="100" width="40" height="30" fill="#e7dcc4"/><path d="M52 100 L80 78 L108 100Z" fill="'+c[0]+'"/>'}`;
+  }
+  else if(kind==='condo'){
+    inner=`<rect width="320" height="200" fill="${c[1]}"/><rect y="150" width="320" height="50" fill="#3d5a6b"/><g fill="${c[0]}"><rect x="60" y="30" width="60" height="130"/><rect x="130" y="60" width="50" height="100"/><rect x="190" y="20" width="70" height="140"/></g>
+    <g fill="#f6dfa4" opacity=".9">${Array.from({length:24},(_,k)=>`<rect x="${68+(k%4)*13}" y="${40+Math.floor(k/4)*18}" width="7" height="9"/>`).join('')}${Array.from({length:18},(_,k)=>`<rect x="${198+(k%5)*13}" y="${30+Math.floor(k/5)*18}" width="7" height="9"/>`).join('')}</g>`;
+  }
+  else if(kind==='quote'){
+    inner=`<rect width="320" height="200" fill="${c[0]}"/><text x="160" y="46" text-anchor="middle" font-size="22" fill="${c[2]}" letter-spacing="4">★★★★★</text>
+    <text x="30" y="110" font-size="64" fill="${c[2]}" font-family="Georgia,serif">“</text>
+    <rect x="70" y="90" width="210" height="8" rx="4" fill="#fff" opacity=".85"/><rect x="70" y="110" width="180" height="8" rx="4" fill="#fff" opacity=".6"/><rect x="70" y="130" width="196" height="8" rx="4" fill="#fff" opacity=".6"/>
+    <rect x="130" y="166" width="60" height="3" fill="${c[2]}"/>`;
+  }
+  else if(kind==='timeline'){
+    inner=`<rect width="320" height="200" fill="#f4ede0"/><path d="M30 100H290" stroke="${c[0]}" stroke-width="3"/>${[0,1,2,3,4,5].map(k=>`<circle cx="${40+k*48}" cy="100" r="9" fill="${k<3?c[2]:c[0]}"/><rect x="${24+k*48}" y="${k%2?122:64}" width="32" height="8" rx="3" fill="${c[1]}" opacity=".6"/>`).join('')}`;
+  }
+  else if(kind==='chart'){
+    inner=`<rect width="320" height="200" fill="#f4ede0"/><g fill="${c[0]}">${[40,70,55,95,80,120].map((h,k)=>`<rect x="${40+k*42}" y="${170-h}" width="26" height="${h}"/>`).join('')}</g><path d="M50 120 L92 100 L134 112 L176 74 L218 90 L260 50" stroke="${c[2]}" stroke-width="4" fill="none"/>`;
+  }
+  else if(kind==='keys'){
+    inner=`<rect width="320" height="200" fill="${c[0]}"/><circle cx="130" cy="100" r="32" fill="none" stroke="${c[2]}" stroke-width="10"/><path d="M162 100H250M222 100V126M246 100V118" stroke="${c[2]}" stroke-width="10" stroke-linecap="round"/>`;
+  }
+  else if(kind==='office'){
+    inner=`<rect width="320" height="200" fill="#efe6d6"/><rect y="140" width="320" height="60" fill="#b99a6c"/><rect x="60" y="96" width="200" height="14" fill="${c[0]}"/><rect x="80" y="110" width="8" height="50" fill="${c[0]}"/><rect x="232" y="110" width="8" height="50" fill="${c[0]}"/><rect x="120" y="56" width="70" height="40" fill="${c[1]}"/><rect x="150" y="96" width="10" height="6" fill="${c[0]}"/><circle cx="236" cy="82" r="12" fill="${c[2]}"/>`;
+  }
+  else if(kind==='map'){
+    inner=`<rect width="320" height="200" fill="${c[1]}"/><g fill="#d9cfb7" opacity=".9"><path d="M30 60 Q60 40 100 56 L110 90 Q80 120 50 100Z"/><path d="M140 50 Q190 30 230 60 L250 110 Q210 150 170 120Z"/><path d="M200 140 Q240 130 280 150 L270 180 Q230 190 210 170Z"/></g><circle cx="190" cy="86" r="8" fill="${c[2]}"/><circle cx="190" cy="86" r="16" fill="none" stroke="${c[2]}" stroke-width="2"/>`;
+  }
+  else inner=houseSvg(c,1);
+  return `<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Illustration">${inner}</svg>`;
+}
+
+// ---------- render ----------
+const byId = Object.fromEntries(ACCOUNTS.map(a=>[a.id,a]));
+const dayIdx = Object.fromEntries(DAYS.map((d,i)=>[d.id,i]));
+POSTS.forEach((p,i)=>{p.id='p'+i;});
+let selDay='all', selAcct='all';
+let state = {}; // id -> {status:'approved'|'skipped', cap?:string, plat?:string, edit?:bool}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function av(a){return `<span class="av ${a.id==='firm'?'firm':''}">${esc(a.ini)}</span>`;}
+
+const daysEl=document.getElementById('days');
+[{id:'all',l:'Whole week',d:'Nov 9–15'},...DAYS].forEach(d=>{
+  const b=document.createElement('button'); b.type='button'; b.setAttribute('role','tab');
+  b.innerHTML=`<span>${d.l}</span><small>${d.d}</small>`; b.dataset.day=d.id;
+  b.addEventListener('click',()=>{selDay=d.id; render();}); daysEl.appendChild(b);
+});
+const acctEl=document.getElementById('accounts');
+[{id:'all',short:'All'},...ACCOUNTS].forEach(a=>{
+  const b=document.createElement('button'); b.type='button'; b.dataset.acct=a.id;
+  b.innerHTML=(a.ini?av(a):'')+esc(a.short);
+  b.addEventListener('click',()=>{selAcct=a.id; render();}); acctEl.appendChild(b);
+});
+
+function previewHtml(p,a,plat,cap){
+  const cls = plat==='Instagram'?'ig':plat==='Facebook'?'fb':'li';
+  const react = plat==='LinkedIn' ? '<span>Like</span><span>Comment</span><span>Repost</span><span>Send</span>' : plat==='Facebook' ? '<span>Like</span><span>Comment</span><span>Share</span>' : '<span>♡</span><span>Comment</span><span>Send</span>';
+  return `<div class="preview ${cls}"><div class="ph-row">${av(a)}<div>${esc(a.name)}<br><small>${plat} · ${esc(p.time)} · Preview</small></div></div>
+  <div class="pimg">${sceneSvg(p.scene,+p.id.slice(1))}</div><div class="ptxt">${esc(cap)}</div><div class="react">${react}</div></div>`;
+}
+function postCard(p){
+  const a=byId[p.acct], st=state[p.id]||{}, day=DAYS[dayIdx[p.day]];
+  const cap = st.cap!=null ? st.cap : p.caption;
+  const plats = ['Instagram','Facebook','LinkedIn'];
+  const status = st.status==='approved' ? '<span class="status ok">Approved · queued for '+esc(day.l+' '+p.time)+'</span>' : st.status==='skipped' ? '<span class="status">Skipped this week</span>' : '<span class="status">Waiting for approval</span>';
+  return `<article class="post ${st.status||''}" data-id="${p.id}">
+    <div class="media">${sceneSvg(p.scene,+p.id.slice(1))}<span class="tag">${esc(p.tag)}</span>${p.ph?`<span class="cap">${esc(p.ph)}</span>`:''}</div>
+    <div class="body">
+      <div class="meta"><span class="who">${av(a)}${esc(a.name)}</span><span>${day.l} ${day.d} · ${p.time}</span><span class="pill">${esc(p.platforms)}</span><span class="pill">${esc(p.format)}</span></div>
+      <h3>${esc(p.title)}</h3>
+      ${p.hold?`<div class="note">${esc(p.hold)}</div>`:''}
+      <div class="caption" ${st.edit?'contenteditable="true"':''}>${esc(cap)}<span class="tags">${esc(p.tags)}</span></div>
+      <dl class="kv">
+        ${p.slides?`<dt>Slides</dt><dd>${esc(p.slides)}</dd>`:''}
+        <dt>Drawn from</dt><dd>${esc(p.source)}</dd>
+        <dt>Call to action</dt><dd>${esc(p.cta)}</dd>
+      </dl>
+      <div class="check">${p.checks.map(c=>`<span class="${/held/i.test(c)?'warn':''}">${esc(c)}</span>`).join('')}</div>
+      ${st.plat?previewHtml(p,a,st.plat,cap):''}
+      <div class="actions">
+        <button class="btn ok" data-act="approve" type="button">${st.status==='approved'?'Approved ✓':'Approve'}</button>
+        <button class="btn" data-act="edit" type="button" aria-pressed="${!!st.edit}">${st.edit?'Save edit':'Edit'}</button>
+        <button class="btn" data-act="skip" type="button">${st.status==='skipped'?'Restore':'Skip'}</button>
+        ${plats.map(x=>`<button class="btn" data-act="plat" data-plat="${x}" type="button" aria-pressed="${st.plat===x}">${x==='Instagram'?'IG':x==='Facebook'?'FB':'LI'} preview</button>`).join('')}
+        ${status}
+      </div>
+    </div>
+  </article>`;
+}
+function scriptCard(s){
+  const a=byId[s.acct], day=DAYS[dayIdx[s.day]];
+  return `<article class="script">
+    <div class="head"><h3>${esc(s.title)}</h3>
+      <div class="meta"><span style="display:inline-flex;align-items:center;gap:7px;color:var(--fg);font-weight:600">${av(a)}${esc(a.name)}</span><span>Posts ${day.l} ${day.d}</span><span class="pill">${esc(s.len)}</span><span class="pill">${esc(s.kind)}</span></div></div>
+    <p class="hook">${esc(s.hook)}</p>
+    <div class="table-wrap"><table class="beats"><thead><tr><th>Time</th><th>Visual</th><th>Voice / on-screen</th></tr></thead>
+    <tbody>${s.beats.map(b=>`<tr><td>${esc(b[0])}</td><td>${esc(b[1])}</td><td>${esc(b[2])}</td></tr>`).join('')}</tbody></table></div>
+    <div class="foot"><span><b>Audio:</b> ${esc(s.audio)}</span><span><b>Call to action:</b> ${esc(s.cta)}</span><span><b>Drawn from:</b> ${esc(s.source)}</span></div>
+  </article>`;
+}
+function filtered(){return POSTS.filter(p=>(selDay==='all'||p.day===selDay)&&(selAcct==='all'||p.acct===selAcct)).sort((x,y)=>dayIdx[x.day]-dayIdx[y.day]||(x.acct==='firm'?-1:1));}
+function render(){
+  daysEl.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.day===selDay));
+  acctEl.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.acct===selAcct));
+  const ps=filtered();
+  const ss=SCRIPTS.filter(s=>(selDay==='all'||s.day===selDay)&&(selAcct==='all'||s.acct===selAcct)).sort((x,y)=>dayIdx[x.day]-dayIdx[y.day]);
+  document.getElementById('postList').innerHTML=ps.length?ps.map(postCard).join(''):'<p class="count">No posts scheduled for this filter.</p>';
+  document.getElementById('scriptList').innerHTML=ss.length?ss.map(scriptCard).join(''):'<p class="count">No video scripts for this filter.</p>';
+  document.getElementById('count').textContent=`${ps.length} post${ps.length===1?'':'s'} · ${ss.length} video script${ss.length===1?'':'s'}`;
+  const ap=POSTS.filter(p=>(state[p.id]||{}).status==='approved').length;
+  document.getElementById('appr').textContent=`${ap} of ${POSTS.length} approved`;
+  try{localStorage.setItem('nf-cce',JSON.stringify({selDay,selAcct,state}));}catch(e){}
+}
+document.getElementById('postList').addEventListener('click',e=>{
+  const btn=e.target.closest('button[data-act]'); if(!btn) return;
+  const art=btn.closest('.post'), id=art.dataset.id, st=state[id]=state[id]||{};
+  const act=btn.dataset.act;
+  if(act==='approve') st.status = st.status==='approved'?undefined:'approved';
+  else if(act==='skip') st.status = st.status==='skipped'?undefined:'skipped';
+  else if(act==='plat') st.plat = st.plat===btn.dataset.plat?undefined:btn.dataset.plat;
+  else if(act==='edit'){
+    if(st.edit){ st.cap=art.querySelector('.caption').textContent; st.edit=false; }
+    else st.edit=true;
+  }
+  render();
+});
+document.getElementById('apprAll').addEventListener('click',()=>{filtered().forEach(p=>{const s=state[p.id]=state[p.id]||{}; if(s.status!=='skipped'&&!/Held until/.test(p.checks.join('|'))) s.status='approved';}); render();});
+document.getElementById('reset').addEventListener('click',()=>{state={}; render();});
+try{const f=JSON.parse(localStorage.getItem('nf-cce')||'null'); if(f){selDay=f.selDay||'all';selAcct=f.selAcct||'all';state=f.state||{};}}catch(e){}
+render();
+</script>
+</body></html>

@@ -1,0 +1,900 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Northfield Lead Responder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@300;400;500;600&family=Inter:wght@300;400;500;600&display=swap">
+<style>
+
+/* Layout: brand site chrome, then a three-pane "control room" (incoming leads | the visitor's phone | what the agent sees),
+   then guardrails and the go-live plan. Single light theme to match the demo site. */
+:root{
+  --brand-green:#a9823e;--brand-cta:#a9823e;--brand-cta-hover:#8f6b2f;--brand-green-text:#8a6528;--brand-green-tint:#f6f0e2;
+  --brand-charcoal:#16233b;--brand-gray-1:#5a6272;
+  --brand-font:"Inter","Segoe UI",system-ui,sans-serif;
+  --bg:#FFFFFF;--bg-2:#F5F5F5;--bg-3:#ece9e0;--ink:var(--brand-charcoal);--text:#1A1A1A;--muted:var(--brand-gray-1);--line:#E4E4E4;--line-dark:#2b3550;
+  --green:var(--brand-cta);--green-2:var(--brand-cta-hover);--green-text:var(--brand-green-text);--green-tint:var(--brand-green-tint);
+  --hot:#B5452E;--hot-tint:#FBEDE9;--warm:#B8860B;--warm-tint:#FBF3DC;--nurture:#4F6C8F;--nurture-tint:#E9EFF6;
+  --on-dark:#FFFFFF;--on-dark-muted:#c4cad6;--wrap:1240px;--r:3px;color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--brand-font);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--brand-green);outline-offset:3px}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif;font-weight:400;line-height:1.15;letter-spacing:-.02em;color:var(--ink);margin:0;text-wrap:balance}
+h1{font-weight:400;font-size:clamp(2rem,4.4vw,3.2rem)}
+h2{font-size:clamp(1.45rem,2.6vw,2rem);font-weight:400}
+h3{font-size:1.1rem;font-weight:500}
+h4{font-size:.95rem;font-weight:600}
+p{margin:0}
+.wrap{max-width:var(--wrap);margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+@media (min-width:760px){.wrap{padding-left:max(40px,env(safe-area-inset-left,0px));padding-right:max(40px,env(safe-area-inset-right,0px))}}
+.label{font-size:.72rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--green-text)}
+.lede{font-size:1.1rem;color:var(--muted);max-width:62ch}
+.small{font-size:.86rem;color:var(--muted)}
+.btn{display:inline-flex;align-items:center;justify-content:center;font:600 .8rem/1 var(--brand-font);letter-spacing:.08em;text-transform:uppercase;padding:1em 1.4em;border-radius:var(--r);border:1px solid var(--ink);color:var(--ink);background:transparent;text-decoration:none;cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--ink);color:var(--on-dark)}
+.btn.primary{background:var(--green);border-color:var(--green);color:#fff}
+.btn.primary:hover{background:var(--green-2);border-color:var(--green-2)}
+.btn.sm{padding:.75em 1em;font-size:.72rem}
+
+/* Site chrome */
+.site-header{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--ink);color:var(--on-dark);border-bottom:1px solid var(--line-dark)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--ink)}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:20px;height:74px}
+.nav .brand img{height:38px;width:auto}
+.nav-links{display:flex;gap:26px;list-style:none;margin:0;padding:0}
+.nav-links a{text-decoration:none;font-size:.86rem;font-weight:500;color:var(--on-dark);padding-block:6px;border-bottom:1px solid transparent}
+.nav-links a:hover,.nav-links a[aria-current]{border-bottom-color:var(--brand-green)}
+@media (max-width:980px){.nav{flex-wrap:wrap;height:auto;padding-block:12px 0;row-gap:8px}.nav-links{order:3;width:100%;overflow-x:auto;gap:22px;padding-bottom:10px;scrollbar-width:none}.nav-links li{flex:none}}
+@media (max-width:520px){.nav .nav-cta{display:none}}
+.site-footer{background:var(--ink);color:var(--on-dark-muted);padding:56px 0 40px;margin-top:80px;font-size:.92rem}
+.site-footer .foot{display:flex;flex-wrap:wrap;gap:32px;justify-content:space-between;align-items:flex-start}
+.site-footer img{height:42px;width:auto}
+.site-footer a{color:var(--on-dark-muted)}
+.site-footer address{font-style:normal;line-height:1.8;margin-top:14px}
+.site-footer .legal{border-top:1px solid var(--line-dark);margin-top:36px;padding-top:20px;font-size:.78rem;display:flex;flex-wrap:wrap;gap:12px 28px;align-items:center}
+.eho{display:inline-flex;align-items:center;gap:8px}
+
+/* Page head */
+.page-head{background:var(--bg-2);padding-block:clamp(44px,6vw,72px) clamp(32px,4vw,48px);border-bottom:1px solid var(--line)}
+.page-head .label{display:block;margin-bottom:14px}
+.page-head h1{max-width:22ch}
+.page-head .lede{margin-top:18px}
+.demo-note{display:inline-flex;align-items:center;gap:10px;margin-top:22px;font-size:.8rem;color:var(--muted);border:1px dashed #cfcbbf;border-radius:999px;padding:.45em 1em .45em .7em}
+.demo-note i{width:8px;height:8px;border-radius:50%;background:var(--brand-green);display:inline-block}
+
+/* Control room */
+.stage{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;margin-top:32px}
+@media (min-width:900px){.stage{grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr)}}
+@media (min-width:1180px){.stage{grid-template-columns:minmax(0,.8fr) minmax(0,1.05fr) minmax(0,1fr)}}
+.pane{min-width:0;border:1px solid var(--line);border-radius:6px;background:#fff;display:flex;flex-direction:column}
+.pane-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.pane-h h2{font-size:.78rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--green-text)}
+.pane-b{padding:16px 18px;display:grid;gap:12px;align-content:start;min-width:0}
+.pane-b>*{min-width:0}
+.pane{overflow:hidden}
+.clock{font-size:.78rem;color:var(--muted);display:inline-flex;align-items:center;gap:8px;font-variant-numeric:tabular-nums}
+.clock b{font-weight:600;color:var(--ink)}
+.clock .closed{color:var(--hot);font-weight:600}
+.clock .open{color:var(--green-text);font-weight:600}
+
+/* Lead cards */
+.lead{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;padding:12px;border:1px solid var(--line);border-radius:var(--r);text-align:left;background:#fff;font:inherit;color:inherit;cursor:pointer;width:100%}
+.lead:hover{border-color:var(--brand-green)}
+.lead[aria-pressed="true"]{border-color:var(--brand-green);background:var(--green-tint)}
+.lead .src{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:.68rem;font-weight:600;letter-spacing:.04em;color:#fff;background:var(--ink)}
+.lead .src.z{background:#2f5d8a}.lead .src.w{background:var(--brand-green)}.lead .src.g{background:#2f5d8a}
+.lead b{display:block;font-weight:600;font-size:.95rem;color:var(--ink)}
+.lead span{display:block;font-size:.8rem;color:var(--muted);line-height:1.45}
+.lead .when{font-variant-numeric:tabular-nums}
+.custom{display:grid;gap:10px;padding:14px;border:1px dashed #cfcbbf;border-radius:var(--r)}
+.custom label{font-size:.72rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:grid;gap:5px}
+.custom input,.custom select,.custom textarea{width:100%;padding:.65em .8em;border:1px solid #CFCFCF;border-radius:var(--r);background:#fff;font:400 .95rem var(--brand-font);color:var(--text)}
+.custom textarea{min-height:64px;resize:vertical}
+.custom .chk{display:flex;gap:8px;align-items:flex-start;text-transform:none;letter-spacing:0;font-weight:400;font-size:.8rem;color:var(--muted)}
+.custom .chk input{width:auto;margin-top:3px}
+
+/* Phone */
+.phone-wrap{display:grid;gap:12px}
+.latency{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;font-size:.76rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.latency b{display:block;color:var(--ink);font-weight:600;font-size:.9rem}
+.latency .gap{text-align:center;padding:.35em .8em;border-radius:999px;background:var(--green-tint);color:var(--green-text);font-weight:600}
+@media (max-width:460px){.latency{grid-template-columns:1fr 1fr}.latency .gap{grid-column:1/-1;justify-self:center}}
+.latency .gap.wait{background:var(--bg-2);color:var(--muted);font-weight:500}
+.phone{border:1px solid #d9d7cf;border-radius:22px;background:var(--bg-3);padding:10px;max-width:100%;min-width:0}
+.screen{background:#fff;border-radius:14px;display:flex;flex-direction:column;height:520px;overflow:hidden}
+.screen-h{padding:12px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.screen-h .av{width:30px;height:30px;border-radius:50%;background:var(--ink);display:grid;place-items:center;color:#fff;font-size:.6rem;font-weight:600}
+.screen-h b{font-size:.86rem;font-weight:600;color:var(--ink);display:block}
+.screen-h span{font-size:.72rem;color:var(--muted);display:block}
+.thread{flex:1;overflow-y:auto;padding:14px 14px 6px;display:flex;flex-direction:column;gap:8px;scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){.thread{scroll-behavior:auto}}
+.msg{max-width:88%;padding:.65em .9em;border-radius:16px;font-size:.9rem;line-height:1.45;word-wrap:break-word;overflow-wrap:anywhere;min-width:0}
+.msg.a{align-self:flex-start;background:var(--bg-2);color:var(--text);border-bottom-left-radius:4px}
+.msg.v{align-self:flex-end;background:var(--green);color:#fff;border-bottom-right-radius:4px}
+.msg time{display:block;font-size:.66rem;opacity:.7;margin-top:4px;font-variant-numeric:tabular-nums}
+.msg.sys{align-self:center;background:transparent;color:var(--muted);font-size:.72rem;text-align:center;max-width:100%}
+.typing{align-self:flex-start;background:var(--bg-2);border-radius:16px;padding:.7em 1em;display:inline-flex;gap:4px}
+.typing i{width:6px;height:6px;border-radius:50%;background:#9A9C97;animation:blink 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.3}40%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.typing i{animation:none;opacity:.6}}
+.chips{display:flex;flex-wrap:wrap;gap:6px;padding:6px 14px 10px}
+.chips button{border:1px solid var(--brand-green);background:#fff;color:var(--green-text);border-radius:999px;padding:.45em .9em;font:500 .78rem var(--brand-font);cursor:pointer}
+.chips button:hover{background:var(--green-tint)}
+.compose{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--line)}
+.compose input{flex:1;min-width:0;padding:.65em .9em;border:1px solid #CFCFCF;border-radius:999px;font:400 .9rem var(--brand-font)}
+.compose button{border:0;background:var(--green);color:#fff;border-radius:999px;width:40px;height:40px;cursor:pointer;display:grid;place-items:center;flex:none}
+.compose button:hover{background:var(--green-2)}
+.compose button:disabled,.chips button:disabled{opacity:.45;cursor:default}
+.empty{color:var(--muted);font-size:.9rem;text-align:center;padding:40px 20px;align-self:center;margin:auto;max-width:28ch}
+
+/* Agent view */
+.score{display:grid;gap:8px;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r)}
+.score .row{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:.8rem;color:var(--muted)}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:.3em .75em;border-radius:999px;font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.pill.hot{background:var(--hot-tint);color:var(--hot)}.pill.warm{background:var(--warm-tint);color:var(--warm)}.pill.nurture{background:var(--nurture-tint);color:var(--nurture)}
+.pill i{width:7px;height:7px;border-radius:50%;background:currentColor}
+.meter{height:6px;background:var(--bg-2);border-radius:3px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--brand-green);width:0;transition:width .5s}
+.score .why{font-size:.78rem;color:var(--muted);line-height:1.5}
+.timeline{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.timeline li{display:grid;grid-template-columns:62px 14px 1fr;gap:0 10px;font-size:.8rem;color:var(--text);position:relative;padding-bottom:12px}
+.timeline li:last-child{padding-bottom:0}
+.timeline time{color:var(--muted);font-variant-numeric:tabular-nums;font-size:.74rem;padding-top:2px}
+.timeline .dot{width:10px;height:10px;border-radius:50%;background:#cfcbbf;margin-top:5px;position:relative;z-index:1}
+.timeline li:not(:last-child) .dot::after{content:"";position:absolute;left:4px;top:10px;width:2px;height:calc(100% + 8px);background:var(--line)}
+.timeline .dot.received{background:var(--ink)}.timeline .dot.scored,.timeline .dot.rescored{background:var(--warm)}.timeline .dot.booked,.timeline .dot.handoff{background:var(--brand-green)}.timeline .dot.guardrail,.timeline .dot.optout{background:var(--hot)}.timeline .dot.escalate{background:var(--nurture)}
+.timeline .t{line-height:1.45}
+.handoff{border:1px solid var(--brand-green);border-radius:6px;overflow:hidden}
+.handoff .hh{background:var(--green-tint);padding:12px 14px;display:flex;align-items:center;gap:12px}
+.handoff .hh img{width:44px;height:44px;border-radius:50%;object-fit:cover;object-position:top}
+.handoff .hh b{display:block;font-weight:600;font-size:.9rem;color:var(--ink)}
+.handoff .hh span{font-size:.76rem;color:var(--muted)}
+.handoff dl{margin:0;padding:12px 14px;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.82rem}
+.handoff dt{color:var(--muted);font-size:.72rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding-top:2px}
+.handoff dd{margin:0;color:var(--text);min-width:0;overflow-wrap:anywhere}
+.handoff .next{background:var(--ink);color:#fff;padding:12px 14px;font-size:.86rem;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between}
+.handoff .next b{font-weight:600}
+.handoff .acts{display:flex;gap:8px;flex-wrap:wrap}
+.handoff .acts button{border:1px solid #fff;background:transparent;color:#fff;border-radius:var(--r);padding:.5em .9em;font:600 .7rem var(--brand-font);letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.handoff .acts button.go{background:var(--brand-green);border-color:var(--brand-green)}
+.cal{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;font-size:.82rem}
+.cal .date{text-align:center;border:1px solid var(--line);border-radius:4px;min-width:52px;overflow:hidden}
+.cal .date b{display:block;background:var(--hot);color:#fff;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:2px}
+.cal .date span{display:block;font-size:1.3rem;font-weight:500;color:var(--ink);line-height:1.5}
+.cal p{color:var(--muted)}
+.cal p b{color:var(--ink);font-weight:600}
+.queue{list-style:none;margin:0;padding:0;display:grid;gap:0;font-size:.8rem}
+.queue li{display:grid;grid-template-columns:1fr auto;gap:4px 10px;padding:8px 0;border-top:1px solid var(--line)}
+.queue li b{font-weight:600;color:var(--ink)}
+.queue li span{color:var(--muted);grid-column:1/-1;font-size:.76rem}
+.hint{font-size:.78rem;color:var(--muted)}
+details.json{font-size:.78rem}
+details.json summary{cursor:pointer;color:var(--green-text);font-weight:600}
+details.json pre{margin:8px 0 0;background:var(--bg-2);padding:10px;border-radius:var(--r);overflow-x:auto;font-size:.7rem;line-height:1.4;max-height:260px}
+
+/* Sections below */
+.section{padding-top:72px}
+.section .label{display:block;margin-bottom:12px}
+.section h2{margin-bottom:12px}
+.two{display:grid;gap:20px;margin-top:28px}
+@media (min-width:820px){.two{grid-template-columns:1fr 1fr}}
+.rules{border:1px solid var(--line);border-radius:6px;padding:20px 22px}
+.rules h3{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.rules h3 i{width:10px;height:10px;border-radius:50%;background:var(--brand-green);flex:none}
+.rules.never h3 i{background:var(--hot)}
+.rules ul{margin:0;padding-left:1.1em;font-size:.92rem;color:#2a2a2a;display:grid;gap:8px}
+.try{margin-top:24px;display:grid;gap:10px}
+.try .row{display:flex;flex-wrap:wrap;gap:8px}
+.try .row button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:.5em 1em;font:500 .84rem var(--brand-font);cursor:pointer;color:var(--ink)}
+.try .row button:hover{border-color:var(--brand-green);color:var(--green-text)}
+.flow{display:grid;gap:12px;margin-top:28px}
+@media (min-width:820px){.flow{grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;align-items:stretch}}
+.flow .box{border:1px solid var(--line);border-radius:6px;padding:16px 18px;min-width:0;background:#fff}
+.flow .box.live{border-color:var(--brand-green);background:var(--green-tint)}
+.flow .box h3{font-size:.95rem;margin-bottom:6px}
+.flow .box .tag{font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--green-text);display:block;margin-bottom:8px}
+.flow .box ul{margin:0;padding-left:1.1em;font-size:.86rem;color:#2a2a2a;display:grid;gap:4px}
+.flow .arrow{display:grid;place-items:center;color:#9A9C97;font-size:1.4rem}
+@media (max-width:819px){.flow .arrow{transform:rotate(90deg);height:24px}}
+.steps{margin:28px 0 0;padding:0;list-style:none;display:grid;gap:0;border-top:1px solid var(--line)}
+.steps li{display:grid;grid-template-columns:1fr;gap:4px 24px;padding:16px 0;border-bottom:1px solid var(--line);font-size:.94rem}
+@media (min-width:760px){.steps li{grid-template-columns:2fr 1fr 1fr}}
+.steps li b{font-weight:600;color:var(--ink)}
+.steps li span{color:var(--muted);font-size:.86rem}
+.steps li .st{font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--green-text)}
+.steps li .st.todo{color:var(--warm)}
+.callout{background:var(--green-tint);border-left:3px solid var(--brand-green);padding:18px 22px;margin-top:28px;border-radius:0 var(--r) var(--r) 0;font-size:.95rem;max-width:72ch}
+.callout b{font-weight:600}
+.disclaimer{font-size:.8rem;color:var(--muted);border-top:1px solid var(--line);margin-top:48px;padding-top:18px;max-width:80ch}
+
+.portnote{background:#0b111d;color:#c4cad6;font-size:.75rem;text-align:center;padding:7px 16px;letter-spacing:.02em}
+.wordmark{font-family:"Fraunces",Georgia,serif;font-size:1.5rem;color:#fff;text-decoration:none;letter-spacing:.3px;white-space:nowrap}.wordmark b{font-weight:400;color:#d4b46f}
+.handoff .hh .avi{width:44px;height:44px;border-radius:50%;background:#16233b;color:#d4b46f;display:grid;place-items:center;font-family:"Fraunces",Georgia,serif;font-size:.95rem;flex:none}
+.nav-links a[aria-current]{border-bottom-color:#d4b46f}
+
+</style></head><body>
+<div class="portnote">Portfolio demo &middot; fictional brokerage, sample data. Built by Myles Parslow.</div>
+<header class="site-header"><div class="wrap"><nav class="nav" aria-label="Primary">
+<a class="brand wordmark" href="#" data-demo>Northfield <b>Realty</b></a>
+<ul class="nav-links">
+<li><a href="#" data-demo>Listings</a></li><li><a href="#" data-demo>Buy</a></li><li><a href="#" data-demo>Sell</a></li>
+<li><a href="#" data-demo>Neighborhoods</a></li><li><a href="#" data-demo>Our Team</a></li><li><a href="#" data-demo>Blog</a></li>
+<li><a href="#" aria-current="page" data-demo>Lead Responder</a></li></ul>
+<a class="btn primary nav-cta" href="#" data-demo>Home Valuation</a>
+</nav></div></header>
+
+<main>
+<section class="page-head"><div class="wrap">
+<p class="label">Demo for the Northfield team &middot; 24/7 lead responder</p>
+<h1>Every lead answered in seconds, at any hour</h1>
+<p class="lede">A portal inquiry at 10:42 on a Saturday night gets a personal, on-brand reply within seconds, a showing on the calendar, and a one-screen handoff waiting for the agent in the morning. Pick a lead on the left and watch it happen.</p>
+<p class="demo-note"><i></i>Demo only. Nothing is sent to real people. The leads, listing and team are all fictional.</p>
+</div></section>
+
+<div class="wrap">
+<div class="stage">
+
+<!-- Pane 1: incoming leads -->
+<section class="pane" aria-labelledby="p1h">
+  <div class="pane-h"><h2 id="p1h">Incoming leads</h2><span class="clock" id="clock"><b>Office closed</b></span></div>
+  <div class="pane-b" id="leadList"></div>
+</section>
+
+<!-- Pane 2: the visitor's phone -->
+<section class="pane" aria-labelledby="p2h">
+  <div class="pane-h"><h2 id="p2h">What the lead sees</h2><span class="small" id="channelLabel">Text message</span></div>
+  <div class="pane-b phone-wrap">
+    <div class="latency" id="latency"><div><span>Lead received</span><b id="tIn">&mdash;</b></div><div class="gap wait" id="tGap">waiting</div><div style="text-align:right"><span>First reply</span><b id="tOut">&mdash;</b></div></div>
+    <div class="phone"><div class="screen">
+      <div class="screen-h"><div class="av">NR</div><div><b>Northfield Realty</b><span id="screenSub">Assistant &middot; replies 24/7</span></div></div>
+      <div class="thread" id="thread" aria-live="polite"><p class="empty">Choose an incoming lead to start the conversation.</p></div>
+      <div class="chips" id="chips"></div>
+      <form class="compose" id="compose"><input id="say" type="text" placeholder="Reply as the lead&hellip;" autocomplete="off" aria-label="Reply as the lead" disabled><button type="submit" aria-label="Send" disabled><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12l16-8-6 16-2-7z"/></svg></button></form>
+    </div></div>
+    <p class="hint">Type anything as the lead, including awkward questions. The responder stays inside its playbook.</p>
+  </div>
+</section>
+
+<!-- Pane 3: agent view -->
+<section class="pane" aria-labelledby="p3h">
+  <div class="pane-h"><h2 id="p3h">What the agent sees</h2><span class="small" id="ownerLabel"></span></div>
+  <div class="pane-b">
+    <div class="score" id="score">
+      <div class="row"><span>Priority from the site's lead layer</span><span class="pill nurture" id="pill"><i></i>waiting</span></div>
+      <div class="meter"><i id="meter"></i></div>
+      <p class="why" id="why">Scoring re-runs as the conversation adds facts: timing, financing, a booked showing.</p>
+    </div>
+    <ol class="timeline" id="timeline"></ol>
+    <div id="handoff"></div>
+    <details class="json" id="jsonBox" hidden><summary>Handoff JSON (what the CRM receives)</summary><pre id="json"></pre></details>
+    <div id="queueBox">
+      <p class="label" style="margin-top:6px">Example: Monday morning queue</p>
+      <ul class="queue">
+        <li><b>Tyler R.</b><span class="pill hot"><i></i>hot</span><span>Showing Sun 11:00 AM at 2418 Linden Ct, pre-approved. Confirmed by Sam.</span></li>
+        <li><b>Anika S.</b><span class="pill hot"><i></i>hot</span><span>Valuation call Mon 9:30 AM, Willow Bend, partly updated. Comps prepared.</span></li>
+        <li><b>Noah P.</b><span class="pill warm"><i></i>warm</span><span>Asked for a person at 11:58 PM. Called back 8:05 AM.</span></li>
+        <li><b>Evan L.</b><span class="pill nurture"><i></i>nurture</span><span>Alert set, just browsing. Matches emailed, no follow-up needed.</span></li>
+      </ul>
+      <p class="hint" style="margin-top:8px">Illustrative. In production this list is the CRM's inbox, sorted by priority.</p>
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- Guardrails -->
+<section class="section" id="guardrails">
+  <p class="label">Guardrails</p>
+  <h2>Fast, and always inside the lines</h2>
+  <p class="lede">Speed is only useful if every reply is one Dana would be happy to put her name next to. The responder follows a fixed playbook; the language model only fills in the words.</p>
+  <div class="two">
+    <div class="rules"><h3><i></i>It will always</h3><ul>
+      <li>Identify itself as Northfield's assistant and promise a real agent will follow up.</li>
+      <li>Answer an inbound inquiry at any hour, then hold outbound follow-ups for 8 am to 9 pm.</li>
+      <li>Text only a number the visitor gave with consent, and honor STOP instantly.</li>
+      <li>Hand off the moment someone asks for a person, with the on-call agent paged by text.</li>
+      <li>Keep facts to what is in the listing, the site, and public sources, and say so when it does not know.</li>
+      <li>Log every message to the CRM so the agent reads the whole thread before calling.</li>
+    </ul></div>
+    <div class="rules never"><h3><i></i>It will never</h3><ul>
+      <li>Ask about or comment on race, color, religion, national origin, sex, familial status, disability, or any other protected class, including locally added ones (marital status, sexual orientation, gender identity, source of income).</li>
+      <li>Describe who lives in a neighborhood, call an area "safe", "family-friendly" or "up-and-coming", or rate schools. It points to objective public data instead.</li>
+      <li>Steer a buyer toward or away from an area. It searches by the criteria the buyer gives.</li>
+      <li>Quote a value, a rate, or a legal or tax conclusion. Those come from the agent, the lender, or the title company.</li>
+      <li>Pretend to be a person, or keep texting someone who has opted out.</li>
+    </ul></div>
+  </div>
+  <div class="try">
+    <p class="small">Try the hard ones on the active conversation:</p>
+    <div class="row" id="tryRow">
+      <button type="button" data-say="Is it a safe neighborhood?">Is it a safe neighborhood?</button>
+      <button type="button" data-say="How are the schools?">How are the schools?</button>
+      <button type="button" data-say="What kind of people live there?">What kind of people live there?</button>
+      <button type="button" data-say="I need a wheelchair accessible home">Wheelchair accessible home</button>
+      <button type="button" data-say="What's your commission?">What's your commission?</button>
+      <button type="button" data-say="Can I talk to a real person?">Can I talk to a real person?</button>
+      <button type="button" data-say="STOP">STOP</button>
+    </div>
+  </div>
+  <p class="callout"><b>Why the first minutes matter.</b> The lead-response research that agencies have cited since the 2011 Harvard Business Review study ("The Short Life of Online Sales Leads") found that reaching a web lead within minutes makes a qualified conversation far more likely than reaching them an hour later. Listing portals also rank agents partly on response speed. Most brokerages still answer the next morning.</p>
+</section>
+
+<!-- Integration -->
+<section class="section" id="plug-in">
+  <p class="label">How it plugs in</p>
+  <h2>Built on the lead layer already in the new site</h2>
+  <p class="lede">The website's forms and calculators already capture, score and route every lead. The responder listens to that same stream, so nothing on the site changes.</p>
+  <div class="flow">
+    <div class="box"><span class="tag">Sources</span><h3>Where leads come from</h3><ul><li>Website forms and calculators (live)</li><li>Listing-portal inquiries, forwarded</li><li>Google Business Profile messages</li><li>Missed calls to the office line (text-back)</li></ul></div>
+    <div class="arrow" aria-hidden="true">&rarr;</div>
+    <div class="box live"><span class="tag">Already built</span><h3>Lead layer on the site</h3><ul><li>Captures every form, with campaign tags</li><li>Scores hot / warm / nurture</li><li>Routes to listing or buyer team</li><li>Posts JSON to a webhook</li></ul></div>
+    <div class="arrow" aria-hidden="true">&rarr;</div>
+    <div class="box"><span class="tag">This demo</span><h3>Responder</h3><ul><li>Replies in seconds by text or email</li><li>Qualifies: timing, financing, the home</li><li>Offers real openings from agent calendars</li><li>Re-scores as it learns</li></ul></div>
+    <div class="arrow" aria-hidden="true">&rarr;</div>
+    <div class="box"><span class="tag">Outcomes</span><h3>Handoff</h3><ul><li>Calendar invite and showing request</li><li>CRM record with full transcript</li><li>On-call agent texted; escalates after 30 min</li><li>Morning queue, sorted by priority</li></ul></div>
+  </div>
+
+  <h3 style="margin-top:44px">What it takes to go live</h3>
+  <ol class="steps">
+    <li><div><b>Forward portal leads</b><br><span>Listing portals can send each inquiry to an email or webhook. One setting in each dashboard.</span></div><span>Dana, 20 minutes</span><span class="st todo">Needs Dana</span></li>
+    <li><div><b>Texting number and registration</b><br><span>A dedicated local number through an SMS provider and the required business texting registration. Costs about a dollar a month plus a cent or so per text; registration takes a few business days.</span></div><span>Us, with the brokerage's EIN and address</span><span class="st todo">Needs Dana</span></li>
+    <li><div><b>Consent on every form</b><br><span>A "text me about my inquiry" checkbox on the site forms. Already supported by the lead layer; the copy is ready.</span></div><span>Us</span><span class="st">Ready</span></li>
+    <li><div><b>Agent calendars and on-call rotation</b><br><span>Connect Google or Outlook calendars for showing and call openings; set who takes buyer and listing leads each week.</span></div><span>Team, 30 minutes</span><span class="st todo">Needs team</span></li>
+    <li><div><b>CRM connection</b><br><span>A CRM or a shared inbox. The handoff JSON above fits any of them; we map fields once.</span></div><span>Us, once we know the CRM</span><span class="st todo">Open question</span></li>
+    <li><div><b>Playbook review with Dana</b><br><span>She reads every scripted reply and the guardrails, edits the voice, and signs off before anything is switched on. Two-week pilot on website leads only, then portals.</span></div><span>Dana and us, 1 hour</span><span class="st todo">Before launch</span></li>
+  </ol>
+  <p class="disclaimer">This page is a working demonstration built for a consulting proposal. The conversation engine runs entirely in the browser with scripted replies; no messages are sent and nothing is stored. Lead names and messages are fictional. Equal Housing Opportunity.</p>
+</section>
+</div>
+</main>
+<footer class="site-footer"><div class="wrap"><div class="foot">
+<div><span class="wordmark">Northfield <b>Realty</b></span>
+<address>100 Foundry St, Suite 100<br>Office (555) 010-2040<br>hello@example.com</address></div>
+<div><p class="small" style="color:inherit;max-width:36ch">An independent, boutique brokerage serving the city and surrounding neighborhoods. Fictional brokerage for portfolio purposes.</p></div>
+</div>
+<div class="legal"><span class="eho"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/><path d="M8 13h8M8 16h8"/></svg>Equal Housing Opportunity</span>
+<span>&copy; 2026 Northfield Realty (fictional).</span><span>Portfolio demo &middot; fictional brokerage, sample data. Built by Myles Parslow.</span></div>
+</div></footer>
+<script>
+
+(function () {
+  "use strict";
+  /* Minimal in-page lead layer: scores and routes a lead like the site's real lead layer would. Nothing leaves the browser. */
+  function score(lead) {
+    var t = (lead.timeline || "").toLowerCase(), pts = 0;
+    if (/within 3|asap|now|0-3/.test(t)) pts += 3; else if (/3 to 6|3-6/.test(t)) pts += 2; else if (/6 to 12/.test(t)) pts += 1;
+    if (lead.phone) pts += 1;
+    if (lead.type === "valuation" || lead.type === "seller-net") pts += 1;
+    return pts >= 4 ? "hot" : pts >= 2 ? "warm" : "nurture";
+  }
+  function route(lead) {
+    if (/valuation|seller/.test(lead.type)) return "Listing team (Dana Reyes)";
+    if (/mortgage|afford|alerts|buyer/.test(lead.type)) return "Buyer team";
+    return "Office";
+  }
+  window.NorthfieldLeads = {
+    submit: function (data) {
+      var lead = Object.assign({ id: "L" + Date.now().toString(36), createdAt: new Date().toISOString() }, data);
+      lead.priority = score(lead); lead.owner = route(lead);
+      lead.source = { page: "demo", pagesViewed: 1 };
+      lead.toolsUsed = {};
+      return Promise.resolve(lead);
+    }
+  };
+})();
+
+(function () {
+  "use strict";
+
+  var CONFIG = Object.assign({
+    office: "Northfield Realty",
+    phone: "(555) 010-2040",
+    site: "northfield-realty.example",
+    routing: { seller: "Listing team (Dana Reyes)", buyer: "Buyer team", other: "Office" },
+    // Demo on-call rotation. In production this comes from the team calendar.
+    onCall: { buyer: { name: "Sam Whitfield", role: "REALTOR®" }, seller: { name: "Dana Reyes", role: "Broker/Owner" }, other: { name: "Priya Nair", role: "Associate Broker" } },
+    escalateAfterMin: 30,            // if the agent hasn't confirmed, ping the next agent
+    quietHours: { start: 21, end: 8 } // no outbound follow-ups between 9pm and 8am
+  }, window.NORTHFIELD_RESPONDER_CONFIG || {});
+
+  var SOURCES = {
+    crime: "the city's open data portal and the local police department publish incident data by area",
+    schools: "the state school report card lists every public school's details, and we can tell you which schools an address is zoned for"
+  };
+
+  /* ---------- helpers ---------- */
+  function fmtDay(d) { return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }); }
+  function fmtTime(d) { return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }); }
+  function fmtSlot(d) { return fmtDay(d) + ", " + fmtTime(d); }
+  function money(n) { return "$" + Math.round(n).toLocaleString("en-US"); }
+  function first(name) { return (name || "there").trim().split(/\s+/)[0]; }
+  function has(t, re) { return re.test(t); }
+
+  /* Next three openings after a given moment. Production: read from the agents'
+     calendars and the showing service; here, the next day at 11:00 and 2:30, then 5:30 the day after. */
+  function slots(from, kind) {
+    var d = new Date(from); d.setHours(0, 0, 0, 0);
+    var out = [];
+    var a = new Date(d); a.setDate(a.getDate() + 1); a.setHours(11, 0);
+    var b = new Date(d); b.setDate(b.getDate() + 1); b.setHours(14, 30);
+    var c = new Date(d); c.setDate(c.getDate() + 2); c.setHours(17, 30);
+    if (kind === "call") { a.setHours(9, 30); b.setHours(12, 15); c.setHours(16, 0); }
+    [a, b, c].forEach(function (s) { if (s > from) out.push(s); });
+    return out.slice(0, 3);
+  }
+
+  /* ---------- scoring: mirrors northfield-tools.js, plus what the conversation learns ---------- */
+  function score(lead, q) {
+    var t = ((q.timeline || lead.timeline) || "").toLowerCase(), pts = 0, why = [];
+    if (/within 3|asap|now|0-3/.test(t)) { pts += 3; why.push("moving within 3 months"); }
+    else if (/3 to 6|3-6/.test(t)) { pts += 2; why.push("moving in 3 to 6 months"); }
+    else if (/6 to 12/.test(t)) { pts += 1; why.push("moving in 6 to 12 months"); }
+    if (lead.phone) { pts += 1; why.push("gave a phone number"); }
+    if (lead.type === "valuation" || lead.type === "seller-net") { pts += 1; why.push("seller inquiry"); }
+    if (lead.toolsUsed && Object.keys(lead.toolsUsed).length > 1) { pts += 1; why.push("used more than one site tool"); }
+    if ((lead.source && lead.source.pagesViewed) >= 4) { pts += 1; why.push("viewed 4+ pages"); }
+    if (q.financing === "pre-approved" || q.financing === "cash") { pts += 1; why.push(q.financing === "cash" ? "cash buyer" : "pre-approved"); }
+    if (q.booked) { pts += 1; why.push(q.booked.kind === "showing" ? "showing booked" : "call booked"); }
+    if (q.listing) { pts += 1; why.push("asked about a specific listing"); }
+    return { points: pts, priority: pts >= 4 ? "hot" : pts >= 2 ? "warm" : "nurture", why: why };
+  }
+  function route(lead) {
+    if (/valuation|seller/.test(lead.type)) return "seller";
+    if (/mortgage|afford|alerts|buyer/.test(lead.type)) return "buyer";
+    return "other";
+  }
+
+  /* ---------- conversation ---------- */
+  function Conversation(lead, hooks) {
+    this.lead = lead; this.hooks = hooks || {};
+    this.q = {};                   // what we learn: timeline, financing, updates, booked, listing
+    this.transcript = [];
+    this.optedOut = false; this.handedOff = false; this.humanRequested = false;
+    this.now = lead.receivedAt ? new Date(lead.receivedAt) : new Date();
+    this.channel = lead.phone && lead.smsConsent ? "sms" : "email";
+    this.lane = route(lead);
+    this.q.listing = lead.listing || null;
+    this.q.timeline = lead.timeline && !/curious|browsing/i.test(lead.timeline) ? lead.timeline : "";
+    this.flow = lead.listing ? "showing" : this.lane === "seller" ? "valuation" : /browsing|curious/i.test(lead.timeline || "") ? "nurture" : "buyer";
+    this.step = null;
+    this.event("received", "Lead received from " + (lead.sourceName || "website") + " (" + this.channel.toUpperCase() + " channel)");
+    var s = score(lead, this.q);
+    this.event("scored", "Scored " + s.priority + " (" + s.points + " pts) by the site's lead layer, routed to " + CONFIG.routing[this.lane]);
+  }
+  var P = Conversation.prototype;
+
+  P.event = function (type, label) { var e = { type: type, label: label, at: new Date(this.now) }; if (this.hooks.onEvent) this.hooks.onEvent(e); return e; };
+  P.say = function (text, chips, secs) {
+    this.now = new Date(this.now.getTime() + (secs == null ? 5 : secs) * 1000);
+    var m = { from: "assistant", text: text, chips: chips || [], at: new Date(this.now) };
+    this.transcript.push(m); if (this.hooks.onMessage) this.hooks.onMessage(m); return m;
+  };
+  P.heard = function (text) {
+    this.now = new Date(this.now.getTime() + 20000 + Math.floor(Math.random() * 25000));
+    var m = { from: "visitor", text: text, chips: [], at: new Date(this.now) };
+    this.transcript.push(m); if (this.hooks.onMessage) this.hooks.onMessage(m); return m;
+  };
+  P.rescore = function (reason) {
+    var s = score(this.lead, this.q);
+    if (reason !== "initial" && (s.priority !== this.lead.priority || s.points !== this.points)) {
+      this.event("rescored", "Priority now " + s.priority + " (" + s.points + " pts): " + reason);
+    }
+    this.points = s.points; this.lead.priority = s.priority; this.why = s.why;
+    return s;
+  };
+  P.name = function () { return first(this.lead.name); };
+  P.intro = function () { return "this is the " + CONFIG.office + " assistant"; };
+
+  P.start = function () {
+    var L = this.lead, n = this.name(), me = this;
+    this.rescore("initial");
+    if (this.flow === "showing") {
+      var l = this.q.listing;
+      this.step = "showing_slot";
+      this.say("Hi " + n + ", " + this.intro() + ". Thanks for asking about " + l.address + " (" + money(l.price) + "). A Northfield agent will follow up personally, and I can hold a showing for you right now. Would any of these work?", this.slotChips("showing"), 7);
+    } else if (this.flow === "valuation") {
+      this.step = "val_updates";
+      this.say("Hi " + n + ", " + this.intro() + ". We received your valuation request for " + (L.address || "your home") + ". Dana's listing team will prepare real comparable sales rather than an automated estimate. One quick question so the comps are right: have the kitchen or bathrooms been updated in the last ten years?", ["Yes, recently", "Partly", "Not really", "Not sure"], 7);
+    } else if (this.flow === "nurture") {
+      this.step = "open";
+      var s = L.search || {};
+      this.say("Hi " + n + ", " + this.intro() + ". Your alert is set" + (s.neighborhood ? " for " + s.neighborhood : "") + (s.max ? " up to " + money(s.max) : "") + ". You'll get new matches by email as they hit the market, usually before the big portals show them. No pressure at all; if a question ever comes up about a home, the process, or the numbers, just reply here and a Northfield agent will answer.", ["Send me the current matches", "What does buying cost up front?", "I have a question"], 7);
+    } else {
+      this.step = "buyer_timeline";
+      this.say("Hi " + n + ", " + this.intro() + ". Thanks for reaching out. A Northfield agent will follow up personally. To point you to the right person, roughly when are you hoping to move?", ["Within 3 months", "3 to 6 months", "6 to 12 months", "Just browsing"], 7);
+    }
+  };
+
+  P.slotChips = function (kind) {
+    var me = this; this.q.slotKind = kind;
+    this.q.slots = slots(this.now, kind === "showing" ? "showing" : "call");
+    return this.q.slots.map(function (s) { return fmtSlot(s); }).concat(["Another time", kind === "showing" ? "Just send details" : "Just email me"]);
+  };
+
+  /* Global intents are checked before the step logic on every inbound message. */
+  P.global = function (t) {
+    var n = this.name();
+    if (has(t, /^\s*(stop|unsubscribe|cancel|quit|end)\b/)) {
+      this.optedOut = true; this.step = "closed";
+      this.event("optout", "Visitor opted out; messaging stopped and CRM flagged do-not-text");
+      this.say("You're unsubscribed and won't receive more messages. Thanks, " + n + ".", [], 2);
+      return true;
+    }
+    if (has(t, /\b(human|real person|actual person|agent|someone|call me|talk to|speak to|speak with)\b/) && !has(t, /\b(no|don't|dont)\b.*\b(call|agent)/)) {
+      this.humanRequested = true;
+      this.event("escalate", "Visitor asked for a person; on-call agent paged by text now");
+      this.say("Of course. I've just alerted " + CONFIG.onCall[this.lane].name + ", " + CONFIG.onCall[this.lane].role + " at Northfield, who will reach out personally" + (this.isQuiet() ? " first thing in the morning" : " shortly") + ". You can also call the office at " + CONFIG.phone + ".", [], 4);
+      this.handoff("visitor asked for a person");
+      return true;
+    }
+    if (has(t, /\b(safe|safety|crime|dangerous|sketchy|bad area|good area|rough)\b/)) {
+      this.event("guardrail", "Safety question redirected to public data (fair housing)");
+      this.say("That's a fair thing to want to know, and it's something we leave to the official sources rather than characterize ourselves: " + SOURCES.crime + ". I'm glad to share facts about the home itself, the commute, parks and nearby amenities.", this.resumeChips(), 5);
+      return true;
+    }
+    if (has(t, /\b(school|schools|district|elementary|middle school|high school)\b/)) {
+      this.event("guardrail", "School question answered with objective sources (fair housing)");
+      this.say("We don't rate schools, but " + SOURCES.schools + ". Want me to include the zoned schools for " + (this.q.listing ? this.q.listing.address : "any address you're considering") + " in your follow-up?", this.resumeChips(["Yes, include them"]), 5);
+      return true;
+    }
+    if (has(t, /\b(kind of people|type of people|who lives|demographic|families|family friendly|kids in the|church|churches|synagogue|mosque|temple|immigrants|ethnic|race|racial|black|white|hispanic|latino|asian|jewish|christian|muslim|gay|lgbt|young professionals|old people|retirees|section 8|voucher)\b/)) {
+      this.event("guardrail", "Question about who lives in the area declined under fair housing rules");
+      this.say("I can't speak to who lives in a neighborhood; fair housing law asks us to leave that out of the conversation entirely, for everyone's benefit. What I can share is plenty: the homes, prices, transit, parks, shops and what's within walking distance. Which of those would help most?", this.resumeChips(), 5);
+      return true;
+    }
+    if (has(t, /\b(wheelchair|accessible|accessibility|step-free|no stairs|one level|single level|ramp|elevator)\b/)) {
+      this.event("note", "Accessibility need recorded so the agent can filter for it");
+      this.q.needs = (this.q.needs || []).concat(["accessibility features"]);
+      this.say("Happy to help with that. I've noted it so your agent only shows you homes that fit. If you tell me the specific features that matter, we'll filter for them.", this.resumeChips(), 5);
+      return true;
+    }
+    if (has(t, /\b(commission|fee|how much do you charge|cost to sell)\b/)) {
+      this.event("note", "Fee question answered from the site's Sell page");
+      this.say("Northfield's listing fee is quoted in writing before you sign anything, and the team walks you through exactly what it covers. Details are on the Sell page at " + CONFIG.site + ", and the listing team can prepare a net sheet for your home.", this.resumeChips(["Prepare a net sheet"]), 5);
+      return true;
+    }
+    if (has(t, /\b(price|how much|asking|list price)\b/) && this.q.listing) {
+      this.say(this.q.listing.address + " is listed at " + money(this.q.listing.price) + ". " + (this.step === "showing_slot" ? "Would you like to see it? " : ""), this.resumeChips(), 4);
+      return true;
+    }
+    return false;
+  };
+  P.resumeChips = function (extra) {
+    var base = [];
+    if (this.step === "showing_slot") base = this.q.slots.map(fmtSlot);
+    else if (this.step === "financing") base = ["Pre-approved", "Not yet", "Paying cash"];
+    else if (this.step === "buyer_timeline" || this.step === "val_timeline") base = ["Within 3 months", "3 to 6 months", "6 to 12 months"];
+    else if (this.step === "call_slot") base = this.q.slots.map(fmtSlot);
+    else if (this.step === "val_updates") base = ["Yes, recently", "Partly", "Not really"];
+    return (extra || []).concat(base);
+  };
+  P.isQuiet = function () { var h = this.now.getHours(); return h >= CONFIG.quietHours.start || h < CONFIG.quietHours.end; };
+
+  P.pickSlot = function (t) {
+    var sl = this.q.slots || [], i;
+    for (i = 0; i < sl.length; i++) if (t.indexOf(fmtSlot(sl[i]).toLowerCase()) >= 0) return sl[i];
+    var m = t.match(/\b(\d{1,2})(?::(\d{2}))?\s*(am|pm)\b/);
+    if (m) { for (i = 0; i < sl.length; i++) { var h = sl[i].getHours() % 12 || 12; if (+m[1] === h && (m[3] === (sl[i].getHours() >= 12 ? "pm" : "am"))) return sl[i]; } }
+    if (/\b(first|1st|earliest|soonest)\b/.test(t)) return sl[0];
+    if (/\b(second|2nd)\b/.test(t)) return sl[1];
+    if (/\b(third|3rd|last)\b/.test(t)) return sl[2];
+    return null;
+  };
+
+  P.reply = function (text) {
+    if (this.optedOut) return;
+    this.heard(text);
+    var t = text.toLowerCase().trim(), n = this.name(), who = CONFIG.onCall[this.lane];
+    if (this.global(t)) return;
+
+    switch (this.step) {
+      case "showing_slot": {
+        var s = this.pickSlot(t);
+        if (s) {
+          this.q.booked = { kind: "showing", at: s, where: this.q.listing.address };
+          this.event("booked", "Showing held: " + fmtSlot(s) + " at " + this.q.listing.address + " (calendar invite sent, showing request queued)");
+          this.rescore("showing booked");
+          this.step = "financing";
+          this.say("Done. I've held " + fmtSlot(s) + " at " + this.q.listing.address + " and sent a calendar invite. " + who.name + " will confirm with you " + (this.isQuiet() ? "first thing in the morning" : "shortly") + ". One quick question so " + who.name.split(" ")[0] + " can prepare: are you working with a lender yet?", ["Pre-approved", "Not yet", "Paying cash"]);
+        } else if (has(t, /another|other time|different|none|neither|no\b/)) {
+          this.say("No problem. What day and time would suit you? " + who.name + " will arrange access and confirm.", []);
+          this.step = "showing_custom";
+        } else if (has(t, /details|send|info|information|email/)) {
+          this.event("sent", "Listing details and disclosures emailed");
+          this.step = "financing";
+          this.say("Sent. You'll have the full listing, photos and disclosures for " + this.q.listing.address + " in your inbox in a moment. If it helps, are you working with a lender yet?", ["Pre-approved", "Not yet", "Paying cash", "Just looking for now"]);
+        } else {
+          this.say("Got it. Would one of these showing times work, or would you rather I just send the details?", this.slotChips("showing"));
+        }
+        break;
+      }
+      case "showing_custom": {
+        this.q.booked = { kind: "showing", at: null, requested: text, where: this.q.listing.address };
+        this.event("booked", "Showing requested for \"" + text + "\"; agent to confirm access");
+        this.rescore("showing requested");
+        this.step = "financing";
+        this.say("Perfect, I've passed \"" + text + "\" to " + who.name + " to confirm. Are you working with a lender yet?", ["Pre-approved", "Not yet", "Paying cash"]);
+        break;
+      }
+      case "financing": {
+        if (has(t, /pre-?approved|approved|preapproval|pre-?qualified/)) this.q.financing = "pre-approved";
+        else if (has(t, /cash/)) this.q.financing = "cash";
+        else if (has(t, /not yet|no\b|haven't|havent|looking|not sure/)) this.q.financing = "not yet";
+        else this.q.financing = text;
+        this.rescore("financing: " + this.q.financing);
+        if (this.q.timeline) { this.finishBuyer(); break; }
+        this.step = "buyer_timeline";
+        this.say((this.q.financing === "not yet" ? "No problem, we can introduce you to a local lender who is quick with pre-approvals. " : "Great. ") + "Last one: roughly when are you hoping to move?", ["Within 3 months", "3 to 6 months", "6 to 12 months", "Just browsing"]);
+        break;
+      }
+      case "buyer_timeline": {
+        this.q.timeline = has(t, /within 3|3 months|asap|soon|now|immediately|weeks/) ? "Within 3 months" : has(t, /3 to 6|3-6|6 months/) ? "3 to 6 months" : has(t, /6 to 12|year/) ? "6 to 12 months" : has(t, /brows|looking|curious|no rush/) ? "Just browsing" : text;
+        this.rescore("timeline: " + this.q.timeline);
+        if (this.q.booked || this.q.financing) { this.finishBuyer(); break; }
+        this.step = "financing";
+        this.say("Thanks. And are you working with a lender yet?", ["Pre-approved", "Not yet", "Paying cash"]);
+        break;
+      }
+      case "val_updates": {
+        this.q.updates = has(t, /yes|recent|new|renovat|remodel/) ? "updated in the last 10 years" : has(t, /part/) ? "partly updated" : has(t, /not sure|unsure|dunno/) ? "unsure" : "original or older";
+        this.event("note", "Home condition noted: " + this.q.updates);
+        if (this.q.timeline) { this.step = "call_slot"; this.say("Helpful, thank you. Dana's listing team can walk you through the valuation and your likely net on a 15-minute call. Would any of these work?", this.slotChips("call")); }
+        else { this.step = "val_timeline"; this.say("Helpful, thank you. And are you thinking of selling soon, or just getting a sense of the value?", ["Within 3 months", "3 to 6 months", "6 to 12 months", "Just curious about value"]); }
+        break;
+      }
+      case "val_timeline": {
+        this.q.timeline = has(t, /within 3|3 months|asap|soon|now|weeks/) ? "Within 3 months" : has(t, /3 to 6|3-6|6 months/) ? "3 to 6 months" : has(t, /6 to 12|year/) ? "6 to 12 months" : "Just curious about value";
+        this.rescore("timeline: " + this.q.timeline);
+        if (/curious/.test(this.q.timeline)) {
+          this.step = "open";
+          this.event("sent", "Valuation range emailed; monthly value update scheduled");
+          this.say("Completely fine. You'll get a valuation range by email within one business day, and we can send a short update each month so you can watch it. Reply here any time with questions.", ["Send monthly updates", "Actually, let's talk"]);
+          this.handoff("value-watch seller");
+        } else {
+          this.step = "call_slot";
+          this.say("Got it. Dana's listing team can walk you through the valuation and your likely net on a 15-minute call. Would any of these work?", this.slotChips("call"));
+        }
+        break;
+      }
+      case "call_slot": {
+        var c = this.pickSlot(t);
+        if (c) {
+          this.q.booked = { kind: "call", at: c, where: "Phone call" };
+          this.event("booked", "Valuation call booked for " + fmtSlot(c) + " with " + CONFIG.routing.seller + " (invites sent to both)");
+          this.rescore("call booked");
+          this.step = "open";
+          this.say("Booked: " + fmtSlot(c) + ". You'll get a calendar invite now, and the team will bring real comparable sales to the call. If photos of the kitchen and baths are handy, reply with them and we'll use them for the comps.", []);
+          this.handoff("valuation call booked");
+        } else if (has(t, /email|just email|send/)) {
+          this.step = "open";
+          this.event("sent", "Valuation range emailed; listing team to follow up");
+          this.say("Will do. You'll have a valuation range by email within one business day, and the listing team will follow up once.", []);
+          this.handoff("valuation by email");
+        } else if (has(t, /another|other|different|none|no\b/)) {
+          this.step = "call_custom";
+          this.say("Sure. What day and time works best for a 15-minute call?", []);
+        } else {
+          this.say("Would any of these times work for a short valuation call?", this.slotChips("call"));
+        }
+        break;
+      }
+      case "call_custom": {
+        this.q.booked = { kind: "call", at: null, requested: text, where: "Phone call" };
+        this.event("booked", "Call requested for \"" + text + "\"; listing team to confirm");
+        this.rescore("call requested");
+        this.step = "open";
+        this.say("Noted: \"" + text + "\". The listing team will confirm by text shortly.", []);
+        this.handoff("valuation call requested");
+        break;
+      }
+      case "open": {
+        if (has(t, /match|current|send|listings|homes/)) { this.event("sent", "Current matches emailed from the MLS feed"); this.say("On its way: the current matches are in your inbox. New ones will follow as they hit the market.", ["I'd like to see one", "Thanks"]); }
+        else if (has(t, /see one|showing|tour|visit|see it/)) { this.step = "buyer_timeline"; this.flow = "buyer"; this.say("Great, a Northfield agent will set that up. Roughly when are you hoping to move?", ["Within 3 months", "3 to 6 months", "6 to 12 months"]); }
+        else if (has(t, /up front|upfront|closing cost|down payment|cost to buy|afford/)) { this.say("Good question. Buyers typically budget for the down payment plus roughly 2 to 4 percent of the price in closing costs, which includes transfer taxes (first-time buyers often get a break on some of them). There is a plain-English guide and a payment calculator on the site. A Northfield agent can run your exact numbers.", ["Run my numbers", "Thanks"]); }
+        else if (has(t, /run my numbers|net sheet|talk|let's talk|lets talk/)) { this.step = "call_slot"; this.say("Happy to. Would any of these work for a short call?", this.slotChips("call")); }
+        else if (has(t, /monthly|updates/)) { this.event("note", "Monthly value update enabled"); this.say("Set. You'll get a short value update on the first of each month.", []); }
+        else if (has(t, /thanks|thank you|great|ok|okay/)) { this.say("You're welcome, " + n + ". We're here whenever you need us.", []); }
+        else { this.event("escalate", "Open question routed to the agent"); this.say("Good question. I've sent it to " + who.name + " at Northfield, who will reply personally" + (this.isQuiet() ? " in the morning" : " shortly") + ".", []); this.handoff("open question from visitor"); }
+        break;
+      }
+      case "closed": break;
+      default: {
+        this.say("Thanks, " + n + ". A Northfield agent will follow up personally.", []);
+      }
+    }
+  };
+
+  P.finishBuyer = function () {
+    var who = CONFIG.onCall[this.lane], n = this.name();
+    this.step = "open";
+    var b = this.q.booked;
+    if (b && b.at) this.say("You're all set, " + n + ". " + who.name + " will confirm your " + fmtSlot(b.at) + " showing and meet you at " + b.where + ". If anything changes, reply here any time.", []);
+    else if (b) this.say("Thanks, " + n + ". " + who.name + " will confirm the time and meet you at " + b.where + ". Reply here any time.", []);
+    else this.say("Thanks, " + n + ". " + who.name + " will follow up personally with homes that fit and next steps. Reply here any time.", ["Send me similar homes"]);
+    this.handoff(b ? "showing booked" : "qualified buyer");
+  };
+
+  P.handoff = function (reason) {
+    if (this.handedOff) return;
+    this.handedOff = true;
+    var s = this.summary(reason);
+    this.event("handoff", "Handed to " + s.agent.name + " with summary; CRM updated; escalates to next agent if unconfirmed in " + CONFIG.escalateAfterMin + " min");
+    if (this.hooks.onHandoff) this.hooks.onHandoff(s);
+    return s;
+  };
+
+  P.summary = function (reason) {
+    var L = this.lead, sc = score(L, this.q);
+    return {
+      leadId: L.id, name: L.name, channel: this.channel, phone: L.phone || null, email: L.email || null,
+      source: L.sourceName || "website", receivedAt: L.receivedAt, lane: this.lane, owner: CONFIG.routing[this.lane], agent: CONFIG.onCall[this.lane],
+      priority: sc.priority, points: sc.points, why: sc.why, reason: reason,
+      listing: this.q.listing || null, address: L.address || null, search: L.search || null,
+      timeline: this.q.timeline || L.timeline || "unknown", financing: this.q.financing || null, condition: this.q.updates || null, needs: this.q.needs || [],
+      booked: this.q.booked ? { kind: this.q.booked.kind, at: this.q.booked.at, requested: this.q.booked.requested || null, where: this.q.booked.where } : null,
+      humanRequested: this.humanRequested, optedOut: this.optedOut,
+      nextStep: this.q.booked ? (this.q.booked.at ? "Confirm " + this.q.booked.kind + " " + fmtSlot(this.q.booked.at) : "Confirm requested time: " + this.q.booked.requested) : this.humanRequested ? "Call " + first(L.name) + " back" : "Follow up by " + this.channel.toUpperCase(),
+      transcript: this.transcript.map(function (m) { return { from: m.from, text: m.text, at: m.at }; })
+    };
+  };
+
+  var NorthfieldResponder = {
+    config: CONFIG, score: score, route: route, slots: slots, fmtSlot: fmtSlot,
+    start: function (lead, hooks) { var c = new Conversation(lead, hooks); c.start(); return c; },
+    // Live wiring: every lead captured by northfield-tools.js starts a conversation.
+    autoAttach: function (hooks) {
+      document.addEventListener("northfield:lead", function (ev) { NorthfieldResponder.start(ev.detail, hooks); });
+    }
+  };
+  window.NorthfieldResponder = NorthfieldResponder;
+})();
+
+</script>
+<script>
+(function () {
+  "use strict";
+  var R = window.NorthfieldResponder, $ = function (s) { return document.querySelector(s); };
+  var SCENARIOS = [
+    { id: "portal", cls: "z", abbr: "Z", source: "Listing portal", when: "Sat Nov 7, 10:42 PM", blurb: "Portal inquiry on an active listing. Office closed.",
+      lead: { type: "buyer", name: "Tyler R.", phone: "(555) 010-5147", email: "tyler.r@example.com", smsConsent: true, sourceName: "Listing portal", receivedAt: "2026-11-07T22:42:07",
+              listing: { id: "NF-1042", address: "2418 Linden Ct", price: 489000 }, message: "I'd like more information about 2418 Linden Ct." } },
+    { id: "valuation", cls: "w", abbr: "WEB", source: "Website · Home valuation form", when: "Sun Nov 8, 7:15 AM", blurb: "Seller in Willow Bend, moving within 3 months.",
+      lead: { type: "valuation", name: "Anika S.", phone: "(555) 010-5192", email: "anika.s@example.com", smsConsent: true, sourceName: "Website valuation form", receivedAt: "2026-11-08T07:15:33",
+              address: "812 Aspen Ln, Willow Bend", timeline: "Within 3 months" } },
+    { id: "alerts", cls: "w", abbr: "WEB", source: "Website · Listing alerts", when: "Mon Nov 9, 12:03 PM", blurb: "Just browsing, email only. The responder stays light.",
+      lead: { type: "alerts", name: "Evan L.", email: "evan.l@example.com", smsConsent: false, sourceName: "Website listing alerts", receivedAt: "2026-11-09T12:03:10",
+              timeline: "Just browsing", search: { neighborhood: "Larkfield", max: 650000, beds: "3+" } } }
+  ];
+  function initials(n) { return n.split(/\s+/).map(function (w) { return w.charAt(0); }).join("").slice(0, 2); }
+  var conv = null, queue = [], busy = false, firstIn = null, firstOut = null, points = 0;
+  var thread = $("#thread"), chips = $("#chips"), say = $("#say"), sendBtn = $("#compose button"), tl = $("#timeline");
+
+  function fmtT(d) { return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", second: "2-digit" }); }
+  function fmtShort(d) { return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }); }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function el(html) { var d = document.createElement("div"); d.innerHTML = html.trim(); return d.firstChild; }
+  function scrollThread() { thread.scrollTop = thread.scrollHeight; }
+  function reduced() { return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches; }
+
+  /* Sequential render queue so replies appear one at a time, with a typing pause. */
+  function enqueue(fn, delay) { queue.push({ fn: fn, delay: delay }); if (!busy) next(); }
+  function next() {
+    var job = queue.shift(); if (!job) { busy = false; setInput(!!conv && !conv.optedOut); return; }
+    busy = true; setInput(false);
+    setTimeout(function () { job.fn(); next(); }, reduced() ? Math.min(job.delay, 150) : job.delay);
+  }
+  function setInput(on) { say.disabled = !on; sendBtn.disabled = !on; Array.prototype.forEach.call(chips.querySelectorAll("button"), function (b) { b.disabled = !on; }); }
+
+  /* Render leads list */
+  var list = $("#leadList");
+  SCENARIOS.forEach(function (sc) {
+    var b = el('<button class="lead" type="button" aria-pressed="false"><span class="src ' + sc.cls + '">' + sc.abbr + '</span><span><b>' + esc(sc.lead.name) + '</b><span class="when">' + esc(sc.source) + ' &middot; ' + esc(sc.when) + '</span><span>' + esc(sc.blurb) + '</span></span></button>');
+    b.addEventListener("click", function () { start(sc.lead, b); });
+    list.appendChild(b);
+  });
+  list.appendChild(el('<form class="custom" id="customForm"><p class="label" style="margin:0">Or write your own</p>' +
+    '<label>Name<input id="cName" value="Alex M." required></label>' +
+    '<label>I am a<select id="cType"><option value="buyer">Buyer</option><option value="valuation">Seller, want a valuation</option></select></label>' +
+    '<label>Mobile (optional)<input id="cPhone" placeholder="(555) 010-0100" inputmode="tel"></label>' +
+    '<label class="chk"><input type="checkbox" id="cConsent" checked> Text me about my inquiry. Reply STOP to opt out.</label>' +
+    '<button class="btn primary sm" type="submit" style="justify-self:start">Send this lead now</button></form>'));
+  $("#customForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var now = new Date(); now.setSeconds(now.getSeconds() - 2);
+    var phone = $("#cPhone").value.trim();
+    start({ type: $("#cType").value, name: $("#cName").value || "Alex M.", phone: phone || null, smsConsent: !!phone && $("#cConsent").checked, email: "alex@example.com", sourceName: "Website contact form", receivedAt: now.toISOString(), address: $("#cType").value === "valuation" ? "your home" : null }, null);
+  });
+
+  function start(lead, btn) {
+    Array.prototype.forEach.call(list.querySelectorAll(".lead"), function (b) { b.setAttribute("aria-pressed", b === btn ? "true" : "false"); });
+    queue = []; busy = false; conv = null; firstIn = null; firstOut = null; points = 0;
+    thread.innerHTML = ""; chips.innerHTML = ""; tl.innerHTML = ""; $("#handoff").innerHTML = ""; $("#jsonBox").hidden = true; $("#queueBox").hidden = true;
+    $("#tGap").textContent = "waiting"; $("#tGap").className = "gap wait"; $("#tOut").textContent = "—";
+    var recv = new Date(lead.receivedAt), h = recv.getHours(), open = recv.getDay() >= 1 && recv.getDay() <= 6 && h >= 9 && h < 18;
+    $("#clock").innerHTML = "<b>" + esc(recv.toLocaleDateString("en-US", { weekday: "short" }) + " " + fmtShort(recv)) + "</b> <span class=\"" + (open ? "open" : "closed") + "\">" + (open ? "Office open" : "Office closed") + "</span>";
+    firstIn = recv; $("#tIn").textContent = fmtT(recv);
+    var sms = lead.phone && lead.smsConsent;
+    $("#channelLabel").textContent = sms ? "Text message to " + lead.phone : "Email to " + (lead.email || "visitor");
+    $("#screenSub").textContent = sms ? "Assistant · replies 24/7 by text" : "Assistant · replies 24/7 by email";
+    // The visitor's original inquiry, as the system saw it
+    var intro = lead.message || (lead.type === "valuation" ? "Home valuation request: " + lead.address + " (" + (lead.timeline || "") + ")" : lead.type === "alerts" ? "Listing alert: " + lead.search.neighborhood + " up to $" + lead.search.max.toLocaleString("en-US") + ", " + lead.search.beds + " beds" : "Contact form submitted");
+    thread.appendChild(el('<p class="msg sys">' + esc(lead.sourceName) + ' · ' + esc(fmtT(recv)) + '</p>'));
+    thread.appendChild(el('<div class="msg v">' + esc(intro) + '<time>' + esc(fmtShort(recv)) + '</time></div>'));
+    // Through the site's own lead layer (adds id, priority, owner, campaign source), then the responder.
+    window.NorthfieldLeads.submit(lead).then(function (scored) {
+      conv = R.start(scored, { onMessage: onMessage, onEvent: onEvent, onHandoff: onHandoff });
+    });
+  }
+
+  function onMessage(m) {
+    if (m.from === "visitor") {
+      enqueue(function () { thread.appendChild(el('<div class="msg v">' + esc(m.text) + '<time>' + esc(fmtShort(m.at)) + '</time></div>')); chips.innerHTML = ""; scrollThread(); }, 0);
+      return;
+    }
+    enqueue(function () { var t = el('<div class="typing" aria-label="Assistant is typing"><i></i><i></i><i></i></div>'); t.id = "typing"; thread.appendChild(t); scrollThread(); }, 350);
+    enqueue(function () {
+      var t = $("#typing"); if (t) t.remove();
+      thread.appendChild(el('<div class="msg a">' + esc(m.text) + '<time>' + esc(fmtShort(m.at)) + '</time></div>'));
+      chips.innerHTML = "";
+      m.chips.forEach(function (c) { var b = el('<button type="button">' + esc(c) + '</button>'); b.addEventListener("click", function () { if (conv) conv.reply(c); }); chips.appendChild(b); });
+      if (!firstOut) { firstOut = m.at; $("#tOut").textContent = fmtT(m.at); var s = Math.round((m.at - firstIn) / 1000); $("#tGap").textContent = "replied in " + s + " s"; $("#tGap").className = "gap"; }
+      scrollThread();
+    }, 1400);
+  }
+  function onEvent(e) {
+    enqueue(function () {
+      tl.appendChild(el('<li><time>' + esc(fmtShort(e.at)) + '</time><span class="dot ' + esc(e.type) + '"></span><span class="t">' + esc(e.label) + '</span></li>'));
+      if (e.type === "scored" || e.type === "rescored") renderScore();
+    }, e.type === "received" ? 0 : 250);
+  }
+  function renderScore() {
+    if (!conv) return;
+    var s = R.score(conv.lead, conv.q);
+    $("#pill").className = "pill " + s.priority; $("#pill").innerHTML = "<i></i>" + s.priority + " · " + s.points + " pts";
+    $("#meter").style.width = Math.min(100, s.points / 8 * 100) + "%";
+    $("#why").textContent = s.why.length ? "Because: " + s.why.join(", ") + "." : "No strong signals yet. Timing, financing and a booked showing raise it.";
+    $("#ownerLabel").textContent = "Routed to " + R.config.routing[conv.lane];
+  }
+  function onHandoff(s) {
+    enqueue(function () {
+      var b = s.booked, when = b && b.at ? R.fmtSlot(b.at) : b ? "Requested: " + b.requested : null;
+      var html = '<div class="handoff"><div class="hh">' + '<div class="avi" aria-hidden="true">' + esc(initials(s.agent.name)) + '</div>' + '<div><b>Handoff to ' + esc(s.agent.name) + ', ' + esc(s.agent.role) + '</b><span>' + esc(s.owner) + ' · ' + esc(s.reason) + '</span></div></div><dl>' +
+        '<dt>Lead</dt><dd>' + esc(s.name) + (s.phone ? ' · ' + esc(s.phone) : '') + (s.email ? ' · ' + esc(s.email) : '') + '</dd>' +
+        '<dt>Source</dt><dd>' + esc(s.source) + ' · ' + esc(fmtShort(new Date(s.receivedAt))) + '</dd>' +
+        (s.listing ? '<dt>Listing</dt><dd>' + esc(s.listing.address) + ', $' + s.listing.price.toLocaleString("en-US") + '</dd>' : '') +
+        (s.address && !s.listing ? '<dt>Home</dt><dd>' + esc(s.address) + (s.condition ? ' · ' + esc(s.condition) : '') + '</dd>' : '') +
+        '<dt>Timeline</dt><dd>' + esc(s.timeline) + '</dd>' +
+        (s.financing ? '<dt>Financing</dt><dd>' + esc(s.financing) + '</dd>' : '') +
+        (s.needs.length ? '<dt>Needs</dt><dd>' + esc(s.needs.join(", ")) + '</dd>' : '') +
+        '<dt>Priority</dt><dd><span class="pill ' + s.priority + '"><i></i>' + s.priority + '</span> &nbsp;' + esc(s.why.join(", ")) + '</dd>' +
+        '</dl><div class="next"><div><b>Next step:</b> ' + esc(s.nextStep) + '</div><div class="acts"><button type="button" class="go">Confirm</button><button type="button">Reassign</button><button type="button">Call now</button></div></div></div>';
+      $("#handoff").innerHTML = html;
+      if (b && b.at) {
+        var d = b.at;
+        $("#handoff").appendChild(el('<div class="cal" style="margin-top:10px"><div class="date"><b>' + esc(d.toLocaleDateString("en-US", { month: "short" })) + '</b><span>' + d.getDate() + '</span></div><p><b>' + (b.kind === "showing" ? "Showing: " + esc(b.where) : "Valuation call with " + esc(s.name)) + '</b><br>' + esc(R.fmtSlot(d)) + ' · ' + esc(s.agent.name) + ' and ' + esc(s.name) + (b.kind === "showing" ? ' · showing request sent' : ' · 15 min') + '</p></div>'));
+      }
+      Array.prototype.forEach.call($("#handoff").querySelectorAll(".acts button"), function (btn) { btn.addEventListener("click", function () { btn.textContent = btn.textContent === "Confirm" ? "Confirmed" : btn.textContent === "Reassign" ? "Reassigned" : "Calling…"; btn.disabled = true; }); });
+      $("#jsonBox").hidden = false; $("#json").textContent = JSON.stringify(s, function (k, v) { return k === "transcript" ? v.map(function (m) { return m.from + ": " + m.text; }) : v; }, 2);
+      renderScore();
+    }, 600);
+  }
+
+  $("#compose").addEventListener("submit", function (e) { e.preventDefault(); var t = say.value.trim(); if (!t || !conv || busy) return; say.value = ""; conv.reply(t); });
+  Array.prototype.forEach.call(document.querySelectorAll("#tryRow button"), function (b) {
+    b.addEventListener("click", function () {
+      var text = b.getAttribute("data-say");
+      if (!conv) { start(SCENARIOS[0].lead, list.querySelector(".lead")); enqueue(function () { if (conv && !conv.optedOut) conv.reply(text); }, 900); }
+      else if (!conv.optedOut) conv.reply(text);
+      document.querySelector(".stage").scrollIntoView({ behavior: reduced() ? "auto" : "smooth", block: "start" });
+    });
+  });
+  // Open with the portal lead running so the page shows what it does at first glance.
+  start(SCENARIOS[0].lead, list.querySelector(".lead"));
+})();
+document.querySelectorAll('a[data-demo]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();});});
+</script>
+</body></html>

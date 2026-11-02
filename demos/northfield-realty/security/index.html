@@ -1,0 +1,396 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Northfield Site Protection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Inter:wght@300;400;500;600&display=swap">
+<style>
+/* Layout: navy header, then a single quiet column; findings as a ledger, plan as a timeline, care options as a comparison grid. */
+:root{
+  --bg:#FFFFFF;--bg-2:#F7F5F0;--bg-3:#EDE9E0;--ink:#16233B;--text:#1D2535;--muted:#5E6677;--line:#E2DED3;--line-2:#CFC9BA;
+  --green:#A9823E;--green-2:#8F6D30;--green-soft:#C9A25B;--green-tint:#F6EFE0;--green-text:#7A5C22;
+  --dark:#16233B;--on-dark:#FFFFFF;--on-dark-muted:#B9C2D3;--line-dark:#2D3C58;
+  --good:#3F7D4A;--warn:#B07A1C;--bad:#B3453A;--warn-tint:#FBF3E3;--bad-tint:#F9E9E7;--good-tint:#E6F2E8;--crit:#8E2F27;--crit-tint:#F6E2DF;
+  --code-bg:#F3F1EA;--code-text:#3A3F4A;
+  --font:"Inter","Segoe UI",system-ui,sans-serif;--font-h:"Fraunces",Georgia,serif;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --wrap:1100px;--r:4px;--shadow:0 10px 30px rgba(22,35,59,.12);color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#101827;--bg-2:#152033;--bg-3:#1C2940;--ink:#F2F4F8;--text:#E3E7EF;--muted:#A5AEC0;--line:#27344C;--line-2:#364560;
+  --green:#C29A52;--green-2:#D0AA63;--green-soft:#C9A25B;--green-tint:#2B2519;--green-text:#DDB873;
+  --dark:#0A111E;--on-dark:#F2F4F8;--on-dark-muted:#A5AEC0;--line-dark:#27344C;
+  --good:#7FC18A;--warn:#E0B25A;--bad:#E07F74;--warn-tint:#2E2716;--bad-tint:#331E1C;--good-tint:#1E2E20;--crit:#F08C82;--crit-tint:#3A1F1C;
+  --code-bg:#17233A;--code-text:#D5DCEA;--shadow:0 10px 30px rgba(0,0,0,.45);color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101827;--bg-2:#152033;--bg-3:#1C2940;--ink:#F2F4F8;--text:#E3E7EF;--muted:#A5AEC0;--line:#27344C;--line-2:#364560;
+  --green:#C29A52;--green-2:#D0AA63;--green-soft:#C9A25B;--green-tint:#2B2519;--green-text:#DDB873;
+  --dark:#0A111E;--on-dark:#F2F4F8;--on-dark-muted:#A5AEC0;--line-dark:#27344C;
+  --good:#7FC18A;--warn:#E0B25A;--bad:#E07F74;--warn-tint:#2E2716;--bad-tint:#331E1C;--good-tint:#1E2E20;--crit:#F08C82;--crit-tint:#3A1F1C;
+  --code-bg:#17233A;--code-text:#D5DCEA;--shadow:0 10px 30px rgba(0,0,0,.45);color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--dark)}
+:focus-visible{outline:2px solid var(--green-soft);outline-offset:3px}
+h1,h2,h3,h4{font-family:var(--font-h);margin:0;line-height:1.15;letter-spacing:-.02em;color:var(--ink);text-wrap:balance}
+h1{font-size:clamp(1.9rem,3.8vw,2.9rem);font-weight:300}
+h2{font-size:clamp(1.35rem,2.4vw,1.85rem);font-weight:400}
+h3{font-size:1.05rem;font-weight:500}
+p{margin:0}
+a{color:var(--green-text)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.label{font-size:.7rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--green-text)}
+.muted{color:var(--muted)}
+.measure{max-width:68ch}
+code,.mono{font-family:var(--mono);font-size:.82em}
+/* header */
+header{background:var(--dark);color:var(--on-dark);padding-block:48px 56px}
+header .label{color:var(--green-soft)}
+header h1{color:var(--on-dark);margin-top:10px}
+header p{color:var(--on-dark-muted);margin-top:14px;max-width:62ch}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+.demo-note{background:#0A111E;color:#B9C2D3;font-size:.72rem;text-align:center;padding:6px 12px;line-height:1.4}
+.brand .mark{width:34px;height:34px;border-radius:50%;background:var(--green-soft);display:grid;place-items:center;color:#16233B;font-weight:600;font-size:.9rem}
+.brand span{font-weight:500;letter-spacing:.04em}
+.meta{display:flex;flex-wrap:wrap;gap:8px 24px;margin-top:26px;font-size:.82rem;color:var(--on-dark-muted)}
+.meta b{color:var(--on-dark);font-weight:500}
+/* sections */
+section{padding-block:52px;border-top:1px solid var(--line)}
+section.alt{background:var(--bg-2)}
+.sec-head{display:flex;flex-direction:column;gap:8px;margin-bottom:28px}
+/* stat tiles */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:-30px;position:relative}
+.stat{background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;box-shadow:var(--shadow)}
+.stat .n{font-family:var(--font-h);font-size:1.7rem;font-weight:300;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1}
+.stat .t{font-size:.86rem;color:var(--muted);margin-top:8px}
+/* findings ledger */
+.ledger{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.row{display:grid;grid-template-columns:110px 1fr;gap:18px;padding:22px 0;border-bottom:1px solid var(--line)}
+.row .sev{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.pill{display:inline-block;font-size:.68rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:4px 9px;border-radius:999px;border:1px solid transparent}
+.pill.crit{background:var(--crit-tint);color:var(--crit);border-color:var(--crit)}
+.pill.high{background:var(--bad-tint);color:var(--bad);border-color:var(--bad)}
+.pill.med{background:var(--warn-tint);color:var(--warn);border-color:var(--warn)}
+.pill.good{background:var(--good-tint);color:var(--good);border-color:var(--good)}
+.row h3{margin-bottom:6px}
+.row p+p{margin-top:8px}
+.evidence{margin-top:12px;background:var(--code-bg);color:var(--code-text);border-left:3px solid var(--line-2);padding:10px 14px;border-radius:0 var(--r) var(--r) 0;font-family:var(--mono);font-size:.78rem;line-height:1.55;overflow-x:auto;white-space:pre-wrap;word-break:break-word}
+.evidence .k{color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{font-size:.78rem;padding:3px 9px;border:1px solid var(--line-2);border-radius:999px;color:var(--muted);background:var(--bg)}
+/* why it matters */
+.why{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.why > div{background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;min-width:0}
+.why h3{margin-bottom:6px}
+.why p{font-size:.92rem;color:var(--muted)}
+/* plan timeline */
+.plan{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.phase{border-top:3px solid var(--green);padding-top:14px;min-width:0}
+.phase .when{font-size:.76rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--green-text)}
+.phase h3{margin:6px 0 8px}
+.phase ul{margin:0;padding-left:18px;font-size:.92rem;display:flex;flex-direction:column;gap:5px}
+.phase .need{margin-top:12px;font-size:.8rem;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px}
+/* static callout */
+.callout{background:var(--green-tint);border:1px solid var(--green);border-radius:var(--r);padding:22px 24px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.callout h3{color:var(--green-text)}
+.callout ul{margin:8px 0 0;padding-left:18px;font-size:.92rem;display:flex;flex-direction:column;gap:4px}
+.callout .col{min-width:0}
+.callout .vs{font-size:.76rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+/* tiers */
+.tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;align-items:stretch}
+.tier{background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:22px 22px 20px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.tier.pick{border-color:var(--green);box-shadow:var(--shadow)}
+.tier .name{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.tier .price-free{display:none}
+.tier .price{font-size:1.7rem;font-weight:300;color:var(--ink);font-variant-numeric:tabular-nums}
+.tier .price small{font-size:.8rem;color:var(--muted);font-weight:400}
+.tier .for{font-size:.86rem;color:var(--muted)}
+.tier ul{margin:0;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:7px;font-size:.9rem}
+.tier li{padding-left:20px;position:relative}
+.tier li::before{content:"";position:absolute;left:0;top:.55em;width:10px;height:6px;border-left:2px solid var(--green);border-bottom:2px solid var(--green);transform:rotate(-45deg)}
+.tier li.inherit{color:var(--muted)}
+.tier .tag{font-size:.68rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--green-text)}
+.note{font-size:.82rem;color:var(--muted);margin-top:16px}
+/* access list */
+.need-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px 24px;margin:0;padding-left:18px;font-size:.95rem}
+/* footer */
+footer{padding-block:34px;border-top:1px solid var(--line);font-size:.8rem;color:var(--muted)}
+footer p+p{margin-top:6px}
+@media (max-width:640px){
+  .row{grid-template-columns:1fr;gap:10px}
+  .callout{grid-template-columns:1fr}
+  header{padding-block:36px 48px}
+}
+@media (prefers-reduced-motion:no-preference){.tier.pick{transition:transform .2s}.tier.pick:hover{transform:translateY(-2px)}}
+</style></head><body>
+<div class="demo-note">Portfolio demo · fictional brokerage, sample data. Built by Myles Parslow.</div>
+<header>
+  <div class="wrap">
+    <div class="brand"><div class="mark">N</div><span>NORTHFIELD REALTY</span></div>
+    <div class="label">Website security review &amp; protection plan · sample case report</div>
+    <h1>northfield-realty.example is carrying hidden links it never asked for.</h1>
+    <p>Several of the site's pages end with a block of hidden links to unrelated, low-quality sites. Visitors never see them. Search engines do. This page shows what a review like this finds, what it means for the business, and how the site would be cleaned up and kept from getting infected again.</p>
+    <div class="meta">
+      <div>Method <b>public pages only, no login, no scanning</b></div>
+      <div>Prepared for <b>Dana Reyes</b></div>
+      <div>Case type <b>SEO spam injection</b></div>
+    </div>
+  </div>
+</header>
+<section style="border-top:0;padding-top:0">
+  <div class="wrap">
+    <div class="stats">
+      <div class="stat"><div class="n">Several</div><div class="t">pages carrying hidden spam links, including core buyer and seller guides</div></div>
+      <div class="stat"><div class="n">Poisoned</div><div class="t">robots.txt listing fake sitemaps the firm never created</div></div>
+      <div class="stat"><div class="n">Outdated</div><div class="t">CMS core and plugins, well behind current security releases</div></div>
+      <div class="stat"><div class="n">Backdoor</div><div class="t">re-injecting the content on every page load</div></div>
+    </div>
+  </div>
+</section>
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="label">What we found</div>
+      <h2>Six findings, in plain English</h2>
+      <p class="muted measure">Everything here is visible to any visitor or to a search engine. A first review does not log in, run scanners, or touch the server. Severity reflects how much it can hurt the business, not how hard it is to fix.</p>
+    </div>
+    <div class="ledger">
+      <div class="row">
+        <div class="sev"><span class="pill crit">Critical</span></div>
+        <div>
+          <h3>Hidden spam links injected into several pages</h3>
+          <p>A number of guide and tool pages end with an invisible block of outbound links. The anchor text and destinations are unrelated, low-quality sites that have nothing to do with real estate. The homepage and a few other pages are clean, which is typical: the injection targets pages with the most search traffic.</p>
+          <p>The block is wrapped in a style that hides it from people while leaving it fully readable to search engines. That is the point: someone is borrowing the reputation of a trusted local brokerage to rank their own sites.</p>
+          <div class="chips"><span class="chip">hidden with CSS</span></div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="sev"><span class="pill crit">Critical</span></div>
+        <div>
+          <h3>A backdoor re-injects the content</h3>
+          <p>The links are not typed into the pages. The site's code reaches out to an outside server on page load and inserts whatever comes back, which is why removing the links in the page editor does not make them stay gone. Some pages also print raw server error messages just above the hidden block, a tell-tale sign of the same mechanism.</p>
+          <p>This matters more than the links themselves. Whoever controls the outside server can change the payload at any time: redirect visitors, show a fake login form, or serve malware, without touching the site again. It also confirms the problem lives in the site's code or hosting account, not only in the page text.</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="sev"><span class="pill high">High</span></div>
+        <div>
+          <h3>robots.txt has been poisoned</h3>
+          <p>The robots.txt file, which tells search engines where to look, was rewritten to list many sitemaps with random numbers in their names. The site's real sitemap lives at a different address. Fake sitemap entries are a textbook way to feed spam pages to search engines under a legitimate domain.</p>
+          <p>Search Console will show whether those addresses serve spam only to search crawlers and whether Google has already flagged the site.</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="sev"><span class="pill high">High</span></div>
+        <div>
+          <h3>The CMS and its plugins are out of date</h3>
+          <p>The content management system, the SEO plugin and the contact-form plugin are all several releases behind. The theme and page-builder plugins come from the original site vendor and are locked to that old core.</p>
+          <p>Out-of-date plugins are the most common way sites like this get compromised. This is almost certainly how the injection got in, and it will keep happening until updates are routine.</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="sev"><span class="pill med">Medium</span></div>
+        <div>
+          <h3>Security tooling is present but not doing its job</h3>
+          <p>A security plugin is installed and a CDN sits in front of the site. Neither prevented the injection or caught it afterwards, which usually means free tiers are on with default settings and nobody is reading the alerts.</p>
+          <p>The site also sends few of the standard browser security headers (transport security, content-security policy, frame and MIME protections). These are quick to add and make several classes of attack harder.</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="sev"><span class="pill good">In place</span></div>
+        <div>
+          <h3>Some basics are already right</h3>
+          <p>The site forces HTTPS, remote-publishing endpoints are blocked, the public list of user accounts is locked down, and the login page cannot be embedded in other sites. These are worth keeping through the cleanup.</p>
+          <div class="chips"><span class="chip">HTTPS enforced</span><span class="chip">remote publishing blocked</span><span class="chip">user listing blocked</span><span class="chip">CDN proxy on</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="alt">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="label">Why it matters</div>
+      <h2>What this costs a brokerage if it stays</h2>
+    </div>
+    <div class="why">
+      <div><h3>Search rankings and the "hacked" label</h3><p>Search engines detect injected links and fake sitemaps. The usual outcomes are a "This site may be hacked" warning under the listing, a manual penalty, and a drop for the pages that bring in buyer and seller searches. Recovery takes weeks after cleanup, so every month of delay compounds.</p></div>
+      <div><h3>Reputation with clients and agents</h3><p>Anyone who views the page source, uses an ad blocker that flags low-quality domains, or gets a browser or antivirus warning sees the brokerage's name next to content it would never endorse. Agents share these guide pages with clients every week.</p></div>
+      <div><h3>Fair housing and brand risk</h3><p>A brokerage is held to a higher standard for what appears under its name. Injected content is outside its control, and the attacker can change it to anything, including discriminatory or defamatory text, overnight.</p></div>
+      <div><h3>Lead and data exposure</h3><p>The same access that inserts links can read what visitors type into contact and valuation forms. Names, phones, addresses and financing details flow through the site, and breach-notification rules may apply if that data is taken.</p></div>
+      <div><h3>Email deliverability</h3><p>Domains associated with spam campaigns get scored down by mail providers. Agents' email from the firm's domain can start landing in junk folders with no obvious cause.</p></div>
+      <div><h3>It gets worse quietly</h3><p>Today it is links. Spam operators routinely resell access, and the next buyer may redirect visitors or plant a fake "sign in to view this listing" page. Nothing on the site will look different until a client calls.</p></div>
+    </div>
+  </div>
+</section>
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="label">The fix plan</div>
+      <h2>Clean it, lock it, watch it</h2>
+      <p class="muted measure">Three phases. The first needs access to the hosting account and CMS admin, which only the owner or the site vendor can grant. The rest runs on a schedule and reports back monthly in plain language.</p>
+    </div>
+    <div class="plan">
+      <div class="phase">
+        <div class="when">Phase 1</div>
+        <h3>Cleanup</h3>
+        <ul>
+          <li>Take a full snapshot of files and database before touching anything, so nothing is lost.</li>
+          <li>Scan every file and the database for the injection and the backdoor that feeds it. Remove both.</li>
+          <li>Reinstall the CMS core, theme and plugins from clean copies and update to current versions.</li>
+          <li>Rotate every credential: CMS users, hosting, FTP, database, security keys. Remove unknown admin accounts.</li>
+          <li>Restore the real robots.txt and sitemap. Remove any doorway pages.</li>
+          <li>Check Search Console for a manual action and request review if one exists. Request a re-crawl of the affected pages.</li>
+          <li>Re-verify every page from the outside, then again after a few days.</li>
+        </ul>
+        <div class="need">Needs: hosting login or invite, CMS admin, Search Console access, site vendor contact.</div>
+      </div>
+      <div class="phase">
+        <div class="when">Phase 2</div>
+        <h3>Hardening</h3>
+        <ul>
+          <li>Two-factor sign-in for every account. Move the login page off the default address and rate-limit attempts.</li>
+          <li>Turn on CDN firewall rules and bot filtering in front of the CMS and the admin area.</li>
+          <li>Add the missing browser security headers.</li>
+          <li>Disable in-dashboard file editing. Lock file permissions. Remove unused plugins and themes.</li>
+          <li>Least-privilege accounts: agents who only need to edit their profile do not get admin.</li>
+          <li>Current runtime version, automatic minor updates, and a tested weekly update routine for plugins.</li>
+        </ul>
+        <div class="need">Needs: CDN or domain-registrar access.</div>
+      </div>
+      <div class="phase">
+        <div class="when">Ongoing</div>
+        <h3>Monitoring</h3>
+        <ul>
+          <li>Uptime checks from several locations, with a text alert if the site is down.</li>
+          <li>Daily malware and spam scan of every page from the outside, the way a search engine sees it.</li>
+          <li>Link-change alerts: every page's outbound links are recorded daily, and any new domain appearing triggers an alert. This would have caught the current problem on day one.</li>
+          <li>Safe Browsing and blocklist checks, and Search Console alerts routed to the care team.</li>
+          <li>Daily off-site backups with a quarterly restore test so we know they work.</li>
+          <li>Plugin and core updates applied weekly after a staging check.</li>
+          <li>A one-page monthly report: what was scanned, what was updated, anything that needs a decision.</li>
+        </ul>
+        <div class="need">Needs: nothing further once access is set up.</div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="alt">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="label">A simpler option</div>
+      <h2>A static site has far less to attack</h2>
+    </div>
+    <div class="callout">
+      <div class="col">
+        <div class="vs">Today: database-driven CMS</div>
+        <h3>A database, server-side code, many plugins and a public login page</h3>
+        <ul>
+          <li>Every plugin is code running on the server that can be exploited.</li>
+          <li>Pages are assembled on each visit, so injected code runs every time.</li>
+          <li>Updates must be applied forever, by someone, on schedule.</li>
+          <li>The admin login is the front door for brute-force and phishing.</li>
+        </ul>
+      </div>
+      <div class="col">
+        <div class="vs">Alternative: static site</div>
+        <h3>Plain pages served from a global network, nothing to break into</h3>
+        <ul>
+          <li>No server-side code, no database, no plugins. Nothing for an injection to live in.</li>
+          <li>Pages are fixed files. If one changes, the monitor knows exactly which and why.</li>
+          <li>Forms and listing search run through dedicated, hardened services, not the site itself.</li>
+          <li>Faster load times and a very small hosting footprint as a side effect.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="note measure">Moving to a static site closes most of this list for good, and the monitoring plan keeps watch over the rest: domain, email, listing-search vendor and the brokerage's accounts.</p>
+  </div>
+</section>
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="label">Ongoing care</div>
+      <h2>One cleanup, then a plan that fits</h2>
+      <p class="muted measure">Every plan includes a cleanup guarantee: if the same infection returns shortly after cleanup, it is fixed at no charge.</p>
+    </div>
+    <div class="tiers">
+      <div class="tier">
+        <div class="tag">One time</div>
+        <div class="name"><h3>Cleanup &amp; Lockdown</h3></div>
+        <p class="for">Required first step for any plan. Done within a few business days of receiving access.</p>
+        <ul>
+          <li>Full backup, malware and backdoor removal</li>
+          <li>Clean reinstall and updates of core, theme, plugins</li>
+          <li>All credentials rotated, rogue accounts removed</li>
+          <li>robots.txt and sitemaps restored</li>
+          <li>Search Console review and re-crawl request</li>
+          <li>Written report of what was found and removed</li>
+          <li>Reinfection guarantee</li>
+        </ul>
+      </div>
+      <div class="tier">
+        <div class="tag">Monthly</div>
+        <div class="name"><h3>Watch</h3></div>
+        <p class="for">Know within the hour if anything changes. For a site that stays on its current CMS with light editing.</p>
+        <ul>
+          <li>Uptime monitoring with text alerts</li>
+          <li>Daily external malware and spam scan</li>
+          <li>Daily outbound-link change alerts</li>
+          <li>Weekly plugin and core updates</li>
+          <li>Daily off-site backups</li>
+          <li>Monthly one-page report</li>
+        </ul>
+      </div>
+      <div class="tier pick">
+        <div class="tag">Monthly · Recommended</div>
+        <div class="name"><h3>Guard</h3></div>
+        <p class="for">Everything in Watch, plus the protections that stop the next attempt instead of just reporting it.</p>
+        <ul>
+          <li class="inherit">Everything in Watch</li>
+          <li>CDN firewall and bot rules, tuned and maintained</li>
+          <li>Two-factor sign-in and login hardening for all users</li>
+          <li>Security headers and file-permission lockdown</li>
+          <li>Search Console and Safe Browsing monitoring</li>
+          <li>Same-business-day incident response</li>
+          <li>Quarterly security review and restore test</li>
+          <li>Annual phishing and account-safety briefing for agents</li>
+        </ul>
+      </div>
+      <div class="tier">
+        <div class="tag">Monthly</div>
+        <div class="name"><h3>Guard + Static Hosting</h3></div>
+        <p class="for">For a rebuilt static site. Hosting, monitoring and the brokerage's whole web footprint under one roof.</p>
+        <ul>
+          <li class="inherit">Everything in Guard</li>
+          <li>Hosting of the static site on a global edge network, SSL included</li>
+          <li>Hardened form and lead-capture endpoints with spam filtering</li>
+          <li>Staging copy for every change before it goes live</li>
+          <li>Domain, DNS and email-authentication (SPF, DKIM, DMARC) monitoring</li>
+          <li>Annual review of listing-search and other vendor integrations</li>
+          <li>Fast incident response, including weekends</li>
+        </ul>
+      </div>
+    </div>
+    <p class="note">Plans are shown without pricing in this sample report.</p>
+  </div>
+</section>
+<section class="alt">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="label">To get started</div>
+      <h2>What we would need from the broker</h2>
+    </div>
+    <ul class="need-list">
+      <li>Who hosts the site, and a login or invite to the hosting account</li>
+      <li>A CMS administrator account</li>
+      <li>Access to the domain registrar or CDN account</li>
+      <li>Search Console access (or we set it up together)</li>
+      <li>The site vendor contact and the current support contract, if any</li>
+      <li>Roughly when the site was last updated and by whom</li>
+    </ul>
+    <p class="note measure">Until access is granted, nothing on the live site changes. The review above was done entirely from the outside, the same way a visitor or a search engine sees it.</p>
+  </div>
+</section>
+<footer>
+  <div class="wrap">
+    <p>Review method: public page views of the site, public HTTP headers, robots.txt and published sitemaps. No authentication attempts, vulnerability scanning or server probing were performed. Findings describe what is publicly observable; the root cause can only be confirmed with access.</p>
+    <p>Prepared for Northfield Realty · Portfolio demo with sample data. Built by Myles Parslow.</p>
+  </div>
+</footer>
+</body></html>

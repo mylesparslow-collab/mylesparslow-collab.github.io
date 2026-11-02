@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Northfield Market Reports</title>
+<meta name="description" content="Monthly neighborhood market reports for a fictional brokerage. All statistics are invented sample data for a portfolio demo.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Inter:wght@300;400;500;600&display=swap">
+<style>
+/* Layout: one reading column (720px) inside a 1120px frame; tab strip scrolls sideways on phones; stat tiles 4-up, stacking to 2-up. */
+:root{
+  --brass:#B8925A;--cta:#8F6B33;--cta-hover:#765626;--brass-text:#7A5A27;--brass-tint:#F7F1E6;
+  --navy:#12263F;--navy-2:#0B1A2E;
+  --bg:#FFFFFF;--bg-2:#F4F2EE;--ink:#12263F;--text:#14202E;--muted:#55606E;--line:#E3E0DA;--line-dark:#2C4260;
+  --bar-neutral:#C5CCD6;--on-dark:#fff;--on-dark-muted:#BAC5D3;--up:#2F6B3F;--down:#A8322A;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;--sans:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F1826;--bg-2:#16233A;--ink:#F1EEE7;--text:#E6E9EE;--muted:#A9B4C3;--line:#27384F;--brass-tint:#1F2A3A;--brass-text:#D4B27A;--bar-neutral:#3A4C66;--up:#6FC08A;--down:#E08A82;--cta:#A9823E;--cta-hover:#BE9650;color-scheme:dark}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+p{margin:0}
+:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
+h1,h2,h3{font-family:var(--display);font-weight:300;line-height:1.14;letter-spacing:-.02em;color:var(--ink);margin:0;text-wrap:balance}
+h1{font-size:clamp(2.1rem,4.6vw,3.4rem)}
+h2{font-size:clamp(1.4rem,2.5vw,1.85rem);font-weight:400}
+h3{font-size:1.12rem;font-weight:500;letter-spacing:-.01em}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+@media (min-width:760px){.wrap{padding-left:40px;padding-right:40px}}
+.label{font-size:.72rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--brass-text)}
+.small{font-size:.86rem;color:var(--muted)}
+.read{max-width:720px}
+.demo-banner{background:#07121F;color:#E8D5AE;text-align:center;font-size:.76rem;letter-spacing:.04em;line-height:1.4;padding:8px 16px}
+header.top{background:var(--navy);color:var(--on-dark)}
+header.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-block:18px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:11px;text-decoration:none;font-family:var(--display);font-size:1.4rem;font-weight:500;letter-spacing:-.01em;color:#fff}
+.brand svg{width:30px;height:30px}
+.brand small{display:block;font:600 .58rem/1 var(--sans);letter-spacing:.3em;text-transform:uppercase;color:var(--brass);margin-top:5px}
+.top nav{display:flex;gap:22px;font-size:.84rem;flex-wrap:wrap}
+.top nav a{text-decoration:none;opacity:.88;border-bottom:1px solid transparent;padding-block:4px}
+.top nav a:hover{opacity:1;border-bottom-color:var(--brass)}
+.hero{padding-block:48px 26px}
+.hero .meta{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:14px;font-size:.86rem;color:var(--muted)}
+.sample-flag{display:inline-block;margin-top:16px;padding:6px 12px;border:1px solid var(--brass);background:var(--brass-tint);color:var(--brass-text);font-size:.74rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;border-radius:3px}
+/* tabs */
+.tabbar{position:sticky;top:0;z-index:20;background:var(--bg);border-block:1px solid var(--line)}
+.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:thin;padding-block:8px}
+.tab{flex:none;border:1px solid transparent;background:transparent;color:var(--muted);font:500 .86rem/1 var(--sans);padding:.8em 1.1em;border-radius:3px;cursor:pointer;white-space:nowrap}
+.tab:hover{color:var(--ink);border-color:var(--line)}
+.tab[aria-selected="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+:root[data-theme="dark"] .tab[aria-selected="true"]{background:var(--brass);color:#0B1A2E}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tab[aria-selected="true"]{background:var(--brass);color:#0B1A2E;border-color:var(--brass)}}
+.panel[hidden]{display:none}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-block:30px}
+.tile{background:var(--bg);padding:22px 20px;min-width:0}
+.tile .v{font-family:var(--display);font-size:clamp(1.6rem,3vw,2.2rem);font-weight:400;color:var(--ink);line-height:1.1;font-variant-numeric:lining-nums tabular-nums;margin-top:8px}
+.tile .d{margin-top:6px;font-size:.82rem;color:var(--muted)}
+.tile .d b{font-weight:600;color:var(--up)}
+.tile .d b.down{color:var(--down)}
+@media (max-width:760px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+section.blk{padding-block:32px;border-bottom:1px solid var(--line)}
+section.blk:last-child{border-bottom:0}
+.cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px;margin-top:18px}
+@media (max-width:760px){.cols{grid-template-columns:1fr}}
+.cols h3{margin-bottom:8px}
+.cols p{font-size:.92rem;color:var(--text)}
+.chart{margin-top:18px;max-width:760px}
+.chart svg{width:100%;height:auto;display:block;overflow:visible}
+.chart .cap{margin-top:8px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:3px;overflow:hidden;margin-top:14px}
+.seg button{border:0;background:transparent;font:500 .8rem/1 var(--sans);padding:.8em 1.1em;color:var(--muted);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--navy);color:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .seg button[aria-pressed="true"]{background:var(--brass);color:#0B1A2E}}
+.readout{margin-top:10px;font-size:.9rem;color:var(--muted);min-height:1.6em}
+.readout b{color:var(--ink);font-family:var(--display);font-weight:500;font-size:1.05rem}
+.pulse{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 28px;margin-top:18px;max-width:760px}
+@media (max-width:560px){.pulse{grid-template-columns:1fr}}
+.pulse div{padding:14px 16px;background:var(--bg-2);border-left:2px solid var(--brass)}
+.pulse .v{font-family:var(--display);font-size:1.4rem;color:var(--ink);font-variant-numeric:lining-nums tabular-nums}
+.cta{background:var(--brass-tint);padding:28px;max-width:760px;border-left:3px solid var(--brass)}
+.cta .btn{display:inline-block;margin-top:14px;font:600 .8rem/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;padding:1.05em 1.5em;background:var(--cta);color:#fff;text-decoration:none;border-radius:3px;border:0;cursor:pointer}
+.cta .btn:hover{background:var(--cta-hover)}
+.cta .ok{margin-top:12px;font-weight:500;color:var(--up)}
+.sources{font-size:.82rem;color:var(--muted)}
+.sources ol{padding-left:20px;margin:10px 0 0}
+.sources li{margin-bottom:6px}
+.others{display:flex;flex-wrap:wrap;gap:8px 10px;margin-top:14px}
+.others button{font:400 .82rem/1 var(--sans);padding:.7em 1em;border:1px solid var(--line);border-radius:3px;background:transparent;color:var(--text);cursor:pointer}
+.others button:hover{border-color:var(--brass)}
+.others button[aria-current]{background:var(--brass-tint);border-color:var(--brass);color:var(--brass-text)}
+/* overview */
+.grid-index{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;margin-top:22px}
+.card{border:1px solid var(--line);padding:20px;min-width:0;text-align:left;background:var(--bg);cursor:pointer;font:inherit;color:inherit;border-radius:3px;transition:border-color .2s,transform .2s}
+.card:hover{border-color:var(--brass);transform:translateY(-2px)}
+.card .v{font-family:var(--display);font-size:1.6rem;color:var(--ink);font-variant-numeric:lining-nums tabular-nums;margin-top:6px;display:block}
+.card h3{margin-top:4px}
+.card .spark{display:block;margin-top:10px;width:100%;height:32px}
+footer{padding-block:28px 44px;font-size:.8rem;color:var(--muted);border-top:1px solid var(--line);margin-top:20px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="demo-banner" role="note">Portfolio demo &middot; fictional brokerage, sample data. Built by Myles Parslow.</div>
+<header class="top"><div class="wrap">
+  <a class="brand" href="../site/index.html" aria-label="Northfield Realty, home"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M6 19 20 7l14 12" fill="none" stroke="#b8925a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 20v10h20V20" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round" opacity=".9"/></svg><span>Northfield<small>Realty</small></span></a>
+  <nav aria-label="Primary"><a href="../site/index.html">Home</a><a href="../site/tools/index.html">Calculators</a><a href="../site/blog/index.html">Blog</a><a href="#overview" data-go="overview">All neighborhood reports</a></nav>
+</div></header>
+
+<main>
+<div class="wrap">
+  <div class="hero">
+    <p class="label">Monthly market reports &middot; October 2026 edition</p>
+    <h1 style="margin-top:10px">Neighborhood market reports</h1>
+    <p class="read" style="margin-top:16px;color:var(--muted);font-size:1.08rem">A plain-English read on home sales in eight neighborhoods of the city. Pick a neighborhood below for headline numbers, a price and days-on-market trend, and what the data means for sellers, buyers and owners.</p>
+    <span class="sample-flag">Sample data &middot; every figure here is invented for this demo</span>
+  </div>
+</div>
+<div class="tabbar"><div class="wrap"><div class="tabs" role="tablist" aria-label="Neighborhood reports" id="tabs"></div></div></div>
+<div class="wrap" id="panels"></div>
+</main>
+
+<footer><div class="wrap">
+  <p>Northfield Realty &middot; fictional brokerage &middot; (555) 010-2040 &middot; hello@example.com</p>
+  <p style="margin-top:8px">All statistics on this page are invented sample data created for a portfolio demonstration. They do not describe any real market. A live report would cite closed-sale data from the local MLS and public sources. This is not a valuation of any property. Equal Housing Opportunity.</p>
+</div></footer>
+
+<script>
+(function(){
+  "use strict";
+  var MONTHS=["Oct","Nov","Dec","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep"];
+  var CITY={name:"The city",median:412000,dom:21,yoy:0.8};
+  var METRO={name:"Metro area",median:398000};
+  var H=[
+    {id:"elm-hollow",name:"Elm Hollow",area:"Central",median:468000,yoy:4.2,dom:16,sold:112,s2l:101.4,ppsf:286,seed:3,
+     blurb:"Walkable streets, early-century bungalows and a busy Foundry St corner keep Elm Hollow among the most requested neighborhoods in the city.",
+     watch:"Updated bungalows within a few blocks of the main street are drawing multiple offers in the first week. Homes needing work are taking longer and trading closer to list.",
+     around:"Corner cafes, a Saturday market, tree-lined side streets, a small library branch and a short walk to the rail platform.",
+     inv:"just under two months of supply"},
+    {id:"brookside",name:"Brookside",area:"Central",median:535000,yoy:-2.6,dom:19,sold:87,s2l:99.6,ppsf:301,seed:7,
+     blurb:"Brookside pairs generous lots with mature trees and a tree-lined greenway. Move-in-ready colonials are the steady core of the market.",
+     watch:"Prices have eased slightly from last fall's peak, which has brought more first-time move-up buyers back to showings. Well-staged homes still sell near list.",
+     around:"A tree-lined greenway, a neighborhood pool, two playgrounds and a small shopping row on Aspen Ln.",
+     inv:"about three months of supply"},
+    {id:"cedar-ridge",name:"Cedar Ridge",area:"Hillside",median:612000,yoy:6.1,dom:14,sold:64,s2l:102.2,ppsf:322,seed:11,
+     blurb:"Hillside lots with long views make Cedar Ridge the city's premium address for buyers who want space and quiet within a short drive of downtown.",
+     watch:"Limited inventory and strong demand for view lots are pushing sale prices above list on the best homes. Expect competitive offers on anything priced correctly.",
+     around:"Ridge-top overlooks, a nature preserve trailhead, a community garden and quiet cul-de-sacs.",
+     inv:"under two months of supply"},
+    {id:"highview",name:"Highview",area:"Outer ring",median:389000,yoy:1.9,dom:24,sold:141,s2l:99.1,ppsf:214,seed:5,
+     blurb:"Highview offers newer construction and roomy floor plans at a more approachable price point.",
+     watch:"Steady demand and a healthy number of new listings give buyers room to negotiate on terms. Sellers who price to recent sales are going under contract in about three weeks.",
+     around:"A large community park, a recreation center, new retail near the main road and several playgrounds.",
+     inv:"about three and a half months of supply"},
+    {id:"stonebridge",name:"Stonebridge",area:"Central",median:441000,yoy:-1.3,dom:22,sold:98,s2l:99.8,ppsf:259,seed:9,
+     blurb:"Brick townhomes around an old stone footbridge give Stonebridge its character and an appealing entry point for city buyers.",
+     watch:"Condition drives the spread here. Renovated rows move in under three weeks, while original-condition homes are seeing price reductions after the first month.",
+     around:"The namesake stone footbridge, a shaded walking path, a historic brick building converted to shops and a weekend food hall.",
+     inv:"about three months of supply"},
+    {id:"ashford-park",name:"Ashford Park",area:"Central",median:577000,yoy:3.3,dom:17,sold:73,s2l:100.7,ppsf:312,seed:13,
+     blurb:"Park-front Tudor and Craftsman homes make Ashford Park a favorite with buyers who want character and green space in the middle of the city.",
+     watch:"Homes facing the park attract the strongest interest and the highest price per square foot. Buyers are paying attention to updated kitchens and finished attics.",
+     around:"A 30-acre park with tennis courts, an outdoor stage for summer concerts, a dog run and a tidy shopping block on Sycamore Ave.",
+     inv:"about two months of supply"},
+    {id:"larkfield",name:"Larkfield",area:"Hillside",median:498000,yoy:5.0,dom:18,sold:81,s2l:100.9,ppsf:277,seed:2,
+     blurb:"Larkfield's mid-century ranch and split-level homes sit on sloping lots with big yards, and are being rediscovered by buyers who want single-floor living.",
+     watch:"Renovated ranches are the standout, often selling for several percent over list. Original-condition homes on larger lots are popular with builders and remodelers.",
+     around:"Open fields converted to a public park, a farmers market, walking loops and an independent bookshop on Larkspur Rd.",
+     inv:"about two and a half months of supply"},
+    {id:"willow-bend",name:"Willow Bend",area:"Outer ring",median:352000,yoy:-3.4,dom:27,sold:119,s2l:98.7,ppsf:201,seed:6,
+     blurb:"Willow Bend's curving streets and newer townhomes offer some of the city's most accessible entry prices, with a quiet suburban feel.",
+     watch:"A bump in new listings has slowed the pace slightly and nudged median prices down. Buyers have more choice, and sellers who prepare and price sharply still get strong results.",
+     around:"A winding wooded trail, a neighborhood green, a community center and easy access to the ring road.",
+     inv:"about four months of supply"}
+  ];
+  function rng(seed){var s=seed*9301+49297;return function(){s=(s*9301+49297)%233280;return s/233280}}
+  H.forEach(function(h,i){
+    var r=rng(h.seed),start=h.median/(1+h.yoy/100),p=[],d=[];
+    for(var m=0;m<12;m++){
+      var t=m/11,season=Math.sin((m+1)/12*Math.PI*2-1.2)*0.018;
+      p.push(Math.round((start+(h.median-start)*t)*(1+season+(r()-.5)*0.02)/500)*500);
+      d.push(Math.round(h.dom*(1.12-t*0.12)*(1-season*3.5)+(r()-.5)*2));
+    }
+    p[11]=h.median;d[11]=h.dom;h.p=p;h.d=d;
+    h.supply=(1.6+((h.dom-14)/13)*2.4).toFixed(1);
+  });
+  function $(s,r){return (r||document).querySelector(s)}
+  function money(n){return "$"+Math.round(n).toLocaleString("en-US")}
+  function pct(n){return (n>0?"+":"")+n.toFixed(1)+"%"}
+  function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+
+  /* --- charts --- */
+  function barChart(rows,fmt,label){
+    var W=720,rh=42,lw=150,mx=Math.max.apply(null,rows.map(function(r){return r.v})),h=rows.length*rh+4,s='<svg viewBox="0 0 '+W+' '+h+'" role="img" aria-label="'+esc(label)+'">';
+    rows.forEach(function(r,i){var y=4+i*rh,w=Math.max(4,(r.v/mx)*(W-lw-120));
+      s+='<text x="'+(lw-12)+'" y="'+(y+19)+'" text-anchor="end" font-size="14" fill="var(--text)" font-family="Inter,system-ui,sans-serif">'+esc(r.k)+'</text>'+
+         '<rect x="'+lw+'" y="'+y+'" width="'+w.toFixed(1)+'" height="28" rx="2" fill="'+(r.hl?'var(--brass)':'var(--bar-neutral)')+'"/>'+
+         '<text x="'+(lw+w+10).toFixed(1)+'" y="'+(y+19)+'" font-size="14" fill="var(--text)" font-family="Inter,system-ui,sans-serif" style="font-variant-numeric:tabular-nums">'+fmt(r.v)+'</text>'});
+    return s+'</svg>';
+  }
+  function lineChart(h,mode){
+    var data=mode==="p"?h.p:h.d,W=720,Hh=250,L=58,R=16,T=16,B=34,mn=Math.min.apply(null,data),mx=Math.max.apply(null,data),pad=(mx-mn)*0.25||1;
+    mn-=pad;mx+=pad;
+    function X(i){return L+i*(W-L-R)/11}
+    function Y(v){return T+(1-(v-mn)/(mx-mn))*(Hh-T-B)}
+    var s='<svg viewBox="0 0 '+W+' '+Hh+'" role="img" aria-label="'+(mode==="p"?"Median sale price":"Median days on market")+' by month for '+esc(h.name)+'">';
+    for(var g=0;g<4;g++){var v=mn+(mx-mn)*g/3,y=Y(v);
+      s+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y+'" y2="'+y+'" stroke="var(--line)"/><text x="'+(L-8)+'" y="'+(y+4)+'" text-anchor="end" font-size="11" fill="var(--muted)" font-family="Inter,system-ui,sans-serif">'+(mode==="p"?"$"+Math.round(v/1000)+"K":Math.round(v)+"d")+'</text>'}
+    var pts=data.map(function(v,i){return X(i).toFixed(1)+","+Y(v).toFixed(1)}).join(" ");
+    s+='<polygon points="'+X(0)+','+(Hh-B)+' '+pts+' '+X(11)+','+(Hh-B)+'" fill="var(--brass)" opacity=".14"/><polyline points="'+pts+'" fill="none" stroke="var(--brass)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>';
+    data.forEach(function(v,i){
+      s+='<text x="'+X(i)+'" y="'+(Hh-10)+'" text-anchor="middle" font-size="11" fill="var(--muted)" font-family="Inter,system-ui,sans-serif">'+MONTHS[i]+'</text>'+
+         '<circle class="pt" data-i="'+i+'" cx="'+X(i)+'" cy="'+Y(v)+'" r="'+(i===11?5:3.5)+'" fill="var(--bg)" stroke="var(--brass)" stroke-width="2" tabindex="0"><title>'+MONTHS[i]+': '+(mode==="p"?money(v):v+" days")+'</title></circle>'});
+    return s+'</svg>';
+  }
+  function spark(h){
+    var d=h.p,mn=Math.min.apply(null,d),mx=Math.max.apply(null,d),pts=d.map(function(v,i){return (i*100/11).toFixed(1)+","+(30-(v-mn)/(mx-mn||1)*26).toFixed(1)}).join(" ");
+    return '<svg class="spark" viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true"><polyline points="'+pts+'" fill="none" stroke="var(--brass)" stroke-width="1.8" vector-effect="non-scaling-stroke"/></svg>';
+  }
+
+  /* --- build --- */
+  var tabs=$("#tabs"),panels=$("#panels");
+  var tabDefs=[{id:"overview",name:"Overview"}].concat(H.map(function(h){return {id:h.id,name:h.name}}));
+  tabs.innerHTML=tabDefs.map(function(t){return '<button class="tab" role="tab" id="tab-'+t.id+'" aria-controls="p-'+t.id+'" aria-selected="false" tabindex="-1" data-id="'+t.id+'">'+t.name+'</button>'}).join("");
+
+  var ov='<div class="panel" role="tabpanel" id="p-overview" aria-labelledby="tab-overview" hidden>'+
+    '<section class="blk"><h2>Eight neighborhoods at a glance</h2><p class="read" style="margin-top:12px">The citywide median sale price is '+money(CITY.median)+', up '+CITY.yoy+'% year over year (sample data, September 2026). Select a card to open that neighborhood\'s full report.</p>'+
+    '<div class="grid-index">'+H.map(function(h){return '<button class="card" data-id="'+h.id+'" type="button"><span class="label">'+h.area+'</span><h3>'+h.name+'</h3><span class="v">'+money(h.median)+'</span><span class="small">median sale price, '+pct(h.yoy)+' vs. a year ago</span>'+spark(h)+'</button>'}).join("")+'</div></section>'+
+    '<section class="blk"><h2>Median sale price by neighborhood</h2><div class="chart" id="ovChart"></div><p class="cap small" style="margin-top:8px">Sample data. Trailing twelve months to September 2026. Brass bars are above the citywide median.</p></section>'+
+    '<section class="blk"><h2>Days on market by neighborhood</h2><div class="chart" id="ovDom"></div><p class="cap small" style="margin-top:8px">Sample data. Median days to contract; lower means a faster market.</p></section></div>';
+
+  function panel(h){
+    var others=H.filter(function(x){return x!==h});
+    var up=h.yoy>=0;
+    return '<div class="panel" role="tabpanel" id="p-'+h.id+'" aria-labelledby="tab-'+h.id+'" hidden>'+
+    '<section class="blk" style="padding-top:34px"><p class="label">Neighborhood market report &middot; October 2026</p><h2 style="font-size:clamp(1.9rem,4vw,2.8rem);font-weight:300;margin-top:8px">'+h.name+'</h2>'+
+    '<p class="read" style="margin-top:14px;color:var(--muted);font-size:1.06rem">'+h.blurb+'</p>'+
+    '<div class="small" style="margin-top:12px">'+h.area+' district &middot; Prepared by the Northfield team &middot; Sample data through September 2026</div>'+
+    '<div class="tiles" aria-label="Headline statistics">'+
+      '<div class="tile"><p class="label">Median sale price</p><p class="v">'+money(h.median)+'</p><p class="d"><b class="'+(up?"":"down")+'">'+pct(h.yoy)+'</b> vs. a year ago</p></div>'+
+      '<div class="tile"><p class="label">Days on market</p><p class="v">'+h.dom+'</p><p class="d">median days to contract</p></div>'+
+      '<div class="tile"><p class="label">Months of supply</p><p class="v">'+h.supply+'</p><p class="d">under 4 favors sellers</p></div>'+
+      '<div class="tile"><p class="label">Homes sold</p><p class="v">'+h.sold+'</p><p class="d">last 12 months</p></div></div></section>'+
+    '<section class="blk"><h2>Twelve-month trend</h2><div class="seg" role="group" aria-label="Chart metric"><button type="button" data-m="p" aria-pressed="true">Median price</button><button type="button" data-m="d" aria-pressed="false">Days on market</button></div>'+
+      '<div class="chart" data-line></div><p class="readout" aria-live="polite" data-readout>Hover or focus a point to see its value.</p><p class="small">Sample data, October 2025 to September 2026.</p></section>'+
+    '<section class="blk"><h2>How '+h.name+' compares</h2><div class="chart">'+barChart([{k:h.name,v:h.median,hl:1},{k:CITY.name,v:CITY.median},{k:METRO.name,v:METRO.median}],money,"Median sale price: "+h.name+" "+money(h.median)+", the city "+money(CITY.median)+", metro area "+money(METRO.median))+
+      '<p class="cap small">Median sale price (sample data). '+h.name+': trailing 12 months. City and metro: September 2026.</p></div></section>'+
+    '<section class="blk"><h2>What we are watching</h2><p class="read" style="margin-top:12px">'+h.watch+'</p><div class="cols">'+
+      '<div><h3>If you are thinking of selling</h3><p>The typical home went under contract in about '+h.dom+' days and closed at '+h.s2l.toFixed(1)+'% of list price. Homes that are move-in ready and priced to the last 90 days of closed sales are getting the best results.</p></div>'+
+      '<div><h3>If you are buying</h3><p>Inventory shows '+h.inv+'. Pre-approval and a clear must-have list let you move fast when the right home appears. Typical price per square foot is about $'+h.ppsf+'.</p></div>'+
+      '<div><h3>If you are staying put</h3><p>At '+money(h.median)+', the local median is '+(up?"up ":"down ")+Math.abs(h.yoy)+'% year over year. '+(up?"Rising values are good news for long-term owners.":"Values have held up through a higher-rate year, a good sign for long-term owners.")+' We are glad to run a no-obligation comparable-sales review.</p></div></div></section>'+
+    '<section class="blk"><h2>Citywide market pulse</h2><div class="pulse">'+
+      '<div><p class="label">City median sale price</p><p class="v">'+money(CITY.median)+'</p><p class="small">up '+CITY.yoy+'% year over year (sample)</p></div>'+
+      '<div><p class="label">City days on market</p><p class="v">'+CITY.dom+'</p><p class="small">median, sample figure</p></div>'+
+      '<div><p class="label">Active listings</p><p class="v">+12.4%</p><p class="small">vs. a year ago; new pending sales -6.1% (sample)</p></div>'+
+      '<div><p class="label">30-year mortgage rate</p><p class="v">6.50%</p><p class="small">illustrative rate, the same default used in the calculators</p></div></div>'+
+      '<p class="small read" style="margin-top:16px">Takeaway: more homes are available than a year ago and prices are steady, so both sides have room to negotiate on terms, not just price.</p></section>'+
+    '<section class="blk"><h2>Around the neighborhood</h2><p class="read" style="margin-top:12px">'+h.around+'</p></section>'+
+    '<section class="blk"><div class="cta"><h2>Curious what your home would sell for today?</h2><p style="margin-top:10px">We will pull the closed sales that matter for your street and walk you through them, no obligation.</p><button class="btn" type="button" data-cta>Request a home value review</button><p class="ok" data-ok role="status" hidden>Demo confirmation: a real site would send this request to a Northfield agent at (555) 010-2040.</p></div></section>'+
+    '<section class="blk sources"><p class="label">Sources and method</p><ol><li>All numbers in this report are invented sample data for a portfolio demo. They are not drawn from any real market, listing service or public dataset.</li><li>A live report would use closed sales from the local MLS for the stated period, with citywide context from public statistics and mortgage rates from a published weekly survey.</li><li>Neighborhood figures come from a small number of sales, so month-to-month swings are normal. Months of supply would be shown at the city level where it is not published per neighborhood.</li></ol>'+
+      '<p style="margin-top:14px">Other neighborhoods in this series:</p><div class="others">'+others.map(function(o){return '<button type="button" data-id="'+o.id+'">'+o.name+'</button>'}).join("")+'<button type="button" data-id="overview">Overview</button></div></section></div>';
+  }
+  panels.innerHTML=ov+H.map(panel).join("");
+  $("#ovChart").innerHTML=barChart(H.slice().sort(function(a,b){return b.median-a.median}).map(function(h){return {k:h.name,v:h.median,hl:h.median>CITY.median}}),money,"Median sale price by neighborhood");
+  $("#ovDom").innerHTML=barChart(H.slice().sort(function(a,b){return a.dom-b.dom}).map(function(h){return {k:h.name,v:h.dom,hl:h.dom<=CITY.dom}}),function(v){return v+" days"},"Median days on market by neighborhood");
+
+  /* line charts + metric toggle + readout */
+  H.forEach(function(h){
+    var p=$("#p-"+h.id),box=$("[data-line]",p),ro=$("[data-readout]",p),mode="p";
+    function draw(){
+      box.innerHTML=lineChart(h,mode);
+      Array.prototype.forEach.call(box.querySelectorAll(".pt"),function(c){
+        function show(){var i=+c.getAttribute("data-i"),v=(mode==="p"?h.p:h.d)[i];ro.innerHTML=MONTHS[i]+(i>2?" 2026":" 2025")+': <b>'+(mode==="p"?money(v):v+" days")+'</b> '+(mode==="p"?"median sale price":"median days on market");}
+        c.addEventListener("mouseenter",show);c.addEventListener("focus",show);
+      });
+    }
+    draw();
+    p.querySelectorAll(".seg button").forEach(function(b){b.addEventListener("click",function(){
+      mode=b.getAttribute("data-m");p.querySelectorAll(".seg button").forEach(function(x){x.setAttribute("aria-pressed",x===b?"true":"false")});
+      ro.textContent="Hover or focus a point to see its value.";draw();});});
+    var cta=$("[data-cta]",p),ok=$("[data-ok]",p);cta.addEventListener("click",function(){ok.hidden=false});
+  });
+
+  /* tab logic */
+  function show(id,push){
+    if(!document.getElementById("p-"+id))id="overview";
+    tabDefs.forEach(function(t){
+      var on=t.id===id,tb=document.getElementById("tab-"+t.id);
+      tb.setAttribute("aria-selected",on?"true":"false");tb.tabIndex=on?0:-1;
+      document.getElementById("p-"+t.id).hidden=!on;
+      if(on&&tb.scrollIntoView)try{tb.scrollIntoView({block:"nearest",inline:"center"})}catch(e){}
+    });
+    document.title=(id==="overview"?"Northfield Market Reports":H.filter(function(h){return h.id===id})[0].name+" Market Report");
+    if(push)try{history.replaceState(null,"","#"+id)}catch(e){}
+  }
+  document.addEventListener("click",function(e){
+    var b=e.target.closest("[data-id],[data-go]");if(!b)return;
+    var id=b.getAttribute("data-id")||b.getAttribute("data-go");
+    if(b.tagName==="A")e.preventDefault();
+    show(id,true);
+    var tb=document.querySelector(".tabbar");if(tb&&b.closest("#panels,header"))window.scrollTo({top:tb.offsetTop-4});
+  });
+  tabs.addEventListener("keydown",function(e){
+    var i=tabDefs.findIndex(function(t){return document.getElementById("tab-"+t.id).getAttribute("aria-selected")==="true"});
+    if(e.key==="ArrowRight")i=(i+1)%tabDefs.length;else if(e.key==="ArrowLeft")i=(i-1+tabDefs.length)%tabDefs.length;else return;
+    e.preventDefault();show(tabDefs[i].id,true);document.getElementById("tab-"+tabDefs[i].id).focus();
+  });
+  window.addEventListener("hashchange",function(){show(location.hash.slice(1),false)});
+  show(location.hash.slice(1)||"overview",false);
+})();
+</script>
+</body>
+</html>
