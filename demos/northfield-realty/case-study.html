@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Northfield Realty Case Study</title>
+<meta name="description" content="An anonymized case study: a three-layer AI consulting pitch for an independent boutique brokerage.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f5f0; --surface:#ffffff; --surface2:#eef1f4; --ink:#0f1e33; --muted:#52607a; --line:#d9dde4;
+  --navy:#12253f; --on-navy:#f4f1ea; --brass:#9a7326; --brass-soft:#f1e7cf; --teal:#0f766e; --teal-soft:#d9eeec;
+  --bad:#a1362b; --bad-soft:#f6dedb; --good:#1d6b43; --good-soft:#dcefe3;
+  --room-wall:#e4dccb; --room-floor:#b99668; --room-win:#bfd9e8;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0b1524; --surface:#122035; --surface2:#182941; --ink:#ecebe6; --muted:#9fb0c8; --line:#27395a;
+    --navy:#08111f; --on-navy:#f4f1ea; --brass:#d4a94f; --brass-soft:#2c2616; --teal:#4fc3b8; --teal-soft:#12302f;
+    --bad:#ef8a7d; --bad-soft:#3a1d1a; --good:#7fd1a0; --good-soft:#14301f;
+    --room-wall:#3a4559; --room-floor:#6b5236; --room-win:#2c4a63;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0b1524; --surface:#122035; --surface2:#182941; --ink:#ecebe6; --muted:#9fb0c8; --line:#27395a;
+  --navy:#08111f; --on-navy:#f4f1ea; --brass:#d4a94f; --brass-soft:#2c2616; --teal:#4fc3b8; --teal-soft:#12302f;
+  --bad:#ef8a7d; --bad-soft:#3a1d1a; --good:#7fd1a0; --good-soft:#14301f;
+  --room-wall:#3a4559; --room-floor:#6b5236; --room-win:#2c4a63;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.65 Inter,system-ui,sans-serif;overflow-x:hidden}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;font-weight:600;line-height:1.15;margin:0;letter-spacing:-.01em}
+p{margin:0 0 1em}
+.wrap{max-width:1040px;margin:0 auto;padding:0 16px}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass);font-weight:600;margin-bottom:12px}
+section{padding:64px 0;border-top:1px solid var(--line)}
+section h2{font-size:clamp(28px,4.5vw,40px);margin-bottom:16px;max-width:20ch}
+.lead{font-size:19px;color:var(--muted);max-width:62ch}
+.notice{background:var(--brass-soft);color:var(--ink);border-left:3px solid var(--brass);padding:12px 16px;font-size:14px;border-radius:0 8px 8px 0}
+header.hero{background:var(--navy);color:var(--on-navy);padding:56px 0 64px}
+header.hero .eyebrow{color:#d9b866}
+header.hero h1{font-size:clamp(36px,7vw,68px);max-width:16ch;margin-bottom:20px}
+header.hero p.sub{font-size:20px;max-width:56ch;color:#cfd6e2}
+header.hero .notice{background:rgba(255,255,255,.08);color:#e6e9ef;border-color:#d9b866;margin-bottom:40px}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:20px;margin-top:40px;padding-top:24px;border-top:1px solid rgba(255,255,255,.18)}
+.meta b{display:block;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#d9b866;font-weight:600;margin-bottom:4px}
+.meta span{font-size:15px}
+.grid{display:grid;gap:16px;margin-top:32px}
+.g3{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:24px}
+.card h3{font-size:22px;margin-bottom:8px}
+.card .n{font-family:Fraunces,serif;font-size:36px;color:var(--brass);line-height:1}
+.card ul{padding-left:18px;margin:12px 0 0;color:var(--muted);font-size:15px}
+.tag{display:inline-block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;padding:3px 9px;border-radius:99px;background:var(--teal-soft);color:var(--teal);margin-top:14px}
+.split{display:grid;gap:32px;grid-template-columns:1fr;align-items:start;margin-top:32px}
+@media(min-width:820px){.split{grid-template-columns:1fr 1fr}}
+.mock{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:0 8px 28px rgba(10,20,40,.08);min-width:0}
+.mock .cap{font-size:12px;color:var(--muted);margin-top:14px;text-align:center}
+/* chat */
+.chat{display:flex;flex-direction:column;gap:8px;font-size:14.5px;line-height:1.45}
+.b{max-width:84%;padding:9px 13px;border-radius:16px}
+.b.in{background:var(--surface2);align-self:flex-start;border-bottom-left-radius:4px}
+.b.out{background:var(--navy);color:var(--on-navy);align-self:flex-end;border-bottom-right-radius:4px}
+.stamp{font-size:11px;color:var(--muted);text-align:center;margin:4px 0}
+.chip{align-self:center;font-size:12px;background:var(--teal-soft);color:var(--teal);padding:5px 12px;border-radius:99px;font-weight:600;text-align:center}
+/* timeline */
+.tl{list-style:none;margin:0;padding:0 0 0 22px;border-left:2px solid var(--line)}
+.tl li{position:relative;padding:0 0 18px 16px;font-size:14.5px}
+.tl li:last-child{padding-bottom:0}
+.tl li::before{content:"";position:absolute;left:-30px;top:4px;width:12px;height:12px;border-radius:50%;background:var(--brass);border:2px solid var(--surface)}
+.tl b{display:block;font-size:13px;color:var(--brass);letter-spacing:.04em}
+.tl small{color:var(--muted)}
+/* staging */
+.rooms{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:560px){.rooms{grid-template-columns:1fr}}
+.rooms figure{margin:0}
+.rooms svg{width:100%;height:auto;display:block;border-radius:10px;border:1px solid var(--line)}
+.rooms figcaption{font-size:12px;text-align:center;color:var(--muted);margin-top:6px}
+/* launch kit */
+.out-card{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:var(--surface2);font-size:14px}
+.out-card h4{margin:0 0 4px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--brass)}
+.out-card p{margin:0;color:var(--ink)}
+.ok{display:inline-block;font-size:11px;font-weight:600;color:var(--good);background:var(--good-soft);padding:2px 8px;border-radius:99px;margin-top:6px}
+/* hub */
+.hub{display:grid;gap:10px;grid-template-columns:repeat(3,1fr)}
+.tile{background:var(--surface2);border-radius:10px;padding:12px}
+.tile small{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+.tile strong{font-family:Fraunces,serif;font-size:26px}
+.queue{grid-column:1/-1;background:var(--surface2);border-radius:10px;padding:12px;font-size:13.5px}
+.queue div{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
+.queue div:last-child{border:0}
+.btn{font-size:11px;font-weight:600;background:var(--teal);color:#fff;border-radius:6px;padding:4px 10px;white-space:nowrap}
+:root[data-theme="dark"] .btn{color:#06201e}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn{color:#06201e}}
+.apps{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.apps span{font-size:11px;padding:4px 9px;border-radius:99px;border:1px solid var(--line);color:var(--muted)}
+.apps span:first-child{background:var(--navy);color:var(--on-navy);border-color:var(--navy)}
+/* health */
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:480px){.ba{grid-template-columns:1fr}}
+.ba>div{border-radius:10px;padding:14px;font-size:14px}
+.ba .before{background:var(--bad-soft)}
+.ba .after{background:var(--good-soft)}
+.ba h4{margin:0 0 8px;font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+.ba .before h4{color:var(--bad)}.ba .after h4{color:var(--good)}
+.ba ul{margin:0;padding-left:18px}
+.ba li{margin-bottom:4px}
+/* deliverables */
+.dl{counter-reset:d}
+.dl .card{padding:18px 20px}
+.dl .card h3{font-size:18px}
+.dl .card p{font-size:14.5px;color:var(--muted);margin:0}
+.principles{display:grid;gap:0;margin-top:28px}
+.principles div{display:grid;grid-template-columns:44px 1fr;gap:12px;padding:18px 0;border-top:1px solid var(--line)}
+.principles div:last-child{border-bottom:1px solid var(--line)}
+.principles .k{font-family:Fraunces,serif;color:var(--brass);font-size:24px}
+.principles b{display:block;margin-bottom:2px}
+.principles span{color:var(--muted);font-size:15.5px}
+footer{background:var(--navy);color:#b9c3d4;padding:28px 0;font-size:14px}
+footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+@media (max-width:560px){.hub{grid-template-columns:repeat(2,1fr)}}
+.demo-link{color:var(--brass);font-weight:600;text-decoration:none;border-bottom:1px solid currentColor}.demo-link:hover,.demo-link:focus-visible{color:var(--ink)}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="notice">Client details, names, photos and figures have been changed. Demo tools shown with sample data.</div>
+    <div class="eyebrow">Case study / AI consulting</div>
+    <h1>Respect what they built. Add what they're missing.</h1>
+    <p class="sub">A three-layer pitch for Northfield Realty, an independent boutique brokerage: an upgraded site, an optional redesign and an AI toolkit, all built and demoed in a weekend.</p>
+    <div class="meta">
+      <div><b>Role</b><span>Strategy, design, build</span></div>
+      <div><b>Timeframe</b><span>One weekend</span></div>
+      <div><b>Built with</b><span>Claude and Gemini</span></div>
+      <div><b>Result</b><span>Complete, working pitch</span></div>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">The challenge</div>
+    <h2>A great firm with a dated site that was quietly compromised</h2>
+    <p class="lead">Northfield is an independent boutique brokerage with a seasoned team of agents, a long track record and top ratings across its public reviews. Its reputation was stronger than its web presence.</p>
+    <div class="grid g3">
+      <div class="card"><h3>The site</h3><p>Dated design, a broken savings calculator, typos and dead links, with only a handful of testimonials shown against a long list of public reviews.</p></div>
+      <div class="card"><h3>The hidden problem</h3><p>While rebuilding the site, I found and fixed an SEO spam injection: hidden links injected into several pages, a poisoned robots.txt, and an outdated CMS. Found from public pages only, no scanning.</p></div>
+      <div class="card"><h3>The risk of pitching</h3><p>A team proud of its work does not want to be told to start over. An overhaul pitch would have been the wrong tone and the wrong plan.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">Approach</div>
+    <h2>Three layers, each optional and standalone</h2>
+    <p class="lead">Nothing depends on anything else. The firm can take one layer, all three, or none, and never has to rebuild what already works.</p>
+    <div class="grid g3">
+      <div class="card"><div class="n">1</div><h3>Current site, upgraded</h3>
+        <p>A pixel-faithful rebuild of every page of the existing site, with the problems fixed underneath.</p>
+        <ul><li>Spam removed, calculator fixed, typos and dead links cleaned up</li><li>Contact form kept on the firm's own domain, photos stored locally</li><li>Ready to switch on: a large local-guides blog built for Google and AI search (schema markup, llms.txt, sitemap)</li><li>Seller-net, payment and affordability calculators that capture leads</li><li>Listing alerts and a testimonials page expanded to every public review</li></ul>
+        <span class="tag">Fix and extend</span></div>
+      <div class="card"><div class="n">2</div><h3>Optional redesign</h3>
+        <p>A modern, photo-first brokerage site in the client's own brand.</p>
+        <ul><li>Static, no WordPress, a much smaller attack surface</li><li>Listing search on the firm's own domain, not a vendor's</li><li>Neighborhood guides, featured and sold listings, team and reviews</li><li>Valuation form, plus a go-live and IDX plan</li></ul>
+        <span class="tag">Only if wanted</span>
+        <p style="margin-top:14px"><a class="demo-link" href="./">Open the redesign demo &rarr;</a></p></div>
+      <div class="card"><div class="n">3</div><h3>AI toolkit</h3>
+        <p>Back-office tools, separate from the site. Every output is fair-housing checked and nothing goes out without approval.</p>
+        <ul><li>Lead responder, review engine, listing launch kit</li><li>Virtual staging, vertical video ads, social engine</li><li>Past-client nurture and monthly market reports</li><li>A Team Hub that ties it together</li></ul>
+        <span class="tag">Standalone</span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">Highlight / Lead responder</div>
+    <h2>Answered in under a minute, at any hour</h2>
+    <div class="split">
+      <div>
+        <p class="lead">A 24/7 responder replies by text and email, asks the right qualifying questions and books a showing straight onto the agent's calendar. Replies pass a fair-housing check, and agents see the whole thread.</p>
+        <p>Speed is the whole point. Most inquiries arrive evenings and weekends, when a small team is busiest or offline.</p>
+      </div>
+      <div class="mock">
+        <div class="chat">
+          <div class="stamp">Sat 9:42 PM / new inquiry from the website</div>
+          <div class="b in">Hi, is the 3 bed on Linden Ct still available? We'd love to see it this week.</div>
+          <div class="b out">Hi Jordan, thanks for reaching out to Northfield. It is available. Are you pre-approved, or still planning your budget?</div>
+          <div class="b in">Pre-approved. We have a lease ending in March.</div>
+          <div class="b out">Helpful, thank you. Dana Reyes can show it Tuesday at 5:30 or Wednesday at 12:15. Which suits you?</div>
+          <div class="b in">Tuesday!</div>
+          <div class="chip">Booked on Dana's calendar / reply time 40 seconds</div>
+        </div>
+        <div class="cap">Sample conversation, sample data</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">Highlight / Review engine</div>
+    <h2>Reviews earned on a schedule, never gated</h2>
+    <div class="split">
+      <div class="mock">
+        <ul class="tl">
+          <li><b>DAY 0 / TEXT</b>Congratulations on closing. Short, warm, no ask. <small>Sent by approval</small></li>
+          <li><b>DAY 2 / EMAIL</b>The review request, with every review link shown.</li>
+          <li><b>DAY 7 / REMINDER</b>Only sent if the first email was never opened.</li>
+          <li><b>DAY 30 / EMAIL</b>Something useful: home-care tips and local resources.</li>
+          <li><b>1 YEAR / ANNIVERSARY</b>A note on the home's anniversary and current value.</li>
+        </ul>
+        <div class="cap">Post-closing sequence, sample timing</div>
+      </div>
+      <div>
+        <p class="lead">A firm with top ratings should be easy to find, and its happiest clients should be easy to hear from.</p>
+        <p>Everyone receives every review link, whatever their experience. There is no review gating, which keeps the ratings honest and the firm on the right side of platform rules.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">Highlight / Virtual staging</div>
+    <h2>From mid-move clutter to market-ready</h2>
+    <p class="lead">The tool empties a lived-in room, then stages it. Walls, floors and windows stay untouched, and each image comes with MLS disclosure copy. The whole demo cost pennies in image generation.</p>
+    <div class="mock" style="margin-top:28px">
+      <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+        <defs>
+          <g id="shell">
+            <rect width="300" height="200" style="fill:var(--room-wall)"/>
+            <rect y="140" width="300" height="60" style="fill:var(--room-floor)"/>
+            <rect x="200" y="30" width="70" height="70" style="fill:var(--room-win)" stroke="#8a8f99" stroke-width="3"/>
+            <path d="M235 30v70M200 65h70" stroke="#8a8f99" stroke-width="2"/>
+            <path d="M0 140h300" stroke="rgba(0,0,0,.18)" stroke-width="2"/>
+          </g>
+        </defs>
+      </svg>
+      <div class="rooms">
+        <figure>
+          <svg viewBox="0 0 300 200" role="img" aria-label="Illustration of a cluttered room with boxes, a lamp and a chair">
+            <use href="#shell"/>
+            <rect x="20" y="108" width="62" height="52" fill="#b98a4e"/><path d="M20 124h62" stroke="#8a6232" stroke-width="2"/>
+            <rect x="70" y="122" width="48" height="38" fill="#c79a5e"/>
+            <rect x="30" y="80" width="44" height="30" fill="#a97b40"/>
+            <rect x="130" y="112" width="50" height="36" rx="6" fill="#6f7d95"/><rect x="134" y="146" width="6" height="14" fill="#444"/><rect x="170" y="146" width="6" height="14" fill="#444"/>
+            <path d="M150 60l14 30h-28z" fill="#e6c97a"/><rect x="149" y="90" width="3" height="40" fill="#555"/>
+            <path d="M205 150q20-18 45 0z" fill="#c8504a"/><rect x="215" y="156" width="40" height="8" fill="#e8e0d0" transform="rotate(-8 235 160)"/>
+          </svg>
+          <figcaption>1. Mid-move, as photographed</figcaption>
+        </figure>
+        <figure>
+          <svg viewBox="0 0 300 200" role="img" aria-label="Illustration of the same room, empty">
+            <use href="#shell"/>
+          </svg>
+          <figcaption>2. Emptied, structure untouched</figcaption>
+        </figure>
+        <figure>
+          <svg viewBox="0 0 300 200" role="img" aria-label="Illustration of the same room staged with a sofa, rug, art and plant">
+            <use href="#shell"/>
+            <ellipse cx="130" cy="172" rx="95" ry="14" fill="#2f6f73" opacity=".85"/>
+            <rect x="60" y="112" width="150" height="40" rx="10" fill="#1f3556"/><rect x="66" y="92" width="138" height="30" rx="10" fill="#27426a"/>
+            <rect x="72" y="150" width="8" height="10" fill="#222"/><rect x="190" y="150" width="8" height="10" fill="#222"/>
+            <rect x="96" y="50" width="70" height="40" fill="#f4f1ea" stroke="#9a7326" stroke-width="3"/><circle cx="118" cy="68" r="10" fill="#0f766e"/><path d="M130 82q14-24 30-6z" fill="#d4a94f"/>
+            <rect x="30" y="118" width="14" height="30" fill="#8a5a33"/><path d="M37 118c-18-10-14-30 0-34 14 4 18 24 0 34z" fill="#3d8b5a"/>
+            <rect x="230" y="140" width="40" height="22" fill="#e8e0d0"/>
+          </svg>
+          <figcaption>3. Staged, with disclosure copy</figcaption>
+        </figure>
+      </div>
+      <div class="cap">Inline illustrations standing in for sample before, during and after images</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">Highlight / Listing launch kit</div>
+    <h2>One listing in, a full campaign out</h2>
+    <div class="split">
+      <div>
+        <p class="lead">Enter the listing once. The kit produces MLS remarks, headlines, social posts, emails, open-house invites and postcard copy, all in the firm's voice.</p>
+        <p>It runs alongside vertical video ads for TikTok, Reels and Facebook generated from the listing's photos, and a social content engine that turns a week of posts for the firm and each agent into about twenty minutes of review.</p>
+      </div>
+      <div class="mock">
+        <div class="out-card"><h4>MLS remarks</h4><p>Sun-filled three-bedroom a short walk from the park, with a renovated kitchen and a quiet back garden.</p><span class="ok">Fair-housing check passed</span></div>
+        <div class="out-card"><h4>Social post</h4><p>Just listed: light, space and a garden worth lingering in. Open house Sunday 1 to 3.</p><span class="ok">Fair-housing check passed</span></div>
+        <div class="out-card"><h4>Open-house invite / email</h4><p>You're invited. Come see the Linden Ct three-bedroom this Sunday afternoon.</p><span class="ok">Awaiting approval</span></div>
+        <div class="cap">Sample listing, sample copy</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">Highlight / Team Hub</div>
+    <h2>One dashboard, every tool inside it</h2>
+    <div class="split">
+      <div class="mock">
+        <div class="apps"><span>Hub</span><span>Responder</span><span>Reviews</span><span>Launch kit</span><span>Staging</span></div>
+        <div class="hub">
+          <div class="tile"><small>New leads</small><strong>7</strong></div>
+          <div class="tile"><small>To approve</small><strong>4</strong></div>
+          <div class="tile"><small>Reviews out</small><strong>12</strong></div>
+          <div class="queue">
+            <div><span>Open-house invite, Linden Ct 3BR</span><span class="btn">Approve</span></div>
+            <div><span>Week of posts, Sam Whitfield</span><span class="btn">Review</span></div>
+            <div><span>Anniversary note, 1-year client</span><span class="btn">Approve</span></div>
+          </div>
+        </div>
+        <div class="cap">Sample tiles, sample data</div>
+      </div>
+      <div>
+        <p class="lead">Agents open every tool inside the app, with no new tabs and no logins to remember. They see new leads and approve anything going out under the firm's name.</p>
+        <p>The Hub is what makes eight tools feel like one product, and what keeps a person in charge of every message.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">Highlight / Site health</div>
+    <h2>Fixed underneath, unchanged on top</h2>
+    <div class="split">
+      <div>
+        <p class="lead">The upgraded site looks exactly like the one the firm built. What changed is everything visitors, search engines and attackers see underneath.</p>
+        <p>The redesign layer goes further: static pages and no WordPress mean there is far less to attack in the first place.</p>
+      </div>
+      <div class="mock">
+        <div class="ba">
+          <div class="before"><h4>Before</h4><ul><li>Hidden spam links on several pages</li><li>Poisoned robots.txt</li><li>Outdated CMS</li><li>Broken savings calculator</li><li>Typos and dead links</li></ul></div>
+          <div class="after"><h4>After</h4><ul><li>Spam removed</li><li>Clean robots.txt and sitemap</li><li>Schema markup and llms.txt</li><li>Working calculators that capture leads</li><li>Contact form on the firm's domain</li></ul></div>
+        </div>
+        <div class="cap">Findings came from public pages only</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">Deliverables</div>
+    <h2>Everything needed to say yes, or no, with confidence</h2>
+    <div class="grid g3 dl">
+      <div class="card"><h3>10-slide pitch deck</h3><p>The story in one sitting.</p></div>
+      <div class="card"><h3>Long-form growth plan</h3><p>The full plan, presented with an estimated market value of services.</p></div>
+      <div class="card"><h3>Security findings page</h3><p>Plain-language findings and fixes.</p></div>
+      <div class="card"><h3>Upgraded-site clone</h3><p>Every page, pixel-faithful, fixed underneath.</p></div>
+      <div class="card"><h3>Redesign demo</h3><p>A photo-first, static alternative in the firm's brand. <a class="demo-link" href="./">Open it &rarr;</a></p></div>
+      <div class="card"><h3>Blog and tools preview</h3><p>Local guides and lead-capturing calculators.</p></div>
+      <div class="card"><h3>Eight working tool demos</h3><p>Each running on sample data.</p></div>
+      <div class="card"><h3>Team Hub</h3><p>One internal dashboard for tools, leads and approvals.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">Process and principles</div>
+    <h2>How it was made, and the rules it followed</h2>
+    <p class="lead">Built with Claude and Gemini (for image generation) in about a weekend, starting from research rather than from a template.</p>
+    <div class="principles">
+      <div><span class="k">1</span><p style="margin:0"><b>Research dossier first</b><span>Public information on the firm, its market and its competitors came before any design or code.</span></p></div>
+      <div><span class="k">2</span><p style="margin:0"><b>Listen, then change course</b><span>Feedback from someone close to the client said the existing site lands well. The pitch shifted from overhaul to targeted additions.</span></p></div>
+      <div><span class="k">3</span><p style="margin:0"><b>Copy rules</b><span>No promises the consultant can't make, no AI slop, never describe the firm as small, and keep the client's existing branding.</span></p></div>
+      <div><span class="k">4</span><p style="margin:0"><b>Approval gates everywhere</b><span>Every AI tool is fair-housing checked, and nothing goes out without a person approving it.</span></p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">Outcome and what's next</div>
+    <h2>Pitch built and ready to present</h2>
+    <p class="lead">The complete package is built and ready to walk through. No results are claimed, because the work is still a proposal. The next step is for the firm to choose which layers, if any, to switch on.</p>
+    <p class="lead">What this project shows: a weekend is enough to turn a respectful, specific pitch into working software the client can click through.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap"><span>Case study by <a href="../../#northfield" style="color:inherit">Myles Parslow</a></span><span>Client details, names, photos and figures have been changed.</span></div>
+</footer>
+</body>
+</html>

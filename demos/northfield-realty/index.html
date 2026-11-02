@@ -1,0 +1,1200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Northfield Realty Demo</title>
+<meta name="description" content="A fictional boutique brokerage website with sample data. Portfolio demo by Myles Parslow.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Inter:wght@300;400;500;600&display=swap">
+<style>
+/* Layout: a clean page with soft alternate bands and deep navy hero/footer; wide gutters, thin rules, one warm brass accent. */
+/* ============================================================
+   BRAND TOKENS: swap here.
+   ============================================================ */
+:root{
+  --brand-green:#B8925A;     /* brass accent: rules, stars, details */
+  --brand-cta:#8F6B33;       /* button / CTA brass (AA with white text) */
+  --brand-cta-hover:#765626; /* darker brass for hover */
+  --brand-green-text:#7A5A27;/* brass deepened for small text (AA on white) */
+  --brand-green-tint:#F7F1E6;/* pale brass fill */
+  --brand-charcoal:#12263F;  /* deep navy: dark bands */
+  --brand-charcoal-2:#0B1A2E;/* darker navy for the hero */
+  --brand-black:#000000;
+  --brand-gray-1:#55606E;    /* secondary text */
+  --brand-gray-2:#6B7683;
+  --brand-gray-3:#7D8794;
+  --brand-sold:#A8322A;      /* status: sold */
+  --brand-pending:#C9C2B6;   /* status: pending */
+  --font-display:"Fraunces", Georgia, "Times New Roman", serif;
+  --font-sans:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --ivory:#FFFFFF;
+  --ivory-2:#F4F2EE;
+  --paper:#FFFFFF;
+  --ink:var(--brand-charcoal);
+  --ink-2:var(--brand-charcoal-2);
+  --text:#14202E;
+  --muted:var(--brand-gray-1);
+  --line:#E3E0DA;
+  --line-dark:#2C4260;
+  --green:var(--brand-cta);
+  --green-2:var(--brand-cta-hover);
+  --green-text:var(--brand-green-text);
+  --green-tint:var(--brand-green-tint);
+  --brass:var(--brand-green);
+  --sold:var(--brand-sold);
+  --on-dark:#FFFFFF;
+  --on-dark-muted:#BAC5D3;
+  --wrap:1240px;
+  --r:3px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
+body{margin:0;background:var(--ivory);color:var(--text);font-family:var(--font-sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:40;background:var(--ink)}
+img,svg{max-width:100%}
+p{margin:0}
+a{color:inherit}
+ul{margin:0;padding:0;list-style:none}
+button{font:inherit;color:inherit;cursor:pointer}
+input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--brand-green);outline-offset:3px}
+.site-header .btn.primary{background:var(--green);border-color:var(--green);color:var(--on-dark)}
+.site-header .btn.primary:hover{background:var(--green-2);border-color:var(--green-2)}
+
+.wrap{max-width:var(--wrap);margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+@media (min-width:760px){.wrap{padding-left:max(40px,env(safe-area-inset-left,0px));padding-right:max(40px,env(safe-area-inset-right,0px))}}
+
+h1,h2,h3,h4,.brand-name,.price,.trust strong,.snapshot strong,.est-out strong,.rating b,.quote blockquote,.pull{font-variant-numeric:lining-nums}
+h1,h2,h3,h4{font-family:var(--font-display);font-weight:400;line-height:1.12;margin:0;text-wrap:balance;letter-spacing:-.02em;color:var(--ink)}
+h1{font-size:clamp(2.3rem,4.8vw,4rem);font-weight:300;line-height:1.06;letter-spacing:-.025em}
+h2{font-size:clamp(1.7rem,3vw,2.5rem);font-weight:300}
+h3{font-size:1.3rem;font-weight:500;letter-spacing:-.01em}
+.sec-head h2{position:relative;padding-bottom:16px}
+.sec-head h2::after{content:"";position:absolute;left:0;bottom:0;width:44px;height:3px;background:var(--brand-green)}
+.on-dark h1,.on-dark h2,.on-dark h3{color:var(--on-dark)}
+.label{font-family:var(--font-sans);font-size:.72rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--green-text)}
+.on-dark .label{color:var(--brass)}
+.lede{font-size:1.1rem;line-height:1.65;color:var(--muted);max-width:60ch}
+.on-dark .lede{color:var(--on-dark-muted)}
+.sec-head{display:grid;gap:14px;margin-bottom:clamp(32px,4vw,52px)}
+.sec-head.row{grid-template-columns:1fr auto;align-items:end}
+.sec-head.row .lede{grid-column:1}
+@media (max-width:700px){.sec-head.row{grid-template-columns:1fr}}
+.small{font-size:.86rem;color:var(--muted)}
+.on-dark .small{color:var(--on-dark-muted)}
+section{padding-block:clamp(64px,8vw,112px)}
+section[id],footer[id]{scroll-margin-top:72px}
+.band-alt{background:var(--ivory-2)}
+.on-dark{background:var(--ink);color:var(--on-dark)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.6em;font:600 .86rem/1 var(--font-sans);letter-spacing:.08em;text-transform:uppercase;padding:1.05em 1.6em;border-radius:var(--r);border:1px solid var(--ink);color:var(--ink);background:transparent;text-decoration:none;cursor:pointer;transition:background .25s,color .25s,border-color .25s,transform .25s;white-space:nowrap}
+.btn:hover{background:var(--ink);color:var(--on-dark)}
+.btn.primary{background:var(--green);border-color:var(--green);color:var(--on-dark)}
+.btn.primary:hover{background:var(--green-2);border-color:var(--green-2);color:var(--on-dark)}
+.on-dark .btn{border-color:var(--on-dark);color:var(--on-dark)}
+.on-dark .btn:hover{background:var(--on-dark);color:var(--ink)}
+.on-dark .btn.primary{background:var(--green);border-color:var(--green);color:var(--on-dark)}
+.on-dark .btn.primary:hover{background:var(--green-2);border-color:var(--green-2);color:var(--on-dark)}
+.textlink{font-weight:600;font-size:.86rem;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;color:var(--green-text);border-bottom:1px solid currentColor;padding-bottom:3px;white-space:nowrap}
+.textlink:hover{color:var(--ink)}
+.on-dark .textlink{color:var(--on-dark)}
+.on-dark .textlink:hover{color:var(--brand-green)}
+
+/* Illustration slots: CSS gradient plus an inline SVG scene */
+.photo{position:relative;overflow:hidden;max-width:100%;background-color:var(--ph,#8B8478);
+  background-image:
+    radial-gradient(120% 90% at 20% 0%,rgba(255,255,255,.22),rgba(255,255,255,0) 55%),
+    linear-gradient(165deg,rgba(255,255,255,.08),rgba(0,0,0,0) 40%,rgba(0,0,0,.28)),
+    repeating-linear-gradient(180deg,rgba(255,255,255,0) 0 27px,rgba(255,255,255,.06) 27px 28px);
+  background-size:cover;background-position:center}
+.photo[data-photo]::after{content:attr(data-photo);position:absolute;left:14px;bottom:12px;font:500 .66rem/1 var(--font-sans);letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55)}
+.tone-stone{--ph:#7C8794}.tone-slate{--ph:#4C6580}.tone-sage{--ph:#5C7C86}.tone-dusk{--ph:#2F4A6E}.tone-clay{--ph:#A27F56}.tone-moss{--ph:#3A5A6E}.tone-sand{--ph:#B49A72}
+
+/* Header */
+.site-header{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--ink);color:var(--on-dark);border-bottom:1px solid var(--line-dark);transition:box-shadow .3s}
+.site-header.scrolled{box-shadow:0 8px 30px -18px rgba(0,0,0,.25)}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:24px;height:78px}
+.brand{text-decoration:none;display:flex;flex-direction:row;align-items:center;gap:11px;line-height:1;color:var(--on-dark)}
+.brand-name{font-family:var(--font-display);font-size:1.45rem;font-weight:500;letter-spacing:-.01em;color:var(--on-dark)}
+.brand-sub{display:block;font-size:.6rem;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:var(--brand-green);margin-top:5px}
+.nav-links{display:flex;gap:clamp(16px,1.6vw,28px)}
+.nav-links a{white-space:nowrap;text-decoration:none;font-size:.86rem;font-weight:500;letter-spacing:.04em;color:var(--on-dark);padding-block:6px;border-bottom:1px solid transparent;transition:border-color .2s}
+.nav-links a:hover{border-bottom-color:var(--brand-green)}
+.nav-right{display:flex;align-items:center;gap:22px}
+.nav-phone{font-size:.92rem;font-weight:500;letter-spacing:.04em;text-decoration:none;color:var(--on-dark);font-variant-numeric:lining-nums tabular-nums}
+.nav .btn{padding:.9em 1.3em;font-size:.78rem}
+.menu-btn{display:none;width:44px;height:44px;border:1px solid var(--line-dark);color:var(--on-dark);background:transparent;border-radius:var(--r);align-items:center;justify-content:center}
+.menu-btn svg{width:22px;height:22px}
+.menu-btn .x{display:none}
+.menu-btn[aria-expanded="true"] .bars{display:none}
+.menu-btn[aria-expanded="true"] .x{display:block}
+@media (max-width:1180px){.nav-links{display:none}.menu-btn{display:inline-flex}}
+@media (max-width:640px){.nav-phone{display:none}.nav .btn{display:none}.nav{height:68px}}
+.mobile-menu{display:none;border-top:1px solid var(--line-dark);background:var(--ink);color:var(--on-dark)}
+.mobile-menu.open{display:block}
+.mobile-menu ul{display:grid;padding-block:10px}
+.mobile-menu a{display:block;padding:14px 0;font-family:var(--font-display);font-size:1.25rem;font-weight:400;text-decoration:none;color:var(--on-dark);border-bottom:1px solid var(--line-dark)}
+.mobile-menu li:last-child a{border-bottom:0}
+.mobile-menu .mm-foot{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;padding:10px 0 24px}
+.mobile-menu .mm-foot .nav-phone,.mobile-menu .mm-foot .btn{display:inline-flex}
+
+/* Hero */
+.hero{position:relative;padding-block:clamp(72px,10vw,140px) clamp(56px,7vw,96px);background:linear-gradient(135deg,#0B1A2E 0%,#12304F 55%,#1B4068 100%);overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;background:
+  linear-gradient(90deg,rgba(11,26,46,.92) 0%,rgba(11,26,46,.8) 48%,rgba(11,26,46,.3) 100%),
+  linear-gradient(180deg,rgba(11,26,46,.3),rgba(11,26,46,0) 30%,rgba(11,26,46,.5) 100%);pointer-events:none;z-index:1}
+.hero::after{content:"";position:absolute;inset:auto 0 0 0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent)}
+.hero .wrap{position:relative;z-index:2}
+.hero-inner{max-width:900px}
+.hero h1{margin-top:22px;color:var(--on-dark)}
+.hero h1 em{font-style:normal;font-weight:400;color:var(--brand-green)}
+.hero .lede{margin-top:26px;font-size:1.08rem;font-weight:300}
+.hero-meta{display:flex;flex-wrap:wrap;gap:10px 28px;margin-top:28px;font-size:.84rem;letter-spacing:.06em;text-transform:uppercase;color:var(--on-dark-muted)}
+.hero-meta span{display:inline-flex;align-items:center;gap:10px}
+.hero-meta span::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--brass)}
+
+/* Search */
+.search{margin-top:clamp(36px,5vw,56px);background:var(--paper);color:var(--text);border-radius:var(--r);box-shadow:0 30px 60px -30px rgba(0,0,0,.6);max-width:1040px}
+.search-tabs{display:flex;gap:0;border-bottom:1px solid var(--line);padding:0 8px}
+.search-tabs button{background:none;border:0;padding:16px 18px;font-size:.78rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px}
+.search-tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--brand-green)}
+.search-panel{display:grid;grid-template-columns:1.8fr 1fr 1fr auto;gap:0;align-items:stretch}
+.search-panel[hidden]{display:none}
+.field{position:relative;display:grid;gap:4px;padding:16px 20px;border-right:1px solid var(--line);min-width:0}
+.field label{font-size:.68rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.field input,.field select{border:0;background:transparent;padding:4px 0;font-size:1rem;width:100%;min-width:0;outline-offset:2px}
+.field select{appearance:none;-webkit-appearance:none;background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%235D6873' stroke-width='1.5'/></svg>") no-repeat right center;padding-right:20px}
+.search-go{display:flex;align-items:stretch;padding:10px}
+.search-go .btn{height:100%;padding-inline:1.8em}
+.search .btn.primary{background:var(--green);border-color:var(--green);color:var(--on-dark)}
+.search .btn.primary:hover{background:var(--green-2);border-color:var(--green-2)}
+.suggest{position:absolute;left:0;right:0;top:100%;z-index:5;background:var(--paper);border:1px solid var(--line);border-top:0;box-shadow:0 20px 40px -20px rgba(0,0,0,.4);max-height:260px;overflow:auto}
+.suggest[hidden]{display:none}
+.suggest button{display:flex;width:100%;justify-content:space-between;gap:12px;text-align:left;background:none;border:0;padding:11px 20px;font-size:.95rem;border-bottom:1px solid var(--ivory-2)}
+.suggest button:hover,.suggest button:focus{background:var(--ivory)}
+.suggest button span{color:var(--muted);font-size:.78rem;letter-spacing:.06em;text-transform:uppercase}
+.nl-panel{display:grid;grid-template-columns:1fr auto;gap:0}
+.nl-panel[hidden]{display:none}
+.nl-panel .field{border-right:0}
+.nl-out{padding:0 20px 18px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;grid-column:1/-1;min-height:0}
+.nl-out:empty{display:none}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;font-weight:500;padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:var(--ivory)}
+.chip b{font-weight:600;color:var(--green-text)}
+.nl-out .small{width:100%}
+.nl-out .small a{color:var(--green-text)}
+@media (max-width:480px){.search-tabs{padding:0}.search-tabs button{flex:1;padding:14px 8px;font-size:.7rem;letter-spacing:.08em}}
+@media (max-width:860px){.search-panel{grid-template-columns:1fr 1fr}.field{border-bottom:1px solid var(--line)}.field:nth-child(3){border-right:0}.field.loc{grid-column:1/-1;border-right:0}.search-go{grid-column:1/-1}.search-go .btn{width:100%}.nl-panel{grid-template-columns:1fr}}
+
+/* Trust strip */
+.trust{padding-block:0;border-bottom:1px solid var(--line)}
+.trust ul{display:grid;grid-template-columns:repeat(6,1fr)}
+.trust li{padding:28px 18px;text-align:center;border-left:1px solid var(--line)}
+.trust li:first-child{border-left:0}
+.trust strong{display:block;font-family:var(--font-display);font-size:1.7rem;font-weight:400;letter-spacing:-.02em;line-height:1;color:var(--ink);font-variant-numeric:lining-nums tabular-nums}
+.trust strong .star{color:var(--brand-green);font-size:1.1rem;vertical-align:.2em;margin-left:2px}
+.trust li>span{display:block;margin-top:8px;font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+@media (max-width:900px){.trust ul{grid-template-columns:repeat(3,1fr)}.trust li:nth-child(4){border-left:0}.trust li:nth-child(n+4){border-top:1px solid var(--line)}}
+@media (max-width:520px){.trust ul{grid-template-columns:repeat(2,1fr)}.trust li{padding:22px 10px}.trust li:nth-child(odd){border-left:0}.trust li:nth-child(4){border-left:1px solid var(--line)}.trust li:nth-child(n+3){border-top:1px solid var(--line)}.trust strong{font-size:1.45rem}}
+
+/* Listing cards */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+@media (max-width:980px){.cards{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:600px){.cards{grid-template-columns:1fr}}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;transition:transform .3s,box-shadow .3s}
+.card:hover{transform:translateY(-4px);box-shadow:0 30px 50px -32px rgba(0,0,0,.25)}
+.card .photo{aspect-ratio:3/2}
+.badge{position:absolute;top:14px;left:14px;font-size:.66rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;padding:7px 10px;background:var(--ink);color:var(--on-dark);border-radius:2px}
+.badge.sold{background:var(--sold);color:var(--on-dark)}
+.badge.active{background:var(--brand-cta);color:var(--on-dark)}
+.badge.pending{background:var(--brand-pending);color:var(--ink)}
+.card{position:relative}
+.card-link{text-decoration:none;color:inherit}
+.card-link::after{content:"";position:absolute;inset:0}
+.card:hover .card-link .addr{color:var(--green-text)}
+.save{z-index:2}
+.mls{font-size:.78rem;color:var(--muted);letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.save{position:absolute;top:10px;right:10px;width:38px;height:38px;border-radius:50%;border:0;background:rgba(255,255,255,.9);display:grid;place-items:center;transition:transform .2s}
+.save:hover{transform:scale(1.06)}
+.save svg{width:18px;height:18px;fill:none;stroke:var(--ink);stroke-width:1.6}
+.save[aria-pressed="true"] svg{fill:var(--brand-green);stroke:var(--brand-green)}
+.card-body{padding:20px 22px 22px;display:grid;gap:6px}
+.price{font-family:var(--font-display);font-size:1.4rem;font-weight:500;letter-spacing:-.02em;line-height:1;color:var(--ink);font-variant-numeric:lining-nums tabular-nums}
+.addr{font-size:.98rem;font-weight:500}
+.addr span{color:var(--muted);font-weight:400}
+.specs{display:flex;gap:16px;font-size:.82rem;color:var(--muted);letter-spacing:.02em;margin-top:4px}
+.courtesy{font-size:.72rem;color:var(--muted);letter-spacing:.04em;margin-top:10px;padding-top:12px;border-top:1px solid var(--line)}
+.note{display:flex;gap:10px;align-items:flex-start;margin-top:28px;font-size:.84rem;color:var(--muted);max-width:70ch}
+.note::before{content:"";flex:0 0 18px;height:1px;background:var(--brass);margin-top:.7em}
+
+/* Buy / Sell */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+@media (max-width:900px){.split{grid-template-columns:1fr}}
+.panel{display:grid;grid-template-columns:1fr;grid-template-rows:auto 1fr;background:var(--paper);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.panel .photo{aspect-ratio:16/9;min-height:0}
+section[id],article[id]{scroll-margin-top:96px}
+.panel-body{padding:clamp(26px,3vw,40px);display:grid;gap:18px;align-content:start}
+.panel h3{font-size:clamp(1.5rem,2vw,1.9rem);font-weight:400;letter-spacing:-.02em}
+.panel p{color:var(--muted)}
+.checks{display:grid;gap:10px;font-size:.95rem}
+.checks li{position:relative;padding-left:20px}
+.checks li::before{content:"";position:absolute;left:0;top:.6em;width:7px;height:7px;border-radius:50%;background:var(--brand-green)}
+.checks li em{font-style:normal;font-weight:600}
+.panel .btn{justify-self:start;margin-top:6px}
+@media (max-width:900px){.split{grid-template-columns:1fr}}
+.netcalc{border-top:1px solid var(--line);padding-top:18px;display:grid;gap:10px}
+.netcalc summary{cursor:pointer;font-weight:600;font-size:.9rem;letter-spacing:.02em;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.netcalc summary::-webkit-details-marker{display:none}
+.netcalc summary::after{content:"+";font-family:var(--font-display);font-size:1.4rem;font-weight:300;line-height:1;color:var(--green-text)}
+.netcalc[open] summary::after{content:"\2212"}
+.est{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:end;margin-top:10px}
+.est label{display:grid;gap:6px;font-size:.72rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.est input{border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;font-size:1rem;background:var(--paper);width:100%;min-width:0;letter-spacing:0;text-transform:none;font-weight:400;color:var(--text)}
+.est-out{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px}
+.est-out div{padding:14px;border:1px solid var(--line);border-radius:var(--r);background:var(--ivory)}
+.est-out small{display:block;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.est-out strong{font-family:var(--font-display);font-size:1.3rem;font-weight:500;letter-spacing:-.02em;color:var(--ink);font-variant-numeric:lining-nums tabular-nums}
+.est-out div.hl{border-color:var(--brand-green);background:var(--green-tint)}
+@media (max-width:480px){.est{grid-template-columns:1fr}.est-out{grid-template-columns:1fr}}
+
+/* Neighborhoods */
+.hoods{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+@media (max-width:1000px){.hoods{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:420px){.hoods{grid-template-columns:1fr}}
+.hood{position:relative;display:block;text-decoration:none;color:var(--on-dark);border-radius:var(--r);overflow:hidden}
+.hood .photo{aspect-ratio:4/5;transition:transform .6s ease}
+.hood:hover .photo{transform:scale(1.03)}
+.hood-text{position:absolute;inset:auto 0 0 0;padding:64px 22px 22px;background:linear-gradient(180deg,rgba(11,26,46,0),rgba(11,26,46,.55) 35%,rgba(11,26,46,.92));display:grid;gap:5px;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.hood-text h3{font-size:1.25rem;font-weight:500;color:var(--paper)}
+.hood-text p{font-size:.84rem;color:#E6E8E6;line-height:1.45}
+.hood .photo[data-photo]::after{bottom:auto;top:12px}
+.snapshot{margin-top:40px;display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center;padding:26px 30px;border:1px solid var(--line);border-radius:var(--r);background:var(--paper)}
+.snapshot strong{font-family:var(--font-display);font-size:2rem;font-weight:400;letter-spacing:-.02em;line-height:1;color:var(--ink);font-variant-numeric:lining-nums tabular-nums}
+.snapshot .label{display:block;margin-bottom:8px}
+.snapshot p{font-size:.95rem;color:var(--muted)}
+.snapshot p a{color:var(--green-text)}
+@media (max-width:700px){.snapshot{grid-template-columns:1fr;gap:14px}}
+
+/* About */
+.about{display:grid;grid-template-columns:5fr 7fr;gap:clamp(32px,6vw,88px);align-items:start}
+@media (max-width:900px){.about{grid-template-columns:1fr}}
+.about .photo{aspect-ratio:4/5;border-radius:var(--r);max-width:520px}
+.about-text{display:grid;gap:18px}
+.about-text h2{margin-top:4px}
+.about-text p{color:var(--muted);font-size:1.02rem;max-width:62ch}
+.about-text .pull{font-family:var(--font-display);font-size:1.25rem;font-weight:300;color:var(--ink);line-height:1.45;max-width:40ch;padding-left:20px;border-left:3px solid var(--brand-green)}
+.creds{display:grid;grid-template-columns:1fr 1fr;gap:14px 28px;margin-top:6px;padding-top:22px;border-top:1px solid var(--line)}
+.creds li{font-size:.9rem;line-height:1.45}
+.creds li strong{display:block;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:3px}
+@media (max-width:520px){.creds{grid-template-columns:1fr}}
+.about-contact{display:flex;flex-wrap:wrap;gap:12px 28px;align-items:center;margin-top:6px}
+.about-contact a{text-decoration:none;font-weight:500}
+
+/* Team: scroll-snap row, 4 per view on desktop, 2 on tablet, about 1 on phone */
+.team-wrap{position:relative}
+.team{--per:4;--gap:28px;display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - (var(--per) - 1) * var(--gap)) / var(--per));gap:var(--gap);overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;padding-block:4px 8px}
+.team::-webkit-scrollbar{display:none}
+@media (max-width:980px){.team{--per:2}}
+@media (max-width:560px){.team{--per:1.15;--gap:16px}}
+@media (prefers-reduced-motion:reduce){.team{scroll-behavior:auto}}
+.agent{display:grid;gap:14px;scroll-snap-align:start;min-width:0}
+.agent .photo{aspect-ratio:4/5;border-radius:var(--r);filter:grayscale(.4);transition:filter .45s ease,box-shadow .45s ease}
+.agent:hover .photo,.agent:focus-within .photo{filter:none;box-shadow:0 18px 36px -22px rgba(0,0,0,.35)}
+.agent .photo::before{content:"View profile";position:absolute;left:0;right:0;bottom:0;z-index:1;padding:12px 14px;background:var(--brand-cta);color:var(--on-dark);font:600 .7rem/1 var(--font-sans);letter-spacing:.14em;text-transform:uppercase;transform:translateY(100%);transition:transform .35s ease}
+.agent:hover .photo::before,.agent:focus-within .photo::before{transform:none}
+.agent .photo[data-photo]::after{bottom:auto;top:12px}
+/* Reveal: class is added by JS only when an observer exists and motion is allowed */
+.agent.reveal{opacity:0;transform:translateY(16px)}
+.agent.reveal.in{opacity:1;transform:none;transition:opacity .45s ease-out var(--d,0ms),transform .45s ease-out var(--d,0ms)}
+.team-nav{display:none;gap:10px;justify-content:flex-end;margin-top:20px}
+.team-wrap.has-overflow .team-nav{display:flex}
+.team-nav button{width:44px;height:44px;border:1px solid var(--line);border-radius:50%;background:var(--paper);display:grid;place-items:center;color:var(--ink);transition:border-color .2s,color .2s,background .2s}
+.team-nav button:hover{border-color:var(--ink)}
+.team-nav button:disabled{opacity:.35;cursor:default;border-color:var(--line)}
+.team-nav svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.5}
+.agent h3{font-size:1.2rem}
+.agent .role{font-size:.72rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--green-text);margin-top:4px}
+.agent .meta{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:.92rem;color:var(--muted);font-variant-numeric:lining-nums tabular-nums}
+.agent .meta a{text-decoration:none;color:var(--text)}
+
+/* Reviews */
+.ratings{display:flex;flex-wrap:wrap;gap:14px;margin-top:8px}
+.rating{display:inline-flex;align-items:center;gap:12px;padding:12px 18px;border:1px solid var(--line-dark);border-radius:var(--r);text-decoration:none;color:var(--on-dark)}
+.rating .stars{color:var(--brand-green);letter-spacing:.1em;font-size:.9rem}
+.rating b{font-family:var(--font-display);font-size:1.15rem;font-weight:500}
+.rating span{font-size:.78rem;color:var(--on-dark-muted);letter-spacing:.04em}
+.quotes{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:40px}
+@media (max-width:980px){.quotes{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:640px){.quotes{grid-template-columns:1fr}}
+.quote{border:1px solid var(--line-dark);border-radius:var(--r);padding:28px;display:grid;gap:18px;align-content:space-between;background:rgba(255,255,255,.02)}
+.quote.wide{grid-column:span 2}
+@media (max-width:640px){.quote.wide{grid-column:auto}}
+.quote blockquote{margin:0;font-family:var(--font-display);font-size:1.05rem;font-weight:300;line-height:1.6;color:var(--on-dark)}
+.quote.wide blockquote{font-size:1.2rem}
+.quote footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:.82rem;color:var(--on-dark-muted)}
+.quote footer b{color:var(--on-dark);font-weight:600}
+.quote .stars{color:var(--brand-green);letter-spacing:.12em;font-size:.8rem}
+.quote .qsrc{display:inline-flex;align-items:center;gap:12px}
+.quote .qsrc a,.crawl-item .qsrc a{color:var(--on-dark-muted);text-decoration:underline;text-underline-offset:3px}
+.crawl{margin-top:56px}
+.crawl-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.crawl-hint{font-size:.78rem;color:var(--on-dark-muted)}
+.crawl-viewport{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.crawl-track{display:flex;gap:20px;width:max-content;margin:0;padding:0;list-style:none;animation:crawl 140s linear infinite}
+.crawl-viewport:hover .crawl-track,.crawl-viewport:focus-within .crawl-track{animation-play-state:paused}
+@keyframes crawl{to{transform:translateX(calc(-50% - 10px))}}
+.crawl-item{width:340px;flex:none;border:1px solid var(--line-dark);border-radius:var(--r);padding:22px;display:grid;gap:14px;align-content:space-between;background:rgba(255,255,255,.02)}
+.crawl-item blockquote{margin:0;font-weight:300;line-height:1.55;font-size:.98rem;color:var(--on-dark)}
+.crawl-item footer{display:grid;gap:8px;font-size:.78rem;color:var(--on-dark-muted)}
+.crawl-item footer b{color:var(--on-dark);font-weight:600}
+.crawl-item .qsrc{display:inline-flex;align-items:center;gap:12px}
+.crawl-item .stars{color:var(--brand-green);letter-spacing:.12em;font-size:.76rem}
+@media (max-width:640px){.crawl-item{width:280px}}
+@media (prefers-reduced-motion:reduce){.crawl-track{animation:none}.crawl-viewport{overflow-x:auto;-webkit-mask-image:none;mask-image:none}.crawl-item[aria-hidden]{display:none}}
+.rev-note{margin-top:18px;font-size:.78rem;color:var(--on-dark-muted)}
+
+
+/* Valuation */
+.val{display:grid;grid-template-columns:5fr 7fr;gap:clamp(32px,6vw,80px);align-items:start}
+@media (max-width:900px){.val{grid-template-columns:1fr}}
+.val-text{display:grid;gap:18px}
+.val-text p{color:var(--muted);max-width:50ch}
+.val-list{display:grid;gap:12px;font-size:.95rem;margin-top:6px}
+.val-list li{display:flex;gap:12px}
+.val-list li::before{content:"";flex:0 0 18px;height:1px;background:var(--brass);margin-top:.75em}
+form.cma{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:clamp(24px,3vw,36px);display:grid;gap:18px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:560px){.frow{grid-template-columns:1fr}}
+.f{display:grid;gap:7px}
+.f label{font-size:.72rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.f input,.f select{border:1px solid var(--line);border-radius:var(--r);padding:13px 14px;font-size:1rem;background:var(--paper);width:100%;min-width:0}
+.f select{appearance:none;-webkit-appearance:none;background:var(--paper) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%235D6873' stroke-width='1.5'/></svg>") no-repeat right 14px center}
+.f input:focus,.f select:focus{border-color:var(--brand-green);outline:none;box-shadow:0 0 0 3px rgba(184,146,90,.28)}
+.consent{display:flex;gap:12px;align-items:flex-start;font-size:.78rem;color:var(--muted);line-height:1.5}
+.consent input{margin-top:4px;flex:0 0 auto;accent-color:var(--brand-cta);width:16px;height:16px}
+.f textarea{border:1px solid var(--line);border-radius:var(--r);padding:13px 14px;font:inherit;font-size:1rem;background:var(--paper);width:100%;min-width:0;resize:vertical}
+.f textarea:focus{border-color:var(--brand-green);outline:none;box-shadow:0 0 0 3px rgba(184,146,90,.28)}
+.contact-list{list-style:none;margin:28px 0 0;padding:0;display:grid;gap:16px}
+.contact-list li{display:grid;grid-template-columns:72px 1fr;gap:12px;font-size:.98rem}
+.contact-list span{font-size:.7rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding-top:4px}
+.contact-list a{color:inherit}
+.confirm{display:none;padding:18px;border:1px solid var(--brand-green);border-radius:var(--r);background:var(--green-tint);font-size:.95rem}
+.confirm.show{display:block}
+.confirm strong{display:block;font-family:var(--font-display);font-size:1.1rem;font-weight:500;margin-bottom:4px}
+
+/* Insights */
+.posts{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+@media (max-width:900px){.posts{grid-template-columns:1fr}}
+.post{display:grid;gap:12px;text-decoration:none;color:inherit}
+.post .photo{aspect-ratio:3/2;border-radius:var(--r)}
+.post .kicker{font-size:.7rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.post h3{font-size:1.2rem;transition:color .2s}
+.post:hover h3{color:var(--green-text)}
+.post p{color:var(--muted);font-size:.95rem}
+
+/* Footer */
+footer.site{padding-block:clamp(56px,6vw,88px) 40px}
+.foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:40px}
+@media (max-width:980px){.foot-grid{grid-template-columns:1fr 1fr}}
+@media (max-width:520px){.foot-grid{grid-template-columns:1fr}}
+.foot-grid h4{font-family:var(--font-sans);font-size:.7rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--brand-green);margin-bottom:16px}
+.foot-grid ul{display:grid;gap:9px;font-size:.94rem}
+.foot-grid a{text-decoration:none;color:var(--on-dark-muted)}
+.foot-grid a:hover{color:var(--on-dark)}
+.foot-brand .brand-name{color:var(--on-dark);font-size:1.5rem}
+.foot-brand .brand{display:inline-flex}
+.foot-brand address{font-style:normal;margin-top:20px;font-size:.94rem;line-height:1.7;color:var(--on-dark-muted)}
+.foot-brand address b{color:var(--on-dark);font-weight:500}
+.socials{display:flex;gap:10px;margin-top:20px}
+.socials a{width:40px;height:40px;border:1px solid var(--line-dark);border-radius:50%;display:grid;place-items:center;color:var(--on-dark-muted);transition:border-color .2s,color .2s}
+.socials a:hover{border-color:var(--on-dark);color:var(--on-dark)}
+.socials svg{width:16px;height:16px;fill:currentColor}
+.legal{margin-top:56px;padding-top:28px;border-top:1px solid var(--line-dark);display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:start;font-size:.78rem;line-height:1.6;color:var(--on-dark-muted)}
+.legal p+p{margin-top:8px}
+.legal b{color:var(--on-dark);font-weight:600}
+.eho{width:56px;height:56px;flex:0 0 auto;color:var(--on-dark)}
+.legal-links{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:22px}
+.legal-links a{color:var(--on-dark-muted);text-decoration:none;border-bottom:1px solid var(--line-dark)}
+.legal-links a:hover{color:var(--on-dark)}
+.copy{margin-top:26px;font-size:.76rem;color:var(--on-dark-muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+@media (max-width:600px){.legal{grid-template-columns:1fr}}
+.faq{display:grid;gap:0;border-top:1px solid var(--line);max-width:900px}
+.faq-item{border-bottom:1px solid var(--line)}
+.faq-item summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:20px 0}
+.faq-item summary::-webkit-details-marker{display:none}
+.faq-item summary::after{content:"+";font-size:1.5rem;font-weight:300;color:var(--green-text);flex:none}
+.faq-item[open] summary::after{content:"\2212"}
+.faq-item summary h3{font-size:1.08rem;font-weight:500;margin:0}
+.faq-item p{margin:0 0 22px;color:var(--muted);max-width:70ch;line-height:1.7}
+.reach{margin-top:clamp(36px,4vw,52px);padding-top:28px;border-top:1px solid var(--line);display:grid;gap:18px}
+.reach ul{display:grid;grid-template-columns:repeat(6,1fr);gap:0;list-style:none;margin:0;padding:0}
+.reach li{padding:6px 18px;border-left:1px solid var(--line)}
+.reach li:first-child{border-left:0;padding-left:0}
+.reach li strong{display:block;font-weight:500;font-size:.98rem;color:var(--ink)}
+.reach li span{display:block;font-size:.8rem;color:var(--muted);margin-top:4px}
+.reach-top{font-size:.95rem;color:var(--muted)}
+.reach-top strong{color:var(--ink);font-weight:600}
+.reach-top span{margin-left:6px}
+@media (max-width:1000px){.reach ul{grid-template-columns:repeat(3,1fr);row-gap:16px}.reach li:nth-child(4){border-left:0;padding-left:0}}
+@media (max-width:520px){.reach ul{grid-template-columns:repeat(2,1fr)}.reach li{border-left:0;padding-left:0}}
+.featured{font-size:.92rem;color:var(--muted);border-left:2px solid var(--brand-green);padding-left:12px}
+.featured a{color:var(--green-text);font-weight:600}
+.photo-credits{font-size:.72rem;opacity:.7;margin-bottom:10px}
+.photo-credits summary{cursor:pointer;display:inline}
+.photo-credits p{margin-top:6px}
+.photo-credits a{color:inherit}
+/* Demo banner, wordmark and illustration helpers */
+.demo-banner{background:#07121F;color:#E8D5AE;text-align:center;font-size:.76rem;letter-spacing:.04em;line-height:1.4;padding:8px 16px}
+.brand .mark{width:34px;height:34px;flex:none;color:#fff}
+.brand-text{display:block}
+.photo>svg.art,.hero>svg.art{position:absolute;inset:0;width:100%;height:100%;display:block}
+.hero>svg.art{z-index:0}
+.avatar{background-image:radial-gradient(120% 90% at 20% 0%,rgba(255,255,255,.2),rgba(255,255,255,0) 55%),linear-gradient(160deg,var(--a1,#2B4F73),var(--a2,#12263F))}
+.avatar-i{position:absolute;inset:0;display:grid;place-items:center;font:300 clamp(3rem,6vw,4.2rem)/1 var(--font-display);letter-spacing:.03em;color:rgba(255,255,255,.92)}
+.agent .photo.avatar::before{z-index:2}
+.about .photo{max-width:520px}
+.netcalc .est{grid-template-columns:1fr 1fr auto}
+@media (max-width:620px){.netcalc .est{grid-template-columns:1fr}}
+.sample-tag{display:inline-block;font-size:.66rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--on-dark-muted)}
+
+</style>
+</head>
+<body>
+<div class="demo-banner" role="note">Portfolio demo &middot; fictional brokerage, sample data. Built by Myles Parslow.</div>
+
+<header class="site-header" id="top">
+  <div class="wrap">
+    <nav class="nav" aria-label="Primary">
+      <a class="brand" href="#top" aria-label="Northfield Realty, home"><svg class="mark" viewBox="0 0 40 40" aria-hidden="true" focusable="false"><path d="M6 19 20 7l14 12" fill="none" stroke="#b8925a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 20v10h20V20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" opacity=".9"/><path d="M4 35h32" fill="none" stroke="#b8925a" stroke-width="2" stroke-linecap="round"/></svg><span class="brand-text"><span class="brand-name">Northfield</span><span class="brand-sub">Realty</span></span></a>
+      <ul class="nav-links">
+        <li><a href="#listings">Listings</a></li>
+        <li><a href="#buy">Buy</a></li>
+        <li><a href="#sell">Sell</a></li>
+        <li><a href="#neighborhoods">Neighborhoods</a></li>
+        <li><a href="#team">Our Team</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#insights">Blog</a></li>
+        <li><a href="#valuation">Tools</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <div class="nav-right">
+        <a class="nav-phone" href="tel:+15550102040">(555) 010-2040</a>
+        <a class="btn primary" href="#valuation">Home Valuation</a>
+        <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">
+          <svg class="bars" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 7h18M3 12h18M3 17h18"/></svg>
+          <svg class="x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg>
+        </button>
+      </div>
+    </nav>
+  </div>
+  <div class="mobile-menu" id="mobileMenu">
+    <div class="wrap">
+      <ul>
+        <li><a href="#listings">Listings</a></li>
+        <li><a href="#buy">Buy</a></li>
+        <li><a href="#sell">Sell</a></li>
+        <li><a href="#neighborhoods">Neighborhoods</a></li>
+        <li><a href="#team">Our Team</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#insights">Blog</a></li>
+        <li><a href="#valuation">Tools</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <div class="mm-foot">
+        <span class="nav-phone">Office (555) 010-2040</span>
+        <a class="btn primary" href="#valuation">Home Valuation</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+<!-- HERO -->
+<section class="hero on-dark" aria-labelledby="heroTitle">
+  <svg class="art" viewBox="0 0 1600 700" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><circle cx="1360" cy="168" r="77" fill="#fff" fill-opacity="0.16"/><circle cx="1360" cy="168" r="126" fill="#fff" fill-opacity="0.06"/><rect x="672" y="294" width="72" height="280" fill="#fff" fill-opacity="0.24"/><rect x="723" y="378" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="687" y="504" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="753" y="224" width="54" height="350" fill="#fff" fill-opacity="0.24"/><rect x="777" y="182" width="3" height="42" fill="#fff" fill-opacity="0.3"/><rect x="777" y="266" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="777" y="308" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="777" y="434" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="815" y="364" width="54" height="210" fill="#fff" fill-opacity="0.24"/><rect x="839" y="448" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="839" y="490" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="878" y="364" width="54" height="210" fill="#fff" fill-opacity="0.12"/><rect x="902" y="448" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="941" y="364" width="90" height="210" fill="#fff" fill-opacity="0.12"/><rect x="983" y="448" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="953" y="490" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="983" y="490" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="1012" y="490" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="953" y="532" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="1012" y="532" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="1039" y="294" width="90" height="280" fill="#fff" fill-opacity="0.12"/><rect x="1051" y="336" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="1051" y="378" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="1051" y="420" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="1111" y="420" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="1111" y="462" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="1138" y="224" width="54" height="350" fill="#fff" fill-opacity="0.12"/><rect x="1162" y="182" width="3" height="42" fill="#fff" fill-opacity="0.3"/><rect x="1162" y="392" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="1162" y="434" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="1201" y="294" width="90" height="280" fill="#fff" fill-opacity="0.24"/><rect x="1213" y="336" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="1272" y="378" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="1272" y="420" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="1272" y="462" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="1213" y="504" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="1272" y="504" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="1299" y="294" width="90" height="280" fill="#fff" fill-opacity="0.18"/><rect x="1311" y="336" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="1341" y="336" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="1371" y="336" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="1371" y="378" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="1311" y="420" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="1341" y="462" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="1398" y="420" width="54" height="154" fill="#fff" fill-opacity="0.18"/><rect x="1422" y="462" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="1422" y="504" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="1460" y="154" width="90" height="420" fill="#fff" fill-opacity="0.12"/><rect x="1501" y="112" width="3" height="42" fill="#fff" fill-opacity="0.3"/><rect x="1532" y="196" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="1502" y="238" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="1472" y="280" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="1472" y="406" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="1532" y="406" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="1532" y="490" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="1472" y="532" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="1502" y="532" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="0" y="574" width="1600" height="128" fill="#0b1a2e" fill-opacity="0.3"/><rect x="0" y="574" width="1600" height="2" fill="#fff" fill-opacity="0.15"/></svg>
+  <div class="wrap">
+    <div class="hero-inner">
+      <p class="label">An independent, boutique brokerage.</p>
+      <h1 id="heroTitle">Exceptional homes from <em>Elm Hollow</em> to <em>Willow Bend</em>.</h1>
+      <p class="lede">Northfield Realty represents buyers and sellers across the city and its surrounding suburbs, with the expertise of a seasoned brokerage and the personal attention of an owner-led firm.</p>
+      <div class="hero-meta">
+        <span>The city and suburbs</span>
+        <span>Independent and local</span>
+        <span>Relocation clients</span>
+      </div>
+    </div>
+
+    <div class="search" role="search" aria-label="Property search">
+      <div class="search-tabs" role="tablist" aria-label="Search mode">
+        <button type="button" role="tab" id="tabFilters" aria-selected="true" aria-controls="panelFilters">Search homes</button>
+        <button type="button" role="tab" id="tabNL" aria-selected="false" aria-controls="panelNL">Describe your home</button>
+      </div>
+
+      <form class="search-panel" id="panelFilters" role="tabpanel" aria-labelledby="tabFilters">
+        <div class="field loc">
+          <label for="loc">Location</label>
+          <input id="loc" type="text" placeholder="Neighborhood or ZIP" autocomplete="off" aria-autocomplete="list" aria-controls="suggest" aria-expanded="false">
+          <div class="suggest" id="suggest" role="listbox" aria-label="Suggested locations" hidden></div>
+        </div>
+        <div class="field">
+          <label for="price">Max price</label>
+          <select id="price">
+            <option value="">Any</option>
+            <option>$400,000</option><option>$600,000</option><option>$800,000</option><option>$1,000,000</option><option>$1,500,000</option><option>$2,000,000</option><option>$3,000,000+</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="beds">Bedrooms</label>
+          <select id="beds">
+            <option value="">Any</option>
+            <option>1+</option><option>2+</option><option>3+</option><option>4+</option><option>5+</option>
+          </select>
+        </div>
+        <div class="search-go">
+          <a class="btn primary" id="searchGo" href="#listings">Search</a>
+        </div>
+      </form>
+
+      <form class="nl-panel" id="panelNL" role="tabpanel" aria-labelledby="tabNL" hidden>
+        <div class="field">
+          <label for="nl">Tell us what you are looking for</label>
+          <input id="nl" type="text" placeholder="3-bed in Elm Hollow under $900k with a garage" autocomplete="off">
+        </div>
+        <div class="search-go">
+          <button class="btn primary" type="submit">Find homes</button>
+        </div>
+        <div class="nl-out" id="nlOut" aria-live="polite"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST -->
+<section class="trust" aria-label="About the brokerage at a glance">
+  <div class="wrap">
+    <ul>
+      <li><strong>Independent</strong><span>Boutique brokerage</span></li>
+      <li><strong>7</strong><span>Local agents</span></li>
+      <li><strong>8</strong><span>Neighborhoods served</span></li>
+      <li><strong>5.0<span class="star" aria-hidden="true">&#9733;</span></strong><span>Average rating</span></li>
+      <li><strong>24h</strong><span>Pricing analysis</span></li>
+      <li><strong>Full</strong><span>Service marketing</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- FEATURED LISTINGS -->
+<section id="listings" aria-labelledby="listTitle">
+  <div class="wrap">
+    <div class="sec-head row">
+      <p class="label">On the market</p>
+      <h2 id="listTitle">Featured listings</h2>
+      <p class="lede">Sample homes shown here to illustrate how current listings appear across the city and nearby suburbs.</p>
+      <a class="textlink" href="#listings">View all listings</a>
+    </div>
+    <div class="cards" id="featuredCards">
+      <article class="card"><div class="photo tone-sage" role="img" aria-label="Illustration of 418 Linden Ct"><svg class="art" viewBox="0 0 720 480" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><circle cx="144" cy="115" r="53" fill="#fff" fill-opacity="0.16"/><circle cx="144" cy="115" r="86" fill="#fff" fill-opacity="0.06"/><rect x="0" y="384" width="720" height="98" fill="#0b1a2e" fill-opacity="0.3"/><rect x="0" y="384" width="720" height="2" fill="#fff" fill-opacity="0.15"/><rect x="98" y="305" width="20" height="79" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="108" cy="247" r="86" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="72" cy="233" r="50" fill="#fff" fill-opacity="0.06"/><rect x="611" y="321" width="16" height="63" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="619" cy="275" r="69" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="590" cy="263" r="40" fill="#fff" fill-opacity="0.06"/><polygon points="12,384 58,233 103,384" fill="#0b1a2e" fill-opacity="0.4"/><rect x="238" y="240" width="245" height="144" fill="#fff" fill-opacity="0.2"/><polygon points="218,240 360,139 502,240" fill="#0b1a2e" fill-opacity="0.5"/><rect x="429" y="132" width="17" height="72" fill="#0b1a2e" fill-opacity="0.5"/><rect x="343" y="312" width="34" height="72" fill="#0b1a2e" fill-opacity="0.55"/><rect x="267" y="272" width="44" height="43" fill="#f0d9a6" fill-opacity="0.88"/><rect x="404" y="272" width="44" height="43" fill="#f0d9a6" fill-opacity="0.88"/><rect x="225" y="381" width="269" height="5" fill="#fff" fill-opacity="0.18"/></svg><span class="badge active">Active</span><button type="button" class="save" aria-pressed="false" aria-label="Save this home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 8a4.3 4.3 0 0 1 7.5 2.5c0 5.4-7.5 10-7.5 10z"/></svg></button></div><div class="card-body"><p class="price">$525,000</p><a class="card-link" href="#contact" data-msg="I'd like to know more about 418 Linden Ct. "><p class="addr">418 Linden Ct <span>&middot; Elm Hollow</span></p></a><p class="mls">3 bd &middot; 2 ba &middot; 1,920 sq ft</p><p class="courtesy">Sample listing &middot; Northfield Realty</p></div></article>
+      <article class="card"><div class="photo tone-moss" role="img" aria-label="Illustration of 72 Quarry Row"><svg class="art" viewBox="0 0 720 480" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><circle cx="612" cy="115" r="53" fill="#fff" fill-opacity="0.16"/><circle cx="612" cy="115" r="86" fill="#fff" fill-opacity="0.06"/><rect x="0" y="394" width="720" height="88" fill="#0b1a2e" fill-opacity="0.3"/><rect x="0" y="394" width="720" height="2" fill="#fff" fill-opacity="0.15"/><rect x="115" y="178" width="122" height="216" fill="#fff" fill-opacity="0.14"/><rect x="115" y="174" width="122" height="5" fill="#0b1a2e" fill-opacity="0.5"/><polygon points="115,178 176,127 238,178" fill="#0b1a2e" fill-opacity="0.45"/><rect x="135" y="208" width="32" height="35" fill="#f0d9a6" fill-opacity="0.3"/><rect x="191" y="208" width="32" height="35" fill="#f0d9a6" fill-opacity="0.8"/><rect x="135" y="273" width="32" height="35" fill="#f0d9a6" fill-opacity="0.8"/><rect x="191" y="273" width="32" height="35" fill="#f0d9a6" fill-opacity="0.8"/><rect x="159" y="337" width="34" height="56" fill="#0b1a2e" fill-opacity="0.5"/><rect x="238" y="134" width="122" height="259" fill="#fff" fill-opacity="0.19"/><rect x="238" y="130" width="122" height="5" fill="#0b1a2e" fill-opacity="0.5"/><rect x="257" y="171" width="32" height="41" fill="#f0d9a6" fill-opacity="0.8"/><rect x="313" y="171" width="32" height="41" fill="#f0d9a6" fill-opacity="0.8"/><rect x="257" y="248" width="32" height="41" fill="#f0d9a6" fill-opacity="0.8"/><rect x="313" y="248" width="32" height="41" fill="#f0d9a6" fill-opacity="0.3"/><rect x="282" y="326" width="34" height="67" fill="#0b1a2e" fill-opacity="0.5"/><rect x="360" y="163" width="122" height="230" fill="#fff" fill-opacity="0.14"/><rect x="360" y="159" width="122" height="5" fill="#0b1a2e" fill-opacity="0.5"/><polygon points="360,163 421,113 482,163" fill="#0b1a2e" fill-opacity="0.45"/><rect x="380" y="195" width="32" height="37" fill="#f0d9a6" fill-opacity="0.8"/><rect x="436" y="195" width="32" height="37" fill="#f0d9a6" fill-opacity="0.3"/><rect x="380" y="265" width="32" height="37" fill="#f0d9a6" fill-opacity="0.3"/><rect x="436" y="265" width="32" height="37" fill="#f0d9a6" fill-opacity="0.8"/><rect x="404" y="334" width="34" height="60" fill="#0b1a2e" fill-opacity="0.5"/><rect x="482" y="149" width="122" height="245" fill="#fff" fill-opacity="0.19"/><rect x="482" y="145" width="122" height="5" fill="#0b1a2e" fill-opacity="0.5"/><rect x="502" y="183" width="32" height="39" fill="#f0d9a6" fill-opacity="0.3"/><rect x="558" y="183" width="32" height="39" fill="#f0d9a6" fill-opacity="0.8"/><rect x="502" y="257" width="32" height="39" fill="#f0d9a6" fill-opacity="0.8"/><rect x="558" y="257" width="32" height="39" fill="#f0d9a6" fill-opacity="0.8"/><rect x="526" y="330" width="34" height="64" fill="#0b1a2e" fill-opacity="0.5"/><rect x="48" y="314" width="20" height="79" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="58" cy="257" r="86" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="22" cy="242" r="50" fill="#fff" fill-opacity="0.06"/><rect x="661" y="326" width="17" height="67" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="670" cy="277" r="73" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="639" cy="265" r="43" fill="#fff" fill-opacity="0.06"/></svg><span class="badge active">Active</span><button type="button" class="save" aria-pressed="false" aria-label="Save this home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 8a4.3 4.3 0 0 1 7.5 2.5c0 5.4-7.5 10-7.5 10z"/></svg></button></div><div class="card-body"><p class="price">$390,000</p><a class="card-link" href="#contact" data-msg="I'd like to know more about 72 Quarry Row. "><p class="addr">72 Quarry Row <span>&middot; Brookside</span></p></a><p class="mls">2 bd &middot; 2 ba &middot; 1,340 sq ft</p><p class="courtesy">Sample listing &middot; Northfield Realty</p></div></article>
+      <article class="card"><div class="photo tone-clay" role="img" aria-label="Illustration of 1206 Alder Way"><svg class="art" viewBox="0 0 720 480" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><circle cx="144" cy="115" r="53" fill="#fff" fill-opacity="0.16"/><circle cx="144" cy="115" r="86" fill="#fff" fill-opacity="0.06"/><path d="M0 288 Q180 182 360 264 T720 240 V480 H0Z" fill="#fff" fill-opacity=".2"/><path d="M0 346 Q216 264 432 336 T720 307 V480 H0Z" fill="#0b1a2e" fill-opacity=".3"/><rect x="0" y="374" width="720" height="108" fill="#0b1a2e" fill-opacity="0.35"/><rect x="403" y="288" width="144" height="86" fill="#fff" fill-opacity="0.22"/><polygon points="392,288 475,228 559,288" fill="#0b1a2e" fill-opacity="0.5"/><rect x="425" y="310" width="29" height="26" fill="#f0d9a6" fill-opacity="0.88"/><rect x="482" y="327" width="22" height="48" fill="#0b1a2e" fill-opacity="0.55"/><polygon points="30,380 101,143 172,380" fill="#0b1a2e" fill-opacity="0.4"/><polygon points="118,380 173,197 228,380" fill="#0b1a2e" fill-opacity="0.4"/><polygon points="526,380 590,164 655,380" fill="#0b1a2e" fill-opacity="0.4"/><polygon points="614,380 662,218 711,380" fill="#0b1a2e" fill-opacity="0.4"/><polygon points="206,380 245,251 284,380" fill="#0b1a2e" fill-opacity="0.4"/></svg><span class="badge active">Active</span><button type="button" class="save" aria-pressed="false" aria-label="Save this home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 8a4.3 4.3 0 0 1 7.5 2.5c0 5.4-7.5 10-7.5 10z"/></svg></button></div><div class="card-body"><p class="price">$745,000</p><a class="card-link" href="#contact" data-msg="I'd like to know more about 1206 Alder Way. "><p class="addr">1206 Alder Way <span>&middot; Cedar Ridge</span></p></a><p class="mls">4 bd &middot; 3 ba &middot; 2,780 sq ft</p><p class="courtesy">Sample listing &middot; Northfield Realty</p></div></article>
+      <article class="card"><div class="photo tone-slate" role="img" aria-label="Illustration of 56 Foundry Ln"><svg class="art" viewBox="0 0 720 480" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><circle cx="612" cy="115" r="53" fill="#fff" fill-opacity="0.16"/><circle cx="612" cy="115" r="86" fill="#fff" fill-opacity="0.06"/><rect x="0" y="384" width="720" height="98" fill="#0b1a2e" fill-opacity="0.3"/><rect x="0" y="384" width="720" height="2" fill="#fff" fill-opacity="0.15"/><rect x="180" y="262" width="360" height="122" fill="#fff" fill-opacity="0.2"/><polygon points="180,262 180,225 270,262" fill="#0b1a2e" fill-opacity="0.45"/><polygon points="270,262 270,225 360,262" fill="#0b1a2e" fill-opacity="0.45"/><polygon points="360,262 360,225 450,262" fill="#0b1a2e" fill-opacity="0.45"/><polygon points="450,262 450,225 540,262" fill="#0b1a2e" fill-opacity="0.45"/><rect x="490" y="127" width="22" height="135" fill="#fff" fill-opacity="0.26"/><rect x="486" y="122" width="29" height="6" fill="#0b1a2e" fill-opacity="0.5"/><path d="M209 353 v-43 a11 11 0 0 1 22 0 v43 z" fill="#f0d9a6" fill-opacity=".85"/><path d="M270 353 v-43 a11 11 0 0 1 22 0 v43 z" fill="#f0d9a6" fill-opacity=".85"/><path d="M331 353 v-43 a11 11 0 0 1 22 0 v43 z" fill="#f0d9a6" fill-opacity=".85"/><path d="M392 353 v-43 a11 11 0 0 1 22 0 v43 z" fill="#f0d9a6" fill-opacity=".85"/><path d="M454 353 v-43 a11 11 0 0 1 22 0 v43 z" fill="#f0d9a6" fill-opacity=".85"/><rect x="342" y="347" width="36" height="37" fill="#0b1a2e" fill-opacity="0.55"/><rect x="62" y="305" width="20" height="79" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="72" cy="247" r="86" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="36" cy="233" r="50" fill="#fff" fill-opacity="0.06"/><rect x="654" y="321" width="16" height="63" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="662" cy="275" r="69" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="634" cy="263" r="40" fill="#fff" fill-opacity="0.06"/></svg><span class="badge active">Active</span><button type="button" class="save" aria-pressed="false" aria-label="Save this home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 8a4.3 4.3 0 0 1 7.5 2.5c0 5.4-7.5 10-7.5 10z"/></svg></button></div><div class="card-body"><p class="price">$310,000</p><a class="card-link" href="#contact" data-msg="I'd like to know more about 56 Foundry Ln. "><p class="addr">56 Foundry Ln <span>&middot; Stonebridge</span></p></a><p class="mls">1 bd &middot; 1 ba &middot; 980 sq ft</p><p class="courtesy">Sample listing &middot; Northfield Realty</p></div></article>
+      <article class="card"><div class="photo tone-stone" role="img" aria-label="Illustration of 14 Aspen Rise"><svg class="art" viewBox="0 0 720 480" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><circle cx="144" cy="115" r="53" fill="#fff" fill-opacity="0.16"/><circle cx="144" cy="115" r="86" fill="#fff" fill-opacity="0.06"/><rect x="0" y="384" width="720" height="98" fill="#0b1a2e" fill-opacity="0.3"/><rect x="0" y="384" width="720" height="2" fill="#fff" fill-opacity="0.15"/><rect x="202" y="290" width="317" height="94" fill="#fff" fill-opacity="0.22"/><rect x="252" y="204" width="202" height="86" fill="#fff" fill-opacity="0.3"/><rect x="187" y="287" width="346" height="4" fill="#0b1a2e" fill-opacity="0.55"/><rect x="238" y="200" width="230" height="4" fill="#0b1a2e" fill-opacity="0.55"/><rect x="266" y="226" width="173" height="43" fill="#f0d9a6" fill-opacity="0.88"/><rect x="223" y="312" width="144" height="50" fill="#f0d9a6" fill-opacity="0.88"/><rect x="418" y="312" width="43" height="72" fill="#0b1a2e" fill-opacity="0.5"/><rect x="90" y="297" width="22" height="87" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="101" cy="234" r="95" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="61" cy="218" r="55" fill="#fff" fill-opacity="0.06"/><rect x="625" y="313" width="18" height="71" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="634" cy="261" r="78" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="601" cy="248" r="45" fill="#fff" fill-opacity="0.06"/></svg><span class="badge active">Active</span><button type="button" class="save" aria-pressed="false" aria-label="Save this home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 8a4.3 4.3 0 0 1 7.5 2.5c0 5.4-7.5 10-7.5 10z"/></svg></button></div><div class="card-body"><p class="price">$975,000</p><a class="card-link" href="#contact" data-msg="I'd like to know more about 14 Aspen Rise. "><p class="addr">14 Aspen Rise <span>&middot; Highview</span></p></a><p class="mls">4 bd &middot; 4 ba &middot; 3,340 sq ft</p><p class="courtesy">Sample listing &middot; Northfield Realty</p></div></article>
+      <article class="card"><div class="photo tone-dusk" role="img" aria-label="Illustration of 305 Sycamore Ave"><svg class="art" viewBox="0 0 720 480" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><circle cx="612" cy="115" r="53" fill="#fff" fill-opacity="0.16"/><circle cx="612" cy="115" r="86" fill="#fff" fill-opacity="0.06"/><rect x="0" y="384" width="720" height="98" fill="#0b1a2e" fill-opacity="0.3"/><rect x="0" y="384" width="720" height="2" fill="#fff" fill-opacity="0.15"/><rect x="238" y="276" width="187" height="108" fill="#fff" fill-opacity="0.2"/><polygon points="219,276 331,173 444,276" fill="#0b1a2e" fill-opacity="0.5"/><rect x="372" y="179" width="15" height="59" fill="#0b1a2e" fill-opacity="0.5"/><rect x="316" y="325" width="30" height="59" fill="#0b1a2e" fill-opacity="0.55"/><rect x="256" y="303" width="37" height="32" fill="#f0d9a6" fill-opacity="0.88"/><rect x="369" y="303" width="37" height="32" fill="#f0d9a6" fill-opacity="0.88"/><rect x="546" y="265" width="30" height="119" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="562" cy="179" r="130" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="508" cy="157" r="76" fill="#fff" fill-opacity="0.06"/><rect x="78" y="321" width="16" height="63" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="86" cy="275" r="69" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="58" cy="263" r="40" fill="#fff" fill-opacity="0.06"/><rect x="191" y="359" width="3" height="25" fill="#fff" fill-opacity="0.3"/><rect x="232" y="359" width="3" height="25" fill="#fff" fill-opacity="0.3"/><rect x="273" y="359" width="3" height="25" fill="#fff" fill-opacity="0.3"/><rect x="314" y="359" width="3" height="25" fill="#fff" fill-opacity="0.3"/><rect x="356" y="359" width="3" height="25" fill="#fff" fill-opacity="0.3"/><rect x="397" y="359" width="3" height="25" fill="#fff" fill-opacity="0.3"/><rect x="438" y="359" width="3" height="25" fill="#fff" fill-opacity="0.3"/></svg><span class="badge active">Active</span><button type="button" class="save" aria-pressed="false" aria-label="Save this home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 8a4.3 4.3 0 0 1 7.5 2.5c0 5.4-7.5 10-7.5 10z"/></svg></button></div><div class="card-body"><p class="price">$450,000</p><a class="card-link" href="#contact" data-msg="I'd like to know more about 305 Sycamore Ave. "><p class="addr">305 Sycamore Ave <span>&middot; Ashford Park</span></p></a><p class="mls">3 bd &middot; 2 ba &middot; 1,640 sq ft</p><p class="courtesy">Sample listing &middot; Northfield Realty</p></div></article>
+    </div>
+    <p class="note">All listings, prices and addresses on this page are fictional sample data. On a live site this grid would sync from the local MLS.</p>
+  </div>
+</section>
+
+<!-- RECENTLY SOLD -->
+<section class="band-alt" id="sold" aria-labelledby="soldTitle">
+  <div class="wrap">
+    <div class="sec-head row">
+      <p class="label">Recent results</p>
+      <h2 id="soldTitle">Recently sold</h2>
+      <p class="lede">From city rowhomes to hillside estates, a selection of sample sales to show how results are presented.</p>
+      <a class="textlink" href="#sold">View all sold</a>
+    </div>
+    <div class="cards" id="soldCards">
+      <article class="card"><div class="photo tone-sage" role="img" aria-label="Illustration of 27 Birchwood Ter"><svg class="art" viewBox="0 0 720 480" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><circle cx="144" cy="115" r="53" fill="#fff" fill-opacity="0.16"/><circle cx="144" cy="115" r="86" fill="#fff" fill-opacity="0.06"/><rect x="0" y="384" width="720" height="98" fill="#0b1a2e" fill-opacity="0.3"/><rect x="0" y="384" width="720" height="2" fill="#fff" fill-opacity="0.15"/><rect x="202" y="290" width="317" height="94" fill="#fff" fill-opacity="0.22"/><rect x="252" y="204" width="202" height="86" fill="#fff" fill-opacity="0.3"/><rect x="187" y="287" width="346" height="4" fill="#0b1a2e" fill-opacity="0.55"/><rect x="238" y="200" width="230" height="4" fill="#0b1a2e" fill-opacity="0.55"/><rect x="266" y="226" width="173" height="43" fill="#f0d9a6" fill-opacity="0.88"/><rect x="223" y="312" width="144" height="50" fill="#f0d9a6" fill-opacity="0.88"/><rect x="418" y="312" width="43" height="72" fill="#0b1a2e" fill-opacity="0.5"/><rect x="90" y="297" width="22" height="87" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="101" cy="234" r="95" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="61" cy="218" r="55" fill="#fff" fill-opacity="0.06"/><rect x="625" y="313" width="18" height="71" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="634" cy="261" r="78" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="601" cy="248" r="45" fill="#fff" fill-opacity="0.06"/></svg><span class="badge sold">Sold</span><button type="button" class="save" aria-pressed="false" aria-label="Save this home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 8a4.3 4.3 0 0 1 7.5 2.5c0 5.4-7.5 10-7.5 10z"/></svg></button></div><div class="card-body"><p class="price">$1,150,000</p><a class="card-link" href="#contact" data-msg="I'd like to know more about 27 Birchwood Ter. "><p class="addr">27 Birchwood Ter <span>&middot; Larkfield</span></p></a><p class="mls">5 bd &middot; 4 ba &middot; 4,100 sq ft</p><p class="courtesy">Sample listing &middot; Northfield Realty</p></div></article>
+      <article class="card"><div class="photo tone-moss" role="img" aria-label="Illustration of 640 Willow Bend Rd"><svg class="art" viewBox="0 0 720 480" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><circle cx="144" cy="115" r="53" fill="#fff" fill-opacity="0.16"/><circle cx="144" cy="115" r="86" fill="#fff" fill-opacity="0.06"/><rect x="0" y="384" width="720" height="98" fill="#0b1a2e" fill-opacity="0.3"/><rect x="0" y="384" width="720" height="2" fill="#fff" fill-opacity="0.15"/><rect x="98" y="305" width="20" height="79" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="108" cy="247" r="86" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="72" cy="233" r="50" fill="#fff" fill-opacity="0.06"/><rect x="611" y="321" width="16" height="63" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="619" cy="275" r="69" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="590" cy="263" r="40" fill="#fff" fill-opacity="0.06"/><polygon points="12,384 58,233 103,384" fill="#0b1a2e" fill-opacity="0.4"/><rect x="238" y="240" width="245" height="144" fill="#fff" fill-opacity="0.2"/><polygon points="218,240 360,139 502,240" fill="#0b1a2e" fill-opacity="0.5"/><rect x="429" y="132" width="17" height="72" fill="#0b1a2e" fill-opacity="0.5"/><rect x="343" y="312" width="34" height="72" fill="#0b1a2e" fill-opacity="0.55"/><rect x="267" y="272" width="44" height="43" fill="#f0d9a6" fill-opacity="0.88"/><rect x="404" y="272" width="44" height="43" fill="#f0d9a6" fill-opacity="0.88"/><rect x="225" y="381" width="269" height="5" fill="#fff" fill-opacity="0.18"/></svg><span class="badge sold">Sold</span><button type="button" class="save" aria-pressed="false" aria-label="Save this home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 8a4.3 4.3 0 0 1 7.5 2.5c0 5.4-7.5 10-7.5 10z"/></svg></button></div><div class="card-body"><p class="price">$865,000</p><a class="card-link" href="#contact" data-msg="I'd like to know more about 640 Willow Bend Rd. "><p class="addr">640 Willow Bend Rd <span>&middot; Willow Bend</span></p></a><p class="mls">4 bd &middot; 3 ba &middot; 2,900 sq ft</p><p class="courtesy">Sample listing &middot; Northfield Realty</p></div></article>
+      <article class="card"><div class="photo tone-clay" role="img" aria-label="Illustration of 88 Larkspur Cir"><svg class="art" viewBox="0 0 720 480" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><circle cx="540" cy="115" r="53" fill="#fff" fill-opacity="0.16"/><circle cx="540" cy="115" r="86" fill="#fff" fill-opacity="0.06"/><path d="M0 288 Q180 182 360 264 T720 240 V480 H0Z" fill="#fff" fill-opacity=".2"/><path d="M0 346 Q216 264 432 336 T720 307 V480 H0Z" fill="#0b1a2e" fill-opacity=".3"/><rect x="0" y="374" width="720" height="108" fill="#0b1a2e" fill-opacity="0.35"/><rect x="403" y="288" width="144" height="86" fill="#fff" fill-opacity="0.22"/><polygon points="392,288 475,228 559,288" fill="#0b1a2e" fill-opacity="0.5"/><rect x="425" y="310" width="29" height="26" fill="#f0d9a6" fill-opacity="0.88"/><rect x="482" y="327" width="22" height="48" fill="#0b1a2e" fill-opacity="0.55"/><polygon points="30,380 101,143 172,380" fill="#0b1a2e" fill-opacity="0.4"/><polygon points="118,380 173,197 228,380" fill="#0b1a2e" fill-opacity="0.4"/><polygon points="526,380 590,164 655,380" fill="#0b1a2e" fill-opacity="0.4"/><polygon points="614,380 662,218 711,380" fill="#0b1a2e" fill-opacity="0.4"/><polygon points="206,380 245,251 284,380" fill="#0b1a2e" fill-opacity="0.4"/></svg><span class="badge sold">Sold</span><button type="button" class="save" aria-pressed="false" aria-label="Save this home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 8a4.3 4.3 0 0 1 7.5 2.5c0 5.4-7.5 10-7.5 10z"/></svg></button></div><div class="card-body"><p class="price">$720,000</p><a class="card-link" href="#contact" data-msg="I'd like to know more about 88 Larkspur Cir. "><p class="addr">88 Larkspur Cir <span>&middot; Cedar Ridge</span></p></a><p class="mls">4 bd &middot; 3 ba &middot; 2,450 sq ft</p><p class="courtesy">Sample listing &middot; Northfield Realty</p></div></article>
+      <article class="card"><div class="photo tone-slate" role="img" aria-label="Illustration of 15 Tanner St"><svg class="art" viewBox="0 0 720 480" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><circle cx="144" cy="115" r="53" fill="#fff" fill-opacity="0.16"/><circle cx="144" cy="115" r="86" fill="#fff" fill-opacity="0.06"/><rect x="0" y="394" width="720" height="88" fill="#0b1a2e" fill-opacity="0.3"/><rect x="0" y="394" width="720" height="2" fill="#fff" fill-opacity="0.15"/><rect x="115" y="178" width="122" height="216" fill="#fff" fill-opacity="0.14"/><rect x="115" y="174" width="122" height="5" fill="#0b1a2e" fill-opacity="0.5"/><polygon points="115,178 176,127 238,178" fill="#0b1a2e" fill-opacity="0.45"/><rect x="135" y="208" width="32" height="35" fill="#f0d9a6" fill-opacity="0.3"/><rect x="191" y="208" width="32" height="35" fill="#f0d9a6" fill-opacity="0.8"/><rect x="135" y="273" width="32" height="35" fill="#f0d9a6" fill-opacity="0.8"/><rect x="191" y="273" width="32" height="35" fill="#f0d9a6" fill-opacity="0.8"/><rect x="159" y="337" width="34" height="56" fill="#0b1a2e" fill-opacity="0.5"/><rect x="238" y="134" width="122" height="259" fill="#fff" fill-opacity="0.19"/><rect x="238" y="130" width="122" height="5" fill="#0b1a2e" fill-opacity="0.5"/><rect x="257" y="171" width="32" height="41" fill="#f0d9a6" fill-opacity="0.8"/><rect x="313" y="171" width="32" height="41" fill="#f0d9a6" fill-opacity="0.8"/><rect x="257" y="248" width="32" height="41" fill="#f0d9a6" fill-opacity="0.8"/><rect x="313" y="248" width="32" height="41" fill="#f0d9a6" fill-opacity="0.3"/><rect x="282" y="326" width="34" height="67" fill="#0b1a2e" fill-opacity="0.5"/><rect x="360" y="163" width="122" height="230" fill="#fff" fill-opacity="0.14"/><rect x="360" y="159" width="122" height="5" fill="#0b1a2e" fill-opacity="0.5"/><polygon points="360,163 421,113 482,163" fill="#0b1a2e" fill-opacity="0.45"/><rect x="380" y="195" width="32" height="37" fill="#f0d9a6" fill-opacity="0.8"/><rect x="436" y="195" width="32" height="37" fill="#f0d9a6" fill-opacity="0.3"/><rect x="380" y="265" width="32" height="37" fill="#f0d9a6" fill-opacity="0.3"/><rect x="436" y="265" width="32" height="37" fill="#f0d9a6" fill-opacity="0.8"/><rect x="404" y="334" width="34" height="60" fill="#0b1a2e" fill-opacity="0.5"/><rect x="482" y="149" width="122" height="245" fill="#fff" fill-opacity="0.19"/><rect x="482" y="145" width="122" height="5" fill="#0b1a2e" fill-opacity="0.5"/><rect x="502" y="183" width="32" height="39" fill="#f0d9a6" fill-opacity="0.3"/><rect x="558" y="183" width="32" height="39" fill="#f0d9a6" fill-opacity="0.8"/><rect x="502" y="257" width="32" height="39" fill="#f0d9a6" fill-opacity="0.8"/><rect x="558" y="257" width="32" height="39" fill="#f0d9a6" fill-opacity="0.8"/><rect x="526" y="330" width="34" height="64" fill="#0b1a2e" fill-opacity="0.5"/><rect x="48" y="314" width="20" height="79" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="58" cy="257" r="86" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="22" cy="242" r="50" fill="#fff" fill-opacity="0.06"/><rect x="661" y="326" width="17" height="67" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="670" cy="277" r="73" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="639" cy="265" r="43" fill="#fff" fill-opacity="0.06"/></svg><span class="badge sold">Sold</span><button type="button" class="save" aria-pressed="false" aria-label="Save this home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 8a4.3 4.3 0 0 1 7.5 2.5c0 5.4-7.5 10-7.5 10z"/></svg></button></div><div class="card-body"><p class="price">$615,000</p><a class="card-link" href="#contact" data-msg="I'd like to know more about 15 Tanner St. "><p class="addr">15 Tanner St <span>&middot; Brookside</span></p></a><p class="mls">3 bd &middot; 2 ba &middot; 1,780 sq ft</p><p class="courtesy">Sample listing &middot; Northfield Realty</p></div></article>
+      <article class="card"><div class="photo tone-stone" role="img" aria-label="Illustration of 233 Hollis Ln"><svg class="art" viewBox="0 0 720 480" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><circle cx="540" cy="115" r="53" fill="#fff" fill-opacity="0.16"/><circle cx="540" cy="115" r="86" fill="#fff" fill-opacity="0.06"/><rect x="0" y="384" width="720" height="98" fill="#0b1a2e" fill-opacity="0.3"/><rect x="0" y="384" width="720" height="2" fill="#fff" fill-opacity="0.15"/><rect x="238" y="276" width="187" height="108" fill="#fff" fill-opacity="0.2"/><polygon points="219,276 331,173 444,276" fill="#0b1a2e" fill-opacity="0.5"/><rect x="372" y="179" width="15" height="59" fill="#0b1a2e" fill-opacity="0.5"/><rect x="316" y="325" width="30" height="59" fill="#0b1a2e" fill-opacity="0.55"/><rect x="256" y="303" width="37" height="32" fill="#f0d9a6" fill-opacity="0.88"/><rect x="369" y="303" width="37" height="32" fill="#f0d9a6" fill-opacity="0.88"/><rect x="546" y="265" width="30" height="119" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="562" cy="179" r="130" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="508" cy="157" r="76" fill="#fff" fill-opacity="0.06"/><rect x="78" y="321" width="16" height="63" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="86" cy="275" r="69" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="58" cy="263" r="40" fill="#fff" fill-opacity="0.06"/><rect x="191" y="359" width="3" height="25" fill="#fff" fill-opacity="0.3"/><rect x="232" y="359" width="3" height="25" fill="#fff" fill-opacity="0.3"/><rect x="273" y="359" width="3" height="25" fill="#fff" fill-opacity="0.3"/><rect x="314" y="359" width="3" height="25" fill="#fff" fill-opacity="0.3"/><rect x="356" y="359" width="3" height="25" fill="#fff" fill-opacity="0.3"/><rect x="397" y="359" width="3" height="25" fill="#fff" fill-opacity="0.3"/><rect x="438" y="359" width="3" height="25" fill="#fff" fill-opacity="0.3"/></svg><span class="badge sold">Sold</span><button type="button" class="save" aria-pressed="false" aria-label="Save this home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 8a4.3 4.3 0 0 1 7.5 2.5c0 5.4-7.5 10-7.5 10z"/></svg></button></div><div class="card-body"><p class="price">$540,000</p><a class="card-link" href="#contact" data-msg="I'd like to know more about 233 Hollis Ln. "><p class="addr">233 Hollis Ln <span>&middot; Elm Hollow</span></p></a><p class="mls">3 bd &middot; 2 ba &middot; 1,700 sq ft</p><p class="courtesy">Sample listing &middot; Northfield Realty</p></div></article>
+      <article class="card"><div class="photo tone-dusk" role="img" aria-label="Illustration of 71 Orchard St"><svg class="art" viewBox="0 0 720 480" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><circle cx="540" cy="115" r="53" fill="#fff" fill-opacity="0.16"/><circle cx="540" cy="115" r="86" fill="#fff" fill-opacity="0.06"/><path d="M0 288 Q180 182 360 264 T720 240 V480 H0Z" fill="#fff" fill-opacity=".2"/><path d="M0 346 Q216 264 432 336 T720 307 V480 H0Z" fill="#0b1a2e" fill-opacity=".3"/><rect x="0" y="374" width="720" height="108" fill="#0b1a2e" fill-opacity="0.35"/><rect x="403" y="288" width="144" height="86" fill="#fff" fill-opacity="0.22"/><polygon points="392,288 475,228 559,288" fill="#0b1a2e" fill-opacity="0.5"/><rect x="425" y="310" width="29" height="26" fill="#f0d9a6" fill-opacity="0.88"/><rect x="482" y="327" width="22" height="48" fill="#0b1a2e" fill-opacity="0.55"/><polygon points="30,380 101,143 172,380" fill="#0b1a2e" fill-opacity="0.4"/><polygon points="118,380 173,197 228,380" fill="#0b1a2e" fill-opacity="0.4"/><polygon points="526,380 590,164 655,380" fill="#0b1a2e" fill-opacity="0.4"/><polygon points="614,380 662,218 711,380" fill="#0b1a2e" fill-opacity="0.4"/><polygon points="206,380 245,251 284,380" fill="#0b1a2e" fill-opacity="0.4"/></svg><span class="badge sold">Sold</span><button type="button" class="save" aria-pressed="false" aria-label="Save this home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 8a4.3 4.3 0 0 1 7.5 2.5c0 5.4-7.5 10-7.5 10z"/></svg></button></div><div class="card-body"><p class="price">$480,000</p><a class="card-link" href="#contact" data-msg="I'd like to know more about 71 Orchard St. "><p class="addr">71 Orchard St <span>&middot; Highview</span></p></a><p class="mls">2 bd &middot; 2 ba &middot; 1,420 sq ft</p><p class="courtesy">Sample listing &middot; Northfield Realty</p></div></article>
+    </div>
+    <div class="reach" aria-label="Where we've sold">
+      <p class="label">Where we've sold</p>
+      <ul>
+        <li><strong>Elm Hollow</strong><span>Porch-front homes</span></li>
+        <li><strong>Brookside</strong><span>Townhomes and cottages</span></li>
+        <li><strong>Cedar Ridge</strong><span>Hillside properties</span></li>
+        <li><strong>Highview</strong><span>Open-sky homes</span></li>
+        <li><strong>Larkfield</strong><span>Modern residences</span></li>
+        <li><strong>Willow Bend</strong><span>Newer construction</span></li>
+      </ul>
+      <p class="reach-top">Sample results up to <strong>$1,150,000</strong> <span>27 Birchwood Ter, Larkfield</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- BUY / SELL -->
+<section id="buy" aria-labelledby="bsTitle">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="label">Working with us</p>
+      <h2 id="bsTitle">Whether you are buying or selling, you get experienced professionals who know this market.</h2>
+    </div>
+    <div class="split">
+      <article class="panel">
+        <div class="photo tone-sand" role="img" aria-label="Illustration of a home"><svg class="art" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><circle cx="960" cy="173" r="79" fill="#fff" fill-opacity="0.16"/><circle cx="960" cy="173" r="130" fill="#fff" fill-opacity="0.06"/><rect x="0" y="576" width="1280" height="146" fill="#0b1a2e" fill-opacity="0.3"/><rect x="0" y="576" width="1280" height="2" fill="#fff" fill-opacity="0.15"/><rect x="177" y="457" width="30" height="119" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="192" cy="371" r="130" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="138" cy="349" r="76" fill="#fff" fill-opacity="0.06"/><rect x="1089" y="481" width="24" height="95" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="1101" cy="412" r="104" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="1058" cy="395" r="60" fill="#fff" fill-opacity="0.06"/><polygon points="34,576 102,349 170,576" fill="#0b1a2e" fill-opacity="0.4"/><rect x="456" y="360" width="367" height="216" fill="#fff" fill-opacity="0.2"/><polygon points="427,360 640,209 853,360" fill="#0b1a2e" fill-opacity="0.5"/><rect x="743" y="198" width="26" height="108" fill="#0b1a2e" fill-opacity="0.5"/><rect x="614" y="468" width="51" height="108" fill="#0b1a2e" fill-opacity="0.55"/><rect x="500" y="408" width="66" height="65" fill="#f0d9a6" fill-opacity="0.88"/><rect x="706" y="408" width="66" height="65" fill="#f0d9a6" fill-opacity="0.88"/><rect x="438" y="573" width="404" height="5" fill="#fff" fill-opacity="0.18"/></svg></div>
+        <div class="panel-body">
+          <p class="label">Buying</p>
+          <h3>Find the right home, on the right terms.</h3>
+          <p>We know these neighborhoods house by house, and we negotiate for you with a clear head. Our team brings careful pricing discipline and a neighbor's knowledge of where you want to live.</p>
+          <ul class="checks">
+            <li>Early access to coming-soon and off-market opportunities</li>
+            <li>Honest guidance on value, condition and resale</li>
+            <li>Experienced negotiation in competitive markets</li>
+            <li>Relocation services for out-of-town and international buyers</li>
+          </ul>
+          <a class="btn" href="#contact">Start your search</a>
+        </div>
+      </article>
+      <article class="panel" id="sell">
+        <div class="photo tone-stone" role="img" aria-label="Illustration of a modern home"><svg class="art" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><circle cx="960" cy="173" r="79" fill="#fff" fill-opacity="0.16"/><circle cx="960" cy="173" r="130" fill="#fff" fill-opacity="0.06"/><rect x="0" y="576" width="1280" height="146" fill="#0b1a2e" fill-opacity="0.3"/><rect x="0" y="576" width="1280" height="2" fill="#fff" fill-opacity="0.15"/><rect x="402" y="436" width="475" height="140" fill="#fff" fill-opacity="0.22"/><rect x="478" y="306" width="302" height="130" fill="#fff" fill-opacity="0.3"/><rect x="381" y="430" width="518" height="4" fill="#0b1a2e" fill-opacity="0.55"/><rect x="456" y="301" width="346" height="4" fill="#0b1a2e" fill-opacity="0.55"/><rect x="500" y="338" width="259" height="65" fill="#f0d9a6" fill-opacity="0.88"/><rect x="435" y="468" width="216" height="76" fill="#f0d9a6" fill-opacity="0.88"/><rect x="726" y="468" width="65" height="108" fill="#0b1a2e" fill-opacity="0.5"/><rect x="163" y="445" width="33" height="131" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="179" cy="350" r="143" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="120" cy="327" r="83" fill="#fff" fill-opacity="0.06"/><rect x="1113" y="469" width="27" height="107" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="1126" cy="391" r="117" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="1078" cy="372" r="68" fill="#fff" fill-opacity="0.06"/></svg></div>
+        <div class="panel-body">
+          <p class="label">Selling</p>
+          <h3>A complete marketing plan for your home.</h3>
+          <p>Every listing receives a full-service campaign designed to bring the strongest buyers to your door and the best offer to your table.</p>
+          <ul class="checks">
+            <li>Pricing analysis built on current comparable sales</li>
+            <li>Professional photography and staging guidance</li>
+            <li>Local MLS listing with syndication to every major portal</li>
+            <li>Targeted digital and print exposure, open houses and agent outreach</li>
+          </ul>
+          <a class="btn" href="#valuation">Request a pricing analysis</a>
+          <details class="netcalc">
+            <summary>Estimate your net proceeds</summary>
+            <div class="est">
+              <label for="estPrice">Expected sale price<input id="estPrice" type="text" inputmode="numeric" value="$850,000"></label>
+              <label for="estLoan">Mortgage payoff<input id="estLoan" type="text" inputmode="numeric" value="$300,000"></label>
+              <button class="btn" type="button" id="estBtn">Calculate</button>
+            </div>
+            <div class="est-out" id="estOut">
+              <div><small>Est. selling costs (7%)</small><strong>$59,500</strong></div>
+              <div class="hl"><small>Est. net proceeds</small><strong>$490,500</strong></div>
+            </div>
+            <p class="small" id="estNote">Illustrative only. Actual costs, taxes and payoff amounts vary by sale. Sample calculator for this demo.</p>
+          </details>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- NEIGHBORHOODS -->
+<section class="band-alt" id="neighborhoods" aria-labelledby="hoodTitle">
+  <div class="wrap">
+    <div class="sec-head row">
+      <p class="label">Where we work</p>
+      <h2 id="hoodTitle">Neighborhoods we know well</h2>
+      <p class="lede">Leafy historic streets and walkable village centers, with hillside communities just beyond.</p>
+      <a class="textlink" href="#contact" data-msg="I'd like to learn more about ">Ask about an area</a>
+    </div>
+    <div class="hoods">
+      <a class="hood" href="#contact" data-msg="I'd like to learn more about Elm Hollow. ">
+        <div class="photo tone-moss" role="img" aria-label="Illustration of Elm Hollow"><svg class="art" viewBox="0 0 720 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><circle cx="540" cy="216" r="79" fill="#fff" fill-opacity="0.16"/><circle cx="540" cy="216" r="130" fill="#fff" fill-opacity="0.06"/><rect x="0" y="720" width="720" height="182" fill="#0b1a2e" fill-opacity="0.3"/><rect x="0" y="720" width="720" height="2" fill="#fff" fill-opacity="0.15"/><rect x="98" y="641" width="20" height="79" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="108" cy="583" r="86" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="72" cy="569" r="50" fill="#fff" fill-opacity="0.06"/><rect x="611" y="657" width="16" height="63" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="619" cy="611" r="69" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="590" cy="599" r="40" fill="#fff" fill-opacity="0.06"/><polygon points="12,720 58,569 103,720" fill="#0b1a2e" fill-opacity="0.4"/><rect x="238" y="576" width="245" height="144" fill="#fff" fill-opacity="0.2"/><polygon points="218,576 360,475 502,576" fill="#0b1a2e" fill-opacity="0.5"/><rect x="429" y="468" width="17" height="72" fill="#0b1a2e" fill-opacity="0.5"/><rect x="343" y="648" width="34" height="72" fill="#0b1a2e" fill-opacity="0.55"/><rect x="267" y="608" width="44" height="43" fill="#f0d9a6" fill-opacity="0.88"/><rect x="404" y="608" width="44" height="43" fill="#f0d9a6" fill-opacity="0.88"/><rect x="225" y="717" width="269" height="5" fill="#fff" fill-opacity="0.18"/></svg></div>
+        <div class="hood-text"><h3>Elm Hollow</h3><p>Tree-lined streets and porch-front homes around the village green.</p></div>
+      </a>
+      <a class="hood" href="#contact" data-msg="I'd like to learn more about Brookside. ">
+        <div class="photo tone-slate" role="img" aria-label="Illustration of Brookside"><svg class="art" viewBox="0 0 720 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><circle cx="540" cy="216" r="79" fill="#fff" fill-opacity="0.16"/><circle cx="540" cy="216" r="130" fill="#fff" fill-opacity="0.06"/><rect x="0" y="738" width="720" height="164" fill="#0b1a2e" fill-opacity="0.3"/><rect x="0" y="738" width="720" height="2" fill="#fff" fill-opacity="0.15"/><rect x="115" y="522" width="122" height="216" fill="#fff" fill-opacity="0.14"/><rect x="115" y="518" width="122" height="5" fill="#0b1a2e" fill-opacity="0.5"/><polygon points="115,522 176,472 238,522" fill="#0b1a2e" fill-opacity="0.45"/><rect x="135" y="552" width="32" height="35" fill="#f0d9a6" fill-opacity="0.3"/><rect x="191" y="552" width="32" height="35" fill="#f0d9a6" fill-opacity="0.8"/><rect x="135" y="617" width="32" height="35" fill="#f0d9a6" fill-opacity="0.8"/><rect x="191" y="617" width="32" height="35" fill="#f0d9a6" fill-opacity="0.8"/><rect x="159" y="682" width="34" height="56" fill="#0b1a2e" fill-opacity="0.5"/><rect x="238" y="479" width="122" height="259" fill="#fff" fill-opacity="0.19"/><rect x="238" y="475" width="122" height="5" fill="#0b1a2e" fill-opacity="0.5"/><rect x="257" y="515" width="32" height="41" fill="#f0d9a6" fill-opacity="0.8"/><rect x="313" y="515" width="32" height="41" fill="#f0d9a6" fill-opacity="0.8"/><rect x="257" y="593" width="32" height="41" fill="#f0d9a6" fill-opacity="0.8"/><rect x="313" y="593" width="32" height="41" fill="#f0d9a6" fill-opacity="0.3"/><rect x="282" y="671" width="34" height="67" fill="#0b1a2e" fill-opacity="0.5"/><rect x="360" y="508" width="122" height="230" fill="#fff" fill-opacity="0.14"/><rect x="360" y="504" width="122" height="5" fill="#0b1a2e" fill-opacity="0.5"/><polygon points="360,508 421,457 482,508" fill="#0b1a2e" fill-opacity="0.45"/><rect x="380" y="540" width="32" height="37" fill="#f0d9a6" fill-opacity="0.8"/><rect x="436" y="540" width="32" height="37" fill="#f0d9a6" fill-opacity="0.3"/><rect x="380" y="609" width="32" height="37" fill="#f0d9a6" fill-opacity="0.3"/><rect x="436" y="609" width="32" height="37" fill="#f0d9a6" fill-opacity="0.8"/><rect x="404" y="678" width="34" height="60" fill="#0b1a2e" fill-opacity="0.5"/><rect x="482" y="493" width="122" height="245" fill="#fff" fill-opacity="0.19"/><rect x="482" y="489" width="122" height="5" fill="#0b1a2e" fill-opacity="0.5"/><rect x="502" y="527" width="32" height="39" fill="#f0d9a6" fill-opacity="0.3"/><rect x="558" y="527" width="32" height="39" fill="#f0d9a6" fill-opacity="0.8"/><rect x="502" y="601" width="32" height="39" fill="#f0d9a6" fill-opacity="0.8"/><rect x="558" y="601" width="32" height="39" fill="#f0d9a6" fill-opacity="0.8"/><rect x="526" y="674" width="34" height="64" fill="#0b1a2e" fill-opacity="0.5"/><rect x="48" y="659" width="20" height="79" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="58" cy="601" r="86" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="22" cy="587" r="50" fill="#fff" fill-opacity="0.06"/><rect x="661" y="671" width="17" height="67" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="670" cy="622" r="73" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="639" cy="609" r="43" fill="#fff" fill-opacity="0.06"/></svg></div>
+        <div class="hood-text"><h3>Brookside</h3><p>Quiet lanes with a mix of cottages and townhomes.</p></div>
+      </a>
+      <a class="hood" href="#contact" data-msg="I'd like to learn more about Cedar Ridge. ">
+        <div class="photo tone-sage" role="img" aria-label="Illustration of Cedar Ridge"><svg class="art" viewBox="0 0 720 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><circle cx="612" cy="216" r="79" fill="#fff" fill-opacity="0.16"/><circle cx="612" cy="216" r="130" fill="#fff" fill-opacity="0.06"/><path d="M0 540 Q180 342 360 495 T720 450 V900 H0Z" fill="#fff" fill-opacity=".2"/><path d="M0 648 Q216 495 432 630 T720 576 V900 H0Z" fill="#0b1a2e" fill-opacity=".3"/><rect x="0" y="702" width="720" height="200" fill="#0b1a2e" fill-opacity="0.35"/><rect x="403" y="616" width="144" height="86" fill="#fff" fill-opacity="0.22"/><polygon points="392,616 475,555 559,616" fill="#0b1a2e" fill-opacity="0.5"/><rect x="425" y="637" width="29" height="26" fill="#f0d9a6" fill-opacity="0.88"/><rect x="482" y="654" width="22" height="48" fill="#0b1a2e" fill-opacity="0.55"/><polygon points="30,708 101,470 172,708" fill="#0b1a2e" fill-opacity="0.4"/><polygon points="118,708 173,524 228,708" fill="#0b1a2e" fill-opacity="0.4"/><polygon points="526,708 590,492 655,708" fill="#0b1a2e" fill-opacity="0.4"/><polygon points="614,708 662,546 711,708" fill="#0b1a2e" fill-opacity="0.4"/><polygon points="206,708 245,578 284,708" fill="#0b1a2e" fill-opacity="0.4"/></svg></div>
+        <div class="hood-text"><h3>Cedar Ridge</h3><p>Hillside views, larger lots and quiet cul-de-sacs.</p></div>
+      </a>
+      <a class="hood" href="#contact" data-msg="I'd like to learn more about Stonebridge. ">
+        <div class="photo tone-stone" role="img" aria-label="Illustration of Stonebridge"><svg class="art" viewBox="0 0 720 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><circle cx="144" cy="216" r="79" fill="#fff" fill-opacity="0.16"/><circle cx="144" cy="216" r="130" fill="#fff" fill-opacity="0.06"/><rect x="0" y="720" width="720" height="182" fill="#0b1a2e" fill-opacity="0.3"/><rect x="0" y="720" width="720" height="2" fill="#fff" fill-opacity="0.15"/><rect x="180" y="598" width="360" height="122" fill="#fff" fill-opacity="0.2"/><polygon points="180,598 180,561 270,598" fill="#0b1a2e" fill-opacity="0.45"/><polygon points="270,598 270,561 360,598" fill="#0b1a2e" fill-opacity="0.45"/><polygon points="360,598 360,561 450,598" fill="#0b1a2e" fill-opacity="0.45"/><polygon points="450,598 450,561 540,598" fill="#0b1a2e" fill-opacity="0.45"/><rect x="490" y="463" width="22" height="135" fill="#fff" fill-opacity="0.26"/><rect x="486" y="458" width="29" height="6" fill="#0b1a2e" fill-opacity="0.5"/><path d="M209 689 v-43 a11 11 0 0 1 22 0 v43 z" fill="#f0d9a6" fill-opacity=".85"/><path d="M270 689 v-43 a11 11 0 0 1 22 0 v43 z" fill="#f0d9a6" fill-opacity=".85"/><path d="M331 689 v-43 a11 11 0 0 1 22 0 v43 z" fill="#f0d9a6" fill-opacity=".85"/><path d="M392 689 v-43 a11 11 0 0 1 22 0 v43 z" fill="#f0d9a6" fill-opacity=".85"/><path d="M454 689 v-43 a11 11 0 0 1 22 0 v43 z" fill="#f0d9a6" fill-opacity=".85"/><rect x="342" y="683" width="36" height="37" fill="#0b1a2e" fill-opacity="0.55"/><rect x="62" y="641" width="20" height="79" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="72" cy="583" r="86" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="36" cy="569" r="50" fill="#fff" fill-opacity="0.06"/><rect x="654" y="657" width="16" height="63" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="662" cy="611" r="69" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="634" cy="599" r="40" fill="#fff" fill-opacity="0.06"/></svg></div>
+        <div class="hood-text"><h3>Stonebridge</h3><p>Converted brick lofts and a walkable arts district.</p></div>
+      </a>
+      <a class="hood" href="#contact" data-msg="I'd like to learn more about Highview. ">
+        <div class="photo tone-dusk" role="img" aria-label="Illustration of Highview"><svg class="art" viewBox="0 0 720 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><circle cx="540" cy="216" r="79" fill="#fff" fill-opacity="0.16"/><circle cx="540" cy="216" r="130" fill="#fff" fill-opacity="0.06"/><path d="M0 540 Q180 342 360 495 T720 450 V900 H0Z" fill="#fff" fill-opacity=".2"/><path d="M0 648 Q216 495 432 630 T720 576 V900 H0Z" fill="#0b1a2e" fill-opacity=".3"/><rect x="0" y="702" width="720" height="200" fill="#0b1a2e" fill-opacity="0.35"/><rect x="403" y="616" width="144" height="86" fill="#fff" fill-opacity="0.22"/><polygon points="392,616 475,555 559,616" fill="#0b1a2e" fill-opacity="0.5"/><rect x="425" y="637" width="29" height="26" fill="#f0d9a6" fill-opacity="0.88"/><rect x="482" y="654" width="22" height="48" fill="#0b1a2e" fill-opacity="0.55"/><polygon points="30,708 101,470 172,708" fill="#0b1a2e" fill-opacity="0.4"/><polygon points="118,708 173,524 228,708" fill="#0b1a2e" fill-opacity="0.4"/><polygon points="526,708 590,492 655,708" fill="#0b1a2e" fill-opacity="0.4"/><polygon points="614,708 662,546 711,708" fill="#0b1a2e" fill-opacity="0.4"/><polygon points="206,708 245,578 284,708" fill="#0b1a2e" fill-opacity="0.4"/></svg></div>
+        <div class="hood-text"><h3>Highview</h3><p>Open skies, walking paths and sweeping sunset views.</p></div>
+      </a>
+      <a class="hood" href="#contact" data-msg="I'd like to learn more about Ashford Park. ">
+        <div class="photo tone-clay" role="img" aria-label="Illustration of Ashford Park"><svg class="art" viewBox="0 0 720 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><circle cx="540" cy="216" r="79" fill="#fff" fill-opacity="0.16"/><circle cx="540" cy="216" r="130" fill="#fff" fill-opacity="0.06"/><rect x="0" y="648" width="720" height="254" fill="#0b1a2e" fill-opacity="0.3"/><rect x="0" y="648" width="720" height="2" fill="#fff" fill-opacity="0.15"/><polygon points="302,900 418,900 382,650 338,650" fill="#fff" fill-opacity="0.16"/><rect x="71" y="601" width="30" height="119" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="86" cy="515" r="130" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="32" cy="493" r="76" fill="#fff" fill-opacity="0.06"/><rect x="183" y="633" width="22" height="87" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="194" cy="570" r="95" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="155" cy="554" r="55" fill="#fff" fill-opacity="0.06"/><rect x="520" y="617" width="26" height="103" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="533" cy="542" r="112" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="486" cy="523" r="66" fill="#fff" fill-opacity="0.06"/><rect x="632" y="593" width="32" height="127" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="648" cy="501" r="138" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="590" cy="478" r="81" fill="#fff" fill-opacity="0.06"/><rect x="424" y="616" width="15" height="59" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="432" cy="572" r="65" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="405" cy="562" r="38" fill="#fff" fill-opacity="0.06"/><rect x="267" y="620" width="14" height="55" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="274" cy="579" r="60" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="248" cy="569" r="35" fill="#fff" fill-opacity="0.06"/><rect x="446" y="738" width="58" height="4" fill="#0b1a2e" fill-opacity="0.55"/><rect x="454" y="738" width="3" height="14" fill="#0b1a2e" fill-opacity="0.55"/></svg></div>
+        <div class="hood-text"><h3>Ashford Park</h3><p>Mature trees, playgrounds and classic mid-century homes.</p></div>
+      </a>
+      <a class="hood" href="#contact" data-msg="I'd like to learn more about Larkfield. ">
+        <div class="photo tone-sand" role="img" aria-label="Illustration of Larkfield"><svg class="art" viewBox="0 0 720 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><circle cx="144" cy="216" r="79" fill="#fff" fill-opacity="0.16"/><circle cx="144" cy="216" r="130" fill="#fff" fill-opacity="0.06"/><rect x="0" y="720" width="720" height="182" fill="#0b1a2e" fill-opacity="0.3"/><rect x="0" y="720" width="720" height="2" fill="#fff" fill-opacity="0.15"/><rect x="202" y="626" width="317" height="94" fill="#fff" fill-opacity="0.22"/><rect x="252" y="540" width="202" height="86" fill="#fff" fill-opacity="0.3"/><rect x="187" y="623" width="346" height="4" fill="#0b1a2e" fill-opacity="0.55"/><rect x="238" y="536" width="230" height="4" fill="#0b1a2e" fill-opacity="0.55"/><rect x="266" y="562" width="173" height="43" fill="#f0d9a6" fill-opacity="0.88"/><rect x="223" y="648" width="144" height="50" fill="#f0d9a6" fill-opacity="0.88"/><rect x="418" y="648" width="43" height="72" fill="#0b1a2e" fill-opacity="0.5"/><rect x="90" y="633" width="22" height="87" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="101" cy="570" r="95" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="61" cy="554" r="55" fill="#fff" fill-opacity="0.06"/><rect x="625" y="649" width="18" height="71" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="634" cy="597" r="78" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="601" cy="584" r="45" fill="#fff" fill-opacity="0.06"/></svg></div>
+        <div class="hood-text"><h3>Larkfield</h3><p>Elevated streets with architect-designed modern homes.</p></div>
+      </a>
+      <a class="hood" href="#contact" data-msg="I'd like to learn more about Willow Bend. ">
+        <div class="photo tone-slate" role="img" aria-label="Illustration of Willow Bend"><svg class="art" viewBox="0 0 720 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><circle cx="540" cy="216" r="79" fill="#fff" fill-opacity="0.16"/><circle cx="540" cy="216" r="130" fill="#fff" fill-opacity="0.06"/><rect x="0" y="720" width="720" height="182" fill="#0b1a2e" fill-opacity="0.3"/><rect x="0" y="720" width="720" height="2" fill="#fff" fill-opacity="0.15"/><rect x="238" y="612" width="187" height="108" fill="#fff" fill-opacity="0.2"/><polygon points="219,612 331,509 444,612" fill="#0b1a2e" fill-opacity="0.5"/><rect x="372" y="515" width="15" height="59" fill="#0b1a2e" fill-opacity="0.5"/><rect x="316" y="661" width="30" height="59" fill="#0b1a2e" fill-opacity="0.55"/><rect x="256" y="639" width="37" height="32" fill="#f0d9a6" fill-opacity="0.88"/><rect x="369" y="639" width="37" height="32" fill="#f0d9a6" fill-opacity="0.88"/><rect x="546" y="601" width="30" height="119" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="562" cy="515" r="130" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="508" cy="493" r="76" fill="#fff" fill-opacity="0.06"/><rect x="78" y="657" width="16" height="63" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="86" cy="611" r="69" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="58" cy="599" r="40" fill="#fff" fill-opacity="0.06"/><rect x="191" y="695" width="3" height="25" fill="#fff" fill-opacity="0.3"/><rect x="232" y="695" width="3" height="25" fill="#fff" fill-opacity="0.3"/><rect x="273" y="695" width="3" height="25" fill="#fff" fill-opacity="0.3"/><rect x="314" y="695" width="3" height="25" fill="#fff" fill-opacity="0.3"/><rect x="356" y="695" width="3" height="25" fill="#fff" fill-opacity="0.3"/><rect x="397" y="695" width="3" height="25" fill="#fff" fill-opacity="0.3"/><rect x="438" y="695" width="3" height="25" fill="#fff" fill-opacity="0.3"/></svg></div>
+        <div class="hood-text"><h3>Willow Bend</h3><p>A newer community of homes on gently curving streets.</p></div>
+      </a>
+    </div>
+    <div class="snapshot">
+      <div><span class="label">Market snapshot</span><strong>$640,000</strong></div>
+      <p>Sample median sale price in Elm Hollow, up 4.2% year over year (illustrative figure for this demo). Ask us for a current report on any neighborhood.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" aria-labelledby="aboutTitle">
+  <div class="wrap">
+    <div class="about">
+      <div class="photo tone-dusk" role="img" aria-label="Illustration of a city street"><svg class="art" viewBox="0 0 720 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><circle cx="144" cy="216" r="79" fill="#fff" fill-opacity="0.16"/><circle cx="144" cy="216" r="130" fill="#fff" fill-opacity="0.06"/><rect x="43" y="288" width="51" height="450" fill="#fff" fill-opacity="0.24"/><rect x="66" y="234" width="3" height="54" fill="#fff" fill-opacity="0.3"/><rect x="49" y="342" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="82" y="396" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="82" y="450" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="82" y="504" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="100" y="288" width="63" height="450" fill="#fff" fill-opacity="0.24"/><rect x="129" y="234" width="3" height="54" fill="#fff" fill-opacity="0.3"/><rect x="105" y="342" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="153" y="342" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="121" y="396" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="121" y="450" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="153" y="450" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="105" y="504" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="137" y="504" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="105" y="558" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="153" y="612" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="137" y="666" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="170" y="288" width="63" height="450" fill="#fff" fill-opacity="0.18"/><rect x="198" y="234" width="3" height="54" fill="#fff" fill-opacity="0.3"/><rect x="191" y="396" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="207" y="396" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="191" y="504" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="191" y="558" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="207" y="558" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="222" y="558" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="191" y="612" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="222" y="612" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="175" y="666" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="191" y="666" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="240" y="468" width="51" height="270" fill="#fff" fill-opacity="0.24"/><rect x="245" y="522" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="245" y="576" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="279" y="576" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="262" y="630" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="279" y="630" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="297" y="468" width="38" height="270" fill="#fff" fill-opacity="0.24"/><rect x="303" y="522" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="322" y="630" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="303" y="684" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="322" y="684" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="341" y="468" width="51" height="270" fill="#fff" fill-opacity="0.12"/><rect x="346" y="576" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="363" y="576" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="346" y="630" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="363" y="630" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="398" y="468" width="51" height="270" fill="#fff" fill-opacity="0.18"/><rect x="420" y="576" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="403" y="630" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="437" y="630" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="437" y="684" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="455" y="378" width="63" height="360" fill="#fff" fill-opacity="0.24"/><rect x="460" y="432" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="492" y="486" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="507" y="486" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="476" y="540" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="460" y="594" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="476" y="594" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="492" y="594" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="507" y="594" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="525" y="468" width="38" height="270" fill="#fff" fill-opacity="0.18"/><rect x="531" y="522" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="531" y="684" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="569" y="288" width="51" height="450" fill="#fff" fill-opacity="0.12"/><rect x="592" y="234" width="3" height="54" fill="#fff" fill-opacity="0.3"/><rect x="575" y="396" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="591" y="450" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="608" y="450" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="591" y="612" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="575" y="666" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="608" y="666" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="626" y="198" width="51" height="540" fill="#fff" fill-opacity="0.24"/><rect x="649" y="144" width="3" height="54" fill="#fff" fill-opacity="0.3"/><rect x="632" y="252" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="665" y="252" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="632" y="306" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="648" y="306" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="648" y="576" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="665" y="576" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="648" y="630" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="665" y="630" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="0" y="738" width="720" height="164" fill="#0b1a2e" fill-opacity="0.3"/><rect x="0" y="738" width="720" height="2" fill="#fff" fill-opacity="0.15"/></svg></div>
+      <div class="about-text">
+        <p class="label">About Northfield</p>
+        <h2 id="aboutTitle">An independent firm, built around clients.</h2>
+        <p class="pull">Good advice starts with listening, and it ends with a clean closing.</p>
+        <p>Northfield Realty is a fictional independent brokerage created for this portfolio demo. The site shows how a small, owner-led firm might present its approach to pricing, negotiation and communication in a clear, unhurried way.</p>
+        <p>The team is a small group of local agents who each focus on a handful of neighborhoods, so clients get real familiarity with the streets, the schools of thought on value and the rhythm of the market.</p>
+        <ul class="creds">
+          <li><strong>Model</strong>Independent boutique brokerage</li>
+          <li><strong>Focus</strong>Residential sales and relocation</li>
+          <li><strong>Approach</strong>Plain-language advice, honest pricing</li>
+          <li><strong>Coverage</strong>The city and nearby suburbs</li>
+        </ul>
+        <div class="about-contact">
+          <a href="tel:+15550102040">(555) 010-2040</a>
+          <a href="mailto:hello@example.com">hello@example.com</a>
+          <a class="textlink" href="#contact">Get in touch</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section class="band-alt" id="team" aria-labelledby="teamTitle">
+  <div class="wrap">
+    <div class="sec-head row">
+      <p class="label">Our team</p>
+      <h2 id="teamTitle">Experienced agents. Exceptional results.</h2>
+      <p class="lede">Our agents bring deep local market knowledge, skilled negotiation and genuine care to every transaction. All names and details here are fictional.</p>
+      <a class="textlink" href="#contact">Find your agent</a>
+    </div>
+    <div class="team-wrap" id="teamWrap">
+    <div class="team" id="teamRow" aria-label="Our agents">
+      <article class="agent">
+        <div class="photo avatar" style="--a1:#8A6A37;--a2:#33270F" role="img" aria-label="Initials avatar for Dana Reyes"><svg class="art" viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><circle cx="200" cy="230" r="110" fill="none" stroke="#fff" stroke-opacity=".14" stroke-width="2"/><circle cx="200" cy="230" r="165" fill="none" stroke="#fff" stroke-opacity=".08" stroke-width="2"/><path d="M0 420Q100 380 200 410T400 395V500H0Z" fill="#000" fill-opacity=".18"/></svg><span class="avatar-i" aria-hidden="true">DR</span></div>
+        <div><h3>Dana Reyes</h3><p class="role">Principal Broker</p></div>
+        <div class="meta"><a href="tel:+15550102041">(555) 010-2041</a><a class="textlink" href="#contact" data-agent="Dana Reyes">Contact Dana</a></div>
+      </article>
+      <article class="agent">
+        <div class="photo avatar" style="--a1:#2B4F73;--a2:#12263F" role="img" aria-label="Initials avatar for Sam Whitfield"><svg class="art" viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><circle cx="200" cy="230" r="110" fill="none" stroke="#fff" stroke-opacity=".14" stroke-width="2"/><circle cx="200" cy="230" r="165" fill="none" stroke="#fff" stroke-opacity=".08" stroke-width="2"/><path d="M0 420Q100 380 200 410T400 395V500H0Z" fill="#000" fill-opacity=".18"/></svg><span class="avatar-i" aria-hidden="true">SW</span></div>
+        <div><h3>Sam Whitfield</h3><p class="role">Associate Broker</p></div>
+        <div class="meta"><a href="tel:+15550102042">(555) 010-2042</a><a class="textlink" href="#contact" data-agent="Sam Whitfield">Contact Sam</a></div>
+      </article>
+      <article class="agent">
+        <div class="photo avatar" style="--a1:#3F5C6B;--a2:#142B3A" role="img" aria-label="Initials avatar for Priya Nair"><svg class="art" viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><circle cx="200" cy="230" r="110" fill="none" stroke="#fff" stroke-opacity=".14" stroke-width="2"/><circle cx="200" cy="230" r="165" fill="none" stroke="#fff" stroke-opacity=".08" stroke-width="2"/><path d="M0 420Q100 380 200 410T400 395V500H0Z" fill="#000" fill-opacity=".18"/></svg><span class="avatar-i" aria-hidden="true">PN</span></div>
+        <div><h3>Priya Nair</h3><p class="role">REALTOR&reg;</p></div>
+        <div class="meta"><a href="tel:+15550102043">(555) 010-2043</a><a class="textlink" href="#contact" data-agent="Priya Nair">Contact Priya</a></div>
+      </article>
+      <article class="agent">
+        <div class="photo avatar" style="--a1:#A07F5C;--a2:#4A3722" role="img" aria-label="Initials avatar for Marcus Bell"><svg class="art" viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><circle cx="200" cy="230" r="110" fill="none" stroke="#fff" stroke-opacity=".14" stroke-width="2"/><circle cx="200" cy="230" r="165" fill="none" stroke="#fff" stroke-opacity=".08" stroke-width="2"/><path d="M0 420Q100 380 200 410T400 395V500H0Z" fill="#000" fill-opacity=".18"/></svg><span class="avatar-i" aria-hidden="true">MB</span></div>
+        <div><h3>Marcus Bell</h3><p class="role">REALTOR&reg;</p></div>
+        <div class="meta"><a href="tel:+15550102044">(555) 010-2044</a><a class="textlink" href="#contact" data-agent="Marcus Bell">Contact Marcus</a></div>
+      </article>
+      <article class="agent">
+        <div class="photo avatar" style="--a1:#4A6A8A;--a2:#1A2F4A" role="img" aria-label="Initials avatar for Elena Ruiz"><svg class="art" viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><circle cx="200" cy="230" r="110" fill="none" stroke="#fff" stroke-opacity=".14" stroke-width="2"/><circle cx="200" cy="230" r="165" fill="none" stroke="#fff" stroke-opacity=".08" stroke-width="2"/><path d="M0 420Q100 380 200 410T400 395V500H0Z" fill="#000" fill-opacity=".18"/></svg><span class="avatar-i" aria-hidden="true">ER</span></div>
+        <div><h3>Elena Ruiz</h3><p class="role">REALTOR&reg;</p></div>
+        <div class="meta"><a href="tel:+15550102045">(555) 010-2045</a><a class="textlink" href="#contact" data-agent="Elena Ruiz">Contact Elena</a></div>
+      </article>
+      <article class="agent">
+        <div class="photo avatar" style="--a1:#5A6B7D;--a2:#233246" role="img" aria-label="Initials avatar for Theo Grant"><svg class="art" viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><circle cx="200" cy="230" r="110" fill="none" stroke="#fff" stroke-opacity=".14" stroke-width="2"/><circle cx="200" cy="230" r="165" fill="none" stroke="#fff" stroke-opacity=".08" stroke-width="2"/><path d="M0 420Q100 380 200 410T400 395V500H0Z" fill="#000" fill-opacity=".18"/></svg><span class="avatar-i" aria-hidden="true">TG</span></div>
+        <div><h3>Theo Grant</h3><p class="role">REALTOR&reg;</p></div>
+        <div class="meta"><a href="tel:+15550102046">(555) 010-2046</a><a class="textlink" href="#contact" data-agent="Theo Grant">Contact Theo</a></div>
+      </article>
+      <article class="agent">
+        <div class="photo avatar" style="--a1:#7C6240;--a2:#2A2113" role="img" aria-label="Initials avatar for Jordan Kim"><svg class="art" viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><circle cx="200" cy="230" r="110" fill="none" stroke="#fff" stroke-opacity=".14" stroke-width="2"/><circle cx="200" cy="230" r="165" fill="none" stroke="#fff" stroke-opacity=".08" stroke-width="2"/><path d="M0 420Q100 380 200 410T400 395V500H0Z" fill="#000" fill-opacity=".18"/></svg><span class="avatar-i" aria-hidden="true">JK</span></div>
+        <div><h3>Jordan Kim</h3><p class="role">REALTOR&reg;</p></div>
+        <div class="meta"><a href="tel:+15550102047">(555) 010-2047</a><a class="textlink" href="#contact" data-agent="Jordan Kim">Contact Jordan</a></div>
+      </article>
+    </div>
+    <div class="team-nav">
+      <button type="button" id="teamPrev" aria-label="Previous agents"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <button type="button" id="teamNext" aria-label="Next agents"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+    </div>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section class="on-dark" id="reviews" aria-labelledby="revTitle">
+  <div class="wrap">
+    <div class="sec-head row">
+      <p class="label">Client reviews</p>
+      <h2 id="revTitle">What our clients say</h2>
+      <div class="ratings">
+        <div class="rating"><span class="stars" aria-hidden="true">&#9733;&#9733;&#9733;&#9733;&#9733;</span><b>5.0</b><span>average rating</span></div>
+      </div>
+      <a class="textlink" href="#reviews">Sample reviews</a>
+    </div>
+    <div class="quotes">
+      <article class="quote wide"><blockquote>Everything felt organized from the first call. We always knew what came next, and we closed without a single surprise. Thank you!</blockquote><footer><span><b>Lena M.</b> &middot; Buyer &middot; Agent: Dana Reyes</span><span class="qsrc"><span class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="sample-tag">Sample review</span></span></footer></article>
+      <article class="quote"><blockquote>Clear pricing advice and honest feedback on every showing. We sold in under three weeks.</blockquote><footer><span><b>Chris T.</b> &middot; Seller &middot; Agent: Sam Whitfield</span><span class="qsrc"><span class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="sample-tag">Sample review</span></span></footer></article>
+      <article class="quote"><blockquote>Patient, responsive and never pushy. Made a first purchase feel manageable.</blockquote><footer><span><b>Amira S.</b> &middot; Buyer &middot; Agent: Priya Nair</span><span class="qsrc"><span class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="sample-tag">Sample review</span></span></footer></article>
+      <article class="quote"><blockquote>Great communication from listing day to closing day. Would recommend.</blockquote><footer><span><b>Joel R.</b> &middot; Seller &middot; Agent: Marcus Bell</span><span class="qsrc"><span class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="sample-tag">Sample review</span></span></footer></article>
+      <article class="quote"><blockquote>Professional and thoughtful. Knew the area and the right questions to ask.</blockquote><footer><span><b>Nora K.</b> &middot; Buyer &middot; Agent: Elena Ruiz</span><span class="qsrc"><span class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="sample-tag">Sample review</span></span></footer></article>
+    </div>
+  </div>
+  <div class="crawl" aria-label="More client reviews">
+    <p class="crawl-head wrap"><span class="label">More from our clients</span><span class="crawl-hint">Sample reviews &middot; hover to pause</span></p>
+    <div class="crawl-viewport" tabindex="0">
+      <ul class="crawl-track"><li class="crawl-item"><blockquote>Helped us relocate with very little notice and found the right fit quickly.</blockquote><footer><span><b>Pat D.</b> &middot; Relocation</span><span class="qsrc"><span class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="sample-tag">Sample review</span></span></footer></li><li class="crawl-item"><blockquote>Staging advice was practical and inexpensive, and it made a real difference.</blockquote><footer><span><b>Maya L.</b> &middot; Seller</span><span class="qsrc"><span class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="sample-tag">Sample review</span></span></footer></li><li class="crawl-item"><blockquote>Responsive on evenings and weekends. Felt like a true partner.</blockquote><footer><span><b>Evan W.</b> &middot; Buyer</span><span class="qsrc"><span class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="sample-tag">Sample review</span></span></footer></li><li class="crawl-item"><blockquote>Negotiated well and kept us calm through inspection repairs.</blockquote><footer><span><b>Rosa H.</b> &middot; Buyer</span><span class="qsrc"><span class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="sample-tag">Sample review</span></span></footer></li><li class="crawl-item"><blockquote>Our home was priced right from day one, and the offers followed.</blockquote><footer><span><b>Ben A.</b> &middot; Seller</span><span class="qsrc"><span class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="sample-tag">Sample review</span></span></footer></li><li class="crawl-item"><blockquote>Knowledgeable, kind and organized. Made a hard move easier.</blockquote><footer><span><b>Tara G.</b> &middot; Seller</span><span class="qsrc"><span class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="sample-tag">Sample review</span></span></footer></li><li class="crawl-item"><blockquote>Great at explaining the process without any jargon.</blockquote><footer><span><b>Luis P.</b> &middot; Buyer</span><span class="qsrc"><span class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="sample-tag">Sample review</span></span></footer></li><li class="crawl-item"><blockquote>Showed us homes we would never have found on our own.</blockquote><footer><span><b>Hana Y.</b> &middot; Buyer</span><span class="qsrc"><span class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="sample-tag">Sample review</span></span></footer></li><li class="crawl-item" aria-hidden="true"><blockquote>Helped us relocate with very little notice and found the right fit quickly.</blockquote><footer><span><b>Pat D.</b> &middot; Relocation</span><span class="qsrc"><span class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="sample-tag">Sample review</span></span></footer></li><li class="crawl-item" aria-hidden="true"><blockquote>Staging advice was practical and inexpensive, and it made a real difference.</blockquote><footer><span><b>Maya L.</b> &middot; Seller</span><span class="qsrc"><span class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="sample-tag">Sample review</span></span></footer></li><li class="crawl-item" aria-hidden="true"><blockquote>Responsive on evenings and weekends. Felt like a true partner.</blockquote><footer><span><b>Evan W.</b> &middot; Buyer</span><span class="qsrc"><span class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="sample-tag">Sample review</span></span></footer></li><li class="crawl-item" aria-hidden="true"><blockquote>Negotiated well and kept us calm through inspection repairs.</blockquote><footer><span><b>Rosa H.</b> &middot; Buyer</span><span class="qsrc"><span class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="sample-tag">Sample review</span></span></footer></li><li class="crawl-item" aria-hidden="true"><blockquote>Our home was priced right from day one, and the offers followed.</blockquote><footer><span><b>Ben A.</b> &middot; Seller</span><span class="qsrc"><span class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="sample-tag">Sample review</span></span></footer></li><li class="crawl-item" aria-hidden="true"><blockquote>Knowledgeable, kind and organized. Made a hard move easier.</blockquote><footer><span><b>Tara G.</b> &middot; Seller</span><span class="qsrc"><span class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="sample-tag">Sample review</span></span></footer></li><li class="crawl-item" aria-hidden="true"><blockquote>Great at explaining the process without any jargon.</blockquote><footer><span><b>Luis P.</b> &middot; Buyer</span><span class="qsrc"><span class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="sample-tag">Sample review</span></span></footer></li><li class="crawl-item" aria-hidden="true"><blockquote>Showed us homes we would never have found on our own.</blockquote><footer><span><b>Hana Y.</b> &middot; Buyer</span><span class="qsrc"><span class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="sample-tag">Sample review</span></span></footer></li></ul>
+    </div>
+    <p class="rev-note wrap">All reviews are short fictional samples written for this demo. Names are invented.</p>
+  </div>
+</section>
+
+<!-- VALUATION -->
+<section id="valuation" aria-labelledby="valTitle">
+  <div class="wrap">
+    <div class="val">
+      <div class="val-text">
+        <p class="label">Personal pricing analysis</p>
+        <h2 id="valTitle">Know your number before you list.</h2>
+        <p>Automated estimates miss what makes a home valuable. Every Northfield pricing analysis uses real comparable sales, adjusted line by line, with the reasoning shown. Expect yours within 24 hours, with no obligation.</p>
+        <ul class="val-list">
+          <li>Comparable sales and current competition in your neighborhood</li>
+          <li>A recommended pricing strategy and expected timeline</li>
+          <li>Preparation and staging advice specific to your home</li>
+          <li>Your estimated net proceeds, laid out line by line</li>
+        </ul>
+        <a class="textlink" href="#sell">Run your net proceeds estimate now</a>
+      </div>
+      <form class="cma" id="cmaForm" novalidate>
+        <div class="f">
+          <label for="cAddr">Property address</label>
+          <input id="cAddr" type="text" placeholder="Street address, ZIP" required autocomplete="street-address">
+        </div>
+        <div class="frow">
+          <div class="f"><label for="cName">Your name</label><input id="cName" type="text" required autocomplete="name"></div>
+          <div class="f"><label for="cTime">Timeline</label>
+            <select id="cTime"><option>Within 3 months</option><option>3 to 6 months</option><option>6 to 12 months</option><option>Just curious about value</option></select></div>
+        </div>
+        <div class="frow">
+          <div class="f"><label for="cEmail">Email</label><input id="cEmail" type="email" required autocomplete="email"></div>
+          <div class="f"><label for="cPhone">Phone</label><input id="cPhone" type="tel" autocomplete="tel"></div>
+        </div>
+        <label class="consent"><input type="checkbox" id="cSms"><span>By checking this box I agree to receive calls and text messages from Northfield Realty at the number provided, including by automated means, about my valuation request. Consent is not a condition of purchase. Message and data rates may apply. Reply STOP to opt out. (Demo only: nothing is sent.)</span></label>
+        <button class="btn primary" type="submit" style="justify-self:start">Request my pricing analysis</button>
+        <div class="confirm" id="cmaConfirm" role="status" aria-live="polite"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" aria-labelledby="faqTitle">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="label">Questions</p>
+      <h2 id="faqTitle">Frequently asked questions</h2>
+    </div>
+    <div class="faq">
+      <details class="faq-item"><summary><h3>Who is Northfield Realty?</h3></summary><p>Northfield Realty is a fictional, independent boutique real estate brokerage in a mid-size city. It exists as a portfolio demo, and every name, listing and figure on this page is sample data.</p></details>
+      <details class="faq-item"><summary><h3>What areas does Northfield serve?</h3></summary><p>The firm represents buyers and sellers across the city and nearby suburbs, including Elm Hollow, Brookside, Cedar Ridge, Stonebridge, Highview, Ashford Park, Larkfield and Willow Bend.</p></details>
+      <details class="faq-item"><summary><h3>How does the selling process work?</h3></summary><p>An agent prepares a pricing analysis from recent comparable sales, plans photography and staging, lists the home on the local MLS and manages showings, offers and the path to closing. Compensation is discussed and agreed with you up front.</p></details>
+      <details class="faq-item"><summary><h3>How do I find out what my home is worth?</h3></summary><p>Request a free home valuation using the form on this page. An agent prepares a personal pricing analysis based on recent comparable sales near your home, usually within 24 hours.</p></details>
+      <details class="faq-item"><summary><h3>Do you work with first-time buyers?</h3></summary><p>Yes. The team walks first-time buyers through financing, inspections, offers and closing in plain language, and helps set a realistic budget before the search begins.</p></details>
+      <details class="faq-item"><summary><h3>How do I contact Northfield Realty?</h3></summary><p>Call the sample office line at (555) 010-2040 or email hello@example.com. These are placeholders for the demo.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- INSIGHTS -->
+<section class="band-alt" id="insights" aria-labelledby="insTitle">
+  <div class="wrap">
+    <div class="sec-head row">
+      <p class="label">Market insights</p>
+      <h2 id="insTitle">Notes from the market</h2>
+      <p class="lede">Guides and neighborhood stories from our team.</p>
+      <a class="textlink" href="#insights">Read the blog</a>
+    </div>
+    <div class="posts">
+      <a class="post" href="#insights">
+        <div class="photo tone-dusk" role="img" aria-label="Illustration"><svg class="art" viewBox="0 0 720 480" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><circle cx="144" cy="115" r="53" fill="#fff" fill-opacity="0.16"/><circle cx="144" cy="115" r="86" fill="#fff" fill-opacity="0.06"/><rect x="0" y="384" width="720" height="98" fill="#0b1a2e" fill-opacity="0.3"/><rect x="0" y="384" width="720" height="2" fill="#fff" fill-opacity="0.15"/><rect x="98" y="305" width="20" height="79" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="108" cy="247" r="86" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="72" cy="233" r="50" fill="#fff" fill-opacity="0.06"/><rect x="611" y="321" width="16" height="63" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="619" cy="275" r="69" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="590" cy="263" r="40" fill="#fff" fill-opacity="0.06"/><polygon points="12,384 58,233 103,384" fill="#0b1a2e" fill-opacity="0.4"/><rect x="238" y="240" width="245" height="144" fill="#fff" fill-opacity="0.2"/><polygon points="218,240 360,139 502,240" fill="#0b1a2e" fill-opacity="0.5"/><rect x="429" y="132" width="17" height="72" fill="#0b1a2e" fill-opacity="0.5"/><rect x="343" y="312" width="34" height="72" fill="#0b1a2e" fill-opacity="0.55"/><rect x="267" y="272" width="44" height="43" fill="#f0d9a6" fill-opacity="0.88"/><rect x="404" y="272" width="44" height="43" fill="#f0d9a6" fill-opacity="0.88"/><rect x="225" y="381" width="269" height="5" fill="#fff" fill-opacity="0.18"/></svg></div>
+        <p class="kicker">Selling</p>
+        <h3>Selling in the city this winter</h3>
+        <p>Why well-prepared homes still draw strong offers between December and March, and how to time a spring listing.</p>
+      </a>
+      <a class="post" href="#insights">
+        <div class="photo tone-sand" role="img" aria-label="Illustration"><svg class="art" viewBox="0 0 720 480" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><circle cx="540" cy="115" r="53" fill="#fff" fill-opacity="0.16"/><circle cx="540" cy="115" r="86" fill="#fff" fill-opacity="0.06"/><rect x="0" y="394" width="720" height="88" fill="#0b1a2e" fill-opacity="0.3"/><rect x="0" y="394" width="720" height="2" fill="#fff" fill-opacity="0.15"/><rect x="115" y="178" width="122" height="216" fill="#fff" fill-opacity="0.14"/><rect x="115" y="174" width="122" height="5" fill="#0b1a2e" fill-opacity="0.5"/><polygon points="115,178 176,127 238,178" fill="#0b1a2e" fill-opacity="0.45"/><rect x="135" y="208" width="32" height="35" fill="#f0d9a6" fill-opacity="0.3"/><rect x="191" y="208" width="32" height="35" fill="#f0d9a6" fill-opacity="0.8"/><rect x="135" y="273" width="32" height="35" fill="#f0d9a6" fill-opacity="0.8"/><rect x="191" y="273" width="32" height="35" fill="#f0d9a6" fill-opacity="0.8"/><rect x="159" y="337" width="34" height="56" fill="#0b1a2e" fill-opacity="0.5"/><rect x="238" y="134" width="122" height="259" fill="#fff" fill-opacity="0.19"/><rect x="238" y="130" width="122" height="5" fill="#0b1a2e" fill-opacity="0.5"/><rect x="257" y="171" width="32" height="41" fill="#f0d9a6" fill-opacity="0.8"/><rect x="313" y="171" width="32" height="41" fill="#f0d9a6" fill-opacity="0.8"/><rect x="257" y="248" width="32" height="41" fill="#f0d9a6" fill-opacity="0.8"/><rect x="313" y="248" width="32" height="41" fill="#f0d9a6" fill-opacity="0.3"/><rect x="282" y="326" width="34" height="67" fill="#0b1a2e" fill-opacity="0.5"/><rect x="360" y="163" width="122" height="230" fill="#fff" fill-opacity="0.14"/><rect x="360" y="159" width="122" height="5" fill="#0b1a2e" fill-opacity="0.5"/><polygon points="360,163 421,113 482,163" fill="#0b1a2e" fill-opacity="0.45"/><rect x="380" y="195" width="32" height="37" fill="#f0d9a6" fill-opacity="0.8"/><rect x="436" y="195" width="32" height="37" fill="#f0d9a6" fill-opacity="0.3"/><rect x="380" y="265" width="32" height="37" fill="#f0d9a6" fill-opacity="0.3"/><rect x="436" y="265" width="32" height="37" fill="#f0d9a6" fill-opacity="0.8"/><rect x="404" y="334" width="34" height="60" fill="#0b1a2e" fill-opacity="0.5"/><rect x="482" y="149" width="122" height="245" fill="#fff" fill-opacity="0.19"/><rect x="482" y="145" width="122" height="5" fill="#0b1a2e" fill-opacity="0.5"/><rect x="502" y="183" width="32" height="39" fill="#f0d9a6" fill-opacity="0.3"/><rect x="558" y="183" width="32" height="39" fill="#f0d9a6" fill-opacity="0.8"/><rect x="502" y="257" width="32" height="39" fill="#f0d9a6" fill-opacity="0.8"/><rect x="558" y="257" width="32" height="39" fill="#f0d9a6" fill-opacity="0.8"/><rect x="526" y="330" width="34" height="64" fill="#0b1a2e" fill-opacity="0.5"/><rect x="48" y="314" width="20" height="79" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="58" cy="257" r="86" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="22" cy="242" r="50" fill="#fff" fill-opacity="0.06"/><rect x="661" y="326" width="17" height="67" fill="#0b1a2e" fill-opacity="0.4"/><circle cx="670" cy="277" r="73" fill="#0b1a2e" fill-opacity="0.38"/><circle cx="639" cy="265" r="43" fill="#fff" fill-opacity="0.06"/></svg></div>
+        <p class="kicker">Buying</p>
+        <h3>A first-time buyer's guide</h3>
+        <p>Financing, inspections and the questions to ask before you write your first offer.</p>
+      </a>
+      <a class="post" href="#insights">
+        <div class="photo tone-sage" role="img" aria-label="Illustration"><svg class="art" viewBox="0 0 720 480" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><circle cx="144" cy="115" r="53" fill="#fff" fill-opacity="0.16"/><circle cx="144" cy="115" r="86" fill="#fff" fill-opacity="0.06"/><rect x="43" y="250" width="63" height="144" fill="#fff" fill-opacity="0.18"/><rect x="80" y="278" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="64" y="307" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="48" y="336" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="64" y="336" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="80" y="336" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="64" y="365" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="80" y="365" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="96" y="365" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="113" y="202" width="63" height="192" fill="#fff" fill-opacity="0.24"/><rect x="118" y="230" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="149" y="230" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="165" y="230" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="118" y="259" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="165" y="259" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="134" y="288" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="134" y="317" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="165" y="317" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="118" y="346" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="183" y="202" width="38" height="192" fill="#fff" fill-opacity="0.12"/><rect x="208" y="317" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="227" y="288" width="63" height="106" fill="#fff" fill-opacity="0.18"/><rect x="264" y="317" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="279" y="317" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="232" y="346" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="279" y="346" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="297" y="202" width="63" height="192" fill="#fff" fill-opacity="0.12"/><rect x="349" y="230" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="333" y="259" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="349" y="259" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="333" y="288" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="349" y="288" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="349" y="317" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="302" y="346" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="366" y="106" width="38" height="288" fill="#fff" fill-opacity="0.24"/><rect x="383" y="77" width="3" height="29" fill="#fff" fill-opacity="0.3"/><rect x="373" y="163" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="373" y="192" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="392" y="192" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="373" y="250" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="373" y="336" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="392" y="336" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="411" y="106" width="38" height="288" fill="#fff" fill-opacity="0.24"/><rect x="428" y="77" width="3" height="29" fill="#fff" fill-opacity="0.3"/><rect x="417" y="134" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="417" y="221" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="417" y="250" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="436" y="250" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="417" y="365" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="455" y="288" width="63" height="106" fill="#fff" fill-opacity="0.12"/><rect x="460" y="317" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="507" y="317" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="476" y="346" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="492" y="346" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="525" y="202" width="38" height="192" fill="#fff" fill-opacity="0.24"/><rect x="531" y="230" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="531" y="259" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="531" y="288" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="550" y="317" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="569" y="288" width="51" height="106" fill="#fff" fill-opacity="0.18"/><rect x="626" y="154" width="51" height="240" fill="#fff" fill-opacity="0.18"/><rect x="649" y="125" width="3" height="29" fill="#fff" fill-opacity="0.3"/><rect x="632" y="211" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="648" y="211" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="648" y="240" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="632" y="269" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="648" y="326" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="632" y="355" width="6" height="8" fill="#f0d9a6" fill-opacity="0.75"/><rect x="0" y="394" width="720" height="88" fill="#0b1a2e" fill-opacity="0.3"/><rect x="0" y="394" width="720" height="2" fill="#fff" fill-opacity="0.15"/></svg></div>
+        <p class="kicker">Relocation</p>
+        <h3>Relocating to the city</h3>
+        <p>Neighborhoods, commutes and everyday life for anyone arriving from out of town or abroad.</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" aria-labelledby="contactTitle">
+  <div class="wrap">
+    <div class="val">
+      <div class="val-text">
+        <p class="label">Contact us</p>
+        <h2 id="contactTitle">Let's talk about your next move.</h2>
+        <p>Buying, selling or just weighing your options, tell us a little about what you have in mind and the right Northfield agent will get back to you, usually the same business day.</p>
+        <ul class="contact-list">
+          <li><span>Office</span><a href="tel:+15550102040">(555) 010-2040</a></li>
+          <li><span>Email</span><a href="mailto:hello@example.com">hello@example.com</a></li>
+          <li><span>Visit</span>Downtown office<br>Address shared on request</li>
+          <li><span>Hours</span>Monday to Friday, 9am to 6pm<br>Weekends by appointment</li>
+        </ul>
+      </div>
+      <form class="cma" id="contactForm" novalidate>
+        <div class="frow">
+          <div class="f"><label for="kName">Your name</label><input id="kName" name="name" type="text" required autocomplete="name"></div>
+          <div class="f"><label for="kTopic">I'm interested in</label>
+            <select id="kTopic" name="topic"><option>Buying a home</option><option>Selling a home</option><option>Buying and selling</option><option>Renting</option><option>Something else</option></select></div>
+        </div>
+        <div class="frow">
+          <div class="f"><label for="kEmail">Email</label><input id="kEmail" name="email" type="email" required autocomplete="email"></div>
+          <div class="f"><label for="kPhone">Phone</label><input id="kPhone" name="phone" type="tel" autocomplete="tel"></div>
+        </div>
+        <div class="f"><label for="kAgent">Preferred agent</label>
+          <select id="kAgent" name="agent"><option>No preference</option><option>Dana Reyes</option><option>Sam Whitfield</option><option>Priya Nair</option><option>Marcus Bell</option><option>Elena Ruiz</option><option>Theo Grant</option><option>Jordan Kim</option></select></div>
+        <div class="f"><label for="kMsg">How can we help?</label><textarea id="kMsg" name="message" rows="4" placeholder="Neighborhoods, timing, price range, questions..."></textarea></div>
+        <label class="consent"><input type="checkbox" id="kSms" name="sms_consent"><span>By checking this box I agree to receive calls and text messages from Northfield Realty at the number provided, including by automated means. Consent is not a condition of purchase. Message and data rates may apply. Reply STOP to opt out. (Demo only: nothing is sent.)</span></label>
+        <button class="btn primary" type="submit" style="justify-self:start">Send message</button>
+        <div class="confirm" id="contactConfirm" role="status" aria-live="polite"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="site on-dark" id="footer">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="brand" href="#top" aria-label="Northfield Realty, home"><svg class="mark" viewBox="0 0 40 40" aria-hidden="true" focusable="false"><path d="M6 19 20 7l14 12" fill="none" stroke="#b8925a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 20v10h20V20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" opacity=".9"/><path d="M4 35h32" fill="none" stroke="#b8925a" stroke-width="2" stroke-linecap="round"/></svg><span class="brand-text"><span class="brand-name">Northfield</span><span class="brand-sub">Realty</span></span></a>
+        <address>
+          Sample office &middot; The city<br>
+          <b>Office (555) 010-2040</b><br>
+          <a href="mailto:hello@example.com">hello@example.com</a>
+        </address>
+        <div class="socials">
+          <a href="#" aria-label="Northfield Realty on Facebook"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 22v-8h2.7l.4-3.2h-3.1V8.8c0-.9.3-1.6 1.6-1.6h1.7V4.4c-.3 0-1.3-.1-2.5-.1-2.5 0-4.1 1.5-4.1 4.2v2.3H7.4V14h2.8v8h3.3z"/></svg></a>
+          <a href="#" aria-label="Northfield Realty on Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7.3a4.7 4.7 0 1 0 0 9.4 4.7 4.7 0 0 0 0-9.4zm0 7.7a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm5.9-7.9a1.1 1.1 0 1 1-2.2 0 1.1 1.1 0 0 1 2.2 0zM12 3.8c2.7 0 3 0 4 .1 1 0 1.5.2 1.9.3.5.2.8.4 1.2.8.4.4.6.7.8 1.2.1.4.3.9.3 1.9.1 1 .1 1.4.1 4s0 3-.1 4c0 1-.2 1.5-.3 1.9-.2.5-.4.8-.8 1.2-.4.4-.7.6-1.2.8-.4.1-.9.3-1.9.3-1 .1-1.4.1-4 .1s-3 0-4-.1c-1 0-1.5-.2-1.9-.3-.5-.2-.8-.4-1.2-.8-.4-.4-.6-.7-.8-1.2-.1-.4-.3-.9-.3-1.9-.1-1-.1-1.4-.1-4s0-3 .1-4c0-1 .2-1.5.3-1.9.2-.5.4-.8.8-1.2.4-.4.7-.6 1.2-.8.4-.1.9-.3 1.9-.3 1-.1 1.4-.1 4-.1zM12 2C9.3 2 9 2 7.9 2.1c-1 0-1.8.2-2.4.5-.7.2-1.2.6-1.8 1.1-.5.6-.9 1.1-1.1 1.8-.3.6-.5 1.4-.5 2.4C2 9 2 9.3 2 12s0 3 .1 4.1c0 1 .2 1.8.5 2.4.2.7.6 1.2 1.1 1.8.6.5 1.1.9 1.8 1.1.6.3 1.4.5 2.4.5C9 22 9.3 22 12 22s3 0 4.1-.1c1 0 1.8-.2 2.4-.5.7-.2 1.2-.6 1.8-1.1.5-.6.9-1.1 1.1-1.8.3-.6.5-1.4.5-2.4.1-1.1.1-1.4.1-4.1s0-3-.1-4.1c0-1-.2-1.8-.5-2.4-.2-.7-.6-1.2-1.1-1.8-.6-.5-1.1-.9-1.8-1.1-.6-.3-1.4-.5-2.4-.5C15 2 14.7 2 12 2z"/></svg></a>
+          <a href="#" aria-label="Northfield Realty on Pinterest"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.2 2C6.6 2 3.8 6 3.8 9.3c0 2 .8 3.8 2.4 4.5.3.1.5 0 .6-.3l.2-1c.1-.3 0-.4-.2-.6-.5-.6-.8-1.3-.8-2.4 0-3.1 2.3-5.9 6.1-5.9 3.3 0 5.1 2 5.1 4.7 0 3.6-1.6 6.6-3.9 6.6-1.3 0-2.3-1.1-2-2.4.4-1.6 1.1-3.3 1.1-4.4 0-1-.5-1.9-1.7-1.9-1.3 0-2.4 1.4-2.4 3.2 0 1.2.4 2 .4 2l-1.6 6.8c-.5 2-.1 4.5 0 4.7 0 .1.2.2.3.1.1-.2 1.7-2.1 2.2-4.1l.9-3.3c.4.8 1.6 1.5 2.9 1.5 3.9 0 6.5-3.5 6.5-8.2C20 6 17 2 12.2 2z"/></svg></a>
+        </div>
+      </div>
+      <nav aria-label="Footer: explore">
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="#buy">Buy a home</a></li>
+          <li><a href="#sell">Sell your home</a></li>
+          <li><a href="#valuation">Home valuation</a></li>
+          <li><a href="#neighborhoods">Neighborhoods</a></li>
+          <li><a href="#listings">Search all listings</a></li>
+        </ul>
+      </nav>
+      <nav aria-label="Footer: company">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#about">About Northfield</a></li>
+          <li><a href="#team">Our team</a></li>
+          <li><a href="#reviews">Client reviews</a></li>
+          <li><a href="#insights">Market insights</a></li>
+          <li><a href="#top">Careers</a></li>
+        </ul>
+      </nav>
+      <div>
+        <h4>Office hours</h4>
+        <ul>
+          <li>Monday to Friday, 9am to 6pm</li>
+          <li>Weekends by appointment</li>
+          <li style="margin-top:10px"><a class="textlink" href="#valuation">Schedule a consultation</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="legal">
+      <svg class="eho" viewBox="0 0 64 64" role="img" aria-label="Equal Housing Opportunity"><path d="M32 6 4 30h6v26h44V30h6L32 6zm0 6.4L48 26v24H16V26l16-13.6z" fill="currentColor"/><rect x="22" y="31" width="20" height="4" fill="currentColor"/><rect x="22" y="39" width="20" height="4" fill="currentColor"/></svg>
+      <div>
+        <p><b>Northfield Realty</b> &middot; Fictional brokerage for portfolio demonstration &middot; Sample data only. REALTOR&reg; is a federally registered collective membership mark that identifies a real estate professional who is a member of the National Association of REALTORS&reg; and subscribes to its strict Code of Ethics.</p>
+        <p>Northfield Realty is committed to the letter and spirit of U.S. policy for the achievement of equal housing opportunity throughout the nation. We encourage and support an affirmative advertising and marketing program in which there are no barriers to obtaining housing because of race, color, religion, sex, handicap, familial status, national origin, sexual orientation, gender identity or source of income.</p>
+        <p>On a live site, listing information would be provided courtesy of the local MLS through its Internet Data Exchange program and is deemed reliable but not guaranteed. Information is for consumers' personal, non-commercial use and may not be used for any purpose other than to identify prospective properties consumers may be interested in purchasing. Everything on this demo page is fictional.</p>
+        <p>We are committed to making this website accessible to everyone. If you have difficulty using any part of it, please contact us at the placeholder number or email above and we will assist you.</p>
+        <div class="legal-links">
+          <a href="#top">Accessibility statement</a>
+          <a href="#top">Fair housing</a>
+          <a href="#top">Privacy policy</a>
+          <a href="#top">Terms of use</a>
+          <a href="#top">Sitemap</a>
+        </div>
+      </div>
+    </div>
+    <div class="copy">
+      <span>&copy; 2026 Northfield Realty (fictional). All rights reserved.</span>
+      <span>Portfolio demo &middot; sample content only.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // Header shadow on scroll
+  var header=document.querySelector('.site-header');
+  var onScroll=function(){header.classList.toggle('scrolled',window.scrollY>8)};
+  window.addEventListener('scroll',onScroll,{passive:true});onScroll();
+
+  // Mobile menu
+  var menuBtn=document.getElementById('menuBtn'),menu=document.getElementById('mobileMenu');
+  menuBtn.addEventListener('click',function(){
+    var open=menu.classList.toggle('open');
+    menuBtn.setAttribute('aria-expanded',open?'true':'false');
+    menuBtn.setAttribute('aria-label',open?'Close menu':'Open menu');
+  });
+  menu.addEventListener('click',function(e){if(e.target.closest('a')){menu.classList.remove('open');menuBtn.setAttribute('aria-expanded','false')}});
+
+  // Search tabs
+  var tabs=[document.getElementById('tabFilters'),document.getElementById('tabNL')];
+  var panels=[document.getElementById('panelFilters'),document.getElementById('panelNL')];
+  tabs.forEach(function(t,i){t.addEventListener('click',function(){
+    tabs.forEach(function(x,j){x.setAttribute('aria-selected',j===i?'true':'false');panels[j].hidden=j!==i});
+    var inp=panels[i].querySelector('input');if(inp)inp.focus();
+  })});
+
+  // Location suggestions
+  var places=[
+    ['Elm Hollow','Central'],['Brookside','Central'],['Stonebridge','Central'],['Ashford Park','Central'],
+    ['Cedar Ridge','Hillside'],['Larkfield','Hillside'],['Highview','Outer ring'],['Willow Bend','Outer ring']
+  ];
+  var loc=document.getElementById('loc'),sug=document.getElementById('suggest');
+  function showSug(q){
+    q=q.trim().toLowerCase();
+    var list=places.filter(function(p){return !q||p[0].toLowerCase().indexOf(q)>-1||p[1].toLowerCase().indexOf(q)>-1}).slice(0,8);
+    if(!list.length){sug.hidden=true;loc.setAttribute('aria-expanded','false');return}
+    sug.innerHTML=list.map(function(p){return '<button type="button" role="option">'+p[0]+'<span>'+p[1]+'</span></button>'}).join('');
+    sug.hidden=false;loc.setAttribute('aria-expanded','true');
+  }
+  loc.addEventListener('input',function(){showSug(loc.value)});
+  loc.addEventListener('focus',function(){showSug(loc.value)});
+  sug.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;loc.value=b.firstChild.textContent;sug.hidden=true;loc.setAttribute('aria-expanded','false');loc.focus()});
+  document.addEventListener('click',function(e){if(!e.target.closest('.field.loc')){sug.hidden=true;loc.setAttribute('aria-expanded','false')}});
+  loc.addEventListener('keydown',function(e){if(e.key==='Escape'){sug.hidden=true}});
+  panels[0].addEventListener('submit',function(e){e.preventDefault();document.getElementById('searchGo').click()});
+
+  // Natural-language search
+  var nl=document.getElementById('nl'),nlOut=document.getElementById('nlOut');
+  function parseNL(s){
+    var t=s.toLowerCase(),out=[];
+    var beds=t.match(/(\d+)\s*(?:-|\s)?\s*(?:bed|br|bd)/);if(beds)out.push(['Bedrooms',beds[1]+'+']);
+    var baths=t.match(/(\d+(?:\.\d)?)\s*(?:-|\s)?\s*(?:bath|ba)\b/);if(baths)out.push(['Bathrooms',baths[1]+'+']);
+    var re=/(under|below|up to|max|less than|around|about|over|above|at least)?\s*\$?\s*(\d+(?:[.,]\d+)?)\s*(k|m|million|thousand)?\b/g,mm;
+    while((mm=re.exec(t))){
+      var n=parseFloat(mm[2].replace(',','')),u=mm[3]||'';if(/m/.test(u))n*=1e6;else if(/k|thousand/.test(u))n*=1e3;
+      if(n<50000)continue;var dir=mm[1]||'';var lab=/over|above|at least/.test(dir)?'Min price':/around|about/.test(dir)?'Around':'Max price';
+      out.push([lab,'$'+n.toLocaleString('en-US')]);
+    }
+    var hood=null;places.forEach(function(p){if(!hood&&t.indexOf(p[0].toLowerCase())>-1)hood=p[0]});if(hood)out.push(['Location',hood]);
+    var feats=[['garage','Garage'],['parking','Parking'],['pool','Pool'],['yard','Yard'],['porch','Porch'],['fireplace','Fireplace'],['new construction','New construction'],['historic','Historic'],['condo','Condo'],['townho','Townhome'],['rowho','Rowhome'],['single family','Single family'],['acre','Acreage'],['renovated','Renovated'],['walkable','Walkable']];
+    feats.forEach(function(f){if(t.indexOf(f[0])>-1)out.push(['Feature',f[1]])});
+    return out;
+  }
+  panels[1].addEventListener('submit',function(e){
+    e.preventDefault();var q=nl.value.trim();
+    if(!q){nlOut.innerHTML='<p class="small">Describe the home you want, for example "3-bed in Elm Hollow under $900k with a garage".</p>';return}
+    var f=parseNL(q);
+    nlOut.innerHTML=(f.length?f.map(function(c){return '<span class="chip"><b>'+c[0]+'</b> '+c[1]+'</span>'}).join(''):'<span class="chip">No filters recognized</span>')+
+      '<p class="small">We read your request as the filters above. <a href="#listings">Continue to matching homes</a>, or <a href="#contact">ask an agent</a> to search for you.</p>';
+  });
+
+  // Team row: arrows only when overflowing; staggered reveal once, skipped under reduced motion
+  var teamWrap=document.getElementById('teamWrap'),teamRow=document.getElementById('teamRow'),prev=document.getElementById('teamPrev'),next=document.getElementById('teamNext');
+  function teamState(){
+    var over=teamRow.scrollWidth>teamRow.clientWidth+2;teamWrap.classList.toggle('has-overflow',over);
+    prev.disabled=teamRow.scrollLeft<=2;next.disabled=teamRow.scrollLeft+teamRow.clientWidth>=teamRow.scrollWidth-2;
+  }
+  function teamStep(){var c=teamRow.querySelector('.agent'),gap=parseFloat(getComputedStyle(teamRow).columnGap)||0,step=c.offsetWidth+gap;return step*Math.max(1,Math.floor((teamRow.clientWidth+gap)/step))}
+  prev.addEventListener('click',function(){teamRow.scrollBy({left:-teamStep(),behavior:'smooth'})});
+  next.addEventListener('click',function(){teamRow.scrollBy({left:teamStep(),behavior:'smooth'})});
+  teamRow.addEventListener('scroll',teamState,{passive:true});window.addEventListener('resize',teamState);teamState();
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!reduce&&'IntersectionObserver' in window){
+    var agents=Array.prototype.slice.call(teamRow.querySelectorAll('.agent'));
+    agents.forEach(function(a,i){a.classList.add('reveal');a.style.setProperty('--d',(i*70)+'ms')});
+    var io=new IntersectionObserver(function(entries){
+      if(entries.some(function(e){return e.isIntersecting})){agents.forEach(function(a){a.classList.add('in')});io.disconnect()}
+    },{rootMargin:'0px 0px -10% 0px'});
+    io.observe(teamRow);
+  }
+
+  // Save hearts
+  document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('.save');if(!b)return;var on=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',on?'true':'false');b.setAttribute('aria-label',on?'Saved. Remove from saved homes':'Save this home')});
+
+  // Net proceeds estimator (illustrative)
+  var estPrice=document.getElementById('estPrice'),estLoan=document.getElementById('estLoan'),estOut=document.getElementById('estOut'),estNote=document.getElementById('estNote');
+  function fmt(n){return '$'+Math.round(n).toLocaleString('en-US')}
+  function num(v){return parseFloat(String(v).replace(/[^0-9.]/g,''))||0}
+  function est(){
+    var n=num(estPrice.value),loan=num(estLoan.value);
+    if(!n||n<50000){estNote.textContent='Enter an expected sale price of at least $50,000.';return}
+    var costs=n*0.07,net=Math.max(0,n-costs-loan);
+    estOut.innerHTML='<div><small>Est. selling costs (7%)</small><strong>'+fmt(costs)+'</strong></div><div class="hl"><small>Est. net proceeds</small><strong>'+fmt(net)+'</strong></div>';
+    estNote.textContent='Illustrative only. Actual costs, taxes and payoff amounts vary by sale. Sample calculator for this demo.';
+    estPrice.value=fmt(n);estLoan.value=fmt(loan);
+  }
+  document.getElementById('estBtn').addEventListener('click',est);
+  [estPrice,estLoan].forEach(function(i){i.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();est()}})});
+
+  // Valuation form
+  var form=document.getElementById('cmaForm'),confirm=document.getElementById('cmaConfirm');
+  function clean(s){return s.replace(/[<>&]/g,'')}
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    var addr=document.getElementById('cAddr'),name=document.getElementById('cName'),email=document.getElementById('cEmail');
+    var missing=[addr,name,email].filter(function(i){return !i.value.trim()});
+    if(missing.length||email.validity.typeMismatch){
+      confirm.className='confirm show';
+      confirm.innerHTML='<strong>A few details are missing</strong>Please add your address, name and a valid email so an agent can reach you.';
+      (missing[0]||email).focus();return;
+    }
+    confirm.className='confirm show';
+    confirm.innerHTML='<strong>Thank you, '+clean(name.value.trim().split(' ')[0])+'.</strong>A Northfield agent would review '+clean(addr.value.trim())+' and send your pricing analysis within 24 hours. This is a portfolio demo, so nothing was sent.';
+  });
+  // Contact form
+  var cf=document.getElementById('contactForm'),cc=document.getElementById('contactConfirm');
+  document.addEventListener('click',function(e){var a=e.target.closest('a[href="#contact"]');if(!a)return;
+    if(a.dataset.agent)document.getElementById('kAgent').value=a.dataset.agent;
+    if(a.dataset.msg&&!document.getElementById('kMsg').value)document.getElementById('kMsg').value=a.dataset.msg;});
+  cf.addEventListener('submit',function(e){
+    e.preventDefault();
+    var name=document.getElementById('kName'),email=document.getElementById('kEmail');
+    var missing=[name,email].filter(function(i){return !i.value.trim()});
+    if(missing.length||email.validity.typeMismatch){cc.className='confirm show';cc.innerHTML='<strong>A few details are missing</strong>Please add your name and a valid email so we can reply.';(missing[0]||email).focus();return;}
+    var ag=document.getElementById('kAgent').value;
+    cc.className='confirm show';
+    cc.innerHTML='<strong>Thank you, '+clean(name.value.trim().split(' ')[0])+'.</strong>'+(ag==='No preference'?'A Northfield agent':clean(ag))+' would get back to you, usually the same business day. This is a portfolio demo, so nothing was sent.';
+    cf.querySelector('button[type=submit]').disabled=true;
+  });
+
+})();
+</script>
+<script id="landing-scroll">(function(){try{history.scrollRestoration='manual'}catch(e){}
+function tgt(h){h=(h||'').slice(1);if(!h)return null;try{return document.getElementById(decodeURIComponent(h))}catch(e){return null}}
+function land(){var t=tgt(location.hash);(t||document.documentElement).scrollIntoView({block:'start',behavior:'instant'})}
+document.addEventListener('DOMContentLoaded',land);addEventListener('load',function(){setTimeout(land,50)});addEventListener('pageshow',function(e){if(e.persisted)land()});
+document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href^="#"]');if(!a||e.defaultPrevented)return;var h=a.getAttribute('href');var t=h==='#top'||h==='#'?document.documentElement:tgt(h);if(!t)return;e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'});try{history.replaceState(null,'',h)}catch(x){}});})();</script>
+</body>
+</html>
