@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Northfield Listing Launch Kit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: two-pane workbench. Left = property intake (sticky on desktop), right = the kit as tabs. Navy and brass on warm off-white. */
+
+:root{
+  --accent:#a9823e; --accent-btn:#16233b; --accent-dark:#0d1727; --accent-tint:#f3ecdd; --on-btn:#fff;
+  --bg:#f6f5f1; --panel:#ffffff; --fg:#16233b; --muted:#5b6475; --line:#e0ddd3; --line-strong:#c9c5b8;
+  --warn:#9a4a07; --warn-bg:#fff4e5; --bad:#b42318; --bad-bg:#fdecea; --ok:#2e7d32; --ok-bg:#e8f3e8;
+  --ui:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif; --copy:'Fraunces',Georgia,'Times New Roman',serif;
+  --radius:10px; --shadow:0 1px 2px rgba(22,35,59,.06),0 8px 24px -12px rgba(22,35,59,.18);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --accent:#c9a35c; --accent-btn:#c9a35c; --accent-dark:#dcc08a; --accent-tint:#2b2a26; --on-btn:#16233b;
+  --bg:#0e1626; --panel:#15203a; --fg:#eef0f4; --muted:#a4adbd; --line:#26334f; --line-strong:#3a4968;
+  --warn:#f5a623; --warn-bg:#3a2a10; --bad:#ff7b6b; --bad-bg:#3c1d1a; --ok:#8fd694; --ok-bg:#1d3320;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -12px rgba(0,0,0,.6); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --accent:#c9a35c; --accent-btn:#c9a35c; --accent-dark:#dcc08a; --accent-tint:#2b2a26; --on-btn:#16233b;
+  --bg:#0e1626; --panel:#15203a; --fg:#eef0f4; --muted:#a4adbd; --line:#26334f; --line-strong:#3a4968;
+  --warn:#f5a623; --warn-bg:#3a2a10; --bad:#ff7b6b; --bad-bg:#3c1d1a; --ok:#8fd694; --ok-bg:#1d3320;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -12px rgba(0,0,0,.6); color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--ui);font-size:14px;line-height:1.5;margin:0}
+.wrap{max-width:1240px;margin:0 auto;padding-block:0 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-block:18px 14px;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:14px;min-width:0}
+.brand svg{display:block;flex:none}.intro h1,.outhead .addr{font-family:var(--copy)}.demo-note{background:var(--fg);color:var(--bg);font-size:12px;text-align:center;padding:7px 16px}.photos svg,.ig .card .im svg{width:100%;height:100%;display:block}
+.brand .name{font-weight:600;font-size:15px;letter-spacing:.01em}
+.brand .name small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;padding:5px 10px;border-radius:999px;background:var(--accent-tint);color:var(--accent-dark)}
+.intro{padding-block:22px 18px;display:grid;grid-template-columns:1.4fr 1fr;gap:24px;align-items:end}
+.intro h1{font-size:clamp(22px,2.6vw,30px);line-height:1.15;margin:0 0 8px;font-weight:600;text-wrap:balance}
+.intro p{margin:0;color:var(--muted);max-width:62ch}
+.steps{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.step{font-size:12px;color:var(--muted);display:flex;gap:8px;align-items:center}
+.step b{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--accent-btn);color:var(--on-btn);font-size:11px;font-weight:600}
+.grid{display:grid;grid-template-columns:400px minmax(0,1fr);gap:22px;align-items:start}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.intake{position:sticky;top:env(safe-area-inset-top,0px);padding:18px;max-height:calc(100vh - 8px);overflow:auto}
+.intake h2,.out h2{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.chip{border:1px solid var(--line-strong);background:transparent;color:var(--fg);font:inherit;font-size:12px;padding:5px 10px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent-btn);border-color:var(--accent-btn);color:var(--on-btn)}
+.chip:hover{border-color:var(--accent)}
+.f{display:grid;gap:4px;min-width:0}
+.f label{font-size:11.5px;font-weight:500;color:var(--muted)}
+.f input,.f select,.f textarea{font:inherit;font-size:13.5px;color:var(--fg);background:var(--bg);border:1px solid var(--line-strong);border-radius:7px;padding:8px 10px;width:100%;min-width:0}
+.f textarea{min-height:92px;resize:vertical;line-height:1.45}
+.f input:focus,.f select:focus,.f textarea:focus,button:focus-visible,.tab:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
+.one{margin-bottom:10px}
+.actions{display:grid;gap:8px;margin-top:14px}
+.btn{font:inherit;font-weight:600;font-size:13.5px;border-radius:8px;padding:11px 14px;cursor:pointer;border:1px solid transparent;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn.primary{background:var(--accent-btn);color:var(--on-btn)}
+.btn.primary:hover{background:var(--accent-dark);color:var(--on-btn)}
+.btn.ghost{background:transparent;border-color:var(--line-strong);color:var(--fg)}
+.btn.ghost:hover{border-color:var(--accent)}
+.btn[disabled]{opacity:.55;cursor:default}
+.hint{font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.45}
+.out{padding:0;min-width:0}
+.outhead{display:flex;gap:14px;align-items:flex-start;padding:18px 18px 0;flex-wrap:wrap}
+.outhead .meta{flex:1;min-width:220px}
+.outhead .addr{font-size:18px;font-weight:600;line-height:1.2}
+.outhead .facts{color:var(--muted);font-size:12.5px;margin-top:3px}
+.outhead .tools{display:flex;gap:8px;flex-wrap:wrap}
+.btn.small{padding:7px 11px;font-size:12.5px;font-weight:500}
+.status{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--muted);padding:10px 18px 0;min-height:30px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--line-strong)}
+.dot.live{background:var(--accent);animation:pulse 1.2s infinite}
+@keyframes pulse{50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.dot.live{animation:none}}
+.tabs{display:flex;gap:2px;padding:12px 18px 0;border-bottom:1px solid var(--line);overflow-x:auto}
+.tab{font:inherit;font-size:13px;font-weight:500;color:var(--muted);background:none;border:0;border-bottom:2px solid transparent;padding:10px 12px;cursor:pointer;white-space:nowrap;display:inline-flex;gap:6px;align-items:center}
+.tab[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--accent)}
+.tab .n{font-size:10.5px;background:var(--line);color:var(--fg);padding:1px 6px;border-radius:999px}
+.tab .n.bad{background:var(--bad-bg);color:var(--bad)}
+.tab .n.warn{background:var(--warn-bg);color:var(--warn)}
+.tab .n.ok{background:var(--ok-bg);color:var(--ok)}
+.pane{padding:18px;display:grid;gap:18px}
+.pane[hidden]{display:none}
+.block{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;min-width:0}
+.block .bh{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 12px;background:var(--bg);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.block .bh h3{margin:0;font-size:12.5px;font-weight:600}
+.block .bh .sub{font-size:11.5px;color:var(--muted)}
+.copy{font-family:var(--copy);font-size:15.5px;line-height:1.6;padding:14px 16px;white-space:pre-wrap;word-wrap:break-word;min-width:0}
+.copy.ui{font-family:var(--ui);font-size:13.5px}
+.copy mark{background:var(--warn-bg);color:inherit;border-bottom:2px solid var(--warn);padding:0 1px;border-radius:2px}
+.copy mark.bad{background:var(--bad-bg);border-bottom-color:var(--bad)}
+.heads{display:grid;gap:8px;padding:12px 16px}
+.heads .h{font-family:var(--copy);font-size:17px;font-weight:500;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.photos{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:12px 16px}
+.photos figure{margin:0;aspect-ratio:4/3;border-radius:7px;overflow:hidden;background:var(--bg);position:relative;max-width:100%}
+.photos figcaption{position:absolute;left:6px;top:6px;font-size:10.5px;font-weight:600;background:rgba(22,35,59,.78);color:#fff;padding:2px 7px;border-radius:999px}
+.ig{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:0}
+.ig .phone{border-left:1px solid var(--line);padding:14px;background:var(--bg)}
+.ig .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;max-width:272px;margin:0 auto}
+.ig .card .u{display:flex;align-items:center;gap:8px;padding:8px 10px;font-size:12px;font-weight:600}
+.ig .card .u i{width:24px;height:24px;border-radius:50%;background:var(--accent-btn);color:var(--on-btn);display:inline-grid;place-items:center;font-size:10px;font-style:normal}
+.ig .card .im{width:100%;aspect-ratio:1;overflow:hidden}
+.ig .card .cap{font-size:11.5px;padding:8px 10px 12px;line-height:1.4;max-height:120px;overflow:hidden}
+.check{display:grid;gap:12px}
+.verdict{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:var(--radius);border:1px solid var(--line)}
+.verdict.ok{background:var(--ok-bg);border-color:transparent}
+.verdict.warn{background:var(--warn-bg);border-color:transparent}
+.verdict.bad{background:var(--bad-bg);border-color:transparent}
+.verdict strong{display:block;font-size:14px}
+.verdict p{margin:2px 0 0;font-size:13px}
+.flags{display:grid;gap:8px}
+.flag{display:grid;grid-template-columns:auto 1fr;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px;align-items:start}
+.flag .lvl{font-size:10.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:3px 7px;border-radius:999px;margin-top:2px}
+.flag .lvl.bad{background:var(--bad-bg);color:var(--bad)}
+.flag .lvl.warn{background:var(--warn-bg);color:var(--warn)}
+.flag .where{color:var(--muted);font-size:12px}
+.rules{columns:2;column-gap:20px;font-size:12.5px;color:var(--muted);padding:4px 16px 14px}
+.rules li{break-inside:avoid;margin-bottom:5px}
+.verify{padding:12px 16px;font-size:13px}
+.verify ul{margin:6px 0 0;padding-left:18px}
+.verify li{margin-bottom:4px}
+.empty{padding:40px 18px;text-align:center;color:var(--muted)}
+footer{margin-top:28px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:11.5px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:9px 14px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.show{opacity:1}
+@media (max-width:960px){
+  .grid{grid-template-columns:1fr}
+  .intake{position:static;max-height:none}
+  .intro{grid-template-columns:1fr}
+  .steps{justify-content:flex-start}
+  .ig{grid-template-columns:1fr}
+  .ig .phone{border-left:0;border-top:1px solid var(--line)}
+}
+@media (max-width:520px){
+  .row3{grid-template-columns:1fr 1fr}
+  .photos{grid-template-columns:repeat(2,1fr)}
+  .rules{columns:1}
+}
+
+[hidden]{display:none!important}
+</style></head><body>
+<div class="demo-note">Portfolio demo · fictional brokerage, sample data. Built by Myles Parslow.</div>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="8" fill="#16233b"/><path d="M8 24V14l9-6 9 6v10h-5v-7h-8v7z" fill="#c9a35c"/></svg>
+      <div class="name">Listing Launch Kit <small>Agent tool, demo build</small></div>
+    </div>
+    <span class="pill">Fair housing checked</span>
+  </header>
+
+  <section class="intro">
+    <div>
+      <h1>Paste the property details. Get the whole launch, written in Northfield's voice.</h1>
+      <p>MLS remarks, Instagram, Facebook, LinkedIn, the email blast, and open-house copy, generated in one pass and screened for fair-housing language before anyone hits post. Load one of the sample listings to see a finished kit.</p>
+    </div>
+    <div class="steps">
+      <span class="step"><b>1</b> Enter the listing</span>
+      <span class="step"><b>2</b> Generate</span>
+      <span class="step"><b>3</b> Review, copy, post</span>
+    </div>
+  </section>
+
+  <div class="grid">
+    <aside class="panel intake" aria-label="Property details">
+      <h2>Load a sample listing</h2>
+      <div class="chips" id="chips"></div>
+
+      <h2>Or enter a property</h2>
+      <div class="one f"><label for="address">Street address</label><input id="address" placeholder="418 Linden Ct"></div>
+      <div class="row3">
+        <div class="f"><label for="city">City</label><input id="city" placeholder="Elm Hollow"></div>
+        <div class="f"><label for="zip">ZIP</label><input id="zip" placeholder="optional" inputmode="numeric"></div>
+        <div class="f"><label for="price">List price</label><input id="price" placeholder="450000" inputmode="numeric"></div>
+      </div>
+      <div class="row3">
+        <div class="f"><label for="beds">Beds</label><input id="beds" inputmode="numeric"></div>
+        <div class="f"><label for="baths">Baths</label><input id="baths" placeholder="2.5"></div>
+        <div class="f"><label for="sqft">Sq ft</label><input id="sqft" inputmode="numeric"></div>
+      </div>
+      <div class="row3">
+        <div class="f"><label for="year">Year built</label><input id="year" inputmode="numeric"></div>
+        <div class="f"><label for="lot">Lot</label><input id="lot" placeholder="0.15 acres"></div>
+        <div class="f"><label for="parking">Parking</label><input id="parking" placeholder="Garage, driveway"></div>
+      </div>
+      <div class="row">
+        <div class="f"><label for="ptype">Property type</label>
+          <select id="ptype">
+            <option>Single-family detached</option><option>Townhome / townhouse</option><option>Condo</option><option>New construction</option><option>Multi-family</option><option>Land</option>
+          </select></div>
+        <div class="f"><label for="hood">Neighborhood / area</label><input id="hood" placeholder="Elm Hollow"></div>
+      </div>
+      <div class="one f"><label for="features">Features (one per line)</label><textarea id="features" placeholder="Renovated kitchen with island&#10;Finished lower level&#10;New roof 2025"></textarea></div>
+      <div class="one f"><label for="standout">The one reason to love it</label><input id="standout" placeholder="Two primary suites, one on each floor"></div>
+      <div class="one f"><label for="disclose">Must-say items (as-is, HOA, fees, condition)</label><input id="disclose" placeholder="HOA $120/mo; sold as-is"></div>
+      <div class="row">
+        <div class="f"><label for="oh">Open house</label><input id="oh" placeholder="Sat Nov 14, 1 to 3 pm"></div>
+        <div class="f"><label for="agent">Agent</label><input id="agent" placeholder="Dana Reyes"></div>
+      </div>
+      <div class="actions">
+        <button class="btn primary" id="gen">Generate kit</button>
+        <button class="btn ghost" id="draft">Instant draft</button>
+      </div>
+      <p class="hint" id="aihint">Both buttons use the built-in writer, which runs entirely in this page. Generate adds a short writing pass; the instant draft is ready in a blink. Either way the kit is screened for fair-housing terms before you see it.</p>
+    </aside>
+
+    <main class="panel out" id="out">
+      <div class="outhead">
+        <div class="meta">
+          <div class="addr" id="oAddr">Pick a listing to begin</div>
+          <div class="facts" id="oFacts">Five sample listings are loaded with finished kits.</div>
+        </div>
+        <div class="tools">
+          <button class="btn ghost small" id="copyAll">Copy entire kit</button>
+          <button class="btn ghost small" id="dl" hidden>Download .md</button>
+        </div>
+      </div>
+      <div class="status"><span class="dot" id="dot"></span><span id="statusText">Ready</span><button class="btn ghost small" id="stop" hidden>Stop</button></div>
+
+      <div class="tabs" role="tablist" id="tabs">
+        <button class="tab" role="tab" data-pane="overview" aria-selected="true">Overview</button>
+        <button class="tab" role="tab" data-pane="mls">MLS remarks <span class="n" id="nMls"></span></button>
+        <button class="tab" role="tab" data-pane="social">Social <span class="n" id="nSocial"></span></button>
+        <button class="tab" role="tab" data-pane="email">Email blast <span class="n" id="nEmail"></span></button>
+        <button class="tab" role="tab" data-pane="open">Open house <span class="n" id="nOpen"></span></button>
+        <button class="tab" role="tab" data-pane="check">Fair housing check <span class="n" id="nCheck"></span></button>
+      </div>
+
+      <section class="pane" id="pane-overview">
+        <div class="block">
+          <div class="bh"><h3>Headline options</h3><span class="sub">Use for the listing page, postcard front, and story slides</span></div>
+          <div class="heads" id="heads"></div>
+        </div>
+        <div class="block">
+          <div class="bh"><h3>Photo carousel</h3><span class="sub">First four photos as they will appear on social</span></div>
+          <div class="photos" id="photos"></div>
+        </div>
+        <div class="block">
+          <div class="bh"><h3>Before you post: facts to verify</h3><span class="sub">Generated from the inputs, confirm against the listing agreement and MLS</span></div>
+          <div class="verify" id="verify"></div>
+        </div>
+      </section>
+
+      <section class="pane" id="pane-mls" hidden>
+        <div class="block">
+          <div class="bh"><h3>Public remarks</h3><span class="sub" id="mlsCount"></span><button class="btn ghost small" data-copy="mls">Copy</button></div>
+          <div class="copy" id="mls"></div>
+        </div>
+      </section>
+
+      <section class="pane" id="pane-social" hidden>
+        <div class="block">
+          <div class="bh"><h3>Instagram</h3><span class="sub">Caption plus hashtags, under 2,200 characters</span><button class="btn ghost small" data-copy="instagram">Copy</button></div>
+          <div class="ig">
+            <div class="copy ui" id="instagram"></div>
+            <div class="phone"><div class="card"><div class="u"><i>NR</i>northfieldrealty</div><div class="im" id="igImg" role="img" aria-label="Illustrated listing photo"></div><div class="cap" id="igCap"></div></div></div>
+          </div>
+        </div>
+        <div class="block">
+          <div class="bh"><h3>Facebook</h3><span class="sub">Conversational, link in the post</span><button class="btn ghost small" data-copy="facebook">Copy</button></div>
+          <div class="copy ui" id="facebook"></div>
+        </div>
+        <div class="block">
+          <div class="bh"><h3>LinkedIn</h3><span class="sub">For the agent's own profile</span><button class="btn ghost small" data-copy="linkedin">Copy</button></div>
+          <div class="copy ui" id="linkedin"></div>
+        </div>
+      </section>
+
+      <section class="pane" id="pane-email" hidden>
+        <div class="block">
+          <div class="bh"><h3>Subject lines</h3><span class="sub">A/B test the first two</span><button class="btn ghost small" data-copy="subjects">Copy</button></div>
+          <div class="heads" id="subjects"></div>
+        </div>
+        <div class="block">
+          <div class="bh"><h3>Email body</h3><span class="sub" id="preheader"></span><button class="btn ghost small" data-copy="emailBody">Copy</button></div>
+          <div class="copy" id="emailBody"></div>
+        </div>
+      </section>
+
+      <section class="pane" id="pane-open" hidden>
+        <div class="block">
+          <div class="bh"><h3>Open house invitation</h3><span class="sub">Event post, email, and listing page</span><button class="btn ghost small" data-copy="ohInvite">Copy</button></div>
+          <div class="copy" id="ohInvite"></div>
+        </div>
+        <div class="block">
+          <div class="bh"><h3>Text message to your sphere</h3><span class="sub" id="smsCount"></span><button class="btn ghost small" data-copy="ohSms">Copy</button></div>
+          <div class="copy ui" id="ohSms"></div>
+        </div>
+        <div class="block">
+          <div class="bh"><h3>Neighbor postcard or door note</h3><span class="sub">Neighbors are the best source of the next listing</span><button class="btn ghost small" data-copy="ohPostcard">Copy</button></div>
+          <div class="copy" id="ohPostcard"></div>
+        </div>
+      </section>
+
+      <section class="pane check" id="pane-check" hidden>
+        <div id="verdict"></div>
+        <div class="flags" id="flags"></div>
+        <div class="block">
+          <div class="bh"><h3>What the screen looks for</h3><span class="sub">Based on Fair Housing Act advertising guidance and commonly added state protected classes</span></div>
+          <ul class="rules">
+            <li>Words that describe who should live there instead of the property (family, kids, singles, professionals, retirees, couples).</li>
+            <li>Familial-status cues: "perfect for a growing family," "empty nesters," nursery, "mother-in-law suite."</li>
+            <li>Religion and national origin: churches or places of worship as selling points, ethnic descriptions of an area.</li>
+            <li>Disability cues: "able-bodied," "handicap," "no wheelchairs." Accessibility features are fine to list as features.</li>
+            <li>Steering language: "safe," "low crime," "exclusive," "good schools," school ratings. Name parks, transit and shops instead.</li>
+            <li>Source-of-income and other added classes: "no Section 8," "no vouchers," gender identity or marital-status references.</li>
+            <li>Brand voice: "master bedroom" becomes "primary," and Northfield is never described as "small."</li>
+          </ul>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer>
+    <span>Northfield Realty · (555) 010-2040 · hello@example.com · Equal Housing Opportunity</span>
+    <span>Sample listings are fictional. northfield-realty.example</span>
+  </footer>
+</div>
+
+<script>
+/* ---------- Sample listings (fictional), with finished kits ---------- */
+const BRAND = { office:'Northfield Realty', phone:'(555) 010-2040', site:'northfield-realty.example' };
+
+/* Email + open-house copy are assembled from each listing's facts so every kit stays consistent. */
+function finish(l, o){
+  const city=`${l.address}, ${l.city}`;
+  const oh=l.oh||'{open house date and time}';
+  const ohShort=l.oh||'{date}';
+  const sub=l.oh?`Open house: ${l.oh}. Or reply to this email and I'll set up a private showing at a time that suits you.`:`Reply to this email or call ${BRAND.phone} and I'll arrange a showing.`;
+  return {
+    headlines:o.headlines, mls:o.mls, instagram:o.instagram, facebook:o.facebook, linkedin:o.linkedin,
+    email:{
+      subjects:o.subjects,
+      preheader:o.preheader,
+      body:`Hi {first name},\n\n${o.lead}\n\n${city}\nOffered at ${money(l.price)}\n\n${o.summary}\n\nThree things worth knowing:\n${o.bullets.map(b=>'• '+b).join('\n')}\n\n${sub}\n\nSee the full photo gallery: ${BRAND.site}\n\nWarm regards,\n{agent name}\n${BRAND.office}\n${BRAND.phone}`
+    },
+    open:{
+      invite:`Open house: ${city}\n${oh}\n\n${o.invite}\n\nOffered at ${money(l.price)}. Hosted by ${BRAND.office}, ${BRAND.phone}.`,
+      sms:`Hi {first name}, it's {agent} at ${BRAND.office}. ${l.oh?'Open house '+o.smsWhen:'Open house {date}'} at ${l.address} in ${l.city}: ${o.smsPitch}, ${o.smsPrice}. Come by or reply for a private tour.`,
+      postcard:`Hello neighbor,\n\n${BRAND.office} has just listed ${l.address}, and we're ${l.oh?'opening the doors '+o.postWhen:'holding an open house on {date}'}.\n\n${o.postBody}\n\nWondering what your own home would bring today? Call or text ${BRAND.phone} and we'll put together a no-obligation market snapshot for your address.\n\n${BRAND.office} · ${BRAND.site}`
+    },
+    verify:o.verify
+  };
+}
+const money=n=>'$'+Number(n||0).toLocaleString('en-US');
+const num=n=>Number(n||0).toLocaleString('en-US');
+
+const L1={ id:'nf-418', address:'418 Linden Ct', city:'Elm Hollow', zip:'', price:525000, beds:4, baths:'4.5', sqft:2930, year:2023, lot:'0.42 acres', parking:'Two-car garage, extended driveway', ptype:'New construction', hood:'Elm Hollow',
+ features:['Two primary suites, one on the main level and one upstairs','Hardwood floors on the main and upper levels','Kitchen with large island and seating','Finished lower level with a full bath','Covered front porch','Screened porch with built-in grill','Wide patio and level yard','Heat pump, central air, all appliances included'],
+ standout:'Two primary suites, one on each floor', disclose:'Shared driveway easement on the property; estimated taxes $6,100', oh:'Sat Nov 14, 1 to 3 pm', agent:'', hue:210 };
+L1.kit=finish(L1,{
+ headlines:['Brand new on Linden Ct in Elm Hollow','Two primary suites. Nothing to fix.','New construction at 418 Linden Ct'],
+ mls:`New construction in Elm Hollow, set on a generous lot at the end of a quiet court. 418 Linden Ct offers 2,930 square feet across three finished levels, with 4 bedrooms and 4.5 baths and a layout most homes cannot match: two primary suites, one on the main level and one upstairs. Use the main-level suite for guests, a home office, or simply as the bedroom you never have to climb stairs to reach.\n\nThe main level is open from the front door to the back porch. Hardwood floors run throughout, the kitchen centers on a large island with seating, and the dining and living areas flow out to a screened porch with a built-in grill. The finished lower level adds a full bath and flexible space for a gym, media room, or studio. Upstairs, three more bedrooms include the second primary suite with its own private bath.\n\nOutside: a covered front porch, a wide patio, and a level yard with room to spread out. The two-car garage and extended driveway handle plenty of parking. Everything is new, from the roof and heat pump to the appliances, so your first years here are about living in the house, not working on it. Listed by Northfield Realty, (555) 010-2040.`,
+ instagram:`Just listed in Elm Hollow: 418 Linden Ct\n\nNew construction on 0.42 acres\n4 bed | 4.5 bath | 2,930 sq ft\n\nTwo primary suites (one on each floor), hardwood throughout, a screened porch with a built-in grill, and a finished lower level with its own full bath. Everything in this house is new.\n\nOffered at $512,000. Tour it this weekend: link in bio or call (555) 010-2040.\n\n#ElmHollow #NewConstruction #JustListed #NorthfieldRealty #HomesForSale #NewBuild #DreamHome #RealEstate #OpenHouse #HomeTour`,
+ facebook:`New construction just hit the market in Elm Hollow, and it solves a problem we hear about all the time: "We need a bedroom suite on the main level, but we don't want a rancher."\n\n418 Linden Ct has two primary suites, one downstairs and one up. Add 4.5 baths, 2,930 finished square feet, hardwood floors, a kitchen island built for conversation, a screened porch with a built-in grill, and a finished lower level with a full bath.\n\nOffered at $512,000. Open house Saturday, November 14, 1 to 3 pm. Message us or call (555) 010-2040 for a private showing before then.\n\nListed by Northfield Realty.`,
+ linkedin:`New to market: 418 Linden Ct, Elm Hollow. Newly built in 2023 on 0.42 acres, with 4 bedrooms, 4.5 baths, and 2,930 square feet over three finished levels.\n\nWhat sets it apart is the floor plan: two primary suites, one on each level, which works for long-term guests, a serious work-from-home setup, or anyone who wants a bedroom on the main level without giving up a second floor.\n\nListed at $512,000 by Northfield Realty. If you know someone looking for new construction with room to breathe, I'd welcome the introduction. (555) 010-2040.`,
+ subjects:['Just listed: new construction in Elm Hollow','Two primary suites, $512,000','First look at 418 Linden Ct'],
+ preheader:'Built in 2023, 4 bed, 4.5 bath, two primary suites, open house Saturday.',
+ lead:'A new listing just went live that I wanted you to see first.',
+ summary:'Built in 2023, this 4-bedroom, 4.5-bath home has 2,930 finished square feet and a floor plan you rarely find: two primary suites, one on the main level and one upstairs.',
+ bullets:['The main level is open end to end, with hardwood floors, an island kitchen, and a screened porch with a built-in grill.','The finished lower level has its own full bath, so it works as a gym, media room, or guest level.','Everything is new: roof, heat pump, appliances. No projects waiting for you.'],
+ invite:'Come walk through brand-new construction at the end of the court. 4 bedrooms, 4.5 baths, 2,930 square feet, and two primary suites, one on each floor. Stay for the screened porch and the view across the yard.',
+ smsWhen:'Sat 11/14, 1-3 pm', smsPitch:'new construction, two primary suites', smsPrice:'$512K', postWhen:'Saturday, November 14, from 1 to 3 pm',
+ postBody:'You\'re welcome to come see it, and if you know someone who has been hoping to land in Elm Hollow, please send them our way. A good neighbor is the best recommendation a home can get.',
+ verify:['The driveway easement is disclosed in the remarks; confirm the easement wording with the seller.','Square footage shown as 2,930 (tax record); use one figure everywhere.','Confirm the open house date and time before posting.']
+});
+
+const L2={ id:'nf-92', address:'92 Alder Way', city:'Cedar Ridge', zip:'', price:345000, beds:4, baths:'3', sqft:2640, year:1991, lot:'1.2 acres, wooded', parking:'Driveway', ptype:'Single-family detached', hood:'Cedar Ridge',
+ features:['One-level living, ranch style','Two additions give flexible space for an office, studio, gym, or guest suite','Updated kitchen with white cabinets, butcher-block counters, and a 36-inch farmhouse sink','Wood-burning stove','Covered porch and deck overlooking the woods','Paved recreation area with basketball goal','Main-level ramp entry','Built-ins, ceiling fans, breakfast area, wainscoting'],
+ standout:'2,640 square feet on one level, surrounded by a private wooded acre', disclose:'Sold as-is; needs cosmetic updates; oil heat; private well and septic', oh:'', agent:'', hue:140 };
+L2.kit=finish(L2,{
+ headlines:['A wooded acre and 2,640 square feet on one level','Room for everything you do, in Cedar Ridge','A ranch with space to grow into'],
+ mls:`Over an acre of wooded land in Cedar Ridge, and a home with more room than its ranch profile suggests. 92 Alder Way offers 2,640 square feet on a single level, with 4 bedrooms and 3 full baths.\n\nTwo additions to the original 1991 home created the kind of flexible square footage that is hard to find: a home office with its own entrance, an art studio, a gym, or a self-contained guest suite are all possible without touching a wall. The kitchen has been updated with white cabinetry, butcher-block counters, and a 36-inch farmhouse sink. A wood-burning stove anchors the main living area, and the covered porch and rear deck look out over the trees. Outside you will also find a paved recreation area with a basketball goal and a ramped main-level entry.\n\nThe home needs some finishes and cosmetic updates, and it is priced accordingly at $329,000. Sold as-is. Oil heat, private well and septic, and immediate possession. Bring your vision and your paint swatches. Listed by Northfield Realty, (555) 010-2040.`,
+ instagram:`Just listed in Cedar Ridge: 92 Alder Way\n\n4 bed | 3 bath | 2,640 sq ft, all on one level\n1.2 wooded acres\n\nTwo additions mean room for an office, a studio, a gym, or a guest suite. Updated kitchen with butcher-block counters and a farmhouse sink, a wood stove, and a deck that looks straight into the trees.\n\nNeeds some cosmetic updates and priced for it: $329,000. Sold as-is.\n\nDetails at the link in bio or call (555) 010-2040.\n\n#CedarRidge #JustListed #NorthfieldRealty #OneLevelLiving #FixerUpper #WoodedLot #CountryLiving #HomesForSale #RealEstate #RanchHome`,
+ facebook:`If you've been waiting for land, square footage, and a price that leaves room for your own finishes, this is the one to look at.\n\n92 Alder Way in Cedar Ridge sits on a wooded acre with 2,640 square feet all on one level: 4 bedrooms, 3 full baths, and two additions that give you real flexibility (home office, studio, gym, guest suite, you decide). The kitchen is already done, with white cabinets, butcher-block counters, and a big farmhouse sink. There's a wood stove for winter and a deck over the trees for everything else.\n\nIt needs cosmetic updates, so it's priced at $329,000 and sold as-is.\n\nWant to walk it? Call or text (555) 010-2040. Listed by Northfield Realty.`,
+ linkedin:`Just listed: 92 Alder Way, Cedar Ridge. 2,640 square feet on one level, 4 bedrooms, 3 full baths, on 1.2 wooded acres.\n\nThe interesting part is the footprint. Two additions created flexible space that could serve as a dedicated home office with its own entrance, a studio, or a guest suite. For buyers who work remotely and want land within reach of town, that combination is rare at $329,000.\n\nSold as-is. Listed by Northfield Realty, (555) 010-2040.`,
+ subjects:['Just listed: a wooded acre in Cedar Ridge, $329,000','2,640 square feet on one level','A ranch with room to spread out at 92 Alder Way'],
+ preheader:'One-level living on 1.2 acres, updated kitchen, priced for your finishes.',
+ lead:'A new listing just went live, and it\'s a good fit for anyone who has asked me about land and space.',
+ summary:'2,640 square feet on one level, 4 bedrooms, 3 full baths, on over an acre of woods in Cedar Ridge.',
+ bullets:['Two additions give you flexible space for an office, studio, gym, or guest suite.','The kitchen is updated with white cabinets, butcher-block counters, and a 36-inch farmhouse sink.','It needs cosmetic updates and is priced for them. Sold as-is.'],
+ invite:'Walk over an acre of woods and a 2,640-square-foot ranch with 4 bedrooms, 3 full baths, and two additions you can put to any use. See the updated kitchen, the wood stove, and the deck over the trees.',
+ smsWhen:'{date}', smsPitch:'2,640 sq ft on one level, a wooded acre', smsPrice:'$329K', postWhen:'on {date}',
+ postBody:'Stop in to see it, and if you know someone who has been hoping to find land in Cedar Ridge, please pass this along. The best buyers often come from the people who already love the street.',
+ verify:['As-is status must stay in every public description; confirm the wording with the broker.','The features list and the remarks disagree on the fireplace (wood vs. electric) and the appliance brands. Pick one before posting.','No open house is scheduled yet; fill in the date before using the open-house copy.']
+});
+
+const L3={ id:'nf-77', address:'77 Foundry St', city:'Brookside', zip:'', price:400000, beds:4, baths:'3.5', sqft:2210, year:1938, lot:'0.15 acres', parking:'Detached rear garage and long driveway', ptype:'Single-family detached', hood:'Brookside',
+ features:['Fully renovated 1938 colonial','Covered front porch','Open main level with hardwood floors','Kitchen with oversized island and walk-in pantry','Primary suite with walk-in closet, second closet, and en-suite bath','Finished lower level with rec room, fourth bedroom, full bath, and laundry','Backyard firepit','New roof in 2025'],
+ standout:'A 1938 colonial renovated top to bottom, with a new roof and a detached garage', disclose:'Estimated taxes $5,900', oh:'Sun Nov 15, 12 to 2 pm', agent:'', hue:28 };
+L3.kit=finish(L3,{
+ headlines:['A 1938 colonial, renovated for the next hundred years','Porch, island, garage, firepit. All of it.','Move-in ready in Brookside'],
+ mls:`Welcome to 77 Foundry St, a 1938 colonial that has been renovated top to bottom and now offers 4 bedrooms, 3.5 baths, and 2,210 finished square feet, plus a detached garage, a long driveway, and a new roof installed in 2025.\n\nStart on the covered front porch, the kind this house was built with and this neighborhood is known for. Inside, the main level is open and bright, with hardwood floors and a kitchen that does the heavy lifting: an oversized island with seating, a walk-in pantry, and cabinetry on every wall that needed it. Upstairs, the primary suite has a walk-in closet, a second closet, and a private en-suite bath, with two more bedrooms and a full bath down the hall.\n\nThe finished lower level is a true second living area: a recreation room, a fourth bedroom, a full bath, and laundry. Out back, the yard is set up around a firepit, with the detached garage at the rear of the lot. Built-ins, recessed lighting, ceiling fans, and window treatments are already in place. Offered at $389,000. Listed by Northfield Realty, (555) 010-2040.`,
+ instagram:`Just listed: 77 Foundry St, Brookside\n\n4 bed | 3.5 bath | 2,210 sq ft\nRenovated 1938 colonial, new roof in 2025\n\nCovered front porch, open main level with hardwood floors, a kitchen island you could land a plane on, a primary suite with two closets, and a finished lower level with its own bedroom and bath. Detached garage and a firepit out back.\n\nOffered at $389,000. Open house Sunday 11/15, 12 to 2 pm. Link in bio or call (555) 010-2040.\n\n#Brookside #JustListed #NorthfieldRealty #Colonial #RenovatedHome #FrontPorch #HomesForSale #RealEstate #OpenHouse #HomeTour`,
+ facebook:`Some renovations stop at the kitchen. This one didn't.\n\n77 Foundry St is a 1938 colonial with 4 bedrooms, 3.5 baths, and 2,210 finished square feet, renovated from the covered front porch to the finished lower level. The kitchen has an oversized island and a walk-in pantry. The primary suite has a walk-in closet, a second closet, and its own bath. Downstairs there's a rec room, a fourth bedroom, a full bath, and laundry. The roof is new as of 2025, and there's a detached garage and a firepit in the backyard.\n\nOffered at $389,000. Open house Sunday, November 15, 12 to 2 pm. Call or text (555) 010-2040 for a showing before then.\n\nListed by Northfield Realty.`,
+ linkedin:`New listing: 77 Foundry St, Brookside. A 1938 colonial renovated throughout, with 4 bedrooms, 3.5 baths, 2,210 square feet, a detached garage, and a new roof (2025).\n\nThe finished lower level, with its own bedroom and full bath, gives the house a second living zone that works for a home office, long-term guests, or flexible use.\n\nOffered at $389,000 by Northfield Realty. Open house Sunday, November 15, 12 to 2 pm. (555) 010-2040.`,
+ subjects:['Just listed: a fully renovated colonial at $389,000','Front porch, island kitchen, new roof: 77 Foundry St','Open house Sunday in Brookside'],
+ preheader:'4 bed, 3.5 bath, finished lower level, detached garage, new roof 2025.',
+ lead:'A new listing just went live that checks a lot of the boxes you\'ve mentioned.',
+ summary:'A 1938 colonial renovated throughout, with 4 bedrooms, 3.5 baths, and 2,210 finished square feet.',
+ bullets:['The kitchen has an oversized island and a walk-in pantry, open to the main living area with hardwood floors.','The finished lower level has a rec room, a fourth bedroom, a full bath, and laundry.','The roof is new (2025), and there\'s a detached garage, a long driveway, and a firepit in the backyard.'],
+ invite:'Tour a 1938 colonial renovated top to bottom: covered front porch, open main level, oversized island kitchen, a primary suite with two closets, and a finished lower level with its own bedroom and bath. New roof in 2025, detached garage, firepit out back.',
+ smsWhen:'Sun 11/15, 12-2 pm', smsPitch:'renovated 1938 colonial, 4 bed/3.5 bath, new roof, garage', smsPrice:'$389K', postWhen:'Sunday, November 15, from 12 to 2 pm',
+ postBody:'You\'re welcome to stop in and see the renovation. And if you know someone who has been hoping to find a home on this block, please send them our way.',
+ verify:['Confirm the garage is detached at the rear (the MLS data field says front entry).','Confirm the neighborhood name the seller prefers for marketing; the copy uses "Brookside."','Confirm the open house date and time before posting.']
+});
+
+const L4={ id:'nf-36', address:'36 Quarry Row', city:'Highview', zip:'', price:215000, beds:2, baths:'2.5', sqft:1720, year:1972, lot:'Condo', parking:'Covered garage space', ptype:'Condo', hood:'Highview',
+ features:['End-unit contemporary townhome across three levels','Upper-level office converts to a third bedroom','Skylight and recessed lighting','Walk-in closets in both bedrooms','Updated kitchen with granite counters and stainless appliances','Formal dining room','Finished walkout lower level den','Private fenced patio with gate to a large green space','Community pool and tennis courts'],
+ standout:'One of the largest floor plans in the community, with a private patio that opens onto green space', disclose:'Condo fee and HOA fee apply (confirm amounts); estimated taxes $3,900', oh:'', agent:'', hue:265 };
+L4.kit=finish(L4,{
+ headlines:['One of the largest floor plans in Highview','Three levels, a garage, and a patio onto green space','Townhome convenience with a private patio'],
+ mls:`One of the largest floor plans in the community, and an end unit. 36 Quarry Row is a contemporary townhome with 1,720 square feet over three levels: 2 bedrooms, 2.5 baths, and an upper-level office that converts easily to a third bedroom.\n\nNatural light is the first thing you notice, from the skylight and the end-unit windows, with recessed lighting for the evenings. The updated kitchen has granite counters and stainless appliances, and there is a formal dining room for the nights you want one. Both bedrooms have walk-in closets. The finished walkout lower level makes a den, gym, or office, and it opens to a private fenced patio with a gate straight onto a large green space.\n\nParking is a private covered garage space. The community includes a pool and tennis courts, with shops, restaurants, and a trailhead a few minutes away. Condo and HOA fees apply; see the listing for amounts and inclusions. Offered at $215,000. Listed by Northfield Realty, (555) 010-2040.`,
+ instagram:`Just listed: 36 Quarry Row, Highview\n\n2 bed + office | 2.5 bath | 1,720 sq ft | end unit\n\nSkylight, walk-in closets in both bedrooms, granite and stainless kitchen, a finished walkout lower level, and a private fenced patio that opens right onto the green. Covered garage parking, community pool and tennis.\n\nOffered at $215,000. Link in bio or call (555) 010-2040.\n\n#Highview #JustListed #NorthfieldRealty #Townhome #CondoLiving #EndUnit #HomesForSale #RealEstate #CityLiving #HomeTour`,
+ facebook:`Minutes from the shops and a private patio that opens onto a big green space. That's 36 Quarry Row.\n\nIt's an end-unit contemporary townhome in Highview with one of the community's largest floor plans: 2 bedrooms with walk-in closets, 2.5 baths, an upper-level office that can be a third bedroom, and a finished walkout lower level. The kitchen is updated with granite and stainless, there's a skylight overhead, and your car gets a covered garage space. Pool and tennis courts come with the community.\n\nOffered at $215,000. Call or text (555) 010-2040 to see it. Listed by Northfield Realty.`,
+ linkedin:`New listing: 36 Quarry Row, Highview. An end-unit contemporary townhome with 1,720 square feet across three levels, 2 bedrooms plus an office, 2.5 baths, a finished walkout lower level, and a covered garage space.\n\nFor anyone who wants an easy commute and a private patio onto green space, this is the draw. Offered at $215,000 by Northfield Realty. (555) 010-2040.`,
+ subjects:['Just listed in Highview at $215,000','End unit, garage, and a patio onto the green','First look: 36 Quarry Row'],
+ preheader:'One of the largest floor plans in the community, three levels, covered parking.',
+ lead:'A new listing just went live that I think you\'ll want to see.',
+ summary:'An end-unit contemporary townhome in Highview with 1,720 square feet over three levels: 2 bedrooms, 2.5 baths, and an upper-level office that converts to a third bedroom.',
+ bullets:['Both bedrooms have walk-in closets, and the kitchen is updated with granite counters and stainless appliances.','The finished walkout lower level opens to a private fenced patio with a gate onto a large green space.','A covered garage space is included, and the community has a pool and tennis courts.'],
+ invite:'See one of the largest floor plans in Highview: an end-unit townhome with 2 bedrooms plus an office, 2.5 baths, a finished walkout lower level, and a private patio that opens onto the green. Covered garage parking included.',
+ smsWhen:'{date}', smsPitch:'end-unit townhome, 2 bed + office, garage, patio onto green space', smsPrice:'$215K', postWhen:'on {date}',
+ postBody:'Stop by to see it, and if you know someone who has been hoping to move into the community, please send them our way.',
+ verify:['Condo fee and HOA fee amounts and frequency conflict in the MLS data; confirm before quoting any number.','The listing is currently under contract; use this kit as a template or for backup-offer marketing.','No open house is scheduled yet; fill in the date before using the open-house copy.']
+});
+
+const L5={ id:'nf-14', address:'14 Hollis St', city:'Ashford Park', zip:'', price:159900, beds:3, baths:'1', sqft:1180, year:1904, lot:'0.07 acres', parking:'Street', ptype:'Townhome / townhouse', hood:'Ashford Park',
+ features:['Remodeled 1904 brick townhome, three levels','Refinished hardwood floors on the main level','New carpet upstairs','Updated kitchen with granite counters and table space','Oversized front windows on both levels','Remote-control ceiling fans','Private fenced rear yard','Level entry on the main floor','Unfinished basement with rear entrance'],
+ standout:'A remodeled classic townhome a short walk from the park and the market hall, priced under $160,000', disclose:'Window and ceiling-fan cooling (no central air); A/C condenser excluded; fireplace is decorative; estimated taxes $2,500', oh:'Sat Nov 14, 11 am to 1 pm', agent:'', hue:8 };
+L5.kit=finish(L5,{
+ headlines:['A classic brick townhome, remodeled and under $160,000','Walk to the park from your own front stoop','Ashford Park, done right'],
+ mls:`A beautifully updated classic townhome in Ashford Park, priced at $159,900. 14 Hollis St is an 1904 brick home with 3 bedrooms, 1 full bath, and 1,180 square feet over three levels, remodeled and ready to move into.\n\nOversized front windows on both levels fill the home with light. The main level has refinished hardwood floors, remote-control ceiling fans, and an updated kitchen with granite counters and room for a table. Upstairs, three bedrooms have new carpet. The unfinished basement has its own rear entrance and plenty of storage, and the private fenced rear yard is ready for a grill and a few chairs. Level entry on the main floor.\n\nLocation is the headline: the park, the market hall, and the neighborhood's cafes are a short walk, and the main roads are minutes away for commuters. Gas stove, refrigerator, microwave, and dishwasher convey. Cooling is by ceiling fans and window units; the fireplace is decorative. A strong first home or a solid addition to a portfolio. Listed by Northfield Realty, (555) 010-2040.`,
+ instagram:`Just listed in Ashford Park: 14 Hollis St\n\n3 bed | 1 bath | 1,180 sq ft | 1904 brick townhome\nOffered at $159,900\n\nRemodeled with refinished hardwoods, a granite kitchen with table space, new carpet upstairs, and oversized windows front and back. Private fenced yard. A short walk to the park and the market hall.\n\nOpen house Saturday 11/14, 11 am to 1 pm. Link in bio or call (555) 010-2040.\n\n#AshfordPark #Townhome #JustListed #NorthfieldRealty #BrickHome #FirstHome #HomesForSale #RealEstate #OpenHouse #HomeTour`,
+ facebook:`Under $160,000, remodeled, and a short walk to the park.\n\n14 Hollis St is an 1904 brick townhome in Ashford Park with 3 bedrooms, 1 full bath, and 1,180 square feet over three levels. Refinished hardwood floors on the main level, new carpet upstairs, an updated kitchen with granite counters, oversized windows, and a private fenced rear yard. The park, the market hall, and the corner cafes are all close enough to walk.\n\nOffered at $159,900. Open house Saturday, November 14, 11 am to 1 pm. Call or text (555) 010-2040 to see it sooner.\n\nListed by Northfield Realty.`,
+ linkedin:`New listing: 14 Hollis St, Ashford Park. A remodeled 1904 brick townhome with 3 bedrooms, 1 bath, and 1,180 square feet, offered at $159,900.\n\nRefinished hardwoods, an updated granite kitchen, new carpet upstairs, and a fenced rear yard, within walking distance of the park and minutes from the main roads. Worth a look for a first purchase or as a well-located rental.\n\nOpen house Saturday, November 14, 11 am to 1 pm. Listed by Northfield Realty, (555) 010-2040.`,
+ subjects:['Just listed in Ashford Park: remodeled townhome, $159,900','Walk to the park from 14 Hollis St','Under $160K and move-in ready, open house Saturday'],
+ preheader:'3 bed, 1 bath, refinished hardwoods, granite kitchen, fenced yard.',
+ lead:'A new listing just went live in Ashford Park that\'s worth a look if you\'ve been watching the under-$160,000 market.',
+ summary:'An 1904 brick townhome with 3 bedrooms, 1 full bath, and 1,180 square feet over three levels, remodeled and move-in ready.',
+ bullets:['Refinished hardwood floors on the main level, new carpet upstairs, and an updated kitchen with granite counters and table space.','Oversized front windows on both levels and a private fenced rear yard.','The park, the market hall, and the corner cafes are a short walk.'],
+ invite:'Walk through a remodeled 1904 brick townhome in Ashford Park: refinished hardwoods, a granite kitchen with room for a table, three bedrooms with new carpet, and a private fenced yard. Then walk to the park.',
+ smsWhen:'Sat 11/14, 11-1', smsPitch:'remodeled 3-bed townhome, fenced yard, walk to the park', smsPrice:'$159,900', postWhen:'Saturday, November 14, from 11 am to 1 pm',
+ postBody:'Come see the remodel, and if you know someone who has been hoping to buy in Ashford Park, please send them our way. Neighbors make the best referrals.',
+ verify:['Cooling is window units and ceiling fans; the A/C condenser is excluded from the sale. Keep that disclosed.','Confirm whether the fireplace should be described as decorative or omitted.','Confirm the open house date and time before posting.']
+});
+
+const LISTINGS=[L1,L2,L3,L4,L5];
+
+/* ---------- Placeholder "photos": hand-built SVG scenes ---------- */
+function scene(kind,hue,i){
+  const c=(s,l,a)=>`hsl(${(hue+(a||0))%360} ${s}% ${l}%)`;
+  const sky=`<defs><linearGradient id="g${kind}${hue}${i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c(45,82)}"/><stop offset="1" stop-color="${c(40,93)}"/></linearGradient></defs>`;
+  let b='';
+  if(kind==='ext'){
+    b=`${sky}<rect width="400" height="300" fill="url(#g${kind}${hue}${i})"/><rect y="215" width="400" height="85" fill="hsl(105 23% 60%)"/>
+    <rect x="30" y="120" width="12" height="100" fill="#6b5a45"/><circle cx="36" cy="105" r="46" fill="hsl(105 25% 45%)"/><circle cx="62" cy="130" r="28" fill="hsl(105 25% 40%)"/>
+    <rect x="110" y="115" width="220" height="105" fill="${c(35,86)}"/><polygon points="95,118 220,48 345,118" fill="${c(30,30)}"/><rect x="288" y="52" width="18" height="40" fill="${c(25,40)}"/>
+    <rect x="195" y="150" width="46" height="70" rx="3" fill="#16233b"/><circle cx="231" cy="188" r="2.5" fill="#c9a35c"/>
+    <rect x="132" y="140" width="42" height="40" fill="#cfe3f0" stroke="#fff" stroke-width="4"/><rect x="262" y="140" width="42" height="40" fill="#cfe3f0" stroke="#fff" stroke-width="4"/>
+    <rect x="110" y="205" width="220" height="14" fill="${c(10,75)}"/><polygon points="205,300 235,300 228,220 212,220" fill="${c(10,82)}"/>`;
+  } else if(kind==='living'){
+    b=`<rect width="400" height="300" fill="${c(30,92)}"/><rect y="215" width="400" height="85" fill="${c(30,62,25)}"/>
+    <rect x="240" y="40" width="110" height="120" fill="#cfe3f0" stroke="#fff" stroke-width="6"/><line x1="295" y1="40" x2="295" y2="160" stroke="#fff" stroke-width="4"/><line x1="240" y1="100" x2="350" y2="100" stroke="#fff" stroke-width="4"/>
+    <rect x="50" y="60" width="60" height="44" fill="${c(40,70)}" stroke="#fff" stroke-width="4"/><rect x="125" y="72" width="36" height="30" fill="${c(30,80,40)}" stroke="#fff" stroke-width="4"/>
+    <ellipse cx="170" cy="250" rx="130" ry="26" fill="${c(30,82)}"/>
+    <rect x="70" y="170" width="190" height="62" rx="14" fill="${c(40,35)}"/><rect x="60" y="188" width="30" height="48" rx="10" fill="${c(40,30)}"/><rect x="242" y="188" width="30" height="48" rx="10" fill="${c(40,30)}"/><rect x="95" y="160" width="140" height="30" rx="12" fill="${c(40,42)}"/>
+    <rect x="310" y="180" width="6" height="50" fill="#6b5a45"/><polygon points="296,182 330,182 322,160 304,160" fill="#f1e2b5"/>`;
+  } else if(kind==='kitchen'){
+    b=`<rect width="400" height="300" fill="${c(20,94)}"/><rect y="230" width="400" height="70" fill="${c(20,70,15)}"/>
+    <rect x="0" y="40" width="400" height="60" fill="${c(30,28)}" opacity=".9"/>${[0,1,2,3,4,5,6,7].map(k=>`<rect x="${10+k*49}" y="46" width="42" height="48" rx="2" fill="${c(30,34)}" stroke="${c(30,22)}"/>`).join('')}
+    <rect x="0" y="105" width="400" height="12" fill="#e9e6df"/><rect x="0" y="117" width="400" height="63" fill="${c(20,88)}"/>
+    <rect x="150" y="125" width="100" height="45" fill="#cfe3f0" stroke="#fff" stroke-width="5"/>
+    <rect x="40" y="195" width="320" height="22" fill="#e9e6df"/><rect x="48" y="217" width="304" height="62" fill="${c(30,26)}"/>
+    ${[0,1,2,3].map(k=>`<rect x="${56+k*74}" y="224" width="64" height="48" fill="${c(30,31)}" stroke="${c(30,20)}"/>`).join('')}
+    <line x1="110" y1="0" x2="110" y2="30" stroke="#444"/><polygon points="95,30 125,30 118,46 102,46" fill="#c9a35c"/><line x1="290" y1="0" x2="290" y2="30" stroke="#444"/><polygon points="275,30 305,30 298,46 282,46" fill="#c9a35c"/>`;
+  } else {
+    b=`${sky}<rect width="400" height="300" fill="url(#g${kind}${hue}${i})"/><rect y="130" width="400" height="170" fill="hsl(105 30% 58%)"/>
+    ${[0,1,2,3,4,5,6,7,8,9].map(k=>`<rect x="${k*42}" y="95" width="30" height="82" rx="3" fill="#f4f1ea"/><polygon points="${k*42},95 ${k*42+15},84 ${k*42+30},95" fill="#f4f1ea"/>`).join('')}
+    <ellipse cx="205" cy="235" rx="150" ry="48" fill="${c(10,78)}"/>
+    <ellipse cx="205" cy="232" rx="42" ry="14" fill="#4a4a4f"/><ellipse cx="205" cy="226" rx="28" ry="8" fill="#2c2c30"/><path d="M205 190 Q192 216 205 224 Q218 216 205 190Z" fill="#ff9a3c"/><path d="M205 202 Q198 216 205 222 Q212 216 205 202Z" fill="#ffd45e"/>
+    <rect x="95" y="228" width="34" height="14" rx="3" fill="${c(40,38)}"/><rect x="282" y="228" width="34" height="14" rx="3" fill="${c(40,38)}"/>
+    <rect x="345" y="70" width="10" height="90" fill="#6b5a45"/><circle cx="350" cy="62" r="38" fill="hsl(105 25% 42%)"/>`;
+  }
+  return `<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Illustrated placeholder, ${kind}" xmlns="http://www.w3.org/2000/svg">${b}</svg>`;
+}
+const KINDS=['ext','living','kitchen','yard'];
+const photosFor=l=>KINDS.map((k,i)=>scene(k,l.hue,i));
+const LOGO='<svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="8" fill="#16233b"/><path d="M8 24V14l9-6 9 6v10h-5v-7h-8v7z" fill="#c9a35c"/></svg>';
+
+/* ---------- Fair housing and brand screen ---------- */
+const FH = [
+ {re:/\b(?!family room)(family|families|family[- ]friendly)\b/gi, lvl:'bad', why:'Familial status. Describe the space, not the household.', fix:'"room for everyone" → name the rooms; "great for families" → "a finished lower level and a fenced yard"'},
+ {re:/\b(kids?|children|child|toddlers?|teens?|nursery|playroom)\b/gi, lvl:'warn', why:'Familial status cue. A room name is fine; a buyer description is not.', fix:'"perfect for kids" → remove; "playroom" → "flexible lower-level room"'},
+ {re:/\b(empty[- ]nesters?|retirees?|seniors?|elderly|mature|adults? only|young professionals?|professionals?|singles|couples?|newlyweds|bachelor(ette)?s?)\b/gi, lvl:'bad', why:'Describes who should buy (age, familial or marital status).', fix:'Replace with a feature: "one-level living," "lock-and-leave," "a short walk to the park"'},
+ {re:/\b(mother[- ]in[- ]law|in[- ]law|nanny|au pair)\s+(suite|apartment|quarters)\b/gi, lvl:'warn', why:'Familial-status cue. Industry guidance prefers neutral names.', fix:'"guest suite," "second primary suite," "separate suite with its own entrance"'},
+ {re:/\b(safe|safest|safety|secure|low[- ]crime|crime|crime[- ]free)\b/gi, lvl:'bad', why:'Safety claims are subjective and read as steering.', fix:'Remove. Name parks, lighting, transit, or shops instead.'},
+ {re:/\b(exclusive|restricted|private community|prestigious)\b/gi, lvl:'warn', why:'"Exclusive" and similar can imply exclusion.', fix:'"sought-after," "established," or describe the amenity'},
+ {re:/\b(church(es)?|synagogue|mosque|temple|parish|cathedral|christian|catholic|jewish|muslim|hindu)\b/gi, lvl:'bad', why:'Religion. Places of worship as a selling point suggest a preferred buyer.', fix:'Remove, or list the broader area amenities without naming the house of worship.'},
+ {re:/\b(ethnic|hispanic|latino|asian|african[- ]american|black|white|caucasian|immigrant|foreign)\s+(neighborhood|community|area|families|buyers?)\b/gi, lvl:'bad', why:'Race, color, or national origin.', fix:'Remove entirely.'},
+ {re:/\b(handicap(ped)?|wheelchair|disabled|able[- ]bodied|crippled|invalid)\b/gi, lvl:'warn', why:'Disability. Accessibility features are fine to list; descriptions of buyers are not.', fix:'"step-free entry," "main-level ramp," "accessible shower"'},
+ {re:/\b(schools?|school district|elementary|middle school|high school|blue ribbon|top[- ]rated schools?)\b/gi, lvl:'warn', why:'School references and rankings are a common steering complaint.', fix:'Remove ratings. If a school is a landmark, name it only as a location reference.'},
+ {re:/\b(section 8|vouchers?|no (section 8|vouchers)|cash only buyers)\b/gi, lvl:'bad', why:'Source of income is protected in many states.', fix:'Remove.'},
+ {re:/\b(master (bedroom|suite|bath))\b/gi, lvl:'warn', why:'Brand voice. Northfield uses "primary."', fix:'"primary bedroom," "primary suite," "primary bath"'},
+ {re:/\b(no (pets|smokers|students))\b/gi, lvl:'warn', why:'Restrictions belong in the agent remarks, not public marketing.', fix:'Move to private remarks or the lease terms.'},
+ {re:/\b(perfect|ideal|great|made|designed)\s+for\s+(a|an|the)?\s*(\w+\s){0,2}(family|families|couple|retiree|professional|single|student|mom|dad|parents?|grandparents?)/gi, lvl:'bad', why:'"Perfect for" plus a person is the classic violation.', fix:'"Perfect for weekend cooking," "ideal for working from home" (activities, not people)'},
+ {re:/\bsmall\b/gi, lvl:'warn', why:'Brand voice. Northfield is "boutique" or "independent," never "small."', fix:'"boutique," "independent," "hands-on"'},
+];
+
+function screen(text){
+  const hits=[];
+  for(const r of FH){ r.re.lastIndex=0; let m; while((m=r.re.exec(text))){ hits.push({term:m[0],index:m.index,len:m[0].length,lvl:r.lvl,why:r.why,fix:r.fix}); if(!r.re.global) break; } }
+  hits.sort((a,b)=>a.index-b.index);
+  const out=[]; let end=-1; for(const h of hits){ if(h.index<end) continue; out.push(h); end=h.index+h.len; }
+  return out;
+}
+function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function markup(text){
+  const hits=screen(text); let out='', pos=0;
+  for(const h of hits){ if(h.index<pos) continue; out+=esc(text.slice(pos,h.index))+`<mark class="${h.lvl}" title="${esc(h.why)}">${esc(text.slice(h.index,h.index+h.len))}</mark>`; pos=h.index+h.len; }
+  return out+esc(text.slice(pos));
+}
+function readForm(){
+  const v=id=>document.getElementById(id).value.trim();
+  return {address:v('address'),city:v('city'),zip:v('zip'),price:Number(v('price').replace(/[^0-9.]/g,''))||0,beds:v('beds'),baths:v('baths'),sqft:Number(v('sqft').replace(/[^0-9]/g,''))||0,year:v('year'),lot:v('lot'),parking:v('parking'),ptype:v('ptype'),hood:v('hood'),
+    features:v('features').split('\n').map(s=>s.trim()).filter(Boolean),standout:v('standout'),disclose:v('disclose'),oh:v('oh'),agent:v('agent')||'{agent name}',photos:(current&&current.address===v('address'))?current.photos:[]};
+}
+function typeWord(t){return ({'Single-family detached':'home','Townhome / townhouse':'townhome','Condo':'condo','New construction':'newly built home','Multi-family':'multi-unit property','Land':'parcel'})[t]||'home'}
+function lc(s){return s? s.charAt(0).toLowerCase()+s.slice(1):s}
+function draftKit(d){
+  const tw=typeWord(d.ptype), where=d.hood?`${d.hood}`:`${d.city}`;
+  const f=d.features, fx=f.slice(0,3), rest=f.slice(3,7);
+  const bb=[d.beds?`${d.beds} bedroom${d.beds==1?'':'s'}`:'', d.baths?`${d.baths} bath${d.baths=='1'?'':'s'}`:'', d.sqft?`${num(d.sqft)} square feet`:''].filter(Boolean);
+  const oh=d.oh||'{open house date and time}';
+  const city=`${d.city}${d.zip?' '+d.zip:''}`;
+  const headlines=[ d.standout? d.standout.replace(/\.$/,'') : `${d.address}, ${where}`, `${bb.slice(0,2).join(', ')} in ${where}`, `Just listed: ${d.address}` ];
+  const open1=`${d.standout? d.standout.replace(/\.$/,'')+'. ' : ''}${d.address} is a ${d.year?d.year+' ':''}${tw} in ${where} with ${bb.join(', ')}${d.lot&&d.ptype!=='Condo'?` on ${lc(d.lot)}`:''}.`;
+  const para2= fx.length? `Inside, you will find ${fx.map(lc).map(s=>s.replace(/\.$/,'')).join('; ')}.` : '';
+  const para3= rest.length? `Also included: ${rest.map(lc).map(s=>s.replace(/\.$/,'')).join('; ')}.` : '';
+  const park= d.parking? ` Parking: ${lc(d.parking.replace(/\.$/,''))}.`:'';
+  const disc= d.disclose? ` ${d.disclose.replace(/\.$/,'')}.`:'';
+  const mls=[open1, para2, (para3+park).trim(), `Offered at ${money(d.price)}.${disc} Listed by ${BRAND.office}, ${BRAND.phone}.`].filter(Boolean).join('\n\n');
+  const tags=['#JustListed','#NorthfieldRealty','#HomesForSale', d.city?'#'+d.city.replace(/\W/g,''):'', d.hood?'#'+d.hood.split(/[,\/]/)[0].replace(/\W/g,''):'', '#RealEstate','#HomeTour'].filter(Boolean).join(' ');
+  const instagram=`Just listed in ${where}: ${d.address}\n\n${bb.map(s=>s.replace(' square feet',' sq ft').replace(/ bedrooms?/,' bed').replace(/ baths?/,' bath')).join(' | ')}\n\n${[d.standout,...fx].filter(Boolean).map(s=>s.replace(/\.$/,'')).join('. ')}.\n\nOffered at ${money(d.price)}.${d.oh?` Open house ${d.oh}.`:''} Link in bio or call ${BRAND.phone}.\n\n${tags}`;
+  const facebook=`${d.standout? d.standout.replace(/\.$/,'')+'.\n\n':''}${d.address} in ${where} just hit the market: ${bb.join(', ')}${f.length?', with '+fx.map(lc).map(s=>s.replace(/\.$/,'')).join(', '):''}.${rest.length?' Plus '+rest.map(lc).map(s=>s.replace(/\.$/,'')).join(', ')+'.':''}\n\nOffered at ${money(d.price)}.${d.oh?` Open house ${d.oh}.`:''} Call or text ${BRAND.phone} for a showing.\n\nListed by ${BRAND.office}.`;
+  const linkedin=`New listing: ${d.address}, ${city}. A ${d.year?d.year+' ':''}${tw} with ${bb.join(', ')}${d.lot&&d.ptype!=='Condo'?' on '+lc(d.lot):''}.\n\n${d.standout? 'What sets it apart: '+lc(d.standout.replace(/\.$/,''))+'.':''}${fx.length?' Highlights include '+fx.map(lc).map(s=>s.replace(/\.$/,'')).join(', ')+'.':''}\n\nOffered at ${money(d.price)} by ${BRAND.office}. If you know someone looking in ${d.city||'the area'}, I'd welcome the introduction. ${BRAND.phone}.`;
+  const subjects=[`Just listed: ${d.address}, ${money(d.price)}`, d.standout? d.standout.replace(/\.$/,''):`${bb.slice(0,2).join(', ')} in ${where}`, `First look at ${d.address}`];
+  const body=`Hi {first name},\n\nA new listing just went live that I wanted you to see first.\n\n${d.address}, ${city}\nOffered at ${money(d.price)}\n\nA ${d.year?d.year+' ':''}${tw} in ${where} with ${bb.join(', ')}.\n\nThree things worth knowing:\n${[d.standout,...f].filter(Boolean).slice(0,3).map(s=>'• '+s.replace(/\.$/,'')+'.').join('\n')}\n\n${d.oh?`Open house: ${d.oh}. Or reply`:'Reply'} to this email and I'll set up a private showing at a time that suits you.\n\nSee the full photo gallery: ${BRAND.site}\n\nWarm regards,\n${d.agent}\n${BRAND.office}\n${BRAND.phone}`;
+  const invite=`Open house: ${d.address}, ${city}\n${oh}\n\nCome see ${d.standout? lc(d.standout.replace(/\.$/,'')) : 'this '+tw+' in '+where}. ${bb.join(', ')}${fx.length?', with '+fx.map(lc).map(s=>s.replace(/\.$/,'')).join(', '):''}.\n\nOffered at ${money(d.price)}. Hosted by ${BRAND.office}, ${BRAND.phone}.`;
+  const sms=`Hi {first name}, it's ${d.agent==='{agent name}'?'{agent}':d.agent.split(' ')[0]} at ${BRAND.office}. Open house ${oh.replace('{open house date and time}','{date}')} at ${d.address} in ${d.city||where}: ${bb.slice(0,2).join(', ').replace(/ bedrooms?/,' bed').replace(/ baths?/,' bath')}, ${money(d.price)}. Come by or reply for a private tour.`;
+  const postcard=`Hello neighbor,\n\n${BRAND.office} has just listed ${d.address}, and we're holding an open house ${oh.replace('{open house date and time}','on {date}')}.\n\nYou're welcome to stop in, and if you know someone who has been hoping to move to ${where}, please send them our way. Neighbors make the best referrals.\n\nCurious what your own home would bring today? Call or text ${BRAND.phone} for a no-obligation market snapshot.\n\n${BRAND.office} · ${BRAND.site}`;
+  const verify=[ d.disclose?`Disclosures included as entered: ${d.disclose}`:'No disclosures entered. Add as-is, HOA, fee, or condition notes if they apply.', d.oh?`Open house set for ${d.oh}; confirm before posting.`:'No open house entered; fill in the date before using the open-house copy.', 'Confirm square footage, year built, and lot size against the tax record and MLS.' ];
+  return {headlines,mls,instagram,facebook,linkedin,email:{subjects,preheader:(d.standout||bb.join(', '))+'.',body},open:{invite,sms,postcard},verify};
+}
+
+/* ---------- App state and rendering ---------- */
+let current=null, kit=null, genT=null;
+const $=id=>document.getElementById(id);
+
+function setForm(l){
+  const m={address:l.address,city:l.city,zip:l.zip,price:l.price,beds:l.beds,baths:l.baths,sqft:l.sqft,year:l.year,lot:l.lot,parking:l.parking,ptype:l.ptype,hood:l.hood,features:l.features.join('\n'),standout:l.standout,disclose:l.disclose,oh:l.oh,agent:l.agent};
+  for(const k in m) $(k).value=m[k]??'';
+}
+function status(text,live){ $('statusText').textContent=text; $('dot').className='dot'+(live?' live':''); $('stop').hidden=!live; }
+function render(d,k){
+  current=d; kit=k;
+  $('oAddr').textContent=`${d.address}, ${d.city} ${d.zip}`.trim();
+  const facts=[money(d.price), d.beds?`${d.beds} bd`:'', d.baths?`${d.baths} ba`:'', d.sqft?`${num(d.sqft)} sq ft`:'', d.year?`built ${d.year}`:'', d.ptype].filter(Boolean).join(' · ');
+  $('oFacts').textContent=facts;
+  $('heads').innerHTML=k.headlines.map((h,i)=>`<div class="h"><span>${esc(h)}</span><button class="btn ghost small" data-copytext="${esc(h)}">Copy</button></div>`).join('');
+  $('photos').innerHTML=(d.photos&&d.photos.length? d.photos.map((p,i)=>`<figure>${p}<figcaption>${i===0?'Cover':i+1}</figcaption></figure>`).join('') : `<div class="empty" style="grid-column:1/-1">Photos appear here when a sample listing is loaded. In production they come from the MLS or are uploaded with the kit.</div>`);
+  $('verify').innerHTML=`<ul>${k.verify.map(v=>`<li>${esc(v)}</li>`).join('')}</ul>`;
+  $('mls').innerHTML=markup(k.mls); $('mlsCount').textContent=`${k.mls.length.toLocaleString()} characters (check your MLS character limit)`;
+  $('instagram').innerHTML=markup(k.instagram); $('igCap').textContent=k.instagram.split('\n')[0]+' …'; $('igImg').innerHTML=(d.photos&&d.photos[0])||''; $('igImg').hidden=!(d.photos&&d.photos[0]);
+  $('facebook').innerHTML=markup(k.facebook); $('linkedin').innerHTML=markup(k.linkedin);
+  $('subjects').innerHTML=k.email.subjects.map(s=>`<div class="h"><span>${esc(s)}</span><button class="btn ghost small" data-copytext="${esc(s)}">Copy</button></div>`).join('');
+  $('preheader').textContent='Preheader: '+k.email.preheader; $('emailBody').innerHTML=markup(k.email.body);
+  $('ohInvite').innerHTML=markup(k.open.invite); $('ohSms').innerHTML=markup(k.open.sms); $('smsCount').textContent=`${k.open.sms.length} characters`; $('ohPostcard').innerHTML=markup(k.open.postcard);
+  renderCheck(k);
+}
+function renderCheck(k){
+  const parts={mls:[['MLS remarks',k.mls]], social:[['Instagram',k.instagram],['Facebook',k.facebook],['LinkedIn',k.linkedin]], email:[['Subject lines',k.email.subjects.join('\n')],['Email body',k.email.body]], open:[['Invitation',k.open.invite],['Text message',k.open.sms],['Neighbor note',k.open.postcard]]};
+  let all=[]; const counts={};
+  for(const key in parts){ let bad=0,warn=0; for(const [name,text] of parts[key]){ for(const h of screen(text)){ all.push({...h,where:name}); if(h.lvl==='bad')bad++; else warn++; } } counts[key]={bad,warn}; }
+  const tag=(id,c)=>{ const el=$(id); if(c.bad){el.textContent=c.bad+' fix';el.className='n bad'} else if(c.warn){el.textContent=c.warn+' check';el.className='n warn'} else {el.textContent='clear';el.className='n ok'} };
+  tag('nMls',counts.mls); tag('nSocial',counts.social); tag('nEmail',counts.email); tag('nOpen',counts.open);
+  const bad=all.filter(h=>h.lvl==='bad').length, warn=all.length-bad;
+  const nC=$('nCheck'); if(bad){nC.textContent=bad+' to fix';nC.className='n bad'} else if(warn){nC.textContent=warn+' to check';nC.className='n warn'} else {nC.textContent='clear';nC.className='n ok'}
+  $('verdict').innerHTML= bad? `<div class="verdict bad"><div><strong>${bad} term${bad>1?'s':''} should be rewritten before this kit goes out</strong><p>Each one is highlighted in red in the copy. Suggested replacements are below.</p></div></div>`
+    : warn? `<div class="verdict warn"><div><strong>No violations found. ${warn} phrase${warn>1?'s':''} worth a second look.</strong><p>Highlighted in amber in the copy. Most are fine in context; confirm and move on.</p></div></div>`
+    : `<div class="verdict ok"><div><strong>Clear. No fair-housing or brand-voice flags in any piece of this kit.</strong><p>The screen checked the MLS remarks, three social posts, the email, and all open-house copy.</p></div></div>`;
+  $('flags').innerHTML= all.map(h=>`<div class="flag"><span class="lvl ${h.lvl}">${h.lvl==='bad'?'Rewrite':'Check'}</span><div><div><strong>"${esc(h.term)}"</strong> <span class="where">in ${esc(h.where)}</span></div><div>${esc(h.why)}</div><div class="where">Try: ${esc(h.fix)}</div></div></div>`).join('');
+}
+function kitText(d,k){
+  return `LISTING LAUNCH KIT · ${d.address}, ${d.city} ${d.zip} · ${money(d.price)}\nNorthfield Realty · (555) 010-2040\n\n## Headlines\n${k.headlines.map(h=>'- '+h).join('\n')}\n\n## MLS public remarks\n${k.mls}\n\n## Instagram\n${k.instagram}\n\n## Facebook\n${k.facebook}\n\n## LinkedIn\n${k.linkedin}\n\n## Email blast\nSubject options:\n${k.email.subjects.map(s=>'- '+s).join('\n')}\nPreheader: ${k.email.preheader}\n\n${k.email.body}\n\n## Open house invitation\n${k.open.invite}\n\n## Text message\n${k.open.sms}\n\n## Neighbor postcard\n${k.open.postcard}\n\n## Verify before posting\n${k.verify.map(v=>'- '+v).join('\n')}\n`;
+}
+let toastT; function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),1400); }
+async function copyText(text,el){
+  try{ await navigator.clipboard.writeText(text); toast('Copied'); }
+  catch(e){ if(el){ const r=document.createRange(); r.selectNodeContents(el); const s=getSelection(); s.removeAllRanges(); s.addRange(r); toast('Select and copy'); } else toast('Copy blocked, select the text instead'); }
+}
+function plain(id){ return $(id).innerText; }
+
+
+/* chips */
+LISTINGS.forEach((l,i)=>{ const b=document.createElement('button'); b.className='chip'; b.type='button'; b.textContent=l.address+', '+l.city; b.setAttribute('aria-pressed',i===0?'true':'false'); b.onclick=()=>{ cancelGen(); document.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed','false')); b.setAttribute('aria-pressed','true'); setForm(l); render({...l,agent:l.agent||'{agent name}',photos:photosFor(l)},l.kit); status('Loaded the finished kit for '+l.address); showPane('overview'); }; $('chips').appendChild(b); });
+
+/* tabs */
+function showPane(name){ document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.pane===name?'true':'false')); document.querySelectorAll('.pane').forEach(p=>p.hidden=p.id!=='pane-'+name); }
+$('tabs').addEventListener('click',e=>{ const t=e.target.closest('.tab'); if(t) showPane(t.dataset.pane); });
+
+/* copy buttons */
+document.addEventListener('click',e=>{
+  const c=e.target.closest('[data-copy]'); if(c){ const id=c.dataset.copy; const text= id==='subjects'? kit.email.subjects.join('\n') : plain(id); copyText(text,$(id)); return; }
+  const t=e.target.closest('[data-copytext]'); if(t){ copyText(t.dataset.copytext); }
+});
+$('copyAll').onclick=()=>{ if(kit) copyText(kitText(current,kit)); };
+$('dl').onclick=()=>{ if(!kit) return; try{ const blob=new Blob([kitText(current,kit)],{type:'text/markdown'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`launch-kit-${current.address.replace(/\W+/g,'-').toLowerCase()}.md`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); toast('Saved'); }catch(e){ toast('Download not available here'); } };
+
+/* instant draft */
+function unpress(){ document.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed','false')); }
+$('draft').onclick=()=>{ cancelGen(); const d=readForm(); if(!d.address){ $('address').focus(); status('Enter at least a street address'); return; } unpress(); render(d,draftKit(d)); status('Instant draft ready. Review the amber and red highlights, then copy.'); showPane('mls'); };
+
+/* Generate: runs the same built-in writer locally, with a short simulated "writing" pass */
+function cancelGen(){ if(genT){ clearTimeout(genT); genT=null; $('gen').disabled=false; } }
+$('stop').onclick=()=>{ cancelGen(); status('Stopped.'); };
+$('gen').onclick=()=>{
+  const d=readForm(); if(!d.address){ $('address').focus(); status('Enter at least a street address'); return; }
+  unpress(); $('gen').disabled=true;
+  status('Writing the kit from the property details…',true);
+  genT=setTimeout(()=>{ genT=null; const k=draftKit(d); render(d,k); $('gen').disabled=false;
+    const bad=screen([k.mls,k.instagram,k.facebook,k.linkedin,k.email.body,k.open.invite,k.open.sms,k.open.postcard].join('\n')).filter(h=>h.lvl==='bad').length;
+    status(bad?`Kit ready. ${bad} fair-housing term${bad>1?'s':''} flagged for rewrite, see the check tab.`:'Kit ready and clear on the fair-housing screen.'); showPane('mls'); },900);
+};
+
+/* first paint */
+setForm(LISTINGS[0]); render({...LISTINGS[0],agent:'{agent name}',photos:photosFor(LISTINGS[0])},LISTINGS[0].kit); status('Showing the finished kit for '+LISTINGS[0].address);
+
+</script>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body></html>

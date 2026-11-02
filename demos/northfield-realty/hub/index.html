@@ -1,0 +1,679 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Northfield Team Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+  /* Layout: fixed left rail on desktop, top bar + stacked sections on phone. Northfield navy and brass on warm off-white. */
+  :root {
+    --accent: #a9823e;
+    --accent-btn: #8a6a2c;
+    --accent-dark: #6f5320;
+    --accent-tint: #f4ecdb;
+    --bg: #f5f4f0;
+    --surface: #ffffff;
+    --surface-2: #faf9f5;
+    --fg: #16233b;
+    --muted: #5d687b;
+    --line: #e4e1d8;
+    --line-strong: #cdc8ba;
+    --rail: #16233b;
+    --rail-fg: #cfd6e3;
+    --rail-active: #24365a;
+    --warn: #a8700f;
+    --warn-tint: #fbf3e2;
+    --crit: #b8433a;
+    --crit-tint: #fbe9e7;
+    --ok: #3f7a52;
+    --ok-tint: #e5f1e9;
+    --info: #3b6ea5;
+    --info-tint: #e5eef8;
+    --shadow: 0 1px 2px rgba(22,35,59,.06), 0 6px 18px rgba(22,35,59,.05);
+    --font: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+    --serif: "Fraunces", Georgia, serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --accent: #c4a15c; --accent-btn: #a9823e; --accent-dark: #d8bb7e; --accent-tint: #2e2a1f;
+      --bg: #0e1626; --surface: #16233b; --surface-2: #1b2a46; --fg: #e9edf5; --muted: #9eaac0;
+      --line: #263554; --line-strong: #364768; --rail: #0a111e; --rail-fg: #b7c1d4; --rail-active: #1b2a46;
+      --warn: #e0a640; --warn-tint: #2e2612; --crit: #e2675a; --crit-tint: #331a17; --ok: #6fb98a; --ok-tint: #17301f;
+      --info: #7ea9dc; --info-tint: #16243a; --shadow: 0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.3);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --accent: #c4a15c; --accent-btn: #a9823e; --accent-dark: #d8bb7e; --accent-tint: #2e2a1f;
+      --bg: #0e1626; --surface: #16233b; --surface-2: #1b2a46; --fg: #e9edf5; --muted: #9eaac0;
+      --line: #263554; --line-strong: #364768; --rail: #0a111e; --rail-fg: #b7c1d4; --rail-active: #1b2a46;
+      --warn: #e0a640; --warn-tint: #2e2612; --crit: #e2675a; --crit-tint: #331a17; --ok: #6fb98a; --ok-tint: #17301f;
+      --info: #7ea9dc; --info-tint: #16243a; --shadow: 0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.3);
+      color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  h1 { font-family: var(--serif); }
+  h1, h2, h3 { margin: 0; text-wrap: balance; line-height: 1.25; }
+  p { margin: 0; }
+  button { font-family: inherit; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  html, body { height: 100%; }
+  .app { display: grid; grid-template-columns: 232px 1fr; height: 100%; overflow: hidden; }
+
+  /* Rail */
+  .rail { background: var(--rail); color: var(--rail-fg); padding-block: 20px 24px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: 14px; display: flex; flex-direction: column; gap: 18px; height: 100%; overflow-y: auto; }
+  .brand { display: flex; align-items: center; gap: 10px; padding: 2px 6px; }
+  .brand .mark { width: 34px; height: 34px; border-radius: 8px; background: var(--accent); display: grid; place-items: center; color: #16233b; font-family: var(--serif); font-weight: 600; font-size: 19px; }
+  .brand .name { font-weight: 600; color: #fff; font-size: 15px; line-height: 1.15; }
+  .brand .name small { display: block; font-weight: 400; font-size: 11px; color: var(--rail-fg); letter-spacing: .08em; text-transform: uppercase; }
+  .nav { display: flex; flex-direction: column; gap: 2px; }
+  .nav a { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 8px; text-decoration: none; font-size: 13.5px; font-weight: 500; color: var(--rail-fg); }
+  .nav a:hover, .nav a.active { background: var(--rail-active); color: #fff; }
+  .nav a svg { width: 17px; height: 17px; flex: 0 0 auto; opacity: .85; }
+  .nav a .count { margin-left: auto; font-size: 11px; font-weight: 600; background: var(--accent); color: #16233b; border-radius: 999px; padding: 1px 7px; }
+  .nav-label { font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--rail-fg); opacity: .6; padding: 0 10px; margin-top: 6px; }
+  .rail .foot { margin-top: auto; font-size: 11.5px; opacity: .65; padding: 0 10px; line-height: 1.5; }
+
+  /* Main */
+  .main { min-width: 0; min-height: 0; overflow-y: auto; position: relative; padding-block: 0 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .topbar { display: flex; align-items: center; gap: 14px; padding: 14px 0 10px; border-bottom: 1px solid var(--line); margin: 0 0 22px; flex-wrap: wrap; }
+  .search { flex: 1 1 240px; display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 7px 12px; color: var(--muted); font-size: 13px; max-width: 460px; }
+  .search svg { width: 15px; height: 15px; }
+  .search kbd { margin-left: auto; font-family: inherit; font-size: 11px; border: 1px solid var(--line-strong); border-radius: 4px; padding: 0 5px; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 3px 10px; font-size: 11.5px; font-weight: 600; letter-spacing: .02em; white-space: nowrap; }
+  .pill.sample { background: var(--warn-tint); color: var(--warn); border: 1px dashed var(--warn); }
+  .pill.ok { background: var(--ok-tint); color: var(--ok); }
+  .pill.warn { background: var(--warn-tint); color: var(--warn); }
+  .pill.crit { background: var(--crit-tint); color: var(--crit); }
+  .pill.info { background: var(--info-tint); color: var(--info); }
+  .pill.neutral { background: var(--surface-2); color: var(--muted); border: 1px solid var(--line); }
+  .user { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+  .avatar { border-radius: 50%; background: var(--rail); color: #e8d3a6; display: grid; place-items: center; font-weight: 600; letter-spacing: .02em; flex: 0 0 auto; }
+  .user .avatar { width: 36px; height: 36px; font-size: 13px; border: 2px solid var(--accent); }
+  .user .who { line-height: 1.2; }
+  .user .who strong { display: block; font-size: 13px; font-weight: 600; }
+  .user .who span { font-size: 11.5px; color: var(--muted); }
+
+  .greeting { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+  .greeting .date { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 500; margin-bottom: 4px; }
+  .greeting h1 { font-size: 24px; font-weight: 600; }
+  .greeting p.sub { color: var(--muted); margin-top: 4px; max-width: 60ch; }
+  .viewas { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+  .viewas select { font-family: inherit; font-size: 13px; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--fg); }
+
+  /* Sections */
+  section { margin-bottom: 34px; scroll-margin-top: 16px; }
+  .sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+  .sec-head h2 { font-size: 16px; font-weight: 600; }
+  .sec-head .hint { font-size: 12.5px; color: var(--muted); }
+  .sec-head a.more { font-size: 12.5px; font-weight: 600; color: var(--accent-dark); text-decoration: none; }
+
+  /* KPI tiles */
+  .kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+  .kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px 12px; min-width: 0; }
+  .kpi .l { font-size: 12px; color: var(--muted); font-weight: 500; }
+  .kpi .v { font-size: 26px; font-weight: 600; line-height: 1.1; margin-top: 6px; font-variant-numeric: tabular-nums; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .kpi .v small { font-size: 12px; font-weight: 600; color: var(--ok); }
+  .kpi .v small.down { color: var(--crit); }
+  .kpi .d { font-size: 11.5px; color: var(--muted); margin-top: 6px; }
+  .kpi svg.spark { width: 100%; height: 28px; margin-top: 8px; }
+
+  /* Two-column band */
+  .band { display: grid; grid-template-columns: 1.5fr 1fr; gap: 16px; align-items: start; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); min-width: 0; }
+  .card .ch { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px 10px; border-bottom: 1px solid var(--line); }
+  .card .ch h2 { font-size: 15px; font-weight: 600; }
+  .card .ch .hint { font-size: 12px; color: var(--muted); }
+
+  /* Queue */
+  .queue { list-style: none; margin: 0; padding: 0; }
+  .queue li { display: grid; grid-template-columns: 4px 1fr auto; gap: 14px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  .queue li:last-child { border-bottom: 0; }
+  .queue .stripe { width: 4px; height: 100%; min-height: 40px; border-radius: 2px; background: var(--ok); }
+  .queue .stripe.warn { background: var(--warn); }
+  .queue .stripe.crit { background: var(--crit); }
+  .queue .stripe.info { background: var(--info); }
+  .queue .t { min-width: 0; }
+  .queue .t strong { display: block; font-weight: 600; font-size: 13.5px; }
+  .queue .t span { font-size: 12.5px; color: var(--muted); display: block; }
+  .queue .meta { display: flex; gap: 6px; align-items: center; margin-top: 5px; flex-wrap: wrap; }
+  .queue .act { display: flex; gap: 6px; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 7px; border: 1px solid transparent; background: var(--accent-btn); color: #fff; font-weight: 600; font-size: 12.5px; text-decoration: none; cursor: pointer; white-space: nowrap; }
+  .btn:hover { background: var(--accent-dark); }
+  .btn.ghost { background: transparent; color: var(--accent-dark); border-color: var(--line-strong); }
+  .btn.ghost:hover { background: var(--accent-tint); }
+  .btn.sm { padding: 5px 10px; font-size: 12px; }
+
+  /* Activity */
+  .feed { list-style: none; margin: 0; padding: 6px 16px 10px; }
+  .feed li { display: grid; grid-template-columns: 52px 1fr; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 12.8px; }
+  .feed li:last-child { border-bottom: 0; }
+  .feed time { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 12px; padding-top: 1px; }
+  .feed .who { font-weight: 600; }
+  .feed .tl { color: var(--accent-dark); font-weight: 500; }
+
+  /* Tools grid */
+  .tools { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .tool { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 16px 14px; display: flex; flex-direction: column; gap: 10px; min-width: 0; transition: border-color .15s, transform .15s; }
+  .tool:hover { border-color: var(--accent); }
+  .tool .top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .tool .icon { width: 40px; height: 40px; border-radius: 10px; background: var(--accent-tint); color: var(--accent-dark); display: grid; place-items: center; flex: 0 0 auto; }
+  .tool .icon svg { width: 20px; height: 20px; }
+  .tool h3 { font-size: 14.5px; font-weight: 600; margin-top: 2px; }
+  .tool p { font-size: 12.8px; color: var(--muted); }
+  .tool .stat { font-size: 12.5px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .tool .stat b { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .tool .foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; padding-top: 6px; }
+  .tool .foot .status { font-size: 11.5px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); display: inline-block; }
+  .dot.warn { background: var(--warn); }
+  .dot.info { background: var(--info); }
+
+  /* Agents */
+  .agents { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+  .agent { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px; text-align: center; min-width: 0; }
+  .agent .avatar { width: 72px; height: 72px; font-size: 24px; margin: 0 auto 10px; border: 3px solid var(--accent-tint); }
+  .agent strong { display: block; font-size: 13.5px; font-weight: 600; }
+  .agent .role { font-size: 11.5px; color: var(--muted); margin-bottom: 10px; }
+  .agent .nums { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; border-top: 1px solid var(--line); padding-top: 10px; }
+  .agent .nums div { font-size: 10.5px; color: var(--muted); line-height: 1.3; }
+  .agent .nums b { display: block; font-size: 15px; color: var(--fg); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .agent .todo { margin-top: 10px; }
+
+  /* Listings table */
+  .tablewrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th { font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  tr:last-child td { border-bottom: 0; }
+  td.num { font-variant-numeric: tabular-nums; text-align: right; }
+  th.num { text-align: right; }
+  .prog { display: inline-flex; gap: 3px; vertical-align: middle; }
+  .prog i { width: 14px; height: 6px; border-radius: 2px; background: var(--line-strong); }
+  .prog i.on { background: var(--accent); }
+
+  /* Admin row */
+  .admin { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .admin a { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 13px 16px; text-decoration: none; }
+  .admin a:hover { border-color: var(--accent); background: var(--accent-tint); }
+  .admin strong { display: block; font-size: 13.5px; font-weight: 600; }
+  .admin small { font-size: 12px; color: var(--muted); }
+  .admin .arrow { color: var(--accent-dark); font-weight: 600; white-space: nowrap; }
+
+  .foot-note { font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 14px; max-width: 80ch; }
+
+
+  /* In-app viewer */
+  .nav-group { display: flex; flex-direction: column; gap: 2px; }
+  .nav a.open { background: var(--accent); color: #16233b; }
+  .main.in-app { overflow: hidden; display: flex; flex-direction: column; padding-bottom: 0; }
+  .main.in-app #homeview { display: none; }
+  .main.in-app .topbar { margin-bottom: 0; }
+  .viewer { flex: 1; min-height: 0; display: flex; flex-direction: column; margin: 0; }
+  [hidden] { display: none !important; }
+  .vbar { display: flex; align-items: center; gap: 14px; padding: 12px 0; flex-wrap: wrap; }
+  .vtitle { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1 1 260px; }
+  .vtitle strong { display: block; font-size: 15px; font-weight: 600; line-height: 1.2; }
+  .vtitle small { display: block; font-size: 12px; color: var(--muted); line-height: 1.35; }
+  .vicon { width: 34px; height: 34px; border-radius: 9px; background: var(--accent-tint); color: var(--accent-dark); display: grid; place-items: center; flex: 0 0 auto; }
+  .vicon svg { width: 18px; height: 18px; }
+  .vright { display: flex; gap: 8px; align-items: center; margin-left: auto; }
+  .back svg { margin-left: -3px; }
+  .vframes { position: relative; flex: 1; min-height: 0; border: 1px solid var(--line); border-bottom: 0; border-radius: 12px 12px 0 0; overflow: hidden; background: var(--surface); box-shadow: var(--shadow); }
+  .vframes iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #fff; }
+  .vload { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font-size: 13px; }
+  @media (max-width: 860px) {
+    .vframes { margin: 0 calc(-1 * max(16px, env(safe-area-inset-right, 0px))) 0 calc(-1 * max(16px, env(safe-area-inset-left, 0px))); border-radius: 0; border-left: 0; border-right: 0; }
+    .main.in-app .topbar { display: none; }
+    .vright .pill, .vtitle small { display: none; }
+    .vbar { flex-wrap: nowrap; gap: 10px; padding: 10px 0; }
+    .vtitle { flex: 1 1 auto; }
+  }
+
+  .demo-note { font-size: 11.5px; color: var(--muted); padding: 7px 0 0; text-align: center; flex: 0 0 auto; }
+  /* Phone nav */
+  .mobile-top { display: none; }
+
+  @media (max-width: 1100px) {
+    .kpis { grid-template-columns: repeat(3, 1fr); }
+    .tools { grid-template-columns: repeat(2, 1fr); }
+    .agents { grid-template-columns: repeat(3, 1fr); }
+    .band { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 860px) {
+    .app { grid-template-columns: 1fr; }
+    .rail { display: none; }
+    .mobile-top { display: flex; align-items: center; gap: 10px; background: var(--rail); color: #fff; margin: 0 calc(-1 * max(16px, env(safe-area-inset-right, 0px))) 0 calc(-1 * max(16px, env(safe-area-inset-left, 0px))); padding-block: 12px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); overflow-x: auto; }
+    .mobile-top .brand { flex: 0 0 auto; }
+    .mobile-top nav { display: flex; gap: 4px; margin-left: auto; }
+    .mobile-top nav a { color: var(--rail-fg); text-decoration: none; font-size: 12.5px; padding: 5px 9px; border-radius: 6px; white-space: nowrap; }
+    .mobile-top nav a:hover { background: var(--rail-active); }
+    .search { display: none; }
+    .kpis { grid-template-columns: repeat(2, 1fr); }
+    .admin { grid-template-columns: 1fr; }
+    .queue li { grid-template-columns: 4px 1fr; }
+    .queue .act { grid-column: 2; }
+  }
+  @media (max-width: 520px) {
+    .tools { grid-template-columns: 1fr; }
+    .agents { grid-template-columns: repeat(2, 1fr); }
+    .greeting h1 { font-size: 20px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head><body>
+
+<div class="app">
+  <aside class="rail">
+    <div class="brand">
+      <div class="mark">N</div>
+      <div class="name">Northfield Realty<small>Team Hub</small></div>
+    </div>
+    <nav class="nav" aria-label="Hub">
+      <div class="nav-label">Today</div>
+      <a href="#home" data-sec="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11 12 3l9 8v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg>Home</a>
+      <a href="#queue" data-sec="queue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h7"/><path d="m16 17 2 2 4-4"/></svg>Approvals<span class="count">6</span></a>
+      <a href="#listings" data-sec="listings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V8l7-5 7 5v13"/><path d="M10 21v-6h4v6"/></svg>Listings</a>
+      <a href="#agents" data-sec="agents"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M15.5 20a5 5 0 0 1 6 0"/></svg>Agents</a>
+      <div class="nav-label">Tools</div>
+      <div id="tool-nav" class="nav-group"></div>
+      <div class="nav-label">Office</div>
+      <a href="#app-site" data-app="site"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>Website</a>
+      <a href="#app-calculators" data-app="calculators"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8M8 11h2M14 11h2M8 15h2M14 15h2M8 19h2M14 19h2"/></svg>Calculators</a>
+      <a href="#app-security" data-app="security"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 4 6v6c0 5 3.4 8.3 8 9 4.6-.7 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg>Security watch</a>
+    </nav>
+    <div class="foot">Northfield Realty<br>(555) 010-2040<br>hello@example.com</div>
+  </aside>
+
+  <main class="main">
+    <div class="demo-note">Portfolio demo · fictional brokerage, sample data. Built by Myles Parslow.</div>
+    <div class="mobile-top">
+      <div class="brand"><div class="mark">N</div><div class="name">Northfield<small>Team Hub</small></div></div>
+      <nav><a href="#home">Home</a><a href="#queue">Approvals</a><a href="#tools">Tools</a><a href="#listings">Listings</a><a href="#admin">Office</a></nav>
+    </div>
+
+    <div class="topbar">
+      <div class="search" role="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search leads, listings, clients, posts<kbd>/</kbd></div>
+      <span class="pill sample">Sample data</span>
+      <div class="user">
+        <div class="avatar" id="user-photo" aria-hidden="true">DR</div>
+        <div class="who"><strong id="user-name">Dana Reyes</strong><span id="user-role">Broker / Owner</span></div>
+      </div>
+    </div>
+
+    <div id="homeview">
+    <section id="home">
+      <div class="greeting">
+        <div>
+          <div class="date">Monday, November 9, 2026</div>
+          <h1 id="greet">Good morning, Dana</h1>
+          <p class="sub" id="greet-sub">Every lead this weekend got a reply within a minute. Six items are waiting for an approval, and two listings launch this week.</p>
+        </div>
+        <label class="viewas">View as
+          <select id="viewas">
+            <option value="dana">Dana Reyes (office view)</option>
+            <option value="sam">Sam Whitfield</option>
+            <option value="priya">Priya Nair</option>
+            <option value="marcus">Marcus Bell</option>
+            <option value="elena">Elena Ruiz</option>
+            <option value="theo">Theo Grant</option>
+            <option value="jordan">Jordan Kim</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi">
+          <div class="l">New leads, last 7 days</div>
+          <div class="v" id="k-leads">14 <small>+5 vs prior week</small></div>
+          <div class="d">Median first reply: 48 seconds</div>
+          <svg class="spark" viewBox="0 0 100 28" preserveAspectRatio="none" aria-hidden="true"><path d="M0 22 L14 20 L28 23 L42 15 L56 17 L70 10 L84 12 L100 6 V28 H0 Z" fill="var(--accent-tint)"/><path d="M0 22 L14 20 L28 23 L42 15 L56 17 L70 10 L84 12 L100 6" fill="none" stroke="var(--accent)" stroke-width="1.6"/><circle cx="100" cy="6" r="2" fill="var(--accent-dark)"/></svg>
+        </div>
+        <div class="kpi">
+          <div class="l">Appointments booked</div>
+          <div class="v" id="k-appts">6 <small>of 14 leads</small></div>
+          <div class="d">Booked by the responder onto agent calendars</div>
+          <svg class="spark" viewBox="0 0 100 28" preserveAspectRatio="none" aria-hidden="true"><path d="M0 24 L14 22 L28 22 L42 18 L56 19 L70 14 L84 15 L100 10 V28 H0 Z" fill="var(--accent-tint)"/><path d="M0 24 L14 22 L28 22 L42 18 L56 19 L70 14 L84 15 L100 10" fill="none" stroke="var(--accent)" stroke-width="1.6"/><circle cx="100" cy="10" r="2" fill="var(--accent-dark)"/></svg>
+        </div>
+        <div class="kpi">
+          <div class="l">Google reviews, November</div>
+          <div class="v" id="k-reviews">7 <small>3 asks pending</small></div>
+          <div class="d">Year to date: 31, all 5 stars</div>
+          <svg class="spark" viewBox="0 0 100 28" preserveAspectRatio="none" aria-hidden="true"><path d="M0 26 L14 24 L28 23 L42 20 L56 18 L70 14 L84 12 L100 8 V28 H0 Z" fill="var(--accent-tint)"/><path d="M0 26 L14 24 L28 23 L42 20 L56 18 L70 14 L84 12 L100 8" fill="none" stroke="var(--accent)" stroke-width="1.6"/><circle cx="100" cy="8" r="2" fill="var(--accent-dark)"/></svg>
+        </div>
+        <div class="kpi">
+          <div class="l">Posts published this week</div>
+          <div class="v" id="k-posts">9 <small>12 drafted</small></div>
+          <div class="d">Firm + agent accounts, 3 still awaiting approval</div>
+          <svg class="spark" viewBox="0 0 100 28" preserveAspectRatio="none" aria-hidden="true"><path d="M0 18 L14 20 L28 14 L42 16 L56 12 L70 15 L84 9 L100 11 V28 H0 Z" fill="var(--accent-tint)"/><path d="M0 18 L14 20 L28 14 L42 16 L56 12 L70 15 L84 9 L100 11" fill="none" stroke="var(--accent)" stroke-width="1.6"/><circle cx="100" cy="11" r="2" fill="var(--accent-dark)"/></svg>
+        </div>
+        <div class="kpi">
+          <div class="l">Nurture email open rate</div>
+          <div class="v" id="k-open">54% <small>November edition</small></div>
+          <div class="d">412 past clients, 11 replied to their agent</div>
+          <svg class="spark" viewBox="0 0 100 28" preserveAspectRatio="none" aria-hidden="true"><path d="M0 20 L14 18 L28 19 L42 15 L56 16 L70 12 L84 13 L100 9 V28 H0 Z" fill="var(--accent-tint)"/><path d="M0 20 L14 18 L28 19 L42 15 L56 16 L70 12 L84 13 L100 9" fill="none" stroke="var(--accent)" stroke-width="1.6"/><circle cx="100" cy="9" r="2" fill="var(--accent-dark)"/></svg>
+        </div>
+      </div>
+    </section>
+
+    <section id="queue">
+      <div class="band">
+        <div class="card">
+          <div class="ch"><h2>Waiting for an approval</h2><span class="hint">Nothing goes out until a person taps Approve</span></div>
+          <ul class="queue">
+            <li>
+              <span class="stripe crit"></span>
+              <div class="t"><strong>New lead: portal inquiry on 418 Linden Ct</strong><span>Responder replied in 41 s and offered Saturday 11:00 or 2:00. Lead picked 2:00. Confirm on Sam's calendar.</span>
+                <div class="meta"><span class="pill info">Lead responder</span><span class="pill neutral">Sam Whitfield</span><span class="pill neutral">9 min ago</span></div></div>
+              <div class="act"><a class="btn sm" href="#app-responder" data-app="responder">Open</a></div>
+            </li>
+            <li>
+              <span class="stripe warn"></span>
+              <div class="t"><strong>Launch kit ready: 37 Sycamore Ave</strong><span>MLS remarks, 3 headlines, social posts, email and postcard. Fair-housing screen: clear. 2 phrases flagged for a quick check.</span>
+                <div class="meta"><span class="pill info">Listing launch kit</span><span class="pill neutral">Priya Nair</span><span class="pill warn">Launches Wed</span></div></div>
+              <div class="act"><a class="btn sm ghost" href="#app-launch" data-app="launch">Review kit</a></div>
+            </li>
+            <li>
+              <span class="stripe warn"></span>
+              <div class="t"><strong>3 social posts for this week</strong><span>Tuesday neighborhood post (Elm Hollow), Thursday listing carousel (Alder Way), Saturday open house reminder.</span>
+                <div class="meta"><span class="pill info">Social engine</span><span class="pill neutral">Firm account</span><span class="pill neutral">Due today 4:00 pm</span></div></div>
+              <div class="act"><a class="btn sm ghost" href="#app-social" data-app="social">Approve posts</a></div>
+            </li>
+            <li>
+              <span class="stripe info"></span>
+              <div class="t"><strong>Staged rooms: 221 Birchwood Dr, front room and bedroom</strong><span>Two rooms staged, structure unchanged, disclosure line added to remarks. Choose which to add to the listing.</span>
+                <div class="meta"><span class="pill info">Virtual staging</span><span class="pill neutral">Theo Grant</span></div></div>
+              <div class="act"><a class="btn sm ghost" href="#app-staging" data-app="staging">Compare</a></div>
+            </li>
+            <li>
+              <span class="stripe info"></span>
+              <div class="t"><strong>Listing ad: 86 Foundry St, 33-second vertical</strong><span>Cinematic template with the new scenes. Ready for TikTok, Reels and Shorts once approved.</span>
+                <div class="meta"><span class="pill info">Listing video ads</span><span class="pill neutral">Elena Ruiz</span></div></div>
+              <div class="act"><a class="btn sm ghost" href="#app-ads" data-app="ads">Preview ad</a></div>
+            </li>
+            <li>
+              <span class="stripe"></span>
+              <div class="t"><strong>Review request: closing on Aspen Ln (Friday)</strong><span>Day-2 email goes out Sunday morning with the Google link first and a second review site as fallback. Sender: Marcus.</span>
+                <div class="meta"><span class="pill info">Review engine</span><span class="pill neutral">Marcus Bell</span><span class="pill ok">Auto-approved by rule</span></div></div>
+              <div class="act"><a class="btn sm ghost" href="#app-reviews" data-app="reviews">View</a></div>
+            </li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="ch"><h2>Activity</h2><span class="hint">Today</span></div>
+          <ul class="feed">
+            <li><time>9:12 am</time><div><span class="who">Lead responder</span> texted a new portal lead on Alder Way and booked a showing for Thursday. <span class="tl">Sam</span></div></li>
+            <li><time>8:55 am</time><div><span class="who">Theo</span> approved 2 Instagram posts from the <span class="tl">social engine</span>.</div></li>
+            <li><time>8:40 am</time><div><span class="who">Review engine</span> logged a new 5-star Google review from a Brookside buyer. 31 this year.</div></li>
+            <li><time>8:05 am</time><div><span class="who">Market reports</span> drafted the November edition for all 8 neighborhoods. Elm Hollow needs a look before Friday.</div></li>
+            <li><time>7:30 am</time><div><span class="who">Nurture emails</span> finished the November send: 412 delivered, 54% opened, 11 replies routed to agents.</div></li>
+            <li><time>Sun</time><div><span class="who">Jordan</span> sent a launch kit for 418 Linden Ct to the local MLS and the firm's socials.</div></li>
+            <li><time>Sun</time><div><span class="who">Security watch</span> checked the website: no changes, no new plugins, backups current.</div></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="tools">
+      <div class="sec-head"><h2>Tools</h2><span class="hint">Each one opens right here in the hub</span></div>
+      <div class="tools">
+        <article class="tool">
+          <div class="top"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 21l1.9-5.4A8 8 0 1 1 21 12z"/></svg></div><span class="pill ok">Live</span></div>
+          <h3>Lead responder</h3>
+          <p>Answers every website, portal and phone lead by text and email within a minute, asks the qualifying questions and books the agent's calendar.</p>
+          <div class="stat"><b>14</b> leads this week · <b>6</b> booked · <b>48 s</b> median reply</div>
+          <div class="foot"><span class="status"><span class="dot"></span>Listening on 3 sources</span><a class="btn sm" href="#app-responder" data-app="responder">Open</a></div>
+        </article>
+
+        <article class="tool">
+          <div class="top"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg></div><span class="pill ok">Live</span></div>
+          <h3>Review engine</h3>
+          <p>After each closing, a well-timed text and email ask for a Google review, with a second site as the fallback. Same ask to every client, no gating.</p>
+          <div class="stat"><b>7</b> reviews in November · <b>3</b> asks in flight · <b>31</b> YTD</div>
+          <div class="foot"><span class="status"><span class="dot"></span>Next ask: Sunday 9:00 am</span><a class="btn sm" href="#app-reviews" data-app="reviews">Open</a></div>
+        </article>
+
+        <article class="tool">
+          <div class="top"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h12l4 4v12H4z"/><path d="M8 12h8M8 16h8M8 8h4"/></svg></div><span class="pill ok">Live</span></div>
+          <h3>Listing launch kit</h3>
+          <p>From one listing: MLS remarks, headlines, social posts, email, open house invite and neighbor postcard, screened for fair-housing language first.</p>
+          <div class="stat"><b>2</b> kits this week · <b>1</b> awaiting review · <b>0</b> red flags</div>
+          <div class="foot"><span class="status"><span class="dot warn"></span>Sycamore Ave kit waiting</span><a class="btn sm" href="#app-launch" data-app="launch">Open</a></div>
+        </article>
+
+        <article class="tool">
+          <div class="top"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10h18v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M5 10V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4M7 20v2M17 20v2"/></svg></div><span class="pill ok">Live</span></div>
+          <h3>Virtual staging</h3>
+          <p>Stages empty rooms and declutters lived-in ones, furniture only, structure untouched, with the local MLS disclosure written for you.</p>
+          <div class="stat"><b>4</b> rooms staged · <b>1</b> declutter · <b>2</b> awaiting choice</div>
+          <div class="foot"><span class="status"><span class="dot info"></span>Birchwood Dr ready to compare</span><a class="btn sm" href="#app-staging" data-app="staging">Open</a></div>
+        </article>
+
+        <article class="tool">
+          <div class="top"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="12" cy="12" r="3.5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></div><span class="pill ok">Live</span></div>
+          <h3>Social content engine</h3>
+          <p>A week of posts for the firm and each agent, plus short-video scripts, delivered Monday as a batch. About 20 minutes of approving per week.</p>
+          <div class="stat"><b>12</b> drafted · <b>9</b> published · <b>3</b> waiting</div>
+          <div class="foot"><span class="status"><span class="dot warn"></span>Batch due today 4:00 pm</span><a class="btn sm" href="#app-social" data-app="social">Open</a></div>
+        </article>
+
+        <article class="tool">
+          <div class="top"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="m11 9 4 3-4 3z" fill="currentColor" stroke="none"/></svg></div><span class="pill ok">Live</span></div>
+          <h3>Listing video ads</h3>
+          <p>Vertical 30-second ads for TikTok, Reels and Shorts, in four styles. Swap in photos and details and any listing gets one on launch day.</p>
+          <div class="stat"><b>4</b> templates · <b>5</b> ads made · <b>1</b> in review</div>
+          <div class="foot"><span class="status"><span class="dot info"></span>Foundry St ready</span><a class="btn sm" href="#app-ads" data-app="ads">Open</a></div>
+        </article>
+
+        <article class="tool">
+          <div class="top"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></div><span class="pill ok">Live</span></div>
+          <h3>Past-client nurture emails</h3>
+          <p>A monthly home value and equity update to every past client, signed by their agent, so Northfield is the name they remember when they move.</p>
+          <div class="stat"><b>412</b> clients · <b>54%</b> opened · <b>11</b> replies</div>
+          <div class="foot"><span class="status"><span class="dot"></span>Next send: Dec 1</span><a class="btn sm" href="#app-nurture" data-app="nurture">Open</a></div>
+        </article>
+
+        <article class="tool">
+          <div class="top"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 20h18"/><path d="M5 17V11M10 17V7M15 17v-4M20 17V5"/></svg></div><span class="pill ok">Live</span></div>
+          <h3>Neighborhood market reports</h3>
+          <p>Monthly reports for the eight featured neighborhoods. Each becomes a blog post, social posts and an email, so one job feeds three channels.</p>
+          <div class="stat"><b>8</b> neighborhoods · <b>Nov</b> drafted · <b>1</b> needs a look</div>
+          <div class="foot"><span class="status"><span class="dot warn"></span>Elm Hollow review by Fri</span><a class="btn sm" href="#app-reports" data-app="reports">Open</a></div>
+        </article>
+
+        <article class="tool">
+          <div class="top"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5a1 1 0 0 1 1-1h9l5 5v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="M14 4v5h5M8 13h8M8 17h5"/></svg></div><span class="pill ok">Live</span></div>
+          <h3>Blog and SEO library</h3>
+          <p>48 neighborhood guides and buyer and seller explainers, written to rank in Google and in AI answers, plus the site's mortgage and net-proceeds tools.</p>
+          <div class="stat"><b>48</b> posts · <b>8</b> neighborhood guides · <b>4</b> calculators</div>
+          <div class="foot"><span class="status"><span class="dot"></span>Indexed and current</span><a class="btn sm" href="#app-blog" data-app="blog">Open</a></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="listings">
+      <div class="sec-head"><h2>Active listings and their launch status</h2><span class="hint">Which pieces of the launch set are done for each home</span></div>
+      <div class="card">
+        <div class="tablewrap">
+          <table>
+            <thead><tr><th>Listing</th><th>Agent</th><th>Status</th><th>Kit</th><th>Staging</th><th>Video ad</th><th>Social</th><th class="num">Leads 7d</th><th class="num">Days listed</th></tr></thead>
+            <tbody>
+              <tr><td><strong>418 Linden Ct</strong>, Elm Hollow</td><td>Jordan Kim</td><td><span class="pill ok">Active</span></td><td><span class="prog"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></td><td>Not needed</td><td>Published</td><td>Published</td><td class="num">5</td><td class="num">12</td></tr>
+              <tr><td><strong>1275 Alder Way</strong>, Brookside</td><td>Sam Whitfield</td><td><span class="pill ok">Active</span></td><td><span class="prog"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></td><td>Not needed</td><td>Published</td><td>Published</td><td class="num">4</td><td class="num">19</td></tr>
+              <tr><td><strong>86 Foundry St</strong>, Cedar Ridge</td><td>Elena Ruiz</td><td><span class="pill ok">Active</span></td><td><span class="prog"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></td><td>Rec room staged</td><td><span class="pill warn">In review</span></td><td>Scheduled</td><td class="num">2</td><td class="num">27</td></tr>
+              <tr><td><strong>902 Aspen Ln</strong>, Highview</td><td>Marcus Bell</td><td><span class="pill info">Closing Fri</span></td><td><span class="prog"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></td><td>Not needed</td><td>Published</td><td>Sold post queued</td><td class="num">0</td><td class="num">41</td></tr>
+              <tr><td><strong>37 Sycamore Ave</strong>, Stonebridge</td><td>Priya Nair</td><td><span class="pill warn">Launches Wed</span></td><td><span class="prog"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></td><td>Dining room staged</td><td>Drafting</td><td>Drafting</td><td class="num">1</td><td class="num">0</td></tr>
+              <tr><td><strong>221 Birchwood Dr</strong>, Ashford Park</td><td>Theo Grant</td><td><span class="pill warn">Launches Fri</span></td><td><span class="prog"><i class="on"></i><i class="on"></i><i></i><i></i></span></td><td><span class="pill info">2 rooms to choose</span></td><td>Not started</td><td>Not started</td><td class="num">0</td><td class="num">0</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="agents">
+      <div class="sec-head"><h2>Agents this week</h2><span class="hint">Leads routed, posts approved and listings in motion</span></div>
+      <div class="agents">
+        <article class="agent"><div class="avatar" aria-hidden="true">SW</div><strong>Sam Whitfield</strong><div class="role">Realtor</div><div class="nums"><div><b>4</b>leads</div><div><b>2</b>posts</div><div><b>1</b>listing</div></div><div class="todo"><span class="pill warn">1 to confirm</span></div></article>
+        <article class="agent"><div class="avatar" aria-hidden="true">PN</div><strong>Priya Nair</strong><div class="role">Realtor</div><div class="nums"><div><b>2</b>leads</div><div><b>2</b>posts</div><div><b>1</b>listing</div></div><div class="todo"><span class="pill warn">Kit to review</span></div></article>
+        <article class="agent"><div class="avatar" aria-hidden="true">MB</div><strong>Marcus Bell</strong><div class="role">Realtor</div><div class="nums"><div><b>3</b>leads</div><div><b>2</b>posts</div><div><b>1</b>closing</div></div><div class="todo"><span class="pill ok">All clear</span></div></article>
+        <article class="agent"><div class="avatar" aria-hidden="true">ER</div><strong>Elena Ruiz</strong><div class="role">Realtor</div><div class="nums"><div><b>1</b>leads</div><div><b>1</b>posts</div><div><b>1</b>listing</div></div><div class="todo"><span class="pill info">Ad to preview</span></div></article>
+        <article class="agent"><div class="avatar" aria-hidden="true">TG</div><strong>Theo Grant</strong><div class="role">Realtor</div><div class="nums"><div><b>2</b>leads</div><div><b>2</b>posts</div><div><b>1</b>listing</div></div><div class="todo"><span class="pill info">Staging to pick</span></div></article>
+        <article class="agent"><div class="avatar" aria-hidden="true">JK</div><strong>Jordan Kim</strong><div class="role">Associate Broker</div><div class="nums"><div><b>2</b>leads</div><div><b>2</b>posts</div><div><b>1</b>listing</div></div><div class="todo"><span class="pill ok">All clear</span></div></article>
+      </div>
+    </section>
+
+    <section id="admin">
+      <div class="sec-head"><h2>Website and office</h2><span class="hint">Broker and admin access</span></div>
+      <div class="admin">
+        <a href="#app-site" data-app="site"><span><strong>northfield-realty.example</strong><small>New site preview, listings, neighborhoods and tools</small></span><span class="arrow">Open &rarr;</span></a>
+        <a href="#app-security" data-app="security"><span><strong>Security watch</strong><small>Last check Sun 11:00 pm. Findings and cleanup plan</small></span><span class="arrow">Open &rarr;</span></a>
+        <a href="#app-calculators" data-app="calculators"><span><strong>Calculators and listing alerts</strong><small>Payment, affordability and seller net tools from the site</small></span><span class="arrow">Open &rarr;</span></a>
+      </div>
+    </section>
+
+    <p class="foot-note">This is a portfolio demo of an internal dashboard. Every number, lead and queue item on this page is sample data for the week of November 9, 2026, chosen to show how the hub would look once the tools are connected. Brokerage, agents, listings, clients and leads are all fictional. Every tool opens inside the hub, running the working demo built for this portfolio.</p>
+    </div>
+
+    <section id="viewer" class="viewer" hidden aria-label="Open tool">
+      <div class="vbar">
+        <a class="btn ghost sm back" href="#home"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m15 18-6-6 6-6"/></svg>Hub</a>
+        <div class="vtitle"><span class="vicon" id="v-icon"></span><div><strong id="v-name">Tool</strong><small id="v-desc"></small></div></div>
+        <div class="vright"><span class="pill sample">Demo data</span><button class="btn ghost sm" id="v-reload" type="button" title="Reload this tool">Reload</button></div>
+      </div>
+      <div class="vframes" id="v-frames"><div class="vload" id="v-load">Loading…</div></div>
+    </section>
+  </main>
+</div>
+
+<script>
+(function () {
+  var APPS = {
+    responder:   { name: "Lead responder", desc: "Instant text and email replies to new leads, with booking", src: "../responder/index.html" },
+    reviews:     { name: "Review engine", desc: "Post-closing review requests, Google first", src: "../reviews/index.html" },
+    launch:      { name: "Listing launch kit", desc: "MLS remarks, social, email and postcard from one listing", src: "../launch/index.html" },
+    staging:     { name: "Virtual staging", desc: "Staged and decluttered rooms, local MLS compliant", src: "../staging/index.html" },
+    social:      { name: "Social content engine", desc: "A week of posts for the firm and each agent", src: "../social/index.html" },
+    ads:         { name: "Listing video ads", desc: "Vertical ads for TikTok, Reels and Shorts", src: "../ads/index.html" },
+    nurture:     { name: "Past-client nurture emails", desc: "Monthly home value and equity notes", src: "../nurture/index.html" },
+    reports:     { name: "Neighborhood market reports", desc: "Monthly reports for the eight featured neighborhoods", src: "../reports/index.html" },
+    blog:        { name: "Blog and SEO library", desc: "48 guides written for Google and AI search", src: "../site/blog/index.html" },
+    site:        { name: "Northfield website", desc: "New website preview", src: "../site/index.html" },
+    calculators: { name: "Calculators and listing alerts", desc: "Payment, affordability and seller net tools", src: "../site/tools/index.html" },
+    security:    { name: "Security watch", desc: "Website findings and cleanup plan", src: "../security/index.html" }
+  };
+  var ICONS = {
+    site: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>',
+    calculators: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8M8 11h2M14 11h2M8 15h2M14 15h2"/></svg>',
+    security: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 4 6v6c0 5 3.4 8.3 8 9 4.6-.7 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg>'
+  };
+
+  // Build the Tools list in the rail from the tool cards
+  var toolNav = document.getElementById("tool-nav");
+  document.querySelectorAll(".tools .tool").forEach(function (card) {
+    var btn = card.querySelector("[data-app]"); if (!btn) return;
+    var key = btn.getAttribute("data-app");
+    var icon = card.querySelector(".icon svg");
+    ICONS[key] = icon ? icon.outerHTML : "";
+    var a = document.createElement("a");
+    a.href = "#app-" + key; a.setAttribute("data-app", key);
+    a.innerHTML = ICONS[key] + APPS[key].name;
+    toolNav.appendChild(a);
+  });
+
+  var main = document.querySelector(".main");
+  var viewer = document.getElementById("viewer");
+  var frames = document.getElementById("v-frames");
+  var load = document.getElementById("v-load");
+  var cache = {};
+  var current = null;
+
+  function openApp(key) {
+    var app = APPS[key]; if (!app) return showHome("home");
+    current = key;
+    document.getElementById("v-name").textContent = app.name;
+    document.getElementById("v-desc").textContent = app.desc;
+    document.getElementById("v-icon").innerHTML = ICONS[key] || "";
+    Object.keys(cache).forEach(function (k) { cache[k].hidden = (k !== key); });
+    if (!cache[key]) {
+      load.hidden = false;
+      var f = document.createElement("iframe");
+      f.title = app.name; f.src = app.src;
+      f.addEventListener("load", function () { if (current === key) load.hidden = true; });
+      frames.appendChild(f); cache[key] = f;
+    } else { load.hidden = true; }
+    main.classList.add("in-app"); viewer.hidden = false;
+    document.title = app.name + " · Northfield Team Hub";
+    markNav();
+  }
+  function showHome(sec) {
+    current = null;
+    main.classList.remove("in-app"); viewer.hidden = true;
+    document.title = "Northfield Team Hub";
+    var el = document.getElementById(sec);
+    if (el) main.scrollTop = sec === "home" ? 0 : el.offsetTop - 12;
+    markNav();
+  }
+  function route() {
+    var h = (location.hash || "#home").slice(1);
+    if (h.indexOf("app-") === 0) openApp(h.slice(4)); else showHome(h || "home");
+  }
+  document.getElementById("v-reload").addEventListener("click", function () {
+    if (current && cache[current]) { load.hidden = false; cache[current].src = APPS[current].src; }
+  });
+  // In-page clicks route without relying on the host passing the hash through
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest("a[href^='#']"); if (!a) return;
+    e.preventDefault();
+    var h = a.getAttribute("href");
+    try { history.replaceState(null, "", h); } catch (err) {}
+    var k = h.slice(1);
+    if (k.indexOf("app-") === 0) openApp(k.slice(4)); else showHome(k);
+  });
+  window.addEventListener("hashchange", route);
+
+  // Scroll-spy for the Today links
+  var secLinks = document.querySelectorAll(".nav a[data-sec]");
+  function markNav() {
+    document.querySelectorAll(".nav a[data-app]").forEach(function (a) { a.classList.toggle("open", a.getAttribute("data-app") === current); });
+    var idx = -1;
+    if (!current) {
+      var y = main.scrollTop + 140;
+      secLinks.forEach(function (a, i) { var s = document.getElementById(a.getAttribute("data-sec")); if (s && s.offsetTop <= y) idx = i; });
+    }
+    secLinks.forEach(function (a, i) { a.classList.toggle("active", i === idx); });
+  }
+  main.addEventListener("scroll", function () { if (!current) markNav(); }, { passive: true });
+
+  // View-as switcher
+  var people = {
+    dana:   { name: "Dana Reyes",   role: "Broker / Owner", first: "Dana",   ini: "DR", sub: "Every lead this weekend got a reply within a minute. Six items are waiting for an approval, and two listings launch this week.", leads: "14", appts: "6", posts: "9", drafted: "12" },
+    sam:    { name: "Sam Whitfield", role: "Realtor",       first: "Sam",    ini: "SW", sub: "A portal lead on Linden Ct picked Saturday at 2:00. Confirm it and you are clear for the day.", leads: "4", appts: "2", posts: "2", drafted: "2" },
+    priya:  { name: "Priya Nair",   role: "Realtor",        first: "Priya",  ini: "PN", sub: "Your Sycamore Ave launch kit is ready to review. It launches Wednesday.", leads: "2", appts: "1", posts: "2", drafted: "2" },
+    marcus: { name: "Marcus Bell",  role: "Realtor",        first: "Marcus", ini: "MB", sub: "Aspen Ln closes Friday. The review ask goes out Sunday morning in your name.", leads: "3", appts: "1", posts: "2", drafted: "2" },
+    elena:  { name: "Elena Ruiz",   role: "Realtor",        first: "Elena",  ini: "ER", sub: "The Foundry St video ad is ready for a look. Approve it and it posts tonight.", leads: "1", appts: "1", posts: "1", drafted: "2" },
+    theo:   { name: "Theo Grant",   role: "Realtor",        first: "Theo",   ini: "TG", sub: "Two staged rooms for Birchwood Dr are waiting for your pick before Friday's launch.", leads: "2", appts: "1", posts: "2", drafted: "2" },
+    jordan: { name: "Jordan Kim",   role: "Associate Broker", first: "Jordan", ini: "JK", sub: "Linden Ct had 5 leads this week. Nothing is waiting on you.", leads: "2", appts: "0", posts: "2", drafted: "2" }
+  };
+  var sel = document.getElementById("viewas");
+  function apply(key) {
+    var p = people[key] || people.dana;
+    document.getElementById("user-name").textContent = p.name;
+    document.getElementById("user-role").textContent = p.role;
+    document.getElementById("user-photo").textContent = p.ini;
+    document.getElementById("greet").textContent = "Good morning, " + p.first;
+    document.getElementById("greet-sub").textContent = p.sub;
+    document.getElementById("k-leads").innerHTML = p.leads + " <small>" + (key === "dana" ? "+5 vs prior week" : "routed to you") + "</small>";
+    document.getElementById("k-appts").innerHTML = p.appts + " <small>of " + p.leads + " leads</small>";
+    document.getElementById("k-posts").innerHTML = p.posts + " <small>" + p.drafted + " drafted</small>";
+  }
+  sel.addEventListener("change", function () { apply(sel.value); });
+
+  route();
+})();
+</script>
+
+</body></html>

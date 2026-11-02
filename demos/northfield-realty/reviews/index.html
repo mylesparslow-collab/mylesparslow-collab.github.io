@@ -1,0 +1,799 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Northfield Review Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Inter:wght@300;400;500;600&display=swap">
+<style>
+/* Layout: an operations console for a boutique brokerage. Dark brand header, light working surface, one green accent;
+   the client-facing previews (texts, emails, landing page, social cards) are rendered as physical objects inside it. */
+:root{
+  --bg:#FFFFFF;--bg-2:#F7F5F0;--bg-3:#EDE9E0;--ink:#16233B;--text:#1D2535;--muted:#5E6677;--line:#E2DED3;--line-2:#CFC9BA;
+  --green:#A9823E;--green-2:#8F6D30;--green-soft:#B8913F;--green-tint:#F6EFE0;--green-text:#7A5C22;
+  --dark:#16233B;--on-dark:#FFFFFF;--on-dark-muted:#B9C2D3;--line-dark:#2D3C58;
+  --good:#3F7D4A;--warn:#B07A1C;--bad:#B3453A;--warn-tint:#FBF3E3;--bad-tint:#F9E9E7;--good-tint:#E6F2E8;
+  --phone:#0E1626;--bubble:#E8EBF1;--bubble-text:#1D2535;
+  --font:"Inter","Segoe UI",system-ui,sans-serif;--font-h:"Fraunces",Georgia,serif;
+  --wrap:1180px;--r:4px;--shadow:0 10px 30px rgba(22,35,59,.12);color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#101827;--bg-2:#152033;--bg-3:#1C2940;--ink:#F2F4F8;--text:#E3E7EF;--muted:#A5AEC0;--line:#27344C;--line-2:#364560;
+  --green:#C29A52;--green-2:#D0AA63;--green-soft:#C29A52;--green-tint:#2B2519;--green-text:#DDB873;
+  --dark:#0A111E;--on-dark:#F2F4F8;--on-dark-muted:#A5AEC0;--line-dark:#27344C;
+  --good:#7FC18A;--warn:#E0B25A;--bad:#E07F74;--warn-tint:#2E2716;--bad-tint:#331E1C;--good-tint:#1E2E20;
+  --phone:#000;--bubble:#22304A;--bubble-text:#E3E7EF;--shadow:0 10px 30px rgba(0,0,0,.45);color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101827;--bg-2:#152033;--bg-3:#1C2940;--ink:#F2F4F8;--text:#E3E7EF;--muted:#A5AEC0;--line:#27344C;--line-2:#364560;
+  --green:#C29A52;--green-2:#D0AA63;--green-soft:#C29A52;--green-tint:#2B2519;--green-text:#DDB873;
+  --dark:#0A111E;--on-dark:#F2F4F8;--on-dark-muted:#A5AEC0;--line-dark:#27344C;
+  --good:#7FC18A;--warn:#E0B25A;--bad:#E07F74;--warn-tint:#2E2716;--bad-tint:#331E1C;--good-tint:#1E2E20;
+  --phone:#000;--bubble:#22304A;--bubble-text:#E3E7EF;--shadow:0 10px 30px rgba(0,0,0,.45);color-scheme:dark}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--dark)}
+img{max-width:100%;display:block}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--green-soft);outline-offset:3px}
+h1,h2,h3,h4{font-family:var(--font-h);margin:0;line-height:1.15;letter-spacing:-.02em;color:var(--ink);text-wrap:balance}
+h1{font-size:clamp(1.8rem,3.6vw,2.7rem);font-weight:300}
+h2{font-size:clamp(1.35rem,2.4vw,1.85rem);font-weight:400}
+h3{font-size:1.05rem;font-weight:500}
+p{margin:0}
+.wrap{max-width:var(--wrap);margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+@media (min-width:760px){.wrap{padding-left:max(36px,env(safe-area-inset-left,0px));padding-right:max(36px,env(safe-area-inset-right,0px))}}
+.label{font-size:.7rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--green-text)}
+.muted{color:var(--muted)}
+.small{font-size:.84rem}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:600 .78rem/1 var(--font);letter-spacing:.08em;text-transform:uppercase;padding:.95em 1.4em;border-radius:var(--r);border:1px solid var(--ink);color:var(--ink);background:transparent;text-decoration:none;cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--ink);color:var(--bg)}
+.btn.primary{background:var(--green);border-color:var(--green);color:#fff}
+.btn.primary:hover{background:var(--green-2);border-color:var(--green-2)}
+.btn.sm{padding:.7em 1em;font-size:.7rem}
+.btn.ghost{border-color:var(--line-2);color:var(--muted)}
+.btn.ghost:hover{background:var(--bg-3);color:var(--ink)}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:.72rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:.35em .8em;border-radius:999px;background:var(--green-tint);color:var(--green-text)}
+.chip.warn{background:var(--warn-tint);color:var(--warn)}
+.chip.bad{background:var(--bad-tint);color:var(--bad)}
+.chip.neutral{background:var(--bg-3);color:var(--muted)}
+.chip.sms{background:var(--bg-3);color:var(--ink)}
+
+/* Header */
+.top{background:var(--dark);color:var(--on-dark);position:sticky;top:env(safe-area-inset-top,0px);z-index:30;border-bottom:1px solid var(--line-dark)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:66px;flex-wrap:wrap;padding-block:8px}
+.brand{display:flex;align-items:center;gap:14px;text-decoration:none}
+.brand svg{height:34px;width:auto;display:block}
+.brand .wm{font-family:var(--font-h);font-size:1.15rem;letter-spacing:0;text-transform:none;color:#fff;border:0;padding:0}
+.av{display:grid;place-items:center;border-radius:50%;background:var(--green-tint);color:var(--green-text);font-weight:600;flex:none;font-family:var(--font)}
+.demo-note{background:#0A111E;color:#B9C2D3;font-size:.72rem;text-align:center;padding:6px 12px;line-height:1.4}
+.brand span{font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--on-dark-muted);border-left:1px solid var(--line-dark);padding-left:14px}
+.subnav{display:flex;gap:4px;list-style:none;margin:0;padding:0;overflow-x:auto;scrollbar-width:none;max-width:100%}
+.subnav a{display:block;text-decoration:none;font-size:.8rem;font-weight:500;color:var(--on-dark-muted);padding:8px 10px;border-radius:var(--r);white-space:nowrap}
+.subnav a:hover,.subnav a.on{color:var(--on-dark);background:rgba(255,255,255,.08)}
+.demo-badge{font-size:.68rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#F6D58C;border:1px solid rgba(246,213,140,.5);padding:.35em .7em;border-radius:999px;white-space:nowrap}
+
+/* Sections */
+section{padding-block:clamp(44px,6vw,76px);border-bottom:1px solid var(--line)}
+section.alt{background:var(--bg-2)}
+.sec-head{display:flex;flex-direction:column;gap:10px;margin-bottom:30px;max-width:70ch}
+.sec-head .label{margin-bottom:2px}
+.sec-head p{color:var(--muted);font-size:1.02rem}
+
+/* Hero */
+.hero{display:grid;gap:34px;grid-template-columns:1fr;align-items:start}
+@media (min-width:900px){.hero{grid-template-columns:1.1fr .9fr}}
+.hero .lede{font-size:1.08rem;color:var(--muted);max-width:56ch;margin-top:16px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-top:28px}
+.stat{background:var(--bg);padding:16px 18px;min-width:0}
+.stat b{display:block;font-size:1.7rem;font-weight:400;color:var(--ink);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.stat small{display:block;font-size:.76rem;color:var(--muted);line-height:1.4}
+.stat.goal{background:var(--green-tint)}
+.stat.goal b{color:var(--green-text)}
+.flow{background:var(--bg-2);border:1px solid var(--line);border-radius:var(--r);padding:22px}
+.flow h3{margin-bottom:14px;font-weight:400}
+.flow ol{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.flow li{display:grid;grid-template-columns:60px 1fr;gap:14px;padding:12px 0;border-top:1px solid var(--line);align-items:start}
+.flow li:first-child{border-top:0;padding-top:0}
+.flow .day{font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--green-text);padding-top:4px}
+.flow .what{font-size:.92rem}
+.flow .what b{font-weight:500;color:var(--ink)}
+.flow .what span{display:block;color:var(--muted);font-size:.84rem}
+
+/* Builder */
+.builder{display:grid;gap:28px;grid-template-columns:1fr}
+@media (min-width:980px){.builder{grid-template-columns:360px 1fr}}
+.panel{background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:22px}
+section.alt .panel{background:var(--bg)}
+.panel h3{margin-bottom:16px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-size:.78rem;font-weight:600;letter-spacing:.04em;color:var(--ink)}
+.field input,.field select,.field textarea{font:400 .95rem var(--font);color:var(--text);background:var(--bg);border:1px solid var(--line-2);border-radius:var(--r);padding:.65em .8em;width:100%;min-width:0}
+.field textarea{min-height:90px;resize:vertical}
+.seg{display:flex;border:1px solid var(--line-2);border-radius:var(--r);overflow:hidden}
+.seg button{flex:1;font:500 .82rem var(--font);padding:.7em .4em;border:0;background:transparent;color:var(--muted);cursor:pointer}
+.seg button.on{background:var(--ink);color:var(--bg)}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--line);font-size:.86rem}
+.toggle:first-of-type{border-top:0}
+.switch{position:relative;width:38px;height:22px;flex:none;border-radius:999px;background:var(--line-2);border:0;cursor:pointer;transition:background .2s}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .2s}
+.switch[aria-checked="true"]{background:var(--green)}
+.switch[aria-checked="true"]::after{transform:translateX(16px)}
+.rules{margin-top:18px;padding-top:4px}
+.rules h4{font-size:.74rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:14px 0 4px}
+
+.timeline{display:grid;gap:18px}
+.touch{display:grid;grid-template-columns:1fr;gap:16px;background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:18px;min-width:0}
+@media (min-width:700px){.touch{grid-template-columns:220px 1fr}}
+.touch .meta{display:flex;flex-direction:column;gap:8px;min-width:0}
+.touch .meta .when{font-size:1.05rem;color:var(--ink);font-weight:500}
+.touch .meta .date{color:var(--muted);font-size:.84rem}
+.touch .meta .why{font-size:.84rem;color:var(--muted);margin-top:6px;line-height:1.5}
+.touch .meta .cond{font-size:.78rem;color:var(--green-text);border-left:2px solid var(--green);padding-left:8px}
+.touch .preview{min-width:0}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+
+/* Phone */
+.phone{width:min(100%,320px);background:var(--phone);border-radius:28px;padding:12px;box-shadow:var(--shadow)}
+.screen{background:var(--bg);border-radius:18px;padding:14px 12px 16px;min-height:200px}
+.screen .from{display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid var(--line);margin-bottom:12px}
+.screen .from .av{width:30px;height:30px;font-size:.7rem}
+.screen .from b{font-size:.8rem;font-weight:500;color:var(--ink)}
+.screen .from small{display:block;font-size:.7rem;color:var(--muted)}
+.bubble{background:var(--bubble);color:var(--bubble-text);border-radius:16px 16px 16px 4px;padding:10px 12px;font-size:.86rem;line-height:1.45;max-width:92%;white-space:pre-line;word-wrap:break-word}
+.bubble .lnk{color:var(--green-text);text-decoration:underline}
+.ts{font-size:.68rem;color:var(--muted);margin:6px 0 0 4px}
+.count{font-size:.72rem;color:var(--muted);margin-top:8px}
+
+/* Email */
+.email{background:var(--bg);border:1px solid var(--line-2);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;max-width:620px}
+.email .hdr{padding:12px 16px;border-bottom:1px solid var(--line);font-size:.8rem;color:var(--muted);display:grid;gap:3px}
+.email .hdr b{color:var(--ink);font-weight:500}
+.email .body{padding:22px 20px;font-size:.92rem;line-height:1.65}
+.email .body p{margin:0 0 12px}
+.email .body .cta{display:inline-block;background:#A9823E;color:#fff;text-decoration:none;font-weight:600;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;padding:.9em 1.4em;border-radius:3px;margin:6px 0 14px}
+.email .sig{border-top:1px solid var(--line);padding-top:14px;display:flex;gap:12px;align-items:center;font-size:.82rem;color:var(--muted)}
+.email .sig .av{width:44px;height:44px;font-size:.9rem}
+.email .sig b{display:block;color:var(--ink);font-weight:500}
+.email .foot{background:var(--bg-2);padding:10px 20px;font-size:.7rem;color:var(--muted)}
+
+/* Routing */
+.route{display:grid;gap:28px;grid-template-columns:1fr;align-items:start}
+@media (min-width:980px){.route{grid-template-columns:1fr 1fr}}
+.landing{background:var(--bg);border:1px solid var(--line-2);border-radius:var(--r);box-shadow:var(--shadow);max-width:520px;margin:0 auto;overflow:hidden}
+.landing .bar{background:var(--dark);padding:14px 20px;display:flex;align-items:center;justify-content:center}
+.landing .bar svg{height:28px}
+.landing .inner{padding:28px 24px 26px;text-align:center}
+.landing .agent{width:72px;height:72px;font-size:1.4rem;margin:0 auto 14px;border:3px solid var(--green-tint)}
+.landing h3{font-size:1.3rem;font-weight:400;margin-bottom:6px}
+.landing .sub{color:var(--muted);font-size:.9rem;margin-bottom:18px}
+.stars{display:flex;justify-content:center;gap:6px;margin-bottom:6px}
+.stars button{background:none;border:0;cursor:pointer;padding:4px;color:var(--line-2);transition:transform .12s,color .12s;line-height:0}
+.stars button svg{width:36px;height:36px;fill:currentColor}
+.stars button.lit,.stars button:hover{color:#E2A93B;transform:scale(1.08)}
+.stars-hint{font-size:.76rem;color:var(--muted);min-height:1.2em}
+.outcome{margin-top:18px;text-align:left;border-top:1px solid var(--line);padding-top:18px}
+.dest{display:flex;align-items:center;gap:14px;border:1px solid var(--line-2);border-radius:var(--r);padding:12px 14px;margin-bottom:10px;text-decoration:none;color:inherit}
+.dest:hover{border-color:var(--green)}
+.dest.rec{border-color:var(--green);background:var(--green-tint)}
+.dest .logo{width:34px;height:34px;border-radius:8px;display:grid;place-items:center;font-weight:600;font-size:.9rem;color:#fff;flex:none}
+.dest .logo.g{background:#16233B;color:#fff}
+.dest .logo.z{background:#A9823E;color:#fff}
+.dest .logo.m{background:var(--green)}
+.dest b{display:block;font-weight:500;color:var(--ink);font-size:.92rem}
+.dest small{display:block;color:var(--muted);font-size:.76rem}
+.dest .tag{margin-left:auto;font-size:.66rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--green-text);white-space:nowrap}
+.behind{display:grid;gap:12px}
+.beh{display:grid;grid-template-columns:28px 1fr;gap:12px;align-items:start;padding:14px 16px;border:1px solid var(--line);border-radius:var(--r);background:var(--bg)}
+.beh .n{width:28px;height:28px;border-radius:50%;background:var(--green-tint);color:var(--green-text);display:grid;place-items:center;font-size:.78rem;font-weight:600}
+.beh b{display:block;font-weight:500;color:var(--ink);font-size:.92rem}
+.beh span{font-size:.86rem;color:var(--muted)}
+.note{border-left:3px solid var(--green);background:var(--green-tint);padding:12px 16px;border-radius:0 var(--r) var(--r) 0;font-size:.88rem}
+.note b{color:var(--ink);font-weight:500}
+.note.warn{border-color:var(--warn);background:var(--warn-tint)}
+
+/* Repurpose */
+.repurpose{display:grid;gap:28px;grid-template-columns:1fr}
+@media (min-width:980px){.repurpose{grid-template-columns:340px 1fr}}
+.revlist{display:grid;gap:8px}
+.rev{display:block;width:100%;text-align:left;background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;cursor:pointer;font:inherit;color:inherit}
+.rev.on{border-color:var(--green);box-shadow:inset 3px 0 0 var(--green)}
+.rev .who{display:flex;justify-content:space-between;gap:8px;font-size:.78rem;color:var(--muted);margin-bottom:4px}
+.rev .who b{color:var(--ink);font-weight:500}
+.rev .txt{font-size:.86rem;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.rev .src{font-size:.7rem;color:var(--green-text);font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-top:6px}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin-bottom:20px}
+.tabs button{font:500 .82rem var(--font);padding:10px 14px;border:0;background:none;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tabs button.on{color:var(--ink);border-bottom-color:var(--green)}
+.out{display:grid;gap:18px;grid-template-columns:1fr}
+@media (min-width:900px){.out.two{grid-template-columns:1fr 1fr}}
+.out .pane{min-width:0}
+pre.code{margin:0;background:var(--bg-3);border:1px solid var(--line);border-radius:var(--r);padding:14px;font:.76rem/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;word-break:break-word;color:var(--text);max-height:360px;overflow:auto}
+.copyrow{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+.copyrow .label{color:var(--muted)}
+.copied{font-size:.74rem;color:var(--green-text);font-weight:600}
+/* website testimonial card as it renders on the new site */
+.site-dark{background:var(--dark);padding:26px;border-radius:var(--r)}
+.quote{background:#1F2E4A;border:1px solid #34456A;border-radius:3px;padding:22px 24px;color:#FFFFFF}
+.quote blockquote{margin:0 0 14px;font-size:1.02rem;line-height:1.6;font-weight:300}
+.quote footer{display:flex;justify-content:space-between;gap:10px;font-size:.8rem;color:#B9C2D3;flex-wrap:wrap}
+.quote footer b{color:#fff;font-weight:500}
+.quote .st{color:#C9A25B;letter-spacing:.1em}
+/* social square */
+.sq-wrap{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.sq{width:min(100%,420px);aspect-ratio:1;background:#16233B;color:#fff;padding:9%;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;font-family:var(--font)}
+.sq.light{background:#F7F5F0;color:#16233B}
+.sq.green{background:#A9823E;color:#fff}
+.sq .q{font-size:clamp(.95rem,2.3vw,1.3rem);line-height:1.45;font-weight:300;letter-spacing:-.01em}
+.sq .q::before{content:"\201C";display:block;font-size:3.2em;line-height:.6;color:#C9A25B;font-weight:300;margin-bottom:.35em}
+.sq.green .q::before{color:rgba(255,255,255,.65)}
+.sq .by{font-size:.74rem;letter-spacing:.06em;line-height:1.5}
+.sq .by b{display:block;font-weight:500;font-size:.86rem;letter-spacing:0}
+.sq .st{color:#C9A25B;font-size:.9rem;letter-spacing:.14em}
+.sq.green .st{color:#fff}
+.sq .lg{position:absolute;right:9%;bottom:9%;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;opacity:.7}
+.sq-styles{display:flex;gap:6px}
+.sq-styles button{width:26px;height:26px;border-radius:50%;border:2px solid var(--line-2);cursor:pointer;padding:0}
+.sq-styles button.on{border-color:var(--ink)}
+.caption{background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;font-size:.92rem;line-height:1.6;white-space:pre-line}
+.caption .h{font-size:.72rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;white-space:normal}
+
+/* Projection */
+.proj{display:grid;gap:28px;grid-template-columns:1fr}
+@media (min-width:980px){.proj{grid-template-columns:320px 1fr}}
+.slider{margin-bottom:16px}
+.slider .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:.82rem;font-weight:500;color:var(--ink)}
+.slider .row output{font-variant-numeric:tabular-nums;color:var(--green-text);font-weight:600}
+.slider input[type=range]{width:100%;accent-color:var(--green);margin:8px 0 0}
+.slider small{display:block;color:var(--muted);font-size:.76rem;line-height:1.4;margin-top:2px}
+.hero-num{display:flex;gap:28px;flex-wrap:wrap;margin-bottom:18px}
+.hero-num div b{display:block;font-size:2rem;font-weight:400;letter-spacing:-.02em;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.1}
+.hero-num div small{font-size:.78rem;color:var(--muted)}
+.chart{background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:18px 14px 10px;position:relative}
+.chart svg{width:100%;height:auto;display:block}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:.78rem;color:var(--muted);margin:0 0 8px 4px}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);font-size:.74rem;padding:6px 9px;border-radius:3px;white-space:nowrap;transform:translate(-50%,-110%);opacity:0;transition:opacity .1s}
+.tip.on{opacity:1}
+table.plain{width:100%;border-collapse:collapse;font-size:.86rem}
+table.plain th,table.plain td{text-align:left;padding:10px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+table.plain th{font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+table.plain td:first-child{color:var(--ink);font-weight:500}
+.tbl{overflow-x:auto}
+
+/* Go live */
+.grid3{display:grid;gap:16px;grid-template-columns:1fr}
+@media (min-width:760px){.grid3{grid-template-columns:repeat(3,1fr)}}
+.card{background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:20px;min-width:0}
+.card h3{margin-bottom:8px}
+.card ul{margin:10px 0 0;padding-left:18px;font-size:.88rem;color:var(--muted)}
+.card li{margin-bottom:6px}
+.card li b{color:var(--text);font-weight:500}
+
+footer.foot{background:var(--dark);color:var(--on-dark-muted);padding-block:34px;font-size:.82rem}
+footer.foot .wrap{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;align-items:center}
+footer.foot svg{height:34px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head><body>
+
+<div class="demo-note">Portfolio demo · fictional brokerage, sample data. Built by Myles Parslow.</div>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#overview"><svg viewBox="0 0 190 36" role="img" aria-label="Northfield Realty"><path d="M4 18 18 5l14 13v13H4z" fill="none" stroke="#C9A25B" stroke-width="2"/><path d="M12 31V20h12v11" fill="none" stroke="#C9A25B" stroke-width="2"/><text x="42" y="24" font-family="Fraunces,Georgia,serif" font-size="18" fill="#fff">Northfield Realty</text></svg><span>Review Engine</span></a>
+    <ul class="subnav" id="subnav">
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#sequence">Sequence</a></li>
+      <li><a href="#routing">Routing</a></li>
+      <li><a href="#repurpose">Repurpose</a></li>
+      <li><a href="#projection">Projection</a></li>
+      <li><a href="#golive">Going live</a></li>
+    </ul>
+    <span class="demo-badge">Demo · nothing sends</span>
+  </div>
+</header>
+
+<main>
+<!-- OVERVIEW -->
+<section id="overview">
+  <div class="wrap hero">
+    <div>
+      <p class="label">Post-closing review engine</p>
+      <h1 style="margin-top:10px">Every closing becomes a public five-star review, without anyone remembering to ask.</h1>
+      <p class="lede">Northfield Realty already earns strong ratings. The gap is volume and visibility: only a handful of public reviews compared with the homes the team has sold. This system asks every client at the right moment, in the agent's own voice, and sends the review where it does the most good.</p>
+      <div class="stats">
+        <div class="stat"><b>4.9</b><small>Sample rating<br>team profile</small></div>
+        <div class="stat"><b>4.8</b><small>Sample rating<br>Business Profile</small></div>
+        <div class="stat goal"><b>100+</b><small>Google reviews<br>12-month goal</small></div>
+      </div>
+      <p class="small muted" style="margin-top:14px">All figures on this page are sample data for a fictional brokerage. Google reviews drive the Maps results for "realtor near me" in the neighborhoods an office serves, which is why they are the primary target.</p>
+    </div>
+    <div class="flow">
+      <h3>What happens after settlement</h3>
+      <ol>
+        <li><span class="day">Day 0</span><div class="what"><b>Congratulations text</b><span>From the agent's own number. Warm, no ask yet.</span></div></li>
+        <li><span class="day">Day 2</span><div class="what"><b>Review request email</b><span>Personal note from the agent with one button: "Share your experience".</span></div></li>
+        <li><span class="day">Day 7</span><div class="what"><b>Gentle text reminder</b><span>Only if the link was not opened. Includes opt-out.</span></div></li>
+        <li><span class="day">Day 30</span><div class="what"><b>Useful follow-up</b><span>Local homestead credit reminder for buyers, tax-document checklist for sellers. Review link in the footer.</span></div></li>
+        <li><span class="day">Year 1</span><div class="what"><b>Home anniversary</b><span>Referral ask to a client who is still delighted.</span></div></li>
+      </ol>
+      <p class="small muted" style="margin-top:14px">The sequence stops the moment a review posts. Every message can require the agent's one-tap approval before it goes.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SEQUENCE -->
+<section id="sequence" class="alt">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="label">1 · Sequence builder</p>
+      <h2>Enter a closing. The engine writes the whole follow-up.</h2>
+      <p>Pick the client, the agent and the settlement date. Each message is drafted in the agent's voice, scheduled around quiet hours, and shown here exactly as the client would receive it.</p>
+    </div>
+    <div class="builder">
+      <div class="panel">
+        <h3>Closing details</h3>
+        <div class="field"><label for="fName">Client first name(s)</label><input id="fName" value="Chris and Alex"></div>
+        <div class="field"><label>Transaction</label>
+          <div class="seg" id="roleSeg"><button type="button" data-v="buyer" class="on">Buyer</button><button type="button" data-v="seller">Seller</button></div></div>
+        <div class="field"><label for="fProp">Property, as the client would say it</label><input id="fProp" value="the house on Linden Ct"></div>
+        <div class="field"><label for="fHood">Neighborhood</label><input id="fHood" value="Elm Hollow"></div>
+        <div class="field"><label for="fAgent">Agent</label>
+          <select id="fAgent">
+            <option value="dana">Dana Reyes · Broker/Owner</option>
+            <option value="sam">Sam Whitfield</option>
+            <option value="priya">Priya Nair</option>
+            <option value="marcus">Marcus Bell</option>
+            <option value="elena">Elena Ruiz</option>
+            <option value="theo">Theo Grant</option>
+            <option value="jordan">Jordan Kim · Associate Broker</option>
+          </select></div>
+        <div class="field"><label for="fDate">Settlement date</label><input id="fDate" type="date"></div>
+        <div class="rules">
+          <h4>Sending rules</h4>
+          <div class="toggle"><span>Agent approves each message before it sends</span><button type="button" class="switch" id="tApprove" role="switch" aria-checked="true" aria-label="Agent approves each message"></button></div>
+          <div class="toggle"><span>Quiet hours: nothing before 9 am or after 7 pm</span><button type="button" class="switch" role="switch" aria-checked="true" aria-label="Quiet hours"></button></div>
+          <div class="toggle"><span>Stop the sequence once a review posts</span><button type="button" class="switch" role="switch" aria-checked="true" aria-label="Stop on review"></button></div>
+        </div>
+        <button type="button" class="btn primary" id="gen" style="width:100%;margin-top:14px">Generate sequence</button>
+        <p class="small muted" style="margin-top:10px">In the live version this form is replaced by the settlement date arriving from the transaction system, so no one types anything.</p>
+      </div>
+      <div class="timeline" id="timeline"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ROUTING -->
+<section id="routing">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="label">2 · Routing</p>
+      <h2>One link. The client lands on a Northfield page that steers the review to the right place.</h2>
+      <p>Tap a star rating below to see what the client sees. Delighted clients are pointed to Google first, a second review site next. (Demo only: the buttons do not leave this page.) Anyone who is not delighted gets a direct line to Dana, and the public links stay visible for everyone, which keeps the program inside Google's review policy.</p>
+    </div>
+    <div class="route">
+      <div class="landing" id="landing">
+        <div class="bar"><svg viewBox="0 0 190 36" role="img" aria-label="Northfield Realty"><path d="M4 18 18 5l14 13v13H4z" fill="none" stroke="#C9A25B" stroke-width="2"/><path d="M12 31V20h12v11" fill="none" stroke="#C9A25B" stroke-width="2"/><text x="42" y="24" font-family="Fraunces,Georgia,serif" font-size="18" fill="#fff">Northfield Realty</text></svg></div>
+        <div class="inner">
+          <div class="av agent" id="lAgentImg" aria-hidden="true">DR</div>
+          <h3 id="lTitle">How did we do, Chris and Alex?</h3>
+          <p class="sub" id="lSub">Dana would love to hear how the move went.</p>
+          <div class="stars" id="stars" aria-label="Rate your experience">
+            <button type="button" data-n="1" aria-label="1 star"><svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.3 6.8.8-5 4.7 1.3 6.8L12 17.7 6 21.1l1.3-6.8-5-4.7 6.8-.8z"/></svg></button>
+            <button type="button" data-n="2" aria-label="2 stars"><svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.3 6.8.8-5 4.7 1.3 6.8L12 17.7 6 21.1l1.3-6.8-5-4.7 6.8-.8z"/></svg></button>
+            <button type="button" data-n="3" aria-label="3 stars"><svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.3 6.8.8-5 4.7 1.3 6.8L12 17.7 6 21.1l1.3-6.8-5-4.7 6.8-.8z"/></svg></button>
+            <button type="button" data-n="4" aria-label="4 stars"><svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.3 6.8.8-5 4.7 1.3 6.8L12 17.7 6 21.1l1.3-6.8-5-4.7 6.8-.8z"/></svg></button>
+            <button type="button" data-n="5" aria-label="5 stars"><svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.3 6.8.8-5 4.7 1.3 6.8L12 17.7 6 21.1l1.3-6.8-5-4.7 6.8-.8z"/></svg></button>
+          </div>
+          <p class="stars-hint" id="starsHint">Tap a star to try it</p>
+          <div class="outcome" id="outcome" hidden></div>
+        </div>
+      </div>
+      <div>
+        <h3 style="margin-bottom:14px">Behind the page</h3>
+        <div class="behind" id="behind">
+          <div class="beh"><span class="n">1</span><div><b>Tap a rating to see the routing</b><span>The page is personal to the client and the agent: the link in every text and email is unique, so the engine knows who opened it and when.</span></div></div>
+        </div>
+        <div class="note" style="margin-top:18px"><b>Why Google first.</b> Google reviews are the biggest single factor in who appears in the Maps results for "realtor near me". Agent-directory reviews matter when a buyer or seller is already shopping agents there, so they are the second destination, pointed at the agent's own profile.</div>
+        <div class="note warn" style="margin-top:12px"><b>Policy note.</b> Google prohibits "review gating" (only inviting happy clients to post). This design asks everyone and shows everyone the public links. The rating step exists so an unhappy client reaches Dana immediately, not so the ask disappears.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REPURPOSE -->
+<section id="repurpose" class="alt">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="label">3 · Repurpose</p>
+      <h2>Turn each five-star review into site, social and search content.</h2>
+      <p>Choose one of the sample reviews on the left. The engine produces a website testimonial card, a social graphic, ready-to-post captions and the structured data that lets search engines show the stars. In the live version this runs the day a new review appears.</p>
+    </div>
+    <div class="repurpose">
+      <div>
+        <div class="revlist" id="revlist"></div>
+        <p class="small muted" style="margin-top:12px">These are fictional sample reviews written for this demo. In the live version, new Google reviews flow in automatically once the engine is connected to the Business Profile.</p>
+      </div>
+      <div class="panel">
+        <div class="tabs" id="rtabs">
+          <button type="button" data-t="site" class="on">Website card</button>
+          <button type="button" data-t="social">Social graphic</button>
+          <button type="button" data-t="captions">Captions</button>
+          <button type="button" data-t="schema">Search markup</button>
+        </div>
+        <div id="rout"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTION -->
+<section id="projection">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="label">4 · Projection</p>
+      <h2>What the Google review count looks like a year from now.</h2>
+      <p>Two sources of reviews: every new closing from here on, and a one-time, personal note to past clients who were never asked. Move the sliders to see how the goal of 100 Google reviews holds up under cautious assumptions.</p>
+    </div>
+    <div class="proj">
+      <div class="panel">
+        <h3>Assumptions</h3>
+        <div class="slider"><div class="row"><label for="sClosings">Closings per year</label><output id="oClosings">40</output></div><input id="sClosings" type="range" min="10" max="120" step="2" value="40"><small>Sample figure of about 40 closings a year; a real office would enter its own number.</small></div>
+        <div class="slider"><div class="row"><label for="sRate">New clients who post a review</label><output id="oRate">40%</output></div><input id="sRate" type="range" min="10" max="70" step="5" value="40"><small>Typical for a well-timed, personal, two-touch ask with a one-tap link. Unasked, the rate is under 5%.</small></div>
+        <div class="slider"><div class="row"><label for="sPast">Past clients contacted</label><output id="oPast">400</output></div><input id="sPast" type="range" min="0" max="500" step="25" value="400"><small>A one-time campaign over the first three months, sent by the agent who handled each sale.</small></div>
+        <div class="slider"><div class="row"><label for="sPastRate">Past clients who post</label><output id="oPastRate">15%</output></div><input id="sPastRate" type="range" min="5" max="40" step="5" value="15"><small>Lower than new clients, since the memory is older.</small></div>
+      </div>
+      <div>
+        <div class="hero-num">
+          <div><b id="hTotal">—</b><small>Google reviews in 12 months</small></div>
+          <div><b id="hNew">—</b><small>added by the engine</small></div>
+          <div><b id="hMonth">—</b><small>month the count passes 100</small></div>
+        </div>
+        <div class="chart" id="chart">
+          <div class="legend"><span><i style="background:var(--green)"></i>With the review engine</span><span><i style="background:var(--line-2)"></i>Current pace (about one a year)</span></div>
+          <svg id="svg" viewBox="0 0 720 300" role="img" aria-label="Projected cumulative Google reviews over twelve months"></svg>
+          <div class="tip" id="tip"></div>
+        </div>
+        <p class="small muted" style="margin-top:12px">Starting point is a sample of 24 Google reviews on the profile today. The past-client campaign is spread over months 1 to 3. Second-site reviews are not counted here; the landing page offers it as the second option, so some of these would land there instead.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GO LIVE -->
+<section id="golive" class="alt">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="label">5 · Going live</p>
+      <h2>What it takes to switch this on.</h2>
+      <p>Nothing here depends on a new CRM. The engine needs three things from the brokerage and about two weeks of setup.</p>
+    </div>
+    <div class="grid3">
+      <div class="card"><p class="label">From the brokerage</p><h3>Three inputs</h3>
+        <ul>
+          <li><b>The Google review link</b> from the Business Profile dashboard (a short link).</li>
+          <li><b>Each agent's directory review-request link</b>, so reviews land on the right profile and on the team total.</li>
+          <li><b>A closing trigger.</b> Simplest is a two-field form the agent fills at settlement; better is a feed from whatever transaction tool the office uses. Which tool that is depends on the office.</li>
+        </ul></div>
+      <div class="card"><p class="label">Plumbing</p><h3>How messages go out</h3>
+        <ul>
+          <li><b>Texts</b> through a registered business texting number per agent, with the agent's name and an opt-out line. Clients are existing customers, so the outreach is permitted, and STOP is honored instantly.</li>
+          <li><b>Emails</b> from the agent's own firm email address, with proper authentication so they reach the inbox.</li>
+          <li><b>Approval</b> by a one-tap text to the agent before each send, which can be switched off per agent once they trust the drafts.</li>
+        </ul></div>
+      <div class="card"><p class="label">Pilot</p><h3>How success is measured</h3>
+        <ul>
+          <li><b>Reviews per month</b> on Google and the second site, before and after.</li>
+          <li><b>Ask-to-review rate</b>, by agent and by touch, so the messages can be tuned.</li>
+          <li><b>Maps visibility</b> for "realtor near me" in the firm's core neighborhoods.</li>
+          <li><b>Private feedback caught</b> before it became a public review.</li>
+        </ul></div>
+    </div>
+    <div class="tbl" style="margin-top:28px">
+      <table class="plain">
+        <thead><tr><th>Week</th><th>Work</th><th>Who</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Collect the three inputs. Set up texting numbers and email authentication. Load the agent roster and headshots.</td><td>Builder, Dana</td></tr>
+          <tr><td>2</td><td>Agents review and edit their message drafts. Landing page goes live on the firm's site. Past-client list assembled.</td><td>Agents, builder</td></tr>
+          <tr><td>3</td><td>First live closings run with approval on. Past-client campaign begins, 25 notes a week.</td><td>Engine, agents approve</td></tr>
+          <tr><td>4 onward</td><td>Weekly one-page report: reviews gained, response rate, feedback caught. New reviews repurposed to the site and social.</td><td>Engine, builder</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+</main>
+<footer class="foot">
+  <div class="wrap">
+    <svg viewBox="0 0 190 36" role="img" aria-label="Northfield Realty"><path d="M4 18 18 5l14 13v13H4z" fill="none" stroke="#C9A25B" stroke-width="2"/><path d="M12 31V20h12v11" fill="none" stroke="#C9A25B" stroke-width="2"/><text x="42" y="24" font-family="Fraunces,Georgia,serif" font-size="18" fill="#fff">Northfield Realty</text></svg>
+    <span>Northfield Realty · Portfolio demo, sample data · No messages are sent from this page.</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+  const AGENTS={
+    dana:{name:'Dana Reyes',first:'Dana',ini:'DR',title:'Broker/Owner',ph:'(555) 010-2040'},
+    sam:{name:'Sam Whitfield',first:'Sam',ini:'SW',title:'REALTOR®',ph:'(555) 010-2041'},
+    priya:{name:'Priya Nair',first:'Priya',ini:'PN',title:'REALTOR®',ph:'(555) 010-2042'},
+    marcus:{name:'Marcus Bell',first:'Marcus',ini:'MB',title:'REALTOR®',ph:'(555) 010-2043'},
+    elena:{name:'Elena Ruiz',first:'Elena',ini:'ER',title:'REALTOR®',ph:'(555) 010-2044'},
+    theo:{name:'Theo Grant',first:'Theo',ini:'TG',title:'REALTOR®',ph:'(555) 010-2045'},
+    jordan:{name:'Jordan Kim',first:'Jordan',ini:'JK',title:'Associate Broker',ph:'(555) 010-2046'}
+  };
+  const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const fmt=d=>d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+  const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x;};
+  function copy(btn,text){
+    const done=()=>{const o=btn.textContent;btn.textContent='Copied';setTimeout(()=>btn.textContent=o,1400);};
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done).catch(()=>fallback());}else fallback();
+    function fallback(){const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');done();}catch(e){}ta.remove();}
+  }
+
+  /* ---------- Sequence ---------- */
+  const state={role:'buyer',approve:true};
+  const dateEl=$('#fDate'); const today=new Date(); today.setHours(0,0,0,0); dateEl.valueAsDate=today;
+  $('#roleSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;$$('#roleSeg button').forEach(x=>x.classList.toggle('on',x===b));state.role=b.dataset.v;});
+  $$('.switch').forEach(s=>s.addEventListener('click',()=>{const v=s.getAttribute('aria-checked')!=='true';s.setAttribute('aria-checked',v);if(s.id==='tApprove'){state.approve=v;}}));
+
+  function messages(c){
+    const a=c.agent, first=c.name, link='northfield-realty.example/review/'+c.slug;
+    const buyer=c.role==='buyer';
+    const seqs=[
+      {day:0,when:'Settlement day',channel:'sms',cond:'Sends 2 hours after the agent marks the closing complete.',
+       why:'A warm note while the keys are still in hand. No ask yet; the goal is a reply and a smile.',
+       text:buyer?`Congratulations, ${first}! ${c.prop[0].toUpperCase()+c.prop.slice(1)} is officially yours. It was a real pleasure working with you, and I hope the first night in ${c.hood} is everything you pictured. If anything comes up as you settle in, I am one text away. – ${a.first}`
+                  :`${first}, congratulations on closing today! ${c.prop[0].toUpperCase()+c.prop.slice(1)} is settled and you are on to the next chapter. Thank you for trusting me with it. If anything comes up after the dust settles, I am one text away. – ${a.first}`},
+      {day:2,when:'Day 2',channel:'email',cond:'Sends at 10:30 am. Skipped if the client already posted a review.',
+       why:'The real ask, as a short personal email with a single button. Email gives the client room to write, and the button carries the unique link.',
+       subject:buyer?`A small favor, ${first}?`:`One small favor, ${first}?`,
+       paras:buyer?[
+         `Hi ${first},`,
+         `I hope the unpacking is going well in ${c.hood}. Helping you find ${c.prop} was one of the highlights of my year, and I mean that.`,
+         `Could I ask a small favor? A sentence or two about your experience helps the next family in your position find us. It takes about a minute, and the button below takes you straight there.`
+       ]:[
+         `Hi ${first},`,
+         `Now that ${c.prop} is settled, I wanted to say thank you properly. Preparing and selling a home is a lot of work, and you made it a pleasure.`,
+         `Could I ask a small favor? A sentence or two about how the sale went helps the next seller in ${c.hood} decide who to call. It takes about a minute, and the button below takes you straight there.`
+       ],
+       cta:'Share your experience',
+       close:`With gratitude,`},
+      {day:7,when:'Day 7',channel:'sms',cond:'Only if the day 2 link was never opened. Never sent if a review has posted.',
+       why:'One gentle reminder by text, where open rates are highest. The opt-out line is required for business texting and is good manners anyway.',
+       text:`Hi ${first}, it's ${a.first} at Northfield. No pressure at all, but if you have a minute this week, I would be grateful for a quick review: ${link}\nThank you again, and enjoy ${buyer?'the new place':'the next chapter'}. Reply STOP to opt out.`},
+      {day:30,when:'Day 30',channel:'email',cond:'Sends to everyone. The review link moves to the footer.',
+       why:'Something useful, not another ask. For buyers, the local homestead credit application is the single most valuable reminder a new owner can get. Sellers get a tax-document checklist.',
+       subject:buyer?`One thing to do before you forget: the homestead credit`:`Your settlement papers, and what to keep for taxes`,
+       paras:buyer?[
+         `Hi ${first},`,
+         `A month in, here is the one piece of paperwork most new owners miss. The local homestead credit caps how much your property assessment can rise each year, but it only applies if you file the one-time application with the local tax office. It is free and takes about ten minutes online.`,
+         `I have also attached a short list of the local contacts clients ask me about most: inspectors, a plumber, a handyman and the local bulk-trash line.`,
+         `If a friend or colleague starts thinking about a move, I would love an introduction. Referrals from people like you are how Northfield has grown.`
+       ]:[
+         `Hi ${first},`,
+         `A month after settlement is a good time to file your paperwork. Keep your settlement statement, the 1099-S if you received one, and receipts for any improvements you made over the years; your accountant will want all three at tax time.`,
+         `If you have any questions about the final figures, or need a copy of anything from the transaction, I have it all on file.`,
+         `And if a friend or colleague starts thinking about selling, I would love an introduction. Referrals from people like you are how Northfield has grown.`
+       ],
+       cta:null,
+       close:`Warmly,`},
+      {day:365,when:'One year',channel:'sms',cond:'Sends on the anniversary of settlement, 11:00 am.',
+       why:'The anniversary is the natural moment to ask a happy client for a referral, and to keep the agent top of mind for the client\'s own next move.',
+       text:buyer?`${first}, happy one year in ${c.hood}! I hope ${c.prop} has been good to you. If you ever want a sense of what it is worth now, or know someone starting to look, I am always glad to help. – ${a.first}, Northfield Realty`
+                  :`${first}, it has been a year since we sold ${c.prop}. I hope the new chapter has been everything you hoped. If anyone you know is thinking about a move, I would be honored to help them too. – ${a.first}, Northfield Realty`}
+    ];
+    return seqs;
+  }
+
+  function renderSequence(){
+    const name=$('#fName').value.trim()||'there';
+    const agent=AGENTS[$('#fAgent').value];
+    const prop=($('#fProp').value.trim()||'your new home');
+    const hood=$('#fHood').value.trim()||'the neighborhood';
+    const d=dateEl.valueAsDate||today;
+    const c={name,agent,prop,hood,role:state.role,date:d,slug:(name.split(/\s|and/)[0]||'client').toLowerCase().replace(/[^a-z]/g,'')+'-'+(d.getMonth()+1)+(d.getDate())};
+    const link='northfield-realty.example/review/'+c.slug;
+    const tl=$('#timeline'); tl.innerHTML='';
+    messages(c).forEach((m,i)=>{
+      const when=addDays(d,m.day);
+      const art=document.createElement('article'); art.className='touch';
+      let preview='';
+      if(m.channel==='sms'){
+        const txt=esc(m.text).replace(esc(link),`<span class="lnk">${esc(link)}</span>`);
+        preview=`<div class="phone"><div class="screen">
+          <div class="from"><span class="av">${esc(agent.ini)}</span><div><b>${esc(agent.first)} · Northfield Realty</b><small>Text message</small></div></div>
+          <div class="bubble">${txt}</div><div class="ts">${when.toLocaleDateString('en-US',{month:'short',day:'numeric'})}, ${m.day===0?'3:10 PM':m.day===365?'11:00 AM':'10:30 AM'}</div>
+        </div></div><p class="count">${m.text.length} characters · ${Math.ceil(m.text.length/160)} segment${m.text.length>160?'s':''}</p>`;
+      }else{
+        preview=`<div class="email">
+          <div class="hdr"><span>From: <b>${esc(agent.name)} &lt;${esc(agent.first.toLowerCase())}@northfield-realty.example&gt;</b></span><span>To: ${esc(name)}</span><span>Subject: <b>${esc(m.subject)}</b></span></div>
+          <div class="body">${m.paras.map(p=>`<p>${esc(p)}</p>`).join('')}
+            ${m.cta?`<span class="cta">${esc(m.cta)}</span>`:''}
+            <p>${esc(m.close)}</p>
+            <div class="sig"><span class="av">${esc(agent.ini)}</span><div><b>${esc(agent.name)}</b>${esc(agent.title)}, Northfield Realty<br>${esc(agent.ph)} · northfield-realty.example</div></div>
+          </div>
+          <div class="foot">${m.cta?`Prefer to write it elsewhere? Google · another site · or just reply to this email.`:`Happy with how things went? <u>Leave a review</u> · Northfield Realty, 100 Foundry St, Suite 100 · Unsubscribe`}</div>
+        </div>`;
+      }
+      const approval=state.approve?`<span class="chip warn">Awaits ${esc(agent.first)}'s approval</span>`:`<span class="chip">Auto-send</span>`;
+      art.innerHTML=`<div class="meta">
+          <span class="chip ${m.channel==='sms'?'sms':'neutral'}">${m.channel==='sms'?'Text':'Email'}</span>
+          <div><div class="when">${esc(m.when)}</div><div class="date">${fmt(when)}</div></div>
+          <div class="cond">${esc(m.cond)}</div>
+          <p class="why">${esc(m.why)}</p>
+          <div class="actions">${approval}</div>
+          <div class="actions"><button type="button" class="btn sm ghost copy-msg">Copy text</button></div>
+        </div><div class="preview">${preview}</div>`;
+      const plain=m.channel==='sms'?m.text:`Subject: ${m.subject}\n\n${m.paras.join('\n\n')}\n\n${m.cta?'['+m.cta+': '+link+']\n\n':''}${m.close}\n${agent.name}`;
+      art.querySelector('.copy-msg').addEventListener('click',e=>copy(e.currentTarget,plain));
+      tl.appendChild(art);
+    });
+    // sync landing page
+    $('#lTitle').textContent=`How did we do, ${name}?`;
+    $('#lSub').textContent=`${agent.first} would love to hear how the ${state.role==='buyer'?'move':'sale'} went.`;
+    $('#lAgentImg').textContent=agent.ini;
+    currentAgent=agent; currentName=name;
+    if(lastStar) showOutcome(lastStar);
+  }
+  $('#gen').addEventListener('click',renderSequence);
+  ['fName','fProp','fHood','fAgent','fDate'].forEach(id=>$('#'+id).addEventListener('change',renderSequence));
+  $('#roleSeg').addEventListener('click',()=>setTimeout(renderSequence,0));
+  $('#tApprove').addEventListener('click',()=>setTimeout(renderSequence,0));
+
+  /* ---------- Routing ---------- */
+  let currentAgent=AGENTS.dana, currentName='Chris and Alex', lastStar=0;
+  const starBtns=$$('#stars button');
+  const hints={1:'We want to hear about it',2:'We want to hear about it',3:'Tell us what we could have done better',4:'Thank you',5:'Thank you so much'};
+  starBtns.forEach(b=>b.addEventListener('click',()=>{lastStar=+b.dataset.n;showOutcome(lastStar);}));
+  starBtns.forEach(b=>b.addEventListener('mouseenter',()=>{const n=+b.dataset.n;starBtns.forEach(x=>x.classList.toggle('lit',+x.dataset.n<=n));}));
+  $('#stars').addEventListener('mouseleave',()=>starBtns.forEach(x=>x.classList.toggle('lit',+x.dataset.n<=lastStar)));
+  function showOutcome(n){
+    starBtns.forEach(x=>x.classList.toggle('lit',+x.dataset.n<=n));
+    $('#starsHint').textContent=hints[n];
+    const o=$('#outcome'); o.hidden=false; const a=currentAgent;
+    const pub=`<a class="dest rec" href="#routing" onclick="return false"><span class="logo g" title="Review site A">A</span><div><b>Review us on Google</b><small>About 30 seconds. Helps neighbors find Northfield on Maps.</small></div><span class="tag">Fastest</span></a>
+      <a class="dest" href="#routing" onclick="return false"><span class="logo z" title="Review site B">B</span><div><b>Review ${esc(a.first)} on a second site</b><small>Lands on ${esc(a.first)}'s profile and the Northfield team page.</small></div></a>`;
+    if(n>=4){
+      o.innerHTML=`<p style="margin-bottom:12px;font-size:.95rem"><b style="font-weight:500">That means a lot, ${esc(currentName)}.</b> Where would you like to share it? Your words help the next family find us.</p>${pub}
+        <a class="dest" href="#routing" onclick="return false"><span class="logo m">✎</span><div><b>Send a private note to Dana instead</b><small>Goes straight to Dana's phone, nothing is posted.</small></div></a>`;
+      $('#behind').innerHTML=behind([
+        ['Rating logged',`${n} stars, with the client, agent and timestamp attached. The sequence pauses for 48 hours while the client is on the review site.`],
+        ['Google first',`Google is placed first and marked as the fast option. The link opens the Northfield Business Profile review box directly.`],
+        ['Second site',`The second link goes to ${esc(a.first)}'s own profile, so the review counts for the agent and rolls up into the Northfield team total.`],
+        ['Review detected',`Once a new review appears on Google or the second site, the engine matches it to the closing, stops the reminders, and hands the text to the repurposing step below.`]
+      ]);
+    }else{
+      o.innerHTML=`<p style="margin-bottom:12px;font-size:.95rem"><b style="font-weight:500">We're sorry it wasn't a five-star experience.</b> Dana reads every note personally and will call you herself.</p>
+        <div class="field"><textarea placeholder="What should we have done differently?"></textarea></div>
+        <button type="button" class="btn primary" style="width:100%" onclick="this.textContent='Sent to Dana (demo)';this.disabled=true">Send to Dana</button>
+        <p class="small muted" style="margin:14px 0 8px">You're also welcome to share your experience publicly:</p>${pub}`;
+      $('#behind').innerHTML=behind([
+        ['Dana alerted immediately',`A text to Dana's phone with the client, the agent, the rating and the note, within a minute. The agent is copied.`],
+        ['Reminders stopped',`The day 7 reminder and the review footer are removed for this client. The day 30 useful email still goes.`],
+        ['Public links remain',`The Google and second-site options stay on the page, so no one is prevented from posting. That keeps Northfield inside Google's policy against review gating.`],
+        ['Follow-up logged',`Dana marks the call done and the outcome. Patterns across agents show up in the weekly report.`]
+      ]);
+    }
+  }
+  function behind(items){return items.map((it,i)=>`<div class="beh"><span class="n">${i+1}</span><div><b>${it[0]}</b><span>${it[1]}</span></div></div>`).join('');}
+
+  /* ---------- Repurpose ---------- */
+  const REVIEWS=[
+    {id:'r1',who:'Jamie K.',role:'Buyer',agent:'Dana Reyes',agentKey:'dana',source:'Sample review · fictional',
+     text:'Sample review, invented for this demo: Buying my first place felt like a maze until Dana walked me through it. Every question got a straight answer, and I never felt rushed. I would call her again in a heartbeat.',
+     pull:'Every question got a straight answer, and I never felt rushed.',
+     ig:`Buying a first home can feel like a maze. Jamie came in with a long list of questions and left with keys, and a team that answered every one.\n\nThat is what we are here for. Every first-time buyer gets the same patience, the same straight answers and the same care, from first showing to closing.\n\nThinking about your first home? Send us a message. We would love to help.`,
+     tags:'#NorthfieldRealty #FirstTimeHomeBuyer #ElmHollow #NewHomeowner #SampleData',
+     gbp:`"Every question got a straight answer, and I never felt rushed." (Sample review, fictional.)\n\nThank you, Jamie. First-time buyers deserve a team that explains every step and never rushes a decision.\n\nReady to talk about your first home? Call (555) 010-2040 or visit northfield-realty.example.`,
+     li:`A client told us that every question got a straight answer. A few weeks later they had the keys.\n\nThat distance, from a long list of questions to a front door, is the whole job. The market data, the negotiation and the paperwork matter, but they are in service of a person making one of the biggest decisions of their life.\n\nProud of the Northfield Realty team for how they show up for first-time buyers. (Sample content, fictional.)`},
+    {id:'r2',who:'Noor A.',role:'Client',agent:'Dana Reyes',agentKey:'dana',source:'Sample review · fictional',
+     text:'Sample review, invented for this demo: Dana kept in close touch from start to finish and answered every call herself. It felt like working with a neighbor who happens to know the market.',
+     pull:'It felt like working with a neighbor who happens to know the market.',
+     ig:`"It felt like working with a neighbor who happens to know the market." Thank you, Noor.\n\nA boutique brokerage means you work with the people whose names are on the door. Dana leads every client relationship personally, and the team is built the same way.\n\nIf you want a real estate experience that feels designed around you, say hello.`,
+     tags:'#NorthfieldRealty #BoutiqueBrokerage #LocalRealtor #HomeBuying #SampleData',
+     gbp:`"It felt like working with a neighbor who happens to know the market." (Sample review, fictional.)\n\nThank you, Noor. At Northfield Realty, every client works directly with an experienced agent who knows the neighborhoods block by block.\n\nBuying or selling? Call (555) 010-2040 or visit northfield-realty.example.`,
+     li:`"Like working with a neighbor who happens to know the market."\n\nA few words from a client that sum up what an independent brokerage can offer and a large franchise rarely can: the person you meet on day one is the person who negotiates your contract and sits beside you at closing.\n\nGrateful for clients like Noor, and for a team that earns reviews like this one. (Sample content, fictional.)`},
+    {id:'r3',who:'Ben O.',role:'Client',agent:'Northfield team',agentKey:'dana',source:'Sample review · fictional',
+     text:'Sample review, invented for this demo: Clear, calm guidance at every turn. The team told us what they would do and why, and they were right.',
+     pull:'The team told us what they would do and why, and they were right.',
+     ig:`"The team told us what they would do and why." Thank you, Ben.\n\nAdvice is the part of our job clients remember. Not the listing photos or the open house, but the moment an agent said "here is what I would do, and why."\n\nAsk us anything about the market.`,
+     tags:'#NorthfieldRealty #RealEstateAdvice #LocalMarket #HomeSellers #SampleData',
+     gbp:`"The team told us what they would do and why, and they were right." (Sample review, fictional.)\n\nThank you, Ben. Northfield Realty advises buyers and sellers across the city's neighborhoods with honest, straightforward guidance.\n\nHave a real estate question? Call (555) 010-2040 or visit northfield-realty.example.`,
+     li:`"They told us what they would do and why."\n\nShort reviews like Ben's are my favorite kind, because there is nothing to explain. Clear. Calm. Recommended.\n\nThat is the standard the Northfield Realty team holds itself to on every transaction, from a starter condo to a family home. (Sample content, fictional.)`},
+    {id:'r4',who:'Lucia F.',role:'Seller · Cedar Ridge townhouse',agent:'Priya Nair',agentKey:'priya',source:'Sample review · fictional',
+     text:'Sample review, invented for this demo: Priya kept us informed from the first pricing talk to the final signature. Even when the inspection report came back long, she stayed steady and helped us sort it out.',
+     pull:'Priya kept us informed from the first pricing talk to the final signature.',
+     ig:`Congratulations to our sellers in Cedar Ridge, and a round of applause for Priya Nair.\n\n"Priya kept us informed from the first pricing talk to the final signature."\n\nSelling a townhome takes pricing precision and patience with the details. Priya brings both. Thinking about selling? Priya would love to talk.`,
+     tags:'#CedarRidge #JustSold #NorthfieldRealty #TownhomeLiving #SampleData',
+     gbp:`"Priya kept us informed from the first pricing talk to the final signature." (Sample review, fictional.)\n\nAnother five-star review for Priya Nair of Northfield Realty, this time from sellers in Cedar Ridge. From pricing to closing, Priya keeps sellers informed at every step.\n\nThinking about selling? Call (555) 010-2040 or visit northfield-realty.example.`,
+     li:`Proud moment for the Northfield Realty team: a five-star review for Priya Nair from her Cedar Ridge sellers.\n\n"Priya kept us informed from the first pricing talk to the final signature."\n\nAnyone can be attentive at the listing appointment. Being there at week six, when the inspection report lands, is the job. (Sample content, fictional.)`},
+    {id:'r5',who:'Grant H.',role:'Buyer · Brookside condo',agent:'Marcus Bell',agentKey:'marcus',source:'Sample review · fictional',
+     text:'Sample review, invented for this demo: Marcus made a stressful search feel manageable. He was patient on tours, honest about trade-offs, and quick to reply whenever I had a question.',
+     pull:'Marcus made a stressful search feel manageable.',
+     ig:`"Marcus made a stressful search feel manageable."\n\nThank you to our buyer in Brookside, and congratulations on the new condo. Marcus brings calm and clarity to a process that can feel anything but, and his clients notice.\n\nStarting your search? Marcus would love to help.`,
+     tags:'#Brookside #NewHomeowner #NorthfieldRealty #SampleData #HomeBuying',
+     gbp:`"Marcus made a stressful search feel manageable." (Sample review, fictional.)\n\nCongratulations to Marcus's buyer on a new condo in Brookside. Northfield Realty agents serve buyers across the city's neighborhoods with the same five-star care everywhere.\n\nReady to start your search? Call (555) 010-2040 or visit northfield-realty.example.`,
+     li:`Five stars for Marcus Bell of Northfield Realty, from a first-time condo buyer in Brookside.\n\n"Marcus made a stressful search feel manageable."\n\nWhat I appreciate most about Marcus is how calm he keeps a transaction. Buyers feel it, and reviews like this one are the result. (Sample content, fictional.)`}
+  ];
+  let curRev=REVIEWS[0], curTab='site', sqStyle='dark';
+  const rl=$('#revlist');
+  REVIEWS.forEach(r=>{const b=document.createElement('button');b.type='button';b.className='rev'+(r===curRev?' on':'');b.innerHTML=`<div class="who"><b>${esc(r.who)}</b><span>${esc(r.role)}</span></div><div class="txt">${esc(r.text)}</div><div class="src">${esc(r.source)}</div>`;b.addEventListener('click',()=>{curRev=r;$$('.rev').forEach(x=>x.classList.toggle('on',x===b));renderRep();});rl.appendChild(b);});
+  $('#rtabs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;curTab=b.dataset.t;$$('#rtabs button').forEach(x=>x.classList.toggle('on',x===b));renderRep();});
+  function renderRep(){
+    const r=curRev, out=$('#rout'), stars='★★★★★';
+    if(curTab==='site'){
+      const html=`<article class="quote">\n  <blockquote>${esc(r.text)}</blockquote>\n  <footer><span><b>${esc(r.who)}</b> &middot; ${esc(r.role)}${r.agent!=='Northfield team'?' &middot; Agent: '+esc(r.agent):''}</span><span class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></footer>\n</article>`;
+      out.innerHTML=`<div class="out two"><div class="pane"><p class="label" style="margin-bottom:8px">As it appears in the Client Reviews section of the new site</p>
+        <div class="site-dark"><article class="quote"><blockquote>${esc(r.text)}</blockquote><footer><span><b>${esc(r.who)}</b> · ${esc(r.role)}${r.agent!=='Northfield team'?' · Agent: '+esc(r.agent):''}</span><span class="st">${stars}</span></footer></article></div>
+        <p class="small muted" style="margin-top:10px">Source line is preserved so visitors can verify the review. Agent name is included only when the reviewer named the agent.</p></div>
+        <div class="pane"><div class="copyrow"><span class="label">HTML snippet for the site</span><button type="button" class="btn sm ghost" id="cpSite">Copy</button></div><pre class="code">${esc(html)}</pre></div></div>`;
+      $('#cpSite').addEventListener('click',e=>copy(e.currentTarget,html));
+    }else if(curTab==='social'){
+      out.innerHTML=`<div class="out two"><div class="pane sq-wrap">
+        <div class="sq ${sqStyle==='dark'?'':sqStyle}" id="sq"><div><div class="st">${stars}</div><p class="q" style="margin-top:14px">${esc(r.pull)}</p></div><div class="by"><b>${esc(r.who)}</b>${esc(r.role)}${r.agent!=='Northfield team'?' · with '+esc(r.agent):''}</div><span class="lg">Northfield Realty</span></div>
+        <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap"><span class="small muted">Style</span><div class="sq-styles">
+          <button type="button" data-s="dark" title="Charcoal" style="background:#16233B" class="${sqStyle==='dark'?'on':''}"></button>
+          <button type="button" data-s="light" title="Light" style="background:#F7F5F0" class="${sqStyle==='light'?'on':''}"></button>
+          <button type="button" data-s="green" title="Brass" style="background:#A9823E" class="${sqStyle==='green'?'on':''}"></button></div></div>
+        <p class="small muted">1080 × 1080 for Instagram and Facebook. The live engine exports the PNG, plus a 1080 × 1920 story version with the agent's headshot.</p></div>
+        <div class="pane"><p class="label" style="margin-bottom:8px">Why the pull quote</p><p class="small" style="margin-bottom:14px">The full review is ${r.text.length} characters, too long to read on a phone at a glance. The engine picks the sentence with the most feeling and the fewest words, keeps the reviewer's exact phrasing, and never trims the full text on the website card.</p>
+        <p class="label" style="margin-bottom:8px">Posting cadence</p><p class="small">One review graphic a week, alternating with listings and neighborhood posts, so the feed never reads as a wall of testimonials. Each one is tagged to the agent, which doubles as a quiet recruiting signal.</p></div></div>`;
+      $$('.sq-styles button').forEach(b=>b.addEventListener('click',()=>{sqStyle=b.dataset.s;renderRep();}));
+    }else if(curTab==='captions'){
+      const blocks=[['Instagram / Facebook caption',r.ig+'\n\n'+r.tags],['Google Business Profile post',r.gbp],['LinkedIn, from Dana\'s profile',r.li]];
+      out.innerHTML=`<div class="out">${blocks.map((b,i)=>`<div class="pane"><div class="copyrow"><span class="label">${esc(b[0])}</span><button type="button" class="btn sm ghost cp" data-i="${i}">Copy</button></div><div class="caption">${esc(b[1])}</div></div>`).join('')}
+        <p class="small muted">Captions follow the brokerage's rules: the brokerage is described as boutique and independent, never small; no claims about neighborhoods or buyers that could raise fair-housing concerns; the Google post stays under 1,500 characters with no hashtags, as Google prefers.</p></div>`;
+      $$('.cp').forEach(b=>b.addEventListener('click',e=>copy(e.currentTarget,blocks[+b.dataset.i][1])));
+    }else{
+      const schema={"@context":"https://schema.org","@type":"Review","itemReviewed":{"@type":"RealEstateAgent","name":"Northfield Realty","url":"https://northfield-realty.example","telephone":"+1-555-010-2040"},"author":{"@type":"Person","name":r.who},"reviewRating":{"@type":"Rating","ratingValue":"5","bestRating":"5"},"reviewBody":r.text,"publisher":{"@type":"Organization","name":"Northfield Realty"}};
+      const agg={"@context":"https://schema.org","@type":"RealEstateAgent","name":"Northfield Realty","url":"https://northfield-realty.example","aggregateRating":{"@type":"AggregateRating","ratingValue":"4.9","reviewCount":"24","bestRating":"5"}};
+      const s1=JSON.stringify(schema,null,2), s2=JSON.stringify(agg,null,2);
+      out.innerHTML=`<div class="out two"><div class="pane"><div class="copyrow"><span class="label">Review markup (JSON-LD)</span><button type="button" class="btn sm ghost" id="cp1">Copy</button></div><pre class="code">${esc(s1)}</pre></div>
+        <div class="pane"><div class="copyrow"><span class="label">Aggregate rating for the home page</span><button type="button" class="btn sm ghost" id="cp2">Copy</button></div><pre class="code">${esc(s2)}</pre>
+        <p class="small muted" style="margin-top:12px">Structured data lets Google and AI search engines read the rating and count directly from the firm's website. The aggregate count updates automatically as reviews arrive (sample figures). Google shows stars in search results only for first-party reviews collected on the site, so the website card and this markup work together.</p></div></div>`;
+      $('#cp1').addEventListener('click',e=>copy(e.currentTarget,s1));$('#cp2').addEventListener('click',e=>copy(e.currentTarget,s2));
+    }
+  }
+
+  /* ---------- Projection ---------- */
+  const S={closings:$('#sClosings'),rate:$('#sRate'),past:$('#sPast'),pastRate:$('#sPastRate')};
+  const START=24;
+  function project(){
+    const closings=+S.closings.value, rate=+S.rate.value/100, past=+S.past.value, pastRate=+S.pastRate.value/100;
+    $('#oClosings').value=closings;$('#oRate').value=S.rate.value+'%';$('#oPast').value=past;$('#oPastRate').value=S.pastRate.value+'%';
+    const perMonth=closings/12*rate, pastTotal=past*pastRate;
+    const withEng=[START], base=[START];
+    for(let m=1;m<=12;m++){const pc=m<=3?pastTotal/3:0; withEng.push(withEng[m-1]+perMonth+pc); base.push(START+m/12);}
+    const total=Math.round(withEng[12]); $('#hTotal').textContent=total; $('#hNew').textContent='+'+Math.round(withEng[12]-START);
+    const cross=withEng.findIndex(v=>v>=100); const months=['Now','M1','M2','M3','M4','M5','M6','M7','M8','M9','M10','M11','M12'];
+    $('#hMonth').textContent=cross>0?'Month '+cross:(cross===0?'Now':'Beyond 12 mo');
+    draw(withEng,base,months);
+  }
+  function draw(a,b,months){
+    const svg=$('#svg'), W=720,H=300,L=44,R=16,T=18,B=40; const maxV=Math.max(110,Math.ceil(Math.max(...a)/20)*20);
+    const x=i=>L+(W-L-R)*i/12, y=v=>T+(H-T-B)*(1-v/maxV);
+    const ticks=[]; for(let v=0;v<=maxV;v+=maxV>200?50:20) ticks.push(v);
+    let s='';
+    ticks.forEach(v=>{s+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="var(--muted)" font-family="var(--font)">${v}</text>`;});
+    // goal line
+    s+=`<line x1="${L}" x2="${W-R}" y1="${y(100)}" y2="${y(100)}" stroke="var(--green-text)" stroke-dasharray="4 5" stroke-width="1.5"/><text x="${W-R}" y="${y(100)-6}" text-anchor="end" font-size="11" fill="var(--green-text)" font-family="var(--font)">Goal: 100</text>`;
+    months.forEach((m,i)=>{if(i%2===0)s+=`<text x="${x(i)}" y="${H-B+20}" text-anchor="middle" font-size="11" fill="var(--muted)" font-family="var(--font)">${m}</text>`;});
+    const path=arr=>arr.map((v,i)=>(i?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)).join(' ');
+    s+=`<path d="${path(a)} L${x(12)} ${y(0)} L${x(0)} ${y(0)} Z" fill="var(--green)" opacity=".10"/>`;
+    s+=`<path d="${path(b)}" fill="none" stroke="var(--line-2)" stroke-width="2" stroke-linejoin="round"/>`;
+    s+=`<path d="${path(a)}" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+    s+=`<circle cx="${x(12)}" cy="${y(a[12])}" r="5" fill="var(--green)" stroke="var(--bg)" stroke-width="2"/><text x="${x(12)-10}" y="${y(a[12])-10}" text-anchor="end" font-size="12" font-weight="600" fill="var(--ink)" font-family="var(--font)">${Math.round(a[12])}</text>`;
+    a.forEach((v,i)=>{s+=`<rect class="hit" data-i="${i}" x="${x(i)-(W-L-R)/24}" y="${T}" width="${(W-L-R)/12}" height="${H-T-B}" fill="transparent"/>`;});
+    svg.innerHTML=s;
+    const tip=$('#tip'), chart=$('#chart');
+    svg.querySelectorAll('.hit').forEach(h=>{h.addEventListener('mousemove',()=>{const i=+h.dataset.i;const r=chart.getBoundingClientRect(),sr=svg.getBoundingClientRect();const px=sr.left-r.left+x(i)/W*sr.width, py=sr.top-r.top+y(a[i])/H*sr.height;tip.style.left=px+'px';tip.style.top=py+'px';tip.textContent=`${months[i]}: ${Math.round(a[i])} reviews (current pace ${Math.round(b[i])})`;tip.classList.add('on');});h.addEventListener('mouseleave',()=>tip.classList.remove('on'));});
+  }
+  Object.values(S).forEach(el=>el.addEventListener('input',project));
+
+  /* ---------- nav highlight ---------- */
+  const links=$$('#subnav a'); const secs=links.map(l=>document.querySelector(l.getAttribute('href')));
+  const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.toggle('on',l.getAttribute('href')==='#'+e.target.id));}});},{rootMargin:'-40% 0px -55% 0px'});
+  secs.forEach(s=>s&&io.observe(s));
+
+  renderSequence(); renderRep(); project();
+})();
+</script>
+
+</body></html>
