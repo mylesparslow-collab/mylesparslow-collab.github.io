@@ -42,7 +42,7 @@
       night: P('Swiss', 1, '#0e0e0e', '#1a1a1a', '#f2f1ec', '#a3a29d', '#ff3b2f', '#ff3b2f') }
   };
   var COLORS = [['bg', 'Background'], ['surface', 'Panels'], ['ink', 'Text'], ['muted', 'Secondary text'], ['accent', 'Links and labels'], ['mark', 'Highlight']];
-  var DEF = { style: 'classic', sdark: null, preset: 'eggshell', custom: null, font: 'editorial', size: 100, radius: 6, density: 1, backdrop: 'none', texture: 'grain' };
+  var DEF = { style: 'classic', sdark: null, preset: 'eggshell', custom: null, font: 'editorial', size: 100, radius: 6, density: 1, backdrop: 'plasma', texture: 'grain' };
   var S;
 
   function load() {
