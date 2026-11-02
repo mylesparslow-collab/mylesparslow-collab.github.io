@@ -6,6 +6,8 @@
   var root = document.documentElement;
   var P = function (name, dark, bg, surface, ink, muted, accent, mark) { return { name: name, dark: dark, bg: bg, surface: surface, ink: ink, muted: muted, accent: accent, mark: mark }; };
   var PRESETS = {
+    sapphire: P('Sapphire', 0, '#f5f5f4', '#ffffff', '#111111', '#5b5b5b', '#0f52ba', '#0f52ba'),
+    'sapphire-night': P('Sapphire night', 1, '#111213', '#1a1b1d', '#ededec', '#a3a3a3', '#7aa2ff', '#7aa2ff'),
     eggshell: P('Eggshell', 0, '#f2eee3', '#fbf9f3', '#15120f', '#5f4e40', '#6b3f22', '#a9822f'),
     pine: P('Original', 0, '#f4f6f4', '#ffffff', '#18201c', '#56625b', '#23593f', '#23593f'),
     sky: P('Sky & ruby', 0, '#e8f3fb', '#ffffff', '#192838', '#4c6073', '#9b111e', '#9b111e'),
@@ -16,8 +18,8 @@
     mono: P('Mono', 0, '#ffffff', '#f4f4f4', '#111111', '#555555', '#111111', '#111111'),
     neon: P('Neon', 1, '#0b0620', '#150d33', '#f1eaff', '#a999d6', '#ff3df0', '#29f0ff')
   };
-  var TWIN = { eggshell: 'eggshell-night', pine: 'pine-night', sky: 'sky-night' };
-  var UNTWIN = { 'eggshell-night': 'eggshell', 'pine-night': 'pine', 'sky-night': 'sky' };
+  var TWIN = { sapphire: 'sapphire-night', eggshell: 'eggshell-night', pine: 'pine-night', sky: 'sky-night' };
+  var UNTWIN = { 'sapphire-night': 'sapphire', 'eggshell-night': 'eggshell', 'pine-night': 'pine', 'sky-night': 'sky' };
   var FONTS = {
     editorial: ['Editorial', null, null],
     classic: ['Classic serif', 'Georgia, "Times New Roman", serif', 'Georgia, "Times New Roman", serif'],
@@ -42,7 +44,7 @@
       night: P('Swiss', 1, '#0e0e0e', '#1a1a1a', '#f2f1ec', '#a3a29d', '#ff3b2f', '#ff3b2f') }
   };
   var COLORS = [['bg', 'Background'], ['surface', 'Panels'], ['ink', 'Text'], ['muted', 'Secondary text'], ['accent', 'Links and labels'], ['mark', 'Highlight']];
-  var DEF = { style: 'classic', sdark: null, preset: 'eggshell', custom: null, font: 'editorial', size: 100, radius: 6, density: 1, backdrop: 'none', texture: 'grain' };
+  var DEF = { style: 'classic', sdark: null, preset: 'sapphire', custom: null, font: 'editorial', size: 100, radius: 6, density: 1, backdrop: 'none', texture: 'grain' };
   var S;
 
   function load() {
@@ -54,8 +56,8 @@
     }
     S = {};
     for (var k in DEF) S[k] = (s[k] !== undefined && s[k] !== null) ? s[k] : DEF[k];
-    if (!PRESETS[S.preset] && S.preset !== 'custom') S.preset = 'eggshell';
-    if (S.preset === 'custom' && !S.custom) S.preset = 'eggshell';
+    if (!PRESETS[S.preset] && S.preset !== 'custom') S.preset = 'sapphire';
+    if (S.preset === 'custom' && !S.custom) S.preset = 'sapphire';
     if (!FONTS[S.font]) S.font = 'editorial';
     S.size = Math.min(130, Math.max(85, +S.size || 100));
     S.radius = Math.min(20, Math.max(0, +S.radius));
@@ -71,7 +73,7 @@
 
   var VARS = ['--bg', '--surface', '--rule', '--ink', '--muted', '--accent', '--mark', '--mark-soft', '--display', '--body', '--mono', '--radius', '--density'];
   function apply() {
-    var st = root.style, y = sty(), legacy = !y && (S.preset === 'eggshell' || S.preset === 'pine' || S.preset === 'sky');
+    var st = root.style, y = sty(), legacy = !y && (S.preset === 'pine' || S.preset === 'sky');
     VARS.forEach(function (v) { st.removeProperty(v); });
     if (S.preset === 'eggshell' || legacy === false || true) {
       if (legacy && (S.preset === 'pine' || S.preset === 'sky')) root.setAttribute('data-scheme', S.preset); else root.removeAttribute('data-scheme');
@@ -216,7 +218,7 @@
       if (d.style) { S.style = d.style; S.sdark = null; S.font = 'editorial'; }
       else if (d.preset) { S.style = 'classic'; if (d.preset === 'custom' && !S.custom) S.custom = JSON.parse(JSON.stringify(cur())); S.preset = d.preset; }
       else if (d.mode && sty()) S.sdark = d.mode === 'dark' ? 1 : 0;
-      else if (d.mode) { var p = S.preset; if (d.mode === 'dark' && TWIN[p]) S.preset = TWIN[p]; else if (d.mode === 'light' && UNTWIN[p]) S.preset = UNTWIN[p]; else if (d.mode === 'dark' && !cur().dark) S.preset = 'eggshell-night'; else if (d.mode === 'light' && cur().dark) S.preset = 'eggshell'; }
+      else if (d.mode) { var p = S.preset; if (d.mode === 'dark' && TWIN[p]) S.preset = TWIN[p]; else if (d.mode === 'light' && UNTWIN[p]) S.preset = UNTWIN[p]; else if (d.mode === 'dark' && !cur().dark) S.preset = 'sapphire-night'; else if (d.mode === 'light' && cur().dark) S.preset = 'sapphire'; }
       else if (d.font) S.font = d.font;
       else if (d.density) S.density = +d.density;
       else if (d.backdrop) S.backdrop = d.backdrop;

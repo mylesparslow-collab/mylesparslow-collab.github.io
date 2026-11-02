@@ -12,15 +12,15 @@
 /* Layout: an eggshell sheet by default, with a colour picker for two other schemes. Each section is a shelf of pieces; every piece pairs a screenshot with "what it is" and "how it was made". Brown carries links and labels; gold marks emphasis. All schemes are light by request. */
 :root {
   color-scheme: light;
-  /* Eggshell (default): black ink, brown links and labels, gold emphasis */
-  --bg: #f2eee3;
-  --surface: #fbf9f3;
-  --rule: #ddd3bf;
-  --ink: #15120f;
-  --muted: #5f4e40;
-  --accent: #6b3f22;
-  --mark: #a9822f;
-  --mark-soft: #ede1c1;
+  /* Sapphire (default): monochrome greys with sapphire blue accents */
+  --bg: #f5f5f4;
+  --surface: #ffffff;
+  --rule: #d9d9d8;
+  --ink: #111111;
+  --muted: #5b5b5b;
+  --accent: #0f52ba;
+  --mark: #0f52ba;
+  --mark-soft: #d5e0f3;
   --display: "Bricolage Grotesque", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
   --body: "Source Serif 4", Georgia, "Times New Roman", serif;
   --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
@@ -52,6 +52,7 @@ p { margin: 0; }
 .swatch:hover { border-color: var(--muted); }
 .swatch[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
 .swatch i { width: 1.15rem; height: 1.15rem; border-radius: 50%; flex: none; border: 1px solid rgba(0,0,0,0.15); }
+.swatch[data-pick="sapphire"] i { background: linear-gradient(135deg, #f5f5f4 0 45%, #111111 45% 70%, #0f52ba 70%); }
 .swatch[data-pick="eggshell"] i { background: linear-gradient(135deg, #f2eee3 0 45%, #6b3f22 45% 70%, #a9822f 70%); }
 .swatch[data-pick="pine"] i { background: linear-gradient(135deg, #f4f6f4 0 50%, #23593f 50%); }
 .swatch[data-pick="sky"] i { background: linear-gradient(135deg, #e8f3fb 0 50%, #9b111e 50%); }
@@ -268,13 +269,13 @@ span.note { font-style: italic; color: var(--muted); }
 <style>
 /* Home and area pages (added with the reorganization) */
 .ix-featured { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.6rem 1.25rem; }
+.ix-featured { align-items: start; }
 .ix-featured .tile:first-child { grid-column: span 2; grid-row: span 2; }
-.ix-featured .tile:first-child .thumb { aspect-ratio: auto; flex: 1; min-height: 16rem; }
-.ix-featured .tile:first-child { display: flex; flex-direction: column; }
+.ix-featured .tile:first-child .thumb { aspect-ratio: 16 / 10; }
 .ix-featured .tile:first-child .lbl strong { font-size: 1.5rem; }
 .ix-featured .tile .area-tag { font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mark); }
 @media (max-width: 960px) { .ix-featured { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 640px) { .ix-featured { grid-template-columns: minmax(0, 1fr); } .ix-featured .tile:first-child { grid-column: auto; grid-row: auto; } .ix-featured .tile:first-child .thumb { min-height: 0; aspect-ratio: 16 / 10; } }
+@media (max-width: 640px) { .ix-featured { grid-template-columns: minmax(0, 1fr); } .ix-featured .tile:first-child { grid-column: auto; grid-row: auto; } .ix-featured .tile:first-child .thumb { aspect-ratio: 16 / 10; } }
 .ix-head a.see { font-family: var(--mono); font-weight: 500; font-size: 0.78rem; letter-spacing: 0.04em; text-transform: none; }
 .ix-head .lead { display: grid; gap: 0.15rem; }
 .ix-head .lead small { font-family: var(--body); font-weight: 400; font-size: 0.92rem; letter-spacing: 0; text-transform: none; color: var(--muted); }
@@ -282,7 +283,7 @@ span.note { font-style: italic; color: var(--muted); }
 body.searching .ix-all:not([hidden]) { display: grid; }
 body.searching .ix-browse { display: none; }
 .ix-browse { display: grid; gap: 2.25rem; }
-.ix-featured .tile:first-child .thumb img { object-position: 0 0; }
+.ix-featured .tile:first-child .thumb img { object-position: 50% 50%; }
 .areas-nav { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .areas-nav a, .chip { font-family: var(--mono); font-size: 0.8rem; color: var(--ink); text-decoration: none; border: 1px solid var(--rule); background: var(--surface); border-radius: 999px; padding: 0.3rem 0.8rem; cursor: pointer; }
 .areas-nav a:hover, .chip:hover { border-color: var(--accent); color: var(--accent); }
@@ -321,7 +322,8 @@ details.case[hidden] { display: none; }
       <span class="eyebrow">Portfolio · October 2026</span>
       <fieldset class="picker" aria-label="Colour scheme">
         <legend>Colours</legend>
-        <button type="button" class="swatch" id="pick-eggshell" data-pick="eggshell" aria-pressed="true"><i></i>Eggshell</button>
+        <button type="button" class="swatch" id="pick-sapphire" data-pick="sapphire" aria-pressed="true"><i></i>Sapphire</button>
+        <button type="button" class="swatch" id="pick-eggshell" data-pick="eggshell" aria-pressed="false"><i></i>Eggshell</button>
         <button type="button" class="swatch" id="pick-pine" data-pick="pine" aria-pressed="false"><i></i>Original</button>
         <button type="button" class="swatch" id="pick-sky" data-pick="sky" aria-pressed="false"><i></i>Sky &amp; ruby</button>
         <button type="button" class="ap-btn" id="appearance-btn">More appearance options</button>
@@ -400,7 +402,7 @@ details.case[hidden] { display: none; }
       <div class="ix-group">
         <p class="ix-head"><span class="lead">Featured</span><span>6 of 47</span></p>
         <div class="ix-grid ix-featured">
-        <a class="tile" href="legal/#conflara" data-hay="conflion legal software full-function firm software full-function law firm software built on conflicts and new-matter intake: matters, docketing, documents, time and billing, firm accounting, people and cle, client relationships crm, legal holds, the general counsel&#x27;s office, it and facilities, ask newton and ai tools."><span class="thumb"><img src="assets/thumbs/conflara.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"><img class="alt" data-src="assets/thumbs/conflara-2.jpg" alt="" decoding="async"></span><span class="lbl"><span class="area-tag">Legal software</span><strong>Conflion</strong><small>full-function firm software</small></span></a>
+        <a class="tile" href="legal/#conflara" data-hay="conflion legal software full-function firm software full-function law firm software built on conflicts and new-matter intake: matters, docketing, documents, time and billing, firm accounting, people and cle, client relationships crm, legal holds, the general counsel&#x27;s office, it and facilities, ask newton and ai tools."><span class="thumb"><img src="assets/featured/conflion-1600.jpg" srcset="assets/featured/conflion-960.jpg 960w, assets/featured/conflion-1600.jpg 1600w" sizes="(max-width: 640px) 100vw, 760px" alt="Conflion triage screen: a conflicts search with high-risk hits and an AI suggestion" width="1600" height="1000" decoding="async"></span><span class="lbl"><span class="area-tag">Legal software</span><strong>Conflion</strong><small>full-function firm software</small></span></a>
         <a class="tile" href="business/#rsc" data-hay="rsc tool office app + job tracker office app two tools for a small remodeling business: an operations app that runs entirely on one mac, reads the business inbox with a local ai model and never touches the books without the owner&#x27;s approval, and a phone-first job tracker that shows what each job really earns once crew hours are counted."><span class="thumb"><img src="assets/thumbs/rsc.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"><img class="alt" data-src="assets/thumbs/rsc-2.jpg" alt="" decoding="async"></span><span class="lbl"><span class="area-tag">Business</span><strong>RSC Tool</strong><small>office app + job tracker</small></span></a>
         <a class="tile" href="legal/#winyourcase" data-hay="win your case asap litigation ai legal ai a litigator&#x27;s first read of a new complaint, done in minutes. it ranks every theory that could end the case by how early it can be filed, puts each one on the response clock, and quotes the complaint for every point it makes. run blind on 26 california federal cases decided after the model’s training cutoff, the ground that actually won made its top three in 14, and 357 of 358 quotations checked out word for word."><span class="thumb"><img src="assets/thumbs/winyourcase.jpg" alt="" width="560" height="360" loading="lazy" decoding="async"><img class="alt" data-src="assets/thumbs/winyourcase-2.jpg" alt="" decoding="async"></span><span class="lbl"><span class="area-tag">Legal software</span><strong>Win your case ASAP</strong><small>litigation AI</small></span></a>
         <a class="tile" href="research/#byzantium" data-hay="byzantium mosaic atlas reference work an illustrated encyclopedia of the eastern roman empire, 324 to 1453, built around a mosaic atlas you can drag through 1,129 years and watch the borders move."><span class="thumb"><img src="assets/thumbs/byzantium.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"><img class="alt" data-src="assets/thumbs/byzantium-2.jpg" alt="" decoding="async"></span><span class="lbl"><span class="area-tag">AI tools and research</span><strong>Byzantium</strong><small>mosaic atlas</small></span></a>
