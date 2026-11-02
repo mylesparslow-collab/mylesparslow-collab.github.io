@@ -153,6 +153,15 @@ details.case + :not(details) { margin-top: 3rem; }
 .case-body > .books { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 @media (max-width: 700px) { .case-body > .books, .books .lead { grid-template-columns: minmax(0, 1fr); } .books .lead .cover { max-width: 16rem; } }
 .intro-text .lede { max-width: 52rem; }
+/* Headshot beside the intro */
+.intro-me { grid-template-columns: minmax(0, 1fr) 13rem; column-gap: 3rem; align-items: start; }
+.intro-me > :not(.headshot) { grid-column: 1; }
+.intro-me .headshot { grid-column: 2; grid-row: 1 / span 2; width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; border-radius: var(--radius, 6px); border: 1px solid var(--rule); background: var(--surface); box-shadow: 0 10px 30px -18px rgba(0, 0, 0, 0.45); }
+@media (max-width: 700px) {
+  .intro-me { grid-template-columns: minmax(0, 1fr); }
+  .intro-me > :not(.headshot) { grid-column: 1; }
+  .intro-me .headshot { grid-column: 1; grid-row: auto; width: 7.5rem; }
+}
 /* Method */
 .rules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem 2.5rem; }
 .rules div { display: grid; gap: 0.4rem; align-content: start; }
@@ -329,7 +338,8 @@ details.case[hidden] { display: none; }
         <button type="button" class="ap-btn" id="appearance-btn">More appearance options</button>
       </fieldset>
     </div>
-    <div class="intro-text">
+    <div class="intro-text intro-me">
+      <img class="headshot" src="assets/myles-parslow.jpg" width="560" height="700" alt="Headshot of Myles Parslow, smiling, in round tortoiseshell glasses, a grey tweed blazer, white shirt and navy dotted tie, with a desert hillside behind him." decoding="async" fetchpriority="high">
       <h1>Myles Parslow makes things <em>with AI</em>.</h1>
       <p class="lede">Software for real businesses, novels and screenplays, games and reference works, and the workflows behind them. Each piece below shows what was made and which AI tools, Claude, ChatGPT, Codex, Suno and models running on my own computer, did which part.</p>
     </div>
