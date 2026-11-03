@@ -6,6 +6,8 @@
   var root = document.documentElement;
   var P = function (name, dark, bg, surface, ink, muted, accent, mark) { return { name: name, dark: dark, bg: bg, surface: surface, ink: ink, muted: muted, accent: accent, mark: mark }; };
   var PRESETS = {
+    mono: P('Mono', 0, '#ffffff', '#f4f4f4', '#111111', '#555555', '#111111', '#111111'),
+    'mono-night': P('Mono night', 1, '#111111', '#1a1a1a', '#ededed', '#a3a3a3', '#ededed', '#ededed'),
     sapphire: P('Sapphire', 0, '#f5f5f4', '#ffffff', '#111111', '#5b5b5b', '#0f52ba', '#0f52ba'),
     'sapphire-night': P('Sapphire night', 1, '#111213', '#1a1b1d', '#ededec', '#a3a3a3', '#7aa2ff', '#7aa2ff'),
     eggshell: P('Eggshell', 0, '#f2eee3', '#fbf9f3', '#15120f', '#5f4e40', '#6b3f22', '#a9822f'),
@@ -15,11 +17,10 @@
     'pine-night': P('Original night', 1, '#121a16', '#1a251f', '#e4ede8', '#9db1a6', '#6fcf9f', '#6fcf9f'),
     'sky-night': P('Sky night', 1, '#0f1b28', '#16273a', '#e3eef8', '#9bb3c8', '#ff6b7a', '#ff6b7a'),
     matrix: P('Matrix', 1, '#020a04', '#07140a', '#b7ffc8', '#6cc283', '#2cff6b', '#2cff6b'),
-    mono: P('Mono', 0, '#ffffff', '#f4f4f4', '#111111', '#555555', '#111111', '#111111'),
     neon: P('Neon', 1, '#0b0620', '#150d33', '#f1eaff', '#a999d6', '#ff3df0', '#29f0ff')
   };
-  var TWIN = { sapphire: 'sapphire-night', eggshell: 'eggshell-night', pine: 'pine-night', sky: 'sky-night' };
-  var UNTWIN = { 'sapphire-night': 'sapphire', 'eggshell-night': 'eggshell', 'pine-night': 'pine', 'sky-night': 'sky' };
+  var TWIN = { mono: 'mono-night', sapphire: 'sapphire-night', eggshell: 'eggshell-night', pine: 'pine-night', sky: 'sky-night' };
+  var UNTWIN = { 'mono-night': 'mono', 'sapphire-night': 'sapphire', 'eggshell-night': 'eggshell', 'pine-night': 'pine', 'sky-night': 'sky' };
   var FONTS = {
     editorial: ['Editorial', null, null],
     classic: ['Classic serif', 'Georgia, "Times New Roman", serif', 'Georgia, "Times New Roman", serif'],
@@ -44,7 +45,7 @@
       night: P('Swiss', 1, '#0e0e0e', '#1a1a1a', '#f2f1ec', '#a3a29d', '#ff3b2f', '#ff3b2f') }
   };
   var COLORS = [['bg', 'Background'], ['surface', 'Panels'], ['ink', 'Text'], ['muted', 'Secondary text'], ['accent', 'Links and labels'], ['mark', 'Highlight']];
-  var DEF = { style: 'classic', sdark: null, preset: 'sapphire', custom: null, font: 'editorial', size: 100, radius: 6, density: 1, backdrop: 'none', texture: 'grain' };
+  var DEF = { v: 2, style: 'classic', sdark: null, preset: 'mono', custom: null, font: 'editorial', size: 100, radius: 6, density: 1, backdrop: 'none', texture: 'grain' };
   var S;
 
   function load() {
@@ -54,10 +55,12 @@
       s = {};
       try { var o = localStorage.getItem(OLD); if (PRESETS[o]) s.preset = o; } catch (e) {}
     }
+    // Sapphire was the default until November 2026; move anyone still on it to the new Mono default once.
+    if (!s.v) { if (s.preset === 'sapphire') s.preset = 'mono'; else if (s.preset === 'sapphire-night') s.preset = 'mono-night'; }
     S = {};
     for (var k in DEF) S[k] = (s[k] !== undefined && s[k] !== null) ? s[k] : DEF[k];
-    if (!PRESETS[S.preset] && S.preset !== 'custom') S.preset = 'sapphire';
-    if (S.preset === 'custom' && !S.custom) S.preset = 'sapphire';
+    if (!PRESETS[S.preset] && S.preset !== 'custom') S.preset = 'mono';
+    if (S.preset === 'custom' && !S.custom) S.preset = 'mono';
     if (!FONTS[S.font]) S.font = 'editorial';
     S.size = Math.min(130, Math.max(85, +S.size || 100));
     S.radius = Math.min(20, Math.max(0, +S.radius));
@@ -218,7 +221,7 @@
       if (d.style) { S.style = d.style; S.sdark = null; S.font = 'editorial'; }
       else if (d.preset) { S.style = 'classic'; if (d.preset === 'custom' && !S.custom) S.custom = JSON.parse(JSON.stringify(cur())); S.preset = d.preset; }
       else if (d.mode && sty()) S.sdark = d.mode === 'dark' ? 1 : 0;
-      else if (d.mode) { var p = S.preset; if (d.mode === 'dark' && TWIN[p]) S.preset = TWIN[p]; else if (d.mode === 'light' && UNTWIN[p]) S.preset = UNTWIN[p]; else if (d.mode === 'dark' && !cur().dark) S.preset = 'sapphire-night'; else if (d.mode === 'light' && cur().dark) S.preset = 'sapphire'; }
+      else if (d.mode) { var p = S.preset; if (d.mode === 'dark' && TWIN[p]) S.preset = TWIN[p]; else if (d.mode === 'light' && UNTWIN[p]) S.preset = UNTWIN[p]; else if (d.mode === 'dark' && !cur().dark) S.preset = 'mono-night'; else if (d.mode === 'light' && cur().dark) S.preset = 'mono'; }
       else if (d.font) S.font = d.font;
       else if (d.density) S.density = +d.density;
       else if (d.backdrop) S.backdrop = d.backdrop;
