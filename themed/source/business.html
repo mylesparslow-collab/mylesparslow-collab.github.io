@@ -1,0 +1,1155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Software, sites and marketing for real businesses: a small remodeling company run with AI, a real-estate brokerage, a data-licensing deal engine and a consumer app.">
+<title>Business · Myles Parslow Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: an eggshell sheet by default, with a colour picker for two other schemes. Each section is a shelf of pieces; every piece pairs a screenshot with "what it is" and "how it was made". Brown carries links and labels; gold marks emphasis. All schemes are light by request. */
+:root {
+  color-scheme: light;
+  /* Mono (default): black, white and greys, no colour accent */
+  --bg: #ffffff;
+  --surface: #f4f4f4;
+  --rule: #d9d9d9;
+  --ink: #111111;
+  --muted: #555555;
+  --accent: #111111;
+  --mark: #111111;
+  --mark-soft: #c8c8c8;
+  --display: "Bricolage Grotesque", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+  --body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+/* Original: the first draft's pale green-grey with pine green */
+:root[data-scheme="pine"] {
+  --bg: #f4f6f4; --surface: #ffffff; --rule: #d5ddd8; --ink: #18201c; --muted: #56625b;
+  --accent: #23593f; --mark: #23593f; --mark-soft: #e2ece6;
+}
+/* Baby blue with ruby */
+:root[data-scheme="sky"] {
+  --bg: #e8f3fb; --surface: #ffffff; --rule: #c6e0f3; --ink: #192838; --muted: #4c6073;
+  --accent: #9b111e; --mark: #9b111e; --mark-soft: #f7e1e4;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 1.0625rem; line-height: 1.62; margin: 0; }
+.wrap { max-width: 72rem; margin: 0 auto; padding-inline: 1.25rem; padding-block: 3.5rem 4rem; display: grid; gap: 5rem; }
+a { color: var(--accent); text-underline-offset: 0.18em; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; line-height: 1.08; margin: 0; }
+p { margin: 0; }
+.eyebrow { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+
+/* Colour picker */
+.topbar { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.75rem 1.5rem; }
+.picker { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0; padding: 0; border: 0; }
+.picker legend { float: left; margin-right: 0.25rem; font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.swatch { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.3rem 0.7rem 0.3rem 0.35rem; border-radius: 999px; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); font-family: var(--display); font-size: 0.85rem; font-weight: 500; cursor: pointer; }
+.swatch:hover { border-color: var(--muted); }
+.swatch[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.swatch i { width: 1.15rem; height: 1.15rem; border-radius: 50%; flex: none; border: 1px solid rgba(0,0,0,0.15); }
+.swatch[data-pick="mono"] i { background: linear-gradient(135deg, #ffffff 0 45%, #111111 45% 70%, #8a8a8a 70%); }
+.swatch[data-pick="sapphire"] i { background: linear-gradient(135deg, #f5f5f4 0 45%, #111111 45% 70%, #0f52ba 70%); }
+.swatch[data-pick="eggshell"] i { background: linear-gradient(135deg, #f2eee3 0 45%, #6b3f22 45% 70%, #a9822f 70%); }
+.swatch[data-pick="pine"] i { background: linear-gradient(135deg, #f4f6f4 0 50%, #23593f 50%); }
+.swatch[data-pick="sky"] i { background: linear-gradient(135deg, #e8f3fb 0 50%, #9b111e 50%); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* Intro */
+.intro { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2rem; align-items: start; }
+.intro-text { display: grid; gap: 1.25rem; }
+.intro h1 { font-size: clamp(2.6rem, 6.4vw, 4.4rem); font-weight: 800; letter-spacing: -0.025em; }
+.intro h1 em { font-style: normal; color: var(--mark); }
+.lede { font-size: 1.22rem; max-width: 38rem; }
+
+/* Sections */
+.shelf { display: grid; gap: 2.5rem; scroll-margin-top: 1.5rem; }
+.shelf-head { display: grid; gap: 0.5rem; border-top: 2px solid var(--ink); padding-top: 1rem; }
+.shelf-head h2 { font-size: clamp(2rem, 4.2vw, 2.8rem); font-weight: 800; letter-spacing: -0.02em; }
+.shelf-head p { color: var(--muted); max-width: 44rem; }
+
+/* A piece */
+.piece { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 2rem 2.75rem; align-items: start; }
+.piece.flip > figure { order: 2; }
+.piece-text { display: grid; gap: 1rem; min-width: 0; }
+.piece h3 { font-size: 1.85rem; font-weight: 700; letter-spacing: -0.01em; }
+.tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.tag { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.04em; padding: 0.15rem 0.5rem; border-radius: 999px; background: var(--surface); border: 1px solid var(--rule); color: var(--muted); }
+.tag.hot { background: var(--mark-soft); border-color: transparent; color: var(--accent); }
+.made { border-left: 3px solid var(--mark); padding-left: 0.9rem; display: grid; gap: 0.3rem; }
+.made b { font-family: var(--mono); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+.facts { display: flex; flex-wrap: wrap; gap: 0.3rem 1.4rem; font-family: var(--mono); font-size: 0.8rem; color: var(--muted); }
+.facts strong { color: var(--ink); font-weight: 500; }
+figure { margin: 0; display: grid; gap: 0.5rem; min-width: 0; }
+figure img { display: block; width: 100%; max-width: 100%; height: auto; border-radius: var(--radius, 6px); border: 1px solid var(--rule); background: var(--surface); box-shadow: 0 10px 30px -18px rgba(40, 28, 16, 0.4); }
+figcaption { font-size: 0.85rem; color: var(--muted); }
+
+/* Writing cards (no screenshots: they are manuscripts) */
+.books { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
+.book { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius, 6px); padding: 1.5rem 1.4rem; display: grid; gap: 0.9rem; align-content: start; min-width: 0; }
+.book .kind { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+.book h3 { font-size: 1.5rem; }
+.book .logline { font-style: italic; }
+.book .note { font-size: 0.85rem; color: var(--muted); }
+
+/* Smaller items */
+.more { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem 2.5rem; }
+.more div { display: grid; gap: 0.35rem; align-content: start; border-top: 1px solid var(--rule); padding-top: 0.9rem; }
+.more h3 { font-size: 1.2rem; }
+.more p { color: var(--muted); font-size: 0.98rem; }
+
+/* Case studies */
+.tally { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin: 0; border-top: 1px solid var(--rule); padding-top: 1.25rem; }
+.tally div, .stats div { display: grid; gap: 0.2rem; align-content: start; }
+.tally dt, .stats dt { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); order: 2; }
+.tally dd, .stats dd { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(1.6rem, 3.4vw, 2.4rem); color: var(--accent); letter-spacing: -0.02em; line-height: 1.05; }
+.case { display: grid; gap: 2.5rem; scroll-margin-top: 1.5rem; }
+.case .sum { font-size: 1.15rem; color: var(--ink); max-width: 46rem; }
+.stats { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1rem; margin: 0; background: var(--mark-soft); border-radius: var(--radius, 6px); padding: 1.1rem 1.25rem; }
+.stats dd { font-size: clamp(1.1rem, 2vw, 1.5rem); color: var(--ink); }
+.cols, .shots { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem 2.5rem; align-items: start; }
+.block { display: grid; gap: 0.8rem; align-content: start; min-width: 0; }
+.block h3 { font-size: 1.35rem; }
+.block ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.55rem; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem 2rem; }
+.grid3 > div { display: grid; gap: 0.35rem; align-content: start; border-top: 1px solid var(--rule); padding-top: 0.8rem; }
+.grid3 h4 { margin: 0; font-family: var(--display); font-size: 1.05rem; }
+.grid3 p { color: var(--muted); font-size: 0.96rem; }
+.book .count { font-family: var(--mono); font-size: 0.85rem; color: var(--accent); }
+
+.gallery { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.25rem; }
+.gallery figcaption { font-size: 0.85rem; }
+.links { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; margin-top: 0.35rem; font-family: var(--mono); font-size: 0.85rem; }
+.links a { color: var(--accent); }
+.links span { color: var(--muted); }
+/* Collapsible projects */
+details.case { scroll-margin-top: 1.5rem; }
+.case-sum { list-style: none; cursor: pointer; display: block; }
+.case-sum::-webkit-details-marker { display: none; }
+.case-sum:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; border-radius: 4px; }
+.case-sum .shelf-head h2 { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+.case-sum .shelf-head h2::after { content: "+"; font-family: var(--mono); font-weight: 400; color: var(--accent); flex: none; }
+details[open] > .case-sum .shelf-head h2::after { content: "\2212"; }
+.case-sum:hover .shelf-head h2 { color: var(--accent); }
+.case-body { display: grid; gap: 2.5rem; padding-top: 2.5rem; }
+details.case:not([open]) { margin-bottom: -3rem; }
+details.case + :not(details) { margin-top: 3rem; }
+.case-sum .shelf-head { padding-bottom: 0.25rem; }
+@media print { .case-sum .shelf-head h2::after { content: none; } }
+/* Categories */
+.group { display: grid; gap: 1.25rem; scroll-margin-top: 1.5rem; }
+.group-head { display: grid; gap: 0.3rem; border-top: 6px solid var(--accent); padding-top: 0.9rem; }
+.group-head h2 { font-family: var(--display); font-size: 1.5rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.group-head p { color: var(--muted); max-width: 44rem; }
+.group details.case:not([open]) { margin-bottom: 0; }
+.group details.case + :not(details) { margin-top: 2rem; }
+.group > section.shelf { margin-top: 1.5rem; }
+.books .lead { grid-column: 1 / -1; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr); gap: 1.5rem 2rem; align-items: start; }
+.books .lead .cover { width: 100%; height: auto; border-radius: 4px; box-shadow: 0 6px 24px rgba(0,0,0,.25); }
+.books .lead .lead-text { display: grid; gap: 0.9rem; }
+.case-body > .books { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 700px) { .case-body > .books, .books .lead { grid-template-columns: minmax(0, 1fr); } .books .lead .cover { max-width: 16rem; } }
+.intro-text .lede { max-width: 52rem; }
+/* Method */
+.rules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem 2.5rem; }
+.rules div { display: grid; gap: 0.4rem; align-content: start; }
+.rules h3 { font-size: 1.15rem; }
+.rules p { color: var(--muted); font-size: 0.98rem; }
+
+footer { border-top: 1px solid var(--rule); padding-top: 1.25rem; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 2rem; font-family: var(--mono); font-size: 0.8rem; color: var(--muted); }
+
+@media (max-width: 820px) {
+  .intro, .piece, .books, .more, .rules, .cols, .shots, .grid3 { grid-template-columns: minmax(0, 1fr); }
+  .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tally, .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .piece.flip > figure { order: 0; }
+  .wrap { gap: 3.5rem; padding-block: 2.5rem 3rem; }
+}
+span.note { font-style: italic; color: var(--muted); }
+/* Vertical video reels */
+.reels { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1rem; }
+.reels.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.reels video { display: block; width: 100%; height: auto; aspect-ratio: 9 / 16; border-radius: var(--radius, 6px); border: 1px solid var(--rule); background: #000; }
+@media (max-width: 820px) { .reels { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* Numbered pipeline */
+.flow { list-style: none; margin: 0; padding: 0; counter-reset: step; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1rem; }
+.flow li { counter-increment: step; display: grid; gap: 0.35rem; align-content: start; border-top: 3px solid var(--mark); padding-top: 0.7rem; }
+.flow b { font-family: var(--display); font-size: 1.1rem; }
+.flow b::before { content: counter(step) " · "; font-family: var(--mono); font-weight: 400; color: var(--accent); }
+.flow span { color: var(--muted); font-size: 0.96rem; }
+@media (max-width: 820px) { .flow { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 820px) { #thriftyvows .shots { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* Picture index: every project as a thumbnail, grouped as in the case studies below */
+.index { display: grid; gap: 1.75rem; border-top: 2px solid var(--ink); padding-top: 1rem; scroll-margin-top: 1.5rem; }
+.finder { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 1rem; }
+.finder label { margin-right: auto; }
+.find-box { position: relative; flex: 0 1 18rem; min-width: 0; }
+.find-box input { width: 100%; font: inherit; font-family: var(--mono); font-size: 0.85rem; color: var(--ink); background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius, 6px); padding: 0.4rem 2rem 0.4rem 0.7rem; }
+.find-box input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.find-box kbd { position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); font: 0.72rem var(--mono); color: var(--muted); border: 1px solid var(--rule); border-radius: 4px; padding: 0 0.35rem; pointer-events: none; }
+.find-box input:focus + kbd, .find-box input:not(:placeholder-shown) + kbd { display: none; }
+.find-empty { color: var(--muted); font-style: italic; }
+.ix-group { display: grid; gap: 0.9rem; }
+.ix-group[hidden] { display: none; }
+.ix-head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; border-top: 4px solid var(--accent); padding-top: 0.5rem; font-family: var(--display); font-weight: 800; font-size: 1rem; letter-spacing: 0.08em; text-transform: uppercase; }
+.ix-head a { color: var(--accent); text-decoration: none; }
+.ix-head a:hover { text-decoration: underline; }
+.ix-head span { font-family: var(--mono); font-weight: 400; font-size: 0.72rem; letter-spacing: 0.06em; color: var(--muted); }
+.ix-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.25rem 1rem; }
+.tile { display: grid; gap: 0.45rem; align-content: start; min-width: 0; color: var(--ink); text-decoration: none; }
+.tile[hidden] { display: none; }
+.tile .thumb { position: relative; display: block; aspect-ratio: 16 / 10; overflow: hidden; border: 1px solid var(--rule); border-radius: min(var(--radius, 6px), 12px); background: var(--surface); }
+.tile .thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; }
+.tile .thumb img.alt { opacity: 0; }
+.tile .thumb.type { display: grid; align-content: end; gap: 0.25rem; padding: 0.8rem; background: var(--mark-soft); border-color: transparent; }
+.tile .thumb.type span { font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.tile .thumb.type b { font-family: var(--display); font-weight: 800; font-size: 1.3rem; line-height: 1.05; color: var(--accent); }
+.tile .lbl { display: grid; gap: 0.1rem; }
+.tile strong { font-family: var(--display); font-weight: 700; font-size: 1.05rem; line-height: 1.15; }
+.tile small { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); }
+.tile:hover strong, .tile:focus-visible strong { color: var(--accent); }
+.tile:focus-visible { outline: none; }
+.tile:focus-visible .thumb { outline: 2px solid var(--accent); outline-offset: 3px; }
+.ix-more { font-family: var(--mono); font-size: 0.85rem; }
+.ix-grid.ix-feature .tile.big { grid-column: span 2; }
+.ix-feature .tile.big .lbl strong { font-size: 1.35rem; }
+@media (max-width: 960px) { .ix-grid.ix-feature { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ix-grid.ix-feature .tile.big { grid-column: auto; } }
+@media (max-width: 640px) { .ix-grid.ix-feature { grid-template-columns: minmax(0, 1fr); } .ix-grid.ix-feature .tile.big { grid-column: auto; } }
+.sub-case { border-top: 1px solid var(--rule); padding-top: 1.5rem; display: grid; gap: 1.5rem; }
+.sub-case > h3 { font-family: var(--display); font-size: 1.5rem; font-weight: 800; }
+@media (prefers-reduced-motion: no-preference) {
+  .tile .thumb img { transition: transform 1.6s cubic-bezier(.2, .7, .2, 1), opacity 0.6s ease; }
+  .tile:hover .thumb img, .tile:focus-visible .thumb img { transform: scale(1.06); }
+  .tile:hover .thumb img.alt.ready, .tile:focus-visible .thumb img.alt.ready { opacity: 1; }
+}
+@media (max-width: 960px) { .ix-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .ix-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem 0.75rem; } .finder label { width: 100%; } .find-box { flex: 1 1 10rem; } }
+.tally dd, .stats dd { font-variant-numeric: tabular-nums; }
+
+/* Fleuron between groups */
+.fleuron { display: flex; align-items: center; gap: 1rem; color: var(--mark); }
+.fleuron::before, .fleuron::after { content: ""; flex: 1; height: 1px; background: currentColor; opacity: 0.5; }
+.fleuron svg { flex: none; }
+
+/* Before / after slider */
+.compare { position: relative; overflow: hidden; max-width: 100%; border: 1px solid var(--rule); border-radius: min(var(--radius, 6px), 12px); background: var(--surface); --pos: 50%; touch-action: pan-y; }
+.compare img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border: 0; border-radius: 0; box-shadow: none; }
+.compare img.after { clip-path: inset(0 0 0 var(--pos)); }
+.cmp-line { position: absolute; top: 0; bottom: 0; left: var(--pos); width: 2px; margin-left: -1px; background: var(--mark); pointer-events: none; }
+.cmp-line::after { content: "\2194"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 2.2rem; height: 2.2rem; border-radius: 50%; background: var(--mark); color: var(--bg); display: grid; place-items: center; font: 700 1.05rem var(--mono); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25); }
+.cmp-tag { position: absolute; top: 0.6rem; font: 500 0.75rem var(--mono); background: var(--ink); color: var(--bg); padding: 0.15rem 0.5rem; border-radius: 3px; pointer-events: none; }
+.cmp-tag.l { left: 0.6rem; } .cmp-tag.r { right: 0.6rem; }
+.compare input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: ew-resize; }
+.compare:focus-within { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* Reading bar and the way back to the index */
+.readbar { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 40; background: var(--mark); transform-origin: 0 50%; transform: scaleX(0); opacity: 0; pointer-events: none; }
+.readbar.on { opacity: 1; }
+.backtop { position: fixed; z-index: 40; right: max(1rem, env(safe-area-inset-right, 0px)); bottom: calc(1rem + env(safe-area-inset-bottom, 0px)); font-family: var(--mono); font-size: 0.8rem; text-decoration: none; color: var(--ink); background: var(--surface); border: 1px solid var(--rule); border-radius: 999px; padding: 0.45rem 0.9rem; box-shadow: 0 6px 20px -8px rgba(0, 0, 0, 0.35); }
+.backtop:hover { border-color: var(--accent); color: var(--accent); }
+.backtop[hidden] { display: none; }
+@media (prefers-reduced-motion: no-preference) { .readbar { transition: opacity 0.3s ease; } }
+
+/* Screenshots settle in as they scroll into view, where the browser supports scroll timelines */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .case-body figure > img, .shots figure > img, .tile .thumb { animation: settle linear both; animation-timeline: view(); animation-range: entry 0% entry 55%; }
+  }
+}
+@keyframes settle { from { opacity: 0.2; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+@media print { .finder, .find-empty, .readbar, .backtop, .fleuron, .cmp-line, .cmp-tag { display: none !important; } .compare img.after { display: none; } }
+</style>
+
+<style>
+/* Home and area pages (added with the reorganization) */
+.ix-featured { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.6rem 1.25rem; }
+.ix-featured .tile:first-child { grid-column: span 2; grid-row: span 2; }
+.ix-featured .tile:first-child .thumb { aspect-ratio: auto; flex: 1; min-height: 16rem; }
+.ix-featured .tile:first-child { display: flex; flex-direction: column; }
+.ix-featured .tile:first-child .lbl strong { font-size: 1.5rem; }
+.ix-featured .tile .area-tag { font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mark); }
+@media (max-width: 960px) { .ix-featured { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .ix-featured { grid-template-columns: minmax(0, 1fr); } .ix-featured .tile:first-child { grid-column: auto; grid-row: auto; } .ix-featured .tile:first-child .thumb { min-height: 0; aspect-ratio: 16 / 10; } }
+.ix-head a.see { font-family: var(--mono); font-weight: 500; font-size: 0.78rem; letter-spacing: 0.04em; text-transform: none; }
+.ix-head .lead { display: grid; gap: 0.15rem; }
+.ix-head .lead small { font-family: var(--body); font-weight: 400; font-size: 0.92rem; letter-spacing: 0; text-transform: none; color: var(--muted); }
+.ix-all { display: none; }
+body.searching .ix-all:not([hidden]) { display: grid; }
+body.searching .ix-browse { display: none; }
+.ix-browse { display: grid; gap: 2.25rem; }
+.ix-featured .tile:first-child .thumb img { object-position: 0 0; }
+.areas-nav { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.areas-nav a, .chip { font-family: var(--mono); font-size: 0.8rem; color: var(--ink); text-decoration: none; border: 1px solid var(--rule); background: var(--surface); border-radius: 999px; padding: 0.3rem 0.8rem; cursor: pointer; }
+.areas-nav a:hover, .chip:hover { border-color: var(--accent); color: var(--accent); }
+.areas-nav a[aria-current="page"], .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.areas-nav b { font-weight: 400; color: var(--muted); margin-left: 0.3rem; }
+.areas-nav a[aria-current="page"] b { color: inherit; opacity: 0.7; }
+.chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.crumb { font-family: var(--mono); font-size: 0.8rem; color: var(--accent); text-decoration: none; }
+.crumb:hover { text-decoration: underline; }
+.area-intro h1 { font-size: clamp(2.4rem, 6vw, 4rem); font-weight: 800; letter-spacing: -0.025em; }
+details.case[hidden] { display: none; }
+.wayfind { display: grid; gap: 0.8rem; border-top: 2px solid var(--ink); padding-top: 1rem; }
+.ai-more > summary { cursor: pointer; font-family: var(--mono); font-size: 0.85rem; color: var(--accent); list-style: none; }
+.ai-more > summary::-webkit-details-marker { display: none; }
+.ai-more > summary::before { content: "+ "; }
+.ai-more[open] > summary::before { content: "\2212 "; }
+.ai-more[open] > summary { margin-bottom: 1.5rem; }
+</style>
+<link rel="stylesheet" href="../assets/appearance.css">
+<script src="../assets/appearance.js"></script>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="intro area-intro">
+    <div class="topbar">
+      <span class="eyebrow">Portfolio · October 2026</span>
+      <fieldset class="picker" aria-label="Colour scheme">
+        <legend>Colours</legend>
+        <button type="button" class="swatch" id="pick-mono" data-pick="mono" aria-pressed="true"><i></i>Mono</button>
+        <button type="button" class="swatch" id="pick-sapphire" data-pick="sapphire" aria-pressed="false"><i></i>Sapphire</button>
+        <button type="button" class="swatch" id="pick-eggshell" data-pick="eggshell" aria-pressed="false"><i></i>Eggshell</button>
+        <button type="button" class="swatch" id="pick-pine" data-pick="pine" aria-pressed="false"><i></i>Original</button>
+        <button type="button" class="swatch" id="pick-sky" data-pick="sky" aria-pressed="false"><i></i>Sky &amp; ruby</button>
+        <button type="button" class="ap-btn" id="appearance-btn">More appearance options</button>
+      </fieldset>
+    </div>
+    <div class="intro-text">
+      <a class="crumb" href=".././">&larr; All work</a>
+      <span class="eyebrow">Business · 8 projects</span>
+      <h1>Business</h1>
+      <p class="lede">Software, sites and marketing for real businesses: a small remodeling company run with AI, a real-estate brokerage, a data-licensing deal engine and a consumer app.</p>
+    </div>
+    <nav class="index" id="index" aria-label="Projects">
+      <div class="finder">
+        <label for="find" class="eyebrow">All 8 projects here</label>
+        <span class="find-box"><input id="find" type="search" placeholder="Find in Business" autocomplete="off" aria-describedby="find-hint"><kbd id="find-hint" aria-label="Press slash to search">/</kbd></span>
+        <button type="button" class="ap-btn" id="surprise">Surprise me</button>
+      </div>
+      <div class="chips" role="group" aria-label="Filter by kind"><button type="button" class="chip" aria-pressed="true" data-chip="">All 8</button><button type="button" class="chip" aria-pressed="false" data-chip="A small business, run with AI">A small business, run with AI</button><button type="button" class="chip" aria-pressed="false" data-chip="Clients and products">Clients and products</button></div>
+      <p class="find-empty" role="status" hidden>No projects match. Try a different word.</p>
+      <div class="ix-group ix-index">
+        <div class="ix-grid">
+        <a class="tile" data-sub="A small business, run with AI" href="#rsc" data-hay="rsc tool office app + job tracker office app two tools for a small remodeling business: an operations app that runs entirely on one mac, reads the business inbox with a local ai model and never touches the books without the owner&#x27;s approval, and a phone-first job tracker that shows what each job really earns once crew hours are counted."><span class="thumb"><img src="../assets/thumbs/rsc.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"><img class="alt" data-src="../assets/thumbs/rsc-2.jpg" alt="" decoding="async"></span><span class="lbl"><strong>RSC Tool</strong><small>office app + job tracker</small></span></a>
+        <a class="tile" data-sub="A small business, run with AI" href="#rscsite" data-hay="rscrafters.com website + blog website the business&#x27;s public website, with a blog of plain-spoken repair and remodeling guides for local homeowners. it lives in the same repo as the app, and every change goes through a pull request with its own preview link. merging is what makes it live."><span class="thumb"><img src="../assets/thumbs/rscsite.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"><img class="alt" data-src="../assets/thumbs/rscsite-2.jpg" alt="" decoding="async"></span><span class="lbl"><strong>rscrafters.com</strong><small>website + blog</small></span></a>
+        <a class="tile" data-sub="A small business, run with AI" href="#rscads" data-hay="ad studio six animation styles animation short vertical video ads for the business in six animation styles, from real blender claymation to ads drawn entirely in text characters. one brand file drives every end card, so a new phone number means re-rendering only the end card, not every video."><span class="thumb"><img src="../assets/thumbs/rscads.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"><img class="alt" data-src="../assets/thumbs/rscads-2.jpg" alt="" decoding="async"></span><span class="lbl"><strong>Ad studio</strong><small>six animation styles</small></span></a>
+        <a class="tile" data-sub="A small business, run with AI" href="#rsctiktok" data-hay="tiktok on autopilot scheduled posting automation finished ads post themselves to the business&#x27;s tiktok on a schedule. nobody uploads a video by hand, the business site never hosts them, and a weekly task keeps the queue full until every ad has gone out."><span class="thumb type"><span>Automation</span><b>TikTok on autopilot</b></span><span class="lbl"><strong>TikTok on autopilot</strong><small>scheduled posting</small></span></a>
+        <a class="tile" data-sub="Clients and products" href="#fieldwork" data-hay="fieldwork deal engine operations software an evidence-first mac app for data-licensing deal scouts. it researches established businesses from public sources, checks them against buyer requirements, prepares outreach for human approval, collects owner consent and keeps a commission ledger. it prepares research and drafts, and a person makes every outreach, consent and introduction decision."><span class="thumb"><img src="../assets/thumbs/fieldwork.jpg" alt="" width="560" height="360" loading="lazy" decoding="async"><img class="alt" data-src="../assets/thumbs/fieldwork-2.jpg" alt="" decoding="async"></span><span class="lbl"><strong>Fieldwork</strong><small>deal engine</small></span></a>
+        <a class="tile" data-sub="Clients and products" href="#money" data-hay="money desk local ai workbench local ai "><span class="thumb type"><span>Local AI</span><b>Money Desk</b></span><span class="lbl"><strong>Money Desk</strong><small>local AI workbench</small></span></a>
+        <a class="tile" data-sub="Clients and products" href="#northfield" data-hay="northfield realty brokerage site ai tools real estate website team hub lead responder review engine listing launch kit virtual staging video ads social engine market reports blog seo calculators a full website and ten working ai tools for an independent boutique brokerage."><span class="thumb"><img src="../assets/thumbs/northfield.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"><img class="alt" data-src="../assets/thumbs/northfield-2.jpg" alt="" decoding="async"></span><span class="lbl"><strong>Northfield Realty</strong><small>brokerage site + 10 AI tools</small></span></a>
+        <a class="tile" data-sub="Clients and products" href="#thriftyvows" data-hay="thrifty vows wedding budget app iphone and mac app a budget-first wedding planner for iphone and mac that plans the whole day around one number: what the couple can actually afford. it went from product plan to a working app, then through a full visual redesign, &quot;blush &amp; petal&quot;, with a custom icon, dark mode and a native mac build."><span class="thumb"><img src="../assets/thumbs/thriftyvows.jpg" alt="" width="560" height="982" loading="lazy" decoding="async"><img class="alt" data-src="../assets/thumbs/thriftyvows-2.jpg" alt="" decoding="async"></span><span class="lbl"><strong>Thrifty Vows</strong><small>wedding budget app</small></span></a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+<section class="group" id="g-rsc">
+    <div class="group-head">
+      <h2>A small business, run with AI</h2>
+      <p>A small design-build remodeling business. AI runs the paperwork and the marketing: the office app, the public website, the ads and the posting schedule.</p>
+    </div>
+  <!-- RSC -->
+  <details class="case" id="rsc" data-sub="A small business, run with AI">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 02 · Office app</span>
+      <h2>RSC Tool</h2>
+      <p class="sum">Two tools for a small remodeling business: an operations app that runs entirely on one Mac, reads the business inbox with a local AI model and never touches the books without the owner's approval, and a phone-first job tracker that shows what each job really earns once crew hours are counted.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="../demos/rsc-tool/index.html">Click through the demo</a><span>The demo is the real app's pages filled with made-up jobs; saving and AI are switched off.</span></p>
+
+
+    <div class="cols">
+      <section class="block">
+        <h3>The problem</h3>
+        <p>Jobs, phased payments and expenses lived in a spreadsheet. Receipts, client payments and new leads arrived by email. Estimates, contracts and change orders were written by hand, and nobody could say what a job had cost in labor until it was over.</p>
+        <p>The constraints shaped everything. The owner is not a programmer, client data had to stay on his computer, and nothing could reach the books or a client without his say.</p>
+      </section>
+      <figure>
+        <img src="../assets/room.jpg" alt="Room Modeler with typed measurements for a porch and mudroom on the left and a dimensioned floor plan with doors and windows on the right." width="1280" height="800" loading="lazy">
+        <figcaption>The Room Modeler parses feet and inches as typed ("14'6&quot;", "174", "6 1/2"), validates every opening, and draws a dimensioned plan and a 3D view. Sample rooms.</figcaption>
+      </figure>
+    </div>
+
+    <div class="shots">
+      <figure>
+        <img src="../assets/rsc-home.jpg" alt="RSC Tool home page with five navigation groups and a Needs your attention list: finish setup, 3 to review, 2 late invoices, and estimates to write." width="1280" height="800" loading="lazy">
+        <figcaption>Home lists only what needs doing next, across the five groups that replaced 14 tabs.</figcaption>
+      </figure>
+      <figure>
+        <img src="../assets/rsc-review.jpg" alt="To review page: a Home Depot receipt read from email, matched to job 1002-CHE because the job number is in the email, with editable fields and an Add expense button, followed by a new lead card." width="1280" height="800" loading="lazy">
+        <figcaption>The inbox, read by the local model. Each card says why it matched a job, and nothing is added until the owner presses the green button.</figcaption>
+      </figure>
+    </div>
+
+    <section class="block">
+      <h3>What it does</h3>
+      <div class="grid3">
+        <div><h4>Inbox to books</h4><p>Every 30 minutes a local model reads the inbox read-only and returns a fixed JSON shape at temperature 0. Plain code then matches each receipt, payment or lead to a job: a job ID in the email first, then a unique street address, then a unique client surname. If two jobs fit, it asks.</p></div>
+        <div><h4>Labor cost per job</h4><p>Labor per crew-hour is computed from the estimate's own crew and duration lines, with part-timers counted as half. It warns below the floor rate, compares spend with the estimate's budget, and switches to logged hours once they pass the guess.</p></div>
+        <div><h4>Money that adds up</h4><p>Job IDs, payment IDs and change-order IDs follow one scheme and double as invoice numbers. Payment schedules are generated by rule and tested to the cent. A change order signed with a finger on a phone updates the contract and schedule together.</p></div>
+        <div><h4>Hands-free input</h4><p>Any big text box takes speech through a local Whisper model of about 150 MB. Receipt photos and insurance certificates are read by a local vision model, with the job picked by the same rules as email.</p></div>
+        <div><h4>Runs itself</h4><p>A double-click installer needs no admin password, sizes the models to the Mac's memory, and sets up five background jobs: the app, the mail check, a Monday report, a 6 AM crew sheet and the model server. Daily backups keep 30 copies, and a doctor command checks everything.</p></div>
+        <div><h4>Built from research</h4><p>A market study of the local remodeling trade set the pricing checks: industry margins imply a 43% materials markup rather than 20%, and the crew-hour floor comes from local wage and billing data.</p></div>
+      </div>
+    </section>
+
+    <div class="shots">
+      <figure>
+        <img src="../assets/rsc-payments.jpg" alt="Payment schedule for job 1001-ALV with four payment IDs that double as QuickBooks invoice numbers, each marked Paid, Invoiced or Not yet." width="1280" height="800" loading="lazy">
+        <figcaption>A payment schedule. Each payment ID is also the QuickBooks invoice number, and the page confirms the schedule adds up to the contract.</figcaption>
+      </figure>
+      <figure>
+        <img src="../assets/rsc-owed.jpg" alt="Money owed page showing $9,980 waiting in the 14 to 29 day bucket, with a Write a reminder button for each invoice." width="1280" height="800" loading="lazy">
+        <figcaption>Money owed, grouped by age. Reminders are drafted for the owner to send himself.</figcaption>
+      </figure>
+    </div>
+
+    <div class="cols">
+      <figure>
+        <img src="../assets/rsc-job-tracker.jpg" alt="A job page for a made-up kitchen job: a five-stage tracker with the fourth stage, Do the work, get paid, highlighted, a Next box saying it is waiting on payment 1001-ALV-3, and totals for contract, paid, still owed, expenses and profit so far." width="1280" height="800" loading="lazy">
+        <figcaption>Every job shows its stage and the one next step, and the Next task button jumps to whatever needs doing. Made-up job from the demo.</figcaption>
+      </figure>
+      <section class="block">
+        <h3>Since the first version</h3>
+        <ul>
+          <li><strong>Never lost.</strong> A five-stage tracker on every job, a glowing next step, and a Next task button.</li>
+          <li><strong>One-click Send.</strong> The estimate goes to the client as a PDF from the owner's own Gmail, only when he presses Send.</li>
+          <li><strong>Every attachment read.</strong> Each PDF or photo in an email becomes its own item to review.</li>
+          <li><strong>A downloadable Mac app</strong>, built and released automatically when the version changes.</li>
+        </ul>
+        <p>In review now: a pricing check before an estimate goes out, a rough range and site-visit questions from a lead's photos, Google review requests, a weekly scorecard of leads and wins, and instant follow-up for website leads.</p>
+      </section>
+    </div>
+
+    <div class="cols">
+      <section class="block">
+        <h3>Decisions behind it</h3>
+        <ul>
+          <li><strong>The model drafts, code decides.</strong> Prices, totals, dates, IDs and job matching are computed in code. If a model's draft drops a required fact, the app falls back to a plain template.</li>
+          <li><strong>Fewer fields.</strong> A sentence like "Home Depot 109.91 studs for Smith" fills in an expense. Every page keeps a by-hand form for when the model is off.</li>
+          <li><strong>Nothing sent for him.</strong> Emails open in his mail app to read and send. Reminders never mention fees or lawyers.</li>
+          <li><strong>Readable by design.</strong> The redesign cut 14 tabs to 5 groups, set text at 18px with nothing under 15px, and made every control at least 48px tall.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>Where it goes next</h3>
+        <p>A productizing plan finds about 70% of the app is generic, with the owner-specific parts being configuration rather than architecture. The plan is to treat this business as customer number one, then offer done-for-you setups to three to five local remodelers, with a pilot kit and sales sheet ready.</p>
+      </section>
+    </div>
+
+    <section class="block">
+      <h3>Part two: the crew job tracker</h3>
+      <p>The second tool answers one question the owner's spreadsheet could not: after materials, subcontractors and crew time, how much does a job actually leave? Hours were invisible, so every job looked more profitable than it was. The tracker puts crew time on the books as money.</p>
+      <div class="grid3">
+        <div><h4>Two buttons, every day</h4><p>Today opens with <em>Log hours</em> and <em>Log a cost</em>, because that two-minute habit is what the whole system depends on. Everything else sits below it: what needs a decision, the week's schedule and the job board.</p></div>
+        <div><h4>Money left, live</h4><p>Set the crew's cost per hour once, and every job shows contract minus materials and subcontractors minus labor. Setup leads with the pricing floor: overhead per hour, break-even and the minimum billable rate.</p></div>
+        <div><h4>Six screens, built for a phone</h4><p>Today, Jobs, a job (work, money and history tabs), Money across all jobs, Archive and Setup, with a bottom tab bar on phones. The first version had no navigation at all below 680px, so a crew member on a phone could not get around.</p></div>
+        <div><h4>Change orders and invoices</h4><p>A change order does not move the contract until the customer approves it, and an approved one can be voided, which reverses it out of the total. Invoices flag when they are past due, and a queue lists costs with no receipt.</p></div>
+        <div><h4>Nothing is ever lost</h4><p>Every removal is reversible and goes to an archive that shows who removed it and why. Deleting a job hides it as a unit and restoring brings back everything attached. Settled records, such as a paid invoice, refuse to delete without an explicit acknowledgement.</p></div>
+        <div><h4>Built for four people</h4><p>The owner plus up to four crew. The first version had six roles with server-side rules, which was too much for a team that size, so the lightweight version trims permissions to roughly viewer, editor and owner.</p></div>
+      </div>
+    </section>
+
+    <div class="cols">
+      <section class="block">
+        <h3>Two versions, on purpose</h3>
+        <ul>
+          <li><strong>A full web app.</strong> About 6,300 lines across 24 files, with a database, six roles and backups with checksums. Roughly half was inherited from the ChatGPT and Codex first draft; the lifecycle system, query layer, all six screens and the design system are the Claude Code rewrite. It runs on the owner's computer.</li>
+          <li><strong>A shareable version on Claude's artifact pages.</strong> Built to be shared with a link. It stores data in the page's shared store and falls back to the phone's own storage if sharing is not available.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>What testing caught</h3>
+        <ul>
+          <li><strong>A migration that would have hidden every job.</strong> The generated database migration filled a status column with the literal text of its own name, so no job matched "active" and all of them vanished from every screen. It was reproduced against a rebuilt copy of the live database and patched by hand.</li>
+          <li><strong>No mobile viewport tag.</strong> The artifact laid out at desktop width and shrank to unreadable on a real phone. It looked fine on a laptop.</li>
+          <li><strong>Two people logging at once.</strong> Each person writes only their own document per job, so two crew members cannot overwrite each other. A second phone's entry updated the first live in testing.</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>Both tools were built with AI. The Mac operations app was built in Claude Code from the owner's real estimates, contract terms and tracker. Claude wrote the code and tests within rules I set. The repo also carries a guide written for the next Claude session on the owner's Mac. It sets out how to explain changes in plain words, back up before any change, keep database migrations additive, test on a copy, and never edit contract text without review.</p></div>
+    </div>
+  </details>
+
+  <!-- RSC WEBSITE -->
+  <details class="case" id="rscsite" data-sub="A small business, run with AI">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 27 · Website</span>
+      <h2>rscrafters.com</h2>
+      <p class="sum">The business's public website, with a blog of plain-spoken repair and remodeling guides for local homeowners. It lives in the same repo as the app, and every change goes through a pull request with its own preview link. Merging is what makes it live.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="https://rscrafters.com">Visit rscrafters.com</a><a href="https://rscrafters.com/blog/">Read the blog</a></p>
+
+    <div class="shots">
+      <figure>
+        <img src="../assets/rsc-site-home.jpg" alt="The rscrafters.com home page: the headline Know the price of every phase before we start, a Get a quote button, and a large photo of a finished rear deck." width="1280" height="800" loading="lazy">
+        <figcaption>The home page leads with how the business works: it looks first, then prices each phase in writing.</figcaption>
+      </figure>
+      <figure>
+        <img src="../assets/rsc-site-blog.jpg" alt="The rscrafters.com blog index with guides grouped by topic." width="1280" height="800" loading="lazy">
+        <figcaption>The blog answers the questions people search for locally, from when a deck needs replacing to whether a job needs a permit.</figcaption>
+      </figure>
+    </div>
+
+    <section class="block">
+      <h3>What's on it</h3>
+      <div class="grid3">
+        <div><h4>Pages for the work that pays</h4><p>Service pages for kitchens, bathrooms, decks and stairs, restoration and built-ins, and outdoor work, ordered by the jobs the business most wants. Town pages for the surrounding area help it show up in local search.</p></div>
+        <div><h4>A blog written to a brief</h4><p>Each post comes from a keyword plan and a writing brief: plain words, the builder's voice, local detail. The brief bans prices, license and insurance claims, invented testimonials and any claim of past work the business hasn't done.</p></div>
+        <div><h4>Safe at Home</h4><p>A page for aging-in-place work, built from research into local demand and funding programs. It invites a home safety visit and is careful not to claim experience the business doesn't have yet.</p></div>
+        <div><h4>A quote form that feeds the app</h4><p>The quote form asks for as little as possible. I'm wiring it into the office app, where each request becomes a new lead card waiting for the owner's OK.</p></div>
+        <div><h4>Checks that block bad pages</h4><p>The build fails on broken links and on banned wording, so a post that slips in a price or an unconfirmed claim can't go live.</p></div>
+        <div><h4>Found by search engines</h4><p>A sitemap and robots file are built with every page, and the site is verified in Google Search Console and Bing Webmaster Tools.</p></div>
+      </div>
+    </section>
+
+    <div class="cols">
+      <section class="block">
+        <h3>How it goes live</h3>
+        <ul>
+          <li><strong>One source.</strong> The site's only source is a folder in the app's repo. Nothing gets dragged, dropped or uploaded by hand.</li>
+          <li><strong>Previews on every change.</strong> A GitHub Action builds and checks each pull request and posts a preview link, so the owner can see a change before it's live.</li>
+          <li><strong>Merge to publish.</strong> On merge, the Action uploads the build to Cloudflare Pages and then checks that the live domain is serving it.</li>
+          <li><strong>Public means public.</strong> Draft notes and placeholders stay out of the live pages. Open questions are kept in the project's notes instead.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>Built for the owner to change</h3>
+        <p>The site folder has its own guide for the next AI session on the owner's computer: explain changes in plain words, edit on a branch, run the build, share the preview, and never publish any other way. That lets the owner ask for a change in a sentence without learning Git.</p>
+      </section>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>Built with Claude, first as a draft site I could share and review, then moved into the repo with Claude Code once the domain was live. Claude wrote the pages, the posts (from my brief and the business's real projects), the build and check scripts, and the deploy Action.</p></div>
+    </div>
+  </details>
+
+  <!-- RSC AD STUDIO -->
+  <details class="case" id="rscads" data-sub="A small business, run with AI">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 28 · Animation</span>
+      <h2>Ad studio</h2>
+      <p class="sum">Short vertical video ads for the business in six animation styles, from real Blender claymation to ads drawn entirely in text characters. One brand file drives every end card, so a new phone number means re-rendering only the end card, not every video.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="#clay-reel">Watch the clay ads</a><a href="../demos/rsc-ads/ascii.html">ASCII demo</a><a href="../demos/rsc-ads/dollhouse.html">Dollhouse demo</a><a href="../demos/rsc-ads/blueprint.html">Blueprint demo</a><a href="../demos/rsc-ads/paper-cut.html">Paper-cut demo</a></p>
+
+    <section class="block" id="clay-reel">
+      <h3>The claymation ads</h3>
+      <p>Each one has a different animal homeowner and the same beaver builder. They're the business's main TikTok style.</p>
+      <div class="reels">
+        <figure><video src="../assets/video/clay-kitchen-island.mp4" poster="../assets/video/clay-kitchen-island.jpg" controls playsinline preload="none" width="720" height="1280"></video><figcaption>Kitchen island</figcaption></figure>
+        <figure><video src="../assets/video/clay-bath-shower.mp4" poster="../assets/video/clay-bath-shower.jpg" controls playsinline preload="none" width="720" height="1280"></video><figcaption>Walk-in shower</figcaption></figure>
+        <figure><video src="../assets/video/clay-sunroom.mp4" poster="../assets/video/clay-sunroom.jpg" controls playsinline preload="none" width="720" height="1280"></video><figcaption>Sunroom</figcaption></figure>
+        <figure><video src="../assets/video/clay-bookshelves.mp4" poster="../assets/video/clay-bookshelves.jpg" controls playsinline preload="none" width="720" height="1280"></video><figcaption>Built-in bookshelves</figcaption></figure>
+        <figure><video src="../assets/video/clay-squeaky-stair.mp4" poster="../assets/video/clay-squeaky-stair.jpg" controls playsinline preload="none" width="720" height="1280"></video><figcaption>Repair tip: squeaky stair</figcaption></figure>
+        <figure><video src="../assets/video/clay-grab-bars.mp4" poster="../assets/video/clay-grab-bars.jpg" controls playsinline preload="none" width="720" height="1280"></video><figcaption>Safe at Home: grab bars</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="block">
+      <h3>Six styles</h3>
+      <div class="grid3">
+        <div><h4>Claymation</h4><p>Real 3D clay in Blender, rendered on cloud CPUs. Plasticine materials carry fingerprint and smudge texture and a slight frame-to-frame "boil", and the animation runs on twos like stop motion. Long renders are split by frame range across several AI sessions working in parallel, then joined.</p></div>
+        <div><h4>ASCII</h4><p>Every frame is drawn live in the browser from text characters wrapped around a 3D model of a real job from the website. Words are set as large characters so they read on a phone.</p></div>
+        <div><h4>Dollhouse</h4><p>A tilt-shift, cut-away room in three.js that builds itself phase by phase, with each phase ticking over to "Done · Paid". It sells the business's pay-as-each-phase-is-done terms without saying a price.</p></div>
+        <div><h4>Blueprint</h4><p>A floor plan draws itself on blueprint paper, then rises into a 3D model with real dimensions.</p></div>
+        <div><h4>Paper-cut</h4><p>Layered paper shapes with hand-cut edges, soft shadows and parallax, built in Remotion.</p></div>
+        <div><h4>Animal explainers</h4><p>Quick repair tips with a grandma rabbit and a beaver builder in Remotion. The characters share one skeleton rig with swappable skins, and a new video is a short JSON spec: the engine adds the timing, sound cues and checks for things like headlines that leave the screen too fast.</p></div>
+      </div>
+    </section>
+
+    <div class="gallery">
+      <figure><a href="../demos/rsc-ads/ascii.html"><img src="../assets/rsc-ad-ascii.jpg" alt="An ASCII ad player: a garden bridge over a pond drawn in coloured text characters, with the headline We built a bridge over it." width="1280" height="800" loading="lazy"></a><figcaption>ASCII: eight jobs from the website, playable in the page.</figcaption></figure>
+      <figure><a href="../demos/rsc-ads/dollhouse.html"><img src="../assets/rsc-ad-dollhouse.jpg" alt="An isometric dollhouse kitchen with a brick chimney and green cabinets; a list below marks the first two phases Done and Paid and the third Building." width="720" height="462" loading="lazy"></a><figcaption>Dollhouse: each phase lights up as it's paid.</figcaption></figure>
+      <figure><a href="../demos/rsc-ads/blueprint.html"><img src="../assets/rsc-ad-blueprint.jpg" alt="A blueprint-style ad: a deck plan drawn in white lines on blue, rising into a 3D frame." width="720" height="462" loading="lazy"></a><figcaption>Blueprint: the plan becomes the build.</figcaption></figure>
+      <figure><a href="../demos/rsc-ads/paper-cut.html"><img src="../assets/rsc-ad-papercut.jpg" alt="Four frames of a paper-cut ad about a soft deck board: the problem, a screwdriver test for rot, the fix, and the contact card." width="720" height="318" loading="lazy"></a><figcaption>Paper-cut: a repair tip in four beats.</figcaption></figure>
+    </div>
+
+    <div class="cols">
+      <section class="block">
+        <h3>Rules that keep it cheap and safe</h3>
+        <ul>
+          <li><strong>Preview before render.</strong> Every new ad starts as an HTML preview or storyboard. Nothing is rendered until it is approved, which saves hours of wasted renders.</li>
+          <li><strong>Modular end cards.</strong> Business name, phone, web address and tagline live in one brand file. The end card is its own segment, rendered separately and joined to the body, so a contact change re-renders only the card.</li>
+          <li><strong>Real sound, never synthesized.</strong> Effects are free-licence recordings, mixed to one loudness so music fits on top.</li>
+          <li><strong>Honest copy.</strong> No prices, no claims of jobs the business hasn't done, and no phone number in captions, where scrapers collect them.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>One place to review them</h3>
+        <p>Every ad set, in every style, sits in one private library page with its status: preview, rendered, scheduled or posted. That's where new sets are reviewed and pick what goes out next.</p>
+      </section>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>Built with Claude Code from my art direction and feedback. Claude wrote the Blender scene scripts and clay material kit, the three.js and canvas animations, the Remotion projects, the sound mixing and the end-card tools. I chose the styles, rejected what didn't work (the first explainers were "way too fast"), and set the rules above.</p></div>
+    </div>
+  </details>
+
+  <!-- RSC TIKTOK -->
+  <details class="case" id="rsctiktok" data-sub="A small business, run with AI">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 29 · Automation</span>
+      <h2>TikTok on autopilot</h2>
+      <p class="sum">Finished ads post themselves to the business's TikTok on a schedule. Nobody uploads a video by hand, the business site never hosts them, and a weekly task keeps the queue full until every ad has gone out.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="https://www.tiktok.com/@rscrafters">@rscrafters on TikTok</a><a href="https://github.com/mylesparslow-collab/rsc-social-videos">The public video host</a></p>
+
+    <section class="block">
+      <h3>How a video gets posted</h3>
+      <ol class="flow">
+        <li><b>Render</b><span>An approved ad is rendered with its end card and gets a caption from a captions file, with local hashtags and no phone number.</span></li>
+        <li><b>Host</b><span>The MP4 is pushed to a public GitHub repo made only for videos, so it has a stable public address.</span></li>
+        <li><b>Queue</b><span>Claude schedules the post through Buffer's connector at set times in New York time, with TikTok's AI-generated label turned on.</span></li>
+        <li><b>Refill</b><span>Every Friday afternoon a scheduled task queues the next week's posts and records each one, so nothing posts twice.</span></li>
+        <li><b>Publish</b><span>At post time Buffer fetches the video from the host and publishes it to @rscrafters.</span></li>
+      </ol>
+    </section>
+
+    <div class="cols">
+      <section class="block">
+        <h3>Decisions behind it</h3>
+        <ul>
+          <li><strong>Buffer, not TikTok's own API.</strong> TikTok only lets unaudited apps post privately, so a free Buffer plan does the public posting instead. Its free tier caps the queue at ten posts, which is why the weekly refill exists.</li>
+          <li><strong>A repo as the video host.</strong> Buffer copies a video only when it posts, so the file has to stay up until then. A public repo is free, simple to push to from anywhere, and keeps the videos off the business's own website.</li>
+          <li><strong>Launch, then a steady pace.</strong> The clay ads launched with a three-a-day burst over three days, then settled at about five a week.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>What stays human</h3>
+        <p>Following, commenting and replying are done by hand. TikTok quietly undoes automated follows, and real replies from the business matter more than volume. Profile changes behind TikTok's bot check also need a person to press Save.</p>
+      </section>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>Built with Claude, using Buffer's MCP connector to schedule posts and a Claude scheduled task for the weekly refill. Claude also set up the TikTok profile and wrote the captions and the growth plan.</p></div>
+    </div>
+  </details>
+
+  <section class="shelf">
+    <div class="shelf-head">
+      <span class="eyebrow">Also for the business</span>
+      <h2>Smaller pieces</h2>
+    </div>
+    <div class="more">
+      <div><h3>Email routing and lead alerts</h3><p>Addresses on the business domain that forward to the owner's inbox, plus a Cloudflare Email Worker that sends me a short summary whenever a new lead writes in. Built and waiting to go live.</p></div>
+      <div><h3>Business in a box</h3><p>A running playbook of every workflow done for this business, from the website to the ads, each with what it took and what could be automated. It's the spec for offering the same setup to other small contractors.</p></div>
+      <div><h3>Market and pricing research</h3><p>A study of the local remodeling market that set the app's pricing checks and pointed the marketing at the job sizes worth chasing.</p></div>
+      <div><h3>Aging-in-place research</h3><p>A report on local demand, funding programs, competitors and training for home-safety work, with a plan for starting from no experience.</p></div>
+    </div>
+  </section>
+  </section>
+<section class="group" id="g-commercial">
+    <div class="group-head">
+      <h2>Commercial</h2>
+      <p>Tools for running and finding paid work.</p>
+    </div>
+  <!-- FIELDWORK -->
+  <details class="case" id="fieldwork" data-sub="Clients and products">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 08 · Operations software</span>
+      <h2>Fieldwork</h2>
+      <p class="sum">An evidence-first Mac app for data-licensing deal scouts. It researches established businesses from public sources, checks them against buyer requirements, prepares outreach for human approval, collects owner consent and keeps a commission ledger. It prepares research and drafts, and a person makes every outreach, consent and introduction decision.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><span>Screenshots below, from the app's built-in demo</span></p>
+
+
+    <figure class="wide">
+      <img src="../assets/fieldwork2-opportunities.jpg" alt="The Fieldwork opportunities screen: four counters for ready for introduction review, in your shortlist, outreach prepared and waiting for an owner, a research mission panel tied to one buyer, and an activity log." width="1400" height="900" loading="lazy">
+      <figcaption>The opportunity queue. A research mission is tied to one buyer's recorded requirements and fills a shortlist of up to 12 companies. "Ready for introduction review" is the only column that counts as a real opportunity.</figcaption>
+    </figure>
+
+    <div class="cols">
+      <section class="block">
+        <h3>The problem</h3>
+        <p>AI labs and data brokers pay referral fees for introductions to established businesses that hold years of operating records. A business listing is only the start: someone still has to establish which records exist, who controls them, whether a buyer wants them, whether the owner wants an introduction, and how referral credit is recorded. Treating a company score as a qualified deal hides the work that matters. Fieldwork aims to deliver a small queue of opportunities, each with its sources and an explicit list of what still blocks an introduction.</p>
+      </section>
+      <section class="block">
+        <h3>What it does today</h3>
+        <ul>
+          <li><strong>Research:</strong> a background job queue reads each company's public pages and records every claim with its source and a confidence label. A discovery queue proposes new businesses from public directories for review, flagging likely duplicates.</li>
+          <li><strong>Buyer requirements:</strong> each buyer program's criteria and the referral agreement are recorded separately, with review dates, so expired terms stop counting.</li>
+          <li><strong>Prospect briefs:</strong> what is known, what still needs proof, likely record categories, and a fit hypothesis for each buyer naming the missing facts.</li>
+          <li><strong>Outreach preparation:</strong> drafts for sourced contacts, approved by a person before any campaign can send.</li>
+          <li><strong>Owner intake, deals and commissions:</strong> a single-use owner questionnaire with buyer-specific consent, a deal register, and an append-only ledger of invoices and payments.</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="shots">
+      <figure>
+        <img src="../assets/fieldwork2-brief.jpg" alt="A prospect brief for a fictional engineering firm: stored facts marked unverified or unknown, an evidence trail, possible record categories, a best next question, and buyer hypotheses listing missing facts." width="1400" height="1360" loading="lazy">
+        <figcaption>A prospect brief. Stored facts stay "unverified" until linked to evidence, and each buyer fit is a hypothesis that names exactly what is missing.</figcaption>
+      </figure>
+      <figure>
+        <img src="../assets/fieldwork2-buyers.jpg" alt="Buyer requirements: three buyer programs, each with its recorded requirements and referral agreement shown as unconfirmed." width="1400" height="900" loading="lazy">
+        <figcaption>Buyer requirements. Each program's terms and referral agreement are tracked apart, and nothing is treated as confirmed until the operator verifies it.</figcaption>
+      </figure>
+    </div>
+
+    <section class="block">
+      <h3>Accountable automation</h3>
+      <div class="grid3">
+        <div><h4>Readiness is recomputed, never stored</h4><p>An opportunity is "ready for introduction review" only while every check passes: current buyer terms and mandate, verified facts, minimum size and record history, owner consent for that buyer, no suppression, and no competing introduction. Change any of them and it drops back with the reason listed.</p></div>
+        <div><h4>Reviews bound to a fingerprint</h4><p>The final human review signs a hash of the company record, the buyer's requirements, the owner's answers and the fact reviews. If any of those changes afterwards, the review no longer counts and the packet has to be looked at again.</p></div>
+        <div><h4>Approval of exact messages</h4><p>Campaign approval is bound to the exact text and recipients and expires. Sending also needs mail credentials, a separate delivery switch, daily limits and an unsuppressed contact. A send that crashes midway becomes "needs reconciliation" rather than being retried, so it can't double-send.</p></div>
+        <div><h4>Durable background work</h4><p>Research jobs live in the database with retries and backoff, and permanent failures are blocked with the reason shown. Daily usage limits cap research and paid search, which starts off.</p></div>
+        <div><h4>A careful crawler</h4><p>It obeys robots.txt, resolves each hostname first and refuses private or local network addresses. An optional local model may read page text, but its output is stored as a research hypothesis, never as a fact.</p></div>
+        <div><h4>Money that adds up</h4><p>The commission ledger only adds entries, and each one has a unique request key so a retried click can't double-count. Expected revenue shows as "Unknown" rather than a guess.</p></div>
+      </div>
+    </section>
+
+    <div class="shots">
+      <figure>
+        <img src="../assets/fieldwork2-desk.jpg" alt="The pilot desk: a readiness checklist covering buyer agreement and mandate, a ten-company pilot, sender identity, mail authentication, an external intake address and outbound safety gates." width="1400" height="900" loading="lazy">
+        <figcaption>The pilot desk: the readiness checklist for a controlled pilot. Nothing on this screen sends email or submits a referral.</figcaption>
+      </figure>
+    </div>
+
+    <div class="cols">
+      <section class="block">
+        <h3>In use on my Mac</h3>
+        <p>Fieldwork runs on my own Mac with research switched on. Its workspace holds 92 company research records, 109 contact records, 109 prepared outreach drafts and 361 sourced evidence rows, with a buyer referral agreement confirmed and on file.</p>
+      </section>
+      <section class="block">
+        <h3>Built as a desktop product</h3>
+        <ul>
+          <li><strong>Native Mac app:</strong> a Swift, AppKit and WebKit window around a bundled Python runtime, so it needs no Python install. Apple Silicon, macOS 14 or later, signed locally but not notarized by Apple.</li>
+          <li><strong>Data kept separate:</strong> the workspace lives outside the app, with automatic backups, and a one-time migration moved the original database across with its records intact.</li>
+          <li><strong>Standard-library Python and SQLite</strong> with a plain HTML, CSS and JavaScript interface. Customer builds ship without any data, and a read-only fictional demo can be explored safely.</li>
+          <li><strong>Tests:</strong> 89 backend and workflow tests and 3 desktop tests (startup without system Python, migration that preserves records, rejection of a corrupt database).</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>Built with ChatGPT and Codex, from my product direction, workflow design and testing. An optional local model, run through Ollama, can read public page text and suggest what a business does; the app labels that output an unverified hypothesis.</p></div>
+    </div>
+  </details>
+
+  <!-- MONEY DESK -->
+  <details class="case" id="money" data-sub="Clients and products">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Sister app · Local AI</span>
+      <h2>Money Desk</h2>
+      <p>A workbench for finding and doing paid work with local models, from scoring ideas to hunting gigs and bids and drafting the replies.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><span>Runs locally on a Mac</span></p>
+    <dl class="stats">
+      <div><dt>Lines of code</dt><dd>9,800</dd></div>
+      <div><dt>Studio tools</dt><dd>11</dd></div>
+      <div><dt>Sales pipelines</dt><dd>5</dd></div>
+      <div><dt>Assist stages</dt><dd>5</dd></div>
+      <div><dt>Coach characters</dt><dd>29</dd></div>
+      <div><dt>Starter prompts</dt><dd>48</dd></div>
+    </dl>
+    <div class="more">
+      <div><h3>Research and ideas</h3><p>Ideas scored on demand, competition, effort and speed, with a skeptical-investor critique. Research briefs from web search mark which facts came from sources and which are guesses.</p></div>
+      <div><h3>Gig Hunter and RFP Hunter</h3><p>Every few hours it reads public job boards, scores what's left against ten skills and drafts replies. A separate tool ranks public government bids by fit, profit and complexity.</p></div>
+      <div><h3>A five-stage assist chain</h3><p>Brainstormer, Assessor, Planner, Executor and Content Creator, each seeing everything earlier stages produced, with prompts editable in the app.</p></div>
+      <div><h3>Model choice and resilience</h3><p>It picks the best installed model, retries without the reasoning flag for models that lack it, uses a vision model for photo listings, and runs long jobs on the server so a closed tab never loses a result.</p></div>
+    </div>
+    </div>
+  </details>
+
+  <details class="case" id="northfield" data-sub="Clients and products">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 43 · Brokerage website + AI toolkit</span>
+      <h2>Northfield Realty</h2>
+      <p class="sum">A full website and ten working AI tools for an independent boutique brokerage, built in a weekend. The site has plain-English listing search, 48 local guides and buyer and seller calculators. The tools cover a 24/7 lead responder, reviews, listing marketing, virtual staging, video ads, social posts, client emails, market reports and a Team Hub that holds them all. Shown with a fictional firm and sample data.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="../demos/northfield-realty/">Open the full build</a><a href="../demos/northfield-realty/site/">The website</a><a href="../demos/northfield-realty/hub/">The Team Hub</a><span>Fictional firm. Client details, names, photos and figures have been changed</span></p>
+
+    <dl class="stats">
+      <div><dt>Working AI tools</dt><dd>10</dd></div>
+      <div><dt>Blog guides</dt><dd>48</dd></div>
+      <div><dt>Calculators</dt><dd>3</dd></div>
+      <div><dt>Neighborhoods covered</dt><dd>8</dd></div>
+      <div><dt>Video ad styles</dt><dd>4</dd></div>
+      <div><dt>Time to build</dt><dd>A weekend</dd></div>
+    </dl>
+
+    <div class="shots">
+      <figure>
+        <img src="../assets/northfield-site.jpg" alt="The Northfield Realty website: a navy hero with an illustrated skyline, the headline Exceptional homes from Elm Hollow to Willow Bend, and a property search bar." width="1280" height="800" loading="lazy">
+        <figcaption>The website: search in plain English, listings, neighborhoods, team, reviews and valuation.</figcaption>
+      </figure>
+      <figure>
+        <img src="../assets/northfield-hub.jpg" alt="The Northfield Team Hub dashboard: a sidebar listing every tool, a greeting for the broker, cards for new leads, appointments, reviews, posts and email open rate, an approvals queue and an activity feed." width="1280" height="800" loading="lazy">
+        <figcaption>The Team Hub: every tool in one place, and nothing goes out until a person approves it.</figcaption>
+      </figure>
+      <figure>
+        <img src="../assets/northfield-responder.jpg" alt="The 24/7 lead responder demo: a Saturday-night portal inquiry, the text reply the lead sees within seconds, and the handoff card the agent sees in the morning." width="1280" height="800" loading="lazy">
+        <figcaption>The lead responder: a late-night inquiry answered in seconds and a showing booked.</figcaption>
+      </figure>
+      <figure>
+        <img src="../assets/northfield-launch.jpg" alt="The listing launch kit: a property details form on the left and, on the right, generated headline options, MLS remarks, social, email and open-house tabs with copy buttons and a fair-housing check." width="1280" height="800" loading="lazy">
+        <figcaption>The listing launch kit: one set of property details in, every piece of listing copy out.</figcaption>
+      </figure>
+      <figure>
+        <img src="../assets/northfield-ads.jpg" alt="Four vertical video ads side by side, each a different style: feature reveal, countdown, cinematic and myth or fact, with illustrated houses and play buttons." width="1280" height="800" loading="lazy">
+        <figcaption>Vertical video ads in four styles, built from a listing.</figcaption>
+      </figure>
+      <figure>
+        <img src="../assets/northfield-reports.jpg" alt="Neighborhood market reports: tabs for eight fictional neighborhoods and cards with median sale prices and year-over-year changes." width="1280" height="800" loading="lazy">
+        <figcaption>Monthly market reports for eight neighborhoods.</figcaption>
+      </figure>
+      <figure>
+        <img src="../assets/northfield-site-blog.jpg" alt="The Northfield blog index: category filters, a search box showing 48 articles, and a featured first-time buyer guide." width="1280" height="800" loading="lazy">
+        <figcaption>A library of 48 local guides, written to rank on Google and be quoted by AI search.</figcaption>
+      </figure>
+      <figure>
+        <img src="../assets/northfield-reviews.jpg" alt="The review engine: a post-closing timeline from a day-0 congratulations text through a one-year anniversary note, with sample ratings." width="1280" height="800" loading="lazy">
+        <figcaption>The review engine: every client gets every review link, with no gating.</figcaption>
+      </figure>
+    </div>
+
+    <div class="cols">
+      <section class="block">
+        <h3>The website</h3>
+        <ul>
+          <li><a href="../demos/northfield-realty/site/"><strong>Brokerage site:</strong></a> listing search by filters or by a sentence like &ldquo;3-bed in Elm Hollow under $900k with a garage&rdquo;, featured and sold listings, neighborhoods, team, reviews, and valuation and contact forms.</li>
+          <li><a href="../demos/northfield-realty/site/blog/"><strong>Blog and SEO library:</strong></a> 48 guides, from neighborhood profiles and comparisons to buyer and seller explainers, each with quick answers, FAQs and structured data, plus category filters and live search.</li>
+          <li><a href="../demos/northfield-realty/site/tools/"><strong>Calculators:</strong></a> monthly payment, affordability and seller net proceeds, plus listing-alert sign-up.</li>
+          <li><a href="../demos/northfield-realty/security/"><strong>Website security report:</strong></a> plain-language findings on a hacked site (hidden spam links, a poisoned robots.txt, an outdated CMS) and a three-phase cleanup plan.</li>
+          <li><a href="../demos/northfield-realty/case-study/"><strong>Case study:</strong></a> the pitch behind it, built as three optional layers so the firm never has to throw away what works.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>The AI tools</h3>
+        <ul>
+          <li><a href="../demos/northfield-realty/hub/"><strong>Team Hub:</strong></a> leads, approvals and activity in one dashboard, every tool opening inside it, and a view-as switcher for each agent.</li>
+          <li><a href="../demos/northfield-realty/responder/"><strong>24/7 lead responder:</strong></a> replies by text and email in under a minute, qualifies the lead and books a showing on the right agent's calendar.</li>
+          <li><a href="../demos/northfield-realty/reviews/"><strong>Review engine:</strong></a> day 0, 2, 7, 30 and one-year touches after closing, and reviews reused on the site and social.</li>
+          <li><a href="../demos/northfield-realty/launch/"><strong>Listing launch kit:</strong></a> MLS remarks, social posts, an email blast and open-house copy from one set of details, with a fair-housing screen.</li>
+          <li><a href="../demos/northfield-realty/staging/"><strong>Virtual staging,</strong></a> <a href="../demos/northfield-realty/ads/"><strong>vertical video ads</strong></a> and a <a href="../demos/northfield-realty/social/"><strong>social engine</strong></a> that drafts a week of posts and video scripts for approval.</li>
+          <li><a href="../demos/northfield-realty/nurture/"><strong>Past-client emails</strong></a> with a monthly home value and equity note, and <a href="../demos/northfield-realty/reports/"><strong>market reports</strong></a> for eight neighborhoods.</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>Built with Claude, with Gemini for the virtual-staging images (shown here as illustrations). I researched the market, chose the features, set the tone and copy rules, and made sure every tool checks for fair-housing problems and waits for a person to approve before anything goes out. Claude built the website, the blog, the tools and the Team Hub.</p></div>
+    </div>
+  </details>
+  </section>
+<section class="group" id="g-consumer">
+    <div class="group-head">
+      <h2>Consumer apps</h2>
+      <p>Apps for people planning their own lives. All names and figures in the screenshots are invented.</p>
+    </div>
+  <!-- THRIFTY VOWS -->
+  <details class="case" id="thriftyvows" data-sub="Clients and products">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 23 · iPhone and Mac app</span>
+      <h2>Thrifty Vows</h2>
+      <p class="sum">A budget-first wedding planner for iPhone and Mac that plans the whole day around one number: what the couple can actually afford. It went from product plan to a working app, then through a full visual redesign, "Blush &amp; Petal", with a custom icon, dark mode and a native Mac build.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="../demos/thrifty-vows.html">Watch the walkthrough and try the budget tools</a><span>Screenshots below come from the app's built-in sample wedding</span></p>
+
+
+    <div class="gallery">
+      <figure>
+        <img src="../assets/thriftyvows-home.jpg" alt="Home screen for a sample couple, Sam and Alex: 243 days until I do, a budget ring at 67 percent with $3,930 left to spend, $6,880 saved and $706 per guest." width="720" height="1262" loading="lazy">
+        <figcaption>Home leads with the countdown, budget health, money saved and the real cost per guest.</figcaption>
+      </figure>
+      <figure>
+        <img src="../assets/thriftyvows-budget.jpg" alt="Budget screen: a $12,000 total with $8,070 committed, $2,220 paid and $3,930 left, then a planned versus committed bar chart by category." width="720" height="1262" loading="lazy">
+        <figcaption>The budget, split across 13 categories, with planned and committed side by side.</figcaption>
+      </figure>
+      <figure>
+        <img src="../assets/thriftyvows-guests.jpg" alt="Guests screen: 12 coming, 4 waiting, 2 can't come and 1 to invite, filter chips, and invitations with RSVP status and table numbers." width="720" height="1262" loading="lazy">
+        <figcaption>Guests with RSVP status, A and B lists, plus-ones and tables.</figcaption>
+      </figure>
+      <figure>
+        <img src="../assets/thriftyvows-savings.jpg" alt="Savings screen: $6,880 saved so far, that's a honeymoon weekend, and tips such as choosing an off-peak date, typically saving $2,500." width="720" height="1262" loading="lazy">
+        <figcaption>Savings tips. "I did this" logs a saving to the running total.</figcaption>
+      </figure>
+    </div>
+
+    <div class="cols">
+      <section class="block">
+        <h3>The problem</h3>
+        <p>The big wedding apps, The Knot, Zola and WeddingWire, earn money by selling couples' details to vendors and pushing registries, so their design nudges spending up. The couples who most need help are those with under about $15,000 to spend (the US average is around $33,000), usually paying for it themselves and planning without a planner.</p>
+        <p>Thrifty Vows earns money only from the couple, so it can be honest about spending less. The plan is a free core app and a one-time Pro unlock for sync, sharing, exports and widgets, with no subscription.</p>
+      </section>
+      <section class="block">
+        <h3>What it does</h3>
+        <ul>
+          <li><strong>Budget:</strong> a total split into 13 categories by a recommended budget-wedding allocation, with estimate, final cost, amount paid and due date on every expense.</li>
+          <li><strong>The guest-count lever:</strong> a calculator separates fixed costs from the ones that grow with each guest, and shows in dollars what adding or cutting people does.</li>
+          <li><strong>Guests and RSVPs:</strong> sides, A and B lists, plus-ones, meals and households, swipe to RSVP, and CSV export.</li>
+          <li><strong>Checklist:</strong> tasks dated backwards from the wedding and grouped by phase. Move the date and the open tasks move with it.</li>
+          <li><strong>Vendors, seating and DIY:</strong> quotes compared side by side, with a booking written straight into the budget; tables with capacity warnings; and DIY projects that weigh making against buying.</li>
+          <li><strong>Savings tips:</strong> concrete tips, each with a typical saving, that add to a running total on the home screen.</li>
+        </ul>
+      </section>
+    </div>
+
+    <section class="block">
+      <h3>Decisions behind it</h3>
+      <div class="grid3">
+        <div><h4>Savings first, not spend first</h4><p>The home screen leads with money saved and cost per guest, where the big wedding apps lead with vendors and inspiration.</p></div>
+        <div><h4>Useful in the first minute</h4><p>A sample wedding loads on first launch, so there is something to explore before typing anything. One switch in Settings clears it.</p></div>
+        <div><h4>Opinionated defaults</h4><p>The budget split, checklist and tips are pre-filled for a budget wedding. Food and venue get the largest shares, and a contingency line is kept on purpose.</p></div>
+        <div><h4>Private by design</h4><p>No account, no backend and no third-party code. Everything is stored on the device and works offline; iCloud sync is planned as part of Pro.</p></div>
+        <div><h4>Built to grow</h4><p>SwiftUI and SwiftData with simple models, so sync, sharing and widgets can be added without restructuring.</p></div>
+        <div><h4>Gentle and personal</h4><p>Heart-shaped checkboxes, a little confetti and haptics when a task is done, and copy such as "Budget is looking lovely" instead of spreadsheet language.</p></div>
+      </div>
+    </section>
+
+    <div class="cols">
+      <section class="block">
+        <h3>The 2.0 redesign</h3>
+        <p>Version 1 worked but looked like stock iOS. Version 2.0, "Blush &amp; Petal", was designed first as a mockup and then built into the app: rose for actions, blush cream behind everything, sage for money saved and champagne for neutral highlights, with serif headings over rounded body text. It added a custom icon of interlocking rings, a dark mode with its own plum palette, and a native Mac version of the same app.</p>
+      </section>
+      <div class="shots">
+        <figure class="compare-fig">
+          <div class="compare" style="aspect-ratio: 720 / 1262">
+            <img src="../assets/thriftyvows-v1-home.jpg" alt="Version 1 home screen in stock iOS styling: grey cards, black system text and a plain budget ring." width="720" height="1262" loading="lazy">
+            <img class="after" src="../assets/thriftyvows-home.jpg" alt="Version 2.0 home screen in Blush and Petal: a rose countdown card, a budget ring and sage and champagne tiles." width="720" height="1262" loading="lazy">
+            <span class="cmp-line" aria-hidden="true"></span><span class="cmp-tag l" aria-hidden="true">v1</span><span class="cmp-tag r" aria-hidden="true">2.0</span>
+            <input type="range" min="0" max="100" value="50" aria-label="Compare version 1 and version 2.0">
+          </div>
+          <figcaption>Before and after: drag from version 1 to 2.0.</figcaption>
+        </figure>
+        <figure>
+          <img src="../assets/thriftyvows-home-dark.jpg" alt="Version 2.0 home screen in dark mode: a deep plum background, a pink countdown card and sage and champagne tiles." width="720" height="1262" loading="lazy">
+          <figcaption>After: 2.0 in dark mode.</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <div class="cols">
+      <section class="block">
+        <h3>Where it goes next</h3>
+        <ul>
+          <li><strong>1.1:</strong> iCloud sync and partner sharing, contacts import, PDF export and a countdown widget.</li>
+          <li><strong>1.2:</strong> a shareable RSVP link, a day-of timeline and payment reminders.</li>
+          <li><strong>Later:</strong> anonymous price benchmarks by city, and swap suggestions such as a brunch reception instead of dinner.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h3>Measures of success</h3>
+        <p>Couples set a budget and add at least ten guests in their first week, the median saving logged per couple, Pro conversion, and an App Store rating of 4.7 or better.</p>
+      </section>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>Built with Claude, from a one-line brief: an industry-leading app for planning a cheap wedding. Claude wrote the product plan, the SwiftUI code, the 2.0 design mockup and the redesign, then built and ran the app on my Mac and took the screenshots. I set the direction and reviewed each round.</p></div>
+    </div>
+  </details>
+  </section>
+
+  <div class="wayfind">
+    <span class="eyebrow">More work</span>
+    <nav class="areas-nav" aria-label="Areas of work"><a href="../">All work</a><a href="../legal/">Legal software<b>16</b></a><a href="../business/" aria-current="page">Business<b>8</b></a><a href="../creative/">Creative and games<b>6</b></a><a href="../design/">Design, 3D and generative art<b>10</b></a><a href="../research/">AI tools and research<b>8</b></a></nav>
+    <p class="ix-more"><a href="../#tools">Which AI for what <span>by project</span></a></p>
+  </div>
+
+  <footer>
+    <span>Myles Parslow · Made with AI</span>
+    <a href="https://mylesparslow.com/legal-portfolio/">Legal portfolio</a>
+    <a href="https://github.com/mylesparslow-collab">github.com/mylesparslow-collab</a>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var cases = Array.prototype.slice.call(document.querySelectorAll('details.case'));
+  function openFromHash() {
+    var id = decodeURIComponent(location.hash.slice(1));
+    if (!id) return;
+    var t = document.getElementById(id);
+    var d = t && t.closest ? t.closest('details.case') : null;
+    if (d) {
+      d.open = true;
+      requestAnimationFrame(function () { (t || d).scrollIntoView(); });
+    }
+  }
+  openFromHash();
+  window.addEventListener('hashchange', openFromHash);
+  var was = [];
+  window.addEventListener('beforeprint', function () {
+    was = cases.map(function (d) { return d.open; });
+    cases.forEach(function (d) { d.open = true; });
+  });
+  window.addEventListener('afterprint', function () {
+    cases.forEach(function (d, i) { d.open = was[i]; });
+  });
+})();
+</script>
+<script>
+/* Picture index, find and surprise, count-up numbers, before/after sliders and reading bar. */
+(function () {
+  var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var $$ = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
+
+  // Opening a case from a tile. The page's own hash handler opens and scrolls; this also covers clicking the same tile twice.
+  function openCase(id) {
+    var d = document.getElementById(id);
+    if (!d) return;
+    d.open = true;
+    if (location.hash === '#' + id) d.scrollIntoView();
+    else location.hash = id;
+  }
+
+  // Second screenshot fades in on hover; it is only fetched the first time someone points at the tile.
+  $$('.tile').forEach(function (t) {
+    var alt = t.querySelector('img.alt');
+    function warm() {
+      if (!alt || alt.src) return;
+      alt.onload = function () { alt.classList.add('ready'); };
+      alt.src = alt.dataset.src;
+    }
+    t.addEventListener('pointerenter', warm);
+    t.addEventListener('focus', warm);
+    t.addEventListener('click', function (e) { var h = t.getAttribute('href'); if (h.charAt(0) !== '#') return; e.preventDefault(); openCase(h.slice(1)); });
+  });
+
+  // Find a project
+  var find = document.getElementById('find'), empty = document.querySelector('.find-empty');
+  var tiles = document.querySelector('.ix-all') ? $$('.ix-all .tile') : $$('.ix-index .tile');
+  var groups = document.querySelector('.ix-all') ? $$('.ix-all') : [];
+  function go(t) { var h = t.getAttribute('href'); if (h.charAt(0) === '#') openCase(h.slice(1)); else location.href = h; }
+  function filter() {
+    var words = find.value.toLowerCase().split(/\s+/).filter(Boolean), shown = 0;
+    tiles.forEach(function (t) {
+      var hay = t.dataset.hay + ' ' + t.textContent.toLowerCase();
+      var ok = words.every(function (w) { return hay.indexOf(w) >= 0; });
+      t.hidden = !ok; if (ok) shown++;
+    });
+    groups.forEach(function (g) { g.hidden = !g.querySelector('.tile:not([hidden])'); });
+    document.body.classList.toggle('searching', words.length > 0);
+    if (window.__applyChip) window.__applyChip();
+    empty.hidden = shown > 0;
+  }
+  if (find) {
+    find.addEventListener('input', filter);
+    find.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { var t = tiles.filter(function (x) { return !x.hidden; })[0]; if (t) go(t); }
+      if (e.key === 'Escape') { find.value = ''; filter(); find.blur(); }
+    });
+    document.addEventListener('keydown', function (e) {
+      var a = document.activeElement, typing = a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.isContentEditable);
+      if (e.key === '/' && !typing && !e.metaKey && !e.ctrlKey && !e.altKey) { e.preventDefault(); find.focus(); find.select(); }
+    });
+  }
+  var surprise = document.getElementById('surprise');
+  if (surprise) surprise.addEventListener('click', function () {
+    var pool = tiles.filter(function (t) { return !t.hidden; });
+    if (!pool.length) pool = tiles;
+    var pick = pool[Math.floor(Math.random() * pool.length)];
+    go(pick);
+  });
+
+  // Count-up: the real figure stays in the HTML; only its first number animates, once, when it comes into view.
+  if (!reduced && 'IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        io.unobserve(e.target);
+        countUp(e.target);
+      });
+    }, { threshold: 0.6 });
+    $$('.tally dd, .stats dd').forEach(function (dd) {
+      if (/^\D{0,2}\d[\d,]*(\.\d+)?/.test(dd.textContent.trim())) io.observe(dd);
+    });
+  }
+  function countUp(dd) {
+    var text = dd.textContent, m = text.match(/\d[\d,]*(\.\d+)?/);
+    if (!m) return;
+    var target = parseFloat(m[0].replace(/,/g, '')), dec = m[1] ? m[1].length - 1 : 0;
+    if (!(target > 0)) return;
+    var before = text.slice(0, m.index), after = text.slice(m.index + m[0].length), comma = m[0].indexOf(',') >= 0;
+    var fmt = function (n) { var v = n.toFixed(dec); return comma ? Number(v).toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec }) : v; };
+    var t0 = performance.now(), dur = target < 20 ? 700 : 1300;
+    (function frame(now) {
+      var k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 4);
+      dd.textContent = k < 1 ? before + fmt(target * e) + after : text;
+      if (k < 1) requestAnimationFrame(frame);
+    })(t0);
+  }
+
+  // Before / after sliders
+  $$('.compare').forEach(function (c) {
+    var r = c.querySelector('input');
+    r.addEventListener('input', function () { c.style.setProperty('--pos', r.value + '%'); });
+  });
+
+  // Reading bar for the open case study under the top of the screen, and a way back to the index.
+  var bar = document.createElement('div'); bar.className = 'readbar'; bar.setAttribute('aria-hidden', 'true');
+  var back = document.createElement('a'); back.className = 'backtop'; back.href = '#index'; back.textContent = '↑ All projects'; back.hidden = true;
+  document.body.appendChild(bar); document.body.appendChild(back);
+  back.addEventListener('click', function (e) { e.preventDefault(); var ix = document.getElementById('index'); ix.scrollIntoView(); history.replaceState(null, '', location.pathname + location.search); });
+  var openCases = $$('details.case'), ticking = false;
+  function onScroll() {
+    ticking = false;
+    var vh = innerHeight, p = -1;
+    for (var i = 0; i < openCases.length; i++) {
+      var d = openCases[i];
+      if (!d.open) continue;
+      var r = d.getBoundingClientRect();
+      if (r.top < vh * 0.3 && r.bottom > vh * 0.3) { p = Math.min(1, Math.max(0, -r.top / Math.max(1, r.height - vh))); break; }
+    }
+    bar.classList.toggle('on', p >= 0);
+    if (p >= 0) bar.style.transform = 'scaleX(' + p + ')';
+    var ix = document.getElementById('index');
+    back.hidden = !ix || ix.getBoundingClientRect().bottom > 0;
+  }
+  window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
+  window.addEventListener('resize', onScroll);
+  onScroll();
+
+})();
+</script>
+<script>
+(function () {
+  var cur = '';
+  var chips = Array.prototype.slice.call(document.querySelectorAll('.chip'));
+  window.__applyChip = function () {
+    document.querySelectorAll('.ix-index .tile').forEach(function (t) {
+      if (cur && t.dataset.sub !== cur) t.hidden = true;
+    });
+    document.querySelectorAll('details.case').forEach(function (d) { d.hidden = !!cur && d.dataset.sub !== cur; });
+  };
+  chips.forEach(function (c) {
+    c.addEventListener('click', function () {
+      cur = c.dataset.chip;
+      chips.forEach(function (x) { x.setAttribute('aria-pressed', x === c ? 'true' : 'false'); });
+      var f = document.getElementById('find');
+      f.dispatchEvent(new Event('input'));
+    });
+  });
+})();
+</script>
+</body>
+</html>

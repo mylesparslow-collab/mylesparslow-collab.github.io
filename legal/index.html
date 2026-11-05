@@ -4,375 +4,72 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Software for law firms: conflicts, litigation, deals, billing, marketing and trademark work. All clients, matters and people in the demos are invented.">
-<title>Legal software · Myles Parslow Portfolio</title>
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#ebe5da">
+<title>Legal &middot; Myles Parslow Portfolio</title>
+<script>
+(function(){var d=document.documentElement,t,go;d.classList.add('js');
+try{t=localStorage.getItem('mpb-theme')}catch(e){}
+if(t!=='light'&&t!=='dark'&&t!=='red')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+d.setAttribute('data-theme',t);
+var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content',{light:'#ebe5da',dark:'#141312',red:'#bf2400'}[t]);
+if(!matchMedia('(prefers-reduced-motion: reduce)').matches){d.classList.add('anim');
+var n=performance.getEntriesByType&&performance.getEntriesByType('navigation')[0];
+try{go=sessionStorage.getItem('mpb-go');sessionStorage.removeItem('mpb-go')}catch(e){}
+if(go&&!(n&&n.type==='back_forward'))d.classList.add('arriving');
+setTimeout(function(){d.classList.remove('arriving')},6000);}
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<style>
-/* Layout: an eggshell sheet by default, with a colour picker for two other schemes. Each section is a shelf of pieces; every piece pairs a screenshot with "what it is" and "how it was made". Brown carries links and labels; gold marks emphasis. All schemes are light by request. */
-:root {
-  color-scheme: light;
-  /* Mono (default): black, white and greys, no colour accent */
-  --bg: #ffffff;
-  --surface: #f4f4f4;
-  --rule: #d9d9d9;
-  --ink: #111111;
-  --muted: #555555;
-  --accent: #111111;
-  --mark: #111111;
-  --mark-soft: #c8c8c8;
-  --display: "Bricolage Grotesque", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
-  --body: "Source Serif 4", Georgia, "Times New Roman", serif;
-  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
-}
-/* Original: the first draft's pale green-grey with pine green */
-:root[data-scheme="pine"] {
-  --bg: #f4f6f4; --surface: #ffffff; --rule: #d5ddd8; --ink: #18201c; --muted: #56625b;
-  --accent: #23593f; --mark: #23593f; --mark-soft: #e2ece6;
-}
-/* Baby blue with ruby */
-:root[data-scheme="sky"] {
-  --bg: #e8f3fb; --surface: #ffffff; --rule: #c6e0f3; --ink: #192838; --muted: #4c6073;
-  --accent: #9b111e; --mark: #9b111e; --mark-soft: #f7e1e4;
-}
-* { box-sizing: border-box; }
-body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 1.0625rem; line-height: 1.62; margin: 0; }
-.wrap { max-width: 72rem; margin: 0 auto; padding-inline: 1.25rem; padding-block: 3.5rem 4rem; display: grid; gap: 5rem; }
-a { color: var(--accent); text-underline-offset: 0.18em; }
-a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
-h1, h2, h3 { font-family: var(--display); text-wrap: balance; line-height: 1.08; margin: 0; }
-p { margin: 0; }
-.eyebrow { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
-
-/* Colour picker */
-.topbar { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.75rem 1.5rem; }
-.picker { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0; padding: 0; border: 0; }
-.picker legend { float: left; margin-right: 0.25rem; font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
-.swatch { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.3rem 0.7rem 0.3rem 0.35rem; border-radius: 999px; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); font-family: var(--display); font-size: 0.85rem; font-weight: 500; cursor: pointer; }
-.swatch:hover { border-color: var(--muted); }
-.swatch[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
-.swatch i { width: 1.15rem; height: 1.15rem; border-radius: 50%; flex: none; border: 1px solid rgba(0,0,0,0.15); }
-.swatch[data-pick="mono"] i { background: linear-gradient(135deg, #ffffff 0 45%, #111111 45% 70%, #8a8a8a 70%); }
-.swatch[data-pick="sapphire"] i { background: linear-gradient(135deg, #f5f5f4 0 45%, #111111 45% 70%, #0f52ba 70%); }
-.swatch[data-pick="eggshell"] i { background: linear-gradient(135deg, #f2eee3 0 45%, #6b3f22 45% 70%, #a9822f 70%); }
-.swatch[data-pick="pine"] i { background: linear-gradient(135deg, #f4f6f4 0 50%, #23593f 50%); }
-.swatch[data-pick="sky"] i { background: linear-gradient(135deg, #e8f3fb 0 50%, #9b111e 50%); }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-
-/* Intro */
-.intro { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2rem; align-items: start; }
-.intro-text { display: grid; gap: 1.25rem; }
-.intro h1 { font-size: clamp(2.6rem, 6.4vw, 4.4rem); font-weight: 800; letter-spacing: -0.025em; }
-.intro h1 em { font-style: normal; color: var(--mark); }
-.lede { font-size: 1.22rem; max-width: 38rem; }
-
-/* Sections */
-.shelf { display: grid; gap: 2.5rem; scroll-margin-top: 1.5rem; }
-.shelf-head { display: grid; gap: 0.5rem; border-top: 2px solid var(--ink); padding-top: 1rem; }
-.shelf-head h2 { font-size: clamp(2rem, 4.2vw, 2.8rem); font-weight: 800; letter-spacing: -0.02em; }
-.shelf-head p { color: var(--muted); max-width: 44rem; }
-
-/* A piece */
-.piece { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 2rem 2.75rem; align-items: start; }
-.piece.flip > figure { order: 2; }
-.piece-text { display: grid; gap: 1rem; min-width: 0; }
-.piece h3 { font-size: 1.85rem; font-weight: 700; letter-spacing: -0.01em; }
-.tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
-.tag { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.04em; padding: 0.15rem 0.5rem; border-radius: 999px; background: var(--surface); border: 1px solid var(--rule); color: var(--muted); }
-.tag.hot { background: var(--mark-soft); border-color: transparent; color: var(--accent); }
-.made { border-left: 3px solid var(--mark); padding-left: 0.9rem; display: grid; gap: 0.3rem; }
-.made b { font-family: var(--mono); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
-.facts { display: flex; flex-wrap: wrap; gap: 0.3rem 1.4rem; font-family: var(--mono); font-size: 0.8rem; color: var(--muted); }
-.facts strong { color: var(--ink); font-weight: 500; }
-figure { margin: 0; display: grid; gap: 0.5rem; min-width: 0; }
-figure img { display: block; width: 100%; max-width: 100%; height: auto; border-radius: var(--radius, 6px); border: 1px solid var(--rule); background: var(--surface); box-shadow: 0 10px 30px -18px rgba(40, 28, 16, 0.4); }
-figcaption { font-size: 0.85rem; color: var(--muted); }
-
-/* Writing cards (no screenshots: they are manuscripts) */
-.books { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
-.book { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius, 6px); padding: 1.5rem 1.4rem; display: grid; gap: 0.9rem; align-content: start; min-width: 0; }
-.book .kind { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
-.book h3 { font-size: 1.5rem; }
-.book .logline { font-style: italic; }
-.book .note { font-size: 0.85rem; color: var(--muted); }
-
-/* Smaller items */
-.more { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem 2.5rem; }
-.more div { display: grid; gap: 0.35rem; align-content: start; border-top: 1px solid var(--rule); padding-top: 0.9rem; }
-.more h3 { font-size: 1.2rem; }
-.more p { color: var(--muted); font-size: 0.98rem; }
-
-/* Case studies */
-.tally { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin: 0; border-top: 1px solid var(--rule); padding-top: 1.25rem; }
-.tally div, .stats div { display: grid; gap: 0.2rem; align-content: start; }
-.tally dt, .stats dt { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); order: 2; }
-.tally dd, .stats dd { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(1.6rem, 3.4vw, 2.4rem); color: var(--accent); letter-spacing: -0.02em; line-height: 1.05; }
-.case { display: grid; gap: 2.5rem; scroll-margin-top: 1.5rem; }
-.case .sum { font-size: 1.15rem; color: var(--ink); max-width: 46rem; }
-.stats { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1rem; margin: 0; background: var(--mark-soft); border-radius: var(--radius, 6px); padding: 1.1rem 1.25rem; }
-.stats dd { font-size: clamp(1.1rem, 2vw, 1.5rem); color: var(--ink); }
-.cols, .shots { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem 2.5rem; align-items: start; }
-.block { display: grid; gap: 0.8rem; align-content: start; min-width: 0; }
-.block h3 { font-size: 1.35rem; }
-.block ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.55rem; }
-.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem 2rem; }
-.grid3 > div { display: grid; gap: 0.35rem; align-content: start; border-top: 1px solid var(--rule); padding-top: 0.8rem; }
-.grid3 h4 { margin: 0; font-family: var(--display); font-size: 1.05rem; }
-.grid3 p { color: var(--muted); font-size: 0.96rem; }
-.book .count { font-family: var(--mono); font-size: 0.85rem; color: var(--accent); }
-
-.gallery { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.25rem; }
-.gallery figcaption { font-size: 0.85rem; }
-.links { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; margin-top: 0.35rem; font-family: var(--mono); font-size: 0.85rem; }
-.links a { color: var(--accent); }
-.links span { color: var(--muted); }
-/* Collapsible projects */
-details.case { scroll-margin-top: 1.5rem; }
-.case-sum { list-style: none; cursor: pointer; display: block; }
-.case-sum::-webkit-details-marker { display: none; }
-.case-sum:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; border-radius: 4px; }
-.case-sum .shelf-head h2 { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
-.case-sum .shelf-head h2::after { content: "+"; font-family: var(--mono); font-weight: 400; color: var(--accent); flex: none; }
-details[open] > .case-sum .shelf-head h2::after { content: "\2212"; }
-.case-sum:hover .shelf-head h2 { color: var(--accent); }
-.case-body { display: grid; gap: 2.5rem; padding-top: 2.5rem; }
-details.case:not([open]) { margin-bottom: -3rem; }
-details.case + :not(details) { margin-top: 3rem; }
-.case-sum .shelf-head { padding-bottom: 0.25rem; }
-@media print { .case-sum .shelf-head h2::after { content: none; } }
-/* Categories */
-.group { display: grid; gap: 1.25rem; scroll-margin-top: 1.5rem; }
-.group-head { display: grid; gap: 0.3rem; border-top: 6px solid var(--accent); padding-top: 0.9rem; }
-.group-head h2 { font-family: var(--display); font-size: 1.5rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
-.group-head p { color: var(--muted); max-width: 44rem; }
-.group details.case:not([open]) { margin-bottom: 0; }
-.group details.case + :not(details) { margin-top: 2rem; }
-.group > section.shelf { margin-top: 1.5rem; }
-.books .lead { grid-column: 1 / -1; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr); gap: 1.5rem 2rem; align-items: start; }
-.books .lead .cover { width: 100%; height: auto; border-radius: 4px; box-shadow: 0 6px 24px rgba(0,0,0,.25); }
-.books .lead .lead-text { display: grid; gap: 0.9rem; }
-.case-body > .books { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-@media (max-width: 700px) { .case-body > .books, .books .lead { grid-template-columns: minmax(0, 1fr); } .books .lead .cover { max-width: 16rem; } }
-.intro-text .lede { max-width: 52rem; }
-/* Method */
-.rules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem 2.5rem; }
-.rules div { display: grid; gap: 0.4rem; align-content: start; }
-.rules h3 { font-size: 1.15rem; }
-.rules p { color: var(--muted); font-size: 0.98rem; }
-
-footer { border-top: 1px solid var(--rule); padding-top: 1.25rem; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 2rem; font-family: var(--mono); font-size: 0.8rem; color: var(--muted); }
-
-@media (max-width: 820px) {
-  .intro, .piece, .books, .more, .rules, .cols, .shots, .grid3 { grid-template-columns: minmax(0, 1fr); }
-  .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .tally, .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .piece.flip > figure { order: 0; }
-  .wrap { gap: 3.5rem; padding-block: 2.5rem 3rem; }
-}
-span.note { font-style: italic; color: var(--muted); }
-/* Vertical video reels */
-.reels { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1rem; }
-.reels.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.reels video { display: block; width: 100%; height: auto; aspect-ratio: 9 / 16; border-radius: var(--radius, 6px); border: 1px solid var(--rule); background: #000; }
-@media (max-width: 820px) { .reels { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-/* Numbered pipeline */
-.flow { list-style: none; margin: 0; padding: 0; counter-reset: step; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1rem; }
-.flow li { counter-increment: step; display: grid; gap: 0.35rem; align-content: start; border-top: 3px solid var(--mark); padding-top: 0.7rem; }
-.flow b { font-family: var(--display); font-size: 1.1rem; }
-.flow b::before { content: counter(step) " · "; font-family: var(--mono); font-weight: 400; color: var(--accent); }
-.flow span { color: var(--muted); font-size: 0.96rem; }
-@media (max-width: 820px) { .flow { grid-template-columns: minmax(0, 1fr); } }
-@media (max-width: 820px) { #thriftyvows .shots { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-/* Picture index: every project as a thumbnail, grouped as in the case studies below */
-.index { display: grid; gap: 1.75rem; border-top: 2px solid var(--ink); padding-top: 1rem; scroll-margin-top: 1.5rem; }
-.finder { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 1rem; }
-.finder label { margin-right: auto; }
-.find-box { position: relative; flex: 0 1 18rem; min-width: 0; }
-.find-box input { width: 100%; font: inherit; font-family: var(--mono); font-size: 0.85rem; color: var(--ink); background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius, 6px); padding: 0.4rem 2rem 0.4rem 0.7rem; }
-.find-box input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-.find-box kbd { position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); font: 0.72rem var(--mono); color: var(--muted); border: 1px solid var(--rule); border-radius: 4px; padding: 0 0.35rem; pointer-events: none; }
-.find-box input:focus + kbd, .find-box input:not(:placeholder-shown) + kbd { display: none; }
-.find-empty { color: var(--muted); font-style: italic; }
-.ix-group { display: grid; gap: 0.9rem; }
-.ix-group[hidden] { display: none; }
-.ix-head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; border-top: 4px solid var(--accent); padding-top: 0.5rem; font-family: var(--display); font-weight: 800; font-size: 1rem; letter-spacing: 0.08em; text-transform: uppercase; }
-.ix-head a { color: var(--accent); text-decoration: none; }
-.ix-head a:hover { text-decoration: underline; }
-.ix-head span { font-family: var(--mono); font-weight: 400; font-size: 0.72rem; letter-spacing: 0.06em; color: var(--muted); }
-.ix-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.25rem 1rem; }
-.tile { display: grid; gap: 0.45rem; align-content: start; min-width: 0; color: var(--ink); text-decoration: none; }
-.tile[hidden] { display: none; }
-.tile .thumb { position: relative; display: block; aspect-ratio: 16 / 10; overflow: hidden; border: 1px solid var(--rule); border-radius: min(var(--radius, 6px), 12px); background: var(--surface); }
-.tile .thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; }
-.tile .thumb img.alt { opacity: 0; }
-.tile .thumb.type { display: grid; align-content: end; gap: 0.25rem; padding: 0.8rem; background: var(--mark-soft); border-color: transparent; }
-.tile .thumb.type span { font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
-.tile .thumb.type b { font-family: var(--display); font-weight: 800; font-size: 1.3rem; line-height: 1.05; color: var(--accent); }
-.tile .lbl { display: grid; gap: 0.1rem; }
-.tile strong { font-family: var(--display); font-weight: 700; font-size: 1.05rem; line-height: 1.15; }
-.tile small { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); }
-.tile:hover strong, .tile:focus-visible strong { color: var(--accent); }
-.tile:focus-visible { outline: none; }
-.tile:focus-visible .thumb { outline: 2px solid var(--accent); outline-offset: 3px; }
-.ix-more { font-family: var(--mono); font-size: 0.85rem; }
-.ix-grid.ix-feature .tile.big { grid-column: span 2; }
-.ix-feature .tile.big .lbl strong { font-size: 1.35rem; }
-@media (max-width: 960px) { .ix-grid.ix-feature { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ix-grid.ix-feature .tile.big { grid-column: auto; } }
-@media (max-width: 640px) { .ix-grid.ix-feature { grid-template-columns: minmax(0, 1fr); } .ix-grid.ix-feature .tile.big { grid-column: auto; } }
-.sub-case { border-top: 1px solid var(--rule); padding-top: 1.5rem; display: grid; gap: 1.5rem; }
-.sub-case > h3 { font-family: var(--display); font-size: 1.5rem; font-weight: 800; }
-@media (prefers-reduced-motion: no-preference) {
-  .tile .thumb img { transition: transform 1.6s cubic-bezier(.2, .7, .2, 1), opacity 0.6s ease; }
-  .tile:hover .thumb img, .tile:focus-visible .thumb img { transform: scale(1.06); }
-  .tile:hover .thumb img.alt.ready, .tile:focus-visible .thumb img.alt.ready { opacity: 1; }
-}
-@media (max-width: 960px) { .ix-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-@media (max-width: 640px) { .ix-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem 0.75rem; } .finder label { width: 100%; } .find-box { flex: 1 1 10rem; } }
-.tally dd, .stats dd { font-variant-numeric: tabular-nums; }
-
-/* Fleuron between groups */
-.fleuron { display: flex; align-items: center; gap: 1rem; color: var(--mark); }
-.fleuron::before, .fleuron::after { content: ""; flex: 1; height: 1px; background: currentColor; opacity: 0.5; }
-.fleuron svg { flex: none; }
-
-/* Before / after slider */
-.compare { position: relative; overflow: hidden; max-width: 100%; border: 1px solid var(--rule); border-radius: min(var(--radius, 6px), 12px); background: var(--surface); --pos: 50%; touch-action: pan-y; }
-.compare img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border: 0; border-radius: 0; box-shadow: none; }
-.compare img.after { clip-path: inset(0 0 0 var(--pos)); }
-.cmp-line { position: absolute; top: 0; bottom: 0; left: var(--pos); width: 2px; margin-left: -1px; background: var(--mark); pointer-events: none; }
-.cmp-line::after { content: "\2194"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 2.2rem; height: 2.2rem; border-radius: 50%; background: var(--mark); color: var(--bg); display: grid; place-items: center; font: 700 1.05rem var(--mono); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25); }
-.cmp-tag { position: absolute; top: 0.6rem; font: 500 0.75rem var(--mono); background: var(--ink); color: var(--bg); padding: 0.15rem 0.5rem; border-radius: 3px; pointer-events: none; }
-.cmp-tag.l { left: 0.6rem; } .cmp-tag.r { right: 0.6rem; }
-.compare input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: ew-resize; }
-.compare:focus-within { outline: 2px solid var(--accent); outline-offset: 3px; }
-
-/* Reading bar and the way back to the index */
-.readbar { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 40; background: var(--mark); transform-origin: 0 50%; transform: scaleX(0); opacity: 0; pointer-events: none; }
-.readbar.on { opacity: 1; }
-.backtop { position: fixed; z-index: 40; right: max(1rem, env(safe-area-inset-right, 0px)); bottom: calc(1rem + env(safe-area-inset-bottom, 0px)); font-family: var(--mono); font-size: 0.8rem; text-decoration: none; color: var(--ink); background: var(--surface); border: 1px solid var(--rule); border-radius: 999px; padding: 0.45rem 0.9rem; box-shadow: 0 6px 20px -8px rgba(0, 0, 0, 0.35); }
-.backtop:hover { border-color: var(--accent); color: var(--accent); }
-.backtop[hidden] { display: none; }
-@media (prefers-reduced-motion: no-preference) { .readbar { transition: opacity 0.3s ease; } }
-
-/* Screenshots settle in as they scroll into view, where the browser supports scroll timelines */
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .case-body figure > img, .shots figure > img, .tile .thumb { animation: settle linear both; animation-timeline: view(); animation-range: entry 0% entry 55%; }
-  }
-}
-@keyframes settle { from { opacity: 0.2; transform: translateY(16px); } to { opacity: 1; transform: none; } }
-
-.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-
-@media print { .finder, .find-empty, .readbar, .backtop, .fleuron, .cmp-line, .cmp-tag { display: none !important; } .compare img.after { display: none; } }
-</style>
-
-<style>
-/* Home and area pages (added with the reorganization) */
-.ix-featured { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.6rem 1.25rem; }
-.ix-featured .tile:first-child { grid-column: span 2; grid-row: span 2; }
-.ix-featured .tile:first-child .thumb { aspect-ratio: auto; flex: 1; min-height: 16rem; }
-.ix-featured .tile:first-child { display: flex; flex-direction: column; }
-.ix-featured .tile:first-child .lbl strong { font-size: 1.5rem; }
-.ix-featured .tile .area-tag { font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mark); }
-@media (max-width: 960px) { .ix-featured { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 640px) { .ix-featured { grid-template-columns: minmax(0, 1fr); } .ix-featured .tile:first-child { grid-column: auto; grid-row: auto; } .ix-featured .tile:first-child .thumb { min-height: 0; aspect-ratio: 16 / 10; } }
-.ix-head a.see { font-family: var(--mono); font-weight: 500; font-size: 0.78rem; letter-spacing: 0.04em; text-transform: none; }
-.ix-head .lead { display: grid; gap: 0.15rem; }
-.ix-head .lead small { font-family: var(--body); font-weight: 400; font-size: 0.92rem; letter-spacing: 0; text-transform: none; color: var(--muted); }
-.ix-all { display: none; }
-body.searching .ix-all:not([hidden]) { display: grid; }
-body.searching .ix-browse { display: none; }
-.ix-browse { display: grid; gap: 2.25rem; }
-.ix-featured .tile:first-child .thumb img { object-position: 0 0; }
-.areas-nav { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-.areas-nav a, .chip { font-family: var(--mono); font-size: 0.8rem; color: var(--ink); text-decoration: none; border: 1px solid var(--rule); background: var(--surface); border-radius: 999px; padding: 0.3rem 0.8rem; cursor: pointer; }
-.areas-nav a:hover, .chip:hover { border-color: var(--accent); color: var(--accent); }
-.areas-nav a[aria-current="page"], .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
-.areas-nav b { font-weight: 400; color: var(--muted); margin-left: 0.3rem; }
-.areas-nav a[aria-current="page"] b { color: inherit; opacity: 0.7; }
-.chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-.crumb { font-family: var(--mono); font-size: 0.8rem; color: var(--accent); text-decoration: none; }
-.crumb:hover { text-decoration: underline; }
-.area-intro h1 { font-size: clamp(2.4rem, 6vw, 4rem); font-weight: 800; letter-spacing: -0.025em; }
-details.case[hidden] { display: none; }
-.wayfind { display: grid; gap: 0.8rem; border-top: 2px solid var(--ink); padding-top: 1rem; }
-.ai-more > summary { cursor: pointer; font-family: var(--mono); font-size: 0.85rem; color: var(--accent); list-style: none; }
-.ai-more > summary::-webkit-details-marker { display: none; }
-.ai-more > summary::before { content: "+ "; }
-.ai-more[open] > summary::before { content: "\2212 "; }
-.ai-more[open] > summary { margin-bottom: 1.5rem; }
-</style>
-<link rel="stylesheet" href="../assets/appearance.css">
-<script src="../assets/appearance.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..700,0..100,0..1;1,9..144,300..700,0..100,0..1&amp;family=Hanken+Grotesk:wght@400;500;600&amp;display=swap">
+<link rel="stylesheet" href="../assets/site/b.css">
+<link rel="stylesheet" href="../assets/site/rooms.css">
 </head>
-<body>
+<body class="roompage" data-room="legal">
+<a class="skipl" href="#index">Skip to the projects</a>
 
-<div class="wrap">
+<div class="chrome" id="chrome" style="--cbg:var(--r-legal);--cfg:var(--rfg);--cacc:var(--racc)">
+  <a class="c tl" href="../index.html" aria-label="Myles Parslow, home" data-scramble><svg class="mark" viewBox="-.1 -.04 1.2 1.08" aria-hidden="true" focusable="false"><polygon points="-.08,0 .24,0 .5,.66 .76,0 1.08,0 1.08,.1 .98,.1 .98,.9 1.08,.9 1.08,1 .72,1 .72,.9 .8,.9 .8,.32 .56,.86 .44,.86 .2,.32 .2,.9 .28,.9 .28,1 -.08,1 -.08,.9 .02,.9 .02,.1 -.08,.1"/></svg><span class="sct" aria-hidden="true">Myles Parslow</span><span class="ctx" aria-hidden="true" hidden><span class="ctx__f"></span><span class="ctx__s"></span></span></a>
+  <div class="c tr">
+    <button class="theme" type="button" aria-label="In light theme. Switch to dark."><i class="sw" aria-hidden="true"></i><span class="sct">In light</span></button>
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu" aria-label="Menu" data-scramble><span class="sct" aria-hidden="true">Menu</span></button>
+  </div>
+</div>
 
-  <header class="intro area-intro">
-    <div class="topbar">
-      <span class="eyebrow">Portfolio · October 2026</span>
-      <fieldset class="picker" aria-label="Colour scheme">
-        <legend>Colours</legend>
-        <button type="button" class="swatch" id="pick-mono" data-pick="mono" aria-pressed="true"><i></i>Mono</button>
-        <button type="button" class="swatch" id="pick-sapphire" data-pick="sapphire" aria-pressed="false"><i></i>Sapphire</button>
-        <button type="button" class="swatch" id="pick-eggshell" data-pick="eggshell" aria-pressed="false"><i></i>Eggshell</button>
-        <button type="button" class="swatch" id="pick-pine" data-pick="pine" aria-pressed="false"><i></i>Original</button>
-        <button type="button" class="swatch" id="pick-sky" data-pick="sky" aria-pressed="false"><i></i>Sky &amp; ruby</button>
-        <button type="button" class="ap-btn" id="appearance-btn">More appearance options</button>
-      </fieldset>
-    </div>
-    <div class="intro-text">
-      <a class="crumb" href=".././">&larr; All work</a>
-      <span class="eyebrow">Legal · 16 projects</span>
-      <h1>Legal software</h1>
-      <p class="lede">Software for law firms: conflicts, litigation, deals, billing, marketing and trademark work. All clients, matters and people in the demos are invented.</p>
-    </div>
-    <nav class="index" id="index" aria-label="Projects">
-      <div class="finder">
-        <label for="find" class="eyebrow">All 16 projects here</label>
-        <span class="find-box"><input id="find" type="search" placeholder="Find in Legal software" autocomplete="off" aria-describedby="find-hint"><kbd id="find-hint" aria-label="Press slash to search">/</kbd></span>
-        <button type="button" class="ap-btn" id="surprise">Surprise me</button>
-      </div>
-      <div class="chips" role="group" aria-label="Filter by kind"><button type="button" class="chip" aria-pressed="true" data-chip="">All 16</button><button type="button" class="chip" aria-pressed="false" data-chip="Conflicts &amp; intake">Conflicts &amp; intake</button><button type="button" class="chip" aria-pressed="false" data-chip="Native Mac apps">Native Mac apps</button><button type="button" class="chip" aria-pressed="false" data-chip="Litigation">Litigation</button><button type="button" class="chip" aria-pressed="false" data-chip="Firm operations">Firm operations</button></div>
-      <p class="find-empty" role="status" hidden>No projects match. Try a different word.</p>
-      <div class="ix-group ix-index">
-        <div class="ix-grid">
-        <a class="tile" data-sub="Conflicts &amp; intake" href="#conflara" data-hay="conflion legal software full-function firm software full-function law firm software built on conflicts and new-matter intake: matters, docketing, documents, time and billing, firm accounting, people and cle, client relationships crm, legal holds, the general counsel&#x27;s office, it and facilities, ask newton and ai tools."><span class="thumb"><img src="../assets/thumbs/conflara.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"><img class="alt" data-src="../assets/thumbs/conflara-2.jpg" alt="" decoding="async"></span><span class="lbl"><strong>Conflion</strong><small>full-function firm software</small></span></a>
-        <a class="tile" data-sub="Conflicts &amp; intake" href="#conflara-small-firm" data-hay="conflion small firm small-firm software small-firm software conflicts checks and new matters for firms of 5 to 20 people: one home screen that says what to do next, one page to open a matter, and a name check anyone can run."><span class="thumb"><img src="../assets/thumbs/conflara-small-firm.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"></span><span class="lbl"><strong>Conflion Small Firm</strong><small>small-firm software</small></span></a>
-        <a class="tile" data-sub="Conflicts &amp; intake" href="#vigilmark" data-hay="vigilmark trademark watch legal software a trademark watch and triage desk for a conflicts-first law firm: it ranks new filings that look like a client&#x27;s mark, checks whether the applicant is related to a firm client, and hands the hit to conflion as an intake."><span class="thumb"><img src="../assets/thumbs/vigilmark.jpg" alt="" width="560" height="360" loading="lazy" decoding="async"><img class="alt" data-src="../assets/thumbs/vigilmark-2.jpg" alt="" decoding="async"></span><span class="lbl"><strong>VigilMark</strong><small>trademark watch</small></span></a>
-        <a class="tile" data-sub="Native Mac apps" href="#praxis" data-hay="praxis ai strategy studio legal ai strategy a strategy studio for the people deciding where a law firm should use ai. it maps every idea by where the demand came from and how much it changes the work, scores it with honest ranges, ranks the portfolio under different strategies, and carries the winners through pilots."><span class="thumb"><img src="../assets/thumbs/praxis.jpg" alt="" width="560" height="352" loading="lazy" decoding="async"><img class="alt" data-src="../assets/thumbs/praxis-2.jpg" alt="" decoding="async"></span><span class="lbl"><strong>Praxis</strong><small>AI strategy studio</small></span></a>
-        <a class="tile" data-sub="Native Mac apps" href="#lexatlas" data-hay="lexatlas legal graph legal intelligence a legal intelligence graph for conflicts, diligence and investigations. it shows how companies, funds, people, matters and sources connect, ties every connection back to evidence, and enforces ethical walls in the data itself."><span class="thumb"><img src="../assets/thumbs/lexatlas.jpg" alt="" width="560" height="337" loading="lazy" decoding="async"><img class="alt" data-src="../assets/thumbs/lexatlas-2.jpg" alt="" decoding="async"></span><span class="lbl"><strong>LexAtlas</strong><small>legal graph</small></span></a>
-        <a class="tile" data-sub="Native Mac apps" href="#skippy" data-hay="skippy legal ai assistant legal ai assistant a legal ai assistant for the mac, built on claude. lawyers keep each matter&#x27;s documents together, ask questions and get answers cited to the page and paragraph, run review tables, redline drafts, check citations and count deadlines, and nothing reaches the cloud until they approve it."><span class="thumb"><img src="../assets/thumbs/skippy.jpg" alt="" width="560" height="329" loading="lazy" decoding="async"><img class="alt" data-src="../assets/thumbs/skippy-2.jpg" alt="" decoding="async"></span><span class="lbl"><strong>Skippy</strong><small>legal AI assistant</small></span></a>
-        <a class="tile" data-sub="Litigation" href="#winyourcase" data-hay="win your case asap litigation ai legal ai a litigator&#x27;s first read of a new complaint, done in minutes. it ranks every theory that could end the case by how early it can be filed, puts each one on the response clock, and quotes the complaint for every point it makes. run blind on 26 california federal cases decided after the model’s training cutoff, the ground that actually won made its top three in 14, and 357 of 358 quotations checked out word for word."><span class="thumb"><img src="../assets/thumbs/winyourcase.jpg" alt="" width="560" height="360" loading="lazy" decoding="async"><img class="alt" data-src="../assets/thumbs/winyourcase-2.jpg" alt="" decoding="async"></span><span class="lbl"><strong>Win your case ASAP</strong><small>litigation AI</small></span></a>
-        <a class="tile" data-sub="Litigation" href="#witnessbreaker" data-hay="testimony check deposition prep litigation cheat code feed it the documents in a case and a witness’s sworn statements, and it finds every place the story breaks, with the exact quotes on both sides and a deposition script that walks the witness into the admission."><span class="thumb"><img src="../assets/thumbs/witnessbreaker.jpg" alt="" width="560" height="360" loading="lazy" decoding="async"><img class="alt" data-src="../assets/thumbs/witnessbreaker-2.jpg" alt="" decoding="async"></span><span class="lbl"><strong>Testimony Check</strong><small>deposition prep</small></span></a>
-        <a class="tile" data-sub="Litigation" href="#citationgate" data-hay="citation gate brief checking litigation screen a first-pass screen that runs before the citator check. every case cited is looked up in a database of real opinions, every quotation is matched word for word against the court’s text, and claude reads the actual opinion to judge whether it says what the brief claims."><span class="thumb"><img src="../assets/thumbs/citationgate.jpg" alt="" width="560" height="360" loading="lazy" decoding="async"><img class="alt" data-src="../assets/thumbs/citationgate-2.jpg" alt="" decoding="async"></span><span class="lbl"><strong>Citation Gate</strong><small>brief checking</small></span></a>
-        <a class="tile" data-sub="Firm operations" href="#guidelineguard" data-hay="guideline guard billing rules billing compliance every client’s outside counsel guidelines, enforced on each prebill before it leaves the firm. claude reads the guidelines, audits each line, quotes the rule it applies and proposes the fix."><span class="thumb"><img src="../assets/thumbs/guidelineguard.jpg" alt="" width="560" height="360" loading="lazy" decoding="async"><img class="alt" data-src="../assets/thumbs/guidelineguard-2.jpg" alt="" decoding="async"></span><span class="lbl"><strong>Guideline Guard</strong><small>billing rules</small></span></a>
-        <a class="tile" data-sub="Firm operations" href="#hourcatch" data-hay="hour catch time capture time capture every hour you work gets billed. it reads a lawyer’s day across outlook, teams, document history and the phone log, writes the time entries they forgot, and runs each one through guideline guard before it reaches billing."><span class="thumb"><img src="../assets/thumbs/hourcatch.jpg" alt="" width="560" height="360" loading="lazy" decoding="async"><img class="alt" data-src="../assets/thumbs/hourcatch-2.jpg" alt="" decoding="async"></span><span class="lbl"><strong>Hour Catch</strong><small>time capture</small></span></a>
-        <a class="tile" data-sub="Conflicts &amp; intake" href="#partyfinder" data-hay="party finder conflicts conflicts no conflict hides in the paperwork. it reads the complaint, deal documents or engagement request, builds the complete list of names to search, and ties each name to the sentence it came from. the list goes into the firm’s conflicts system, which stays the system of record."><span class="thumb"><img src="../assets/thumbs/partyfinder.jpg" alt="" width="560" height="360" loading="lazy" decoding="async"><img class="alt" data-src="../assets/thumbs/partyfinder-2.jpg" alt="" decoding="async"></span><span class="lbl"><strong>Party Finder</strong><small>conflicts</small></span></a>
-        <a class="tile" data-sub="Firm operations" href="#matterdesk" data-hay="matter desk practice workflows practice workflows one desk for the first read of a new matter in five practice areas: m&amp;a diligence, an insurance tender, a paga notice, a lease abstract and a health care baa. it reads the documents, says what a rushed review would miss, dates every deadline and drafts the first letter or email, with every quote checked against the source."><span class="thumb"><img src="../assets/thumbs/matterdesk.jpg" alt="" width="560" height="360" loading="lazy" decoding="async"><img class="alt" data-src="../assets/thumbs/matterdesk-2.jpg" alt="" decoding="async"></span><span class="lbl"><strong>Matter Desk</strong><small>practice workflows</small></span></a>
-        <a class="tile" data-sub="Firm operations" href="#synthesis" data-hay="synthesis deal workbench deal workbench an m&amp;a workbench for the buy side of one deal. it checks the seller’s disclosure schedules against the reps and the contracts, explains every change in the seller’s markup and proposes a middle position, checks cross-references and defined terms in code, and builds the closing checklist from the agreement."><span class="thumb"><img src="../assets/thumbs/synthesis.jpg" alt="" width="560" height="360" loading="lazy" decoding="async"><img class="alt" data-src="../assets/thumbs/synthesis-2.jpg" alt="" decoding="async"></span><span class="lbl"><strong>Synthesis</strong><small>deal workbench</small></span></a>
-        <a class="tile" data-sub="Litigation" href="#casewins" data-hay="case wins debrief litigation lessons litigation debrief reads a firm’s case wins for what slowed them down or left value on the table, groups the lessons into patterns, and pairs each pattern with a working claude tool."><span class="thumb"><img src="../assets/thumbs/casewins.jpg" alt="" width="560" height="360" loading="lazy" decoding="async"><img class="alt" data-src="../assets/thumbs/casewins-2.jpg" alt="" decoding="async"></span><span class="lbl"><strong>Case Wins Debrief</strong><small>litigation lessons</small></span></a>
-        <a class="tile" data-sub="Firm operations" href="#marketingstudio" data-hay="marketing studio firm marketing firm marketing drafts law-firm marketing in the firm’s voice: attorney bios, client alerts, rfp responses and award submissions. a second claude pass then checks each draft against the source and california’s attorney advertising rules before anyone publishes it."><span class="thumb type"><span>Firm marketing</span><b>Marketing Studio</b></span><span class="lbl"><strong>Marketing Studio</strong><small>firm marketing</small></span></a>
-        </div>
-      </div>
-    </nav>
-  </header>
+<nav class="menu" data-lenis-prevent data-lenis-prevent id="menu" aria-label="Menu" aria-hidden="true">
+  <button class="menu__close" type="button" aria-label="Close menu"><span class="sct" aria-hidden="true">Close</span></button>
+  <ol class="menu__list"><li><a class="mi" href="../index.html#rooms"><span class="mi__n">01</span><span class="mi__l">Rooms</span></a><ul class="menu__sub" aria-label="Rooms on the homepage"><li><a href="../index.html#room-legal">Legal</a></li><li><a href="../index.html#room-business">Business</a></li><li><a href="../index.html#room-creative">Creative &amp; games</a></li><li><a href="../index.html#room-design">Design &amp; 3D</a></li><li><a href="../index.html#room-research">AI &amp; research</a></li></ul></li><li><a class="mi" href="../index.html#rules"><span class="mi__n">02</span><span class="mi__l">Rules</span></a></li><li><a class="mi" href="../index.html#tools"><span class="mi__n">03</span><span class="mi__l">Tools</span></a></li><li><a class="mi" href="../legal/" aria-current="page"><span class="mi__n">04</span><span class="mi__l">Legal</span></a></li><li><a class="mi" href="../business/"><span class="mi__n">05</span><span class="mi__l">Business</span></a></li><li><a class="mi" href="../creative/"><span class="mi__n">06</span><span class="mi__l">Creative &amp; games</span></a></li><li><a class="mi" href="../design/"><span class="mi__n">07</span><span class="mi__l">Design &amp; 3D</span></a></li><li><a class="mi" href="../research/"><span class="mi__n">08</span><span class="mi__l">AI &amp; research</span></a></li></ol>
+  <p class="menu__foot"><a href="mailto:mzpprojects1@gmail.com">mzpprojects1@gmail.com</a><a href="https://github.com/mylesparslow-collab">GitHub</a><a href="https://mylesparslow.com/legal-portfolio/">Legal portfolio</a></p>
+</nav>
 
-<section class="group" id="g-legal">
-    
-  <!-- CONFLARA -->
-  <details class="case" id="conflara" data-sub="Conflicts &amp; intake">
-    <summary class="case-sum">
-      <div class="shelf-head">
-      <span class="eyebrow">Case study 01 · Full-function law firm software</span>
-      <h2>Conflion</h2>
-      <p class="sum">Full-function software for running a law firm, built on a conflicts check and new-matter intake. One system on the firm's own server now covers matters and docketing, documents, time and billing, firm accounting links, people and CLE, client relationships, legal holds, the general counsel's office, IT and facilities, and a firm-wide AI layer that suggests while a person decides.</p>
-      </div>
-    </summary>
-    <div class="case-body">
-      <p class="links"><a href="../demos/conflara-demo.html">Try the demo</a><a href="../demos/conflion-full-process.html">Watch Newton's full-process pitch</a><a href="../demos/conflion-matter-walkthrough.html">Follow one matter, start to finish</a><a href="../demos/conflion-information-sheet.html">Conflion Information Sheet</a><a href="https://github.com/mylesparslow-collab/conflicts-desk">Prototype code</a></p>
+<div id="page">
+<main id="top">
+<header class="rhead" id="rhead" data-chrome="Legal" data-short="Legal" data-ground="legal" style="--room:var(--r-legal)" aria-labelledby="h-room">
+  <span class="rhead__letter" aria-hidden="true">L</span>
+  <div class="rhead__main">
+    <p class="eyebrow">Room 1 of 5</p>
+    <h1 class="rhead__t" id="h-room">Legal</h1>
+    <p class="rhead__count">16 projects</p>
+    <p class="rhead__lede">Software for law firms: conflicts, litigation, deals, billing, marketing and trademark work. All clients, matters and people in the demos are invented.</p>
+  </div>
+  <nav class="rindex" id="index" aria-label="Legal projects">
+    <ol class="rindex__list"><li><a class="row" href="#conflara"><span class="row__i" aria-hidden="true">01</span><span class="row__t"><span class="row__n">Conflion</span><span class="row__s">full-function firm software</span></span><span class="th" aria-hidden="true"><img src="../assets/thumbs-hd/conflara.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"></span></a></li><li><a class="row" href="#conflara-small-firm"><span class="row__i" aria-hidden="true">02</span><span class="row__t"><span class="row__n">Conflion Small Firm</span><span class="row__s">small-firm software</span></span><span class="th" aria-hidden="true"><img src="../assets/thumbs-hd/conflara-small-firm.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"></span></a></li><li><a class="row" href="#vigilmark"><span class="row__i" aria-hidden="true">03</span><span class="row__t"><span class="row__n">VigilMark</span><span class="row__s">trademark watch</span></span><span class="th" aria-hidden="true"><img src="../assets/thumbs-hd/vigilmark.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"></span></a></li><li><a class="row" href="#praxis"><span class="row__i" aria-hidden="true">04</span><span class="row__t"><span class="row__n">Praxis</span><span class="row__s">AI strategy studio</span></span><span class="th" aria-hidden="true"><img src="../assets/thumbs-hd/praxis.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"></span></a></li><li><a class="row" href="#lexatlas"><span class="row__i" aria-hidden="true">05</span><span class="row__t"><span class="row__n">LexAtlas</span><span class="row__s">legal graph</span></span><span class="th" aria-hidden="true"><img src="../assets/thumbs-hd/lexatlas.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"></span></a></li><li><a class="row" href="#skippy"><span class="row__i" aria-hidden="true">06</span><span class="row__t"><span class="row__n">Skippy</span><span class="row__s">legal AI assistant</span></span><span class="th" aria-hidden="true"><img src="../assets/thumbs-hd/skippy.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"></span></a></li><li><a class="row" href="#winyourcase"><span class="row__i" aria-hidden="true">07</span><span class="row__t"><span class="row__n">Win your case ASAP</span><span class="row__s">litigation AI</span></span><span class="th" aria-hidden="true"><img src="../assets/thumbs-hd/winyourcase.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"></span></a></li><li><a class="row" href="#witnessbreaker"><span class="row__i" aria-hidden="true">08</span><span class="row__t"><span class="row__n">Testimony Check</span><span class="row__s">deposition prep</span></span><span class="th" aria-hidden="true"><img src="../assets/thumbs-hd/witnessbreaker.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"></span></a></li><li><a class="row" href="#citationgate"><span class="row__i" aria-hidden="true">09</span><span class="row__t"><span class="row__n">Citation Gate</span><span class="row__s">brief checking</span></span><span class="th" aria-hidden="true"><img src="../assets/thumbs-hd/citationgate.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"></span></a></li><li><a class="row" href="#guidelineguard"><span class="row__i" aria-hidden="true">10</span><span class="row__t"><span class="row__n">Guideline Guard</span><span class="row__s">billing rules</span></span><span class="th" aria-hidden="true"><img src="../assets/thumbs-hd/guidelineguard.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"></span></a></li><li><a class="row" href="#hourcatch"><span class="row__i" aria-hidden="true">11</span><span class="row__t"><span class="row__n">Hour Catch</span><span class="row__s">time capture</span></span><span class="th" aria-hidden="true"><img src="../assets/thumbs-hd/hourcatch.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"></span></a></li><li><a class="row" href="#partyfinder"><span class="row__i" aria-hidden="true">12</span><span class="row__t"><span class="row__n">Party Finder</span><span class="row__s">conflicts</span></span><span class="th" aria-hidden="true"><img src="../assets/thumbs-hd/partyfinder.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"></span></a></li><li><a class="row" href="#matterdesk"><span class="row__i" aria-hidden="true">13</span><span class="row__t"><span class="row__n">Matter Desk</span><span class="row__s">practice workflows</span></span><span class="th" aria-hidden="true"><img src="../assets/thumbs-hd/matterdesk.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"></span></a></li><li><a class="row" href="#synthesis"><span class="row__i" aria-hidden="true">14</span><span class="row__t"><span class="row__n">Synthesis</span><span class="row__s">deal workbench</span></span><span class="th" aria-hidden="true"><img src="../assets/thumbs-hd/synthesis.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"></span></a></li><li><a class="row" href="#casewins"><span class="row__i" aria-hidden="true">15</span><span class="row__t"><span class="row__n">Case Wins Debrief</span><span class="row__s">litigation lessons</span></span><span class="th" aria-hidden="true"><img src="../assets/thumbs-hd/casewins.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"></span></a></li><li><a class="row" href="#marketingstudio"><span class="row__i" aria-hidden="true">16</span><span class="row__t"><span class="row__n">Marketing Studio</span><span class="row__s">firm marketing</span></span><span class="th th--t" aria-hidden="true"><i>L</i><b style="--fs:0.170">Marketing<br>Studio</b></span></a></li></ol>
+  </nav>
+</header>
+
+<div class="chapters">
+<span class="gdiv-anchor" id="g-legal"></span>
+
+<article class="chap" id="conflara" data-chrome="Legal" data-short="Legal" aria-labelledby="t-conflara">
+  <div class="chap__top">
+    <p class="chap__n"><span class="chap__c">01 / 16</span><span class="chap__k">Full-function law firm software</span><span class="chap__k">Conflicts &amp; intake</span></p>
+    <h2 class="chap__t" id="t-conflara" data-words>Conflion</h2>
+    <p class="chap__sub">full-function firm software</p>
+    <p class="chap__lede" data-fade>Full-function software for running a law firm, built on a conflicts check and new-matter intake. One system on the firm&#x27;s own server now covers matters and docketing, documents, time and billing, firm accounting links, people and CLE, client relationships, legal holds, the general counsel&#x27;s office, IT and facilities, and a firm-wide AI layer that suggests while a person decides.</p>
+  </div>
+  <div class="cbody">
+<p class="links"><a target="_blank" rel="noopener" href="../demos/conflara-demo.html">Try the demo</a><a target="_blank" rel="noopener" href="../demos/conflion-full-process.html">Watch Newton's full-process pitch</a><a target="_blank" rel="noopener" href="../demos/conflion-matter-walkthrough.html">Follow one matter, start to finish</a><a target="_blank" rel="noopener" href="../demos/conflion-information-sheet.html">Conflion Information Sheet</a><a target="_blank" rel="noopener" href="https://github.com/mylesparslow-collab/conflicts-desk">Prototype code</a></p>
 
     <dl class="stats">
       <div><dt>Areas of the firm covered</dt><dd>12</dd></div>
@@ -384,7 +81,7 @@ details.case[hidden] { display: none; }
           </dl>
 
     <figure class="wide">
-      <img src="../assets/conflion-hits.jpg" alt="Hit review for a litigation request: the hits listed on the left and, on the right, the selected high-risk hit with the rule it triggers, why it matched, the matters it matched and an advisory AI note." width="1280" height="800" loading="lazy">
+      <img decoding="async" src="../assets/conflion-hits.jpg" alt="Hit review for a litigation request: the hits listed on the left and, on the right, the selected high-risk hit with the rule it triggers, why it matched, the matters it matched and an advisory AI note." width="1280" height="800" loading="lazy">
       <figcaption>Hit review. Each hit says what it means in plain English, cites the rule, suggests a decision and shows the matters behind it. The AI note is marked as advisory.</figcaption>
     </figure>
 
@@ -424,11 +121,11 @@ details.case[hidden] { display: none; }
 
     <div class="shots">
       <figure>
-        <img src="../assets/conflion-search.jpg" alt="Conflicts search for Kate Okafor finding a pending intake, Katherine A. Okafor via a known alias, and a company where she is an officer, with the selected record and its corporate family beside the results." width="1280" height="800" loading="lazy">
+        <img decoding="async" src="../assets/conflion-search.jpg" alt="Conflicts search for Kate Okafor finding a pending intake, Katherine A. Okafor via a known alias, and a company where she is an officer, with the selected record and its corporate family beside the results." width="1280" height="800" loading="lazy">
         <figcaption>"Kate Okafor" finds the alias "Katherine A. Okafor" and, one hop out, a company where she is an officer that is a current client.</figcaption>
       </figure>
       <figure>
-        <img src="../assets/conflion-walls.jpg" alt="Ethical walls page with compliance counts for active walls, acknowledgments outstanding and re-acknowledgments due, and export buttons for a deny list." width="1280" height="800" loading="lazy">
+        <img decoding="async" src="../assets/conflion-walls.jpg" alt="Ethical walls page with compliance counts for active walls, acknowledgments outstanding and re-acknowledgments due, and export buttons for a deny list." width="1280" height="800" loading="lazy">
         <figcaption>Ethical walls: who is screened, who still owes an acknowledgment, and a deny list to export to the document system and time entry.</figcaption>
       </figure>
     </div>
@@ -499,51 +196,49 @@ details.case[hidden] { display: none; }
         </ul>
       </section>
       <figure>
-        <img src="../assets/conflion-pitch.jpg" alt="Scene from the animated pitch: a firm's client list travels through eight outside links in a hosted conflicts product (the internet, a hosting cloud, the vendor's app, an integration hub, AI services, an email service, support people and backups), each marked with an open lock." width="1280" height="769" loading="lazy">
+        <img decoding="async" src="../assets/conflion-pitch.jpg" alt="Scene from the animated pitch: a firm's client list travels through eight outside links in a hosted conflicts product (the internet, a hosting cloud, the vendor's app, an integration hub, AI services, an email service, support people and backups), each marked with an open lock." width="1280" height="769" loading="lazy">
         <figcaption>Newton's full-process pitch: 48 scenes in 14 sections, from the cloud chain a client list travels through in other conflicts products to intake, conflicts, the open matter, its bills and its trust account, all in HTML, CSS and JavaScript with a light and dark mode.</figcaption>
       </figure>
     </div>
 
-    <div class="made"><b>How it was built</b><p>It began as the <a href="https://github.com/mylesparslow-collab/conflicts-desk">Conflicts Desk</a> prototype in Claude Code, with tests and CI, and grew into Conflion. I supplied the domain: how conflicts departments actually run, which rules apply, and where existing tools fall short. Claude built the search engine, the synthetic firm and every screen. It then helped research competitors, price the product, write the pilot pack and script and animate the pitch. From there I mapped every area of a firm against what Conflion covered and directed the build of each missing one, from docketing and documents to people, client relationships, the general counsel's office and the office itself, with each area's privacy rules set before its screens.</p></div>
-    </div>
-  </details>
+    <div class="made"><b>How it was built</b><p>It began as the <a target="_blank" rel="noopener" href="https://github.com/mylesparslow-collab/conflicts-desk">Conflicts Desk</a> prototype in Claude Code, with tests and CI, and grew into Conflion. I supplied the domain: how conflicts departments actually run, which rules apply, and where existing tools fall short. Claude built the search engine, the synthetic firm and every screen. It then helped research competitors, price the product, write the pilot pack and script and animate the pitch. From there I mapped every area of a firm against what Conflion covered and directed the build of each missing one, from docketing and documents to people, client relationships, the general counsel's office and the office itself, with each area's privacy rules set before its screens.</p></div>
+  </div>
+  <p class="chap__end"><a href="#index">Back to the index <span aria-hidden="true">&uarr;</span></a></p>
+</article>
 
-  <!-- CONFLARA SMALL FIRM -->
-  <details class="case" id="conflara-small-firm" data-sub="Conflicts &amp; intake">
-    <summary class="case-sum">
-      <div class="shelf-head">
-      <span class="eyebrow">Case study 22 · Small-firm software</span>
-      <h2>Conflion Small Firm</h2>
-      <p class="sum">Conflicts checks and new matters for firms of 5 to 20 people: one home screen that says what to do next, one page to open a matter, and a name check anyone can run.</p>
-      </div>
-    </summary>
-    <div class="case-body">
-      <p class="links"><a href="../demos/conflion-small-firm-tour.html">Take Newton's tour</a><a href="../demos/conflion-small-firm-conflicts-tour.html">Watch the conflicts-only tour</a><a href="../demos/conflara-small-firm-demo.html">Prospect demo (access code)</a></p>
+<article class="chap" id="conflara-small-firm" data-chrome="Legal" data-short="Legal" aria-labelledby="t-conflara-small-firm">
+  <div class="chap__top">
+    <p class="chap__n"><span class="chap__c">02 / 16</span><span class="chap__k">Small-firm software</span><span class="chap__k">Conflicts &amp; intake</span></p>
+    <h2 class="chap__t" id="t-conflara-small-firm" data-words>Conflion Small Firm</h2>
+    <p class="chap__sub">small-firm software</p>
+    <p class="chap__lede" data-fade>Conflicts checks and new matters for firms of 5 to 20 people: one home screen that says what to do next, one page to open a matter, and a name check anyone can run.</p>
+  </div>
+  <div class="cbody">
+<p class="links"><a target="_blank" rel="noopener" href="../demos/conflion-small-firm-tour.html">Take Newton's tour</a><a target="_blank" rel="noopener" href="../demos/conflion-small-firm-conflicts-tour.html">Watch the conflicts-only tour</a><a target="_blank" rel="noopener" href="../demos/conflara-small-firm-demo.html">Prospect demo (access code)</a></p>
 
     <figure class="wide">
-      <img src="../assets/conflion-small-firm.jpg" alt="Conflion Small Firm home screen: a Do this next card asking Dana to sign off a conflicts check, six large buttons to open a matter, check a name, find a matter, find a client, close a matter and download the billing list, and an Also to do list with court deadlines." width="1440" height="900" loading="lazy">
+      <img decoding="async" src="../assets/conflion-small-firm.jpg" alt="Conflion Small Firm home screen: a Do this next card asking Dana to sign off a conflicts check, six large buttons to open a matter, check a name, find a matter, find a client, close a matter and download the billing list, and an Also to do list with court deadlines." width="1440" height="900" loading="lazy">
       <figcaption>The home screen leads with the one thing to do next, then six plain buttons for everyday work. Newton the cat walks viewers through both tours.</figcaption>
     </figure>
 
     <div class="made"><b>How it was built</b><p>I set the brief: a small firm has no conflicts analyst, so the screens have to explain themselves. Claude built the edition, wrote both tours and animated them in HTML, CSS and JavaScript with a light and dark mode, and built the browser demo that prospects can open with an access code.</p></div>
-    </div>
-  </details>
+  </div>
+  <p class="chap__end"><a href="#index">Back to the index <span aria-hidden="true">&uarr;</span></a></p>
+</article>
 
-  <!-- VIGILMARK -->
-  <details class="case" id="vigilmark" data-sub="Conflicts &amp; intake">
-    <summary class="case-sum">
-      <div class="shelf-head">
-      <span class="eyebrow">Companion to case study 01 · Legal software</span>
-      <h2>VigilMark</h2>
-      <p class="sum">A trademark watch and triage desk for a conflicts-first law firm: it ranks new filings that look like a client's mark, checks whether the applicant is related to a firm client, and hands the hit to Conflion as an intake.</p>
-      </div>
-    </summary>
-    <div class="case-body">
-      <p class="links"><span>Screenshots below</span></p>
+<article class="chap" id="vigilmark" data-chrome="Legal" data-short="Legal" aria-labelledby="t-vigilmark">
+  <div class="chap__top">
+    <p class="chap__n"><span class="chap__c">03 / 16</span><span class="chap__k">Legal software</span><span class="chap__k">Conflicts &amp; intake</span></p>
+    <h2 class="chap__t" id="t-vigilmark" data-words>VigilMark</h2>
+    <p class="chap__sub">trademark watch</p>
+    <p class="chap__lede" data-fade>A trademark watch and triage desk for a conflicts-first law firm: it ranks new filings that look like a client&#x27;s mark, checks whether the applicant is related to a firm client, and hands the hit to Conflion as an intake.</p>
+  </div>
+  <div class="cbody">
+<p class="links"><span>Screenshots below</span></p>
 
 
     <figure class="wide">
-      <img src="../assets/vigilmark-triage.jpg" alt="VigilMark's watch triage feed: incoming Official Gazette filings ranked by likelihood-of-confusion score, with a breakdown for CONFLARA versus KONFLARA LEGAL, a days-left countdown and a cleared conflict check." width="1400" height="900" loading="lazy">
+      <img decoding="async" src="../assets/vigilmark-triage.jpg" alt="VigilMark's watch triage feed: incoming Official Gazette filings ranked by likelihood-of-confusion score, with a breakdown for CONFLARA versus KONFLARA LEGAL, a days-left countdown and a cleared conflict check." width="1400" height="900" loading="lazy">
       <figcaption>The triage feed. Each new filing is scored against the client's mark, shows the days left in the opposition window, and carries a conflict check on the applicant.</figcaption>
     </figure>
 
@@ -566,11 +261,11 @@ details.case[hidden] { display: none; }
 
     <div class="shots">
       <figure>
-        <img src="../assets/vigilmark-dupont-lab.jpg" alt="The clearance lab: two marks entered side by side with live sight, sound and goods scores, and a conflict hit on the applicant's parent company." width="1400" height="900" loading="lazy">
+        <img decoding="async" src="../assets/vigilmark-dupont-lab.jpg" alt="The clearance lab: two marks entered side by side with live sight, sound and goods scores, and a conflict hit on the applicant's parent company." width="1400" height="900" loading="lazy">
         <figcaption>The clearance lab. Sight, sound and goods scores update as you type, and a parent-company match raises a conflict hit before anyone opposes a client.</figcaption>
       </figure>
       <figure>
-        <img src="../assets/vigilmark-pitch-email.jpg" alt="The enforcement studio showing a generated client pitch email with the score breakdown, the opposition deadline and two flat-fee options." width="1400" height="900" loading="lazy">
+        <img decoding="async" src="../assets/vigilmark-pitch-email.jpg" alt="The enforcement studio showing a generated client pitch email with the score breakdown, the opposition deadline and two flat-fee options." width="1400" height="900" loading="lazy">
         <figcaption>One click turns a hit into a ready-to-edit client email with the deadline and flat-fee options.</figcaption>
       </figure>
     </div>
@@ -583,7 +278,7 @@ details.case[hidden] { display: none; }
         <div><h4>Loosely coupled</h4><p>One click sends the hit, its scores and the conflict result into Conflion as a signed webhook. The two products share a versioned schema, not a database, so either can change inside without breaking the other. A toggle runs it standalone or in bridge mode.</p></div>
       </div>
       <figure class="wide">
-        <img src="../assets/vigilmark-conflara-bridge.jpg" alt="The Conflion bridge screen: an inspector showing the conflara.intake.v1 payload, a webhook test, an API settings panel with its key masked, and the adverse-party watchlist." width="1400" height="900" loading="lazy">
+        <img decoding="async" src="../assets/vigilmark-conflara-bridge.jpg" alt="The Conflion bridge screen: an inspector showing the conflara.intake.v1 payload, a webhook test, an API settings panel with its key masked, and the adverse-party watchlist." width="1400" height="900" loading="lazy">
         <figcaption>The bridge. The payload inspector shows the intake file that Conflion receives, next to a webhook test and the watchlist. The API key is masked.</figcaption>
       </figure>
     </section>
@@ -604,23 +299,22 @@ details.case[hidden] { display: none; }
     </div>
 
     <div class="made"><b>How it was built</b><p>Built with Google Gemini, which wrote the web app, the Python server, the Mac wrapper and the schema. I set the idea and the Conflion hand-off.</p></div>
-    </div>
-  </details>
+  </div>
+  <p class="chap__end"><a href="#index">Back to the index <span aria-hidden="true">&uarr;</span></a></p>
+</article>
 
-  <!-- PRAXIS -->
-  <details class="case" id="praxis" data-sub="Native Mac apps">
-    <summary class="case-sum">
-      <div class="shelf-head">
-      <span class="eyebrow">Case study 23 · Native Mac app · Legal AI strategy</span>
-      <h2>Praxis</h2>
-      <p class="sum">A strategy studio for the people deciding where a law firm should use AI. It maps every idea by where the demand came from and how much it changes the work, scores it with honest ranges, ranks the portfolio under different strategies, and carries the winners through pilots.</p>
-      </div>
-    </summary>
-    <div class="case-body">
-      <p class="links"><a href="../demos/praxis-tour.html" target="_blank" rel="noopener">Take the guided tour</a><span>Screens from the running Mac app, with hypothetical demo records</span></p>
+<article class="chap" id="praxis" data-chrome="Legal" data-short="Legal" aria-labelledby="t-praxis">
+  <div class="chap__top">
+    <p class="chap__n"><span class="chap__c">04 / 16</span><span class="chap__k">Native Mac app · Legal AI strategy</span><span class="chap__k">Native Mac apps</span></p>
+    <h2 class="chap__t" id="t-praxis" data-words>Praxis</h2>
+    <p class="chap__sub">AI strategy studio</p>
+    <p class="chap__lede" data-fade>A strategy studio for the people deciding where a law firm should use AI. It maps every idea by where the demand came from and how much it changes the work, scores it with honest ranges, ranks the portfolio under different strategies, and carries the winners through pilots.</p>
+  </div>
+  <div class="cbody">
+<p class="links"><a href="../demos/praxis-tour.html" target="_blank" rel="noopener">Take the guided tour</a><span>Screens from the running Mac app, with hypothetical demo records</span></p>
 
     <figure class="wide">
-      <img src="../assets/praxis-map.jpg" alt="The Praxis opportunity map: a quadrant chart of demand origin against workflow transformation with labeled bubbles for each opportunity, and an inspector explaining why Ethical wall monitoring was classified as a Hidden Opportunity." width="1600" height="1006" loading="lazy">
+      <img decoding="async" src="../assets/praxis-map.jpg" alt="The Praxis opportunity map: a quadrant chart of demand origin against workflow transformation with labeled bubbles for each opportunity, and an inspector explaining why Ethical wall monitoring was classified as a Hidden Opportunity." width="1600" height="1006" loading="lazy">
       <figcaption>The opportunity map. Position shows where demand came from and how much the work changes; the inspector explains the classification in plain words. Position is deliberately not a value score.</figcaption>
     </figure>
 
@@ -642,33 +336,32 @@ details.case[hidden] { display: none; }
 
     <div class="shots">
       <figure>
-        <img src="../assets/praxis-overview.jpg" alt="The Praxis overview: a headline saying 23 opportunities are under review, 5 in pilot and 6 at the strategic frontier, with 17 resting on weak or no evidence, followed by strategic insights and the quadrant mix." width="1600" height="1006" loading="lazy">
+        <img decoding="async" src="../assets/praxis-overview.jpg" alt="The Praxis overview: a headline saying 23 opportunities are under review, 5 in pilot and 6 at the strategic frontier, with 17 resting on weak or no evidence, followed by strategic insights and the quadrant mix." width="1600" height="1006" loading="lazy">
         <figcaption>The overview reads like a briefing memo, and every number in it is counted from the records.</figcaption>
       </figure>
       <figure>
-        <img src="../assets/praxis-prioritization.jpg" alt="Prioritization under three scenarios, Balanced, Quick wins first and Differentiation first, each with its weights, stated assumptions and a ranked list showing how far each opportunity moved." width="1600" height="1006" loading="lazy">
+        <img decoding="async" src="../assets/praxis-prioritization.jpg" alt="Prioritization under three scenarios, Balanced, Quick wins first and Differentiation first, each with its weights, stated assumptions and a ranked list showing how far each opportunity moved." width="1600" height="1006" loading="lazy">
         <figcaption>The same portfolio ranked three ways. The arrows show exactly what changes when leadership changes its strategy.</figcaption>
       </figure>
     </div>
 
     <div class="made"><b>How it was built</b><p>A native macOS app in SwiftUI and SwiftData that runs entirely on the Mac, with optional local (Ollama) or Claude assistance that shows the exact text before anything is sent. I set the brief and the design bar: white, editorial and calm enough for a partners' meeting. Claude Code wrote the app, its scoring engine and the demo portfolio, and built it on my Mac through Remote Control.</p></div>
-    </div>
-  </details>
+  </div>
+  <p class="chap__end"><a href="#index">Back to the index <span aria-hidden="true">&uarr;</span></a></p>
+</article>
 
-  <!-- LEXATLAS -->
-  <details class="case" id="lexatlas" data-sub="Native Mac apps">
-    <summary class="case-sum">
-      <div class="shelf-head">
-      <span class="eyebrow">Case study 24 · Native Mac app · Legal intelligence</span>
-      <h2>LexAtlas</h2>
-      <p class="sum">A legal intelligence graph for conflicts, diligence and investigations. It shows how companies, funds, people, matters and sources connect, ties every connection back to evidence, and enforces ethical walls in the data itself.</p>
-      </div>
-    </summary>
-    <div class="case-body">
-      <p class="links"><a href="../demos/lexatlas-tour.html" target="_blank" rel="noopener">Take the guided tour</a><span>Screens from the running Mac app, with a fully fictional dataset</span></p>
+<article class="chap" id="lexatlas" data-chrome="Legal" data-short="Legal" aria-labelledby="t-lexatlas">
+  <div class="chap__top">
+    <p class="chap__n"><span class="chap__c">05 / 16</span><span class="chap__k">Native Mac app · Legal intelligence</span><span class="chap__k">Native Mac apps</span></p>
+    <h2 class="chap__t" id="t-lexatlas" data-words>LexAtlas</h2>
+    <p class="chap__sub">legal graph</p>
+    <p class="chap__lede" data-fade>A legal intelligence graph for conflicts, diligence and investigations. It shows how companies, funds, people, matters and sources connect, ties every connection back to evidence, and enforces ethical walls in the data itself.</p>
+  </div>
+  <div class="cbody">
+<p class="links"><a href="../demos/lexatlas-tour.html" target="_blank" rel="noopener">Take the guided tour</a><span>Screens from the running Mac app, with a fully fictional dataset</span></p>
 
     <figure class="wide">
-      <img src="../assets/lexatlas-disputed.jpg" alt="The LexAtlas graph explorer centered on a fictional private equity manager, with a dotted disputed edge selected and an inspector showing its dates, assertion type, reasons for low confidence and the evidence chain." width="1600" height="964" loading="lazy">
+      <img decoding="async" src="../assets/lexatlas-disputed.jpg" alt="The LexAtlas graph explorer centered on a fictional private equity manager, with a dotted disputed edge selected and an inspector showing its dates, assertion type, reasons for low confidence and the evidence chain." width="1600" height="964" loading="lazy">
       <figcaption>A disputed relationship. A vendor feed says one company controls another and the registry disagrees, so the line is drawn as disputed and the inspector says why.</figcaption>
     </figure>
 
@@ -690,33 +383,32 @@ details.case[hidden] { display: none; }
 
     <div class="shots">
       <figure>
-        <img src="../assets/lexatlas-path.jpg" alt="The Find a relationship path dialog connecting a private equity manager to a robotics company through its fund, with constraints for relationship types, hops, date and confidence." width="1600" height="964" loading="lazy">
+        <img decoding="async" src="../assets/lexatlas-path.jpg" alt="The Find a relationship path dialog connecting a private equity manager to a robotics company through its fund, with constraints for relationship types, hops, date and confidence." width="1600" height="964" loading="lazy">
         <figcaption>The path finder. Paths are searched only within records the user is allowed to see.</figcaption>
       </figure>
       <figure>
-        <img src="../assets/lexatlas-resolution.jpg" alt="Entity resolution comparing two records for the same company, with the reasons the pair was suggested and buttons to merge, keep separate or defer." width="1600" height="964" loading="lazy">
+        <img decoding="async" src="../assets/lexatlas-resolution.jpg" alt="Entity resolution comparing two records for the same company, with the reasons the pair was suggested and buttons to merge, keep separate or defer." width="1600" height="964" loading="lazy">
         <figcaption>Entity resolution. Similar names alone never produce a merge, and a person decides every one.</figcaption>
       </figure>
     </div>
 
     <div class="made"><b>How it was built</b><p>A native macOS app in SwiftUI over system SQLite, with an offline graph canvas and optional local or Claude assistants that are off by default. I wrote the specification package; Claude Code built the app and its synthetic dataset and ran the builds on my Mac through Remote Control. The working default is a quiet white workspace, and its eleven other skins live only in Settings.</p></div>
-    </div>
-  </details>
+  </div>
+  <p class="chap__end"><a href="#index">Back to the index <span aria-hidden="true">&uarr;</span></a></p>
+</article>
 
-  <!-- SKIPPY -->
-  <details class="case" id="skippy" data-sub="Native Mac apps">
-    <summary class="case-sum">
-      <div class="shelf-head">
-      <span class="eyebrow">Case study 25 · Native Mac app · Legal AI assistant</span>
-      <h2>Skippy</h2>
-      <p class="sum">A legal AI assistant for the Mac, built on Claude. Lawyers keep each matter's documents together, ask questions and get answers cited to the page and paragraph, run review tables, redline drafts, check citations and count deadlines, and nothing reaches the cloud until they approve it.</p>
-      </div>
-    </summary>
-    <div class="case-body">
-      <p class="links"><a href="../demos/skippy-tour.html" target="_blank" rel="noopener">Take the guided tour</a><span>Screens from the running Mac app, with invented matters</span></p>
+<article class="chap" id="skippy" data-chrome="Legal" data-short="Legal" aria-labelledby="t-skippy">
+  <div class="chap__top">
+    <p class="chap__n"><span class="chap__c">06 / 16</span><span class="chap__k">Native Mac app · Legal AI assistant</span><span class="chap__k">Native Mac apps</span></p>
+    <h2 class="chap__t" id="t-skippy" data-words>Skippy</h2>
+    <p class="chap__sub">legal AI assistant</p>
+    <p class="chap__lede" data-fade>A legal AI assistant for the Mac, built on Claude. Lawyers keep each matter&#x27;s documents together, ask questions and get answers cited to the page and paragraph, run review tables, redline drafts, check citations and count deadlines, and nothing reaches the cloud until they approve it.</p>
+  </div>
+  <div class="cbody">
+<p class="links"><a href="../demos/skippy-tour.html" target="_blank" rel="noopener">Take the guided tour</a><span>Screens from the running Mac app, with invented matters</span></p>
 
     <figure class="wide">
-      <img src="../assets/skippy-cited.jpg" alt="A Skippy answer to which contracts need counterparty consent for an acquisition, working through each agreement with numbered citations, beside the supply agreement with the change-of-control clause highlighted." width="1600" height="939" loading="lazy">
+      <img decoding="async" src="../assets/skippy-cited.jpg" alt="A Skippy answer to which contracts need counterparty consent for an acquisition, working through each agreement with numbered citations, beside the supply agreement with the change-of-control clause highlighted." width="1600" height="939" loading="lazy">
       <figcaption>A cited answer. Each point carries a citation; clicking one opens the clause it rests on, here a change-of-control termination right.</figcaption>
     </figure>
 
@@ -738,34 +430,33 @@ details.case[hidden] { display: none; }
 
     <div class="shots">
       <figure>
-        <img src="../assets/skippy-approval.jpg" alt="The approval sheet listing each document that would be sent with its passage count and estimated tokens, the destination, the model, the estimated cost, and buttons for Don't Send and Send to Claude." width="1000" height="1113" loading="lazy">
+        <img decoding="async" src="../assets/skippy-approval.jpg" alt="The approval sheet listing each document that would be sent with its passage count and estimated tokens, the destination, the model, the estimated cost, and buttons for Don't Send and Send to Claude." width="1000" height="1113" loading="lazy">
         <figcaption>Nothing is sent without this sheet: which documents, where, to which model and at what cost. Both answers go in a hash-chained audit log.</figcaption>
       </figure>
       <figure>
-        <img src="../assets/skippy-review.jpg" alt="A review table across five agreements in an M&amp;A matter with columns for parties, effective date, governing law and term, each cell linked to its source passage." width="1600" height="939" loading="lazy">
+        <img decoding="async" src="../assets/skippy-review.jpg" alt="A review table across five agreements in an M&amp;A matter with columns for parties, effective date, governing law and term, each cell linked to its source passage." width="1600" height="939" loading="lazy">
         <figcaption>A review table across a deal's material contracts. Every cell links to the passage it came from.</figcaption>
       </figure>
     </div>
 
     <div class="made"><b>How it was built</b><p>A native macOS app in SwiftUI with no third-party packages. It calls Claude through the Messages API, using citations on per-passage documents, structured outputs and prompt caching, or runs on the user's own Claude subscription, and works offline with local search when neither is available. A Confidentiality Shield can mask names before anything is sent. I set the goal and chose the extra features; Claude Code built it and ran the builds on my Mac.</p></div>
-    </div>
-  </details>
+  </div>
+  <p class="chap__end"><a href="#index">Back to the index <span aria-hidden="true">&uarr;</span></a></p>
+</article>
 
-  <!-- WIN YOUR CASE ASAP -->
-  <details class="case" id="winyourcase" data-sub="Litigation">
-    <summary class="case-sum">
-      <div class="shelf-head">
-      <span class="eyebrow">Case study 09 · Legal AI</span>
-      <h2>Win your case ASAP</h2>
-      <p class="sum">A litigator's first read of a new complaint, done in minutes. It ranks every theory that could end the case by how early it can be filed, puts each one on the response clock, and quotes the complaint for every point it makes. Run blind on 26 California federal cases decided after the model’s training cutoff, the ground that actually won made its top three in 14, and 357 of 358 quotations checked out word for word.</p>
-      </div>
-    </summary>
-    <div class="case-body">
-      <p class="links"><a href="../demos/win-your-case.html" target="_blank" rel="noopener">Try the demo</a><span>Saved runs on this site; live analysis runs inside Claude</span></p>
+<article class="chap" id="winyourcase" data-chrome="Legal" data-short="Legal" aria-labelledby="t-winyourcase">
+  <div class="chap__top">
+    <p class="chap__n"><span class="chap__c">07 / 16</span><span class="chap__k">Legal AI</span><span class="chap__k">Litigation</span></p>
+    <h2 class="chap__t" id="t-winyourcase" data-words>Win your case ASAP</h2>
+    <p class="chap__sub">litigation AI</p>
+    <p class="chap__lede" data-fade>A litigator&#x27;s first read of a new complaint, done in minutes. It ranks every theory that could end the case by how early it can be filed, puts each one on the response clock, and quotes the complaint for every point it makes. Run blind on 26 California federal cases decided after the model’s training cutoff, the ground that actually won made its top three in 14, and 357 of 358 quotations checked out word for word.</p>
+  </div>
+  <div class="cbody">
+<p class="links"><a href="../demos/win-your-case.html" target="_blank" rel="noopener">Try the demo</a><span>Saved runs on this site; live analysis runs inside Claude</span></p>
 
 
     <figure class="wide">
-      <img src="../assets/wyc-home.jpg" alt="Win your case ASAP on a defamation complaint: a one-paragraph bottom line, 18 days until the first response is due, a note that 16 of 16 quotes were found word for word, and a response clock with six numbered theories pinned at the earliest date each can be filed." width="1400" height="900" loading="lazy">
+      <img decoding="async" src="../assets/wyc-home.jpg" alt="Win your case ASAP on a defamation complaint: a one-paragraph bottom line, 18 days until the first response is due, a note that 16 of 16 quotes were found word for word, and a response clock with six numbered theories pinned at the earliest date each can be filed." width="1400" height="900" loading="lazy">
       <figcaption>The first screen. The bottom line, days until the first response, every claim's earliest challenge, and a response clock with each theory pinned to the first date it can be filed.</figcaption>
     </figure>
 
@@ -787,11 +478,11 @@ details.case[hidden] { display: none; }
 
     <div class="shots">
       <figure>
-        <img src="../assets/wyc-cornet-score.jpg" alt="Scorecard for Cornet v. Twitter: what actually won was a motion to compel individual arbitration, the tool ranked it first, and its earliest filing date was about two months before the ruling, beside the complaint text with the quoted passages highlighted." width="1400" height="900" loading="lazy">
+        <img decoding="async" src="../assets/wyc-cornet-score.jpg" alt="Scorecard for Cornet v. Twitter: what actually won was a motion to compel individual arbitration, the tool ranked it first, and its earliest filing date was about two months before the ruling, beside the complaint text with the quoted passages highlighted." width="1400" height="900" loading="lazy">
         <figcaption>Cornet v. Twitter, scored against the real outcome. The complaint never mentions arbitration, and the tool ranked compelling it first.</figcaption>
       </figure>
       <figure>
-        <img src="../assets/wyc-cornet-theory.jpg" alt="Theory 1 for Cornet v. Twitter: the vehicle, filing date and authority, what the client must supply, the plaintiffs' likely answer, the leverage it creates, and two complaint quotes each marked as found word for word." width="1400" height="900" loading="lazy">
+        <img decoding="async" src="../assets/wyc-cornet-theory.jpg" alt="Theory 1 for Cornet v. Twitter: the vehicle, filing date and authority, what the client must supply, the plaintiffs' likely answer, the leverage it creates, and two complaint quotes each marked as found word for word." width="1400" height="900" loading="lazy">
         <figcaption>One theory in full. Every quote carries a check mark only if it was found word for word in the complaint, which sits beside it with the passages highlighted.</figcaption>
       </figure>
     </div>
@@ -823,29 +514,28 @@ details.case[hidden] { display: none; }
     </div>
 
     <div class="made"><b>How it was built</b><p>Built with Claude Code as a page that calls Claude for the analysis. I set the goal, an early exit from every case, and the test: run it blind on real complaints, including ones decided after the model’s cutoff, and score it against what the court actually did. Claude wrote the page, the forum rules and the demo matters, found the public cases, and wrote up each scorecard for me to review.</p></div>
-    </div>
-  </details>
+  </div>
+  <p class="chap__end"><a href="#index">Back to the index <span aria-hidden="true">&uarr;</span></a></p>
+</article>
 
-  <!-- WITNESS BREAKER -->
-  <details class="case" id="witnessbreaker" data-sub="Litigation">
-    <summary class="case-sum">
-      <div class="shelf-head">
-      <span class="eyebrow">Case study 10 · Litigation cheat code</span>
-      <h2>Testimony Check</h2>
-      <p class="sum">Feed it the documents in a case and a witness’s sworn statements, and it finds every place the story breaks, with the exact quotes on both sides and a deposition script that walks the witness into the admission.</p>
-      </div>
-    </summary>
-    <div class="case-body">
-      <p class="links"><a href="../demos/witness-breaker.html" target="_blank" rel="noopener">Try the demo</a><span>Saved runs on this site; live analysis runs inside Claude</span></p>
+<article class="chap" id="witnessbreaker" data-chrome="Legal" data-short="Legal" aria-labelledby="t-witnessbreaker">
+  <div class="chap__top">
+    <p class="chap__n"><span class="chap__c">08 / 16</span><span class="chap__k">Litigation cheat code</span><span class="chap__k">Litigation</span></p>
+    <h2 class="chap__t" id="t-witnessbreaker" data-words>Testimony Check</h2>
+    <p class="chap__sub">deposition prep</p>
+    <p class="chap__lede" data-fade>Feed it the documents in a case and a witness’s sworn statements, and it finds every place the story breaks, with the exact quotes on both sides and a deposition script that walks the witness into the admission.</p>
+  </div>
+  <div class="cbody">
+<p class="links"><a href="../demos/witness-breaker.html" target="_blank" rel="noopener">Try the demo</a><span>Saved runs on this site; live analysis runs inside Claude</span></p>
 
 
     <div class="shots">
       <figure>
-        <img src="../assets/wb-1.jpg" alt="Testimony Check headline: the manager swore he learned of the agency complaint only after the firing, but his own message the day before says he knew, with counts of 9 contradictions, 3 case-ending and 32 of 32 quotes verified." width="1400" height="900" loading="lazy">
+        <img decoding="async" src="../assets/wb-1.jpg" alt="Testimony Check headline: the manager swore he learned of the agency complaint only after the firing, but his own message the day before says he knew, with counts of 9 contradictions, 3 case-ending and 32 of 32 quotes verified." width="1400" height="900" loading="lazy">
         <figcaption>The headline. A decision-maker swore he first learned of a complaint after firing the employee; his own message from the day before shows he knew.</figcaption>
       </figure>
       <figure>
-        <img src="../assets/wb-2.jpg" alt="Contradiction C1 shown with the sworn declaration quote beside the contemporaneous message, each marked verified word for word, and a scripted question sequence below." width="1400" height="900" loading="lazy">
+        <img decoding="async" src="../assets/wb-2.jpg" alt="Contradiction C1 shown with the sworn declaration quote beside the contemporaneous message, each marked verified word for word, and a scripted question sequence below." width="1400" height="900" loading="lazy">
         <figcaption>One contradiction in full: the sworn line beside the record, each checked word for word, the exit the witness will try, and the question sequence that closes it.</figcaption>
       </figure>
     </div>
@@ -883,31 +573,30 @@ details.case[hidden] { display: none; }
     </div>
 
     <div class="made"><b>How it was built</b><p>Built with Claude Code as a page that calls Claude for the analysis. I set the idea and the test; Claude wrote the page and prompts, and a script recorded the run shown here.</p></div>
-    </div>
-  </details>
+  </div>
+  <p class="chap__end"><a href="#index">Back to the index <span aria-hidden="true">&uarr;</span></a></p>
+</article>
 
-  <!-- CITATION GATE -->
-  <details class="case" id="citationgate" data-sub="Litigation">
-    <summary class="case-sum">
-      <div class="shelf-head">
-      <span class="eyebrow">Case study 11 · Litigation screen</span>
-      <h2>Citation Gate</h2>
-      <p class="sum">A first-pass screen that runs before the citator check. Every case cited is looked up in a database of real opinions, every quotation is matched word for word against the court’s text, and Claude reads the actual opinion to judge whether it says what the brief claims.</p>
-      </div>
-    </summary>
-    <div class="case-body">
-      <p class="links"><span>Screenshots below</span></p>
+<article class="chap" id="citationgate" data-chrome="Legal" data-short="Legal" aria-labelledby="t-citationgate">
+  <div class="chap__top">
+    <p class="chap__n"><span class="chap__c">09 / 16</span><span class="chap__k">Litigation screen</span><span class="chap__k">Litigation</span></p>
+    <h2 class="chap__t" id="t-citationgate" data-words>Citation Gate</h2>
+    <p class="chap__sub">brief checking</p>
+    <p class="chap__lede" data-fade>A first-pass screen that runs before the citator check. Every case cited is looked up in a database of real opinions, every quotation is matched word for word against the court’s text, and Claude reads the actual opinion to judge whether it says what the brief claims.</p>
+  </div>
+  <div class="cbody">
+<p class="links"><span>Screenshots below</span></p>
 
     <div class="made"><b>What it checks</b><p>Citations and quotations, against an index of about 256,000 opinions from CourtListener&rsquo;s free public data (California Supreme Court, Court of Appeal, Ninth Circuit and U.S. Supreme Court, snapshot of September 30, 2026). It is built to sit beside a citator: the attorney verifies every authority before filing.</p></div>
 
 
     <div class="shots">
       <figure>
-        <img src="../assets/cg-1.jpg" alt="Citation Gate showing a red Hold, do not file banner for a seven-case opposition brief, with a table of each citation and whether the case exists, its quotations check out and it supports the point." width="1400" height="900" loading="lazy">
+        <img decoding="async" src="../assets/cg-1.jpg" alt="Citation Gate showing a red Hold, do not file banner for a seven-case opposition brief, with a table of each citation and whether the case exists, its quotations check out and it supports the point." width="1400" height="900" loading="lazy">
         <figcaption>The citation table for a seven-case brief. Four citations would put a false statement in front of a court, and the first is named in the banner.</figcaption>
       </figure>
       <figure>
-        <img src="../assets/cg-2.jpg" alt="Citation Gate evidence for a misquoted case: the quotation checked against the court’s opinion with five words struck through, and a note that the proposition is overstated." width="1400" height="900" loading="lazy">
+        <img decoding="async" src="../assets/cg-2.jpg" alt="Citation Gate evidence for a misquoted case: the quotation checked against the court’s opinion with five words struck through, and a note that the proposition is overstated." width="1400" height="900" loading="lazy">
         <figcaption>Evidence for one row. The brief’s quotation differs from the court’s words in five places, and the court did not say what the brief claims it said.</figcaption>
       </figure>
     </div>
@@ -945,29 +634,28 @@ details.case[hidden] { display: none; }
     </div>
 
     <div class="made"><b>How it was built</b><p>Built with Claude Code as a page that calls Claude for the analysis. I set the idea and the test; Claude wrote the page and prompts, and a script recorded the run shown here.</p></div>
-    </div>
-  </details>
+  </div>
+  <p class="chap__end"><a href="#index">Back to the index <span aria-hidden="true">&uarr;</span></a></p>
+</article>
 
-  <!-- GUIDELINE GUARD -->
-  <details class="case" id="guidelineguard" data-sub="Firm operations">
-    <summary class="case-sum">
-      <div class="shelf-head">
-      <span class="eyebrow">Case study 12 · Billing compliance</span>
-      <h2>Guideline Guard</h2>
-      <p class="sum">Every client’s outside counsel guidelines, enforced on each prebill before it leaves the firm. Claude reads the guidelines, audits each line, quotes the rule it applies and proposes the fix.</p>
-      </div>
-    </summary>
-    <div class="case-body">
-      <p class="links"><a href="../demos/guideline-guard.html" target="_blank" rel="noopener">Try the demo</a><span>Saved runs on this site; live analysis runs inside Claude</span></p>
+<article class="chap" id="guidelineguard" data-chrome="Legal" data-short="Legal" aria-labelledby="t-guidelineguard">
+  <div class="chap__top">
+    <p class="chap__n"><span class="chap__c">10 / 16</span><span class="chap__k">Billing compliance</span><span class="chap__k">Firm operations</span></p>
+    <h2 class="chap__t" id="t-guidelineguard" data-words>Guideline Guard</h2>
+    <p class="chap__sub">billing rules</p>
+    <p class="chap__lede" data-fade>Every client’s outside counsel guidelines, enforced on each prebill before it leaves the firm. Claude reads the guidelines, audits each line, quotes the rule it applies and proposes the fix.</p>
+  </div>
+  <div class="cbody">
+<p class="links"><a href="../demos/guideline-guard.html" target="_blank" rel="noopener">Try the demo</a><span>Saved runs on this site; live analysis runs inside Claude</span></p>
 
 
     <div class="shots">
       <figure>
-        <img src="../assets/gg-1.jpg" alt="Guideline Guard audit summary: about $7,850 of $26,000 in fees is unrecoverable as billed, with tiles for fees at risk, recoverable by editing and not payable, and a list of time entries each marked rewrite or not payable." width="1400" height="900" loading="lazy">
+        <img decoding="async" src="../assets/gg-1.jpg" alt="Guideline Guard audit summary: about $7,850 of $26,000 in fees is unrecoverable as billed, with tiles for fees at risk, recoverable by editing and not payable, and a list of time entries each marked rewrite or not payable." width="1400" height="900" loading="lazy">
         <figcaption>The audit. Of $26,000 in fees, $19,325 is at risk as submitted, and the page says why in plain terms.</figcaption>
       </figure>
       <figure>
-        <img src="../assets/gg-2.jpg" alt="A time entry marked Not payable because the associate was admitted less than a year earlier, with the guideline quoted and verified, beside a note to the billing partner and habits to change." width="1400" height="900" loading="lazy">
+        <img decoding="async" src="../assets/gg-2.jpg" alt="A time entry marked Not payable because the associate was admitted less than a year earlier, with the guideline quoted and verified, beside a note to the billing partner and habits to change." width="1400" height="900" loading="lazy">
         <figcaption>Each finding quotes the guideline word for word, shows the rule, and, where it can, proposes a rewritten narrative. A note to the billing partner sums up what to fix first.</figcaption>
       </figure>
     </div>
@@ -1004,29 +692,28 @@ details.case[hidden] { display: none; }
     </div>
 
     <div class="made"><b>How it was built</b><p>Built with Claude Code as a page that calls Claude for the analysis. I set the idea and the test; Claude wrote the page and prompts, and a script recorded the run shown here.</p></div>
-    </div>
-  </details>
+  </div>
+  <p class="chap__end"><a href="#index">Back to the index <span aria-hidden="true">&uarr;</span></a></p>
+</article>
 
-  <!-- HOUR CATCH -->
-  <details class="case" id="hourcatch" data-sub="Firm operations">
-    <summary class="case-sum">
-      <div class="shelf-head">
-      <span class="eyebrow">Case study 13 · Time capture</span>
-      <h2>Hour Catch</h2>
-      <p class="sum">Every hour you work gets billed. It reads a lawyer’s day across Outlook, Teams, document history and the phone log, writes the time entries they forgot, and runs each one through Guideline Guard before it reaches billing.</p>
-      </div>
-    </summary>
-    <div class="case-body">
-      <p class="links"><a href="../demos/hour-catch.html" target="_blank" rel="noopener">Try the demo</a><span>Saved runs on this site; live analysis runs inside Claude</span></p>
+<article class="chap" id="hourcatch" data-chrome="Legal" data-short="Legal" aria-labelledby="t-hourcatch">
+  <div class="chap__top">
+    <p class="chap__n"><span class="chap__c">11 / 16</span><span class="chap__k">Time capture</span><span class="chap__k">Firm operations</span></p>
+    <h2 class="chap__t" id="t-hourcatch" data-words>Hour Catch</h2>
+    <p class="chap__sub">time capture</p>
+    <p class="chap__lede" data-fade>Every hour you work gets billed. It reads a lawyer’s day across Outlook, Teams, document history and the phone log, writes the time entries they forgot, and runs each one through Guideline Guard before it reaches billing.</p>
+  </div>
+  <div class="cbody">
+<p class="links"><a href="../demos/hour-catch.html" target="_blank" rel="noopener">Try the demo</a><span>Saved runs on this site; live analysis runs inside Claude</span></p>
 
 
     <div class="shots">
       <figure>
-        <img src="../assets/hc-1.jpg" alt="Hour Catch day view: 4.1 hours typed in from memory against 7.3 hours found in the day, 3,632 dollars payable after Guideline Guard, and a calendar of the day beside draft time entries." width="1400" height="900" loading="lazy">
+        <img decoding="async" src="../assets/hc-1.jpg" alt="Hour Catch day view: 4.1 hours typed in from memory against 7.3 hours found in the day, 3,632 dollars payable after Guideline Guard, and a calendar of the day beside draft time entries." width="1400" height="900" loading="lazy">
         <figcaption>The day. A lawyer typed in 4.1 hours from memory; Hour Catch found 7.3 across 15 entries.</figcaption>
       </figure>
       <figure>
-        <img src="../assets/hc-2.jpg" alt="Hours by matter comparing remembered time to found time for four matters." width="1400" height="900" loading="lazy">
+        <img decoding="async" src="../assets/hc-2.jpg" alt="Hours by matter comparing remembered time to found time for four matters." width="1400" height="900" loading="lazy">
         <figcaption>Remembered against found, matter by matter, for the same day.</figcaption>
       </figure>
     </div>
@@ -1064,29 +751,28 @@ details.case[hidden] { display: none; }
     </div>
 
     <div class="made"><b>How it was built</b><p>Built with Claude Code as a page that calls Claude for the analysis. I set the idea and the test; Claude wrote the page and prompts, and a script recorded the run shown here.</p></div>
-    </div>
-  </details>
+  </div>
+  <p class="chap__end"><a href="#index">Back to the index <span aria-hidden="true">&uarr;</span></a></p>
+</article>
 
-  <!-- PARTY FINDER -->
-  <details class="case" id="partyfinder" data-sub="Conflicts &amp; intake">
-    <summary class="case-sum">
-      <div class="shelf-head">
-      <span class="eyebrow">Case study 14 · Conflicts</span>
-      <h2>Party Finder</h2>
-      <p class="sum">No conflict hides in the paperwork. It reads the complaint, deal documents or engagement request, builds the complete list of names to search, and ties each name to the sentence it came from. The list goes into the firm’s conflicts system, which stays the system of record.</p>
-      </div>
-    </summary>
-    <div class="case-body">
-      <p class="links"><a href="../demos/party-finder.html" target="_blank" rel="noopener">Try the demo</a><span>Saved runs on this site; live analysis runs inside Claude</span></p>
+<article class="chap" id="partyfinder" data-chrome="Legal" data-short="Legal" aria-labelledby="t-partyfinder">
+  <div class="chap__top">
+    <p class="chap__n"><span class="chap__c">12 / 16</span><span class="chap__k">Conflicts</span><span class="chap__k">Conflicts &amp; intake</span></p>
+    <h2 class="chap__t" id="t-partyfinder" data-words>Party Finder</h2>
+    <p class="chap__sub">conflicts</p>
+    <p class="chap__lede" data-fade>No conflict hides in the paperwork. It reads the complaint, deal documents or engagement request, builds the complete list of names to search, and ties each name to the sentence it came from. The list goes into the firm’s conflicts system, which stays the system of record.</p>
+  </div>
+  <div class="cbody">
+<p class="links"><a href="../demos/party-finder.html" target="_blank" rel="noopener">Try the demo</a><span>Saved runs on this site; live analysis runs inside Claude</span></p>
 
 
     <div class="shots">
       <figure>
-        <img src="../assets/pf-1.jpg" alt="Party Finder overview: 3 names listed on the intake form against 28 parties found, 25 not on the intake form and 11 high priority, with a summary of who is really adverse." width="1400" height="900" loading="lazy">
+        <img decoding="async" src="../assets/pf-1.jpg" alt="Party Finder overview: 3 names listed on the intake form against 28 parties found, 25 not on the intake form and 11 high priority, with a summary of who is really adverse." width="1400" height="900" loading="lazy">
         <figcaption>The overview for a litigation matter. The requesting attorney listed 3 names; Party Finder found 28, 25 of them not on the intake form.</figcaption>
       </figure>
       <figure>
-        <img src="../assets/pf-2.jpg" alt="Party Finder export for a conflicts system: one row per search name with its primary party, type, role, side and the source quote." width="1400" height="900" loading="lazy">
+        <img decoding="async" src="../assets/pf-2.jpg" alt="Party Finder export for a conflicts system: one row per search name with its primary party, type, role, side and the source quote." width="1400" height="900" loading="lazy">
         <figcaption>The export. One row per search name, each former name and variant linked back to its primary party, ready to load into the conflicts system.</figcaption>
       </figure>
     </div>
@@ -1124,29 +810,28 @@ details.case[hidden] { display: none; }
     </div>
 
     <div class="made"><b>How it was built</b><p>Built with Claude Code as a page that calls Claude for the analysis. It grows out of the Conflion conflicts work.</p></div>
-    </div>
-  </details>
+  </div>
+  <p class="chap__end"><a href="#index">Back to the index <span aria-hidden="true">&uarr;</span></a></p>
+</article>
 
-  <!-- MATTER DESK -->
-  <details class="case" id="matterdesk" data-sub="Firm operations">
-    <summary class="case-sum">
-      <div class="shelf-head">
-      <span class="eyebrow">Case study 18 · Practice workflows</span>
-      <h2>Matter Desk</h2>
-      <p class="sum">One desk for the first read of a new matter in five practice areas: M&amp;A diligence, an insurance tender, a PAGA notice, a lease abstract and a health care BAA. It reads the documents, says what a rushed review would miss, dates every deadline and drafts the first letter or email, with every quote checked against the source.</p>
-      </div>
-    </summary>
-    <div class="case-body">
-      <p class="links"><a href="../demos/matter-desk.html" target="_blank" rel="noopener">Try the demo</a><span>Saved runs on this site; live analysis runs inside Claude</span></p>
+<article class="chap" id="matterdesk" data-chrome="Legal" data-short="Legal" aria-labelledby="t-matterdesk">
+  <div class="chap__top">
+    <p class="chap__n"><span class="chap__c">13 / 16</span><span class="chap__k">Practice workflows</span><span class="chap__k">Firm operations</span></p>
+    <h2 class="chap__t" id="t-matterdesk" data-words>Matter Desk</h2>
+    <p class="chap__sub">practice workflows</p>
+    <p class="chap__lede" data-fade>One desk for the first read of a new matter in five practice areas: M&amp;A diligence, an insurance tender, a PAGA notice, a lease abstract and a health care BAA. It reads the documents, says what a rushed review would miss, dates every deadline and drafts the first letter or email, with every quote checked against the source.</p>
+  </div>
+  <div class="cbody">
+<p class="links"><a href="../demos/matter-desk.html" target="_blank" rel="noopener">Try the demo</a><span>Saved runs on this site; live analysis runs inside Claude</span></p>
 
 
     <div class="shots">
       <figure>
-        <img src="../assets/md-1.jpg" alt="Matter Desk on the M&amp;A diligence workflow: the source documents on the left, and on the right a bottom line saying not to sign as drafted, followed by critical catches, each with its next step and a checked quote." width="1400" height="900" loading="lazy">
+        <img decoding="async" src="../assets/md-1.jpg" alt="Matter Desk on the M&amp;A diligence workflow: the source documents on the left, and on the right a bottom line saying not to sign as drafted, followed by critical catches, each with its next step and a checked quote." width="1400" height="900" loading="lazy">
         <figcaption>The deal diligence workflow on a stock purchase. The bottom line comes first, then what a rushed review would miss, each catch tied to a quote found in the documents.</figcaption>
       </figure>
       <figure>
-        <img src="../assets/md-2.jpg" alt="Matter Desk critical dates for an invented office lease: each date with days remaining, the lease section and arithmetic behind it, and a verified quote." width="1400" height="900" loading="lazy">
+        <img decoding="async" src="../assets/md-2.jpg" alt="Matter Desk critical dates for an invented office lease: each date with days remaining, the lease section and arithmetic behind it, and a verified quote." width="1400" height="900" loading="lazy">
         <figcaption>The lease workflow’s critical dates. Each one shows the days left, the section and arithmetic behind it, and the quote it rests on.</figcaption>
       </figure>
     </div>
@@ -1184,29 +869,28 @@ details.case[hidden] { display: none; }
     </div>
 
     <div class="made"><b>How it was built</b><p>Built with Claude as a page that calls Claude for the analysis. Pasting in a new matter and asking questions of the documents work when the page is opened inside Claude.</p></div>
-    </div>
-  </details>
+  </div>
+  <p class="chap__end"><a href="#index">Back to the index <span aria-hidden="true">&uarr;</span></a></p>
+</article>
 
-  <!-- SYNTHESIS -->
-  <details class="case" id="synthesis" data-sub="Firm operations">
-    <summary class="case-sum">
-      <div class="shelf-head">
-      <span class="eyebrow">Case study 19 · Deal workbench</span>
-      <h2>Synthesis</h2>
-      <p class="sum">An M&amp;A workbench for the buy side of one deal. It checks the seller’s disclosure schedules against the reps and the contracts, explains every change in the seller’s markup and proposes a middle position, checks cross-references and defined terms in code, and builds the closing checklist from the agreement.</p>
-      </div>
-    </summary>
-    <div class="case-body">
-      <p class="links"><a href="../demos/synthesis.html" target="_blank" rel="noopener">Try the demo</a><span>Saved runs on this site; live analysis runs inside Claude</span></p>
+<article class="chap" id="synthesis" data-chrome="Legal" data-short="Legal" aria-labelledby="t-synthesis">
+  <div class="chap__top">
+    <p class="chap__n"><span class="chap__c">14 / 16</span><span class="chap__k">Deal workbench</span><span class="chap__k">Firm operations</span></p>
+    <h2 class="chap__t" id="t-synthesis" data-words>Synthesis</h2>
+    <p class="chap__sub">deal workbench</p>
+    <p class="chap__lede" data-fade>An M&amp;A workbench for the buy side of one deal. It checks the seller’s disclosure schedules against the reps and the contracts, explains every change in the seller’s markup and proposes a middle position, checks cross-references and defined terms in code, and builds the closing checklist from the agreement.</p>
+  </div>
+  <div class="cbody">
+<p class="links"><a href="../demos/synthesis.html" target="_blank" rel="noopener">Try the demo</a><span>Saved runs on this site; live analysis runs inside Claude</span></p>
 
 
     <div class="shots">
       <figure>
-        <img src="../assets/syn-1.jpg" alt="Synthesis deal room: days to closing and to the outside date, counts of schedule gaps, red flags, markup issues, drafting errors and closing items at risk, and the decisions for the deal partner." width="1400" height="900" loading="lazy">
+        <img decoding="async" src="../assets/syn-1.jpg" alt="Synthesis deal room: days to closing and to the outside date, counts of schedule gaps, red flags, markup issues, drafting errors and closing items at risk, and the decisions for the deal partner." width="1400" height="900" loading="lazy">
         <figcaption>The deal room for a $46.5 million stock purchase: where the deal stands, pulled from every module, with the decisions the deal partner has to make.</figcaption>
       </figure>
       <figure>
-        <img src="../assets/syn-2.jpg" alt="Synthesis Turns view: a summary of how the seller's markup shifts risk, then each change shown as buyer's draft, seller's markup and a proposed middle position." width="1400" height="900" loading="lazy">
+        <img decoding="async" src="../assets/syn-2.jpg" alt="Synthesis Turns view: a summary of how the seller's markup shifts risk, then each change shown as buyer's draft, seller's markup and a proposed middle position." width="1400" height="900" loading="lazy">
         <figcaption>Turns. Code computes the redline between the buyer’s draft and the seller’s markup; Claude explains what each change does and proposes the language in between.</figcaption>
       </figure>
     </div>
@@ -1244,29 +928,28 @@ details.case[hidden] { display: none; }
     </div>
 
     <div class="made"><b>How it was built</b><p>Built with Claude as a page that calls Claude for the analysis. It uses the same deal as Matter Desk’s diligence workflow.</p></div>
-    </div>
-  </details>
+  </div>
+  <p class="chap__end"><a href="#index">Back to the index <span aria-hidden="true">&uarr;</span></a></p>
+</article>
 
-  <!-- CASE WINS DEBRIEF -->
-  <details class="case" id="casewins" data-sub="Litigation">
-    <summary class="case-sum">
-      <div class="shelf-head">
-      <span class="eyebrow">Case study 20 · Litigation debrief</span>
-      <h2>Case Wins Debrief</h2>
-      <p class="sum">Reads a firm’s case wins for what slowed them down or left value on the table, groups the lessons into patterns, and pairs each pattern with a working Claude tool.</p>
-      </div>
-    </summary>
-    <div class="case-body">
-      <p class="links"><a href="../demos/case-wins-debrief.html" target="_blank" rel="noopener">Try the demo</a><span>Saved runs on this site; live analysis runs inside Claude</span></p>
+<article class="chap" id="casewins" data-chrome="Legal" data-short="Legal" aria-labelledby="t-casewins">
+  <div class="chap__top">
+    <p class="chap__n"><span class="chap__c">15 / 16</span><span class="chap__k">Litigation debrief</span><span class="chap__k">Litigation</span></p>
+    <h2 class="chap__t" id="t-casewins" data-words>Case Wins Debrief</h2>
+    <p class="chap__sub">litigation lessons</p>
+    <p class="chap__lede" data-fade>Reads a firm’s case wins for what slowed them down or left value on the table, groups the lessons into patterns, and pairs each pattern with a working Claude tool.</p>
+  </div>
+  <div class="cbody">
+<p class="links"><a href="../demos/case-wins-debrief.html" target="_blank" rel="noopener">Try the demo</a><span>Saved runs on this site; live analysis runs inside Claude</span></p>
 
 
     <div class="shots">
       <figure>
-        <img src="../assets/cwd-1.jpg" alt="Case Wins Debrief header and a timeline of six invented wins, from 1.1 to 11.9 years from the first dated event to the win." width="1400" height="900" loading="lazy">
+        <img decoding="async" src="../assets/cwd-1.jpg" alt="Case Wins Debrief header and a timeline of six invented wins, from 1.1 to 11.9 years from the first dated event to the win." width="1400" height="900" loading="lazy">
         <figcaption>How long the wins took. Six of the twelve wins have dates, and three of the four longest were won on questions of law.</figcaption>
       </figure>
       <figure>
-        <img src="../assets/cwd-2.jpg" alt="The Day-One Test tool: a complaint summary on the left and, on the right, dispositive legal issues ranked with the motion and earliest timing for each." width="1400" height="900" loading="lazy">
+        <img decoding="async" src="../assets/cwd-2.jpg" alt="The Day-One Test tool: a complaint summary on the left and, on the right, dispositive legal issues ranked with the motion and earliest timing for each." width="1400" height="900" loading="lazy">
         <figcaption>One of the four tools. The Day-One Test ranks the legal issues that could end a case and the earliest motion for each.</figcaption>
       </figure>
     </div>
@@ -1303,20 +986,19 @@ details.case[hidden] { display: none; }
     </div>
 
     <div class="made"><b>How it was built</b><p>Built with Claude as a page that calls Claude for each tool.</p></div>
-    </div>
-  </details>
+  </div>
+  <p class="chap__end"><a href="#index">Back to the index <span aria-hidden="true">&uarr;</span></a></p>
+</article>
 
-  <!-- MARKETING STUDIO -->
-  <details class="case" id="marketingstudio" data-sub="Firm operations">
-    <summary class="case-sum">
-      <div class="shelf-head">
-      <span class="eyebrow">Case study 21 · Firm marketing</span>
-      <h2>Marketing Studio</h2>
-      <p class="sum">Drafts law-firm marketing in the firm’s voice: attorney bios, client alerts, RFP responses and award submissions. A second Claude pass then checks each draft against the source and California’s attorney advertising rules before anyone publishes it.</p>
-      </div>
-    </summary>
-    <div class="case-body">
-      <p class="links"><a href="https://claude.ai/artifact/8zgrVJrAcrKnoN9fHWH3m9" target="_blank" rel="noopener">Open Marketing Studio in Claude</a><span>Hosted in Claude; example runs show first, and live drafting uses your own Claude account</span></p>
+<article class="chap" id="marketingstudio" data-chrome="Legal" data-short="Legal" aria-labelledby="t-marketingstudio">
+  <div class="chap__top">
+    <p class="chap__n"><span class="chap__c">16 / 16</span><span class="chap__k">Firm marketing</span><span class="chap__k">Firm operations</span></p>
+    <h2 class="chap__t" id="t-marketingstudio" data-words>Marketing Studio</h2>
+    <p class="chap__sub">firm marketing</p>
+    <p class="chap__lede" data-fade>Drafts law-firm marketing in the firm’s voice: attorney bios, client alerts, RFP responses and award submissions. A second Claude pass then checks each draft against the source and California’s attorney advertising rules before anyone publishes it.</p>
+  </div>
+  <div class="cbody">
+<p class="links"><a href="https://claude.ai/artifact/8zgrVJrAcrKnoN9fHWH3m9" target="_blank" rel="noopener">Open Marketing Studio in Claude</a><span>Hosted in Claude; example runs show first, and live drafting uses your own Claude account</span></p>
 
 
 
@@ -1353,191 +1035,37 @@ details.case[hidden] { display: none; }
     </div>
 
     <div class="made"><b>How it was built</b><p>Built with Claude as a page hosted in Claude that calls Claude to draft and then to review.</p></div>
-    </div>
-  </details>
-  </section>
-
-  <div class="wayfind">
-    <span class="eyebrow">More work</span>
-    <nav class="areas-nav" aria-label="Areas of work"><a href="../">All work</a><a href="../legal/" aria-current="page">Legal software<b>16</b></a><a href="../business/">Business<b>8</b></a><a href="../creative/">Creative and games<b>6</b></a><a href="../design/">Design, 3D and generative art<b>10</b></a><a href="../research/">AI tools and research<b>8</b></a></nav>
-    <p class="ix-more"><a href="../#tools">Which AI for what <span>by project</span></a></p>
   </div>
-
-  <footer>
-    <span>Myles Parslow · Made with AI</span>
-    <a href="https://mylesparslow.com/legal-portfolio/">Legal portfolio</a>
-    <a href="https://github.com/mylesparslow-collab">github.com/mylesparslow-collab</a>
-  </footer>
+  <p class="chap__end"><a href="#index">Back to the index <span aria-hidden="true">&uarr;</span></a></p>
+</article>
 </div>
 
-<script>
-(function () {
-  var cases = Array.prototype.slice.call(document.querySelectorAll('details.case'));
-  function openFromHash() {
-    var id = decodeURIComponent(location.hash.slice(1));
-    if (!id) return;
-    var t = document.getElementById(id);
-    var d = t && t.closest ? t.closest('details.case') : null;
-    if (d) {
-      d.open = true;
-      requestAnimationFrame(function () { (t || d).scrollIntoView(); });
-    }
-  }
-  openFromHash();
-  window.addEventListener('hashchange', openFromHash);
-  var was = [];
-  window.addEventListener('beforeprint', function () {
-    was = cases.map(function (d) { return d.open; });
-    cases.forEach(function (d) { d.open = true; });
-  });
-  window.addEventListener('afterprint', function () {
-    cases.forEach(function (d, i) { d.open = was[i]; });
-  });
-})();
-</script>
-<script>
-/* Picture index, find and surprise, count-up numbers, before/after sliders and reading bar. */
-(function () {
-  var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var $$ = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
 
-  // Opening a case from a tile. The page's own hash handler opens and scrolls; this also covers clicking the same tile twice.
-  function openCase(id) {
-    var d = document.getElementById(id);
-    if (!d) return;
-    d.open = true;
-    if (location.hash === '#' + id) d.scrollIntoView();
-    else location.hash = id;
-  }
+<nav class="pn" aria-label="Other rooms">
+  <a class="pn__a prev" href="../research/" style="--room:var(--r-research)"><span class="eyebrow">&larr; Previous room</span><span class="pn__l" aria-hidden="true">R</span><span class="pn__t">AI &amp; research</span></a>
+  <a class="pn__a next" href="../business/" style="--room:var(--r-business)"><span class="eyebrow">Next room &rarr;</span><span class="pn__l" aria-hidden="true">B</span><span class="pn__t">Business</span></a>
+</nav>
+</main>
 
-  // Second screenshot fades in on hover; it is only fetched the first time someone points at the tile.
-  $$('.tile').forEach(function (t) {
-    var alt = t.querySelector('img.alt');
-    function warm() {
-      if (!alt || alt.src) return;
-      alt.onload = function () { alt.classList.add('ready'); };
-      alt.src = alt.dataset.src;
-    }
-    t.addEventListener('pointerenter', warm);
-    t.addEventListener('focus', warm);
-    t.addEventListener('click', function (e) { var h = t.getAttribute('href'); if (h.charAt(0) !== '#') return; e.preventDefault(); openCase(h.slice(1)); });
-  });
+<footer class="foot foot--room" id="contact">
+  <a class="back" href="../index.html#rooms"><span class="sct">Back to the rooms</span> <span aria-hidden="true">&uarr;</span></a>
+  <a class="mail" href="mailto:mzpprojects1@gmail.com" data-copy="mzpprojects1@gmail.com" aria-label="Copy email address mzpprojects1@gmail.com" data-scramble><span class="sct" aria-hidden="true">mzpprojects1@gmail.com</span></a>
+  <div class="foot__row">
+    <a href="https://github.com/mylesparslow-collab" target="_blank" rel="noopener">GitHub</a>
+    <a href="https://mylesparslow.com/legal-portfolio/" target="_blank" rel="noopener">Legal portfolio</a>
+    <a href="#top">Back to top &uarr;</a>
+    <span>Myles Parslow &middot; Made with AI</span>
+  </div>
+</footer>
+</div>
 
-  // Find a project
-  var find = document.getElementById('find'), empty = document.querySelector('.find-empty');
-  var tiles = document.querySelector('.ix-all') ? $$('.ix-all .tile') : $$('.ix-index .tile');
-  var groups = document.querySelector('.ix-all') ? $$('.ix-all') : [];
-  function go(t) { var h = t.getAttribute('href'); if (h.charAt(0) === '#') openCase(h.slice(1)); else location.href = h; }
-  function filter() {
-    var words = find.value.toLowerCase().split(/\s+/).filter(Boolean), shown = 0;
-    tiles.forEach(function (t) {
-      var hay = t.dataset.hay + ' ' + t.textContent.toLowerCase();
-      var ok = words.every(function (w) { return hay.indexOf(w) >= 0; });
-      t.hidden = !ok; if (ok) shown++;
-    });
-    groups.forEach(function (g) { g.hidden = !g.querySelector('.tile:not([hidden])'); });
-    document.body.classList.toggle('searching', words.length > 0);
-    if (window.__applyChip) window.__applyChip();
-    empty.hidden = shown > 0;
-  }
-  if (find) {
-    find.addEventListener('input', filter);
-    find.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') { var t = tiles.filter(function (x) { return !x.hidden; })[0]; if (t) go(t); }
-      if (e.key === 'Escape') { find.value = ''; filter(); find.blur(); }
-    });
-    document.addEventListener('keydown', function (e) {
-      var a = document.activeElement, typing = a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.isContentEditable);
-      if (e.key === '/' && !typing && !e.metaKey && !e.ctrlKey && !e.altKey) { e.preventDefault(); find.focus(); find.select(); }
-    });
-  }
-  var surprise = document.getElementById('surprise');
-  if (surprise) surprise.addEventListener('click', function () {
-    var pool = tiles.filter(function (t) { return !t.hidden; });
-    if (!pool.length) pool = tiles;
-    var pick = pool[Math.floor(Math.random() * pool.length)];
-    go(pick);
-  });
+<div class="toast" role="status" aria-live="polite"></div>
+<svg class="curtain" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path id="cur" d="M0 -20 L100 -20 L100 130 L0 130Z"/></svg>
 
-  // Count-up: the real figure stays in the HTML; only its first number animates, once, when it comes into view.
-  if (!reduced && 'IntersectionObserver' in window) {
-    var io = new IntersectionObserver(function (es) {
-      es.forEach(function (e) {
-        if (!e.isIntersecting) return;
-        io.unobserve(e.target);
-        countUp(e.target);
-      });
-    }, { threshold: 0.6 });
-    $$('.tally dd, .stats dd').forEach(function (dd) {
-      if (/^\D{0,2}\d[\d,]*(\.\d+)?/.test(dd.textContent.trim())) io.observe(dd);
-    });
-  }
-  function countUp(dd) {
-    var text = dd.textContent, m = text.match(/\d[\d,]*(\.\d+)?/);
-    if (!m) return;
-    var target = parseFloat(m[0].replace(/,/g, '')), dec = m[1] ? m[1].length - 1 : 0;
-    if (!(target > 0)) return;
-    var before = text.slice(0, m.index), after = text.slice(m.index + m[0].length), comma = m[0].indexOf(',') >= 0;
-    var fmt = function (n) { var v = n.toFixed(dec); return comma ? Number(v).toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec }) : v; };
-    var t0 = performance.now(), dur = target < 20 ? 700 : 1300;
-    (function frame(now) {
-      var k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 4);
-      dd.textContent = k < 1 ? before + fmt(target * e) + after : text;
-      if (k < 1) requestAnimationFrame(frame);
-    })(t0);
-  }
-
-  // Before / after sliders
-  $$('.compare').forEach(function (c) {
-    var r = c.querySelector('input');
-    r.addEventListener('input', function () { c.style.setProperty('--pos', r.value + '%'); });
-  });
-
-  // Reading bar for the open case study under the top of the screen, and a way back to the index.
-  var bar = document.createElement('div'); bar.className = 'readbar'; bar.setAttribute('aria-hidden', 'true');
-  var back = document.createElement('a'); back.className = 'backtop'; back.href = '#index'; back.textContent = '↑ All projects'; back.hidden = true;
-  document.body.appendChild(bar); document.body.appendChild(back);
-  back.addEventListener('click', function (e) { e.preventDefault(); var ix = document.getElementById('index'); ix.scrollIntoView(); history.replaceState(null, '', location.pathname + location.search); });
-  var openCases = $$('details.case'), ticking = false;
-  function onScroll() {
-    ticking = false;
-    var vh = innerHeight, p = -1;
-    for (var i = 0; i < openCases.length; i++) {
-      var d = openCases[i];
-      if (!d.open) continue;
-      var r = d.getBoundingClientRect();
-      if (r.top < vh * 0.3 && r.bottom > vh * 0.3) { p = Math.min(1, Math.max(0, -r.top / Math.max(1, r.height - vh))); break; }
-    }
-    bar.classList.toggle('on', p >= 0);
-    if (p >= 0) bar.style.transform = 'scaleX(' + p + ')';
-    var ix = document.getElementById('index');
-    back.hidden = !ix || ix.getBoundingClientRect().bottom > 0;
-  }
-  window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
-  window.addEventListener('resize', onScroll);
-  onScroll();
-
-})();
-</script>
-<script>
-(function () {
-  var cur = '';
-  var chips = Array.prototype.slice.call(document.querySelectorAll('.chip'));
-  window.__applyChip = function () {
-    document.querySelectorAll('.ix-index .tile').forEach(function (t) {
-      if (cur && t.dataset.sub !== cur) t.hidden = true;
-    });
-    document.querySelectorAll('details.case').forEach(function (d) { d.hidden = !!cur && d.dataset.sub !== cur; });
-  };
-  chips.forEach(function (c) {
-    c.addEventListener('click', function () {
-      cur = c.dataset.chip;
-      chips.forEach(function (x) { x.setAttribute('aria-pressed', x === c ? 'true' : 'false'); });
-      var f = document.getElementById('find');
-      f.dispatchEvent(new Event('input'));
-    });
-  });
-})();
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha384-g4NTh/Iv5PPU4xPyhEWqPcwtNXOvdaDI8LLnyYfyNZOjKJeYQyjzQ9X5275eBjpt" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" integrity="sha384-Z3REaz79l2IaAZqJsSABtTbhjgOUYyV3p90XNnAPCSHg3EMTz1fouunq9WZRtj3d" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js" integrity="sha384-B2WBjDzEjJpYvhmi2UyEn7rektqkf5suS6sNoyyrf0EBAwBHdkiXxIlU0V5Ru2ed" crossorigin="anonymous"></script>
+<script src="../assets/site/b.js"></script>
+<script src="../assets/site/rooms.js"></script>
 </body>
 </html>
