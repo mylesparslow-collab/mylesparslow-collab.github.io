@@ -4,373 +4,75 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Tools for working with AI agents and reading arguments, plus research and reference works: a Byzantine atlas, a medical evidence map and two evidence checks.">
-<title>AI tools and research · Myles Parslow Portfolio</title>
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#ebe5da">
+<title>AI &amp; research &middot; Myles Parslow Portfolio</title>
+<script>
+(function(){var d=document.documentElement,t,go;d.classList.add('js');
+try{t=localStorage.getItem('mpb-theme')}catch(e){}
+if(t!=='light'&&t!=='dark'&&t!=='red')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+d.setAttribute('data-theme',t);
+var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content',{light:'#ebe5da',dark:'#141312',red:'#bf2400'}[t]);
+if(!matchMedia('(prefers-reduced-motion: reduce)').matches){d.classList.add('anim');
+var n=performance.getEntriesByType&&performance.getEntriesByType('navigation')[0];
+try{go=sessionStorage.getItem('mpb-go');sessionStorage.removeItem('mpb-go')}catch(e){}
+if(go&&!(n&&n.type==='back_forward'))d.classList.add('arriving');
+setTimeout(function(){d.classList.remove('arriving')},6000);}
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<style>
-/* Layout: an eggshell sheet by default, with a colour picker for two other schemes. Each section is a shelf of pieces; every piece pairs a screenshot with "what it is" and "how it was made". Brown carries links and labels; gold marks emphasis. All schemes are light by request. */
-:root {
-  color-scheme: light;
-  /* Mono (default): black, white and greys, no colour accent */
-  --bg: #ffffff;
-  --surface: #f4f4f4;
-  --rule: #d9d9d9;
-  --ink: #111111;
-  --muted: #555555;
-  --accent: #111111;
-  --mark: #111111;
-  --mark-soft: #c8c8c8;
-  --display: "Bricolage Grotesque", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
-  --body: "Source Serif 4", Georgia, "Times New Roman", serif;
-  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
-}
-/* Original: the first draft's pale green-grey with pine green */
-:root[data-scheme="pine"] {
-  --bg: #f4f6f4; --surface: #ffffff; --rule: #d5ddd8; --ink: #18201c; --muted: #56625b;
-  --accent: #23593f; --mark: #23593f; --mark-soft: #e2ece6;
-}
-/* Baby blue with ruby */
-:root[data-scheme="sky"] {
-  --bg: #e8f3fb; --surface: #ffffff; --rule: #c6e0f3; --ink: #192838; --muted: #4c6073;
-  --accent: #9b111e; --mark: #9b111e; --mark-soft: #f7e1e4;
-}
-* { box-sizing: border-box; }
-body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 1.0625rem; line-height: 1.62; margin: 0; }
-.wrap { max-width: 72rem; margin: 0 auto; padding-inline: 1.25rem; padding-block: 3.5rem 4rem; display: grid; gap: 5rem; }
-a { color: var(--accent); text-underline-offset: 0.18em; }
-a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
-h1, h2, h3 { font-family: var(--display); text-wrap: balance; line-height: 1.08; margin: 0; }
-p { margin: 0; }
-.eyebrow { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
-
-/* Colour picker */
-.topbar { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.75rem 1.5rem; }
-.picker { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0; padding: 0; border: 0; }
-.picker legend { float: left; margin-right: 0.25rem; font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
-.swatch { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.3rem 0.7rem 0.3rem 0.35rem; border-radius: 999px; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); font-family: var(--display); font-size: 0.85rem; font-weight: 500; cursor: pointer; }
-.swatch:hover { border-color: var(--muted); }
-.swatch[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
-.swatch i { width: 1.15rem; height: 1.15rem; border-radius: 50%; flex: none; border: 1px solid rgba(0,0,0,0.15); }
-.swatch[data-pick="mono"] i { background: linear-gradient(135deg, #ffffff 0 45%, #111111 45% 70%, #8a8a8a 70%); }
-.swatch[data-pick="sapphire"] i { background: linear-gradient(135deg, #f5f5f4 0 45%, #111111 45% 70%, #0f52ba 70%); }
-.swatch[data-pick="eggshell"] i { background: linear-gradient(135deg, #f2eee3 0 45%, #6b3f22 45% 70%, #a9822f 70%); }
-.swatch[data-pick="pine"] i { background: linear-gradient(135deg, #f4f6f4 0 50%, #23593f 50%); }
-.swatch[data-pick="sky"] i { background: linear-gradient(135deg, #e8f3fb 0 50%, #9b111e 50%); }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-
-/* Intro */
-.intro { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2rem; align-items: start; }
-.intro-text { display: grid; gap: 1.25rem; }
-.intro h1 { font-size: clamp(2.6rem, 6.4vw, 4.4rem); font-weight: 800; letter-spacing: -0.025em; }
-.intro h1 em { font-style: normal; color: var(--mark); }
-.lede { font-size: 1.22rem; max-width: 38rem; }
-
-/* Sections */
-.shelf { display: grid; gap: 2.5rem; scroll-margin-top: 1.5rem; }
-.shelf-head { display: grid; gap: 0.5rem; border-top: 2px solid var(--ink); padding-top: 1rem; }
-.shelf-head h2 { font-size: clamp(2rem, 4.2vw, 2.8rem); font-weight: 800; letter-spacing: -0.02em; }
-.shelf-head p { color: var(--muted); max-width: 44rem; }
-
-/* A piece */
-.piece { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 2rem 2.75rem; align-items: start; }
-.piece.flip > figure { order: 2; }
-.piece-text { display: grid; gap: 1rem; min-width: 0; }
-.piece h3 { font-size: 1.85rem; font-weight: 700; letter-spacing: -0.01em; }
-.tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
-.tag { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.04em; padding: 0.15rem 0.5rem; border-radius: 999px; background: var(--surface); border: 1px solid var(--rule); color: var(--muted); }
-.tag.hot { background: var(--mark-soft); border-color: transparent; color: var(--accent); }
-.made { border-left: 3px solid var(--mark); padding-left: 0.9rem; display: grid; gap: 0.3rem; }
-.made b { font-family: var(--mono); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
-.facts { display: flex; flex-wrap: wrap; gap: 0.3rem 1.4rem; font-family: var(--mono); font-size: 0.8rem; color: var(--muted); }
-.facts strong { color: var(--ink); font-weight: 500; }
-figure { margin: 0; display: grid; gap: 0.5rem; min-width: 0; }
-figure img { display: block; width: 100%; max-width: 100%; height: auto; border-radius: var(--radius, 6px); border: 1px solid var(--rule); background: var(--surface); box-shadow: 0 10px 30px -18px rgba(40, 28, 16, 0.4); }
-figcaption { font-size: 0.85rem; color: var(--muted); }
-
-/* Writing cards (no screenshots: they are manuscripts) */
-.books { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
-.book { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius, 6px); padding: 1.5rem 1.4rem; display: grid; gap: 0.9rem; align-content: start; min-width: 0; }
-.book .kind { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
-.book h3 { font-size: 1.5rem; }
-.book .logline { font-style: italic; }
-.book .note { font-size: 0.85rem; color: var(--muted); }
-
-/* Smaller items */
-.more { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem 2.5rem; }
-.more div { display: grid; gap: 0.35rem; align-content: start; border-top: 1px solid var(--rule); padding-top: 0.9rem; }
-.more h3 { font-size: 1.2rem; }
-.more p { color: var(--muted); font-size: 0.98rem; }
-
-/* Case studies */
-.tally { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin: 0; border-top: 1px solid var(--rule); padding-top: 1.25rem; }
-.tally div, .stats div { display: grid; gap: 0.2rem; align-content: start; }
-.tally dt, .stats dt { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); order: 2; }
-.tally dd, .stats dd { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(1.6rem, 3.4vw, 2.4rem); color: var(--accent); letter-spacing: -0.02em; line-height: 1.05; }
-.case { display: grid; gap: 2.5rem; scroll-margin-top: 1.5rem; }
-.case .sum { font-size: 1.15rem; color: var(--ink); max-width: 46rem; }
-.stats { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1rem; margin: 0; background: var(--mark-soft); border-radius: var(--radius, 6px); padding: 1.1rem 1.25rem; }
-.stats dd { font-size: clamp(1.1rem, 2vw, 1.5rem); color: var(--ink); }
-.cols, .shots { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem 2.5rem; align-items: start; }
-.block { display: grid; gap: 0.8rem; align-content: start; min-width: 0; }
-.block h3 { font-size: 1.35rem; }
-.block ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.55rem; }
-.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem 2rem; }
-.grid3 > div { display: grid; gap: 0.35rem; align-content: start; border-top: 1px solid var(--rule); padding-top: 0.8rem; }
-.grid3 h4 { margin: 0; font-family: var(--display); font-size: 1.05rem; }
-.grid3 p { color: var(--muted); font-size: 0.96rem; }
-.book .count { font-family: var(--mono); font-size: 0.85rem; color: var(--accent); }
-
-.gallery { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.25rem; }
-.gallery figcaption { font-size: 0.85rem; }
-.links { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; margin-top: 0.35rem; font-family: var(--mono); font-size: 0.85rem; }
-.links a { color: var(--accent); }
-.links span { color: var(--muted); }
-/* Collapsible projects */
-details.case { scroll-margin-top: 1.5rem; }
-.case-sum { list-style: none; cursor: pointer; display: block; }
-.case-sum::-webkit-details-marker { display: none; }
-.case-sum:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; border-radius: 4px; }
-.case-sum .shelf-head h2 { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
-.case-sum .shelf-head h2::after { content: "+"; font-family: var(--mono); font-weight: 400; color: var(--accent); flex: none; }
-details[open] > .case-sum .shelf-head h2::after { content: "\2212"; }
-.case-sum:hover .shelf-head h2 { color: var(--accent); }
-.case-body { display: grid; gap: 2.5rem; padding-top: 2.5rem; }
-details.case:not([open]) { margin-bottom: -3rem; }
-details.case + :not(details) { margin-top: 3rem; }
-.case-sum .shelf-head { padding-bottom: 0.25rem; }
-@media print { .case-sum .shelf-head h2::after { content: none; } }
-/* Categories */
-.group { display: grid; gap: 1.25rem; scroll-margin-top: 1.5rem; }
-.group-head { display: grid; gap: 0.3rem; border-top: 6px solid var(--accent); padding-top: 0.9rem; }
-.group-head h2 { font-family: var(--display); font-size: 1.5rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
-.group-head p { color: var(--muted); max-width: 44rem; }
-.group details.case:not([open]) { margin-bottom: 0; }
-.group details.case + :not(details) { margin-top: 2rem; }
-.group > section.shelf { margin-top: 1.5rem; }
-.books .lead { grid-column: 1 / -1; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr); gap: 1.5rem 2rem; align-items: start; }
-.books .lead .cover { width: 100%; height: auto; border-radius: 4px; box-shadow: 0 6px 24px rgba(0,0,0,.25); }
-.books .lead .lead-text { display: grid; gap: 0.9rem; }
-.case-body > .books { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-@media (max-width: 700px) { .case-body > .books, .books .lead { grid-template-columns: minmax(0, 1fr); } .books .lead .cover { max-width: 16rem; } }
-.intro-text .lede { max-width: 52rem; }
-/* Method */
-.rules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem 2.5rem; }
-.rules div { display: grid; gap: 0.4rem; align-content: start; }
-.rules h3 { font-size: 1.15rem; }
-.rules p { color: var(--muted); font-size: 0.98rem; }
-
-footer { border-top: 1px solid var(--rule); padding-top: 1.25rem; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 2rem; font-family: var(--mono); font-size: 0.8rem; color: var(--muted); }
-
-@media (max-width: 820px) {
-  .intro, .piece, .books, .more, .rules, .cols, .shots, .grid3 { grid-template-columns: minmax(0, 1fr); }
-  .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .tally, .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .piece.flip > figure { order: 0; }
-  .wrap { gap: 3.5rem; padding-block: 2.5rem 3rem; }
-}
-span.note { font-style: italic; color: var(--muted); }
-/* Vertical video reels */
-.reels { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1rem; }
-.reels.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.reels video { display: block; width: 100%; height: auto; aspect-ratio: 9 / 16; border-radius: var(--radius, 6px); border: 1px solid var(--rule); background: #000; }
-@media (max-width: 820px) { .reels { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-/* Numbered pipeline */
-.flow { list-style: none; margin: 0; padding: 0; counter-reset: step; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1rem; }
-.flow li { counter-increment: step; display: grid; gap: 0.35rem; align-content: start; border-top: 3px solid var(--mark); padding-top: 0.7rem; }
-.flow b { font-family: var(--display); font-size: 1.1rem; }
-.flow b::before { content: counter(step) " · "; font-family: var(--mono); font-weight: 400; color: var(--accent); }
-.flow span { color: var(--muted); font-size: 0.96rem; }
-@media (max-width: 820px) { .flow { grid-template-columns: minmax(0, 1fr); } }
-@media (max-width: 820px) { #thriftyvows .shots { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-/* Picture index: every project as a thumbnail, grouped as in the case studies below */
-.index { display: grid; gap: 1.75rem; border-top: 2px solid var(--ink); padding-top: 1rem; scroll-margin-top: 1.5rem; }
-.finder { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 1rem; }
-.finder label { margin-right: auto; }
-.find-box { position: relative; flex: 0 1 18rem; min-width: 0; }
-.find-box input { width: 100%; font: inherit; font-family: var(--mono); font-size: 0.85rem; color: var(--ink); background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius, 6px); padding: 0.4rem 2rem 0.4rem 0.7rem; }
-.find-box input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-.find-box kbd { position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); font: 0.72rem var(--mono); color: var(--muted); border: 1px solid var(--rule); border-radius: 4px; padding: 0 0.35rem; pointer-events: none; }
-.find-box input:focus + kbd, .find-box input:not(:placeholder-shown) + kbd { display: none; }
-.find-empty { color: var(--muted); font-style: italic; }
-.ix-group { display: grid; gap: 0.9rem; }
-.ix-group[hidden] { display: none; }
-.ix-head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; border-top: 4px solid var(--accent); padding-top: 0.5rem; font-family: var(--display); font-weight: 800; font-size: 1rem; letter-spacing: 0.08em; text-transform: uppercase; }
-.ix-head a { color: var(--accent); text-decoration: none; }
-.ix-head a:hover { text-decoration: underline; }
-.ix-head span { font-family: var(--mono); font-weight: 400; font-size: 0.72rem; letter-spacing: 0.06em; color: var(--muted); }
-.ix-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.25rem 1rem; }
-.tile { display: grid; gap: 0.45rem; align-content: start; min-width: 0; color: var(--ink); text-decoration: none; }
-.tile[hidden] { display: none; }
-.tile .thumb { position: relative; display: block; aspect-ratio: 16 / 10; overflow: hidden; border: 1px solid var(--rule); border-radius: min(var(--radius, 6px), 12px); background: var(--surface); }
-.tile .thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; }
-.tile .thumb img.alt { opacity: 0; }
-.tile .thumb.type { display: grid; align-content: end; gap: 0.25rem; padding: 0.8rem; background: var(--mark-soft); border-color: transparent; }
-.tile .thumb.type span { font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
-.tile .thumb.type b { font-family: var(--display); font-weight: 800; font-size: 1.3rem; line-height: 1.05; color: var(--accent); }
-.tile .lbl { display: grid; gap: 0.1rem; }
-.tile strong { font-family: var(--display); font-weight: 700; font-size: 1.05rem; line-height: 1.15; }
-.tile small { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); }
-.tile:hover strong, .tile:focus-visible strong { color: var(--accent); }
-.tile:focus-visible { outline: none; }
-.tile:focus-visible .thumb { outline: 2px solid var(--accent); outline-offset: 3px; }
-.ix-more { font-family: var(--mono); font-size: 0.85rem; }
-.ix-grid.ix-feature .tile.big { grid-column: span 2; }
-.ix-feature .tile.big .lbl strong { font-size: 1.35rem; }
-@media (max-width: 960px) { .ix-grid.ix-feature { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ix-grid.ix-feature .tile.big { grid-column: auto; } }
-@media (max-width: 640px) { .ix-grid.ix-feature { grid-template-columns: minmax(0, 1fr); } .ix-grid.ix-feature .tile.big { grid-column: auto; } }
-.sub-case { border-top: 1px solid var(--rule); padding-top: 1.5rem; display: grid; gap: 1.5rem; }
-.sub-case > h3 { font-family: var(--display); font-size: 1.5rem; font-weight: 800; }
-@media (prefers-reduced-motion: no-preference) {
-  .tile .thumb img { transition: transform 1.6s cubic-bezier(.2, .7, .2, 1), opacity 0.6s ease; }
-  .tile:hover .thumb img, .tile:focus-visible .thumb img { transform: scale(1.06); }
-  .tile:hover .thumb img.alt.ready, .tile:focus-visible .thumb img.alt.ready { opacity: 1; }
-}
-@media (max-width: 960px) { .ix-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-@media (max-width: 640px) { .ix-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem 0.75rem; } .finder label { width: 100%; } .find-box { flex: 1 1 10rem; } }
-.tally dd, .stats dd { font-variant-numeric: tabular-nums; }
-
-/* Fleuron between groups */
-.fleuron { display: flex; align-items: center; gap: 1rem; color: var(--mark); }
-.fleuron::before, .fleuron::after { content: ""; flex: 1; height: 1px; background: currentColor; opacity: 0.5; }
-.fleuron svg { flex: none; }
-
-/* Before / after slider */
-.compare { position: relative; overflow: hidden; max-width: 100%; border: 1px solid var(--rule); border-radius: min(var(--radius, 6px), 12px); background: var(--surface); --pos: 50%; touch-action: pan-y; }
-.compare img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border: 0; border-radius: 0; box-shadow: none; }
-.compare img.after { clip-path: inset(0 0 0 var(--pos)); }
-.cmp-line { position: absolute; top: 0; bottom: 0; left: var(--pos); width: 2px; margin-left: -1px; background: var(--mark); pointer-events: none; }
-.cmp-line::after { content: "\2194"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 2.2rem; height: 2.2rem; border-radius: 50%; background: var(--mark); color: var(--bg); display: grid; place-items: center; font: 700 1.05rem var(--mono); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25); }
-.cmp-tag { position: absolute; top: 0.6rem; font: 500 0.75rem var(--mono); background: var(--ink); color: var(--bg); padding: 0.15rem 0.5rem; border-radius: 3px; pointer-events: none; }
-.cmp-tag.l { left: 0.6rem; } .cmp-tag.r { right: 0.6rem; }
-.compare input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: ew-resize; }
-.compare:focus-within { outline: 2px solid var(--accent); outline-offset: 3px; }
-
-/* Reading bar and the way back to the index */
-.readbar { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 40; background: var(--mark); transform-origin: 0 50%; transform: scaleX(0); opacity: 0; pointer-events: none; }
-.readbar.on { opacity: 1; }
-.backtop { position: fixed; z-index: 40; right: max(1rem, env(safe-area-inset-right, 0px)); bottom: calc(1rem + env(safe-area-inset-bottom, 0px)); font-family: var(--mono); font-size: 0.8rem; text-decoration: none; color: var(--ink); background: var(--surface); border: 1px solid var(--rule); border-radius: 999px; padding: 0.45rem 0.9rem; box-shadow: 0 6px 20px -8px rgba(0, 0, 0, 0.35); }
-.backtop:hover { border-color: var(--accent); color: var(--accent); }
-.backtop[hidden] { display: none; }
-@media (prefers-reduced-motion: no-preference) { .readbar { transition: opacity 0.3s ease; } }
-
-/* Screenshots settle in as they scroll into view, where the browser supports scroll timelines */
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .case-body figure > img, .shots figure > img, .tile .thumb { animation: settle linear both; animation-timeline: view(); animation-range: entry 0% entry 55%; }
-  }
-}
-@keyframes settle { from { opacity: 0.2; transform: translateY(16px); } to { opacity: 1; transform: none; } }
-
-.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-
-@media print { .finder, .find-empty, .readbar, .backtop, .fleuron, .cmp-line, .cmp-tag { display: none !important; } .compare img.after { display: none; } }
-</style>
-
-<style>
-/* Home and area pages (added with the reorganization) */
-.ix-featured { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.6rem 1.25rem; }
-.ix-featured .tile:first-child { grid-column: span 2; grid-row: span 2; }
-.ix-featured .tile:first-child .thumb { aspect-ratio: auto; flex: 1; min-height: 16rem; }
-.ix-featured .tile:first-child { display: flex; flex-direction: column; }
-.ix-featured .tile:first-child .lbl strong { font-size: 1.5rem; }
-.ix-featured .tile .area-tag { font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mark); }
-@media (max-width: 960px) { .ix-featured { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 640px) { .ix-featured { grid-template-columns: minmax(0, 1fr); } .ix-featured .tile:first-child { grid-column: auto; grid-row: auto; } .ix-featured .tile:first-child .thumb { min-height: 0; aspect-ratio: 16 / 10; } }
-.ix-head a.see { font-family: var(--mono); font-weight: 500; font-size: 0.78rem; letter-spacing: 0.04em; text-transform: none; }
-.ix-head .lead { display: grid; gap: 0.15rem; }
-.ix-head .lead small { font-family: var(--body); font-weight: 400; font-size: 0.92rem; letter-spacing: 0; text-transform: none; color: var(--muted); }
-.ix-all { display: none; }
-body.searching .ix-all:not([hidden]) { display: grid; }
-body.searching .ix-browse { display: none; }
-.ix-browse { display: grid; gap: 2.25rem; }
-.ix-featured .tile:first-child .thumb img { object-position: 0 0; }
-.areas-nav { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-.areas-nav a, .chip { font-family: var(--mono); font-size: 0.8rem; color: var(--ink); text-decoration: none; border: 1px solid var(--rule); background: var(--surface); border-radius: 999px; padding: 0.3rem 0.8rem; cursor: pointer; }
-.areas-nav a:hover, .chip:hover { border-color: var(--accent); color: var(--accent); }
-.areas-nav a[aria-current="page"], .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
-.areas-nav b { font-weight: 400; color: var(--muted); margin-left: 0.3rem; }
-.areas-nav a[aria-current="page"] b { color: inherit; opacity: 0.7; }
-.chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-.crumb { font-family: var(--mono); font-size: 0.8rem; color: var(--accent); text-decoration: none; }
-.crumb:hover { text-decoration: underline; }
-.area-intro h1 { font-size: clamp(2.4rem, 6vw, 4rem); font-weight: 800; letter-spacing: -0.025em; }
-details.case[hidden] { display: none; }
-.wayfind { display: grid; gap: 0.8rem; border-top: 2px solid var(--ink); padding-top: 1rem; }
-.ai-more > summary { cursor: pointer; font-family: var(--mono); font-size: 0.85rem; color: var(--accent); list-style: none; }
-.ai-more > summary::-webkit-details-marker { display: none; }
-.ai-more > summary::before { content: "+ "; }
-.ai-more[open] > summary::before { content: "\2212 "; }
-.ai-more[open] > summary { margin-bottom: 1.5rem; }
-</style>
-<link rel="stylesheet" href="../assets/appearance.css">
-<script src="../assets/appearance.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..700,0..100,0..1;1,9..144,300..700,0..100,0..1&amp;family=Hanken+Grotesk:wght@400;500;600&amp;display=swap">
+<link rel="stylesheet" href="../assets/site/b.css">
+<link rel="stylesheet" href="../assets/site/rooms.css">
 </head>
-<body>
+<body class="roompage" data-room="research">
+<a class="skipl" href="#index">Skip to the projects</a>
 
-<div class="wrap">
+<div class="chrome" id="chrome" style="--cbg:var(--r-research);--cfg:var(--rfg);--cacc:var(--racc)">
+  <a class="c tl" href="../index.html" aria-label="Myles Parslow, home" data-scramble><svg class="mark" viewBox="-.1 -.04 1.2 1.08" aria-hidden="true" focusable="false"><polygon points="-.08,0 .24,0 .5,.66 .76,0 1.08,0 1.08,.1 .98,.1 .98,.9 1.08,.9 1.08,1 .72,1 .72,.9 .8,.9 .8,.32 .56,.86 .44,.86 .2,.32 .2,.9 .28,.9 .28,1 -.08,1 -.08,.9 .02,.9 .02,.1 -.08,.1"/></svg><span class="sct" aria-hidden="true">Myles Parslow</span><span class="ctx" aria-hidden="true" hidden><span class="ctx__f"></span><span class="ctx__s"></span></span></a>
+  <div class="c tr">
+    <button class="theme" type="button" aria-label="In light theme. Switch to dark."><i class="sw" aria-hidden="true"></i><span class="sct">In light</span></button>
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu" aria-label="Menu" data-scramble><span class="sct" aria-hidden="true">Menu</span></button>
+  </div>
+</div>
 
-  <header class="intro area-intro">
-    <div class="topbar">
-      <span class="eyebrow">Portfolio · October 2026</span>
-      <fieldset class="picker" aria-label="Colour scheme">
-        <legend>Colours</legend>
-        <button type="button" class="swatch" id="pick-mono" data-pick="mono" aria-pressed="true"><i></i>Mono</button>
-        <button type="button" class="swatch" id="pick-sapphire" data-pick="sapphire" aria-pressed="false"><i></i>Sapphire</button>
-        <button type="button" class="swatch" id="pick-eggshell" data-pick="eggshell" aria-pressed="false"><i></i>Eggshell</button>
-        <button type="button" class="swatch" id="pick-pine" data-pick="pine" aria-pressed="false"><i></i>Original</button>
-        <button type="button" class="swatch" id="pick-sky" data-pick="sky" aria-pressed="false"><i></i>Sky &amp; ruby</button>
-        <button type="button" class="ap-btn" id="appearance-btn">More appearance options</button>
-      </fieldset>
-    </div>
-    <div class="intro-text">
-      <a class="crumb" href=".././">&larr; All work</a>
-      <span class="eyebrow">Research · 8 projects</span>
-      <h1>AI tools and research</h1>
-      <p class="lede">Tools for working with AI agents and reading arguments, plus research and reference works: a Byzantine atlas, a medical evidence map and two evidence checks.</p>
-    </div>
-    <nav class="index" id="index" aria-label="Projects">
-      <div class="finder">
-        <label for="find" class="eyebrow">All 8 projects here</label>
-        <span class="find-box"><input id="find" type="search" placeholder="Find in AI tools and research" autocomplete="off" aria-describedby="find-hint"><kbd id="find-hint" aria-label="Press slash to search">/</kbd></span>
-        <button type="button" class="ap-btn" id="surprise">Surprise me</button>
-      </div>
-      
-      <p class="find-empty" role="status" hidden>No projects match. Try a different word.</p>
-      <div class="ix-group ix-index">
-        <div class="ix-grid">
-        <a class="tile" href="#blackbox" data-hay="blackbox agent recorder developer tool a flight recorder for ai coding agents. it captures what claude code actually did, prompts, tool calls, file edits, failures and subagent handoffs, and lets you replay a session, trace a file change back to the agent that made it, and see how a failure was recovered. nothing leaves the mac."><span class="thumb"><img src="../assets/thumbs/blackbox.jpg" alt="" width="560" height="337" loading="lazy" decoding="async"><img class="alt" data-src="../assets/thumbs/blackbox-2.jpg" alt="" decoding="async"></span><span class="lbl"><strong>BLACKBOX</strong><small>agent recorder</small></span></a>
-        <a class="tile" href="#agentforge" data-hay="agentforge local ai agents local ai a mac app for running ai agents on models that live on your own computer. you point an agent at a project folder, choose how much it may touch, and approve each change. it also covers chat, chat with your documents and visual agent workflows, all inside a retro terminal look built from text characters."><span class="thumb"><img src="../assets/thumbs/agentforge.jpg" alt="" width="560" height="330" loading="lazy" decoding="async"><img class="alt" data-src="../assets/thumbs/agentforge-2.jpg" alt="" decoding="async"></span><span class="lbl"><strong>AgentForge</strong><small>local AI agents</small></span></a>
-        <a class="tile" href="#xray" data-hay="argument x-ray reading tool reading tool persuasive writing hides its structure. this tool maps a text into its thesis, claims, evidence, unstated assumptions and objections, then flags the weak links so you can see what is actually supported."><span class="thumb type"><span>Reading tool</span><b>Argument X-ray</b></span><span class="lbl"><strong>Argument X-ray</strong><small>reading tool</small></span></a>
-        <a class="tile" href="#boardroom" data-hay="boardroom of one decision tool decision tool ask one ai for advice and you tend to get one balanced, agreeable answer that hides the real disagreement. this tool seats five advisers with fixed temperaments and lets them argue your decision, then vote."><span class="thumb type"><span>Decision tool</span><b>Boardroom of One</b></span><span class="lbl"><strong>Boardroom of One</strong><small>decision tool</small></span></a>
-        <a class="tile" href="#byzantium" data-hay="byzantium mosaic atlas reference work an illustrated encyclopedia of the eastern roman empire, 324 to 1453, built around a mosaic atlas you can drag through 1,129 years and watch the borders move."><span class="thumb"><img src="../assets/thumbs/byzantium.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"><img class="alt" data-src="../assets/thumbs/byzantium-2.jpg" alt="" decoding="async"></span><span class="lbl"><strong>Byzantium</strong><small>mosaic atlas</small></span></a>
-        <a class="tile" href="#mecfs" data-hay="me/cfs evidence map medical research medical research thousands of small studies have measured something in people with me/cfs or long covid, and few results have been checked against each other. this project read the whole pubmed literature, pulled out every measured finding with its quote, and graded which ones independent labs have actually replicated."><span class="thumb type"><span>Medical research</span><b>ME/CFS evidence map</b></span><span class="lbl"><strong>ME/CFS evidence map</strong><small>medical research</small></span></a>
-        <a class="tile" href="#aftercare" data-hay="clear aftercare patient tool patient tool discharge papers are written in abbreviations and handed to people who are tired, unwell or 80 years old. paste them in and get a plain-language care sheet plus a calendar reminder for every dose, task and appointment, with anything unclear marked instead of guessed."><span class="thumb"><img src="../assets/thumbs/aftercare.jpg" alt="" width="560" height="360" loading="lazy" decoding="async"><img class="alt" data-src="../assets/thumbs/aftercare-2.jpg" alt="" decoding="async"></span><span class="lbl"><strong>Clear Aftercare</strong><small>patient tool</small></span></a>
-        <a class="tile" href="#citationaudit" data-hay="guideline citation audit evidence check medical evidence check military trauma guidelines tell medics and surgeons what to do, and each recommendation cites a paper. this audit checked whether the cited papers say what the guidelines claim, and found reference lists whose numbers had slipped out of line."><span class="thumb type"><span>Medical evidence check</span><b>Guideline citation audit</b></span><span class="lbl"><strong>Guideline citation audit</strong><small>evidence check</small></span></a>
-        </div>
-      </div>
-    </nav>
-  </header>
+<nav class="menu" data-lenis-prevent data-lenis-prevent id="menu" aria-label="Menu" aria-hidden="true">
+  <button class="menu__close" type="button" aria-label="Close menu"><span class="sct" aria-hidden="true">Close</span></button>
+  <ol class="menu__list"><li><a class="mi" href="../index.html#rooms"><span class="mi__n">01</span><span class="mi__l">Rooms</span></a><ul class="menu__sub" aria-label="Rooms on the homepage"><li><a href="../index.html#room-legal">Legal</a></li><li><a href="../index.html#room-business">Business</a></li><li><a href="../index.html#room-creative">Creative &amp; games</a></li><li><a href="../index.html#room-design">Design &amp; 3D</a></li><li><a href="../index.html#room-research">AI &amp; research</a></li></ul></li><li><a class="mi" href="../index.html#rules"><span class="mi__n">02</span><span class="mi__l">Rules</span></a></li><li><a class="mi" href="../index.html#tools"><span class="mi__n">03</span><span class="mi__l">Tools</span></a></li><li><a class="mi" href="../legal/"><span class="mi__n">04</span><span class="mi__l">Legal</span></a></li><li><a class="mi" href="../business/"><span class="mi__n">05</span><span class="mi__l">Business</span></a></li><li><a class="mi" href="../creative/"><span class="mi__n">06</span><span class="mi__l">Creative &amp; games</span></a></li><li><a class="mi" href="../design/"><span class="mi__n">07</span><span class="mi__l">Design &amp; 3D</span></a></li><li><a class="mi" href="../research/" aria-current="page"><span class="mi__n">08</span><span class="mi__l">AI &amp; research</span></a></li></ol>
+  <p class="menu__foot"><a href="mailto:mzpprojects1@gmail.com">mzpprojects1@gmail.com</a><a href="https://github.com/mylesparslow-collab">GitHub</a><a href="https://mylesparslow.com/legal-portfolio/">Legal portfolio</a></p>
+</nav>
 
-<section class="group" id="g-aitools">
-    <div class="group-head">
-      <h2>AI tools and experiments</h2>
-      <p>Small tools that put AI reasoning on display.</p>
-    </div>
-  <!-- BLACKBOX -->
-  <details class="case" id="blackbox">
-    <summary class="case-sum">
-      <div class="shelf-head">
-      <span class="eyebrow">Case study 26 · Native Mac app · Developer tool</span>
-      <h2>BLACKBOX</h2>
-      <p class="sum">A flight recorder for AI coding agents. It captures what Claude Code actually did, prompts, tool calls, file edits, failures and subagent handoffs, and lets you replay a session, trace a file change back to the agent that made it, and see how a failure was recovered. Nothing leaves the Mac.</p>
-      </div>
-    </summary>
-    <div class="case-body">
-      <p class="links"><a href="../demos/blackbox-tour.html" target="_blank" rel="noopener">Take the guided tour</a><span>Screens from the running Mac app, with synthetic sessions</span></p>
+<div id="page">
+<main id="top">
+<header class="rhead" id="rhead" data-chrome="AI &amp; research" data-short="Research" data-ground="research" style="--room:var(--r-research)" aria-labelledby="h-room">
+  <span class="rhead__letter" aria-hidden="true">R</span>
+  <div class="rhead__main">
+    <p class="eyebrow">Room 5 of 5</p>
+    <h1 class="rhead__t" id="h-room">AI &amp; research</h1>
+    <p class="rhead__count">8 projects</p>
+    <p class="rhead__lede">Tools for working with AI agents and reading arguments, plus research and reference works: a Byzantine atlas, a medical evidence map and two evidence checks.</p>
+  </div>
+  <nav class="rindex" id="index" aria-label="AI &amp; research projects">
+    <ol class="rindex__list"><li><a class="row" href="#blackbox"><span class="row__i" aria-hidden="true">01</span><span class="row__t"><span class="row__n">BLACKBOX</span><span class="row__s">agent recorder</span></span><span class="th" aria-hidden="true"><img src="../assets/thumbs-hd/blackbox.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"></span></a></li><li><a class="row" href="#agentforge"><span class="row__i" aria-hidden="true">02</span><span class="row__t"><span class="row__n">AgentForge</span><span class="row__s">local AI agents</span></span><span class="th" aria-hidden="true"><img src="../assets/thumbs-hd/agentforge.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"></span></a></li><li><a class="row" href="#xray"><span class="row__i" aria-hidden="true">03</span><span class="row__t"><span class="row__n">Argument X-ray</span><span class="row__s">reading tool</span></span><span class="th" aria-hidden="true"><img src="../assets/thumbs-hd/xray.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"></span></a></li><li><a class="row" href="#boardroom"><span class="row__i" aria-hidden="true">04</span><span class="row__t"><span class="row__n">Boardroom of One</span><span class="row__s">decision tool</span></span><span class="th" aria-hidden="true"><img src="../assets/thumbs-hd/boardroom.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"></span></a></li><li><a class="row" href="#byzantium"><span class="row__i" aria-hidden="true">05</span><span class="row__t"><span class="row__n">Byzantium</span><span class="row__s">mosaic atlas</span></span><span class="th" aria-hidden="true"><img src="../assets/thumbs-hd/byzantium.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"></span></a></li><li><a class="row" href="#mecfs"><span class="row__i" aria-hidden="true">06</span><span class="row__t"><span class="row__n">ME/CFS evidence map</span><span class="row__s">medical research</span></span><span class="th th--t" aria-hidden="true"><i>R</i><b style="--fs:0.140">ME/CFS<br>evidence map</b></span></a></li><li><a class="row" href="#aftercare"><span class="row__i" aria-hidden="true">07</span><span class="row__t"><span class="row__n">Clear Aftercare</span><span class="row__s">patient tool</span></span><span class="th" aria-hidden="true"><img src="../assets/thumbs-hd/aftercare.jpg" alt="" width="560" height="350" loading="lazy" decoding="async"></span></a></li><li><a class="row" href="#citationaudit"><span class="row__i" aria-hidden="true">08</span><span class="row__t"><span class="row__n">Guideline citation audit</span><span class="row__s">evidence check</span></span><span class="th th--t" aria-hidden="true"><i>R</i><b style="--fs:0.120">Guideline<br>citation audit</b></span></a></li></ol>
+  </nav>
+</header>
+
+<div class="chapters">
+<div class="gdiv" id="g-aitools" data-chrome="AI &amp; research" data-short="Research"><h2 class="gdiv__t">AI tools and experiments</h2><p class="gdiv__p">Small tools that put AI reasoning on display.</p></div>
+
+<article class="chap" id="blackbox" data-chrome="AI &amp; research" data-short="Research" aria-labelledby="t-blackbox">
+  <div class="chap__top">
+    <p class="chap__n"><span class="chap__c">01 / 08</span><span class="chap__k">Native Mac app · Developer tool</span><span class="chap__k"></span></p>
+    <h2 class="chap__t" id="t-blackbox" data-words>BLACKBOX</h2>
+    <p class="chap__sub">agent recorder</p>
+    <p class="chap__lede" data-fade>A flight recorder for AI coding agents. It captures what Claude Code actually did, prompts, tool calls, file edits, failures and subagent handoffs, and lets you replay a session, trace a file change back to the agent that made it, and see how a failure was recovered. Nothing leaves the Mac.</p>
+  </div>
+  <div class="cbody">
+<p class="links"><a href="../demos/blackbox-tour.html" target="_blank" rel="noopener">Take the guided tour</a><span>Screens from the running Mac app, with synthetic sessions</span></p>
 
     <figure class="wide">
-      <img src="../assets/blackbox-recorder.jpg" alt="The BLACKBOX flight recorder replaying a synthetic session: tracks for prompts, main agent, subagents, tools, files, build and test, errors, context and tokens on one timeline, with an event inspector showing a failed test run." width="1600" height="964" loading="lazy">
+      <img decoding="async" src="../assets/blackbox-recorder.jpg" alt="The BLACKBOX flight recorder replaying a synthetic session: tracks for prompts, main agent, subagents, tools, files, build and test, errors, context and tokens on one timeline, with an event inspector showing a failed test run." width="1600" height="964" loading="lazy">
       <figcaption>The flight recorder. Every track of a session on one timeline, played back at up to 20x, with the inspector showing what led to a failed test and what came next.</figcaption>
     </figure>
 
@@ -392,30 +94,29 @@ details.case[hidden] { display: none; }
 
     <div class="shots">
       <figure>
-        <img src="../assets/blackbox-failures.jpg" alt="The failure observatory: groups of repeated failing commands on the left, and on the right the chain from prompt to failure to an edit, a retry and recovery, with a separate space for hypotheses." width="1600" height="964" loading="lazy">
+        <img decoding="async" src="../assets/blackbox-failures.jpg" alt="The failure observatory: groups of repeated failing commands on the left, and on the right the chain from prompt to failure to an edit, a retry and recovery, with a separate space for hypotheses." width="1600" height="964" loading="lazy">
         <figcaption>The failure observatory. Observed events and inferred steps are marked differently, and your own hypotheses are kept apart from both.</figcaption>
       </figure>
       <figure>
-        <img src="../assets/blackbox-recorder-white.jpg" alt="The same flight recorder in a white skin." width="1600" height="964" loading="lazy">
+        <img decoding="async" src="../assets/blackbox-recorder-white.jpg" alt="The same flight recorder in a white skin." width="1600" height="964" loading="lazy">
         <figcaption>The same recorder in a white skin. Nine skins are available, chosen in Settings rather than in the working screens.</figcaption>
       </figure>
     </div>
 
     <div class="made"><b>How it was built</b><p>A native macOS app in SwiftUI over SQLite with full-text search. I wrote the specification package and asked for it to be as sleek as a flight instrument; Claude Code built the app, the hook relay and the synthetic sessions, and ran the builds on my Mac through Remote Control.</p></div>
-    </div>
-  </details>
+  </div>
+  <p class="chap__end"><a href="#index">Back to the index <span aria-hidden="true">&uarr;</span></a></p>
+</article>
 
-  <!-- AGENTFORGE -->
-  <details class="case" id="agentforge">
-    <summary class="case-sum">
-      <div class="shelf-head">
-      <span class="eyebrow">Case study 38 · Native Mac app · Local AI</span>
-      <h2>AgentForge</h2>
-      <p class="sum">A Mac app for running AI agents on models that live on your own computer. You point an agent at a project folder, choose how much it may touch, and approve each change. It also covers chat, chat with your documents and visual agent workflows, all inside a retro terminal look built from text characters.</p>
-      </div>
-    </summary>
-    <div class="case-body">
-      <p class="links"><a href="https://agentforge.mylesparslow.workers.dev" target="_blank" rel="noopener">Download for Mac</a><span>Signed, notarized and self-updating. Needs Ollama, which the first-run setup installs.</span></p>
+<article class="chap" id="agentforge" data-chrome="AI &amp; research" data-short="Research" aria-labelledby="t-agentforge">
+  <div class="chap__top">
+    <p class="chap__n"><span class="chap__c">02 / 08</span><span class="chap__k">Native Mac app · Local AI</span><span class="chap__k"></span></p>
+    <h2 class="chap__t" id="t-agentforge" data-words>AgentForge</h2>
+    <p class="chap__sub">local AI agents</p>
+    <p class="chap__lede" data-fade>A Mac app for running AI agents on models that live on your own computer. You point an agent at a project folder, choose how much it may touch, and approve each change. It also covers chat, chat with your documents and visual agent workflows, all inside a retro terminal look built from text characters.</p>
+  </div>
+  <div class="cbody">
+<p class="links"><a href="https://agentforge.mylesparslow.workers.dev" target="_blank" rel="noopener">Download for Mac</a><span>Signed, notarized and self-updating. Needs Ollama, which the first-run setup installs.</span></p>
 
     <dl class="stats">
       <div><dt>Lines of Swift</dt><dd>10,442</dd></div>
@@ -427,7 +128,7 @@ details.case[hidden] { display: none; }
     </dl>
 
     <figure class="wide">
-      <img src="../assets/agentforge-mission.jpg" alt="AgentForge Mission Control: a green phosphor terminal dashboard with the AGENTFORGE title in block letters, an ASCII-art globe, model and agent counts, a pixel clock and a live hardware bar across the top." width="1280" height="754" loading="lazy">
+      <img decoding="async" src="../assets/agentforge-mission.jpg" alt="AgentForge Mission Control: a green phosphor terminal dashboard with the AGENTFORGE title in block letters, an ASCII-art globe, model and agent counts, a pixel clock and a live hardware bar across the top." width="1280" height="754" loading="lazy">
       <figcaption>Mission Control. The bar across the top tracks processor, graphics, memory, disk, network, temperature and battery in real time.</figcaption>
     </figure>
 
@@ -444,41 +145,41 @@ details.case[hidden] { display: none; }
     </section>
 
     <figure class="wide">
-      <img src="../assets/agentforge-agent.jpg" alt="The Agents page: on the left, harness, brain and access settings; on the right, a completed read-only session whose timeline shows the objective, list_files and read_file tool calls with their output, and the agent's written answer." width="1280" height="754" loading="lazy">
+      <img decoding="async" src="../assets/agentforge-agent.jpg" alt="The Agents page: on the left, harness, brain and access settings; on the right, a completed read-only session whose timeline shows the objective, list_files and read_file tool calls with their output, and the agent's written answer." width="1280" height="754" loading="lazy">
       <figcaption>A real read-only run on gemma4:12b: the agent lists the folder, reads the README and the code, then explains the project. It took about six minutes on a base M2.</figcaption>
     </figure>
 
     <div class="gallery">
       <figure>
-        <img src="../assets/agentforge-flows.jpg" alt="The Flows canvas with a Triage Router template: a start node feeds a router that branches to a bug-hunter agent, a planner and an answerer, which merge into an output." width="1280" height="754" loading="lazy">
+        <img decoding="async" src="../assets/agentforge-flows.jpg" alt="The Flows canvas with a Triage Router template: a start node feeds a router that branches to a bug-hunter agent, a planner and an answerer, which merge into an output." width="1280" height="754" loading="lazy">
         <figcaption>Flows: a router sends a request to a bug-hunting agent, a planner or an answerer.</figcaption>
       </figure>
       <figure>
-        <img src="../assets/agentforge-lab.jpg" alt="Model Lab table grading local models on tool calling, speed, wake time and context, with letter grades from A to F." width="1280" height="422" loading="lazy">
+        <img decoding="async" src="../assets/agentforge-lab.jpg" alt="Model Lab table grading local models on tool calling, speed, wake time and context, with letter grades from A to F." width="1280" height="422" loading="lazy">
         <figcaption>Model Lab: which local models can actually drive an agent.</figcaption>
       </figure>
       <figure>
-        <img src="../assets/agentforge-ideas.jpg" alt="Idea Forge with three reels set to generative art, voice-first and ship it in a weekend, and a generated idea called EchoCanvas below." width="1280" height="583" loading="lazy">
+        <img decoding="async" src="../assets/agentforge-ideas.jpg" alt="Idea Forge with three reels set to generative art, voice-first and ship it in a weekend, and a generated idea called EchoCanvas below." width="1280" height="583" loading="lazy">
         <figcaption>Idea Forge: lock or edit the reels, pull the lever, and a local model writes the pitch.</figcaption>
       </figure>
       <figure>
-        <img src="../assets/agentforge-creatures.jpg" alt="ASCII Studio creatures mode: a text-art meadow with a cat, butterflies, clouds, a sun and flowers." width="1280" height="754" loading="lazy">
+        <img decoding="async" src="../assets/agentforge-creatures.jpg" alt="ASCII Studio creatures mode: a text-art meadow with a cat, butterflies, clouds, a sun and flowers." width="1280" height="754" loading="lazy">
         <figcaption>ASCII Studio: creatures move around a scene on their own.</figcaption>
       </figure>
       <figure>
-        <img src="../assets/agentforge-donut.jpg" alt="ASCII Studio effects mode rendering a spinning text-character torus in a green-to-blue gradient." width="1280" height="754" loading="lazy">
+        <img decoding="async" src="../assets/agentforge-donut.jpg" alt="ASCII Studio effects mode rendering a spinning text-character torus in a green-to-blue gradient." width="1280" height="754" loading="lazy">
         <figcaption>The spinning donut, one of nine text effects you can export.</figcaption>
       </figure>
       <figure>
-        <img src="../assets/agentforge-visualizer.jpg" alt="The music visualizer's radial burst mode: rings of orange and green bars drawn from text blocks." width="840" height="652" loading="lazy">
+        <img decoding="async" src="../assets/agentforge-visualizer.jpg" alt="The music visualizer's radial burst mode: rings of orange and green bars drawn from text blocks." width="840" height="652" loading="lazy">
         <figcaption>Music visualizer, radial burst mode. It listens to the mic or the Mac's own audio.</figcaption>
       </figure>
       <figure>
-        <img src="../assets/agentforge-appearance.jpg" alt="Appearance page with five palettes (Neon, Matrix, Mono, Invert, Custom), thirteen animated backdrops and effect sliders." width="1280" height="754" loading="lazy">
+        <img decoding="async" src="../assets/agentforge-appearance.jpg" alt="Appearance page with five palettes (Neon, Matrix, Mono, Invert, Custom), thirteen animated backdrops and effect sliders." width="1280" height="754" loading="lazy">
         <figcaption>Appearance: five palettes, thirteen animated backdrops and screen effects.</figcaption>
       </figure>
       <figure>
-        <img src="../assets/agentforge-matrix.jpg" alt="Mission Control in the Matrix palette, all green on black, with the Agent Theater showing a finished agent." width="1280" height="754" loading="lazy">
+        <img decoding="async" src="../assets/agentforge-matrix.jpg" alt="Mission Control in the Matrix palette, all green on black, with the Agent Theater showing a finished agent." width="1280" height="754" loading="lazy">
         <figcaption>The same dashboard in the Matrix palette, after an agent finished.</figcaption>
       </figure>
     </div>
@@ -489,20 +190,19 @@ details.case[hidden] { display: none; }
     </section>
 
     <div class="made"><b>How it was built</b><p>Built with Claude Code as a native SwiftUI app with no third-party code apart from the Sparkle updater. Every animation is plain text redrawn by a capped clock, and everything pauses when the window is in the background. Releases are signed with my Apple Developer ID, notarized by Apple and served from a Cloudflare Worker that also hosts the update feed. A feedback button attaches diagnostics and recent crash reports, with personal paths removed.</p></div>
-    </div>
-  </details>
+  </div>
+  <p class="chap__end"><a href="#index">Back to the index <span aria-hidden="true">&uarr;</span></a></p>
+</article>
 
-  <!-- ARGUMENT X-RAY -->
-  <details class="case" id="xray">
-    <summary class="case-sum">
-      <div class="shelf-head">
-      <span class="eyebrow">Case study 06 · Reading tool</span>
-      <h2>Argument X-ray</h2>
-      <p class="sum">Persuasive writing hides its structure. This tool maps a text into its thesis, claims, evidence, unstated assumptions and objections, then flags the weak links so you can see what is actually supported.</p>
-      </div>
-    </summary>
-    <div class="case-body">
-      <p class="links"><a href="../demos/argument-xray.html" target="_blank" rel="noopener">Open Argument X-ray</a></p>
+<article class="chap" id="xray" data-chrome="AI &amp; research" data-short="Research" aria-labelledby="t-xray">
+  <div class="chap__top">
+    <p class="chap__n"><span class="chap__c">03 / 08</span><span class="chap__k">Reading tool</span><span class="chap__k"></span></p>
+    <h2 class="chap__t" id="t-xray" data-words>Argument X-ray</h2>
+    <p class="chap__sub">reading tool</p>
+    <p class="chap__lede" data-fade>Persuasive writing hides its structure. This tool maps a text into its thesis, claims, evidence, unstated assumptions and objections, then flags the weak links so you can see what is actually supported.</p>
+  </div>
+  <div class="cbody">
+<p class="links"><a href="../demos/argument-xray.html" target="_blank" rel="noopener">Open Argument X-ray</a></p>
 
 
     <div class="cols">
@@ -517,20 +217,19 @@ details.case[hidden] { display: none; }
     </div>
 
     <div class="made"><b>How it was built</b><p>Claude Code wrote the page, the sample texts and each analysis. The look is deliberately separate from this portfolio: a dark radiology light box, where the examples are plates and the fixes are recommendations.</p></div>
-    </div>
-  </details>
+  </div>
+  <p class="chap__end"><a href="#index">Back to the index <span aria-hidden="true">&uarr;</span></a></p>
+</article>
 
-  <!-- BOARDROOM OF ONE -->
-  <details class="case" id="boardroom">
-    <summary class="case-sum">
-      <div class="shelf-head">
-      <span class="eyebrow">Case study 07 · Decision tool</span>
-      <h2>Boardroom of One</h2>
-      <p class="sum">Ask one AI for advice and you tend to get one balanced, agreeable answer that hides the real disagreement. This tool seats five advisers with fixed temperaments and lets them argue your decision, then vote.</p>
-      </div>
-    </summary>
-    <div class="case-body">
-      <p class="links"><a href="../demos/boardroom-of-one.html" target="_blank" rel="noopener">Open Boardroom of One</a></p>
+<article class="chap" id="boardroom" data-chrome="AI &amp; research" data-short="Research" aria-labelledby="t-boardroom">
+  <div class="chap__top">
+    <p class="chap__n"><span class="chap__c">04 / 08</span><span class="chap__k">Decision tool</span><span class="chap__k"></span></p>
+    <h2 class="chap__t" id="t-boardroom" data-words>Boardroom of One</h2>
+    <p class="chap__sub">decision tool</p>
+    <p class="chap__lede" data-fade>Ask one AI for advice and you tend to get one balanced, agreeable answer that hides the real disagreement. This tool seats five advisers with fixed temperaments and lets them argue your decision, then vote.</p>
+  </div>
+  <div class="cbody">
+<p class="links"><a href="../demos/boardroom-of-one.html" target="_blank" rel="noopener">Open Boardroom of One</a></p>
 
 
     <div class="cols">
@@ -545,25 +244,21 @@ details.case[hidden] { display: none; }
     </div>
 
     <div class="made"><b>How it was built</b><p>Claude Code built the page and wrote the four example debates. It has its own look, an after-hours boardroom with a brass-nameplate table and a chair's resolution sealed in wax, so it reads as a separate product.</p></div>
-    </div>
-  </details>
-  </section>
-<section class="group" id="g-history">
-    <div class="group-head">
-      <h2>Research and history</h2>
-      <p>Reference works and original research, including medical research.</p>
-    </div>
-  <!-- BYZANTIUM -->
-  <details class="case" id="byzantium">
-    <summary class="case-sum">
-      <div class="shelf-head">
-      <span class="eyebrow">Case study 03 · Reference work</span>
-      <h2>Byzantium</h2>
-      <p class="sum">An illustrated encyclopedia of the Eastern Roman Empire, 324 to 1453, built around a mosaic atlas you can drag through 1,129 years and watch the borders move.</p>
-      </div>
-    </summary>
-    <div class="case-body">
-      <p class="links"><a href="https://byzantium-atlas.pages.dev/">Explore the live atlas</a></p>
+  </div>
+  <p class="chap__end"><a href="#index">Back to the index <span aria-hidden="true">&uarr;</span></a></p>
+</article>
+
+<div class="gdiv" id="g-history" data-chrome="AI &amp; research" data-short="Research"><h2 class="gdiv__t">Research and history</h2><p class="gdiv__p">Reference works and original research, including medical research.</p></div>
+
+<article class="chap" id="byzantium" data-chrome="AI &amp; research" data-short="Research" aria-labelledby="t-byzantium">
+  <div class="chap__top">
+    <p class="chap__n"><span class="chap__c">05 / 08</span><span class="chap__k">Reference work</span><span class="chap__k"></span></p>
+    <h2 class="chap__t" id="t-byzantium" data-words>Byzantium</h2>
+    <p class="chap__sub">mosaic atlas</p>
+    <p class="chap__lede" data-fade>An illustrated encyclopedia of the Eastern Roman Empire, 324 to 1453, built around a mosaic atlas you can drag through 1,129 years and watch the borders move.</p>
+  </div>
+  <div class="cbody">
+<p class="links"><a target="_blank" rel="noopener" href="https://byzantium-atlas.pages.dev/">Explore the live atlas</a></p>
 
     <dl class="stats">
       <div><dt>Dated territory snapshots</dt><dd>200</dd></div>
@@ -575,7 +270,7 @@ details.case[hidden] { display: none; }
     </dl>
 
     <figure class="wide">
-      <img src="../assets/byz-atlas-1025.jpg" alt="The Byzantium atlas set to the year 1025: the empire laid out in purple mosaic tiles edged in gold, a blue tessera sea, a year slider with dynasty bands, and a panel describing what was happening in 1025." width="1600" height="1000" loading="lazy">
+      <img decoding="async" src="../assets/byz-atlas-1025.jpg" alt="The Byzantium atlas set to the year 1025: the empire laid out in purple mosaic tiles edged in gold, a blue tessera sea, a year slider with dynasty bands, and a panel describing what was happening in 1025." width="1600" height="1000" loading="lazy">
       <figcaption>The atlas at 1025, near the empire's height. Every tile is a tessera; the panel says who was on the throne and who held what that year.</figcaption>
     </figure>
 
@@ -593,13 +288,13 @@ details.case[hidden] { display: none; }
 
     <div class="shots">
       <figure>
-        <img src="../assets/byz-atlas-compare.jpg" alt="Atlas compare mode: two years of the empire side by side, split by a draggable divider." width="1600" height="1000" loading="lazy">
+        <img decoding="async" src="../assets/byz-atlas-compare.jpg" alt="Atlas compare mode: two years of the empire side by side, split by a draggable divider." width="1600" height="1000" loading="lazy">
         <figcaption>Compare mode: two years side by side with a divider you can drag or move by keyboard.</figcaption>
       </figure>
       <figure class="compare-fig">
         <div class="compare" style="aspect-ratio: 1600 / 1000">
-          <img src="../assets/byz-atlas-1025.jpg" alt="The atlas at 1025, with the empire at its height under Basil II." width="1600" height="1000" loading="lazy">
-          <img class="after" src="../assets/byz-atlas-1204.jpg" alt="The atlas in dark mode at 1204, with former imperial land hatched as contested after the Fourth Crusade." width="1600" height="1000" loading="lazy">
+          <img decoding="async" src="../assets/byz-atlas-1025.jpg" alt="The atlas at 1025, with the empire at its height under Basil II." width="1600" height="1000" loading="lazy">
+          <img decoding="async" class="after" src="../assets/byz-atlas-1204.jpg" alt="The atlas in dark mode at 1204, with former imperial land hatched as contested after the Fourth Crusade." width="1600" height="1000" loading="lazy">
           <span class="cmp-line" aria-hidden="true"></span><span class="cmp-tag l" aria-hidden="true">1025</span><span class="cmp-tag r" aria-hidden="true">1204</span>
           <input type="range" min="0" max="100" value="50" aria-label="Compare the atlas in 1025 and 1204">
         </div>
@@ -624,20 +319,19 @@ details.case[hidden] { display: none; }
     </div>
 
     <div class="made"><b>How it was built</b><p>One long Claude Code session took it from an empty folder to a verified site. Claude evaluated map sources and their licences, built three data pipelines and the renderer, and wrote its own reports on what failed, what was skipped and where the sources disagree, for me to review.</p></div>
-    </div>
-  </details>
+  </div>
+  <p class="chap__end"><a href="#index">Back to the index <span aria-hidden="true">&uarr;</span></a></p>
+</article>
 
-  <!-- ME/CFS EVIDENCE MAP -->
-  <details class="case" id="mecfs">
-    <summary class="case-sum">
-      <div class="shelf-head">
-      <span class="eyebrow">Case study 15 · Medical research</span>
-      <h2>ME/CFS and Long COVID evidence map</h2>
-      <p class="sum">Thousands of small studies have measured something in people with ME/CFS or Long COVID, and few results have been checked against each other. This project read the whole PubMed literature, pulled out every measured finding with its quote, and graded which ones independent labs have actually replicated.</p>
-      </div>
-    </summary>
-    <div class="case-body">
-      <p class="links"><span>Research write-up</span></p>
+<article class="chap" id="mecfs" data-chrome="AI &amp; research" data-short="Research" aria-labelledby="t-mecfs">
+  <div class="chap__top">
+    <p class="chap__n"><span class="chap__c">06 / 08</span><span class="chap__k">Medical research</span><span class="chap__k"></span></p>
+    <h2 class="chap__t" id="t-mecfs" data-words>ME/CFS and Long COVID evidence map</h2>
+    <p class="chap__sub">medical research</p>
+    <p class="chap__lede" data-fade>Thousands of small studies have measured something in people with ME/CFS or Long COVID, and few results have been checked against each other. This project read the whole PubMed literature, pulled out every measured finding with its quote, and graded which ones independent labs have actually replicated.</p>
+  </div>
+  <div class="cbody">
+<p class="links"><span>Research write-up</span></p>
 
     <dl class="stats">
       <div><dt>Abstracts screened</dt><dd>15,923</dd></div>
@@ -670,29 +364,28 @@ details.case[hidden] { display: none; }
     </div>
 
     <div class="made"><b>How it was built</b><p>Built with Claude, under my direction, across several long Claude sessions. Claude wrote the search and grading code, ran the extraction in batches of 100 abstracts, audited its own output and ran the genetics pipeline. I directed the work and made the calls along the way, including writing the genetics predictions down before the test.</p></div>
-    </div>
-  </details>
+  </div>
+  <p class="chap__end"><a href="#index">Back to the index <span aria-hidden="true">&uarr;</span></a></p>
+</article>
 
-  <!-- CLEAR AFTERCARE -->
-  <details class="case" id="aftercare">
-    <summary class="case-sum">
-      <div class="shelf-head">
-      <span class="eyebrow">Case study 16 · Patient tool</span>
-      <h2>Clear Aftercare</h2>
-      <p class="sum">Discharge papers are written in abbreviations and handed to people who are tired, unwell or 80 years old. Paste them in and get a plain-language care sheet plus a calendar reminder for every dose, task and appointment, with anything unclear marked instead of guessed.</p>
-      </div>
-    </summary>
-    <div class="case-body">
-      <p class="links"><a href="../demos/clear-aftercare.html" target="_blank" rel="noopener">Try the demo</a><span>The example and calendar buttons work on this site; reading new instructions runs inside Claude</span></p>
+<article class="chap" id="aftercare" data-chrome="AI &amp; research" data-short="Research" aria-labelledby="t-aftercare">
+  <div class="chap__top">
+    <p class="chap__n"><span class="chap__c">07 / 08</span><span class="chap__k">Patient tool</span><span class="chap__k"></span></p>
+    <h2 class="chap__t" id="t-aftercare" data-words>Clear Aftercare</h2>
+    <p class="chap__sub">patient tool</p>
+    <p class="chap__lede" data-fade>Discharge papers are written in abbreviations and handed to people who are tired, unwell or 80 years old. Paste them in and get a plain-language care sheet plus a calendar reminder for every dose, task and appointment, with anything unclear marked instead of guessed.</p>
+  </div>
+  <div class="cbody">
+<p class="links"><a href="../demos/clear-aftercare.html" target="_blank" rel="noopener">Try the demo</a><span>The example and calendar buttons work on this site; reading new instructions runs inside Claude</span></p>
 
 
     <div class="shots">
       <figure>
-        <img src="../assets/aftercare-1.jpg" alt="Clear Aftercare input screen with an emergency department discharge note pasted in, full of abbreviations such as PO BID x 7 days and PRN, and a visit date." width="1400" height="900" loading="lazy">
+        <img decoding="async" src="../assets/aftercare-1.jpg" alt="Clear Aftercare input screen with an emergency department discharge note pasted in, full of abbreviations such as PO BID x 7 days and PRN, and a visit date." width="1400" height="900" loading="lazy">
         <figcaption>The input: an emergency department discharge for an 81-year-old with pneumonia, as it would be printed.</figcaption>
       </figure>
       <figure>
-        <img src="../assets/aftercare-2.jpg" alt="The resulting care sheet: a plain-language summary of the visit, a red box of reasons to go back to the emergency room, and the first medicine card showing what it is for, how much and when." width="1400" height="900" loading="lazy">
+        <img decoding="async" src="../assets/aftercare-2.jpg" alt="The resulting care sheet: a plain-language summary of the visit, a red box of reasons to go back to the emergency room, and the first medicine card showing what it is for, how much and when." width="1400" height="900" loading="lazy">
         <figcaption>The care sheet. Eleven gaps, such as "2 times a day" with no clock times, are marked for the patient to fill in or ask about.</figcaption>
       </figure>
     </div>
@@ -710,20 +403,19 @@ details.case[hidden] { display: none; }
     </div>
 
     <div class="made"><b>How it was built</b><p>Built with Claude as a single page that calls Claude to read the instructions. Claude wrote the page, the prompt, the calendar files and the example, and checked prior work in the field, under my direction.</p></div>
-    </div>
-  </details>
+  </div>
+  <p class="chap__end"><a href="#index">Back to the index <span aria-hidden="true">&uarr;</span></a></p>
+</article>
 
-  <!-- TRAUMA GUIDELINE CITATION AUDIT -->
-  <details class="case" id="citationaudit">
-    <summary class="case-sum">
-      <div class="shelf-head">
-      <span class="eyebrow">Case study 17 · Medical evidence check</span>
-      <h2>Trauma guideline citation audit</h2>
-      <p class="sum">Military trauma guidelines tell medics and surgeons what to do, and each recommendation cites a paper. This audit checked whether the cited papers say what the guidelines claim, and found reference lists whose numbers had slipped out of line.</p>
-      </div>
-    </summary>
-    <div class="case-body">
-      <p class="links"><span>Research write-up</span></p>
+<article class="chap" id="citationaudit" data-chrome="AI &amp; research" data-short="Research" aria-labelledby="t-citationaudit">
+  <div class="chap__top">
+    <p class="chap__n"><span class="chap__c">08 / 08</span><span class="chap__k">Medical evidence check</span><span class="chap__k"></span></p>
+    <h2 class="chap__t" id="t-citationaudit" data-words>Trauma guideline citation audit</h2>
+    <p class="chap__sub">evidence check</p>
+    <p class="chap__lede" data-fade>Military trauma guidelines tell medics and surgeons what to do, and each recommendation cites a paper. This audit checked whether the cited papers say what the guidelines claim, and found reference lists whose numbers had slipped out of line.</p>
+  </div>
+  <div class="cbody">
+<p class="links"><span>Research write-up</span></p>
 
 
     <div class="cols">
@@ -746,171 +438,37 @@ details.case[hidden] { display: none; }
     </div>
 
     <div class="made"><b>How it was built</b><p>Built with Claude under my direction. Claude downloaded the guidelines, extracted every cited statement, matched each reference to PubMed, graded support and ran the reference-shift test; ChatGPT did the second-model check. The result is a list of specific, correctable errors in these guidelines.</p></div>
-    </div>
-  </details>
-  </section>
-
-  <div class="wayfind">
-    <span class="eyebrow">More work</span>
-    <nav class="areas-nav" aria-label="Areas of work"><a href="../">All work</a><a href="../legal/">Legal software<b>16</b></a><a href="../business/">Business<b>8</b></a><a href="../creative/">Creative and games<b>6</b></a><a href="../design/">Design, 3D and generative art<b>10</b></a><a href="../research/" aria-current="page">AI tools and research<b>8</b></a></nav>
-    <p class="ix-more"><a href="../#tools">Which AI for what <span>by project</span></a></p>
   </div>
-
-  <footer>
-    <span>Myles Parslow · Made with AI</span>
-    <a href="https://mylesparslow.com/legal-portfolio/">Legal portfolio</a>
-    <a href="https://github.com/mylesparslow-collab">github.com/mylesparslow-collab</a>
-  </footer>
+  <p class="chap__end"><a href="#index">Back to the index <span aria-hidden="true">&uarr;</span></a></p>
+</article>
 </div>
 
-<script>
-(function () {
-  var cases = Array.prototype.slice.call(document.querySelectorAll('details.case'));
-  function openFromHash() {
-    var id = decodeURIComponent(location.hash.slice(1));
-    if (!id) return;
-    var t = document.getElementById(id);
-    var d = t && t.closest ? t.closest('details.case') : null;
-    if (d) {
-      d.open = true;
-      requestAnimationFrame(function () { (t || d).scrollIntoView(); });
-    }
-  }
-  openFromHash();
-  window.addEventListener('hashchange', openFromHash);
-  var was = [];
-  window.addEventListener('beforeprint', function () {
-    was = cases.map(function (d) { return d.open; });
-    cases.forEach(function (d) { d.open = true; });
-  });
-  window.addEventListener('afterprint', function () {
-    cases.forEach(function (d, i) { d.open = was[i]; });
-  });
-})();
-</script>
-<script>
-/* Picture index, find and surprise, count-up numbers, before/after sliders and reading bar. */
-(function () {
-  var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var $$ = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
 
-  // Opening a case from a tile. The page's own hash handler opens and scrolls; this also covers clicking the same tile twice.
-  function openCase(id) {
-    var d = document.getElementById(id);
-    if (!d) return;
-    d.open = true;
-    if (location.hash === '#' + id) d.scrollIntoView();
-    else location.hash = id;
-  }
+<nav class="pn" aria-label="Other rooms">
+  <a class="pn__a prev" href="../design/" style="--room:var(--r-design)"><span class="eyebrow">&larr; Previous room</span><span class="pn__l" aria-hidden="true">D</span><span class="pn__t">Design &amp; 3D</span></a>
+  <a class="pn__a next" href="../legal/" style="--room:var(--r-legal)"><span class="eyebrow">Next room &rarr;</span><span class="pn__l" aria-hidden="true">L</span><span class="pn__t">Legal</span></a>
+</nav>
+</main>
 
-  // Second screenshot fades in on hover; it is only fetched the first time someone points at the tile.
-  $$('.tile').forEach(function (t) {
-    var alt = t.querySelector('img.alt');
-    function warm() {
-      if (!alt || alt.src) return;
-      alt.onload = function () { alt.classList.add('ready'); };
-      alt.src = alt.dataset.src;
-    }
-    t.addEventListener('pointerenter', warm);
-    t.addEventListener('focus', warm);
-    t.addEventListener('click', function (e) { var h = t.getAttribute('href'); if (h.charAt(0) !== '#') return; e.preventDefault(); openCase(h.slice(1)); });
-  });
+<footer class="foot foot--room" id="contact">
+  <a class="back" href="../index.html#rooms"><span class="sct">Back to the rooms</span> <span aria-hidden="true">&uarr;</span></a>
+  <a class="mail" href="mailto:mzpprojects1@gmail.com" data-copy="mzpprojects1@gmail.com" aria-label="Copy email address mzpprojects1@gmail.com" data-scramble><span class="sct" aria-hidden="true">mzpprojects1@gmail.com</span></a>
+  <div class="foot__row">
+    <a href="https://github.com/mylesparslow-collab" target="_blank" rel="noopener">GitHub</a>
+    <a href="https://mylesparslow.com/legal-portfolio/" target="_blank" rel="noopener">Legal portfolio</a>
+    <a href="#top">Back to top &uarr;</a>
+    <span>Myles Parslow &middot; Made with AI</span>
+  </div>
+</footer>
+</div>
 
-  // Find a project
-  var find = document.getElementById('find'), empty = document.querySelector('.find-empty');
-  var tiles = document.querySelector('.ix-all') ? $$('.ix-all .tile') : $$('.ix-index .tile');
-  var groups = document.querySelector('.ix-all') ? $$('.ix-all') : [];
-  function go(t) { var h = t.getAttribute('href'); if (h.charAt(0) === '#') openCase(h.slice(1)); else location.href = h; }
-  function filter() {
-    var words = find.value.toLowerCase().split(/\s+/).filter(Boolean), shown = 0;
-    tiles.forEach(function (t) {
-      var hay = t.dataset.hay + ' ' + t.textContent.toLowerCase();
-      var ok = words.every(function (w) { return hay.indexOf(w) >= 0; });
-      t.hidden = !ok; if (ok) shown++;
-    });
-    groups.forEach(function (g) { g.hidden = !g.querySelector('.tile:not([hidden])'); });
-    document.body.classList.toggle('searching', words.length > 0);
-    if (window.__applyChip) window.__applyChip();
-    empty.hidden = shown > 0;
-  }
-  if (find) {
-    find.addEventListener('input', filter);
-    find.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') { var t = tiles.filter(function (x) { return !x.hidden; })[0]; if (t) go(t); }
-      if (e.key === 'Escape') { find.value = ''; filter(); find.blur(); }
-    });
-    document.addEventListener('keydown', function (e) {
-      var a = document.activeElement, typing = a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.isContentEditable);
-      if (e.key === '/' && !typing && !e.metaKey && !e.ctrlKey && !e.altKey) { e.preventDefault(); find.focus(); find.select(); }
-    });
-  }
-  var surprise = document.getElementById('surprise');
-  if (surprise) surprise.addEventListener('click', function () {
-    var pool = tiles.filter(function (t) { return !t.hidden; });
-    if (!pool.length) pool = tiles;
-    var pick = pool[Math.floor(Math.random() * pool.length)];
-    go(pick);
-  });
+<div class="toast" role="status" aria-live="polite"></div>
+<svg class="curtain" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path id="cur" d="M0 -20 L100 -20 L100 130 L0 130Z"/></svg>
 
-  // Count-up: the real figure stays in the HTML; only its first number animates, once, when it comes into view.
-  if (!reduced && 'IntersectionObserver' in window) {
-    var io = new IntersectionObserver(function (es) {
-      es.forEach(function (e) {
-        if (!e.isIntersecting) return;
-        io.unobserve(e.target);
-        countUp(e.target);
-      });
-    }, { threshold: 0.6 });
-    $$('.tally dd, .stats dd').forEach(function (dd) {
-      if (/^\D{0,2}\d[\d,]*(\.\d+)?/.test(dd.textContent.trim())) io.observe(dd);
-    });
-  }
-  function countUp(dd) {
-    var text = dd.textContent, m = text.match(/\d[\d,]*(\.\d+)?/);
-    if (!m) return;
-    var target = parseFloat(m[0].replace(/,/g, '')), dec = m[1] ? m[1].length - 1 : 0;
-    if (!(target > 0)) return;
-    var before = text.slice(0, m.index), after = text.slice(m.index + m[0].length), comma = m[0].indexOf(',') >= 0;
-    var fmt = function (n) { var v = n.toFixed(dec); return comma ? Number(v).toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec }) : v; };
-    var t0 = performance.now(), dur = target < 20 ? 700 : 1300;
-    (function frame(now) {
-      var k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 4);
-      dd.textContent = k < 1 ? before + fmt(target * e) + after : text;
-      if (k < 1) requestAnimationFrame(frame);
-    })(t0);
-  }
-
-  // Before / after sliders
-  $$('.compare').forEach(function (c) {
-    var r = c.querySelector('input');
-    r.addEventListener('input', function () { c.style.setProperty('--pos', r.value + '%'); });
-  });
-
-  // Reading bar for the open case study under the top of the screen, and a way back to the index.
-  var bar = document.createElement('div'); bar.className = 'readbar'; bar.setAttribute('aria-hidden', 'true');
-  var back = document.createElement('a'); back.className = 'backtop'; back.href = '#index'; back.textContent = '↑ All projects'; back.hidden = true;
-  document.body.appendChild(bar); document.body.appendChild(back);
-  back.addEventListener('click', function (e) { e.preventDefault(); var ix = document.getElementById('index'); ix.scrollIntoView(); history.replaceState(null, '', location.pathname + location.search); });
-  var openCases = $$('details.case'), ticking = false;
-  function onScroll() {
-    ticking = false;
-    var vh = innerHeight, p = -1;
-    for (var i = 0; i < openCases.length; i++) {
-      var d = openCases[i];
-      if (!d.open) continue;
-      var r = d.getBoundingClientRect();
-      if (r.top < vh * 0.3 && r.bottom > vh * 0.3) { p = Math.min(1, Math.max(0, -r.top / Math.max(1, r.height - vh))); break; }
-    }
-    bar.classList.toggle('on', p >= 0);
-    if (p >= 0) bar.style.transform = 'scaleX(' + p + ')';
-    var ix = document.getElementById('index');
-    back.hidden = !ix || ix.getBoundingClientRect().bottom > 0;
-  }
-  window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
-  window.addEventListener('resize', onScroll);
-  onScroll();
-
-})();
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha384-g4NTh/Iv5PPU4xPyhEWqPcwtNXOvdaDI8LLnyYfyNZOjKJeYQyjzQ9X5275eBjpt" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" integrity="sha384-Z3REaz79l2IaAZqJsSABtTbhjgOUYyV3p90XNnAPCSHg3EMTz1fouunq9WZRtj3d" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js" integrity="sha384-B2WBjDzEjJpYvhmi2UyEn7rektqkf5suS6sNoyyrf0EBAwBHdkiXxIlU0V5Ru2ed" crossorigin="anonymous"></script>
+<script src="../assets/site/b.js"></script>
+<script src="../assets/site/rooms.js"></script>
 </body>
 </html>
