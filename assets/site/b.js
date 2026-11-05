@@ -1,4 +1,4 @@
-/* Mockup B: workshop with five rooms. GSAP 3.12.5 + ScrollTrigger + Lenis 1.1.13.
+/* Mockup B: workshop with five rooms. GSAP 3.12.5 + ScrollTrigger, on the browser's own scrolling.
    Shared by the homepage and the in-theme room pages (rooms.js adds the case-study bits). */
 (function () {
   'use strict';
@@ -20,14 +20,17 @@
   var anim = root.classList.contains('anim') && hasG && !reduce;
   if (hasG) gsap.registerPlugin(ScrollTrigger);
 
-  /* ---------- smooth scroll ---------- */
-  var lenis = null;
-  if (hasG && !reduce && window.Lenis) {
-    lenis = new Lenis({ lerp: 0.1, smoothWheel: true });
-    lenis.on('scroll', ScrollTrigger.update);
-    gsap.ticker.add(function (t) { lenis.raf(t * 1000); });
-    gsap.ticker.lagSmoothing(0);
-  }
+  /* ---------- scrolling ----------
+     Native scrolling, no smooth-scroll library: one wheel notch or a short trackpad flick moves the page
+     by exactly what the browser and OS say, and stops when the input stops. (Lenis used to glide each
+     notch for about a second, which made small scrolls hard and ran the page's scroll on the JS thread.)
+     While the page is moving, hover effects are paused so rows passing under a still pointer do no work. */
+  var scrolling = false, scrollT = 0;
+  window.addEventListener('scroll', function () {
+    if (!scrolling) { scrolling = true; root.classList.add('is-scrolling'); }
+    clearTimeout(scrollT);
+    scrollT = setTimeout(function () { scrolling = false; root.classList.remove('is-scrolling'); }, 140);
+  }, { passive: true });
 
   /* ---------- theme toggle: light -> dark -> red; the head script has already set data-theme ---------- */
   var THEMES = ['light', 'dark', 'red'], TCOL = { light: '#ebe5da', dark: '#141312', red: '#bf2400' };
@@ -59,7 +62,7 @@
   if (canHover && !reduce) {
     $$('[data-scramble]').forEach(function (host) {
       var t = $('.sct', host); if (!t) return;
-      host.addEventListener('pointerenter', function (e) { if (e.pointerType === 'touch') return; scramble(t, 0.3); });
+      host.addEventListener('pointerenter', function (e) { if (e.pointerType === 'touch' || scrolling) return; scramble(t, 0.3); });
     });
   }
 
@@ -139,8 +142,7 @@
     var el = null; try { el = $(h); } catch (e) {} if (!el) return;
     var y = el.classList.contains('room') ? roomTop(el) : el.getBoundingClientRect().top + window.scrollY;
     y -= parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
-    if (lenis) lenis.scrollTo(y, instant ? { immediate: true } : { duration: 1.2, easing: function (t) { return 1 - Math.pow(1 - t, 4); } });
-    else window.scrollTo({ top: y, behavior: (reduce || instant) ? 'auto' : 'smooth' });
+    window.scrollTo({ top: y, behavior: (reduce || instant) ? 'auto' : 'smooth' });
     try { history.replaceState(null, '', h); } catch (e) {}
     /* move keyboard focus with the jump, so the next Tab continues from the target */
     if (!instant) {
@@ -176,14 +178,14 @@
   function openMenu() {
     if (isOpen) return; isOpen = true; lastFocus = document.activeElement;
     menu.classList.add('open'); menu.setAttribute('aria-hidden', 'false'); mbtn.setAttribute('aria-expanded', 'true');
-    setInert(true); if (lenis) lenis.stop();
+    setInert(true); root.classList.add('menu-open');
     if (hasG && !reduce) gsap.fromTo(menu, { clipPath: 'inset(0% 0% 100% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.7, ease: 'expo.inOut', overwrite: true });
     else menu.style.clipPath = 'none';
     setTimeout(function () { mclose.focus(); }, 30);
   }
   function closeMenu(instant) {
     if (!isOpen && !menu.classList.contains('open')) return;
-    isOpen = false; setInert(false); if (lenis) lenis.start();
+    isOpen = false; setInert(false); root.classList.remove('menu-open');
     mbtn.setAttribute('aria-expanded', 'false'); menu.setAttribute('aria-hidden', 'true');
     var fin = function () { menu.classList.remove('open'); menu.style.clipPath = ''; };
     if (instant === true || !hasG || reduce) { if (hasG) gsap.killTweensOf(menu); fin(); }
@@ -229,19 +231,22 @@
   rooms.forEach(function (room) {
     var about = $('.room__about', room), def = about.dataset.default;
     $$('.row', room).forEach(function (row) {
-      var on = function () { about.textContent = row.dataset.about; };
-      var off = function () { about.textContent = def; };
-      row.addEventListener('pointerenter', on); row.addEventListener('focus', on);
-      row.addEventListener('pointerleave', off); row.addEventListener('blur', off);
+      var on = function () { if (about.textContent !== row.dataset.about) about.textContent = row.dataset.about; };
+      var off = function () { if (about.textContent !== def) about.textContent = def; };
+      /* pointer: only when the pointer really moved onto the row, not when scrolling slid the row under it */
+      row.addEventListener('pointerenter', function () { if (!scrolling) on(); }); row.addEventListener('focus', on);
+      row.addEventListener('pointerleave', function () { if (!scrolling) off(); }); row.addEventListener('blur', off);
       var img = $('.th img', row);
-      if (img && canHover && !reduce) row.addEventListener('pointerenter', function () { mosaic($('.th', row), img); });
+      if (img && canHover && !reduce) row.addEventListener('pointerenter', function () { if (!scrolling) mosaic($('.th', row), img); });
     });
   });
   function mosaic(box, img) {
     if (!img.complete || !img.naturalWidth) return;
     var cv = $('canvas', box);
     if (!cv) { cv = document.createElement('canvas'); box.appendChild(cv); }
-    var w = cv.width = box.clientWidth, h = cv.height = box.clientHeight, ctx = cv.getContext('2d'), t = document.createElement('canvas'), tc = t.getContext('2d');
+    var w = box.clientWidth, h = box.clientHeight;
+    if (cv.width !== w) cv.width = w; if (cv.height !== h) cv.height = h;
+    var ctx = cv.getContext('2d'), t = mosaic.t || (mosaic.t = document.createElement('canvas')), tc = t.getContext('2d');
     ctx.imageSmoothingEnabled = false; cv.style.display = 'block'; clearTimeout(cv._t);
     var steps = [14, 8, 5, 3, 2, 1], k = 0;
     (function next() {
@@ -384,5 +389,5 @@
   }
   /* wait for the first paint of fonts to be requested, then run */
   runIntro();
-  window.MPB = { go: go, scrollToHash: scrollToHash, lenis: lenis, hasG: hasG, reduce: reduce, $: $, $$: $$ };
+  window.MPB = { go: go, scrollToHash: scrollToHash, hasG: hasG, reduce: reduce, $: $, $$: $$ };
 })();
