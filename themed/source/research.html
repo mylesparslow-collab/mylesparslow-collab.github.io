@@ -492,6 +492,77 @@ details.case[hidden] { display: none; }
     </div>
   </details>
 
+  <!-- AGENTFORGE RUST EDITION -->
+  <details class="case" id="agentforge-rust">
+    <summary class="case-sum">
+      <div class="shelf-head">
+      <span class="eyebrow">Case study 45 · Desktop app for Mac, Windows and Linux · Local AI</span>
+      <h2>AgentForge Rust Edition</h2>
+      <p class="sum">AgentForge rebuilt in Rust so it runs on Mac, Windows and Linux, reskinned in rusted iron and forge orange. It carries every feature of the Mac app, then adds cloud models, an image studio, a cost tracker, one queue for every approval, and visualizers simulated in Rust that react to whatever the computer is playing.</p>
+      </div>
+    </summary>
+    <div class="case-body">
+      <p class="links"><a href="https://agentforge.mylesparslow.workers.dev/rust/" target="_blank" rel="noopener">Download for Mac, Windows or Linux</a><span>Signed and notarized on the Mac; updates itself on Mac and Windows. See also the <a href="#agentforge">original Mac app</a>.</span></p>
+
+    <figure class="wide">
+      <img src="../assets/afrust-home.jpg" alt="AgentForge Rust Edition Mission Control in the RUST palette: AGENTFORGE and RUST EDITION in orange block letters over a dark iron background with falling sparks, cards for models, agents and today's cost, the Agent Theater, and live CPU, memory and network graphs." width="1600" height="1000" loading="lazy">
+      <figcaption>Mission Control in the RUST palette, with the Forge Sparks background and today's model spend next to the usual counts.</figcaption>
+    </figure>
+
+    <section class="block">
+      <h3>What changed from the Mac app</h3>
+      <div class="grid3">
+        <div><h4>Three operating systems</h4><p>A Rust backend (Tauri) with a Svelte interface replaces SwiftUI. Agents, file tools, Ollama, MCP servers, document search and hardware readings all run in Rust, so they behave the same on Mac, Windows and Linux. A first-run setup finds Ollama or walks through installing it on each one.</p></div>
+        <div><h4>Cloud models and images</h4><p>Local models stay the default, but chat and agents can also use OpenAI, Anthropic, Gemini, DeepSeek, Kimi, Mistral, Groq, xAI, OpenRouter or any OpenAI-compatible server. Keys stay in the system keychain, and a notice appears whenever text is about to leave the computer. Image Studio generates and edits pictures, also from chat with /image.</p></div>
+        <div><h4>Cost and approvals</h4><p>Every model call is logged with its tokens and cost: the provider's own figure when it reports one, otherwise tokens times a price I set, and $0 for local models. Every pending approval, from any agent or workflow, lands in one queue where it can be approved or denied.</p></div>
+      </div>
+    </section>
+
+    <figure class="wide">
+      <img src="../assets/afrust-viz-chladni.jpg" alt="The Visualizer's Chladni Plate mode: orange sand on a dark plate gathered into curved nodal lines, with level, BPM and note readouts above it." width="1600" height="1000" loading="lazy">
+      <figcaption>Chladni Plate: sand on a vibrating plate settles into the real nodal pattern of the strongest note, and re-forms when the note changes.</figcaption>
+    </figure>
+
+    <section class="block">
+      <h3>Visualizers simulated in Rust</h3>
+      <p>Seventeen effects are written in Rust and compiled to WebAssembly. Six of them listen: Chladni Plate, Ferrofluid, Forge Hammer, Iron Filings, Murmuration and Molten Pour. A test showed Rust drawing every pixel was far slower than the graphics chip, so these simulate at a low resolution and scale up as crisp pixels, which keeps them smooth and suits the look. Each one doubles as a window background that moves on its own, or reacts to music if you switch that on. The audio can come from the microphone, a file, or the computer's own output, captured natively on all three systems.</p>
+    </section>
+
+    <div class="gallery">
+      <figure>
+        <img src="../assets/afrust-viz-ferro.jpg" alt="Ferrofluid mode: a glossy orange liquid-metal sphere covered in sharp spikes." width="1600" height="1000" loading="lazy">
+        <figcaption>Ferrofluid: liquid metal that spikes with the bass.</figcaption>
+      </figure>
+      <figure>
+        <img src="../assets/afrust-viz-forge.jpg" alt="Forge Hammer mode: a pixel-art anvil with a glowing bar and a shower of sparks." width="1600" height="1000" loading="lazy">
+        <figcaption>Forge Hammer: every beat is a strike, and the sparks cool as they fly.</figcaption>
+      </figure>
+      <figure>
+        <img src="../assets/afrust-viz-murm.jpg" alt="Murmuration mode: a dark flock of thousands of birds against an orange sky." width="1600" height="1000" loading="lazy">
+        <figcaption>Murmuration: thousands of starlings that tighten with the volume and scatter on the beat.</figcaption>
+      </figure>
+      <figure>
+        <img src="../assets/afrust-agents.jpg" alt="The Agents page: project, harness choice between AgentForge, Claude Code and Codex, model, access level and skills." width="1600" height="1000" loading="lazy">
+        <figcaption>Agents: the same three harnesses and access levels as the Mac app.</figcaption>
+      </figure>
+      <figure>
+        <img src="../assets/afrust-flows.jpg" alt="The Flows canvas with a five-node Idea to Build workflow, the node library on the left and a minimap." width="1600" height="1000" loading="lazy">
+        <figcaption>Flows, ported with all ten starter templates.</figcaption>
+      </figure>
+      <figure>
+        <img src="../assets/afrust-performance.jpg" alt="Performance page with a system status clock, a cost panel showing today and this week, per-core CPU bars and live graphs." width="1600" height="1000" loading="lazy">
+        <figcaption>Performance, with today's and this week's spend.</figcaption>
+      </figure>
+      <figure>
+        <img src="../assets/afrust-appearance.jpg" alt="Appearance page with eleven palettes including RUST, ASCII backdrops and a gallery of GPU shaders." width="1600" height="1000" loading="lazy">
+        <figcaption>Appearance: eleven palettes, ASCII, shader and Rust backgrounds.</figcaption>
+      </figure>
+    </div>
+
+    <div class="made"><b>How it was built</b><p>Built with Claude Code in two days. One session planned the port and gave each feature its own folder in the code, then several builder agents worked in parallel on separate branches while it merged, tested and released them. Features I liked in one edition, like the cost tracker and the approvals queue, went into the Mac app first and were carried over once I had tried them. The interface screenshots here use the app's built-in demo data.</p></div>
+    </div>
+  </details>
+
   <!-- ARGUMENT X-RAY -->
   <details class="case" id="xray">
     <summary class="case-sum">
