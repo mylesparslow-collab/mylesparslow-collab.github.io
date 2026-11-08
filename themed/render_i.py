@@ -72,10 +72,6 @@ N_CASES = len(CASE)
 XCH = [
     dict(a='rscads', b='clayexplainers', key='same Blender clay kit',
          why='The clay explainers are made with the same Blender clay kit as the business ads.'),
-    dict(a='prismtrip', b='agentforge', key='runs inside AgentForge',
-         why='Prism Trip also runs natively inside AgentForge, as a tab in its ASCII Studio.'),
-    dict(a='kittykart', b='skippy3d', key='both star Skippy',
-         why='Skippy, my orange tabby, races in Kitty Kart and turns in 3D in text.'),
     dict(a='citationgate', b='citationaudit', key='both check citations',
          why='Both check whether a cited source says what it is cited for: court opinions in one, medical papers in the other.'),
 ]
@@ -165,21 +161,21 @@ WRAPW = {'legal': 176, 'research': 290, 'business': 150, 'creative': 128, 'desig
 
 # Legal: hub -> NW (pair with Research) -> N column
 ROUTE['legal'] = [HUB_NE, L_bend, P(L_bend[0], 34)]
-PINS['legal'] = {0: along(HUB_NE, 'NW', 52), 8: along(HUB_NE, 'NW', PAIR - 30), 9: P(L_bend[0], L_bend[1] - 27), 15: P(L_bend[0], 34)}
-SIDES['legal'] = ['NE'] * 9 + ['E'] * 7
+PINS['legal'] = {0: along(HUB_NE, 'NW', 52), 8: along(HUB_NE, 'NW', PAIR - 30), 9: P(L_bend[0], L_bend[1] - 27), 18: P(L_bend[0], 34)}
+SIDES['legal'] = ['NE'] * 9 + ['E'] * 10
 
 # Research: R01 (stub end) -> R02 -> hub -> NW (pair with Legal) -> R09
 r_stub = along(HUB_SW, 'SE', DR + 50)
 ROUTE['research'] = [P(r_stub[0], r_stub[1] + 60), r_stub, HUB_SW, R_end]
-PINS['research'] = {0: P(r_stub[0], r_stub[1] + 60), 1: along(HUB_SW, 'SE', DR), 2: along(HUB_SW, 'NW', 84), 8: R_end}
-SIDES['research'] = ['W', 'SW'] + ['SW'] * 6 + ['W']
+PINS['research'] = {0: P(r_stub[0], r_stub[1] + 60), 1: along(HUB_SW, 'SE', DR), 2: along(HUB_SW, 'NW', 84), 9: R_end}
+SIDES['research'] = ['W', 'SW'] + ['SW'] * 7 + ['W']
 
 # Business: hub -> E (over Creative) -> NE -> N column
 b_turn = P(BC_x + 50, B0[1])
 b_up = along(b_turn, 'NE', 60)
 ROUTE['business'] = [B0, b_turn, b_up, P(b_up[0], 40)]
-PINS['business'] = {0: P(CX + 90, B0[1]), 2: P(BC_x, B0[1]), 3: P(b_up[0], b_up[1] - 40), 11: P(b_up[0], 40)}
-SIDES['business'] = ['N'] * 3 + ['E'] * 9
+PINS['business'] = {0: P(CX + 90, B0[1]), 2: P(BC_x, B0[1]), 3: P(b_up[0], b_up[1] - 40), 5: P(b_up[0], 280), 12: P(b_up[0], 40)}
+SIDES['business'] = ['N'] * 3 + ['E'] * 10
 
 # Creative: hub -> E (under Business) -> SE -> E (over Design) -> end
 c_turn = P(BC_x + 50, C0[1])
@@ -187,17 +183,17 @@ D_low = 590
 c_y = D_low - G
 c_down = along(c_turn, 'SE', (c_y - C0[1]) / S2)
 CD_x = c_down[0] + 120
-ROUTE['creative'] = [C0, c_turn, c_down, P(CD_x + 150, c_y)]
-PINS['creative'] = {0: P(CX + 150, C0[1]), 2: P(BC_x, C0[1]), 4: P(CD_x, c_y), 5: P(CD_x + 150, c_y)}
-SIDES['creative'] = ['S', 'S', 'S', 'NE', 'N', 'N']
+ROUTE['creative'] = [C0, c_turn, c_down, P(CD_x + 420, c_y)]
+PINS['creative'] = {0: P(CX + 150, C0[1]), 2: P(BC_x, C0[1]), 4: P(CD_x, c_y), 8: P(CD_x + 420, c_y)}
+SIDES['creative'] = ['S', 'S', 'S', 'NE', 'N', 'N', 'N', 'N', 'N']
 
 # Design: D01..D05 on a W then SW arm, hub, D06 on the SE pair, then E under Creative
 d_w = P(470, CY)
 d_end = along(d_w, 'SW', 200)
 d_bend = along(HUB_NE, 'SE', (D_low - HUB_NE[1]) / S2)
-ROUTE['design'] = [d_end, d_w, P(CX, CY), HUB_NE, d_bend, P(CD_x + 240, D_low)]
-PINS['design'] = {0: d_end, 3: P(CX - 205, CY), 4: P(CX - 95, CY), 5: along(HUB_NE, 'SE', DR), 8: P(CD_x, D_low), 9: P(CD_x + 240, D_low)}
-SIDES['design'] = ['SE', 'SE', 'SE', 'S', 'S', 'NE', 'S', 'S', 'S', 'S']
+ROUTE['design'] = [d_end, d_w, P(CX, CY)]
+PINS['design'] = {0: d_end, 3: P(CX - 150, CY)}
+SIDES['design'] = ['SE', 'SE', 'SE', 'S']
 
 # The one geographic flourish: a river through the empty middle, never under a label.
 RIVER_W = 15
