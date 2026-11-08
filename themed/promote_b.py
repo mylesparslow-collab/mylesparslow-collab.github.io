@@ -19,6 +19,7 @@ first, then run with --force. Without a fingerprint file it compares against
 what it is about to write and stops on any difference.
 """
 import hashlib, json, re, shutil, subprocess, sys
+sys.exit("RETIRED 2026-11-07: design I (Transit Map) is live. Use themed/promote_i.py; running this would overwrite I with B.")
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
