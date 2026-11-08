@@ -165,8 +165,8 @@ WRAPW = {'legal': 176, 'research': 290, 'business': 150, 'creative': 128, 'desig
 
 # Legal: hub -> NW (pair with Research) -> N column
 ROUTE['legal'] = [HUB_NE, L_bend, P(L_bend[0], 34)]
-PINS['legal'] = {0: along(HUB_NE, 'NW', 52), 8: along(HUB_NE, 'NW', PAIR - 30), 9: P(L_bend[0], L_bend[1] - 27), 17: P(L_bend[0], 34)}
-SIDES['legal'] = ['NE'] * 9 + ['E'] * 9
+PINS['legal'] = {0: along(HUB_NE, 'NW', 52), 8: along(HUB_NE, 'NW', PAIR - 30), 9: P(L_bend[0], L_bend[1] - 27), 18: P(L_bend[0], 34)}
+SIDES['legal'] = ['NE'] * 9 + ['E'] * 10
 
 # Research: R01 (stub end) -> R02 -> hub -> NW (pair with Legal) -> R09
 r_stub = along(HUB_SW, 'SE', DR + 50)
@@ -178,8 +178,8 @@ SIDES['research'] = ['W', 'SW'] + ['SW'] * 7 + ['W']
 b_turn = P(BC_x + 50, B0[1])
 b_up = along(b_turn, 'NE', 60)
 ROUTE['business'] = [B0, b_turn, b_up, P(b_up[0], 40)]
-PINS['business'] = {0: P(CX + 90, B0[1]), 2: P(BC_x, B0[1]), 3: P(b_up[0], b_up[1] - 40), 5: P(b_up[0], 280), 12: P(b_up[0], 40)}
-SIDES['business'] = ['N'] * 3 + ['E'] * 10
+PINS['business'] = {0: P(CX + 90, B0[1]), 2: P(BC_x, B0[1]), 3: P(b_up[0], b_up[1] - 40), 5: P(b_up[0], 280), 13: P(b_up[0], 40)}
+SIDES['business'] = ['N'] * 3 + ['E'] * 11
 
 # Creative: hub -> E (under Business) -> SE -> E (over Design) -> end
 c_turn = P(BC_x + 50, C0[1])
