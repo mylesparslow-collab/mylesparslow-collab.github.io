@@ -255,7 +255,8 @@
     function mark() {
       raf = 0;
       var st = d.getElementById('strip'), lim = (st ? st.getBoundingClientRect().bottom : 0) + 48, hit = stops[0] || null;
-      for (var i = 0; i < stops.length; i++) { if (stops[i].querySelector('.stop__t').getBoundingClientRect().top <= lim) hit = stops[i]; else break; }
+      // measure the stop block itself: a deep link (#id) scrolls the block's top, not its title, to just under the strip
+      for (var i = 0; i < stops.length; i++) { if (stops[i].getBoundingClientRect().top <= lim) hit = stops[i]; else break; }
       if (stops.length && innerHeight + scrollY >= d.documentElement.scrollHeight - 2) {
         var last = stops[stops.length - 1]; if (last.getBoundingClientRect().top < innerHeight) hit = last;
       }
@@ -274,6 +275,8 @@
     }
     addEventListener('scroll', function () { if (!raf) raf = requestAnimationFrame(mark); }, { passive: true });
     addEventListener('resize', function () { if (!raf) raf = requestAnimationFrame(mark); });
+    addEventListener('hashchange', function () { requestAnimationFrame(mark); });
+    addEventListener('load', mark);
     mark();
   }
 })();
