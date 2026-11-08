@@ -333,3 +333,8 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+# style switcher (see add_switcher.py)
+import runpy as _rp
+import os as _os; _rp.run_path(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "add_switcher.py"), run_name="__main__")
