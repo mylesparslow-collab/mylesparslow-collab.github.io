@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Three Brothers</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jacquarda+Bastarda+9&family=Pixelify+Sans:wght@400;600&display=swap">
+<style>
+  /* Layout: one storybook plate, centred, with its caption printed beneath and a chapter strip below that. */
+  :root {
+    --night: #170f1c;      /* page */
+    --plum: #2a1d2e;       /* ink, frames */
+    --frame: #6a4426;      /* plate frame wood */
+    --gilt: #e2b84a;       /* gold accents */
+    --parchment: #efe1bf;  /* caption text */
+    --muted: #9c8aa6;      /* secondary text */
+    --display: "Jacquarda Bastarda 9", "Pixelify Sans", ui-monospace, monospace;
+    --body: "Pixelify Sans", ui-monospace, "SF Mono", Menlo, monospace;
+    color-scheme: dark;
+  }
+  [hidden] { display: none !important; }
+  html, body { height: 100%; }
+  body {
+    background: var(--night);
+    color: var(--parchment);
+    font-family: var(--body);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding-block: 16px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    box-sizing: border-box;
+  }
+  .book { width: min(100%, calc((100vh - 200px) * 16 / 9), 1280px); min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+  .plate {
+    position: relative; aspect-ratio: 16 / 9; max-width: 100%;
+    background: var(--plum);
+    box-shadow: 0 0 0 4px var(--plum), 0 0 0 8px var(--frame), 0 0 0 10px var(--gilt), 0 0 0 14px var(--plum);
+  }
+  canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; image-rendering: crisp-edges; }
+  .caption {
+    min-height: 3.4em; margin: 6px 0 0; text-align: center; text-wrap: balance;
+    font-size: clamp(15px, 1.9vw, 21px); line-height: 1.45; letter-spacing: 0.01em;
+  }
+  .bar { display: flex; align-items: center; gap: 12px; }
+  .bar #play {
+    font: 600 14px var(--body); color: var(--plum); background: var(--gilt); border: 0;
+    width: 40px; height: 32px; cursor: pointer; box-shadow: 0 3px 0 #a8802a;
+  }
+  .bar #play:focus-visible, .chap:focus-visible { outline: 2px solid var(--parchment); outline-offset: 2px; }
+  .chapters { flex: 1; display: flex; gap: 3px; min-width: 0; height: 12px; }
+  .chap { position: relative; background: #3a2a40; border: 0; padding: 0; cursor: pointer; }
+  .chap i { position: absolute; inset: 0 auto 0 0; background: var(--gilt); width: 0; }
+  .time { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; min-width: 84px; text-align: right; }
+  .chapname { font-size: 13px; color: var(--muted); text-align: center; min-height: 1.2em; }
+  .start {
+    position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+    background: rgba(23, 15, 28, 0.72); text-align: center;
+  }
+  .start h1 { font: 400 clamp(34px, 7vw, 78px) / 1 var(--display); margin: 0; color: var(--parchment); text-wrap: balance; }
+  .start p { margin: 0; color: var(--muted); font-size: 14px; }
+  .start button {
+    font: 600 17px var(--body); color: var(--plum); background: var(--gilt); border: 0; padding: 10px 20px; cursor: pointer;
+    box-shadow: 0 4px 0 #a8802a;
+  }
+  .start button:focus-visible { outline: 2px solid var(--parchment); outline-offset: 3px; }
+  .credits { margin: 0; font-size: 11px; color: var(--muted); text-align: center; opacity: 0.75; text-wrap: balance; }
+  @media (max-width: 520px) { .time { min-width: 0; } .bar { gap: 8px; } }
+</style>
+
+<main class="book">
+  <div class="plate">
+    <canvas id="plate" width="480" height="270" aria-label="Animated pixel-art film of The Three Brothers"></canvas>
+    <div class="start" id="start">
+      <h1>The Three Brothers</h1>
+      <p>A tale from the Brothers Grimm, told by Newton, Skippy and Simba</p>
+      <button id="begin" type="button">&#9654; Begin the story</button>
+    </div>
+  </div>
+  <p class="caption" id="caption" aria-live="polite"></p>
+  <div class="bar">
+    <button id="play" type="button" aria-label="Play">&#9654;</button>
+    <div class="chapters" id="chapters"></div>
+    <span class="time" id="time">0:00 / 4:00</span>
+  </div>
+  <div class="chapname" id="chapname"></div>
+  <p class="credits">Narration: ElevenLabs (voice "George"). Music: Grieg, <i>Peer Gynt</i>, Musopen Symphony (public domain). Sounds: BBC Sound Effects (personal use), Freesound (CC0), and a wood knock by Geoff-Bremner-Audio (CC BY-NC 4.0). Cats drawn in the CatGPT style.</p>
+</main>
+
+<script type="module" src="js/main.js"></script>
+
+</html>

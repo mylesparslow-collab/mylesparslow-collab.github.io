@@ -72,10 +72,6 @@ N_CASES = len(CASE)
 XCH = [
     dict(a='rscads', b='clayexplainers', key='same Blender clay kit',
          why='The clay explainers are made with the same Blender clay kit as the business ads.'),
-    dict(a='prismtrip', b='agentforge', key='runs inside AgentForge',
-         why='Prism Trip also runs natively inside AgentForge, as a tab in its ASCII Studio.'),
-    dict(a='kittykart', b='skippy3d', key='both star Skippy',
-         why='Skippy, my orange tabby, races in Kitty Kart and turns in 3D in text.'),
     dict(a='citationgate', b='citationaudit', key='both check citations',
          why='Both check whether a cited source says what it is cited for: court opinions in one, medical papers in the other.'),
 ]
@@ -187,17 +183,17 @@ D_low = 590
 c_y = D_low - G
 c_down = along(c_turn, 'SE', (c_y - C0[1]) / S2)
 CD_x = c_down[0] + 120
-ROUTE['creative'] = [C0, c_turn, c_down, P(CD_x + 330, c_y)]
-PINS['creative'] = {0: P(CX + 150, C0[1]), 2: P(BC_x, C0[1]), 4: P(CD_x, c_y), 7: P(CD_x + 330, c_y)}
-SIDES['creative'] = ['S', 'S', 'S', 'NE', 'N', 'N', 'N', 'N']
+ROUTE['creative'] = [C0, c_turn, c_down, P(CD_x + 420, c_y)]
+PINS['creative'] = {0: P(CX + 150, C0[1]), 2: P(BC_x, C0[1]), 4: P(CD_x, c_y), 8: P(CD_x + 420, c_y)}
+SIDES['creative'] = ['S', 'S', 'S', 'NE', 'N', 'N', 'N', 'N', 'N']
 
 # Design: D01..D05 on a W then SW arm, hub, D06 on the SE pair, then E under Creative
 d_w = P(470, CY)
 d_end = along(d_w, 'SW', 200)
 d_bend = along(HUB_NE, 'SE', (D_low - HUB_NE[1]) / S2)
-ROUTE['design'] = [d_end, d_w, P(CX, CY), HUB_NE, d_bend, P(CD_x + 240, D_low)]
-PINS['design'] = {0: d_end, 3: P(CX - 205, CY), 4: P(CX - 95, CY), 5: along(HUB_NE, 'SE', DR), 8: P(CD_x, D_low), 9: P(CD_x + 240, D_low)}
-SIDES['design'] = ['SE', 'SE', 'SE', 'S', 'S', 'NE', 'S', 'S', 'S', 'S']
+ROUTE['design'] = [d_end, d_w, P(CX, CY)]
+PINS['design'] = {0: d_end, 3: P(CX - 150, CY)}
+SIDES['design'] = ['SE', 'SE', 'SE', 'S']
 
 # The one geographic flourish: a river through the empty middle, never under a label.
 RIVER_W = 15
