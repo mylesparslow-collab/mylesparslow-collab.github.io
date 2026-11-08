@@ -1,0 +1,76 @@
+@charset "utf-8";
+:root{--bg:#fff;--fg:#111;--m:#555;--rule:#ddd;--bd:#999;--a:#00e;--v:#551a8b;--h:#e00;color-scheme:light dark}
+@media(prefers-color-scheme:dark){:root{--bg:#121212;--fg:#e8e8e8;--m:#a3a3a3;--rule:#333;--bd:#666;--a:#8ab4ff;--v:#c58af9;--h:#ff7b7b}}
+html{scroll-padding-top:1em}
+body{margin:0;border-top:4px solid #f60;background:var(--bg);color:var(--fg);font:17px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Verdana,sans-serif;overflow-wrap:break-word}
+main{max-width:70ch;margin:0 auto;padding:1.5em 1em 3em}
+a{color:var(--a);text-decoration:underline;text-underline-offset:.15em}
+a:visited{color:var(--v)}a:hover,a:active{color:var(--h)}
+a:focus-visible,summary:focus-visible,input:focus-visible+*{outline:2px solid currentColor;outline-offset:2px}
+.skip{position:absolute;left:-99em}.skip:focus{left:1em;top:.5em;background:var(--bg);padding:.25em .5em}
+h1,h2,h3,h4{font-size:inherit;font-weight:700;margin:1.5em 0 .5em}
+h1{margin-top:0;font-size:34px;line-height:1.2}
+h2{margin-top:0}
+h1+p{margin-top:0}
+h1+p.m{margin-top:-.5em}
+p,ul,ol,dl,table,figure,details{margin:0 0 1em}
+ul,ol{padding-left:2.5em}
+li{margin:0 0 .5em}
+li::marker{font-variant-numeric:tabular-nums;color:var(--m)}
+.toc{columns:2;column-gap:2em}.toc li{margin:0;break-inside:avoid}
+hr{border:0;border-top:1px solid var(--rule);margin:2em 0}
+.m,figcaption,.d,.d:visited,.kind,.count,.eyebrow,.note,.lab{color:var(--m)}
+.d:hover{color:var(--h)}
+.u::before{content:" — "}
+.s{margin:-.5em 0 .5em}
+.k span+span::before{content:", "}.k span:first-child::after{content:" · "}.k span:nth-child(2)::before{content:none}
+.pl{text-decoration:none;color:var(--m);font-weight:400;margin-left:.25em}
+.pl:hover{text-decoration:underline}
+.t{margin:1em 0 0}
+.stats{list-style:none;padding:0}.stats li{margin:0}
+dl.stats{list-style:none}dl.stats div{display:flex;justify-content:space-between;gap:1em;border-bottom:1px solid var(--rule);padding:.25em 0}
+dl.stats dt{margin:0}dl.stats dd{margin:0;font-weight:700;font-variant-numeric:tabular-nums}
+table{width:100%;border-collapse:collapse}
+th,td{border:1px solid var(--bd);padding:6px 10px;text-align:left;vertical-align:top}
+td p{margin:0 0 .5em}td p:last-child{margin:0}
+thead th{border-bottom-width:2px}
+summary{cursor:pointer;margin:1em 0 .5em}
+figure{margin:1em 0}
+img,video{display:block;max-width:100%;height:auto;border:1px solid var(--rule)}
+figure>img,figure>a>img,figure>video{width:100%}
+.portrait,figure>img.portrait,figure>video.portrait{width:auto;max-width:min(100%,20em)}
+figcaption{margin-top:.5em}
+.block{margin:0 0 1em}
+.block>:last-child{margin-bottom:0}
+.block>:first-child{margin-top:0}
+.links a+a::before{content:" · ";display:inline-block;color:var(--fg);white-space:pre}.links span{color:var(--m)}.links a+span::before{content:" — "}
+.made,.note,.sub-case{border-left:2px solid var(--rule);padding-left:1em;margin:1em 0}
+.made b{display:block}.made p{margin:0}
+.logline,.s{font-style:italic}
+h4{font-style:italic}
+.facts{display:flex;flex-wrap:wrap;gap:0 1.5em}
+.tags{margin:0 0 .5em}.tag::before{content:"["}.tag::after{content:"] "}.tag{color:var(--m)}.hot{font-weight:700}
+.flow b{display:block}.flow span{display:block}
+.xsec__list>div,.more>div{margin:0 0 1em}
+.eyebrow{margin:0 0 .5em}
+.book{margin:0 0 1.5em}.book .cover{width:12em;max-width:100%}
+.compare{position:relative;overflow:hidden;max-width:100%;--pos:50%;border:1px solid var(--rule)}
+.compare.portrait{max-width:20em}
+.compare img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border:0;max-width:none}
+.compare img.after{clip-path:inset(0 0 0 var(--pos))}
+.cmp-line{position:absolute;top:0;bottom:0;left:var(--pos);width:2px;margin-left:-1px;background:var(--bg);pointer-events:none}
+.cmp-tag{position:absolute;top:.5em;background:var(--fg);color:var(--bg);padding:0 .5em;pointer-events:none}
+.cmp-tag.l{left:.5em}.cmp-tag.r{right:.5em}
+.compare input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:ew-resize}
+.compare:focus-within{outline:2px solid currentColor;outline-offset:2px}
+@media(min-width:46em){
+.shots,.grid3,.gallery,.reels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 1em;align-items:start}
+.reels figure,.shots figure,.grid3 figure,.gallery figure{margin:0 0 1em}
+}
+@media(max-width:600px){
+.toc{columns:1}
+thead{display:none}
+tr,th,td{display:block}
+th,td{border-width:0 0 0 0;padding:6px 10px}
+tr{border:1px solid var(--bd);margin:0 0 .5em}
+}
