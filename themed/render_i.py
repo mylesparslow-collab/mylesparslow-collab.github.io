@@ -178,8 +178,8 @@ SIDES['research'] = ['W', 'SW'] + ['SW'] * 7 + ['W']
 b_turn = P(BC_x + 50, B0[1])
 b_up = along(b_turn, 'NE', 60)
 ROUTE['business'] = [B0, b_turn, b_up, P(b_up[0], 40)]
-PINS['business'] = {0: P(CX + 90, B0[1]), 2: P(BC_x, B0[1]), 3: P(b_up[0], b_up[1] - 40), 5: P(b_up[0], 280), 13: P(b_up[0], 40)}
-SIDES['business'] = ['N'] * 3 + ['E'] * 11
+PINS['business'] = {0: P(CX + 90, B0[1]), 2: P(BC_x, B0[1]), 3: P(b_up[0], b_up[1] - 40), 5: P(b_up[0], 280), 12: P(b_up[0], 40)}
+SIDES['business'] = ['N'] * 3 + ['E'] * 10
 
 # Creative: hub -> E (under Business) -> SE -> E (over Design) -> end
 c_turn = P(BC_x + 50, C0[1])
