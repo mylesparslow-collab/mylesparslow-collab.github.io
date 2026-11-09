@@ -1,0 +1,1295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Strandfall turns 3D models and real animal scans into hanging fuse-bead sculptures, plans every strand, and simulates a machine that strings them.">
+<meta charset="utf-8">
+<title>Strandfall</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: full-bleed photographic classroom, a stringing sheet docked right (bottom on phones). */
+:root{
+  --bg:#e9ece6; --sheet:#f6f7f3; --ink:#1d2523; --muted:#5d6966; --line:#d3d9d3;
+  --accent:#1f7f86; --accent-ink:#ffffff; --chip:#e4ebe7;
+  --f-ui:"Zen Kaku Gothic New",ui-sans-serif,system-ui,sans-serif;
+  --f-num:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141917; --sheet:#1b211f; --ink:#e4ebe7; --muted:#97a5a1; --line:#2d3633;
+  --accent:#4fb8bd; --accent-ink:#0d1413; --chip:#25302d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141917; --sheet:#1b211f; --ink:#e4ebe7; --muted:#97a5a1; --line:#2d3633;
+  --accent:#4fb8bd; --accent-ink:#0d1413; --chip:#25302d; color-scheme:dark}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);overflow:hidden}
+#app{display:grid;grid-template-columns:1fr 340px;height:100%}
+#stage{position:relative;min-width:0;min-height:0;background:#1a1612}
+#stage canvas{display:block;width:100%;height:100%;touch-action:none}
+#hud{position:absolute;left:max(14px,env(safe-area-inset-left,0px));top:14px;display:flex;gap:6px;flex-wrap:wrap;pointer-events:none}
+.tag{background:rgba(20,22,21,.55);color:#eef2ef;backdrop-filter:blur(8px);border-radius:4px;padding:4px 8px;font:500 12px/1.3 var(--f-num);font-variant-numeric:tabular-nums}
+.tag b{font-weight:500;color:#8fe0e3}
+#drop{position:absolute;inset:0;display:grid;place-items:center;background:rgba(31,127,134,.3);font:700 20px var(--f-ui);color:#fff;pointer-events:none}
+#views{position:absolute;right:max(14px,env(safe-area-inset-right,0px));bottom:14px;display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+#views button{background:rgba(20,22,21,.55);color:#eef2ef;border-color:transparent;backdrop-filter:blur(8px)}
+#views button[aria-pressed=true]{background:#eef2ef;color:#14201e}
+#sheet{background:var(--sheet);border-left:1px solid var(--line);overflow-y:auto;padding:18px max(16px,env(safe-area-inset-right,0px)) 28px 18px;display:flex;flex-direction:column;gap:18px;min-width:0}
+h1{font:700 22px/1.1 var(--f-ui);margin:0;letter-spacing:.01em}
+.sub{margin:4px 0 0;color:var(--muted);font-size:12.5px;line-height:1.5}
+section{display:flex;flex-direction:column;gap:9px;border-top:1px solid var(--line);padding-top:14px}
+h2{margin:0;font:700 11px/1 var(--f-ui);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.row{display:grid;grid-template-columns:104px 1fr 54px;align-items:center;gap:8px;font-size:13px}
+.row output{font:12px var(--f-num);text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+.row.two{grid-template-columns:104px 1fr}
+input[type=range]{width:100%;accent-color:var(--accent)}
+select{font:13px var(--f-ui);padding:4px 6px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink);min-width:0}
+.seg{display:flex;flex-wrap:wrap;gap:4px}
+button{font:500 12.5px var(--f-ui);border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:4px;padding:6px 10px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button[aria-pressed=true]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+label.chk{display:flex;align-items:center;gap:6px;font-size:13px}
+.note{font-size:12px;color:var(--muted);line-height:1.5;margin:0}
+#colors{display:grid;grid-template-columns:1fr 1fr;gap:3px 12px;font:12px var(--f-num);font-variant-numeric:tabular-nums}
+#colors div{display:flex;align-items:center;gap:6px;min-width:0}
+#colors i{width:11px;height:11px;border-radius:50%;flex:none;border:1px solid rgba(0,0,0,.18)}
+#colors span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--f-ui)}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.stats div{background:var(--chip);border-radius:4px;padding:7px 9px}
+.stats small{display:block;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.stats strong{font:500 16px var(--f-num);font-variant-numeric:tabular-nums}
+#planOut{width:100%;height:90px;font:11px var(--f-num);border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink);resize:vertical}
+#planView{position:absolute;inset:0;background:var(--sheet);color:var(--ink);overflow-y:auto;z-index:5;padding:20px max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px))}
+#planView .wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+#planView header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:10px}
+#planView h2.big{font:700 22px/1.15 var(--f-ui);letter-spacing:0;text-transform:none;color:var(--ink)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.kpis div{background:var(--chip);border-radius:5px;padding:10px 12px}
+.kpis small{display:block;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.kpis strong{font:500 20px var(--f-num);font-variant-numeric:tabular-nums}
+.kpis em{display:block;font-style:normal;font-size:11.5px;color:var(--muted);margin-top:2px}
+.cols{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:18px;align-items:start}
+.panel{border:1px solid var(--line);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0;background:var(--bg)}
+.panel h3{margin:0;font:700 13px var(--f-ui)}
+#mapCanvas{width:100%;height:auto;cursor:crosshair;border-radius:4px;background:var(--sheet)}
+#stripWrap{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:start}
+#stripCanvas{background:var(--sheet);border-radius:4px}
+ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:13px;line-height:1.45}
+ol.steps b{font-family:var(--f-num);font-weight:500}
+.chipcol{display:inline-block;width:10px;height:10px;border-radius:50%;vertical-align:-1px;margin-right:4px;border:1px solid var(--muted)}
+table.t{width:100%;border-collapse:collapse;font-size:12.5px}
+table.t th{text-align:left;font-weight:500;color:var(--muted);font-size:11px;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--line);padding:5px 6px}
+table.t td{border-bottom:1px solid var(--line);padding:5px 6px;font-variant-numeric:tabular-nums}
+table.t td.n{font-family:var(--f-num);text-align:right}
+.tscroll{overflow-x:auto}
+details>summary{cursor:pointer;font:700 13px var(--f-ui);padding:4px 0}
+.inline{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;font-size:12.5px}
+.inline label{display:flex;gap:6px;align-items:center}
+.inline input[type=number]{width:72px;font:12px var(--f-num);padding:3px 5px;border:1px solid var(--line);border-radius:4px;background:var(--sheet);color:var(--ink)}
+#pick{position:absolute;left:max(14px,env(safe-area-inset-left,0px));bottom:14px;background:rgba(20,22,21,.72);color:#eef2ef;backdrop-filter:blur(8px);border-radius:6px;padding:10px 12px;font-size:12.5px;max-width:min(360px,calc(100% - 28px));display:flex;flex-direction:column;gap:6px}
+#pick .bar{display:flex;height:10px;border-radius:2px;overflow:hidden;background:rgba(255,255,255,.08)}
+#simCard{position:absolute;left:max(14px,env(safe-area-inset-left,0px));bottom:14px;background:rgba(20,22,21,.72);color:#eef2ef;backdrop-filter:blur(8px);border-radius:6px;padding:10px 12px;font-size:12.5px;max-width:min(380px,calc(100% - 28px));display:flex;flex-direction:column;gap:6px;font-variant-numeric:tabular-nums}
+#simCard .seg button{background:rgba(255,255,255,.12);color:#eef2ef;border:0;padding:4px 8px}
+#simCard .seg button[aria-pressed=true]{background:#eef2ef;color:#14201e}
+#pick button{background:#eef2ef;color:#14201e;border:0;align-self:flex-start}
+.warn{font-size:12px;color:var(--ink);background:color-mix(in srgb,#e0a030 18%,var(--bg));border-radius:4px;padding:8px 10px;line-height:1.45}
+@media (max-width:900px){ .cols{grid-template-columns:1fr} }
+@media (max-width:760px){
+  #app{grid-template-columns:1fr;grid-template-rows:55% 45%}
+  #sheet{border-left:0;border-top:1px solid var(--line);padding-left:max(16px,env(safe-area-inset-left,0px))}
+}
+</style>
+
+<script>window.SF_PLAIN_GLB=true</script>
+</head>
+<body>
+<div id="app">
+  <div id="stage">
+    <div id="hud">
+      <span class="tag" id="tStrands">— strands</span>
+      <span class="tag" id="tBeads">— beads</span>
+      <span class="tag" id="tSamples">—</span>
+      <span class="tag" id="tBuild">loading…</span>
+    </div>
+    <div id="views" role="group" aria-label="Camera">
+      <button id="vHero" aria-pressed="true">Visitor</button>
+      <button id="vFront" aria-pressed="false">Front</button>
+      <button id="vSide" aria-pressed="false">Side</button>
+      <button id="vDetail" aria-pressed="false">Close-up</button>
+      <button id="vWalk" aria-pressed="false">Walk past</button>
+      <button id="vMachine" aria-pressed="false">Stringer</button>
+      <button id="vPlan" aria-pressed="false">Build plan</button>
+    </div>
+    <div id="pick" hidden></div>
+    <div id="simCard" class="simcard" hidden></div>
+    <div id="planView" hidden>
+      <div class="wrap">
+        <header>
+          <div><h2 class="big" id="pvTitle">Build plan</h2><p class="note" id="pvSub"></p></div>
+          <button id="pvClose">Back to the room</button>
+        </header>
+        <div class="kpis" id="pvKpis"></div>
+        <div class="warn" id="pvWarn" hidden></div>
+        <div class="cols">
+          <div class="panel">
+            <h3>Ceiling plate: drilling map</h3>
+            <p class="note" id="mapNote"></p>
+            <canvas id="mapCanvas" width="900" height="700" aria-label="Ceiling hole map; click a hole to open its strand"></canvas>
+          </div>
+          <div class="panel" id="cardPanel">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+              <h3 id="cardTitle">Strand</h3>
+              <div class="seg"><button id="cardPrev">◀ Prev</button><button id="cardNext">Next ▶</button></div>
+            </div>
+            <div id="stripWrap"><canvas id="stripCanvas" width="120" height="600" aria-label="Strand diagram"></canvas><ol class="steps" id="cardSteps"></ol></div>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Shopping list</h3>
+          <div class="inline">
+            <label>Spare beads <input id="pvSpare" type="number" min="0" max="100" value="10">%</label>
+            <label>Bag size <input id="pvBag" type="number" min="100" step="100" value="1000"> beads</label>
+            <label>Line tie allowance <input id="pvTie" type="number" min="0" step="10" value="150"> mm / strand</label>
+          </div>
+          <div class="tscroll"><table class="t" id="shopTable"></table></div>
+          <p class="note">Bead weights are estimates from retail bag weights (about 0.06 g per 5 mm bead), not a manufacturer figure. Test one stopper under load before stringing the whole piece.</p>
+        </div>
+        <details class="panel"><summary>Assembly order, row by row</summary>
+          <div class="inline"><label>Stringing speed <input id="pvRate" type="number" min="50" step="50" value="400"> beads / hour</label><label>Tying and hanging <input id="pvTieMin" type="number" min="0" step="0.5" value="3"> min / strand</label></div>
+          <div class="tscroll"><table class="t" id="rowTable"></table></div>
+        </details>
+        <div class="panel" id="stringerPanel">
+          <h3>Stringer machine</h3>
+          <p class="note" id="stNote"></p>
+          <div class="kpis" id="stKpis"></div>
+          <div class="tscroll"><table class="t" id="slotTable"></table></div>
+          <div class="seg"><button id="stSim">Watch it string this strand</button><button id="stCopy">Copy machine program</button><button id="stRun">Connect over USB and run</button><button id="stAbort" hidden>Stop</button></div>
+          <p class="note" id="stStatus">The program streams one line at a time and the machine answers "ok" after each, so it can stop at any bead. Firmware, wiring and a Python sender are in the stringer folder of the project.</p>
+        </div>
+        <details class="panel"><summary>Export</summary>
+          <div class="seg"><button id="copyCut">Copy cut list (CSV)</button><button id="copyShop">Copy shopping list (CSV)</button><button id="copyPlan2">Copy full plan (JSON)</button></div>
+          <textarea id="pvOut" readonly hidden aria-label="Exported text" style="width:100%;height:110px;font:11px var(--f-num);border:1px solid var(--line);border-radius:4px;background:var(--sheet);color:var(--ink)"></textarea>
+        </details>
+      </div>
+    </div>
+    <div id="drop" hidden>Drop a .glb, .obj or .stl</div>
+  </div>
+
+  <aside id="sheet">
+    <div>
+      <h1>Strandfall</h1>
+      <p class="sub">Turns a 3D model into fuse beads strung on fishing line from a ceiling grid. Hold the camera still and the photo sharpens. Walk past to watch the figure pull together and smear apart.</p>
+    </div>
+
+    <section>
+      <h2>Figure</h2>
+      <div class="seg" role="group" aria-label="Figure">
+        <button data-fig="hand" aria-pressed="true">Hand raised</button>
+        <button data-fig="talk" aria-pressed="false">By the window</button>
+        <button data-fig="star" aria-pressed="false">Upside down</button>
+        <button id="fLoad">Load model…</button>
+      </div>
+      <div class="seg" role="group" aria-label="Scanned animals">
+        <button data-fig="dragonfly" aria-pressed="false">Dragonfly</button>
+        <button data-fig="butterfly" aria-pressed="false">Swallowtail</button>
+        <button data-fig="frog" aria-pressed="false">Tree frog</button>
+        <button data-fig="goby" aria-pressed="false">Goby</button>
+        <input id="file" type="file" accept=".glb,.gltf,.obj,.stl" hidden>
+      </div>
+      <p class="note" id="fileNote">Loading figure…</p>
+      <div class="row" id="heightRow" hidden><span>Model height</span><input id="height" type="range" min="0.3" max="2.2" step="0.05" value="1.1"><output id="heightO"></output></div>
+    </section>
+
+    <section>
+      <h2>Photo</h2>
+      <div class="row two"><span>Render</span>
+        <select id="quality"><option value="photo" selected>Photo (refines when still)</option><option value="draft">Draft (fast)</option></select></div>
+      <div class="row two"><span>Aperture</span>
+        <select id="fstop"><option value="1.4">f/1.4</option><option value="2" selected>f/2</option><option value="2.8">f/2.8</option><option value="5.6">f/5.6</option><option value="16">f/16</option></select></div>
+      <div class="row"><span>Exposure</span><input id="expo" type="range" min="-2" max="2" step="0.05" value="0.35"><output id="expoO"></output></div>
+      <div class="row"><span>Film grain</span><input id="grain" type="range" min="0" max="100" step="1" value="35"><output id="grainO"></output></div>
+    </section>
+
+    <section>
+      <h2>Hanging</h2>
+      <div class="row"><span>Strand spacing</span><input id="spacing" type="range" min="6" max="40" step="1" value="12"><output id="spacingO"></output></div>
+      <div class="row two"><span>Bead</span>
+        <select id="bead">
+          <option value="2.6">Mini, 2.6 mm</option>
+          <option value="5" selected>Standard, 5 mm</option>
+          <option value="10">Jumbo, 10 mm</option>
+        </select></div>
+      <div class="row two"><span>Ceiling grid</span>
+        <select id="grid"><option value="square">Square</option><option value="stagger">Staggered rows</option></select></div>
+      <div class="row"><span>Anchor height</span><input id="anchor" type="range" min="1.6" max="2.9" step="0.05" value="2.4"><output id="anchorO"></output></div>
+      <div class="row two"><span>Fill</span>
+        <select id="fill"><option value="solid">Solid volume</option><option value="shell" selected>Shell only</option></select></div>
+      <div class="row" id="shellRow"><span>Shell depth</span><input id="shell" type="range" min="4" max="80" step="1" value="20"><output id="shellO"></output></div>
+    </section>
+
+    <section>
+      <h2>Color</h2>
+      <div class="row two"><span>Source</span>
+        <select id="csrc"><option value="model">Model colors</option><option value="height">Height ramp</option><option value="single">One color</option></select></div>
+      <div class="row two" id="singleRow" hidden><span>Bead color</span><select id="single"></select></div>
+      <div class="row two"><span>Palette</span>
+        <select id="pal"><option value="0">All 30 colors</option><option value="12">Best 12</option><option value="11" selected>Best 11 (fits the stringer)</option><option value="6">Best 6</option><option value="3">Best 3</option></select></div>
+    </section>
+
+    <section>
+      <h2>Glitch</h2>
+      <div class="row"><span>Dropout</span><input id="gDrop" type="range" min="0" max="60" step="1" value="8"><output id="gDropO"></output></div>
+      <div class="row"><span>Strand slip</span><input id="gSlip" type="range" min="0" max="40" step="1" value="5"><output id="gSlipO"></output></div>
+      <div class="row"><span>Scan bands</span><input id="gBand" type="range" min="0" max="40" step="1" value="0"><output id="gBandO"></output></div>
+      <div class="row"><span>Color noise</span><input id="gNoise" type="range" min="0" max="30" step="1" value="2"><output id="gNoiseO"></output></div>
+      <div class="seg"><button id="reseed">New glitch seed</button></div>
+    </section>
+
+    <section>
+      <h2>Afterimage</h2>
+      <p class="note">After the article: earlier moments of the motion strung into the same strands, fading out, plus the flicker and signal errors of a replayed scan. Echoes are real beads and go into the plan; flicker, tear and signal are on-screen only.</p>
+      <div class="row"><span>Echoes</span><input id="echo" type="range" min="0" max="4" step="1" value="0"><output id="echoO"></output></div>
+      <div class="row"><span>Echo gap</span><input id="echoGap" type="range" min="0.1" max="1.5" step="0.05" value="0.45"><output id="echoGapO"></output></div>
+      <div class="row"><span>Echo shift</span><input id="echoShift" type="range" min="0" max="30" step="1" value="7"><output id="echoShiftO"></output></div>
+      <div class="row"><span>Flicker</span><input id="flick" type="range" min="0" max="100" step="1" value="0"><output id="flickO"></output></div>
+      <div class="row"><span>Tear</span><input id="tear" type="range" min="0" max="100" step="1" value="0"><output id="tearO"></output></div>
+      <div class="row"><span>Signal noise</span><input id="sig" type="range" min="0" max="100" step="1" value="0"><output id="sigO"></output></div>
+      <div class="seg"><button id="artLook">Afterimage look</button><button id="cleanLook">Clean</button></div>
+    </section>
+
+    <section>
+      <h2>Motion</h2>
+      <div class="seg"><button id="play" aria-pressed="false">Play pose</button></div>
+      <div class="row"><span>Pose time</span><input id="ptime" type="range" min="0" max="10" step="0.01" value="0"><output id="ptimeO"></output></div>
+      <div class="row"><span>Frames / s</span><input id="fps" type="range" min="1" max="15" step="1" value="5"><output id="fpsO"></output></div>
+      <div class="row"><span>Air drift</span><input id="wind" type="range" min="0" max="100" step="1" value="0"><output id="windO"></output></div>
+      <label class="chk"><input id="showLines" type="checkbox" checked> Show fishing line</label>
+      <label class="chk"><input id="showProps" type="checkbox" checked> Show desk and chair</label>
+      <label class="chk"><input id="showGhost" type="checkbox"> Show source model</label>
+      <label class="chk"><input id="showNeighbour" type="checkbox" checked> Neighbouring piece near the visitor</label>
+    </section>
+
+    <section>
+      <h2>Stringing plan</h2>
+      <div class="stats">
+        <div><small>Strands</small><strong id="sStr">—</strong></div>
+        <div><small>Beads</small><strong id="sBeads">—</strong></div>
+        <div><small>Line</small><strong id="sLine">—</strong></div>
+        <div><small>Colors</small><strong id="sCols">—</strong></div>
+      </div>
+      <div id="colors"></div>
+      <p class="note">The build plan turns this into a drilling map, a card for every strand, a shopping list and an assembly order. Click any strand in the room to see its card.</p>
+      <div class="seg"><button id="openPlan">Open build plan</button><button id="copyPlan">Copy plan as JSON</button></div>
+      <textarea id="planOut" readonly hidden aria-label="Stringing plan JSON"></textarea>
+    </section>
+  </aside>
+</div>
+
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+  "three-mesh-bvh":"https://cdn.jsdelivr.net/npm/three-mesh-bvh@0.7.3/build/index.module.js"
+}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { FullScreenQuad } from 'three/addons/postprocessing/Pass.js';
+import { MeshBVH } from 'three-mesh-bvh';
+
+const $ = id => document.getElementById(id);
+const V = (x,y,z) => new THREE.Vector3(x,y,z);
+
+/* ---------- Bead palette (generic fuse-bead colors, sRGB) ---------- */
+const PALETTE = [
+ ['White','#F7F7F2'],['Cream','#EDE3C5'],['Yellow','#F5D02A'],['Orange','#F28A24'],['Red','#D63A2F'],
+ ['Cherry','#A3202B'],['Pink','#F2A0B8'],['Magenta','#E0458E'],['Lilac','#B79BD6'],['Purple','#6E4BA0'],
+ ['Light Blue','#8ECDF0'],['Sky','#3FA3DE'],['Blue','#2A5DB0'],['Navy','#1F2D5C'],['Turquoise','#2BB5B0'],
+ ['Teal','#1F7F86'],['Mint','#A8E0C2'],['Light Green','#7CC96B'],['Green','#2E9A4A'],['Forest','#1E5B39'],
+ ['Olive','#7A7A35'],['Tan','#D2A979'],['Peach','#F2C2A0'],['Light Brown','#A86E43'],['Brown','#6B4127'],
+ ['Dark Brown','#3E2A1E'],['Light Gray','#C2C4C2'],['Gray','#8A8D8C'],['Charcoal','#4C4F50'],['Black','#1B1B1C']];
+const PAL = PALETTE.map(([name,hex])=>{const n=parseInt(hex.slice(1),16);return{name,hex,r:n>>16,g:(n>>8)&255,b:n&255,color:new THREE.Color(hex)}});
+const PI = Object.fromEntries(PAL.map((p,i)=>[p.name,i]));
+const ALL = PAL.map((_,i)=>i);
+function lab(r,g,b){const f=c=>{c/=255;return c<=.04045?c/12.92:Math.pow((c+.055)/1.055,2.4)};const R=f(r),G=f(g),B=f(b);
+  const X=(R*.4124+G*.3576+B*.1805)/.95047,Y=R*.2126+G*.7152+B*.0722,Z=(R*.0193+G*.1192+B*.9505)/1.08883;
+  const h=t=>t>.008856?Math.cbrt(t):7.787*t+16/116;const fx=h(X),fy=h(Y),fz=h(Z);return[116*fy-16,500*(fx-fy),200*(fy-fz)]}
+for(const p of PAL) p.lab=lab(p.r,p.g,p.b);
+const nearCache=new Map();
+function nearest(r,g,b,list=ALL){ // perceptual match (CIELAB distance)
+  const key=list===ALL?(r<<16|g<<8|b):null; if(key!==null&&nearCache.has(key)) return nearCache.get(key);
+  const L=lab(r,g,b);let best=0,bd=Infinity;for(const i of list){const q=PAL[i].lab,d=(L[0]-q[0])**2+(L[1]-q[1])**2+(L[2]-q[2])**2;if(d<bd){bd=d;best=i}}
+  if(key!==null) nearCache.set(key,best); return best}
+const RAMP = ['White','Mint','Turquoise','Teal','Blue','Navy'].map(n=>PI[n]);
+$('single').innerHTML = PAL.map((p,i)=>`<option value="${i}"${p.name==='Teal'?' selected':''}>${p.name}</option>`).join('');
+
+/* ---------- Renderer ---------- */
+const stage = $('stage');
+const renderer = new THREE.WebGLRenderer({antialias:false, powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.toneMapping = THREE.AgXToneMapping ?? THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = Math.pow(2,.35);
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+stage.prepend(renderer.domElement);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#cfd6d6');
+
+const camera = new THREE.PerspectiveCamera(35, 1, 0.03, 40);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; controls.dampingFactor = .08; controls.maxPolarAngle = Math.PI*0.53;
+controls.minDistance = 0.35; controls.maxDistance = 3.4;
+
+/* ---------- Classroom ---------- */
+const manager = new THREE.LoadingManager();
+const TL = new THREE.TextureLoader(manager);
+const maxAniso = renderer.capabilities.getMaxAnisotropy();
+function pbr(name, rx, ry, extra={}){
+  const load=(m,srgb)=>{const t=TL.load(`tex/${name}_${m}.jpg`);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(rx,ry);t.anisotropy=maxAniso;if(srgb)t.colorSpace=THREE.SRGBColorSpace;return t};
+  return new THREE.MeshStandardMaterial({map:load('diff',true),normalMap:load('nor'),roughnessMap:load('rough'),...extra});
+}
+const ROOM = {x0:-3.2,x1:3.2,z0:-3.0,z1:3.0,h:3.0};
+const room = new THREE.Group(); scene.add(room);
+const floorMat = pbr('wood_floor',2.6,2.4,{normalScale:new THREE.Vector2(.8,.8),color:'#f0cfa4',envMapIntensity:.4});
+const panelMat = pbr('oak_veneer_01',4,1,{color:'#f4e2c8'});
+const plasterMat = pbr('painted_plaster_wall',3,1.5,{color:'#efece4'});
+const frameMat = new THREE.MeshStandardMaterial({color:'#a8814f',roughness:.5});
+function slab(mat,w,h,d,x,y,z,ry=0){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);m.rotation.y=ry;m.receiveShadow=true;room.add(m);return m}
+{
+  const W=ROOM.x1-ROOM.x0, D=ROOM.z1-ROOM.z0;
+  const floor=new THREE.Mesh(new THREE.PlaneGeometry(W,D),floorMat); floor.rotation.x=-Math.PI/2; floor.receiveShadow=true; room.add(floor);
+  const ceil=new THREE.Mesh(new THREE.PlaneGeometry(W,D),new THREE.MeshStandardMaterial({color:'#f2f0ea',roughness:.95})); ceil.rotation.x=Math.PI/2; ceil.position.y=ROOM.h; room.add(ceil);
+  // side + front walls: wood wainscot below, plaster above
+  for(const [w,x,z,ry] of [[D,ROOM.x0,0,Math.PI/2],[D,ROOM.x1,0,-Math.PI/2],[W,0,ROOM.z1,Math.PI]]){
+    const dx=Math.sin(ry)*.03, dz=Math.cos(ry)*.03;
+    slab(panelMat,w,1.0,.04,x+dx,.5,z+dz,ry); slab(plasterMat,w,2.0,.02,x,2.0,z,ry);
+    slab(frameMat,w,.05,.06,x+dx*1.6,1.02,z+dz*1.6,ry);
+  }
+  // back wall with four tall windows (the light source)
+  const z=ROOM.z0; slab(panelMat,W,1.0,.06,0,.5,z+.03); slab(plasterMat,W,.45,.06,0,2.775,z);
+  const ow=1.25, pier=(W-4*ow)/5;
+  for(let i=0;i<5;i++){ slab(plasterMat,pier,1.55,.06,ROOM.x0+pier/2+i*(ow+pier),1.775,z); }
+  slab(frameMat,W,.05,.26,0,1.02,z+.1); // sill
+  for(let i=0;i<4;i++){ const cx=ROOM.x0+pier+ow/2+i*(ow+pier);
+    slab(frameMat,.05,1.55,.07,cx,1.775,z+.01); slab(frameMat,ow,.05,.07,cx,1.95,z+.01);
+    slab(frameMat,ow,.06,.09,cx,2.53,z+.01); slab(frameMat,ow,.06,.09,cx,1.03,z+.01);
+    for(const s of[-1,1]) slab(frameMat,.06,1.55,.09,cx+s*(ow/2-.03),1.775,z+.01); }
+  // overcast daylight beyond the glass (HDR, blown out like a real exposure)
+  const sky=document.createElement('canvas'); sky.width=512; sky.height=256; const g=sky.getContext('2d');
+  const grd=g.createLinearGradient(0,0,0,256); grd.addColorStop(0,'#f4f7f8'); grd.addColorStop(.55,'#e9eeec'); grd.addColorStop(1,'#cfd8cf');
+  g.fillStyle=grd; g.fillRect(0,0,512,256);
+  g.filter='blur(6px)'; g.fillStyle='rgba(150,160,150,.35)';
+  for(let i=0;i<14;i++){const x=i*40+Math.sin(i*7)*12, h=30+((i*37)%25); g.fillRect(x,256-h-20,34,h+20); g.beginPath(); g.moveTo(x-6,256-h-20); g.lineTo(x+17,256-h-38); g.lineTo(x+40,256-h-20); g.fill();}
+  const st=new THREE.CanvasTexture(sky); st.colorSpace=THREE.SRGBColorSpace;
+  const out=new THREE.Mesh(new THREE.PlaneGeometry(W+3,2.6),new THREE.MeshBasicMaterial({map:st,color:new THREE.Color(4.2,4.2,4.2)}));
+  out.position.set(0,1.8,z-.6); room.add(out);
+}
+{ // board seams in the wainscot, like the school's tongue-and-groove panelling
+  const seamMat=new THREE.MeshStandardMaterial({color:'#6e5132',roughness:.7}); const sg=new THREE.BoxGeometry(.006,.96,.006);
+  const spots=[]; for(let x=ROOM.x0+.11;x<ROOM.x1;x+=.11) spots.push([x,ROOM.z0+.061]);
+  for(let z=ROOM.z0+.11;z<ROOM.z1;z+=.11){ spots.push([ROOM.x0+.051,z]); spots.push([ROOM.x1-.051,z]); }
+  for(let x=ROOM.x0+.11;x<ROOM.x1;x+=.11) spots.push([x,ROOM.z1-.051]);
+  const im=new THREE.InstancedMesh(sg,seamMat,spots.length); const m=new THREE.Matrix4();
+  spots.forEach(([a,b],i)=>im.setMatrixAt(i,m.makeTranslation(a,.49,b)));
+  room.add(im); }
+room.traverse(o=>{ if(o.isMesh){o.castShadow=false} });
+
+// lights: soft window daylight + a key that comes through the glass
+scene.add(new THREE.HemisphereLight('#f1f4f2','#8a6440',0.6));
+const sun = new THREE.DirectionalLight('#fff4e6', 1.8);
+const SUN_BASE = V(-1.1,2.9,-3.6);
+sun.position.copy(SUN_BASE); sun.target.position.set(0,.6,.3); scene.add(sun, sun.target);
+sun.castShadow = true; sun.shadow.mapSize.set(4096,4096);
+Object.assign(sun.shadow.camera,{left:-1.6,right:1.6,top:1.8,bottom:-1.6,near:1,far:9});
+sun.shadow.bias = -0.00015; sun.shadow.normalBias = 0.0012; sun.shadow.radius = 3;
+const pmrem = new THREE.PMREMGenerator(renderer);
+let envRT=null;
+function captureEnv(){
+  const hide=[beadMesh,lineMesh,props,ghost,rig,typeof neighbour!=='undefined'?neighbour:null].filter(Boolean); const vis=hide.map(o=>o.visible); hide.forEach(o=>o.visible=false);
+  room.position.y=-1.3; sun.position.y-=1.3; sun.target.position.y-=1.3; sun.target.updateMatrixWorld();
+  const old=envRT; envRT=pmrem.fromScene(scene,0.035,0.05,20); scene.environment=envRT.texture; old?.dispose();
+  room.position.y=0; sun.position.copy(SUN_BASE); sun.target.position.set(0,.6,.3); sun.target.updateMatrixWorld();
+  hide.forEach((o,i)=>o.visible=vis[i]);
+}
+scene.environmentIntensity = 1;
+
+/* ---------- Props ---------- */
+const props = new THREE.Group(); scene.add(props);
+let propsGLB = null;
+const deskWood = new THREE.MeshStandardMaterial({color:'#c79a66',roughness:.42});
+function fallbackProps(kind){
+  const g=new THREE.Group(); const b=(w,h,d,x,y,z)=>{const m=new THREE.Mesh(new RoundedBoxGeometry(w,h,d,2,.006),deskWood);m.position.set(x,y,z);m.castShadow=m.receiveShadow=true;g.add(m)};
+  const chair=new THREE.Group(); g.add(chair);
+  b(.36,.03,.34,0,.385,0); for(const sx of[-1,1])for(const sz of[-1,1])b(.03,.385,.03,sx*.16,.1925,sz*.15);
+  for(const sx of[-1,1])b(.03,.44,.03,sx*.16,.62,-.155); b(.33,.07,.02,0,.62,-.155); b(.33,.08,.02,0,.76,-.155);
+  if(kind==='desk'){ b(.62,.03,.42,0,.605,.5); for(const sx of[-1,1])for(const sz of[-1,1])b(.035,.59,.035,sx*.28,.295,.5+sz*.18); b(.56,.02,.24,0,.54,.58); }
+  return g;
+}
+
+/* ---------- Built-in figures ---------- */
+async function fetchGLB(url){ // plain .glb on a normal web host; base64 text inside the Claude artifact (which doesn't serve .glb)
+  if(window.SF_PLAIN_GLB){ const r=await fetch(url); if(!r.ok) throw new Error('missing '+url); return r.arrayBuffer(); }
+  const r=await fetch(url+'.b64.txt'); if(!r.ok) throw new Error('missing '+url);
+  const bin=atob((await r.text()).replace(/\s+/g,'')); const u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); return u.buffer; }
+const FIG = {
+  hand:{label:'Hand raised', glb:'assets/child_hand.glb', desk:true, yaw:0},
+  talk:{label:'By the window', glb:'assets/child_talk.glb', desk:false, yaw:-Math.PI/2},
+  star:{label:'Upside down', glb:'assets/child_star.glb', desk:false, chair:false, frame:{ty:1.19,far:1.18}},
+  // Real photogrammetry scans (CC0, ffish.asia / floraZia on Sketchfab), scaled up to installation size.
+  // rx/ry stage them for a visitor: winged insects hang like pinned specimens (body vertical, wings flat to the room); the frog and goby show their profile.
+  dragonfly:{label:'Golden-ringed dragonfly', latin:'Anotogaster sieboldii', glb:'assets/scan_dragonfly.glb', scan:true, chair:false, size:1.6, cy:1.25, ry:Math.PI/2, rx:-Math.PI/2, frame:{ty:1.3,far:1.35}},
+  butterfly:{label:'Swallowtail butterfly', latin:'Papilio xuthus', glb:'assets/scan_butterfly.glb', scan:true, chair:false, size:1.4, cy:1.3, ry:Math.PI/2, rx:-Math.PI/2, frame:{ty:1.3,far:1.25}},
+  frog:{label:'Japanese tree frog', latin:'Dryophytes japonicus', glb:'assets/scan_frog.glb', scan:true, chair:false, size:1.0, cy:1.0, ry:Math.PI/2, rx:0, frame:{ty:1.0,far:1.05}},
+  goby:{label:'Striped freshwater goby', latin:'Rhinogobius', glb:'assets/scan_goby.glb', scan:true, chair:false, size:1.5, cy:1.15, ry:0, rx:0, frame:{ty:1.1,far:1.2}}
+};
+// Primitive fallback figures, used only when the GLB files are missing.
+function capsule(a,b,r,sx=1,sz=1){const len=Math.max(a.distanceTo(b),1e-4);const g=new THREE.CapsuleGeometry(r,len,4,12);g.scale(sx,1,sz);
+  const d=b.clone().sub(a);if(d.lengthSq()>1e-10)g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(V(0,1,0),d.normalize()));
+  const m=a.clone().add(b).multiplyScalar(.5);g.translate(m.x,m.y,m.z);return g}
+function ball(c,r,sx=1,sy=1,sz=1){const g=new THREE.SphereGeometry(r,16,12);g.scale(sx,sy,sz);g.translate(c.x,c.y,c.z);return g}
+function primitiveFigure(key,t){
+  const P=[];const A=(g,c)=>P.push([g,c]);const w=Math.sin(t*2.2);
+  const o={hand:{shirt:'Turquoise',pants:'Navy',hair:'Dark Brown',elR:V(.17+.02*w,1.03,.05),handR:V(.2+.07*w,1.31,.07),elL:V(-.2,.62,.17),handL:V(-.07,.67,.40)},
+           talk:{shirt:'Yellow',pants:'Blue',hair:'Black',elR:V(.21,.64,.13),handR:V(.17+.05*Math.sin(t*2.6),.79,.31),elL:V(-.18,.6,.1),handL:V(-.1,.51,.29)},
+           star:{shirt:'Light Blue',pants:'Green',hair:'Light Brown',elR:V(.21,1.02,.08),handR:V(.24,1.25,.08),elL:V(-.21,1.02,.08),handL:V(-.24,1.25,.08)}}[key];
+  const head=V(0,.97,.03);
+  A(ball(o.handR,.038),'Peach');A(ball(o.handL,.038),'Peach');A(ball(head.clone().add(V(0,.025,-.022)),.1),o.hair);A(ball(head,.095,1,1.08,1),'Peach');
+  A(capsule(V(.13,.8,0),o.elR,.04),o.shirt);A(capsule(o.elR,o.handR,.031),'Peach');A(capsule(V(-.13,.8,0),o.elL,.04),o.shirt);A(capsule(o.elL,o.handL,.031),'Peach');
+  A(capsule(V(0,.52,-.02),V(0,.74,0),.1,1.25,.8),o.shirt);
+  for(const s of[-1,1]){const k=V(s*.085,.47,.34);A(capsule(V(s*.07,.47,0),k,.058),o.pants);A(capsule(k,V(s*.085,.1,.37),.042),o.pants);}
+  A(ball(V(0,.48,0),.1,1.3,.75,1.05),o.pants);
+  const yaw=FIG[key].yaw||0;
+  return P.map(([g,c])=>{ if(key==='star'){g.rotateZ(Math.PI);g.translate(0,1.95,0)} if(yaw)g.rotateY(yaw); return {geom:g,ci:PI[c],closed:true}; });
+}
+
+/* ---------- Model state ---------- */
+const S = { fig:'hand', model:null, poseT:0, playing:false, seed:1, view:'hero' };
+let parts = [];
+const ghost = new THREE.Group(); scene.add(ghost); ghost.visible=false;
+const ghostMat = new THREE.MeshStandardMaterial({color:'#ffffff',transparent:true,opacity:.18,depthWrite:false});
+
+function makeParts(t,dx=0){
+  const P = S.model ? bakeModel(S.model,t) : primitiveFigure(S.fig,t);
+  for(const p of P){ if(dx) p.geom.translate(dx,0,0); p.bvh=new MeshBVH(p.geom);
+    p.geom.computeBoundingBox(); const sz=p.geom.boundingBox.getSize(new THREE.Vector3());
+    p.rank = sz.length()<0.08 ? Infinity : sz.x*sz.y*sz.z; }
+  return P;
+}
+function buildParts(){
+  for(const p of parts) p.geom.dispose(); ghost.clear();
+  parts = makeParts(S.poseT);
+  for(const p of parts) ghost.add(new THREE.Mesh(p.geom,ghostMat));
+}
+const closedCache = new WeakMap();
+function isClosed(geom){
+  const pos=geom.attributes.position, idx=geom.index, ids=new Int32Array(pos.count), vid=new Map();
+  for(let i=0;i<pos.count;i++){const k=`${Math.round(pos.getX(i)*2e4)},${Math.round(pos.getY(i)*2e4)},${Math.round(pos.getZ(i)*2e4)}`;let v=vid.get(k);if(v===undefined){v=vid.size;vid.set(k,v)}ids[i]=v}
+  const edges=new Map(), n=idx?idx.count:pos.count;
+  for(let f=0;f<n;f+=3){const a=ids[idx?idx.getX(f):f],b=ids[idx?idx.getX(f+1):f+1],c=ids[idx?idx.getX(f+2):f+2];
+    for(const [u,v] of [[a,b],[b,c],[c,a]]){if(u===v)continue;const k=u<v?u*4194304+v:v*4194304+u;edges.set(k,(edges.get(k)||0)+1)}}
+  let bad=0; for(const c of edges.values()) if(c!==2) bad++;
+  return bad <= edges.size*0.01;
+}
+const texCache = new Map();
+function texData(tex){
+  if(texCache.has(tex)) return texCache.get(tex);
+  const img=tex.image; if(!img||!img.width) return null;
+  const sc=Math.min(1,512/Math.max(img.width,img.height)); const w=Math.max(1,Math.round(img.width*sc)), h=Math.max(1,Math.round(img.height*sc));
+  const c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d',{willReadFrequently:true});
+  try{g.drawImage(img,0,0,w,h)}catch(e){return null}
+  const d={w,h,px:g.getImageData(0,0,w,h).data}; tex.updateMatrix(); texCache.set(tex,d); return d;
+}
+function bakeModel(M,t){
+  if(M.mixer) M.mixer.setTime(t);
+  M.root.updateMatrixWorld(true);
+  const out=[]; const v=new THREE.Vector3();
+  M.root.traverse(o=>{ if(!o.isMesh||!o.visible||!o.geometry?.attributes?.position) return;
+    const mats=Array.isArray(o.material)?o.material:[o.material];
+    if(mats.every(m=>m.transparent&&m.opacity<.2)) return;
+    const src=o.geometry, n=src.attributes.position.count, pos=new Float32Array(n*3);
+    for(let i=0;i<n;i++){ o.getVertexPosition(i,v); v.applyMatrix4(o.matrixWorld); v.applyMatrix4(M.norm); pos[i*3]=v.x;pos[i*3+1]=v.y;pos[i*3+2]=v.z; }
+    const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.BufferAttribute(pos,3));
+    if(src.index) g.setIndex(src.index.clone());
+    if(src.attributes.uv) g.setAttribute('uv',src.attributes.uv);
+    if(src.attributes.color) g.setAttribute('color',src.attributes.color);
+    for(const gr of src.groups) g.addGroup(gr.start,gr.count,gr.materialIndex);
+    if(!closedCache.has(src)) closedCache.set(src,isClosed(g));
+    out.push({geom:g, mats, closed:closedCache.get(src), name:o.name});
+  });
+  return out;
+}
+function normFor(root,H){
+  root.updateMatrixWorld(true); const box=new THREE.Box3().setFromObject(root,true);
+  const sz=box.getSize(new THREE.Vector3()), c=box.getCenter(new THREE.Vector3()); const s=H/Math.max(sz.y,1e-6);
+  return new THREE.Matrix4().makeTranslation(0,0.12,0).multiply(new THREE.Matrix4().makeScale(s,s,s)).multiply(new THREE.Matrix4().makeTranslation(-c.x,-box.min.y,-c.z));
+}
+const tri=new THREE.Triangle(), _a=new THREE.Vector3(),_b=new THREE.Vector3(),_c=new THREE.Vector3(),_bc=new THREE.Vector3(),_uv=new THREE.Vector2();
+function sampleFace(p, fi, point){
+  const g=p.geom, idx=g.index, pos=g.attributes.position;
+  const ia=idx?idx.getX(fi*3):fi*3, ib=idx?idx.getX(fi*3+1):fi*3+1, ic=idx?idx.getX(fi*3+2):fi*3+2;
+  _a.fromBufferAttribute(pos,ia);_b.fromBufferAttribute(pos,ib);_c.fromBufferAttribute(pos,ic);
+  tri.set(_a,_b,_c).getBarycoord(point,_bc);
+  let mat=p.mats[0]; if(g.groups.length){const s=fi*3;for(const gr of g.groups){if(s>=gr.start&&s<gr.start+gr.count){mat=p.mats[gr.materialIndex]||mat;break}}}
+  const col=new THREE.Color(1,1,1); if(mat?.color) col.copy(mat.color);
+  const ca=g.attributes.color; if(ca&&mat?.vertexColors){const c=new THREE.Color(0,0,0);
+    for(const [i,w] of [[ia,_bc.x],[ib,_bc.y],[ic,_bc.z]]){c.r+=ca.getX(i)*w;c.g+=ca.getY(i)*w;c.b+=ca.getZ(i)*w}col.multiply(c)}
+  const uva=g.attributes.uv; if(mat?.map&&uva){const d=texData(mat.map); if(d){
+    _uv.set(0,0);for(const [i,w] of [[ia,_bc.x],[ib,_bc.y],[ic,_bc.z]]){_uv.x+=uva.getX(i)*w;_uv.y+=uva.getY(i)*w}
+    mat.map.transformUv(_uv); const x=Math.min(d.w-1,Math.max(0,Math.floor(_uv.x*d.w))), y=Math.min(d.h-1,Math.max(0,Math.floor(_uv.y*d.h))); const o=(y*d.w+x)*4;
+    col.multiply(new THREE.Color().setRGB(d.px[o]/255,d.px[o+1]/255,d.px[o+2]/255,THREE.SRGBColorSpace));}}
+  const s={r:0,g:0,b:0}; col.getRGB(s,THREE.SRGBColorSpace);
+  return nearest(Math.round(s.r*255),Math.round(s.g*255),Math.round(s.b*255));
+}
+
+/* ---------- Beads + fishing line ---------- */
+const U = { uTime:{value:0}, uWind:{value:0}, uFlick:{value:0}, uTear:{value:0} };
+function withDrift(mat){
+  mat.onBeforeCompile = sh=>{ Object.assign(sh.uniforms,U);
+    sh.vertexShader='attribute vec2 aSway;\nuniform float uTime;\nuniform float uWind;\nuniform float uFlick;\nuniform float uTear;\n'+sh.vertexShader.replace('#include <color_vertex>',`#include <color_vertex>
+    #if defined(BEAD) && defined(USE_INSTANCING_COLOR)
+    { float tk=floor(uTime*7.); float hf=fract(sin(float(gl_InstanceID)*.731+tk*2.113)*24634.6); if(hf<uFlick*.05) vColor.rgb*=2.6; }
+    #endif`).replace('#include <begin_vertex>',
+    `#include <begin_vertex>
+    #ifdef USE_INSTANCING
+    { vec3 wp=(instanceMatrix*vec4(transformed,1.)).xyz; float drop=aSway.x-wp.y; float ph=aSway.y;
+      float ax=uWind*(sin(uTime*.9+ph)*.6+sin(uTime*1.7+ph*2.3)*.4);
+      float az=uWind*(cos(uTime*.7+ph*1.3)*.6+sin(uTime*1.3+ph*.7)*.4);
+      vec3 off=vec3(drop*ax,0.,drop*az);
+      float tk=floor(uTime*6.), band=floor(wp.y/.035);
+      if(fract(sin(band*91.7+tk*13.1)*43758.5)<uTear*.3) off.x+=(fract(sin(band*7.3+tk*3.7)*9183.1)-.5)*.1*uTear;
+      #ifdef BEAD
+      if(fract(sin(float(gl_InstanceID)*.1237+tk*1.731)*43758.5)<uFlick*.22) transformed*=0.;
+      #endif
+      transformed += inverse(mat3(instanceMatrix))*off; }
+    #endif`); };
+  mat.customProgramCacheKey=()=>'drift'+(mat.defines?.BEAD!==undefined?'b':''); return mat;
+}
+const beadMat = withDrift(new THREE.MeshPhysicalMaterial({defines:{BEAD:''},roughness:.3,clearcoat:.55,clearcoatRoughness:.3,specularIntensity:.75,envMapIntensity:1}));
+const lineMat = withDrift(new THREE.MeshStandardMaterial({color:'#dde4e6',roughness:.12,metalness:0,transparent:true,opacity:.2,depthWrite:false}));
+function beadGeometry(size,seg){
+  // Fuse bead: short tube, flat ends, softly rounded outer rim, slight chamfer into the hole.
+  const ro=.5, ri=.22, h=.45, c=.2, k=[];
+  k.push([ri+.04,-h],[ro-c,-h]); for(let i=1;i<=4;i++){const a=-Math.PI/2+i*Math.PI/8;k.push([ro-c+Math.cos(a)*c,-h+c+Math.sin(a)*c])}
+  k.push([ro,h-c]); for(let i=1;i<=4;i++){const a=i*Math.PI/8;k.push([ro-c+Math.cos(a)*c,h-c+Math.sin(a)*c])}
+  k.push([ri+.04,h],[ri,h-.04],[ri,-h+.04],[ri+.04,-h]);
+  const g=new THREE.LatheGeometry(k.map(([x,y])=>new THREE.Vector2(x,y)),seg); g.scale(size,size*1.0,size); return g;
+}
+let beadMesh=null, beadCap=0, beadKey='';
+function ensureBeads(n,size){
+  const seg = n>60000?10:16, key=`${size}|${seg}`;
+  if(beadMesh && n<=beadCap && key===beadKey) return;
+  if(beadMesh){scene.remove(beadMesh);beadMesh.geometry.dispose();beadMesh.dispose()}
+  beadCap=Math.max(n,1024); beadKey=key;
+  const g=beadGeometry(size,seg); g.setAttribute('aSway',new THREE.InstancedBufferAttribute(new Float32Array(beadCap*2),2));
+  beadMesh=new THREE.InstancedMesh(g,beadMat,beadCap); beadMesh.frustumCulled=false; beadMesh.castShadow=beadMesh.receiveShadow=true;
+  beadMesh.setColorAt(0,new THREE.Color()); scene.add(beadMesh);
+}
+let lineMesh=null, lineCap=0;
+function ensureLines(n){
+  if(lineMesh && n<=lineCap) return;
+  if(lineMesh){scene.remove(lineMesh);lineMesh.geometry.dispose();lineMesh.dispose()}
+  lineCap=Math.max(n,256);
+  const g=new THREE.CylinderGeometry(.00028,.00028,1,5,1,true); g.translate(0,-.5,0);
+  g.setAttribute('aSway',new THREE.InstancedBufferAttribute(new Float32Array(lineCap*2),2));
+  lineMesh=new THREE.InstancedMesh(g,lineMat,lineCap); lineMesh.frustumCulled=false; lineMesh.renderOrder=2;
+  lineMesh.visible=$('showLines').checked; scene.add(lineMesh);
+}
+const rig = new THREE.Mesh(new THREE.BoxGeometry(1,.018,1), new THREE.MeshStandardMaterial({color:'#b9bdb9',roughness:.35,metalness:.7})); rig.castShadow=true; rig.visible=false; scene.add(rig);
+
+/* ---------- A neighbouring piece close to the visitor (decor only, not in the plan) ---------- */
+const neighbour = (()=>{
+  const rnd=mulberry(42), size=.008, cols=['Yellow','White','Blue','White','Yellow','Light Gray'].map(n=>PAL[PI[n]].color);
+  const spots=[]; for(let i=0;i<11;i++){ const r=.22+i*.018+(rnd()-.5)*.01, d=(rnd()-.5)*.08; spots.push([.845+.82*r-.54*d, 1.435-.54*r-.82*d]); } // right edge of the visitor's view, ~0.75 m from the lens
+  const beads=[];
+  for(const [x,z] of spots){ let y=2.4-size*(10+Math.floor(rnd()*30)); const ph=rnd()*6.28;
+    while(y>.15){ const run=2+Math.floor(rnd()*14), c=cols[Math.floor(rnd()*cols.length)];
+      for(let k=0;k<run&&y>.15;k++){ beads.push([x,y,z,c,ph]); y-=size; }
+      y-=size*Math.floor(rnd()*rnd()*14); } }
+  const g=beadGeometry(size,14); g.setAttribute('aSway',new THREE.InstancedBufferAttribute(new Float32Array(beads.length*2),2));
+  const im=new THREE.InstancedMesh(g,beadMat,beads.length); const m=new THREE.Matrix4(), q=new THREE.Quaternion(), e=new THREE.Euler();
+  beads.forEach(([x,y,z,c,ph],i)=>{ q.setFromEuler(e.set((rnd()-.5)*.2,rnd()*6.28,(rnd()-.5)*.2)); m.compose(V(x,y,z),q,V(1,1,1)); im.setMatrixAt(i,m); im.setColorAt(i,c); g.attributes.aSway.setXY(i,2.4,ph); });
+  im.castShadow=true; im.frustumCulled=false; scene.add(im); return im; })();
+
+/* ---------- Build beads from parts ---------- */
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const hash=(i,j,s)=>{let h=(i*374761393+j*668265263+s*2147483647)|0;h=Math.imul(h^(h>>>13),1274126177);return((h^(h>>>16))>>>0)/4294967296};
+const ray=new THREE.Ray(), _p=new THREE.Vector3(), _hit={};
+function hitsDown(bvh,x,z,top){
+  ray.origin.set(x,top,z); ray.direction.set(0,-1,0);
+  const hs=bvh.raycast(ray,THREE.DoubleSide).map(h=>top-h.distance).sort((a,b)=>b-a);
+  const ys=[]; for(const y of hs) if(!ys.length||Math.abs(ys[ys.length-1]-y)>1e-5) ys.push(y); return ys;
+}
+let plan=null;
+const fadeMemo=new Map();
+function fadeCi(ci,e){ // afterimages wash out toward pale gray-white
+  const k=ci*10+e; if(fadeMemo.has(k)) return fadeMemo.get(k);
+  const p=PAL[ci], f=Math.min(.85,e*.34), w=[238,242,244];
+  const r=nearest(Math.round(p.r+(w[0]-p.r)*f),Math.round(p.g+(w[1]-p.g)*f),Math.round(p.b+(w[2]-p.b)*f)); fadeMemo.set(k,r); return r; }
+function strandsFrom(P,o,rnd,map,echo){
+  const {sp,b,anchor,fill,shell,csrc,stagger,gDrop,gSlip,gBand,gNoise,openT,LAYER,singleCi}=o;
+  const box=new THREE.Box3(); for(const p of P){p.geom.computeBoundingBox();box.union(p.geom.boundingBox)}
+  o.box.union(box);
+  const top=Math.max(box.max.y,anchor)+.05, hspan=Math.max(box.max.y-box.min.y,1e-3);
+  const sampled=P.some(p=>p.ci===undefined), keep=echo?Math.pow(.48,echo):1;
+  const i0=Math.floor(box.min.x/sp)-1,i1=Math.ceil(box.max.x/sp)+1,j0=Math.floor(box.min.z/sp)-1,j1=Math.ceil(box.max.z/sp)+1;
+  for(let j=j0;j<=j1;j++) for(let i=i0;i<=i1;i++){
+    const x=(i+(stagger&&(j&1)?.5:0))*sp, z=j*sp;
+    const per=[]; let any=false, hiY=-Infinity, loY=Infinity;
+    for(const p of P){ const ys=hitsDown(p.bvh,x,z,top); const iv=[];
+      if(p.closed){ for(let q=0;q+1<ys.length;q+=2) iv.push([ys[q],ys[q+1]]); }
+      else { // open or thin surface: walk the strand and keep stretches near the surface (works even when the strand runs along it)
+        const bb=p.geom.boundingBox;
+        if(x>=bb.min.x-openT&&x<=bb.max.x+openT&&z>=bb.min.z-openT&&z<=bb.max.z+openT){
+          const step=4*b; let open=null;
+          for(let y=bb.max.y+openT; y>=bb.min.y-openT-step; y-=step){
+            _p.set(x,y,z); const near=p.bvh.closestPointToPoint(_p,_hit,0,openT+step*.5);
+            if(near){ if(open) open[1]=y-step*.5; else open=[y+step*.5,y-step*.5]; } else if(open){ iv.push(open); open=null; } }
+          if(open) iv.push(open); } }
+      per.push(iv); for(const [a,c] of iv){any=true;hiY=Math.max(hiY,a);loY=Math.min(loY,c)} }
+    if(!any) continue;
+    const kA=Math.max(0,Math.floor((anchor-hiY)/b)), kB=Math.ceil((anchor-loY)/b);
+    const slip = rnd()<gSlip ? Math.round((rnd()-.5)*10) : 0;
+    const key=i+','+j; let st=map.get(key);
+    for(let k=kA;k<=kB;k++){
+      const y=anchor-(k+.5)*b; _p.set(x,y,z); let owner=-1;
+      for(let q=0;q<P.length&&owner<0;q++) for(const [a,c] of per[q]) if(y<=a&&y>=c){
+        if(!P[q].closed && !P[q].bvh.closestPointToPoint(_p,_hit,0,openT)) continue;
+        owner=q;break}
+      if(owner<0) continue;
+      if(echo && rnd()>keep) continue;
+      if(fill==='shell'){ let near=false; for(const p of P){ if(p.bvh.closestPointToPoint(_p,_hit,0,shell)){near=true;break} } if(!near) continue; }
+      let ci;
+      if(csrc==='single') ci=singleCi;
+      else if(csrc==='height'){ const h=(y-box.min.y)/hspan+(rnd()-.5)*.16; ci=RAMP[Math.max(0,Math.min(RAMP.length-1,Math.floor(h*RAMP.length)))]; }
+      else if(!sampled) ci=P[owner].ci;
+      else { // nearest surface, but an outer layer (clothes, hair, shoes) within LAYER beats the body under it
+        let bd=Infinity; const cands=[];
+        for(const p of P){const r=p.bvh.closestPointToPoint(_p,{},0,bd+LAYER); if(r){cands.push([p,r]); if(r.distance<bd) bd=r.distance;}}
+        let pick=null; for(const c of cands){ if(c[1].distance>bd+LAYER) continue; if(c[1].distance>bd+1e-6 && c[0].rank===Infinity) continue;
+          if(!pick || c[0].rank<pick[0].rank || (c[0].rank===pick[0].rank && c[1].distance<pick[1].distance)) pick=c; }
+        ci = pick ? sampleFace(pick[0],pick[1].faceIndex,pick[1].point) : PI['Gray']; }
+      const kk=k+slip; if(kk<0) continue;
+      if(gBand>0 && hash(kk>>2,0,S.seed)<gBand*.5) continue;
+      if(rnd()<gDrop) continue;
+      if(rnd()<gNoise) ci=Math.floor(rnd()*PAL.length);
+      if(echo) ci=fadeCi(ci,echo);
+      if(!st){ st={i,j,x,z,beads:[],ks:new Set(),phase:hash(i,j,3)*6.283}; map.set(key,st); }
+      if(!st.ks.has(kk)){ st.ks.add(kk); st.beads.push([kk,ci]); }
+    }
+  }
+}
+function rebuild(){
+  if(!parts.length) return;
+  const t0=performance.now();
+  const sp=+$('spacing').value/1000, b=+$('bead').value/1000, anchor=+$('anchor').value;
+  const o={sp,b,anchor,fill:$('fill').value,shell:+$('shell').value/1000,csrc:$('csrc').value,stagger:$('grid').value==='stagger',
+    gDrop:+$('gDrop').value/100,gSlip:+$('gSlip').value/100,gBand:+$('gBand').value/100,gNoise:+$('gNoise').value/100,
+    openT:Math.max(sp*.55,b*1.2),LAYER:.012,singleCi:+$('single').value,box:new THREE.Box3()};
+  const rnd=mulberry(S.seed*9973+1), map=new Map();
+  strandsFrom(parts,o,rnd,map,0);
+  const E=+$('echo').value, gap=+$('echoGap').value, shift=+$('echoShift').value/100, dur=Math.max(+$('ptime').max,1e-3);
+  for(let e=1;e<=E;e++){ const ep=makeParts((((S.poseT-e*gap)%dur)+dur)%dur, e*shift); strandsFrom(ep,o,rnd,map,e); for(const p of ep) p.geom.dispose(); }
+  if(E && S.model?.mixer) S.model.mixer.setTime(S.poseT);
+  const strands=[...map.values()].sort((a,c)=>a.j-c.j||a.i-c.i), box=o.box;
+  const lim=+$('pal').value, counts=new Array(PAL.length).fill(0);
+  for(const s of strands) for(const bd of s.beads) counts[bd[1]]++;
+  if(lim>0){ const keep=ALL.filter(i=>counts[i]>0).sort((a,c)=>counts[c]-counts[a]).slice(0,lim); const map=ALL.map(i=>keep.includes(i)?i:nearest(PAL[i].r,PAL[i].g,PAL[i].b,keep));
+    counts.fill(0); for(const s of strands) for(const bd of s.beads){bd[1]=map[bd[1]];counts[bd[1]]++} }
+  let n=0; for(const s of strands) n+=s.beads.length;
+  ensureBeads(n,b); ensureLines(strands.length);
+  const m=new THREE.Matrix4(), q=new THREE.Quaternion(), e=new THREE.Euler(), one=V(1,1,1), pv=new THREE.Vector3(), col=new THREE.Color(), hsl={h:0,s:0,l:0};
+  const sway=beadMesh.geometry.attributes.aSway, lsway=lineMesh.geometry.attributes.aSway;
+  let w=0, lineLen=0;
+  strands.forEach((s,si)=>{ let low=Infinity;
+    for(const [k,ci] of s.beads){ const y=anchor-(k+.5)*b; low=Math.min(low,y);
+      e.set((rnd()-.5)*.16,rnd()*6.283,(rnd()-.5)*.16); q.setFromEuler(e);
+      pv.set(s.x+(rnd()-.5)*b*.08,y,s.z+(rnd()-.5)*b*.08); m.compose(pv,q,one); beadMesh.setMatrixAt(w,m);
+      col.copy(PAL[ci].color).getHSL(hsl); col.setHSL(hsl.h,hsl.s*(.94+rnd()*.1),hsl.l*(.95+rnd()*.08)); beadMesh.setColorAt(w,col);
+      sway.setXY(w,anchor,s.phase); w++; }
+    const end=low-b*.6, len=anchor-end; lineLen+=len;
+    m.compose(pv.set(s.x,anchor,s.z),q.identity(),V(1,len,1)); lineMesh.setMatrixAt(si,m); lsway.setXY(si,anchor,s.phase); });
+  beadMesh.count=n; beadMesh.instanceMatrix.needsUpdate=true; beadMesh.instanceColor.needsUpdate=true; sway.needsUpdate=true;
+  lineMesh.count=strands.length; lineMesh.instanceMatrix.needsUpdate=true; lsway.needsUpdate=true;
+  rig.visible=true; rig.scale.set((box.max.x-box.min.x)+sp*6,1,(box.max.z-box.min.z)+sp*6);
+  rig.position.set((box.max.x+box.min.x)/2,anchor+.009,(box.max.z+box.min.z)/2);
+  plan={strands,b,sp,anchor,counts,lineLen};
+  PD=null; if(selKey!==null){ const k=selKey; queueMicrotask(()=>select(k)); }
+  if(!$('planView').hidden) queueMicrotask(renderPlan);
+  report(performance.now()-t0); dirty();
+}
+function report(ms){
+  const {strands,counts,lineLen}=plan; const n=counts.reduce((a,c)=>a+c,0);
+  $('tStrands').innerHTML=`<b>${strands.length.toLocaleString()}</b> strands`;
+  $('tBeads').innerHTML=`<b>${n.toLocaleString()}</b> beads`;
+  $('tBuild').textContent=`built in ${ms.toFixed(0)} ms`;
+  $('sStr').textContent=strands.length.toLocaleString(); $('sBeads').textContent=n.toLocaleString(); $('sLine').textContent=`${lineLen.toFixed(0)} m`;
+  const used=ALL.filter(i=>counts[i]>0).sort((a,c)=>counts[c]-counts[a]); $('sCols').textContent=used.length;
+  $('colors').innerHTML=used.map(i=>`<div><i style="background:${PAL[i].hex}"></i><span>${PAL[i].name}</span>${counts[i].toLocaleString()}</div>`).join('');
+  $('planOut').hidden=true;
+}
+/* ---------- Build plan (phase 2): blocks, stoppers, drilling map, strand cards ---------- */
+const BEAD_G={'2.6':.008,'5':.06,'10':.5};          // grams per bead, estimated from retail bag weights
+const BAG_DEFAULT={'2.6':2000,'5':1000,'10':500};
+const STOP_MM=6, STOP_G=.1, TAIL_MM=40;               // spacer bead + crimp under each block
+const CLEAR=-1;                                       // clear filler bead (fills gaps too short for a stopper)
+const pname=ci=>ci===CLEAR?'Clear (filler)':PAL[ci].name, phex=ci=>ci===CLEAR?'#e9eef0':PAL[ci].hex;
+let PD=null;
+function planData(){
+  if(PD) return PD; if(!plan||!plan.strands.length) return null;
+  const {strands,b,sp,anchor}=plan, bmm=b*1000, tie=+$('pvTie').value||0;
+  const jMin=Math.min(...strands.map(s=>s.j)), iMin=Math.min(...strands.map(s=>s.i));
+  const m=.03, x0=Math.min(...strands.map(s=>s.x))-m, x1=Math.max(...strands.map(s=>s.x))+m, z0=Math.min(...strands.map(s=>s.z))-m, z1=Math.max(...strands.map(s=>s.z))+m;
+  let filled=0;
+  const list=strands.map(s=>{
+    const bs=[...s.beads].sort((a,c)=>a[0]-c[0]), blocks=[]; let cur=null;
+    for(const [k,ci] of bs){
+      if(cur && (k-cur.k1-1)*bmm < STOP_MM){ const gap=k-cur.k1-1; if(gap>0){cur.runs.push([CLEAR,gap]); filled+=gap;} cur.k1=k;
+        const r=cur.runs[cur.runs.length-1]; if(r[0]===ci) r[1]++; else cur.runs.push([ci,1]); }
+      else { cur={k0:k,k1:k,runs:[[ci,1]]}; blocks.push(cur); }
+    }
+    const row=s.j-jMin+1, col=s.i-iMin+1, beads=blocks.reduce((t,bl)=>t+bl.k1-bl.k0+1,0);
+    const bottom=(blocks[blocks.length-1].k1+1)*bmm;
+    return {s,key:s.i+','+s.j,id:`R${String(row).padStart(2,'0')}-C${String(col).padStart(2,'0')}`,row,col,
+      fromLeft:(s.x-x0)*1000, fromBack:(s.z-z0)*1000, blocks, beads, drop:blocks[0].k0*bmm, bottom, cut:bottom+STOP_MM+TAIL_MM+tie};
+  });
+  list.sort((a,c)=>a.row-c.row||a.col-c.col);
+  const byKey=new Map(list.map((d,i)=>[d.key,i]));
+  return PD={list,byKey,bmm,sp,anchor,b,plate:[(x1-x0)*1000,(z1-z0)*1000],x0,z0,filled,
+    rows:Math.max(...list.map(d=>d.row)), cols:Math.max(...list.map(d=>d.col))};
+}
+function totals(D){
+  const beadKey=String(+$('bead').value), g=BEAD_G[beadKey]??.06;
+  const counts=new Map(); let beads=0, stoppers=0, line=0, maxStrandG=0;
+  for(const d of D.list){ let sg=0; for(const bl of d.blocks) for(const [ci,n] of bl.runs){ counts.set(ci,(counts.get(ci)||0)+n); beads+=n; sg+=n*g; }
+    stoppers+=d.blocks.length; sg+=d.blocks.length*STOP_G; line+=d.cut; maxStrandG=Math.max(maxStrandG,sg); }
+  const rate=+$('pvRate').value||400, tieMin=+$('pvTieMin').value||0;
+  const hours=beads/rate + D.list.length*tieMin/60;
+  return {counts,beads,stoppers,line:line/1000,kg:(beads*g+stoppers*STOP_G)/1000,maxStrandG,hours,g};
+}
+const fmtN=n=>Math.round(n).toLocaleString();
+function openPlan(){ $('planView').hidden=false; $('vPlan').setAttribute('aria-pressed','true'); renderPlan(); }
+function closePlan(){ $('planView').hidden=true; $('vPlan').setAttribute('aria-pressed','false'); dirty(); }
+function renderPlan(){
+  const D=planData(); if(!D) return; const T=totals(D);
+  $('pvTitle').textContent=`Build plan: ${S.model?S.model.name:FIG[S.fig].label}`;
+  $('pvSub').textContent=`${+$('bead').value} mm beads on strands ${fmtN(D.sp*1000)} mm apart, hanging from a plate at ${D.anchor.toFixed(2)} m. Every block of touching beads rests on one stopper: a 4 mm clear spacer bead with a crimp under it.`;
+  $('pvKpis').innerHTML=[
+    ['Beads',fmtN(T.beads),`${T.counts.size} colors${D.filled?`, incl. ${fmtN(D.filled)} clear fillers`:''}`],
+    ['Strands',fmtN(D.list.length),`${D.rows} rows × ${D.cols} columns`],
+    ['Stoppers',fmtN(T.stoppers),'spacer bead + crimp each'],
+    ['Fishing line',`${T.line.toFixed(0)} m`,'0.25 mm (8 lb) mono, incl. ties'],
+    ['Hanging weight',`${T.kg.toFixed(2)} kg`,`heaviest strand ${T.maxStrandG.toFixed(0)} g (estimate)`],
+    ['Stringing time',`${T.hours.toFixed(0)} h`,`at ${$('pvRate').value} beads/h`]
+  ].map(([k,v,e])=>`<div><small>${k}</small><strong>${v}</strong><em>${e}</em></div>`).join('');
+  const warns=[];
+  if(D.sp*1000 < +$('bead').value*1.15) warns.push(`Strands are ${fmtN(D.sp*1000)} mm apart with ${$('bead').value} mm beads, so neighbouring beads will touch and tangle. Widen the spacing or use smaller beads.`);
+  if(D.filled) warns.push(`${fmtN(D.filled)} gaps were shorter than a stopper (${STOP_MM} mm), so they're filled with clear beads. They hardly show, and it keeps every block buildable.`);
+  $('pvWarn').hidden=!warns.length; $('pvWarn').innerHTML=warns.join('<br>');
+  $('mapNote').innerHTML=`Plate ${fmtN(D.plate[0])} × ${fmtN(D.plate[1])} mm, ${fmtN(D.list.length)} holes on a ${fmtN(D.sp*1000)} mm grid, seen from above and measured from the back-left corner (the windows are at the back). Drill 1 mm. Row 1 is the back row; columns count from the left. Click a hole to open its strand.`;
+  drawMap(); renderCard(); renderShop(D,T); renderRows(D); renderStringer(D,T);
+}
+let selKey=null;
+function drawMap(){
+  const D=planData(); if(!D) return; const cv=$('mapCanvas'), dpr=Math.min(devicePixelRatio,2);
+  const cssW=cv.parentElement.clientWidth-28, pad=46, scale=(cssW-pad-14)/D.plate[0], cssH=pad+D.plate[1]*scale+14;
+  cv.width=cssW*dpr; cv.height=cssH*dpr; cv.style.height=cssH+'px'; const g=cv.getContext('2d'); g.setTransform(dpr,0,0,dpr,0,0);
+  const css=getComputedStyle(document.documentElement), ink=css.getPropertyValue('--ink').trim(), muted=css.getPropertyValue('--muted').trim(), line=css.getPropertyValue('--line').trim(), acc=css.getPropertyValue('--accent').trim();
+  g.clearRect(0,0,cssW,cssH); g.strokeStyle=ink; g.lineWidth=1; g.strokeRect(pad,pad,D.plate[0]*scale,D.plate[1]*scale);
+  g.font='10px IBM Plex Mono, monospace'; g.fillStyle=muted; g.textAlign='center';
+  for(let mm=0;mm<=D.plate[0];mm+=50){ const x=pad+mm*scale; g.strokeStyle=line; g.beginPath(); g.moveTo(x,pad-(mm%100?4:8)); g.lineTo(x,pad); g.stroke(); if(mm%100===0) g.fillText(mm,x,pad-12); }
+  g.textAlign='right'; for(let mm=0;mm<=D.plate[1];mm+=50){ const y=pad+mm*scale; g.beginPath(); g.moveTo(pad-(mm%100?4:8),y); g.lineTo(pad,y); g.stroke(); if(mm%100===0) g.fillText(mm,pad-11,y+3); }
+  const r=Math.max(1.4,Math.min(5,D.sp*1000*scale*.38));
+  for(const d of D.list){ const tally=new Map(); for(const bl of d.blocks) for(const [ci,n] of bl.runs) if(ci!==CLEAR) tally.set(ci,(tally.get(ci)||0)+n);
+    let dom=0,best=-1; for(const [ci,n] of tally) if(n>best){best=n;dom=ci}
+    const x=pad+d.fromLeft*scale, y=pad+d.fromBack*scale; g.fillStyle=phex(dom); g.beginPath(); g.arc(x,y,r,0,6.2832); g.fill(); g.strokeStyle=muted; g.globalAlpha=.55; g.lineWidth=.75; g.stroke(); g.globalAlpha=1; g.lineWidth=1;
+    if(d.key===selKey){ g.strokeStyle=acc; g.lineWidth=2.5; g.beginPath(); g.arc(x,y,r+4,0,6.2832); g.stroke(); g.lineWidth=1; } }
+  cv.onclick=e=>{ const bb=cv.getBoundingClientRect(), mx=e.clientX-bb.left, my=e.clientY-bb.top; let best=null,bd=1e9;
+    for(const d of D.list){ const dx=pad+d.fromLeft*scale-mx, dy=pad+d.fromBack*scale-my, dd=dx*dx+dy*dy; if(dd<bd){bd=dd;best=d} }
+    if(best && bd<Math.pow(Math.max(8,D.sp*1000*scale),2)) select(best.key); };
+}
+function renderCard(){
+  const D=planData(); if(!D) return; if(selKey===null||!D.byKey.has(selKey)) selKey=D.list.reduce((a,c)=>c.beads>a.beads?c:a).key;
+  const d=D.list[D.byKey.get(selKey)], bmm=D.bmm;
+  $('cardTitle').textContent=`Strand ${d.id}: ${fmtN(d.beads)} beads, ${d.blocks.length} block${d.blocks.length>1?'s':''}`;
+  // diagram
+  const cv=$('stripCanvas'), dpr=Math.min(devicePixelRatio,2), span=d.blocks[d.blocks.length-1].k1-d.blocks[0].k0+1;
+  const ppb=Math.max(1.6,Math.min(7,560/span)), top=54, H=top+span*ppb+40, W=120;
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.width=W+'px'; cv.style.height=H+'px'; const g=cv.getContext('2d'); g.setTransform(dpr,0,0,dpr,0,0);
+  const css=getComputedStyle(document.documentElement), ink=css.getPropertyValue('--ink').trim(), muted=css.getPropertyValue('--muted').trim();
+  g.clearRect(0,0,W,H); const cx=34; g.strokeStyle=muted; g.lineWidth=1;
+  g.fillStyle=ink; g.fillRect(cx-14,4,28,4); g.font='10px IBM Plex Mono, monospace'; g.fillStyle=muted; g.textAlign='left'; g.fillText(d.id,cx+18,10);
+  g.setLineDash([3,3]); g.beginPath(); g.moveTo(cx,8); g.lineTo(cx,top-8); g.stroke(); g.setLineDash([]);
+  g.fillText(`${fmtN(d.drop)} mm`,cx+8,30); g.fillText('bare line',cx+8,41);
+  g.beginPath(); g.moveTo(cx,top-8); g.lineTo(cx,H-10); g.stroke();
+  let lastLabel=-99;
+  for(const bl of d.blocks){ let k=bl.k0;
+    for(const [ci,n] of bl.runs){ g.fillStyle=phex(ci); g.strokeStyle='rgba(0,0,0,.25)';
+      const y0=top+(k-d.blocks[0].k0)*ppb; for(let q=0;q<n;q++,k++){ const y=top+(k-d.blocks[0].k0)*ppb; g.fillRect(cx-7,y,14,Math.max(1,ppb-.6)); }
+      g.strokeStyle=muted; g.strokeRect(cx-7.5,y0-.5,15,n*ppb); }
+    const ys=top+(bl.k1+1-d.blocks[0].k0)*ppb; g.fillStyle=ink; g.fillRect(cx-4,ys+.5,8,Math.max(2,ppb*.9));
+    if(ys-lastLabel>11){ g.fillStyle=muted; g.fillText(fmtN((bl.k1+1)*bmm),cx+12,ys+6); lastLabel=ys; } }
+  // steps
+  const chips=runs=>runs.map(([ci,n])=>`<span class="chipcol" style="background:${phex(ci)}"></span>${n} ${pname(ci)}`).join(', ');
+  const steps=[`Cut <b>${fmtN(d.cut)} mm</b> of line. That includes ${$('pvTie').value} mm to tie off and ${TAIL_MM} mm of tail.`,
+    `Tie it through hole <b>${d.id}</b>, <b>${fmtN(d.fromLeft)} mm</b> from the left edge and <b>${fmtN(d.fromBack)} mm</b> from the back. Lay it on a measuring board with the plate end at 0 mm.`];
+  d.blocks.forEach((bl,i)=>steps.push(`Block ${i+1}: thread ${chips(bl.runs)}, first-listed first. Slide them up so the top bead sits at <b>${fmtN(bl.k0*bmm)} mm</b>, then add a spacer bead and crimp right under the last one, at <b>${fmtN((bl.k1+1)*bmm)} mm</b>.`));
+  steps.push(`Trim the tail ${TAIL_MM} mm below the last crimp.`);
+  $('cardSteps').innerHTML=steps.map(t=>`<li>${t}</li>`).join('');
+}
+function renderShop(D,T){
+  const spare=1+(+$('pvSpare').value||0)/100, bag=+$('pvBag').value||1000;
+  const rows=[...T.counts.entries()].sort((a,c)=>c[1]-a[1]).map(([ci,n])=>{const want=Math.ceil(n*spare);return `<tr><td><span class="chipcol" style="background:${phex(ci)}"></span>${pname(ci)}</td><td class="n">${fmtN(n)}</td><td class="n">${fmtN(want)}</td><td class="n">${Math.ceil(want/bag)}</td></tr>`});
+  const st=Math.ceil(T.stoppers*spare);
+  rows.push(`<tr><td>4 mm clear spacer beads (stoppers)</td><td class="n">${fmtN(T.stoppers)}</td><td class="n">${fmtN(st)}</td><td class="n">—</td></tr>`);
+  rows.push(`<tr><td>Crimp tubes sized to the line (about 1 mm bore)</td><td class="n">${fmtN(T.stoppers)}</td><td class="n">${fmtN(st)}</td><td class="n">—</td></tr>`);
+  rows.push(`<tr><td>Clear monofilament, 0.25 mm (8 lb)</td><td class="n">${T.line.toFixed(0)} m</td><td class="n">${(T.line*spare).toFixed(0)} m</td><td class="n">${Math.ceil(T.line*spare/100)} × 100 m</td></tr>`);
+  rows.push(`<tr><td>Ceiling plate, drilled 1 mm</td><td class="n" colspan="3">${fmtN(D.plate[0])} × ${fmtN(D.plate[1])} mm, ${fmtN(D.list.length)} holes</td></tr>`);
+  $('shopTable').innerHTML=`<thead><tr><th>Item</th><th style="text-align:right">Needed</th><th style="text-align:right">With spare</th><th style="text-align:right">Bags / spools</th></tr></thead><tbody>${rows.join('')}</tbody>`;
+}
+function renderRows(D){
+  const g=BEAD_G[String(+$('bead').value)]??.06, rate=+$('pvRate').value||400, tieMin=+$('pvTieMin').value||0, rows=new Map();
+  for(const d of D.list){ const r=rows.get(d.row)||{n:0,beads:0,stops:0}; r.n++; r.beads+=d.beads; r.stops+=d.blocks.length; rows.set(d.row,r); }
+  let cum=0; $('rowTable').innerHTML='<thead><tr><th>Row</th><th style="text-align:right">Strands</th><th style="text-align:right">Beads</th><th style="text-align:right">Stoppers</th><th style="text-align:right">Hours</th><th style="text-align:right">Running total</th></tr></thead><tbody>'+
+    [...rows.entries()].map(([row,r])=>{const h=r.beads/rate+r.n*tieMin/60; cum+=h; return `<tr><td>R${String(row).padStart(2,'0')}</td><td class="n">${r.n}</td><td class="n">${fmtN(r.beads)}</td><td class="n">${r.stops}</td><td class="n">${h.toFixed(1)}</td><td class="n">${cum.toFixed(1)} h</td></tr>`}).join('')+'</tbody>';
+}
+function blocksText(d,bmm){ return d.blocks.map(bl=>`${fmtN(bl.k0*bmm)}mm:`+bl.runs.map(([ci,n])=>`${n} ${pname(ci)}`).join('+')).join(' | '); }
+function cutCSV(){ const D=planData(); const h='id,row,col,from_left_mm,from_back_mm,cut_mm,beads,stoppers,blocks (top mm: beads)';
+  return [h,...D.list.map(d=>[d.id,d.row,d.col,d.fromLeft.toFixed(0),d.fromBack.toFixed(0),d.cut.toFixed(0),d.beads,d.blocks.length,`"${blocksText(d,D.bmm)}"`].join(','))].join('\n'); }
+function shopCSV(){ const D=planData(), T=totals(D), spare=1+(+$('pvSpare').value||0)/100, bag=+$('pvBag').value||1000;
+  return ['item,needed,with_spare,bags',...[...T.counts.entries()].sort((a,c)=>c[1]-a[1]).map(([ci,n])=>`${pname(ci)},${n},${Math.ceil(n*spare)},${Math.ceil(Math.ceil(n*spare)/bag)}`),
+    `spacer beads 4mm clear,${T.stoppers},${Math.ceil(T.stoppers*spare)},`,`crimp tubes,${T.stoppers},${Math.ceil(T.stoppers*spare)},`,`mono line 0.25mm (m),${T.line.toFixed(0)},${(T.line*spare).toFixed(0)},`].join('\n'); }
+function planJSON(){
+  const D=planData(), T=totals(D);
+  return JSON.stringify({made_with:'Strandfall',units:'mm',bead_mm:+$('bead').value,strand_spacing_mm:D.sp*1000,anchor_height_mm:Math.round(D.anchor*1000),
+    figure:S.model?S.model.name:FIG[S.fig].label, pose_time_s:+S.poseT.toFixed(2), plate_mm:D.plate.map(v=>+v.toFixed(0)),
+    note:'Holes measured from the plate back-left corner. Each block hangs on a stopper (spacer bead + crimp) at stopper_mm below the plate. runs are listed top-down.',
+    totals:{beads:T.beads,stoppers:T.stoppers,line_m:+T.line.toFixed(1),weight_kg_est:+T.kg.toFixed(2)},
+    strands:D.list.map(d=>({id:d.id,from_left_mm:+d.fromLeft.toFixed(1),from_back_mm:+d.fromBack.toFixed(1),cut_mm:Math.round(d.cut),beads:d.beads,
+      blocks:d.blocks.map(bl=>({top_mm:+(bl.k0*D.bmm).toFixed(1),stopper_mm:+((bl.k1+1)*D.bmm).toFixed(1),runs:bl.runs.map(([ci,n])=>[pname(ci),n])}))}))});
+}
+/* selection: plan card, floating card in the room, and a marker on the strand */
+const selMarker=new THREE.Mesh(new THREE.CylinderGeometry(.0016,.0016,1,8).translate(0,-.5,0),new THREE.MeshBasicMaterial({color:'#ffd54a'}));
+selMarker.visible=false; scene.add(selMarker);
+function select(key){
+  selKey=key; const D=planData(); if(!D||!D.byKey.has(key)){ $('pick').hidden=true; selMarker.visible=false; return; }
+  const d=D.list[D.byKey.get(key)], bmm=D.bmm;
+  selMarker.position.set(d.s.x,D.anchor,d.s.z); selMarker.scale.set(1,(d.bottom+STOP_MM)/1000,1); selMarker.visible=true; dirty();
+  const span=(d.blocks[d.blocks.length-1].k1+1-d.blocks[0].k0);
+  const bar=[]; let k=d.blocks[0].k0; for(const bl of d.blocks){ if(bl.k0>k) bar.push(`<i style="flex:${bl.k0-k}"></i>`); for(const [ci,n] of bl.runs) bar.push(`<i style="flex:${n};background:${phex(ci)}"></i>`); k=bl.k1+1; }
+  $('pick').innerHTML=`<div><b>${d.id}</b> · ${fmtN(d.beads)} beads in ${d.blocks.length} block${d.blocks.length>1?'s':''} · first bead ${fmtN(d.drop)} mm below the plate</div><div class="bar">${bar.join('')}</div><button id="pickOpen">Open its card in the build plan</button>`;
+  $('pick').hidden=false; $('pickOpen').onclick=openPlan;
+  if(!$('planView').hidden){ drawMap(); renderCard(); }
+}
+{ let down=null;
+  renderer.domElement.addEventListener('pointerdown',e=>{down=[e.clientX,e.clientY]});
+  renderer.domElement.addEventListener('pointerup',e=>{
+    if(!down||Math.hypot(e.clientX-down[0],e.clientY-down[1])>5||S.view==='walk'||S.view==='machine'||!plan) return;
+    const bb=renderer.domElement.getBoundingClientRect(), nd=new THREE.Vector2((e.clientX-bb.left)/bb.width*2-1,-(e.clientY-bb.top)/bb.height*2+1);
+    const rc=new THREE.Raycaster(); rc.setFromCamera(nd,camera); const o=rc.ray.origin, dir=rc.ray.direction, dxz=dir.x*dir.x+dir.z*dir.z;
+    let best=null, bt=Infinity; const tol=Math.max(plan.sp*.5,plan.b);
+    for(const s of plan.strands){ const t=((s.x-o.x)*dir.x+(s.z-o.z)*dir.z)/dxz; if(t<=0||t>=bt) continue;
+      const px=o.x+dir.x*t-s.x, pz=o.z+dir.z*t-s.z; if(px*px+pz*pz>tol*tol) continue;
+      const y=o.y+dir.y*t, k=(plan.anchor-y)/plan.b-.5; if(!s.beads.some(bd=>Math.abs(bd[0]-k)<1.6)) continue;
+      bt=t; best=s; }
+    if(best) select(best.i+','+best.j); else { $('pick').hidden=true; selMarker.visible=false; selKey=null; dirty(); }
+  }); }
+$('vPlan').onclick=()=>$('planView').hidden?openPlan():closePlan();
+$('pvClose').onclick=closePlan; $('openPlan').onclick=openPlan;
+$('cardPrev').onclick=()=>{const D=planData(); select(D.list[(D.byKey.get(selKey)-1+D.list.length)%D.list.length].key)};
+$('cardNext').onclick=()=>{const D=planData(); select(D.list[(D.byKey.get(selKey)+1)%D.list.length].key)};
+for(const id of ['pvSpare','pvBag','pvRate','pvTieMin']) $(id).addEventListener('input',()=>{ if(!$('planView').hidden) renderPlan(); });
+$('pvTie').addEventListener('input',()=>{ PD=null; if(!$('planView').hidden) renderPlan(); });
+$('bead').addEventListener('change',()=>{ $('pvBag').value=BAG_DEFAULT[String(+$('bead').value)]||1000; });
+const copyOut=async(txt,btn,label)=>{ const ta=$('pvOut'); ta.value=txt; ta.hidden=false; try{await navigator.clipboard.writeText(txt); btn.textContent='Copied';}catch{ta.focus();ta.select();btn.textContent='Selected below, copy with ⌘C';} setTimeout(()=>btn.textContent=label,2200); };
+$('copyCut').onclick=()=>copyOut(cutCSV(),$('copyCut'),'Copy cut list (CSV)');
+$('copyShop').onclick=()=>copyOut(shopCSV(),$('copyShop'),'Copy shopping list (CSV)');
+$('copyPlan2').onclick=()=>copyOut(planJSON(),$('copyPlan2'),'Copy full plan (JSON)');
+new ResizeObserver(()=>{ if(!$('planView').hidden) drawMap(); }).observe($('planView'));
+
+/* ---------- Photo pipeline: accumulate jittered samples (lens, pixel, sun) ---------- */
+const VS='varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}';
+const rtOpts={type:THREE.HalfFloatType};
+const rtScene=new THREE.WebGLRenderTarget(1,1,{...rtOpts,samples:4});
+const accOpts={...rtOpts,generateMipmaps:true,minFilter:THREE.LinearMipmapLinearFilter};
+const acc=[new THREE.WebGLRenderTarget(1,1,accOpts),new THREE.WebGLRenderTarget(1,1,accOpts)];
+const accQuad=new FullScreenQuad(new THREE.ShaderMaterial({uniforms:{tNew:{value:null},tPrev:{value:null},w:{value:1}},vertexShader:VS,
+  fragmentShader:'uniform sampler2D tNew,tPrev;uniform float w;varying vec2 vUv;void main(){gl_FragColor=mix(texture2D(tPrev,vUv),texture2D(tNew,vUv),w);}'}));
+const outQuad=new FullScreenQuad(new THREE.ShaderMaterial({uniforms:{tAcc:{value:null},uGrain:{value:.035},uSeed:{value:0},uSig:{value:0},uRes:{value:new THREE.Vector2(1,1)}},vertexShader:VS,
+  fragmentShader:`uniform sampler2D tAcc;uniform float uGrain,uSeed,uSig;uniform vec2 uRes;varying vec2 vUv;
+  float h(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}
+  void main(){ vec2 uv=vUv; float row=floor(uv.y*90.); if(h(vec2(row,floor(uSeed*7.)))<uSig*.07) uv.x+=(h(vec2(row*1.3,uSeed))-.5)*.035*uSig;
+    float ca=.004*uSig; vec3 c=vec3(texture2D(tAcc,uv+vec2(ca,0.)).r,texture2D(tAcc,uv).g,texture2D(tAcc,uv-vec2(ca,0.)).b);
+    c*=1.-uSig*.18*(.5+.5*sin(uv.y*uRes.y*1.5708)); vec3 gl1=textureLod(tAcc,uv,4.).rgb, gl2=textureLod(tAcc,uv,6.).rgb; c+=max(gl1-.9,0.)*.22+max(gl2-.8,0.)*.3+gl2*.03; // window halation
+    vec2 q=(vUv-.5)*vec2(uRes.x/uRes.y,1.); c*=1.-.16*dot(q,q);
+    gl_FragColor=vec4(c,1.);
+    #include <tonemapping_fragment>
+    #include <colorspace_fragment>
+    float lum=dot(gl_FragColor.rgb,vec3(.299,.587,.114)); float g=(h(vUv*uRes+uSeed)+h(vUv*uRes*1.7-uSeed)-1.);
+    gl_FragColor.rgb+=g*uGrain*(1.-lum*.6); }`}));
+let samples=0, maxSamples=256, pxW=1, pxH=1;
+function dirty(){ samples=0; }
+function resize(){ const r=stage.getBoundingClientRect(); renderer.setSize(r.width,r.height,false);
+  const dpr=renderer.getPixelRatio(); pxW=Math.max(1,Math.floor(r.width*dpr)); pxH=Math.max(1,Math.floor(r.height*dpr));
+  for(const t of [rtScene,...acc]) t.setSize(pxW,pxH); outQuad.material.uniforms.uRes.value.set(pxW,pxH);
+  camera.aspect=r.width/Math.max(r.height,1); camera.updateProjectionMatrix(); dirty(); }
+new ResizeObserver(resize).observe(stage);
+
+const _pos=new THREE.Vector3(), _quat=new THREE.Quaternion(), _fwd=new THREE.Vector3(), _rt=new THREE.Vector3(), _up=new THREE.Vector3(), _fp=new THREE.Vector3();
+function halton(i,b){let f=1,r=0;while(i>0){f/=b;r+=f*(i%b);i=Math.floor(i/b)}return r}
+function renderSample(jitter, idx){
+  _pos.copy(camera.position); _quat.copy(camera.quaternion);
+  if(jitter){
+    const focusD = camera.position.distanceTo(controls.target);
+    const focal = 0.012/Math.tan(THREE.MathUtils.degToRad(camera.fov/2)); // 35mm-equivalent (24 mm frame)
+    const R = focal/(2*(S.view==='machine'?Math.max(8,+$('fstop').value):+$('fstop').value));
+    camera.getWorldDirection(_fwd); _rt.setFromMatrixColumn(camera.matrixWorld,0); _up.setFromMatrixColumn(camera.matrixWorld,1);
+    _fp.copy(camera.position).addScaledVector(_fwd,focusD);
+    const r=R*Math.sqrt(halton(idx+1,2)), th=6.2832*halton(idx+1,3);
+    camera.position.addScaledVector(_rt,r*Math.cos(th)).addScaledVector(_up,r*Math.sin(th)); camera.lookAt(_fp);
+    camera.setViewOffset(pxW,pxH,halton(idx+1,5)-.5,halton(idx+1,7)-.5,pxW,pxH);
+    const sr=1.4*Math.sqrt(Math.random()), st=Math.random()*6.2832; sun.position.set(SUN_BASE.x+sr*Math.cos(st),SUN_BASE.y+sr*Math.sin(st)*.6,SUN_BASE.z);
+  } else sun.position.copy(SUN_BASE);
+  camera.updateMatrixWorld();
+  renderer.setRenderTarget(rtScene); if(S.view==='machine'){ MS.sc.environment=scene.environment; renderer.render(MS.sc,camera); } else renderer.render(scene,camera);
+  if(jitter){ camera.clearViewOffset(); camera.position.copy(_pos); camera.quaternion.copy(_quat); camera.updateMatrixWorld(); }
+}
+function accumulate(w){ const u=accQuad.material.uniforms; u.tNew.value=rtScene.texture; u.tPrev.value=acc[0].texture; u.w.value=w;
+  renderer.setRenderTarget(acc[1]); accQuad.render(renderer); acc.reverse(); }
+function present(){ const u=outQuad.material.uniforms; u.tAcc.value=acc[0].texture; u.uGrain.value=+$('grain').value/100*.06; u.uSig.value=+$('sig').value/100;
+  renderer.setRenderTarget(null); outQuad.render(renderer); }
+
+/* ---------- Scheduling ---------- */
+let pending=false;
+function full(){ buildParts(); rebuild(); }
+function queue(){ if(pending) return; pending=true; requestAnimationFrame(()=>{pending=false; try{full()}catch(e){console.error(e);$('tBuild').textContent='Build failed: '+e.message}}); }
+
+/* ---------- Loading models ---------- */
+const gltfCache=new Map();
+async function parseModel(buf,ext){
+  if(ext==='glb'||ext==='gltf'){ const gltf=await new Promise((res,rej)=>new GLTFLoader().parse(buf,'',res,rej)); return {root:gltf.scene,clips:gltf.animations||[]}; }
+  if(ext==='obj') return {root:new OBJLoader().parse(typeof buf==='string'?buf:new TextDecoder().decode(buf)),clips:[]};
+  if(ext==='stl'){ const g=new STLLoader().parse(buf); const mat=new THREE.MeshStandardMaterial({color:g.hasColors?'#ffffff':'#bfc3c0',vertexColors:!!g.hasColors}); const root=new THREE.Group(); root.add(new THREE.Mesh(g,mat)); return {root,clips:[]}; }
+  throw new Error('Use a .glb, .gltf, .obj or .stl file');
+}
+function useModel({root,clips},name,norm){
+  const M={name,root,mixer:null,dur:0};
+  if(clips.length){ M.mixer=new THREE.AnimationMixer(root); const clip=clips[0]; M.mixer.clipAction(clip).play(); M.dur=clip.duration; M.mixer.setTime(0); }
+  M.norm=norm||normFor(root,+$('height').value);
+  S.model=M; S.poseT=0; $('ptime').value=0; $('ptime').max=M.dur||1; $('ptimeO').textContent='0.0 s'; texCache.clear();
+  return M;
+}
+function normScan(root,f){ // rotate for staging, scale the longest side to f.size metres, hang its centre at f.cy
+  root.updateMatrixWorld(true); const b=new THREE.Box3().setFromObject(root,true);
+  const Rm=new THREE.Matrix4().makeRotationX(f.rx||0).multiply(new THREE.Matrix4().makeRotationY(f.ry||0));
+  const rb=b.clone().applyMatrix4(Rm), sz=rb.getSize(new THREE.Vector3()), c=rb.getCenter(new THREE.Vector3()), k=f.size/Math.max(sz.x,sz.y,sz.z);
+  return new THREE.Matrix4().makeTranslation(0,f.cy,.1).multiply(new THREE.Matrix4().makeScale(k,k,k)).multiply(new THREE.Matrix4().makeTranslation(-c.x,-c.y,-c.z)).multiply(Rm);
+}
+function triCount(root){let t=0;root.traverse(o=>{if(o.isMesh){const g=o.geometry;t+=(g.index?g.index.count:g.attributes.position.count)/3}});return Math.round(t)}
+async function loadPropsGLB(){
+  if(propsGLB!==null) return propsGLB;
+  try{ const {root}=await parseModel(await fetchGLB('assets/props.glb'),'glb');
+    root.traverse(o=>{if(o.isMesh){o.castShadow=o.receiveShadow=true}}); propsGLB=root; }
+  catch{ propsGLB=false; }
+  return propsGLB;
+}
+async function setFigure(key){
+  S.fig=key; const f=FIG[key];
+  document.querySelectorAll('[data-fig]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.fig===key));
+  $('heightRow').hidden=true; $('showProps').parentElement.hidden=false;
+  props.clear();
+  if(f.chair!==false){ const pg=await loadPropsGLB(); let g;
+    if(pg){ g=pg.clone(); const desk=g.getObjectByName('desk'); if(desk) desk.visible=!!f.desk; }
+    else g=fallbackProps(f.desk?'desk':'chair');
+    g.rotation.y=f.yaw||0; props.add(g); }
+  try{
+    let m=gltfCache.get(f.glb);
+    if(!m){ m=await fetchGLB(f.glb); gltfCache.set(f.glb,m); }
+    const mod=await parseModel(m,'glb'); const M=useModel(mod,f.label,f.scan?normScan(mod.root,f):new THREE.Matrix4());
+    if(f.scan){ $('fileNote').innerHTML=`${f.label} (<i>${f.latin}</i>): a real photogrammetry scan, ${triCount(mod.root).toLocaleString()} triangles, hung about ${f.size} m across. CC0, scanned by ffish.asia / floraZia.`; queue(); if(S.view!=='walk') setView(S.view); return; }
+    $('fileNote').textContent=`${f.label}: a posed child model, ${triCount(mod.root).toLocaleString()} triangles${M.dur?`, ${M.dur.toFixed(1)} s of motion (use Play pose)`:''}. Drop your own .glb, .obj or .stl onto the room.`;
+  }catch(e){
+    if(f.scan){ $('fileNote').textContent=`Couldn't load the ${f.label} scan: ${e.message}`; return; }
+    S.model=null; S.poseT=0; $('ptime').max=6;
+    $('fileNote').textContent=`${f.label}: simple stand-in figure. Drop your own .glb, .obj or .stl onto the room.`;
+  }
+  queue(); if(S.view!=='walk') setView(S.view);
+}
+document.querySelectorAll('[data-fig]').forEach(b=>b.onclick=()=>setFigure(b.dataset.fig));
+$('fLoad').onclick=()=>$('file').click();
+$('file').onchange=e=>{ const f=e.target.files[0]; if(f) loadFile(f); e.target.value=''; };
+stage.addEventListener('dragover',e=>{e.preventDefault();$('drop').hidden=false});
+stage.addEventListener('dragleave',()=>$('drop').hidden=true);
+stage.addEventListener('drop',e=>{e.preventDefault();$('drop').hidden=true;const f=e.dataTransfer.files[0]; if(f) loadFile(f)});
+async function loadFile(file){
+  const ext=file.name.split('.').pop().toLowerCase(); $('tBuild').textContent=`Loading ${file.name}…`;
+  try{
+    const buf=ext==='gltf'||ext==='obj'?await file.text():await file.arrayBuffer();
+    const mod=await parseModel(buf,ext); const M=useModel(mod,file.name);
+    props.clear(); document.querySelectorAll('[data-fig]').forEach(b=>b.setAttribute('aria-pressed','false'));
+    $('heightRow').hidden=false; $('showProps').parentElement.hidden=true;
+    $('fileNote').textContent=`${file.name}: ${triCount(mod.root).toLocaleString()} triangles${M.dur?`, ${M.dur.toFixed(1)} s of motion (use Play pose)`:''}.`;
+    queue();
+  }catch(err){ console.error(err); $('tBuild').textContent='Could not load: '+err.message; }
+}
+
+/* ---------- UI wiring ---------- */
+const fmt={spacing:v=>`${v} mm`,anchor:v=>`${(+v).toFixed(2)} m`,shell:v=>`${v} mm`,gDrop:v=>`${v}%`,gSlip:v=>`${v}%`,gBand:v=>`${v}%`,gNoise:v=>`${v}%`,
+  ptime:v=>`${(+v).toFixed(1)} s`,fps:v=>v,wind:v=>v,height:v=>`${(+v).toFixed(2)} m`,expo:v=>`${(+v)>0?'+':''}${(+v).toFixed(1)} EV`,grain:v=>v,echo:v=>v,echoGap:v=>`${(+v).toFixed(2)} s`,echoShift:v=>`${v} cm`,flick:v=>v,tear:v=>v,sig:v=>v};
+for(const id in fmt){ const el=$(id), o=$(id+'O'); const up=()=>{o.textContent=fmt[id](el.value)}; up(); el.addEventListener('input',up); }
+for(const id of ['spacing','anchor','shell','gDrop','gSlip','gBand','gNoise']) $(id).addEventListener('input',rebuild);
+for(const id of ['echo','echoGap','echoShift']) $(id).addEventListener('change',rebuild);
+const fx=()=>{U.uFlick.value=+$('flick').value/100; U.uTear.value=+$('tear').value/100; dirty()};
+for(const id of ['flick','tear','sig']) $(id).addEventListener('input',fx);
+function setVals(v){ for(const k in v){ $(k).value=v[k]; $(k+'O').textContent=fmt[k]($(k).value); } fx(); rebuild(); }
+$('artLook').onclick=()=>setVals({echo:2,echoGap:.45,echoShift:13,flick:25,tear:14,sig:20,gDrop:12,gSlip:8,gBand:5});
+$('cleanLook').onclick=()=>setVals({echo:0,flick:0,tear:0,sig:0,gDrop:8,gSlip:5,gBand:0});
+for(const id of ['bead','grid','fill','csrc','single','pal']) $(id).addEventListener('change',()=>{
+  $('shellRow').hidden=$('fill').value!=='shell'; $('singleRow').hidden=$('csrc').value!=='single'; rebuild(); });
+$('ptime').addEventListener('input',()=>{S.poseT=+$('ptime').value; queue()});
+$('height').addEventListener('change',()=>{ if(S.model&&!$('heightRow').hidden){S.model.norm=normFor(S.model.root,+$('height').value); queue()} });
+$('wind').addEventListener('input',()=>{U.uWind.value=+$('wind').value/100*0.012; dirty()});
+$('expo').addEventListener('input',()=>{renderer.toneMappingExposure=Math.pow(2,+$('expo').value)});
+$('fstop').onchange=dirty; $('quality').onchange=dirty;
+$('reseed').onclick=()=>{S.seed++; rebuild()};
+$('showLines').onchange=e=>{if(lineMesh)lineMesh.visible=e.target.checked;dirty()};
+$('showProps').onchange=e=>{props.visible=e.target.checked;dirty()};
+$('showGhost').onchange=e=>{ghost.visible=e.target.checked;dirty()};
+$('showNeighbour').onchange=e=>{neighbour.visible=e.target.checked;dirty()};
+$('play').onclick=()=>{S.playing=!S.playing; $('play').setAttribute('aria-pressed',S.playing); $('play').textContent=S.playing?'Pause pose':'Play pose'};
+$('copyPlan').onclick=async()=>{ const s=planJSON(); const ta=$('planOut'); ta.value=s; ta.hidden=false;
+  try{ await navigator.clipboard.writeText(s); $('copyPlan').textContent=`Copied (${(s.length/1024).toFixed(0)} KB)`; }
+  catch{ ta.focus(); ta.select(); $('copyPlan').textContent='Selected below, copy with ⌘C'; }
+  setTimeout(()=>$('copyPlan').textContent='Copy plan as JSON',2500); };
+
+/* ---------- Views ---------- */
+const VIEWS={machine:[V(.58,.6,.98),V(.06,.34,0)], hero:[V(1.25,1.08,2.05),V(.02,.74,.18)], detail:[V(.42,1.12,.62),V(.12,.98,.06)], front:[V(0,1.0,2.3),V(0,.82,.1)], side:[V(2.2,1.0,.25),V(0,.82,.1)]};
+function setView(v){ S.view=v; for(const [id,k] of [['vHero','hero'],['vFront','front'],['vSide','side'],['vDetail','detail'],['vWalk','walk'],['vMachine','machine']]) $(id).setAttribute('aria-pressed',k===v);
+  controls.enabled = v!=='walk';
+  if(VIEWS[v]){ const fr=$('heightRow').hidden&&v!=='machine'?FIG[S.fig]?.frame:null, lift=fr?fr.ty-VIEWS[v][1].y+(v==='detail'?.2:0):0, far=fr?fr.far:1;
+    controls.target.copy(VIEWS[v][1]).add(V(0,lift,0)); camera.position.copy(VIEWS[v][0]).sub(VIEWS[v][1]).multiplyScalar(far).add(controls.target); controls.update(); }
+  controls.minDistance = v==='machine'?.12:.35; $('pick').hidden = v==='machine' || $('pick').hidden; if(typeof simCard==='function') simCard(); dirty(); }
+$('vHero').onclick=()=>setView('hero'); $('vFront').onclick=()=>setView('front'); $('vSide').onclick=()=>setView('side'); $('vWalk').onclick=()=>setView('walk'); $('vDetail').onclick=()=>setView('detail'); $('vMachine').onclick=()=>{ setView('machine'); if(!sim.d) simLoad(); };
+controls.addEventListener('change',dirty);
+
+
+/* ---------- Phase 3: the stringer (machine program, USB link, simulation) ---------- */
+// 12 fixed color tubes with servo escapements; a lead-screw carriage carries the magazine under the tube it needs.
+const MACH={slots:12,pitch:.022,mag:60,tBead:.35,tSlot:.25,speed:.03,opBlock:35,opStrand:180,loadRate:1500}; // loadRate: beads/h to refill tubes by hand (rough estimate)
+const slotX=n=>(n-6.5)*MACH.pitch;
+function slotMap(D){
+  const T=totals(D), cols=[...T.counts.entries()].sort((a,c)=>c[1]-a[1]).map(e=>e[0]);
+  const order=[6,7,5,8,4,9,3,10,2,11,1,12], map=new Map(); cols.slice(0,12).forEach((ci,i)=>map.set(ci,order[i]));
+  return {map,cols,over:Math.max(0,cols.length-12),counts:T.counts};
+}
+function strandJobs(d,map){
+  const ev=[]; let cur=null, inMag=0;
+  d.blocks.forEach((bl,bi)=>{ for(const [ci,n] of bl.runs){ const slot=map.get(ci)??1;
+      for(let q=0;q<n;q++){ if(inMag>=MACH.mag){ ev.push({t:'wait',why:'MAG',block:bi}); inMag=0; }
+        if(slot!==cur){ ev.push({t:'move',slot,from:cur,block:bi}); cur=slot; } ev.push({t:'drop',slot,ci,block:bi}); inMag++; } }
+    ev.push({t:'wait',why:bi===d.blocks.length-1?'STRAND':'BLOCK',block:bi}); inMag=0; });
+  return ev;
+}
+function sfpProgram(){
+  const D=planData(), {map,over}=slotMap(D);
+  const L=['SFP1',`; Strandfall stringer program: ${S.model?S.model.name:FIG[S.fig].label}, ${D.list.length} strands`,`BEAD ${+$('bead').value}`,`MAG ${MACH.mag}`];
+  for(const [ci,slot] of [...map.entries()].sort((a,c)=>a[1]-c[1])) L.push(`SLOT ${slot} ${pname(ci)}`);
+  for(const d of D.list){
+    L.push(`STRAND ${d.id} HOLE ${d.fromLeft.toFixed(0)} ${d.fromBack.toFixed(0)} CUT ${d.cut.toFixed(0)}`);
+    let bi=0; const blk=i=>`BLOCK ${i+1} TOP ${(d.blocks[i].k0*D.bmm).toFixed(0)} STOP ${((d.blocks[i].k1+1)*D.bmm).toFixed(0)}`; L.push(blk(0));
+    let run=null; const flush=()=>{ if(run){ L.push(`D ${run[0]} ${run[1]}`); run=null; } };
+    for(const e of strandJobs(d,map)){
+      if(e.t==='drop'){ if(run&&run[0]===e.slot) run[1]++; else { flush(); run=[e.slot,1]; } }
+      else if(e.t==='wait'){ flush(); L.push(`WAIT ${e.why}`); if(e.why==='BLOCK'){ bi++; L.push(blk(bi)); } } }
+  }
+  L.push('END'); return {text:L.join('\n'),over};
+}
+function stringerTime(D){
+  const {map}=slotMap(D); let machine=0, operator=0, total=0;
+  for(const d of D.list){ let block=0, x=null;
+    for(const e of strandJobs(d,map)){
+      if(e.t==='drop') block+=MACH.tBead;
+      else if(e.t==='move'){ block+=MACH.tSlot+(x===null?0:Math.abs(slotX(e.slot)-x)/MACH.speed); x=slotX(e.slot); }
+      else { machine+=block; operator+=MACH.opBlock; total+=Math.max(block,MACH.opBlock); block=0; } }
+    operator+=MACH.opStrand; total+=MACH.opStrand; }
+  const load=D.list.reduce((t,d)=>t+d.beads,0)/MACH.loadRate*3600; operator+=load; total+=load;
+  return {machine:machine/3600,operator:operator/3600,total:total/3600,load:load/3600};
+}
+function renderStringer(D,T){
+  const {map,cols,over}=slotMap(D), st=stringerTime(D), byHand=T.hours;
+  $('stNote').innerHTML=over
+    ? `This piece uses ${cols.length} bead colors (counting clear filler), but the machine has 12 tubes. Set Palette to <b>Best 11</b> so it fits.`
+    : `Load each tube with the color below (tube 1 is on the left). Busy colors sit in the middle so the carriage travels less. Each tube holds about ${MACH.mag} beads, so the busy ones need refilling as you go. Your hands are the bottleneck, not the machine: fewer blocks (less dropout glitch) and longer tubes save the most time.`;
+  $('stKpis').innerHTML=[
+    ['Finished in',`${st.total.toFixed(0)} h`,`vs about ${byHand.toFixed(0)} h by hand`],
+    ['Machine running',`${st.machine.toFixed(0)} h`,`${MACH.tBead} s a bead, while you work`],
+    ['Your hands-on time',`${st.operator.toFixed(0)} h`,`${MACH.opBlock} s a block, ${MACH.opStrand/60} min a strand, ${st.load.toFixed(0)} h refilling tubes`],
+    ['Magazine swaps',fmtN(D.list.reduce((t,d)=>t+strandJobs(d,map).filter(e=>e.t==='wait').length,0)),'one beep each']
+  ].map(([k,v,e])=>`<div><small>${k}</small><strong>${v}</strong><em>${e}</em></div>`).join('');
+  const rows=[...map.entries()].sort((a,c)=>a[1]-c[1]).map(([ci,slot])=>{const n=T.counts.get(ci)||0; return `<tr><td>Tube ${slot}</td><td><span class="chipcol" style="background:${phex(ci)}"></span>${pname(ci)}</td><td class="n">${fmtN(n)}</td><td class="n">${Math.ceil(n/MACH.mag)}</td></tr>`});
+  $('slotTable').innerHTML=`<thead><tr><th>Tube</th><th>Color</th><th style="text-align:right">Beads</th><th style="text-align:right">Tube loads</th></tr></thead><tbody>${rows.join('')}</tbody>`;
+}
+/* USB (Web Serial): works in Chrome/Edge when the page is opened from your own computer */
+const SER={abort:false};
+const stStatus=t=>{ $('stStatus').textContent=t; };
+async function runSerial(){
+  const prog=sfpProgram(); if(prog.over){ stStatus('Too many colors for 12 tubes. Set Palette to Best 11 first.'); return; }
+  if(!('serial' in navigator)){ stStatus('USB needs Chrome or Edge, and it doesn\'t work inside the Claude artifact viewer. Copy the program and run it with the sender script instead.'); return; }
+  let port;
+  try{ port=await navigator.serial.requestPort(); await port.open({baudRate:115200}); }
+  catch(e){ stStatus('USB: '+(e.message||e)); return; }
+  const enc=new TextEncoder(), writer=port.writable.getWriter(), reader=port.readable.pipeThrough(new TextDecoderStream()).getReader();
+  let buf=''; const nextLine=async()=>{ for(;;){ const i=buf.indexOf('\n'); if(i>=0){ const l=buf.slice(0,i).trim(); buf=buf.slice(i+1); if(l) return l; continue; }
+      const {value,done}=await reader.read(); if(done) throw new Error('the machine disconnected'); buf+=value; } };
+  await new Promise(r=>setTimeout(r,2000));   // the Arduino resets when the port opens
+  const lines=['HOME',...prog.text.split('\n').filter(l=>l.trim()&&!l.startsWith(';'))];
+  SER.abort=false; $('stAbort').hidden=false; $('stRun').disabled=true;
+  try{
+    for(let i=0;i<lines.length;i++){
+      if(SER.abort){ await writer.write(enc.encode('ABORT\n')); stStatus('Stopped. The machine has been told to abort.'); break; }
+      await writer.write(enc.encode(lines[i]+'\n'));
+      for(;;){ const r=await nextLine(); if(r==='ok') break;
+        if(r.startsWith('error')){ const code=parseInt(r.slice(6)); if([3,6,7].includes(code)) stStatus(`The machine paused: ${r}. Clear it, then press GO on the machine.`); else throw new Error(`the machine rejected "${lines[i]}": ${r}`); }
+        else if(r.startsWith('warn')) stStatus(`Machine warning: ${r}`); }
+      if(lines[i].startsWith('WAIT')) stStatus(`Waiting for you (${lines[i].slice(5).toLowerCase()} done). Swap the magazine and press GO.`);
+      else stStatus(`Line ${i+1} of ${lines.length}: ${lines[i]}`);
+    }
+  }catch(e){ stStatus('USB: '+(e.message||e)); }
+  finally{ reader.releaseLock(); writer.releaseLock(); await port.close().catch(()=>{}); $('stAbort').hidden=true; $('stRun').disabled=false; }
+}
+
+/* Machine model for the simulation (its own scene, same renderer and photo pipeline) */
+const MS=(()=>{
+  const sc=new THREE.Scene(); sc.background=new THREE.Color('#d8d5ce');
+  sc.add(new THREE.HemisphereLight('#f4f2ec','#7a6448',.7));
+  const key=new THREE.DirectionalLight('#fff3e2',2.4); key.position.set(-.7,1.5,1.0); key.castShadow=true; key.shadow.mapSize.set(2048,2048);
+  Object.assign(key.shadow.camera,{left:-.6,right:.6,top:.7,bottom:-.4,near:.2,far:4}); key.shadow.bias=-.0002; key.shadow.normalBias=.0008; sc.add(key);
+  const alu=new THREE.MeshStandardMaterial({color:'#c3c7ca',metalness:.85,roughness:.32});
+  const black=new THREE.MeshStandardMaterial({color:'#1f2123',metalness:.3,roughness:.45});
+  const servoBlue=new THREE.MeshStandardMaterial({color:'#2d5db0',roughness:.5});
+  const pcbBlue=new THREE.MeshStandardMaterial({color:'#1c6aa0',roughness:.55});
+  const pcbTeal=new THREE.MeshStandardMaterial({color:'#0f7c84',roughness:.55});
+  const brass=new THREE.MeshStandardMaterial({color:'#c7a35a',metalness:.9,roughness:.28});
+  const white=new THREE.MeshStandardMaterial({color:'#f1efe9',roughness:.45});
+  const acrylic=new THREE.MeshPhysicalMaterial({color:'#ffffff',roughness:.04,transparent:true,opacity:.09,clearcoat:1,depthWrite:false,side:THREE.DoubleSide});
+  const tableMat=pbr('oak_veneer_01',2,1.2,{color:'#ecd6b4'});
+  const table=new THREE.Mesh(new THREE.BoxGeometry(1.6,.04,.9),tableMat); table.position.y=-.02; table.receiveShadow=true; sc.add(table);
+  const box=(mat,w,h,d,x,y,z,parent=sc)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);m.castShadow=m.receiveShadow=true;parent.add(m);return m};
+  // 2020 extrusion frame
+  for(const x of[-.2,.2]){ box(alu,.02,.78,.02,x,.39,-.06); box(alu,.02,.02,.2,x,.01,.02); }
+  box(alu,.42,.02,.02,0,.77,-.06); box(alu,.42,.02,.02,0,.01,-.06); box(alu,.42,.02,.02,0,.01,.11);
+  // drilled tube holder strips
+  box(white,.38,.006,.035,0,.712,0); box(white,.38,.01,.035,0,.452,0);
+  for(const x of[-.19,.19]){ box(alu,.02,.02,.06,x,.712,-.03); box(alu,.02,.02,.06,x,.452,-.03); }
+  const tubeTop=.73, tubeBot=.432, horns=[];
+  for(let n=1;n<=12;n++){ const x=slotX(n);
+    const t=new THREE.Mesh(new THREE.CylinderGeometry(.0048,.0048,tubeTop-tubeBot,20,1,true),acrylic); t.position.set(x,(tubeTop+tubeBot)/2,0); t.renderOrder=3; sc.add(t);
+    box(servoBlue,.012,.023,.023,x,.442,-.024);
+    const horn=new THREE.Group(); horn.position.set(x,.436,-.011); sc.add(horn);
+    box(white,.003,.002,.014,0,0,.004,horn); box(brass,.0012,.012,.0012,0,.002,.011,horn); }
+  // linear axis: rail, NEMA17 with T8 lead screw, V-wheel carriage
+  box(alu,.44,.02,.02,0,.04,-.04);
+  const motor=box(black,.042,.042,.042,-.245,.04,-.04); box(alu,.006,.042,.042,-.221,.04,-.04);
+  const screw=new THREE.Mesh(new THREE.CylinderGeometry(.004,.004,.42,12),brass); screw.rotation.z=Math.PI/2; screw.position.set(-.01,.04,-.04); screw.castShadow=true; sc.add(screw);
+  const car=new THREE.Group(); sc.add(car);
+  box(alu,.06,.05,.006,0,.06,-.026,car); box(black,.02,.014,.02,0,.04,-.04,car);
+  for(const dx of[-.022,.022]) for(const dy of[.04,.08]){ const w=new THREE.Mesh(new THREE.CylinderGeometry(.0065,.0065,.006,16),black); w.rotation.x=Math.PI/2; w.position.set(dx,dy,-.031); car.add(w); }
+  box(alu,.016,.32,.008,0,.25,-.012,car);                                  // magazine spine
+  const mag=new THREE.Mesh(new THREE.CylinderGeometry(.0048,.0048,.31,20,1,true),acrylic); mag.position.set(0,.255,0); mag.renderOrder=3; car.add(mag);
+  const funnel=new THREE.Mesh(new THREE.CylinderGeometry(.009,.0048,.012,20,1,true),acrylic); funnel.position.set(0,.417,0); funnel.renderOrder=3; car.add(funnel);
+  box(black,.006,.008,.008,-.009,.404,0,car); box(black,.006,.008,.008,.009,.404,0,car);   // IR break-beam pair
+  // electronics on the table
+  box(pcbTeal,.069,.003,.053,.34,.0015,.12); box(alu,.012,.008,.01,.31,.007,.12);         // Arduino
+  box(pcbBlue,.062,.003,.025,.34,.0015,.03); for(let i=0;i<12;i++) box(black,.0025,.008,.0025,.315+i*.005,.006,.04);  // PCA9685
+  box(black,.016,.003,.021,.34,.0015,-.03);                                                 // TMC2209
+  box(alu,.11,.035,.06,.36,.0175,-.14);                                                    // 12 V supply
+  // beads
+  const bg=beadGeometry(.005,12), bm=new THREE.MeshPhysicalMaterial({roughness:.3,clearcoat:.55,clearcoatRoughness:.3});
+  const beads=new THREE.InstancedMesh(bg,bm,12*MACH.mag+MACH.mag+2); beads.castShadow=beads.receiveShadow=true; beads.frustumCulled=false; beads.setColorAt(0,new THREE.Color()); sc.add(beads);
+  return {sc,car,horns,beads,tubeBot,magBot:.1,magTop:.41};
+})();
+const sim={ev:[],i:0,t:0,x:slotX(6),fill:new Array(13).fill(52),mag:[],run:false,speed:1,d:null,map:new Map(),cur:null,phase:0};
+const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+function simLoad(d){
+  const D=planData(); if(!D) return; d=d||D.list[D.byKey.get(selKey)]||D.list.reduce((a,c)=>c.beads>a.beads?c:a);
+  const {map}=slotMap(D); sim.map=map; sim.d=d; sim.ev=strandJobs(d,map); sim.i=0; sim.t=0; sim.mag=[]; sim.run=true; sim.cur=null; sim.x=slotX(6);
+  for(let n=1;n<=12;n++) sim.fill[n]=40+((n*7)%13); simDraw(); simCard();
+}
+function evDur(e){ return e.t==='drop'?MACH.tBead : e.t==='move'?MACH.tSlot+Math.abs(slotX(e.slot)-(e.x0??sim.x))/MACH.speed : 1.8; }
+function simStep(dt){
+  if(!sim.run) return; sim.t+=dt*sim.speed;
+  for(;;){ const e=sim.ev[sim.i]; if(!e){ sim.run=false; sim.cur=null; break; }
+    if(e.t==='move'&&e.x0===undefined) e.x0=sim.x;
+    const dur=evDur(e); if(sim.t<dur){ sim.cur=e; sim.phase=sim.t/dur; break; }
+    sim.t-=dur;
+    if(e.t==='move') sim.x=slotX(e.slot);
+    else if(e.t==='drop'){ sim.mag.push(e.ci); sim.fill[e.slot]--; if(sim.fill[e.slot]<=0) sim.fill[e.slot]=MACH.mag; }
+    else sim.mag=[];
+    sim.i++; }
+  simDraw(); simCard();
+}
+function simDraw(){
+  const {beads,car,horns,tubeBot,magBot}=MS, b=.005, m=new THREE.Matrix4(), e=sim.cur, p=sim.phase;
+  let carX=sim.x; if(e&&e.t==='move') carX=e.x0+(slotX(e.slot)-e.x0)*ease(Math.min(1,p*1.15));
+  car.position.x=carX;
+  const slotCi=new Map([...sim.map.entries()].map(([ci,s])=>[s,ci])); let w=0;
+  for(let n=1;n<=12;n++){ const ci=slotCi.get(n); if(ci===undefined) continue;
+    let cnt=sim.fill[n]; if(e&&e.t==='drop'&&e.slot===n&&p>.3) cnt--;
+    for(let k=0;k<cnt;k++){ m.makeTranslation(slotX(n),tubeBot+(k+.5)*b,0); beads.setMatrixAt(w,m); beads.setColorAt(w,new THREE.Color(phex(ci))); w++; } }
+  let lift=0; if(e&&e.t==='wait') lift=ease(Math.min(1,p*1.4))*.36;
+  sim.mag.forEach((ci,k)=>{ m.makeTranslation(carX,magBot+(k+.5)*b+lift,0); beads.setMatrixAt(w,m); beads.setColorAt(w,new THREE.Color(phex(ci))); w++; });
+  if(e&&e.t==='drop'&&p>.3){ const y0=tubeBot-b*.5, y1=magBot+(sim.mag.length+.5)*b, f=Math.min(1,(p-.3)/.45);
+    m.makeTranslation(carX,y0-(y0-y1)*f*f,0); beads.setMatrixAt(w,m); beads.setColorAt(w,new THREE.Color(phex(e.ci))); w++; }
+  beads.count=w; beads.instanceMatrix.needsUpdate=true; beads.instanceColor.needsUpdate=true;
+  horns.forEach((h,i)=>{ h.rotation.y = (e&&e.t==='drop'&&e.slot===i+1) ? Math.sin(Math.min(1,p/.6)*Math.PI)*.9 : 0; });
+}
+function simCard(){
+  const c=$('simCard'); if(S.view!=='machine'){ c.hidden=true; return; } c.hidden=false; const d=sim.d; if(!d){ c.innerHTML='Open the build plan first.'; return; }
+  const drops=sim.ev.filter(x=>x.t==='drop').length, done=sim.ev.slice(0,sim.i).filter(x=>x.t==='drop').length, e=sim.cur;
+  const what=!sim.run?'Strand done. The beads are ready to go on the line.':!e?'':e.t==='move'?`Moving to tube ${e.slot} (${pname([...sim.map.entries()].find(([,s])=>s===e.slot)?.[0]??0)})`:e.t==='drop'?`Releasing one ${pname(e.ci)} bead from tube ${e.slot}`:e.why==='MAG'?'Magazine full: beep, you swap it':`Block ${e.block+1} done: beep, you lift out the magazine and press GO`;
+  c.innerHTML=`<div><b>${d.id}</b> · block ${Math.min((e?.block??d.blocks.length-1)+1,d.blocks.length)} of ${d.blocks.length} · bead ${done} of ${drops}</div><div>${what}</div>
+    <div class="seg"><button data-sp="1" aria-pressed="${sim.speed===1}">1×</button><button data-sp="4" aria-pressed="${sim.speed===4}">4×</button><button data-sp="16" aria-pressed="${sim.speed===16}">16×</button><button id="simReplay">Replay</button><button id="simNext">Next strand</button></div>`;
+  c.querySelectorAll('[data-sp]').forEach(bt=>bt.onclick=()=>{sim.speed=+bt.dataset.sp; simCard();});
+  $('simReplay').onclick=()=>simLoad(sim.d);
+  $('simNext').onclick=()=>{ const D=planData(); const i=D.byKey.get(sim.d.key); const nd=D.list[(i+1)%D.list.length]; selKey=nd.key; simLoad(nd); };
+}
+$('stSim').onclick=()=>{ closePlan(); setView('machine'); simLoad(); };
+$('stCopy').onclick=()=>{ const pr=sfpProgram(); copyOut(pr.text,$('stCopy'),'Copy machine program'); };
+$('stRun').onclick=runSerial; $('stAbort').onclick=()=>{ SER.abort=true; };
+
+/* ---------- Loop ---------- */
+const clock=new THREE.Clock(); let since=0, walkT=0;
+function frame(){
+  requestAnimationFrame(frame);
+  const dt=Math.min(clock.getDelta(),.1); U.uTime.value+=dt;
+  if(S.playing){ const dur=+$('ptime').max; S.poseT=(S.poseT+dt)%dur; since+=dt;
+    if(since>=1/+$('fps').value){ since=0; $('ptime').value=S.poseT; $('ptimeO').textContent=fmt.ptime(S.poseT); try{full()}catch(e){console.error(e)} } }
+  const walking=S.view==='walk';
+  if(walking){ walkT+=dt; const x=Math.sin(walkT*.2)*1.9; camera.position.set(x,1.4+Math.sin(walkT*3.4)*.01,1.9); controls.target.set(0,FIG[S.fig]?.frame?.ty??.8,.1); camera.lookAt(controls.target); }
+  else controls.update();
+  if(S.view==='machine') simStep(dt);
+  if(!$('planView').hidden) return;
+  const photo=$('quality').value==='photo';
+  const live = walking || (S.view==='machine'&&sim.run) || U.uWind.value>0 || S.playing || U.uFlick.value>0 || U.uTear.value>0 || +$('sig').value>0;
+  const limit = photo ? maxSamples : 1;
+  if(samples<limit || live){
+    const jitter = photo && (samples>0 || live);
+    renderSample(jitter, samples + (live?Math.floor(U.uTime.value*60):0));
+    const floor = walking?.3 : S.view==='machine'&&sim.run?.5 : live?.15 : 0;
+    accumulate(samples===0?1:Math.max(1/(samples+1),floor)); samples++;
+    $('tSamples').innerHTML = photo ? (live?'<b>live</b>':(samples<limit?`refining <b>${samples}</b>/${limit}`:`<b>photo</b> ${limit} samples`)) : 'draft';
+  }
+  outQuad.material.uniforms.uSeed.value = live||samples<limit ? (U.uTime.value%10) : outQuad.material.uniforms.uSeed.value;
+  present();
+}
+manager.onLoad=()=>{ captureEnv(); dirty(); };
+resize(); captureEnv(); setView('hero'); setFigure('hand'); if(location.hash==='#afterimage') $('artLook').click(); frame();
+</script>
+
+</body>
+</html>

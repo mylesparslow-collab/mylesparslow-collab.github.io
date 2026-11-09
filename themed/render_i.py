@@ -192,8 +192,8 @@ d_w = P(470, CY)
 d_end = along(d_w, 'SW', 200)
 d_bend = along(HUB_NE, 'SE', (D_low - HUB_NE[1]) / S2)
 ROUTE['design'] = [d_end, d_w, P(CX, CY)]
-PINS['design'] = {0: d_end, 3: P(CX - 150, CY)}
-SIDES['design'] = ['SE', 'SE', 'SE', 'S']
+PINS['design'] = {0: d_end, 4: P(CX - 150, CY)}
+SIDES['design'] = ['SE', 'SE', 'SE', 'SE', 'S']
 
 # The one geographic flourish: a river through the empty middle, never under a label.
 RIVER_W = 15
