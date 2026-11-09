@@ -1,0 +1,1004 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SNF Deal Desk</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap">
+<style>
+/* Layout: legal-workspace shell. Quiet sidebar of deals, deal page opens on its checklist; monochrome with status-only color. */
+:root{
+  --bg:#FFFFFF; --side:#F6F5F2; --ink:#121214; --muted:#6A6A70; --line:#E6E4DF; --hover:#EFEEEA; --field:#FFFFFF;
+  --dark:#121214; --on-dark:#FFFFFF;
+  --red:#B42318; --red-bg:#FDECEA; --green:#16733A; --green-bg:#E7F5EC; --amber:#9A4A00; --amber-bg:#FDF1E1; --blue:#1D4ED8; --blue-bg:#E8EEFC; --grey-bg:#F1F0ED;
+  --sans:"Geist",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"Geist Mono",ui-monospace,Menlo,monospace; --serif:"Newsreader",Georgia,serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141416; --side:#1A1A1D; --ink:#EDEDEF; --muted:#9C9CA3; --line:#2B2B30; --hover:#232327; --field:#1C1C1F; --dark:#EDEDEF; --on-dark:#141416;
+  --red:#FF8F84; --red-bg:#3A1D1A; --green:#6FD495; --green-bg:#16301F; --amber:#F2B25C; --amber-bg:#352711; --blue:#93B1FF; --blue-bg:#1D2742; --grey-bg:#222226; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141416; --side:#1A1A1D; --ink:#EDEDEF; --muted:#9C9CA3; --line:#2B2B30; --hover:#232327; --field:#1C1C1F; --dark:#EDEDEF; --on-dark:#141416;
+  --red:#FF8F84; --red-bg:#3A1D1A; --green:#6FD495; --green-bg:#16301F; --amber:#F2B25C; --amber-bg:#352711; --blue:#93B1FF; --blue-bg:#1D2742; --grey-bg:#222226; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.muted{color:var(--muted)}.small{font-size:12.5px}.pad{padding:24px 0}.pad0{margin:0 0 14px}
+
+.app{display:grid;grid-template-columns:264px 1fr;min-height:100%}
+#side{background:var(--side);border-right:1px solid var(--line);padding:18px 14px;display:flex;flex-direction:column;gap:14px;position:sticky;top:0;height:100vh;overflow-y:auto}
+#main{padding:28px max(36px,env(safe-area-inset-right,0px)) 64px 36px;min-width:0;max-width:1180px}
+@media (max-width:860px){.app{grid-template-columns:1fr}#side{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}#main{padding:22px max(16px,env(safe-area-inset-right,0px)) 48px max(16px,env(safe-area-inset-left,0px))}.sidefoot{display:none}}
+
+.brand{display:flex;gap:10px;align-items:center;padding:2px 4px}
+.logo{width:30px;height:30px;border-radius:7px;background:var(--dark);color:var(--on-dark);display:grid;place-items:center;font-family:var(--serif);font-size:18px}
+.brand b{display:block;font-size:14.5px;font-weight:600}
+.brand small{display:block;color:var(--muted);font-size:11.5px}
+.side{display:grid;gap:2px}
+.navh{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:14px 6px 4px;font-weight:500}
+.nav{display:flex;justify-content:space-between;align-items:center;gap:8px;border:0;background:none;text-align:left;padding:7px 8px;border-radius:6px;width:100%;font-weight:500}
+.nav:hover{background:var(--hover)}.nav.on{background:var(--bg);box-shadow:0 0 0 1px var(--line)}
+.nav em{font-style:normal;font-size:11.5px;background:var(--dark);color:var(--on-dark);border-radius:99px;padding:0 7px;font-weight:600}
+.nav.deal{display:grid;grid-template-columns:1fr;gap:3px}
+.dn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dm{font-size:11.5px;color:var(--muted);font-weight:400;font-family:var(--mono)}
+.pb{display:block;height:3px;background:var(--line);border-radius:2px;overflow:hidden}.pb i{display:block;height:100%;background:var(--ink)}
+.none{color:var(--muted);font-size:13px;margin:4px 8px}
+.sidefoot{margin-top:auto;font-size:11.5px;color:var(--muted);line-height:1.45;padding:0 4px}
+
+.btn{border:1px solid var(--line);background:var(--bg);border-radius:7px;padding:7px 13px;font-weight:500;font-size:13.5px;white-space:nowrap}
+.btn:hover{background:var(--hover)}
+.btn.dark{background:var(--dark);color:var(--on-dark);border-color:var(--dark)}
+.btn.dark:hover{opacity:.9}
+.btn.full{width:100%;padding:9px}
+.link{border:0;background:none;padding:0;text-decoration:underline;font-size:13px}
+.danger{color:var(--red)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+.ph{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.ph > div:first-child{min-width:0}
+.eyebrow{font-size:12px;color:var(--muted);margin:0 0 4px}
+h1{font-family:var(--serif);font-weight:500;font-size:clamp(26px,3vw,34px);line-height:1.15;letter-spacing:-.01em;margin:0;text-wrap:balance}
+.sub{color:var(--muted);margin:6px 0 0;max-width:80ch}
+.h2{font-size:15px;font-weight:600;margin:34px 0 10px}
+
+.stats{display:grid;grid-template-columns:1.6fr 1fr 1fr 1.3fr;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:22px}
+.stat{padding:14px 16px;border-left:1px solid var(--line);display:grid;gap:2px;align-content:start;min-width:0}
+.stat:first-child{border-left:0}
+.stat span{font-size:12px;color:var(--muted)}
+.stat b{font-size:26px;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.2}
+.stat b i{font-style:normal;color:var(--muted);font-weight:500;font-size:18px}
+.stat b.sm{font-size:20px}
+.stat small{font-size:12.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis}
+.stat.main.bad{background:var(--red-bg)}.stat.main.bad b,.stat.main.bad small{color:var(--red)}
+.stat.main.good{background:var(--green-bg)}.stat.main.good b{color:var(--green)}
+@media (max-width:860px){.stats{grid-template-columns:1fr 1fr}.stat:nth-child(3){border-left:0}.stat:nth-child(n+3){border-top:1px solid var(--line)}}
+
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:18px;overflow-x:auto}
+.tabs button{border:0;background:none;padding:9px 12px;font-weight:500;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;display:flex;gap:7px;align-items:center}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+.tabs em,.filters em{font-style:normal;font-size:11.5px;color:var(--muted);background:var(--grey-bg);border-radius:99px;padding:0 7px;font-family:var(--mono)}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.filters button{border:1px solid var(--line);background:var(--bg);border-radius:99px;padding:4px 11px;font-size:13px;display:flex;gap:6px;align-items:center}
+.filters button[aria-pressed="true"]{background:var(--dark);color:var(--on-dark);border-color:var(--dark)}
+.filters button[aria-pressed="true"] em{background:rgba(127,127,127,.25);color:inherit}
+
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px;margin-bottom:14px}
+table.list{border-collapse:collapse;width:100%;font-size:13.5px;min-width:620px}
+table.list th{text-align:left;font-weight:500;font-size:12px;color:var(--muted);padding:9px 12px;border-bottom:1px solid var(--line);background:var(--side)}
+table.list td{padding:9px 12px;border-top:1px solid var(--line);vertical-align:top}
+table.list tbody tr:first-child td{border-top:0}
+table.list td small{display:block;color:var(--muted);font-size:12px;margin-top:1px}
+tr.click{cursor:pointer}tr.click:hover td{background:var(--hover)}
+.ck th:first-child{color:var(--ink);font-weight:600;font-size:13px}
+.ck input[type=checkbox]{width:16px;height:16px;accent-color:var(--ink);margin-top:2px}
+.tt{border:0;background:none;padding:0;text-align:left;font-weight:500}
+.tt:hover{text-decoration:underline}
+tr.isdone .tt{color:var(--muted);text-decoration:line-through}
+.who{border:1px solid transparent;background:none;border-radius:5px;padding:3px 6px;width:100%;font-size:13px}
+.who:hover,.who:focus{border-color:var(--line);background:var(--field)}
+select{border:1px solid var(--line);background:var(--field);border-radius:6px;padding:4px 6px;font-size:13px;max-width:100%}
+.exp{display:grid;gap:8px;margin-top:8px}
+.exp textarea{border:1px solid var(--line);border-radius:6px;padding:6px 8px;background:var(--field);width:100%;resize:vertical;font-size:13px}
+.due{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+.due.late{color:var(--red);font-weight:500}.due.soon{color:var(--amber)}
+.srcs{display:flex;flex-wrap:wrap;gap:5px}
+.src{font-size:11.5px;text-decoration:none;border:1px solid var(--line);border-radius:5px;padding:1px 7px;color:var(--muted);background:var(--bg);white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.src::before{content:"↗ ";}
+.src:hover{color:var(--ink);border-color:var(--muted)}
+.badge{display:inline-block;font-size:11.5px;font-weight:500;padding:1px 8px;border-radius:99px;white-space:nowrap}
+.b-req{background:var(--red-bg);color:var(--red)}.b-info{background:var(--amber-bg);color:var(--amber)}.b-rev{background:var(--blue-bg);color:var(--blue)}.b-no{background:var(--grey-bg);color:var(--muted)}.b-ok{background:var(--green-bg);color:var(--green)}
+.kind{font-size:12px;font-family:var(--mono)}.k-stat{color:var(--red)}.k-con{color:var(--blue)}.k-ag{color:var(--amber)}.k-tar{color:var(--ink);font-weight:600}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+.card{border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;gap:8px;align-content:start}
+.card.dim{opacity:.6}
+.ct{display:grid;gap:6px;justify-items:start}
+.card h3{font-size:15px;font-weight:600;margin:0}
+.card p{margin:0;color:var(--muted);font-size:13.5px}
+
+.scale{position:relative;height:74px;margin:6px 12px 20px}
+.scale .line{position:absolute;left:0;right:0;top:36px;height:2px;background:var(--line)}
+.mk{position:absolute;top:30px;width:2px;height:14px;background:var(--ink);font-style:normal}
+.mk b{position:absolute;font-size:12px;font-weight:500;white-space:nowrap;transform:translateX(-50%);top:-24px}
+.mk.today b{transform:none}
+.mk.ear{background:var(--green)}.mk.ear b{color:var(--green);top:20px}.mk.ear.bad{background:var(--red)}.mk.ear.bad b{color:var(--red)}
+.mk.out{background:var(--blue)}.mk.out b{color:var(--blue);top:20px}
+.gapband{position:absolute;top:32px;height:10px;background:var(--red-bg)}
+
+.empty{max-width:640px;padding:48px 0}
+.empty p{color:var(--muted);font-size:15px;margin:12px 0 22px}
+.what{list-style:none;padding:0;margin:34px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.what li{background:var(--bg);padding:14px 16px;color:var(--muted);font-size:13px}
+.what b{display:block;color:var(--ink);font-size:14px;margin-bottom:2px}
+@media (max-width:560px){.what{grid-template-columns:1fr}}
+
+.formgrid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:28px;align-items:start}
+@media (max-width:1060px){.formgrid{grid-template-columns:1fr}.preview{position:static!important;order:-1}}
+form{display:grid;gap:18px}
+fieldset{border:1px solid var(--line);border-radius:10px;padding:16px 18px 18px;margin:0;display:grid;gap:14px;min-width:0}
+legend{font-weight:600;padding:0 6px;font-size:14px}
+.fl{display:grid;gap:6px;font-size:13px;font-weight:500}
+.fl input:not([type=radio]),.fl select{border:1px solid var(--line);border-radius:7px;padding:8px 10px;background:var(--field);font-weight:400;font-size:14px;width:100%}
+.opt{color:var(--muted);font-weight:400}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.qgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.two,.qgrid{grid-template-columns:1fr}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;justify-self:start;background:var(--field)}
+.seg label{position:relative}
+.seg input{position:absolute;opacity:0;inset:0;cursor:pointer}
+.seg span{display:block;padding:6px 12px;font-weight:400;font-size:13px;border-left:1px solid var(--line)}
+.seg label:first-child span{border-left:0}
+.seg input:checked + span{background:var(--dark);color:var(--on-dark)}
+.seg input:focus-visible + span{outline:2px solid var(--blue);outline-offset:-2px}
+.fac{border-top:1px dashed var(--line);padding-top:14px;display:grid;gap:12px}
+.fac:first-of-type{border-top:0;padding-top:0}
+.preview{position:sticky;top:20px;border:1px solid var(--line);border-radius:10px;padding:16px 18px;background:var(--side)}
+.preview h3{font-family:var(--serif);font-weight:500;font-size:21px;margin:0 0 6px;line-height:1.2}
+.pv-date{margin:0 0 12px;font-size:13.5px}.pv-date.bad{color:var(--red)}
+.pv{list-style:none;padding:0;margin:0 0 12px;display:grid;gap:7px}
+.pv li{display:grid;grid-template-columns:86px 1fr;gap:8px;align-items:start;font-size:13px}
+.pv .badge{justify-self:start}
+
+.docgrid{display:grid;grid-template-columns:320px minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:1240px){.docgrid{grid-template-columns:1fr}}
+.docgrid > section{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;min-width:0}
+.drop{display:grid;gap:4px;place-items:center;text-align:center;border:1.5px dashed var(--line);border-radius:10px;padding:26px 16px;cursor:pointer;background:var(--side)}
+.drop:hover,.drop.over{border-color:var(--ink)}
+.drop input{position:absolute;width:1px;height:1px;opacity:0}
+.drop span{font-size:12.5px;color:var(--muted)}
+.doclist{list-style:none;margin:0;padding:0;border:1px solid var(--line);border-radius:10px}
+.doclist li{display:flex;gap:10px;align-items:center;padding:9px 12px;border-top:1px solid var(--line)}
+.doclist li:first-child{border-top:0}
+.dl{flex:1;min-width:0;border:0;background:none;text-align:left;padding:0}
+.dl b{display:block;font-weight:500;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dl small{color:var(--muted);font-size:12px}
+.dl:hover b{text-decoration:underline}
+.note{font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
+.note ul{margin:6px 0 10px;padding-left:18px}
+.note b{color:var(--ink);font-weight:500}
+.emptyf{border:1px solid var(--line);border-radius:10px;padding:28px}
+.emptyf h3,.fhead h3{margin:0;font-family:var(--serif);font-weight:500;font-size:22px}
+.fhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.finding{border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;gap:8px}
+.fh{display:flex;gap:8px;align-items:center}
+.cat{font-size:12px;color:var(--muted)}
+.finding h4{margin:0;font-size:15px;font-weight:600}
+.finding p{margin:0;font-size:13.5px;color:var(--muted)}
+.quotes{display:grid;gap:6px}
+.q{display:grid;gap:4px;text-align:left;border:0;border-left:2px solid var(--line);background:var(--side);padding:8px 12px;border-radius:0 6px 6px 0;font-family:var(--serif);font-size:15px;line-height:1.5}
+.q:hover{border-left-color:var(--ink)}
+.q mark{background:var(--amber-bg);color:var(--ink);padding:0 2px}
+.q cite{font-family:var(--sans);font-style:normal;font-size:11.5px;color:var(--muted)}
+.btn.small{padding:4px 10px;font-size:12.5px}
+#viewer{position:fixed;inset:0;z-index:8}
+.vbg{position:absolute;inset:0;background:rgba(0,0,0,.35)}
+.vpanel{position:absolute;top:0;right:0;bottom:0;width:min(720px,100%);background:var(--bg);border-left:1px solid var(--line);display:grid;grid-template-rows:auto 1fr}
+.vpanel header{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:calc(12px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 12px 16px;border-bottom:1px solid var(--line)}
+.vpanel header b{display:block;font-weight:600}.vpanel header small{color:var(--muted);font-size:12px}
+.vtext{margin:0;overflow:auto;padding:20px 24px 48px;white-space:pre-wrap;font-family:var(--serif);font-size:15.5px;line-height:1.6}
+.vtext mark{background:var(--amber-bg);color:var(--ink);outline:2px solid var(--amber);border-radius:2px}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--dark);color:var(--on-dark);padding:9px 16px;border-radius:8px;font-size:13.5px;z-index:9}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+<div class="app"><aside id="side"></aside><main id="main"></main></div>
+<div id="toast" role="status" hidden></div>
+<div id="viewer" hidden></div>
+<script>
+/* SNF deal rules engine. Deterministic: answers in, filings / dates / tasks / requests out.
+   Every output carries a source. Rules reflect the public sources in the Oct 29, 2026 research memo
+   and must be verified by counsel before reliance. */
+(function(global){
+const P=s=>{const[y,m,d]=s.split('-').map(Number);return new Date(Date.UTC(y,m-1,d))};
+const F=dt=>dt.toISOString().slice(0,10);
+const addDays=(s,n)=>F(new Date(P(s).getTime()+n*864e5));
+const diff=(a,b)=>Math.round((P(b)-P(a))/864e5);
+const maxD=(...ds)=>ds.filter(Boolean).sort((a,b)=>P(b)-P(a))[0];
+
+const SRC={
+  afl:{t:'CDPH AFL 23-17 (AB 1502 prior approval)',u:'https://www.cdph.ca.gov/Programs/CHCQ/LCP/Pages/AFL-23-17.aspx'},
+  n9167:{t:'CDPH 9167 Current Licensee Notice',u:'https://www.cdph.ca.gov/CDPH%20Document%20Library/ControlledForms/cdph9167.pdf'},
+  chow:{t:'CDPH SNF change of ownership packet',u:'https://www.cdph.ca.gov/Programs/CHCQ/LCP/Pages/AppPacket/SNF-CHOW.aspx'},
+  chowck:{t:'CDPH SNF CHOW provider checklist',u:'https://www.cdph.ca.gov/Programs/CHCQ/LCP/Pages/SNF-CHOW-Provider-Checklist.aspx'},
+  chio:{t:'CDPH SNF change of indirect ownership checklist',u:'https://www.cdph.ca.gov/Programs/CHCQ/LCP/Pages/SNF-CHIO-Provider-Checklist.aspx'},
+  cfr489:{t:'42 CFR 489.18 (Medicare CHOW)',u:'https://www.ecfr.gov/current/title-42/chapter-IV/subchapter-G/part-489/subpart-A/section-489.18'},
+  cfr516:{t:'42 CFR 424.516 (reporting changes)',u:'https://www.ecfr.gov/current/title-42/chapter-IV/subchapter-B/part-424/subpart-P/section-424.516'},
+  cmsatt:{t:'CMS SNF attachment guidance, Feb 24 2026',u:'https://www.cms.gov/files/document/guidance-snf-attachment-855a.pdf'},
+  cmsdata:{t:'CMS SNF CHOW data guidance v1.3',u:'https://data.cms.gov/sites/default/files/2026-07/SNF_CHOW_Data_Guidance.pdf'},
+  dhcs:{t:'DHCS provider enrollment options',u:'https://www.dhcs.ca.gov/providers-partners/provider-enrollment-options/'},
+  ohca:{t:'HCAI OHCA notice rules (amended Nov 2, 2026)',u:'https://hcai.ca.gov/affordability/ohca/assess-market-consolidation/mcn-cmir-faqs/'},
+  hud:{t:'HUD Handbook 4232.1, Section III',u:'https://www.hud.gov/hudclips/handbooks/housing-4232-1'},
+  ag:{t:'CA Attorney General nonprofit health facility review',u:'https://www.oag.ca.gov/charities/nonprofithosp'},
+  oig:{t:'HHS-OIG exclusions (LEIE)',u:'https://www.oig.hhs.gov/exclusions/'},
+  chf:{t:'CDPH Cal Health Find',u:'https://www.cdph.ca.gov/Programs/CHCQ/LCP/CalHealthFind/pages/home.aspx'},
+  hcai:{t:'HCAI long-term care financial data',u:'https://hcai.ca.gov/data/cost-transparency/long-term-care-facility-financial-data/'},
+  pdc:{t:'CMS nursing home Provider Data Catalog',u:'https://data.cms.gov/provider-data/topics/nursing-homes'},
+  rule17:{t:'CA Rule of Professional Conduct 1.7',u:'https://www.calbar.ca.gov/legal-professionals/rules/rules-professional-conduct/current-rules-professional-conduct/chapter-1-lawyer-client-relationship'},
+  apa:{t:'Deal documents'}
+};
+
+const STRUCT={
+  asset:'Asset purchase: a new operator takes over',
+  equity:'Purchase of the licensee\'s stock or membership interests',
+  upstream:'Ownership change above the licensee (parent company)',
+  mgmt:'New management company only',
+  realestate:'Real estate only: operator stays the same'
+};
+const ENTITY={corp:'Corporation',llc:'LLC',partnership:'Partnership',nonprofit:'Nonprofit corporation',unk:'Not sure yet'};
+
+function blankDeal(today){return{
+  id:'d'+Math.random().toString(36).slice(2,9),name:'',client:'',side:'buyer',structure:'asset',entity:'llc',
+  target:addDays(today,150),outside:'',mgmt:'no',assign:'undecided',ohca:'unk',
+  facilities:[blankFacility()],tasks:{},docs:[],created:today,updated:today}}
+function blankFacility(){return{id:'f'+Math.random().toString(36).slice(2,9),name:'',city:'',beds:'',licensee:'',medi:'yes',nonprofit:'no',hud:'no',leased:'no',app:'none',appDate:''}}
+
+function analyze(d,today){
+  const facs=d.facilities.filter(f=>f.name.trim()||d.facilities.length===1);
+  const S=d.structure, T=d.target, any=k=>v=>facs.some(f=>f[k]===v);
+  const R=[],D=[],K=[],Q=[];
+  const reg=(id,name,status,why,src,extra={})=>R.push({id,name,status,why,src,...extra});
+  const date=(dt,label,kind,src,extra={})=>dt&&D.push({date:dt,label,kind,src,...extra});
+  const task=(id,ws,title,due,src,extra={})=>K.push({id,ws,title,due,src,...extra});
+  const ask=(to,item,why)=>Q.push({to,item,why});
+  const seller=d.side==='seller', other=seller?'buyer':'seller';
+
+  /* ---- CDPH licensing ---- */
+  const cdphReq=S!=='realestate';
+  if(S==='asset')reg('cdph','CDPH change of ownership (new license)','req','California SNF licenses can\'t be transferred. The new operator applies for its own license, and AB 1502 requires CDPH approval before closing.',[SRC.chow,SRC.afl]);
+  else if(S==='equity'||S==='upstream')reg('cdph','CDPH approval of ownership change','req','AB 1502 requires prior CDPH approval for direct and indirect ownership changes of the licensee, including stock and membership transfers.',[SRC.afl,SRC.chio]);
+  else if(S==='mgmt')reg('cdph','CDPH approval of new management company','req','AB 1502 requires prior approval for management changes, including arrangements that hand over operating responsibility. Calling it "interim" doesn\'t avoid review.',[SRC.afl]);
+  else reg('cdph','CDPH approval','review','AB 1502 can reach changes in property ownership. Confirm whether this transaction is covered.',[SRC.afl]);
+  if(S!=='mgmt'&&S!=='realestate'&&d.mgmt==='yes')reg('cdph-mgmt','CDPH approval of new management company','req','A new manager is coming in alongside the ownership change. Its authority can\'t start before approval.',[SRC.afl]);
+  if(S!=='mgmt'&&S!=='realestate'&&d.mgmt==='unk')reg('cdph-mgmt','CDPH approval of new management company','info','Tell us whether a management company is involved.',[SRC.afl]);
+  if(S==='asset'||S==='equity')reg('notice','Current licensee notice to CDPH','req','The current licensee gives CDPH at least 120 calendar days\' notice of the anticipated change.',[SRC.n9167]);
+  else reg('notice','Current licensee notice to CDPH','no','Only for changes of ownership of the licensee itself.',[SRC.n9167]);
+
+  /* ---- Medicare ---- */
+  if(S==='asset'){
+    reg('mcare','Medicare change of ownership (CMS-855A)','req','An asset sale is a Medicare change of ownership. The existing provider agreement is normally assigned to the buyer, with its Medicare debt.',[SRC.cfr489,SRC.cmsdata]);
+    if(d.assign==='undecided')reg('assign','Decide: take over the Medicare provider agreement?','info','Taking it over keeps billing running but carries forward Medicare debt. Refusing it puts the buyer in a new-applicant position with a likely billing gap.',[SRC.cfr489,SRC.cmsdata]);
+  } else if(S==='equity'){
+    if(d.entity==='corp')reg('mcare','Medicare: report the ownership change (CMS-855A)','req','A corporate stock transfer is not a Medicare change of ownership under 489.18, but the ownership change must be reported within 30 days.',[SRC.cfr489,SRC.cfr516]);
+    else if(d.entity==='partnership')reg('mcare','Medicare change of ownership (CMS-855A)','review','For a partnership, adding or removing partners can be a change of ownership. Confirm.',[SRC.cfr489]);
+    else reg('mcare','Medicare: CHOW or change of information (CMS-855A)','review','Depends on the licensee\'s entity type and what changes. At minimum the ownership change is reported within 30 days.',[SRC.cfr489,SRC.cfr516]);
+  } else if(S==='upstream')reg('mcare','Medicare: report the ownership change (CMS-855A)','req','Changes in ownership or control are reported within 30 days.',[SRC.cfr516]);
+  else if(S==='mgmt')reg('mcare','Medicare: report new managing organization (CMS-855A)','req','Changes in managing control are reported within 30 days.',[SRC.cfr516]);
+  else reg('mcare','Medicare filing','no','The operator and its owners don\'t change. Confirm no change in managing control.',[SRC.cfr516]);
+  if(S!=='realestate')reg('disclose','Disclose every owner and managing party to CMS','req','SNF disclosures reach all owners of an SNF LLC, managers and additional disclosable parties. Don\'t filter at 5%. The Jan 1, 2026 initiative deadline is suspended, but application requirements still apply.',[SRC.cmsatt,SRC.cfr516]);
+
+  /* ---- Medi-Cal ---- */
+  if(any('medi')('yes'))reg('medi','Medi-Cal enrollment through CDPH','req','SNFs enroll in Medi-Cal through CDPH, not PAVE. Confirm the transaction-specific instructions before filing.',[SRC.dhcs]);
+  else if(any('medi')('unk'))reg('medi','Medi-Cal enrollment','info','Tell us which facilities are Medi-Cal certified.',[SRC.dhcs]);
+  else reg('medi','Medi-Cal enrollment','no','No facility is Medi-Cal certified.',[SRC.dhcs]);
+
+  /* ---- OHCA ---- */
+  if(d.ohca==='yes')reg('ohca','OHCA material change notice (HCAI)','req','The parties meet the noticing-entity tests. File notice before closing. If HCAI opens a cost and market impact review, closing waits until 60 days after its final report.',[SRC.ohca]);
+  else if(d.ohca==='unk')reg('ohca','OHCA material change notice (HCAI)','info','Need revenue and transaction facts to run the filer tests under the regulations effective Nov 2, 2026.',[SRC.ohca]);
+  else reg('ohca','OHCA material change notice (HCAI)','no','Parties don\'t meet the noticing-entity tests (recorded by the team).',[SRC.ohca]);
+
+  /* ---- HUD, AG, landlord ---- */
+  const fn=k=>facs.filter(f=>f[k]==='yes').map(f=>f.name||'Facility');
+  if(fn('hud').length)reg('hud','HUD Section 232 approval','req',`HUD-insured loan at ${fn('hud').join(', ')}. Operator, management agent and master lease changes need HUD approval through the lender.`,[SRC.hud]);
+  else if(any('hud')('unk'))reg('hud','HUD Section 232 approval','info','Confirm whether any facility has a HUD-insured loan.',[SRC.hud]);
+  else reg('hud','HUD Section 232 approval','no','No HUD-insured financing.',[SRC.hud]);
+  if(fn('nonprofit').length)reg('ag','Attorney General consent (nonprofit seller)','req',`Nonprofit owner or operator at ${fn('nonprofit').join(', ')}. Sales of nonprofit 24-hour health facilities, including SNFs, need AG notice and consent, which may come with conditions.`,[SRC.ag]);
+  else if(any('nonprofit')('unk'))reg('ag','Attorney General consent','info','Confirm whether any seller is a nonprofit.',[SRC.ag]);
+  else reg('ag','Attorney General consent','no','No nonprofit seller.',[SRC.ag]);
+  if(fn('leased').length)reg('landlord','Landlord consent','req',`Leased real estate at ${fn('leased').join(', ')}. Check each lease's assignment and change-of-control clause.`,[SRC.apa]);
+  else if(any('leased')('unk'))reg('landlord','Landlord consent','info','Confirm which facilities are leased.',[SRC.apa]);
+
+  /* ---- dates ---- */
+  const per=facs.map(f=>{
+    let base,basis;
+    if(f.app==='complete'&&f.appDate){base=f.appDate;basis='CDPH confirmed complete'}
+    else if(f.app==='filed'&&f.appDate){base=maxD(f.appDate,today);basis='Filed, not yet confirmed complete'}
+    else{base=today;basis='Not filed: assumes a complete filing today'}
+    return{f,base,basis,earliest:cdphReq&&S!=='realestate'?addDays(base,120):today,confirmed:f.app==='complete'};
+  });
+  const latest=per.slice().sort((a,b)=>P(b.earliest)-P(a.earliest))[0];
+  const earliest=latest?latest.earliest:T;
+  const gap=T?diff(T,earliest):0;
+  if(cdphReq&&S!=='realestate')per.forEach(p=>{
+    date(addDays(T,-120),`Complete CDPH application on file${facs.length>1?' · '+(p.f.name||'Facility'):''}`,'Statutory',[SRC.afl],{warn:p.f.app!=='complete'&&P(addDays(T,-120))<P(today)?'Already passed':null,fac:p.f.id});
+  });
+  if(S==='asset'||S==='equity')date(addDays(T,-120),'Current licensee notice to CDPH','Statutory',[SRC.n9167],{warn:P(addDays(T,-120))<P(today)?'Already passed':null});
+  if(d.ohca==='yes')date(addDays(T,-90),'Target date to file OHCA notice (confirm current lead time)','Agency',[SRC.ohca]);
+  date(T,'Target closing','Target',[SRC.apa]);
+  if(d.outside)date(d.outside,'Outside date in the purchase agreement','Contract',[SRC.apa],{warn:P(earliest)>P(d.outside)?'Earliest closing is later':null});
+  if(cdphReq)date(addDays(T,10),'Tell CDPH the final transfer happened (within 10 days)','Statutory',[SRC.chow]);
+  if(S!=='realestate')date(addDays(T,30),'Report the change to CMS on the 855A (within 30 days)','Statutory',[SRC.cfr516]);
+  if(cdphReq&&S==='asset')date(addDays(earliest,120),'Latest to finish the transfer if CDPH approves on the earliest date (120 days after approval)','Statutory',[SRC.chow]);
+  D.sort((a,b)=>P(a.date)-P(b.date));
+
+  /* ---- checklist ---- */
+  const T120=addDays(T,-120);
+  // Intake
+  task('conflicts','Intake','Run conflicts on every party, owner and manager; record who the firm represents',today,[SRC.rule17]);
+  // Diligence
+  task('licenses','Diligence','Collect current licenses, bed counts and certifications for each facility',addDays(today,7),[SRC.chowck]);
+  task('survey','Diligence','Pull survey, complaint and enforcement history (Cal Health Find + CMS)',addDays(today,10),[SRC.chf,SRC.pdc]);
+  task('oig','Diligence','Screen all owners, managers and key staff against the OIG exclusion list',addDays(today,10),[SRC.oig]);
+  task('related','Diligence','Reconcile related-party relationships against the HCAI annual reports',addDays(today,21),[SRC.hcai]);
+  task('orgchart','Diligence','Build the verified ownership chart: every owner, interest class and manager',addDays(today,14),[SRC.cmsatt]);
+  if(S==='asset'&&d.assign==='accept'){task('mdebt','Diligence','Medicare debt diligence: overpayment demands, cost report settlements, appeals',addDays(today,21),[SRC.cmsdata]);}
+  if(fn('leased').length)task('leases','Diligence','Review each lease for assignment, change-of-control and consent terms',addDays(today,14),[SRC.apa]);
+  if(fn('hud').length)task('hudocs','Diligence','Collect HUD loan documents, regulatory agreement and operator lease',addDays(today,14),[SRC.hud]);
+  // Filings
+  if(cdphReq)per.forEach(p=>task('cdph-'+p.f.id,'Filings',`${S==='asset'?'CDPH change of ownership application':'CDPH AB 1502 application'}${facs.length>1?': '+(p.f.name||'Facility'):''}`,T120,S==='asset'?[SRC.chow,SRC.chowck]:[SRC.afl,SRC.chio],{fac:p.f.id}));
+  if(S==='asset'||S==='equity')task('notice','Filings','Current licensee notice to CDPH (CDPH 9167)',T120,[SRC.n9167]);
+  if(d.mgmt==='yes'&&S!=='mgmt')task('cdph-mgmt','Filings','CDPH application for the new management company',T120,[SRC.afl]);
+  if(S!=='realestate')task('855a','Filings',S==='asset'?'CMS-855A change of ownership filing for the buyer':'CMS-855A update for the ownership or control change',addDays(T,30),[SRC.cfr489,SRC.cfr516]);
+  if(R.find(r=>r.id==='medi'&&r.status==='req'))task('medi','Filings','Medi-Cal enrollment change through CDPH',T120,[SRC.dhcs]);
+  if(d.ohca==='yes')task('ohca','Filings','OHCA material change notice to HCAI',addDays(T,-90),[SRC.ohca]);
+  if(fn('hud').length)task('hud','Filings','HUD approval package through the lender (operator transfer)',addDays(T,-120),[SRC.hud]);
+  if(fn('nonprofit').length)task('ag','Filings','Attorney General notice and consent request',addDays(T,-120),[SRC.ag]);
+  if(fn('leased').length)task('landlord','Filings','Request landlord consents',addDays(T,-60),[SRC.apa]);
+  // Documents
+  task('cps','Deal documents','Make each required approval a condition to closing in the purchase agreement',addDays(today,14),[SRC.afl]);
+  if(S==='asset')task('ota','Deal documents','Operations transfer agreement: residents, staff, records, trust accounts, cost reports',addDays(today,30),[SRC.apa]);
+  if(d.mgmt!=='no')task('mgmtdate','Deal documents','Management agreement: authority starts only after CDPH approval',addDays(today,21),[SRC.afl]);
+  if(S==='asset'&&d.assign==='accept')task('indem','Deal documents','Specific indemnity and escrow for pre-closing Medicare debt',addDays(today,30),[SRC.cfr489]);
+  if(S==='asset'&&d.assign==='reject')task('gap','Deal documents','Plan for the billing gap: working capital and interim arrangements',addDays(today,30),[SRC.cmsdata]);
+  if(d.outside&&P(earliest)>P(d.outside))task('extend','Deal documents','Amend the outside date: the approvals can\'t land before it',addDays(today,14),[SRC.apa]);
+  // Closing and after
+  task('admin','Closing','Confirm a licensed administrator for each facility on day one',addDays(T,-14),[SRC.chowck]);
+  task('close','Closing','Closing: confirm every approval and consent is in hand, sign, fund',T,[SRC.apa]);
+  if(cdphReq)task('cdph10','After closing','Tell CDPH the final transfer happened',addDays(T,10),[SRC.chow]);
+  if(S!=='realestate')task('cms30','After closing','Report the change to CMS',addDays(T,30),[SRC.cfr516]);
+  task('record','After closing','Save the executed documents, approvals and filing receipts to the facility record',addDays(T,30),[SRC.apa]);
+
+  /* ---- document requests ---- */
+  const C=seller?'Client':'Client (buyer)', O=seller?'Buyer':'Seller';
+  ask(seller?O:C,'Organization chart for the buyer group, with every owner\'s interest and voting rights','Ownership disclosures to CDPH and CMS');
+  ask(seller?O:C,'Names of all owners of each new licensee LLC, however small','CMS requires every owner of an SNF LLC');
+  if(d.mgmt!=='no')ask(seller?O:C,'Draft management agreement and the manager\'s organization chart','CDPH management review; when control starts');
+  ask(seller?O:C,'Administrator name and license for each facility','Licensing');
+  ask(seller?C:O,'Current CDPH licenses and Medicare certification for each facility','Baseline for every filing');
+  ask(seller?C:O,'Last 3 years of survey reports, citations and plans of correction, with appeal status','Diligence; enforcement carries forward');
+  ask(seller?C:O,'Current management and related-party agreements','Matches HCAI related-party reporting');
+  if(S==='asset')ask(seller?C:O,'Medicare cost reports, overpayment demands and open appeals','Provider agreement assignment decision');
+  if(fn('leased').length)ask(seller?C:O,'Leases and amendments for '+fn('leased').join(', '),'Landlord consent');
+  if(fn('hud').length)ask(seller?C:O,'HUD loan documents and regulatory agreement for '+fn('hud').join(', '),'HUD approval');
+  if(fn('nonprofit').length)ask(seller?C:O,'Board resolution of the nonprofit approving the sale','Attorney General notice');
+  if(d.ohca==='unk')ask(C,'California health care revenue for the buyer group (last fiscal year)','OHCA filer test');
+
+  const counts={req:R.filter(r=>r.status==='req').length,info:R.filter(r=>r.status==='info').length,review:R.filter(r=>r.status==='review').length};
+  return{regimes:R,dates:D,tasks:K,requests:Q,per,earliest,gap,latest,counts};
+}
+global.Rules={analyze,blankDeal,blankFacility,STRUCT,ENTITY,SRC,P,F,addDays,diff};
+})(window);
+
+/* Document checks. Text is extracted in the browser and checked here; nothing leaves the machine. */
+(function(global){
+const MONTHS='January|February|March|April|May|June|July|August|September|October|November|December';
+const norm=s=>s.replace(/\s+/g,' ').trim();
+
+/* ---------- extraction ---------- */
+async function extract(file){
+  const name=file.name, ext=name.split('.').pop().toLowerCase();
+  if(ext==='pdf'){
+    if(!global.pdfjsLib)throw new Error('PDF reader still loading');
+    const pdf=await pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer()),disableWorker:true}).promise;
+    const pages=[];
+    for(let i=1;i<=pdf.numPages;i++){const c=await (await pdf.getPage(i)).getTextContent();
+      let t='',lastY=null;c.items.forEach(it=>{const y=it.transform[5];if(lastY!==null&&Math.abs(y-lastY)>2)t+='\n';t+=it.str+(it.hasEOL?'\n':'');lastY=y});pages.push(t)}
+    return{name,kind:'PDF',pages};
+  }
+  if(ext==='docx'){
+    if(!global.mammoth)throw new Error('Word reader still loading');
+    const r=await mammoth.extractRawText({arrayBuffer:await file.arrayBuffer()});return{name,kind:'Word',pages:[r.value]};
+  }
+  if(['txt','md','text'].includes(ext))return{name,kind:'Text',pages:[await file.text()]};
+  throw new Error(`${name}: use PDF, Word (.docx) or text`);
+}
+
+/* ---------- helpers ---------- */
+function snippet(text,idx,len,pad=140){
+  const a=Math.max(0,idx-pad),b=Math.min(text.length,idx+len+pad);
+  return{pre:(a>0?'…':'')+norm(text.slice(a,idx)),hit:norm(text.slice(idx,idx+len)),post:norm(text.slice(idx+len,b))+(b<text.length?'…':'')};
+}
+function each(docs,re,fn){docs.forEach(d=>d.pages.forEach((t,p)=>{re.lastIndex=0;let m;while((m=re.exec(t))){fn(d,p,t,m);if(!re.global)break}}))}
+const cite=(d,p,t,idx,len)=>({doc:d.id,docName:d.name,page:d.pages.length>1?p+1:null,pageIdx:p,idx,len,...snippet(t,idx,len)});
+const isAPA=d=>/purchase agreement/i.test(d.name)||/purchase agreement/i.test(d.pages.join(' ').slice(0,3000));
+const isMSA=d=>/management/i.test(d.name)||/management (services )?agreement/i.test(d.pages.join(' ').slice(0,3000));
+
+/* ---------- entity names ---------- */
+const SUFFIX=/,?[ \t]+(LLC|L\.L\.C\.|Inc\.?|Incorporated|Corporation|Corp\.|L\.P\.|LP|LLP|Ltd\.)(?=[\s,.;:)"']|$)/;
+const ENT_RE=new RegExp(`((?:[A-Z][A-Za-z0-9&'.-]*[ \\t]+){0,7}[A-Z][A-Za-z0-9&'.-]*)${SUFFIX.source}`,'g');
+const LEAD=new Set('the this and each by between among with to of from for name witness whereas now therefore agreement in on at as a an any such said owner new old certain all its their our sign signed title dated'.split(' '));
+const SYN=[['opco','operations','operating','operator','ops'],['holdings','holding','holdco'],['propco','property','properties','realty'],['management','mgmt','managers'],['healthcare','health care']];
+const synKey=w=>{for(const g of SYN)if(g.includes(w))return g[0];return w};
+function entities(docs){
+  const map=new Map();
+  each(docs,ENT_RE,(d,p,t,m)=>{
+    let words=m[1].split(/\s+/);while(words.length&&LEAD.has(words[0].toLowerCase().replace(/[^a-z]/g,'')))words.shift();
+    if(!words.length)return;
+    const base=words.join(' '),suf=m[2].replace(/\./g,'').toUpperCase().replace('INCORPORATED','INC').replace('CORPORATION','CORP');
+    const key=(base.toLowerCase().replace(/[^a-z0-9 ]/g,'')+' '+suf).trim();
+    const start=m.index+m[0].indexOf(words[0]);
+    if(!map.has(key))map.set(key,{key,base,suf,display:base.replace(/\b([A-Z])([A-Z]+)\b/g,(x,a,b)=>a+b.toLowerCase())+', '+(suf==='INC'?'Inc.':suf),hits:[]});
+    map.get(key).hits.push(cite(d,p,t,start,m.index+m[0].length-start));
+  });
+  return[...map.values()];
+}
+function lev(a,b){const m=a.length,n=b.length,dp=Array.from({length:m+1},(_,i)=>[i]);for(let j=1;j<=n;j++)dp[0][j]=j;for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=Math.min(dp[i-1][j]+1,dp[i][j-1]+1,dp[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return dp[m][n]}
+function nameIssues(ents){
+  const out=[],seen=new Set();
+  for(let i=0;i<ents.length;i++)for(let j=i+1;j<ents.length;j++){
+    const A=ents[i],B=ents[j],a=A.base.toLowerCase().replace(/[^a-z0-9 ]/g,''),b=B.base.toLowerCase().replace(/[^a-z0-9 ]/g,'');
+    let why=null;
+    if(a===b&&A.suf!==B.suf)why=`Same name, different entity type (${A.suf} vs ${B.suf}).`;
+    else{
+      const wa=a.split(' ').map(synKey),wb=b.split(' ').map(synKey);
+      if(a!==b&&wa.join(' ')===wb.join(' '))why='Names differ only by a word that usually means the same entity (for example Opco / Operations).';
+      else if(a!==b&&a.length>10&&lev(a,b)<=2)why='Names differ by one or two letters. Possibly a typo.';
+    }
+    if(!why)continue;
+    const k=[A.key,B.key].sort().join('|');if(seen.has(k))continue;seen.add(k);
+    const docsA=new Set(A.hits.map(h=>h.doc)),docsB=new Set(B.hits.map(h=>h.doc));
+    out.push({id:'ent:'+k,sev:'high',cat:'Names',title:`"${A.display}" vs "${B.display}"`,
+      why:`${why} If they are meant to be the same party, every document and filing must use one exact legal name.`,
+      quotes:[A.hits[0],B.hits[0]],meta:`${A.hits.length} mention${A.hits.length>1?'s':''} in ${docsA.size} doc${docsA.size>1?'s':''} · ${B.hits.length} in ${docsB.size}`});
+  }
+  return out;
+}
+
+/* ---------- missing schedules and exhibits ---------- */
+function missingAttachments(docs){
+  const refs=new Map(),heads=new Set();
+  const ref=/\b(Schedule|Exhibit|Annex|Appendix)\s+([0-9]+(?:\.[0-9]+)*(?:\([a-z0-9]+\))*|[A-Z](?:-[0-9]+)?)(?![A-Za-z])/gi;
+  each(docs,ref,(d,p,t,m)=>{
+    const lineStart=t.lastIndexOf('\n',m.index)+1,lineEnd=t.indexOf('\n',m.index),before=t.slice(lineStart,m.index).trim(),line=t.slice(lineStart,lineEnd<0?undefined:lineEnd).trim();
+    const key=(m[1]+' '+m[2]).toLowerCase();
+    if(before===''&&line.length<90)heads.add(key);
+    else if(!refs.has(key))refs.set(key,{label:m[1][0].toUpperCase()+m[1].slice(1).toLowerCase()+' '+m[2],c:cite(d,p,t,m.index,m[0].length)});
+  });
+  docs.forEach(d=>{const n=d.name.toLowerCase();refs.forEach((v,k)=>{if(n.includes(k))heads.add(k)})});
+  const miss=[...refs.entries()].filter(([k])=>!heads.has(k)).map(([,v])=>v);
+  if(!miss.length)return[];
+  return[{id:'att:'+miss.map(m=>m.label).join(','),sev:'med',cat:'Missing',title:`${miss.length} referenced attachment${miss.length>1?'s':''} not in the uploaded documents`,
+    why:`${miss.map(m=>m.label).join(', ')}. Referenced but no copy was found. That doesn't prove it doesn't exist: request it.`,quotes:miss.slice(0,3).map(m=>m.c),request:miss.map(m=>m.label)}];
+}
+
+/* ---------- control before approval ---------- */
+function earlyControl(docs){
+  const out=[];
+  docs.filter(isMSA).forEach(d=>{
+    let def=null,pow=null;
+    d.pages.forEach((t,p)=>{
+      const m=/["“]Effective Date["”]\s+(?:shall\s+)?means?\s+([^.;]{0,220})/i.exec(t);
+      if(m&&!def){const body=m[1];if(/execut|date (?:of )?this agreement|signing|first written/i.test(body)&&!/approv|licens|closing/i.test(body))def=cite(d,p,t,m.index,m[0].length)}
+      const k=/(?:hire|employ|appoint|terminate|supervise|direct)[^.;]{0,80}(?:Administrator|Director of Nursing|staff|employees)|approv\w*[^.;]{0,40}(?:budget|capital expenditure)|(?:control|manage)[^.;]{0,40}(?:bank accounts|operating accounts|cash)/i.exec(t);
+      if(k&&!pow)pow=cite(d,p,t,k.index,k[0].length);
+    });
+    if(def&&pow)out.push({id:'ctl:'+d.id,sev:'high',cat:'Control',title:`Manager gets operating control at signing (${d.name})`,
+      why:'The agreement takes effect when signed and gives the manager authority over staff, budgets or cash. California requires CDPH approval before a management change that hands over operating responsibility (AB 1502). Consider tying the effective date to CDPH approval or closing.',quotes:[def,pow],src:Rules.SRC.afl});
+  });
+  return out;
+}
+
+/* ---------- dates vs the deal ---------- */
+function parseDate(s){const m=new RegExp(`(${MONTHS})\\s+(\\d{1,2}),\\s*(\\d{4})`).exec(s);if(!m)return null;const mo=MONTHS.split('|').indexOf(m[1])+1;return `${m[3]}-${String(mo).padStart(2,'0')}-${String(m[2]).padStart(2,'0')}`}
+function dateIssues(docs,deal,fmt){
+  const out=[];
+  const re=new RegExp(`["“](Outside Date|Termination Date|End Date)["”][^.]{0,120}?((?:${MONTHS})\\s+\\d{1,2},\\s*\\d{4})`,'g');
+  each(docs.filter(isAPA),re,(d,p,t,m)=>{
+    const dt=parseDate(m[2]);if(!dt)return;
+    if(!deal.outside)out.push({id:'date:'+d.id+dt,sev:'low',cat:'Dates',title:`Agreement sets the outside date at ${fmt(dt)}`,why:'The deal record has no outside date. Add it so the timeline can check the approvals against it.',quotes:[cite(d,p,t,m.index,m[0].length)],fix:{outside:dt}});
+    else if(dt!==deal.outside)out.push({id:'date:'+d.id+dt,sev:'high',cat:'Dates',title:`Outside date doesn't match: ${fmt(dt)} in the agreement, ${fmt(deal.outside)} in the deal record`,why:'One of them is wrong. The timeline and every approval check use the deal record.',quotes:[cite(d,p,t,m.index,m[0].length)],fix:{outside:dt}});
+  });
+  return out;
+}
+
+/* ---------- conditions to closing cover the required approvals ---------- */
+function conditionGaps(docs,regimes){
+  const apas=docs.filter(isAPA);if(!apas.length)return[];
+  const text=apas.map(d=>d.pages.join('\n')).join('\n');
+  const tests={cdph:/CDPH|Department of Public Health|license (?:approval|issued)|AB 1502/i,hud:/HUD|Housing and Urban Development|Section 232/i,ag:/Attorney General/i,landlord:/landlord|lessor/i,ohca:/OHCA|Health Care Affordability|HCAI/i,medi:/Medi-Cal|DHCS/i};
+  const out=[];
+  regimes.filter(r=>r.status==='req'&&tests[r.id]).forEach(r=>{
+    if(!tests[r.id].test(text))out.push({id:'cp:'+r.id,sev:'high',cat:'Conditions',title:`Purchase agreement never mentions: ${r.name}`,why:`This deal needs it, but the purchase agreement doesn't refer to it anywhere. It should usually be a condition to closing with a covenant to pursue it.`,quotes:[],src:r.src[0],task:`Add ${r.name} as a condition to closing in the purchase agreement`});
+  });
+  return out;
+}
+
+/* ---------- blanks, signers ---------- */
+function blanks(docs){
+  const out=[];const re=/\[(?:●|•|\*|_{2,}|TBD|TBC|insert[^\]]{0,40}|bracket[^\]]{0,20}|\s*)\]|_{6,}/gi;
+  docs.forEach(d=>{const qs=[];d.pages.forEach((t,p)=>{re.lastIndex=0;let m;while((m=re.exec(t)))qs.push(cite(d,p,t,m.index,m[0].length))});
+    if(qs.length)out.push({id:'blank:'+d.id,sev:'med',cat:'Drafting',title:`${qs.length} blank${qs.length>1?'s':''} left in ${d.name}`,why:'Placeholders that still need a value before signing.',quotes:qs.slice(0,3),meta:qs.length>3?`+${qs.length-3} more`:''})});
+  return out;
+}
+function signers(docs){
+  const out=[];const re=/By:\s*(?:\/s\/)?\s*([^\n]{0,60})\n?\s*(?:Name:\s*([^\n]{0,60})\n?\s*)?Title:\s*([^\n]{2,60})/g;
+  each(docs,re,(d,p,t,m)=>{
+    const title=m[3].trim();
+    if(/\b(Chief Executive|CEO|President(?!.*Vice)|Managing Member|Manager|Sole Member|General Partner|Secretary)\b/i.test(title)&&!/vice|assistant|associate|director of/i.test(title))return;
+    out.push({id:'sig:'+d.id+':'+m.index,sev:'low',cat:'Authority',title:`Signer's authority: ${title} (${d.name})`,why:'Titles below the top officer usually need a board or member resolution or an incumbency certificate.',quotes:[cite(d,p,t,m.index,m[0].length)],request:[`Incumbency certificate or authorizing resolution for the signer on ${d.name}`]});
+  });
+  return out;
+}
+function facilityMentions(docs,deal){
+  if(!docs.length)return[];
+  const all=docs.map(d=>d.pages.join(' ')).join(' ').toLowerCase();
+  return deal.facilities.filter(f=>f.name&&!all.includes(f.name.toLowerCase())).map(f=>({id:'fac:'+f.id,sev:'low',cat:'Coverage',title:`${f.name} isn't named in any uploaded document`,why:'Either its documents haven\'t been uploaded yet, or the documents use a different name for it.',quotes:[]}));
+}
+
+function check(deal,docs,regimes,fmt){
+  if(!docs.length)return[];
+  const ents=entities(docs);
+  return[...earlyControl(docs),...nameIssues(ents),...dateIssues(docs,deal,fmt),...conditionGaps(docs,regimes),...missingAttachments(docs),...blanks(docs),...signers(docs),...facilityMentions(docs,deal)];
+}
+
+/* verify an AI quote really appears in the document */
+function locate(docs,docId,quote){
+  const d=docs.find(x=>x.id===docId);if(!d||!quote)return null;
+  const words=norm(quote).replace(/[“”"]/g,'"').split(' ').filter(Boolean);if(words.join(' ').length<12)return null;
+  const re=new RegExp(words.map(w=>w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/"/g,'["“”]')).join('\\s+'),'i');
+  for(let p=0;p<d.pages.length;p++){const m=re.exec(d.pages[p]);if(m)return cite(d,p,d.pages[p],m.index,m[0].length)}
+  return null;
+}
+global.DocCheck={extract,check,locate,entities};
+})(window);
+
+/* Fictional sample documents for the example deal. Planted issues: name mismatch, early manager control,
+   outside-date mismatch, missing AG condition, missing schedule/exhibit, blanks, VP signer. */
+window.SAMPLE_DOCS=[
+{name:'Asset Purchase Agreement (draft v3).txt',text:`ASSET PURCHASE AGREEMENT
+
+This Asset Purchase Agreement (this "Agreement") is entered into as of [●], 2026, by and among Seller Opco A, LLC, a California limited liability company, and Example Benevolent Homes, a California nonprofit public benefit corporation (each a "Seller" and together the "Sellers"), and Example Health Partners, LLC, a Delaware limited liability company ("Buyer").
+
+RECITALS
+Sellers operate the skilled nursing facilities known as Example Post-Acute (Pasadena) and Example Care Center (Fresno) (each a "Facility"). Buyer will designate Example Health Partners Opco, LLC as the proposed licensee of each Facility.
+
+ARTICLE 1. DEFINITIONS
+"Outside Date" means June 30, 2027.
+"Purchase Price" means [●] Dollars.
+
+ARTICLE 2. PURCHASE AND SALE
+2.1 Assets. Sellers shall sell the operating assets of each Facility, other than the Excluded Assets listed on Schedule 2.1(c).
+2.2 Operations Transfer. At Closing the parties shall sign an Operations Transfer Agreement in the form of Exhibit B.
+
+ARTICLE 3. REPRESENTATIONS OF SELLERS
+3.4 Licenses. Schedule 3.4 lists every license and certification held for each Facility.
+3.9 Surveys. Except as listed on Schedule 3.9, no Facility has received a Class A or Class B citation in the last three years.
+
+ARTICLE 7. CONDITIONS TO CLOSING
+7.1 Buyer's obligation to close is subject to:
+(a) issuance by the California Department of Public Health (CDPH) of a license to Buyer's designee for each Facility;
+(b) the HUD lender's written consent to the transfer of operations at Example Post-Acute;
+(c) the landlord's consent to assignment of the lease for Example Care Center;
+(d) Buyer's designee being enrolled to bill Medi-Cal through CDPH.
+
+ARTICLE 9. TERMINATION
+9.1 Either party may terminate this Agreement if Closing has not occurred by the Outside Date.
+
+IN WITNESS WHEREOF, the parties have signed this Agreement.
+
+SELLER OPCO A, LLC
+By: /s/ Daniel Whitcomb
+Name: Daniel Whitcomb
+Title: Vice President, Development
+
+EXAMPLE HEALTH PARTNERS, LLC
+By: ______________________
+Name: Priya Raman
+Title: Managing Member
+
+SCHEDULE 3.4
+Licenses and certifications: CDPH license nos. 930000001 and 930000002; Medicare and Medi-Cal certification for both Facilities.
+`},
+{name:'Management Services Agreement (draft v2).txt',text:`MANAGEMENT SERVICES AGREEMENT
+
+This Management Services Agreement is made between Example Health Partners Opco, LLC ("Operator") and Meridian Hill Healthcare Services, Inc. ("Manager").
+
+1.1 Definitions. "Effective Date" means the date this Agreement is executed by both parties.
+
+4.2 Authority of Manager. From the Effective Date, Manager shall have authority to hire, supervise and terminate the Administrator and Director of Nursing of each Facility, and to approve the annual operating budget of each Facility.
+
+4.5 Bank Accounts. Manager may control the operating accounts of each Facility.
+
+6.1 Fee. Operator shall pay Manager a monthly fee of [TBD] percent of gross revenue.
+
+MERIDIAN HILL HEALTHCARE SERVICES, INC.
+By: /s/ Alan Brooks
+Name: Alan Brooks
+Title: President
+`},
+{name:'Lease - Example Care Center (draft v4).txt',text:`LEASE AGREEMENT
+
+Landlord hereby leases the premises known as Example Care Center, Fresno, California (the "Premises") to EXAMPLE HEALTH PARTNERS OPERATIONS, LLC, a Delaware limited liability company ("Tenant").
+
+17.1 Assignment. Tenant may not assign this Lease or undergo a change of control without Landlord's prior written consent.
+
+17.4 Exhibit D. Tenant shall maintain the insurance described on Exhibit D.
+
+TENANT: EXAMPLE HEALTH PARTNERS OPERATIONS, LLC
+By: ______________________
+Name:
+Title: Authorized Signatory
+`}];
+
+/* SNF Deal Desk UI */
+const {blankDeal,blankFacility,STRUCT,ENTITY,P,addDays,diff}=Rules;
+/* rules output plus the team's own tasks and requests (added from document findings) */
+function analyze(d,today){const a=Rules.analyze(d,today);(d.custom||[]).forEach(t=>a.tasks.push(t));(d.extraReq||[]).forEach(r=>a.requests.push(r));return a}
+const TODAY=new Date().toISOString().slice(0,10);
+const KEY='snf-deal-desk.v1';
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=s=>s?P(s).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',timeZone:'UTC'}):'—';
+const fmtS=s=>s?P(s).toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'UTC'}):'—';
+
+let DB={deals:[]};
+try{DB=JSON.parse(localStorage.getItem(KEY))||DB}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(DB))}catch(e){}};
+const V={view:'home',dealId:null,tab:'checklist',filter:'open',draft:null,open:{}};
+
+const STATUS={todo:'Not started',doing:'In progress',waiting:'Waiting on others',done:'Done'};
+const REG={req:['Required','b-req'],info:['Need info','b-info'],review:['Confirm','b-rev'],no:['Not required','b-no']};
+const deal=()=>DB.deals.find(d=>d.id===V.dealId);
+const tstate=(d,id)=>d.tasks[id]||(d.tasks[id]={status:'todo',who:'',note:''});
+function progress(d){const a=analyze(d,TODAY);const n=a.tasks.length,done=a.tasks.filter(t=>tstate(d,t.id).status==='done').length;return{a,n,done}}
+function srcChips(src){return src.filter(s=>s.u).map(s=>`<a class="src" href="${s.u}" target="_blank" rel="noopener" title="${esc(s.t)}">${esc(s.t)}</a>`).join('')}
+function badge(k){const[l,c]=REG[k];return `<span class="badge ${c}">${l}</span>`}
+function due(t,d){const st=tstate(d,t.id).status;if(st==='done')return `<span class="due">${fmtS(t.due)}</span>`;const n=diff(TODAY,t.due);return `<span class="due ${n<0?'late':n<=14?'soon':''}">${n<0?`${-n}d overdue`:n===0?'Today':fmtS(t.due)}</span>`}
+
+/* ---------- shell ---------- */
+function sidebar(){
+  const soon=DB.deals.reduce((s,d)=>{const a=analyze(d,TODAY);return s+a.tasks.filter(t=>tstate(d,t.id).status!=='done'&&diff(TODAY,t.due)<=14).length},0);
+  return `<div class="brand"><span class="logo" aria-hidden="true">§</span><div><b>SNF Deal Desk</b><small>California senior care transactions</small></div></div>
+  <button class="btn dark full" data-go="new">+ New deal</button>
+  <nav class="side">
+    <button class="nav ${V.view==='home'?'on':''}" data-go="home"><span>Due soon</span>${soon?`<em>${soon}</em>`:''}</button>
+    <p class="navh">Deals</p>
+    ${DB.deals.length?DB.deals.map(d=>{const{n,done}=progress(d);return `<button class="nav deal ${V.dealId===d.id&&V.view==='deal'?'on':''}" data-deal="${d.id}"><span class="dn">${esc(d.name||'Untitled deal')}</span><span class="dm">${fmtS(d.target)} · ${done}/${n}</span><i class="pb"><i style="width:${n?done/n*100:0}%"></i></i></button>`}).join(''):'<p class="none">No deals yet.</p>'}
+  </nav>
+  <div class="sidefoot">Rules from public CDPH, CMS, DHCS, HCAI, HUD and AG sources as of Oct 29, 2026. Verify before relying. Deals are saved in this browser only.</div>`;
+}
+function render(){
+  document.getElementById('side').innerHTML=sidebar();
+  const m=document.getElementById('main');
+  if(V.view==='new'||V.view==='edit')m.innerHTML=formView();
+  else if(V.view==='deal'&&deal())m.innerHTML=dealView();
+  else m.innerHTML=homeView();
+}
+
+/* ---------- home: due soon across all deals ---------- */
+function homeView(){
+  if(!DB.deals.length)return `<div class="empty"><h1>Plan a nursing home deal in ten minutes.</h1>
+    <p>Answer plain questions about the transaction. You get every California and federal approval it needs, with the reason and source for each, a dated schedule, a working checklist, and the document request list.</p>
+    <div class="row"><button class="btn dark" data-go="new">Start a new deal</button><button class="btn" data-act="example">Open an example deal</button></div>
+    <ul class="what"><li><b>Filings</b>CDPH, Medicare, Medi-Cal, OHCA, HUD, Attorney General, landlord</li><li><b>Dates</b>120-day CDPH window, outside date, post-closing deadlines</li><li><b>Checklist</b>Owners, status and due dates, across every deal</li><li><b>Export</b>Word memo and Excel checklist</li></ul></div>`;
+  const rows=[];DB.deals.forEach(d=>{const a=analyze(d,TODAY);a.tasks.forEach(t=>{const st=tstate(d,t.id);if(st.status!=='done'&&diff(TODAY,t.due)<=14)rows.push({d,t,st})})});
+  rows.sort((x,y)=>P(x.t.due)-P(y.t.due));
+  const late=rows.filter(r=>diff(TODAY,r.t.due)<0).length;
+  return `<header class="ph"><div><p class="eyebrow">Across ${DB.deals.length} deal${DB.deals.length>1?'s':''}</p><h1>${rows.length?`${rows.length} tasks due in the next two weeks`:'Nothing due in the next two weeks'}</h1><p class="sub">${late?`${late} already overdue. `:''}Sorted by due date.</p></div></header>
+  ${rows.length?`<div class="tbl"><table class="list"><thead><tr><th style="width:110px">Due</th><th>Task</th><th>Deal</th><th style="width:140px">Owner</th></tr></thead><tbody>
+  ${rows.map(r=>`<tr class="click" data-deal="${r.d.id}"><td>${due(r.t,r.d)}</td><td>${esc(r.t.title)}<small>${esc(r.t.ws)}</small></td><td>${esc(r.d.name)}</td><td>${esc(r.st.who)||'<span class="muted">Unassigned</span>'}</td></tr>`).join('')}</tbody></table></div>`:''}
+  <h2 class="h2">All deals</h2>
+  <div class="tbl"><table class="list"><thead><tr><th>Deal</th><th>Structure</th><th>Target closing</th><th>Earliest supported</th><th>Progress</th></tr></thead><tbody>
+  ${DB.deals.map(d=>{const{a,n,done}=progress(d);return `<tr class="click" data-deal="${d.id}"><td><b>${esc(d.name)}</b><small>${esc(d.client)} · ${d.facilities.length} facilit${d.facilities.length>1?'ies':'y'}</small></td><td>${esc(STRUCT[d.structure])}</td><td>${fmt(d.target)}</td><td>${fmt(a.earliest)} ${a.gap>0?`<span class="badge b-req">${a.gap}d late</span>`:'<span class="badge b-ok">On track</span>'}</td><td>${done}/${n}</td></tr>`}).join('')}</tbody></table></div>`;
+}
+
+/* ---------- deal workspace ---------- */
+function dealView(){
+  const d=deal(),{a,n,done}=progress(d);
+  const next=a.tasks.filter(t=>tstate(d,t.id).status!=='done').sort((x,y)=>P(x.due)-P(y.due))[0];
+  const late=a.gap>0;
+  const tabs=[['checklist','Checklist',`${done}/${n}`],['filings','Filings & approvals',a.counts.req],['timeline','Timeline',a.dates.length],['requests','Document requests',a.requests.length],['documents','Document check',(d.docs||[]).length?docFindings(d,a).length:'new']];
+  return `<header class="ph">
+    <div><p class="eyebrow">${esc(d.client||'No client set')} · we represent the ${d.side}</p><h1>${esc(d.name||'Untitled deal')}</h1>
+    <p class="sub">${esc(STRUCT[d.structure])} · ${d.facilities.length} facilit${d.facilities.length>1?'ies':'y'}: ${d.facilities.map(f=>esc(f.name||'Unnamed')).join(', ')}</p></div>
+    <div class="row"><button class="btn" data-go="edit">Edit answers</button><button class="btn" data-act="word">Word memo</button><button class="btn" data-act="excel">Excel checklist</button></div>
+  </header>
+  <section class="stats">
+    <div class="stat main ${late?'bad':'good'}"><span>Earliest closing the approvals support</span><b>${fmt(a.earliest)}</b><small>${late?`${a.gap} days after the ${fmtS(d.target)} target`:`Target ${fmt(d.target)} works`} · ${esc(a.latest?a.latest.basis.toLowerCase():'')}</small></div>
+    <div class="stat"><span>Approvals required</span><b>${a.counts.req}</b><small>${a.counts.info?`${a.counts.info} need info`:'All answered'}${a.counts.review?` · ${a.counts.review} to confirm`:''}</small></div>
+    <div class="stat"><span>Checklist</span><b>${done}<i>/${n}</i></b><small>${a.tasks.filter(t=>tstate(d,t.id).status!=='done'&&diff(TODAY,t.due)<0).length} overdue</small></div>
+    <div class="stat"><span>Next due</span><b class="sm">${next?fmtS(next.due):'—'}</b><small>${next?esc(next.title):'Everything done'}</small></div>
+  </section>
+  <div class="tabs" role="tablist">${tabs.map(([k,l,c])=>`<button role="tab" data-tab="${k}" aria-selected="${V.tab===k}">${l}<em>${c}</em></button>`).join('')}</div>
+  ${({checklist,filings,timeline,requests,documents})[V.tab](d,a)}`;
+}
+function checklist(d,a){
+  const f=V.filter, keep=t=>{const s=tstate(d,t.id).status,n=diff(TODAY,t.due);return f==='all'||(f==='open'&&s!=='done')||(f==='late'&&s!=='done'&&n<0)||(f==='30'&&s!=='done'&&n<=30)||(f==='done'&&s==='done')};
+  const groups=['Intake','Diligence','Filings','Deal documents','From document check','Closing','After closing'];
+  const cnt=k=>a.tasks.filter(t=>{const s=tstate(d,t.id).status,n=diff(TODAY,t.due);return k==='all'||(k==='open'&&s!=='done')||(k==='late'&&s!=='done'&&n<0)||(k==='30'&&s!=='done'&&n<=30)||(k==='done'&&s==='done')}).length;
+  return `<div class="filters">${[['open','Open'],['late','Overdue'],['30','Due in 30 days'],['done','Done'],['all','All']].map(([k,l])=>`<button data-filter="${k}" aria-pressed="${f===k}">${l} <em>${cnt(k)}</em></button>`).join('')}</div>
+  ${groups.map(g=>{const ts=a.tasks.filter(t=>t.ws===g&&keep(t));if(!ts.length)return'';return `<div class="tbl"><table class="list ck"><thead><tr><th colspan="2">${g}</th><th style="width:118px">Due</th><th style="width:150px">Owner</th><th style="width:160px">Status</th></tr></thead><tbody>
+    ${ts.map(t=>{const st=tstate(d,t.id),k=t.id,o=V.open[k];return `<tr class="${st.status==='done'?'isdone':''}">
+      <td style="width:34px"><input type="checkbox" aria-label="Done" data-done="${k}" ${st.status==='done'?'checked':''}></td>
+      <td><button class="tt" data-toggle="${k}">${esc(t.title)}</button>${st.note&&!o?`<small>${esc(st.note)}</small>`:''}${o?`<div class="exp"><div class="srcs">${srcChips(t.src)||'<span class="muted">From the deal documents</span>'}</div><textarea data-note="${k}" placeholder="Notes" rows="2">${esc(st.note)}</textarea></div>`:''}</td>
+      <td>${due(t,d)}</td>
+      <td><input class="who" data-who="${k}" value="${esc(st.who)}" placeholder="Assign" aria-label="Owner"></td>
+      <td><select data-status="${k}" aria-label="Status">${Object.entries(STATUS).map(([v,l])=>`<option value="${v}" ${st.status===v?'selected':''}>${l}</option>`).join('')}</select></td></tr>`}).join('')}
+  </tbody></table></div>`}).join('')||'<p class="muted pad">Nothing matches this filter.</p>'}`;
+}
+function filings(d,a){
+  const order=['req','info','review','no'];
+  return `<p class="muted pad0">Each approval is analyzed on its own. A Medicare answer says nothing about the California licensing answer.</p>
+  <div class="cards">${order.flatMap(s=>a.regimes.filter(r=>r.status===s)).map(r=>`<article class="card ${r.status==='no'?'dim':''}"><div class="ct">${badge(r.status)}<h3>${esc(r.name)}</h3></div><p>${esc(r.why)}</p><div class="srcs">${srcChips(r.src)}</div></article>`).join('')}</div>`;
+}
+function timeline(d,a){
+  const kinds={Statutory:'k-stat',Agency:'k-ag',Contract:'k-con',Target:'k-tar'};
+  const start=TODAY, pts=a.dates.map(x=>x.date).concat([a.earliest]), end=pts.sort((x,y)=>P(y)-P(x))[0], span=Math.max(diff(start,end),30);
+  const X=s=>Math.max(0,Math.min(100,diff(start,s)/span*100));
+  return `<div class="scale" aria-hidden="true"><div class="line"></div>
+    <i class="mk today" style="left:0%"><b>Today</b></i>
+    <i class="mk tar" style="left:${X(d.target)}%"><b>Target ${fmtS(d.target)}</b></i>
+    <i class="mk ear ${a.gap>0?'bad':''}" style="left:${X(a.earliest)}%"><b>Earliest ${fmtS(a.earliest)}</b></i>
+    ${d.outside?`<i class="mk out" style="left:${X(d.outside)}%"><b>Outside ${fmtS(d.outside)}</b></i>`:''}
+    ${a.gap>0?`<span class="gapband" style="left:${X(d.target)}%;width:${X(a.earliest)-X(d.target)}%"></span>`:''}</div>
+  <div class="tbl"><table class="list"><thead><tr><th style="width:130px">Date</th><th style="width:110px">Kind</th><th>What</th><th>Source</th></tr></thead><tbody>
+  ${a.dates.map(x=>`<tr><td>${fmt(x.date)}${P(x.date)<P(TODAY)?'<small>past</small>':''}</td><td><span class="kind ${kinds[x.kind]||''}">${x.kind}</span></td><td>${esc(x.label)}${x.warn?` <span class="badge b-req">${esc(x.warn)}</span>`:''}</td><td><div class="srcs">${srcChips(x.src)}</div></td></tr>`).join('')}
+  </tbody></table></div>
+  <div class="tbl"><table class="list"><thead><tr><th>Facility</th><th>CDPH application</th><th>Earliest closing</th></tr></thead><tbody>
+  ${a.per.map(p=>`<tr><td>${esc(p.f.name||'Unnamed')}</td><td>${esc(p.basis)}${p.f.appDate?` · ${fmt(p.f.appDate)}`:''}</td><td>${fmt(p.earliest)}</td></tr>`).join('')}</tbody></table></div>
+  <p class="muted pad0">Earliest closing = application complete + 120 days (CDPH AFL 23-17). An unconfirmed date assumes CDPH deems the filing complete; confirm.</p>`;
+}
+function requestText(d,a){const by={};a.requests.forEach(r=>(by[r.to]=by[r.to]||[]).push(r));return Object.entries(by).map(([to,rs])=>`${to}\n${rs.map((r,i)=>`${i+1}. ${r.item}`).join('\n')}`).join('\n\n')}
+function requests(d,a){const by={};a.requests.forEach(r=>(by[r.to]=by[r.to]||[]).push(r));
+  return `<div class="row" style="margin-bottom:14px"><button class="btn dark" data-act="copyreq">Copy as email text</button><span class="muted">Generated from your answers. Edit before sending.</span></div>
+  ${Object.entries(by).map(([to,rs])=>`<div class="tbl"><table class="list"><thead><tr><th style="width:40px">#</th><th>Ask ${esc(to.toLowerCase())} for</th><th style="width:34%">Why</th></tr></thead><tbody>${rs.map((r,i)=>`<tr><td class="muted">${i+1}</td><td>${esc(r.item)}</td><td class="muted">${esc(r.why)}</td></tr>`).join('')}</tbody></table></div>`).join('')}`;
+}
+
+/* ---------- new / edit form with live preview ---------- */
+const opt=(name,val,choices)=>`<div class="seg" role="radiogroup">${choices.map(([v,l])=>`<label><input type="radio" name="${name}" value="${v}" ${val===v?'checked':''}><span>${l}</span></label>`).join('')}</div>`;
+const YNU=[['yes','Yes'],['no','No'],['unk','Not sure']];
+function formView(){
+  const d=V.draft, a=analyze(d,TODAY);
+  return `<header class="ph"><div><p class="eyebrow">${V.view==='new'?'New deal':'Edit answers'}</p><h1>${V.view==='new'?'Tell us about the deal':esc(d.name)}</h1><p class="sub">Answer what you know. "Not sure" is fine; it shows up as a question to resolve.</p></div></header>
+  <div class="formgrid"><form id="f" autocomplete="off">
+   <fieldset><legend>The deal</legend>
+    <label class="fl">Deal name<input name="name" value="${esc(d.name)}" placeholder="e.g. Coastal portfolio acquisition" required></label>
+    <label class="fl">Client<input name="client" value="${esc(d.client)}" placeholder="Client name"></label>
+    <div class="fl">We represent${opt('side',d.side,[['buyer','Buyer'],['seller','Seller']])}</div>
+    <label class="fl">What's happening<select name="structure">${Object.entries(STRUCT).map(([k,l])=>`<option value="${k}" ${d.structure===k?'selected':''}>${l}</option>`).join('')}</select></label>
+    ${d.structure==='equity'?`<label class="fl">Licensee entity type<select name="entity">${Object.entries(ENTITY).map(([k,l])=>`<option value="${k}" ${d.entity===k?'selected':''}>${l}</option>`).join('')}</select></label>`:''}
+    <div class="two"><label class="fl">Target closing<input type="date" name="target" value="${d.target}" required></label><label class="fl">Outside date <span class="opt">optional</span><input type="date" name="outside" value="${d.outside}"></label></div>
+   </fieldset>
+   <fieldset><legend>Operations and money</legend>
+    ${d.structure!=='mgmt'&&d.structure!=='realestate'?`<div class="fl">Is a new management company coming in?${opt('mgmt',d.mgmt,YNU)}</div>`:''}
+    ${d.structure==='asset'?`<div class="fl">Will the buyer take over the Medicare provider agreements?${opt('assign',d.assign,[['accept','Yes'],['reject','No'],['undecided','Undecided']])}</div>`:''}
+    <div class="fl">Does the deal meet OHCA's notice thresholds?${opt('ohca',d.ohca,YNU)}</div>
+   </fieldset>
+   <fieldset><legend>Facilities</legend>
+    ${d.facilities.map((f,i)=>`<div class="fac" data-fi="${i}">
+      <div class="two"><label class="fl">Facility name<input data-f="name" value="${esc(f.name)}" placeholder="Facility ${i+1}"></label><label class="fl">City<input data-f="city" value="${esc(f.city)}"></label></div>
+      <div class="two"><label class="fl">Current licensee<input data-f="licensee" value="${esc(f.licensee)}"></label><label class="fl">Beds<input data-f="beds" type="number" min="1" value="${esc(f.beds)}"></label></div>
+      <div class="qgrid">
+       <div class="fl">Medi-Cal certified?${opt('medi'+i,f.medi,YNU)}</div>
+       <div class="fl">Nonprofit owner or operator?${opt('np'+i,f.nonprofit,YNU)}</div>
+       <div class="fl">HUD-insured loan?${opt('hud'+i,f.hud,YNU)}</div>
+       <div class="fl">Real estate leased?${opt('ls'+i,f.leased,YNU)}</div>
+      </div>
+      <div class="two"><label class="fl">CDPH application<select data-f="app"><option value="none" ${f.app==='none'?'selected':''}>Not filed yet</option><option value="filed" ${f.app==='filed'?'selected':''}>Filed, not confirmed complete</option><option value="complete" ${f.app==='complete'?'selected':''}>Confirmed complete</option></select></label>
+      ${f.app!=='none'?`<label class="fl">${f.app==='complete'?'Date confirmed complete':'Date filed'}<input type="date" data-f="appDate" value="${f.appDate}"></label>`:'<span></span>'}</div>
+      ${d.facilities.length>1?`<button type="button" class="link danger" data-act="rmfac" data-i="${i}">Remove facility</button>`:''}
+    </div>`).join('')}
+    <button type="button" class="btn" data-act="addfac">+ Add facility</button>
+   </fieldset>
+   <div class="row"><button type="submit" class="btn dark">${V.view==='new'?'Create deal plan':'Save changes'}</button><button type="button" class="btn" data-act="cancel">Cancel</button>${V.view==='edit'?'<button type="button" class="link danger" data-act="delete">Delete deal</button>':''}</div>
+  </form>
+  <aside class="preview" aria-live="polite">${previewPanel(d,a)}</aside></div>`;
+}
+function previewPanel(d,a){
+  return `<p class="eyebrow">Live preview</p><h3>This deal needs ${a.counts.req} approval${a.counts.req===1?'':'s'}</h3>
+   <p class="pv-date ${a.gap>0?'bad':''}">Earliest closing: <b>${fmt(a.earliest)}</b>${a.gap>0?` · ${a.gap} days after target`:' · target works'}</p>
+   <ul class="pv">${a.regimes.filter(r=>r.status!=='no').map(r=>`<li>${badge(r.status)}<span>${esc(r.name)}</span></li>`).join('')}</ul>
+   <p class="muted small">${a.tasks.length} checklist tasks · ${a.requests.length} document requests will be created.</p>`;
+}
+function readForm(){
+  const f=document.getElementById('f');if(!f)return;const d=V.draft,fd=new FormData(f);
+  ['name','client','structure','target','outside'].forEach(k=>{if(fd.has(k))d[k]=fd.get(k)});
+  ['side','mgmt','assign','ohca','entity'].forEach(k=>{if(fd.has(k))d[k]=fd.get(k)});
+  f.querySelectorAll('.fac').forEach(el=>{const i=+el.dataset.fi,fa=d.facilities[i];
+    el.querySelectorAll('[data-f]').forEach(inp=>fa[inp.dataset.f]=inp.value);
+    fa.medi=fd.get('medi'+i)||fa.medi;fa.nonprofit=fd.get('np'+i)||fa.nonprofit;fa.hud=fd.get('hud'+i)||fa.hud;fa.leased=fd.get('ls'+i)||fa.leased});
+}
+
+/* ---------- exports ---------- */
+let DL=null;try{window.claude&&claude.use&&claude.use('downloads').then(x=>DL=x)}catch(e){}
+async function download(name,content){
+  if(DL){try{const r=await DL.save({filename:name,data:content});if(r!=='declined')toast(`Saved ${name}`)}catch(e){toast(e&&e.code==='declined'?'Download cancelled':'Download not available here')}return}
+  try{const b=content instanceof Blob?content:new Blob([content]),u=URL.createObjectURL(b),l=document.createElement('a');l.href=u;l.download=name;document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);toast(`Downloaded ${name}`)}
+  catch(e){toast('Download blocked in this view')}
+}
+async function wordDocx(d,a){
+  if(!window.docx){toast('Word export is still loading, try again');throw new Error('docx')}
+  const{Document,Packer,Paragraph,TextRun,Table,TableRow,TableCell,WidthType,HeadingLevel,BorderStyle,ShadingType}=docx;
+  const P_=(t,o={})=>new Paragraph({children:[new TextRun({text:t,...o})],spacing:{after:80}});
+  const cell=(t,head)=>new TableCell({children:[new Paragraph({children:[new TextRun({text:String(t??''),bold:!!head,size:18})]})],shading:head?{type:ShadingType.CLEAR,fill:'EDEDED',color:'auto'}:undefined,margins:{top:60,bottom:60,left:80,right:80}});
+  const T=(h,rows)=>new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:[new TableRow({tableHeader:true,children:h.map(x=>cell(x,1))}),...rows.map(r=>new TableRow({children:r.map(x=>cell(x))}))]});
+  const H=t=>new Paragraph({text:t,heading:HeadingLevel.HEADING_2,spacing:{before:280,after:120}});
+  const kv=(k,v)=>new Paragraph({children:[new TextRun({text:k+': ',bold:true}),new TextRun(v)],spacing:{after:40}});
+  const doc=new Document({styles:{default:{document:{run:{font:'Calibri',size:21}}}},sections:[{children:[
+    P_('PRIVILEGED AND CONFIDENTIAL · ATTORNEY WORK PRODUCT · DRAFT',{size:16,color:'666666'}),
+    new Paragraph({text:`${d.name}: transaction plan`,heading:HeadingLevel.HEADING_1,spacing:{after:160}}),
+    kv('Client',`${d.client||'—'} (we represent the ${d.side})`),kv('Structure',STRUCT[d.structure]),
+    kv('Facilities',d.facilities.map(f=>(f.name||'Unnamed')+(f.city?` (${f.city})`:'')).join('; ')),
+    kv('Target closing',fmt(d.target)+(d.outside?` · Outside date ${fmt(d.outside)}`:'')),
+    kv('Earliest closing supported by approvals',fmt(a.earliest)+(a.gap>0?` (${a.gap} days after target)`:'')),kv('Prepared',fmt(TODAY)),
+    H('Approvals and filings'),T(['Approval','Status','Why','Source'],a.regimes.map(r=>[r.name,REG[r.status][0],r.why,r.src.map(x=>x.t).join('; ')])),
+    H('Key dates'),T(['Date','Kind','What'],a.dates.map(x=>[fmt(x.date),x.kind,x.label+(x.warn?` (${x.warn})`:'')])),
+    H('Checklist'),T(['Workstream','Task','Due','Owner','Status'],a.tasks.map(t=>{const st=tstate(d,t.id);return[t.ws,t.title,fmt(t.due),st.who,STATUS[st.status]]})),
+    H('Document requests'),T(['To','Request','Why'],a.requests.map(r=>[r.to,r.item,r.why])),
+    P_(''),P_('Generated by SNF Deal Desk from the team\'s answers and public agency sources current as of Oct 29, 2026. Requirements must be confirmed by counsel against current law and agency instructions.',{size:16,color:'666666',italics:true})
+  ]}]});
+  return Packer.toBlob(doc);
+}
+const csvq=v=>`"${String(v??'').replace(/"/g,'""')}"`;
+function csv(d,a){return '﻿'+[['Workstream','Task','Due','Owner','Status','Notes','Source'].map(csvq).join(',')].concat(a.tasks.map(t=>{const s=tstate(d,t.id);return[t.ws,t.title,t.due,s.who,STATUS[s.status],s.note,t.src.map(x=>x.t).join('; ')].map(csvq).join(',')})).join('\r\n')}
+
+/* ---------- example ---------- */
+function example(){
+  const d=blankDeal(TODAY);
+  Object.assign(d,{name:'Example: two-facility acquisition',client:'Example Health Partners, LLC',side:'buyer',structure:'asset',target:addDays(TODAY,130),outside:addDays(TODAY,170),mgmt:'yes',assign:'undecided',ohca:'unk'});
+  d.facilities=[Object.assign(blankFacility(),{name:'Example Post-Acute',city:'Pasadena',beds:'99',licensee:'Seller Opco A, LLC',medi:'yes',nonprofit:'no',hud:'yes',leased:'no',app:'filed',appDate:addDays(TODAY,-20)}),
+    Object.assign(blankFacility(),{name:'Example Care Center',city:'Fresno',beds:'59',licensee:'Example Benevolent Homes',medi:'yes',nonprofit:'yes',hud:'no',leased:'yes',app:'none'})];
+  d.tasks={conflicts:{status:'done',who:'',note:''},licenses:{status:'doing',who:'',note:''}};
+  return d;
+}
+
+/* ---------- events ---------- */
+function toast(t){const r=document.getElementById('toast');r.textContent=t;r.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>r.hidden=true,2800)}
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-go],[data-deal],[data-tab],[data-filter],[data-toggle],[data-act]');if(!t)return;
+  if(t.dataset.go){const g=t.dataset.go;if(g==='new'){V.draft=blankDeal(TODAY);V.view='new'}else if(g==='edit'){V.draft=JSON.parse(JSON.stringify(deal()));V.view='edit'}else{V.view=g;V.dealId=null}render();scrollTo(0,0);return}
+  if(t.dataset.deal){V.view='deal';V.dealId=t.dataset.deal;V.tab='checklist';render();scrollTo(0,0);return}
+  if(t.dataset.tab){V.tab=t.dataset.tab;return render()}
+  if(t.dataset.filter){V.filter=t.dataset.filter;return render()}
+  if(t.dataset.toggle){V.open[t.dataset.toggle]=!V.open[t.dataset.toggle];return render()}
+  const a=t.dataset.act,d=deal();
+  if(docAct(a,t,d))return;
+  if(a==='example'){const x=example();DB.deals.push(x);save();V.view='deal';V.dealId=x.id;render()}
+  if(a==='addfac'){readForm();V.draft.facilities.push(blankFacility());render()}
+  if(a==='rmfac'){readForm();V.draft.facilities.splice(+t.dataset.i,1);render()}
+  if(a==='cancel'){V.view=V.dealId?'deal':'home';render()}
+  if(a==='delete'){if(t.dataset.confirm){DB.deals=DB.deals.filter(x=>x.id!==V.dealId);save();V.dealId=null;V.view='home';render();toast('Deal deleted')}else{t.dataset.confirm=1;t.textContent='Click again to delete permanently'}}
+  if(a==='word')wordDocx(d,analyze(d,TODAY)).then(b=>download((d.name||'deal').replace(/[^\w-]+/g,'-')+'-plan.docx',b)).catch(()=>{});
+  if(a==='excel')download((d.name||'deal').replace(/[^\w-]+/g,'-')+'-checklist.csv',csv(d,analyze(d,TODAY)));
+  if(a==='copyreq'){const txt=requestText(d,analyze(d,TODAY));(navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>toast('Copied'),()=>toast('Copy blocked here; select the table instead'))}
+});
+document.addEventListener('submit',e=>{e.preventDefault();readForm();const d=V.draft;if(!d.name.trim()){toast('Give the deal a name');return}
+  d.updated=TODAY;const i=DB.deals.findIndex(x=>x.id===d.id);if(i>=0)DB.deals[i]=d;else DB.deals.push(d);save();V.dealId=d.id;V.view='deal';V.tab='checklist';render();scrollTo(0,0);toast(i>=0?'Saved':'Deal plan created')});
+document.addEventListener('input',e=>{
+  const t=e.target,d=deal();
+  if(t.closest('#f')){readForm();const pv=document.querySelector('.preview');if(pv)pv.innerHTML=previewPanel(V.draft,analyze(V.draft,TODAY));return}
+  if(t.dataset.who){tstate(d,t.dataset.who).who=t.value;save()}
+  if(t.dataset.note){tstate(d,t.dataset.note).note=t.value;save()}
+});
+document.addEventListener('change',e=>{
+  const t=e.target,d=deal();
+  if(t.closest('#f')){readForm();if(['structure','app'].includes(t.name)||t.dataset.f==='app')render();return}
+  if(t.dataset.done){tstate(d,t.dataset.done).status=t.checked?'done':'todo';save();render()}
+  if(t.dataset.status){tstate(d,t.dataset.status).status=t.value;save();render()}
+  if(t.dataset.who)render();
+});
+
+/* Document check tab: upload, findings with cited quotes, viewer, optional Claude review. */
+let AI=null;try{window.claude&&claude.use&&claude.use('sample').then(x=>{AI=x;if(V.tab==='documents')render()})}catch(e){}
+const SEV={high:['High','b-req'],med:['Medium','b-info'],low:['Low','b-no']};
+const fid=()=>'x'+Math.random().toString(36).slice(2,9);
+
+function docFindings(d,a){
+  const docs=d.docs||[],dis=d.dismissed||{};
+  const rule=DocCheck.check(d,docs,a.regimes,fmt);
+  const ai=Object.values(d.ai||{}).flatMap(r=>r.findings||[]);
+  return rule.concat(ai).filter(f=>!dis[f.id]);
+}
+function quoteHTML(q){return `<button class="q" data-view="${q.doc}" data-p="${q.pageIdx}" data-i="${q.idx}" data-l="${q.len}"><span>${esc(q.pre)}<mark>${esc(q.hit)}</mark>${esc(q.post)}</span><cite>${esc(q.docName)}${q.page?`, p. ${q.page}`:''}</cite></button>`}
+
+function documents(d,a){
+  const docs=d.docs||[],fs=docs.length?docFindings(d,a):[],order={high:0,med:1,low:2};
+  fs.sort((x,y)=>order[x.sev]-order[y.sev]);
+  const n=k=>fs.filter(f=>f.sev===k).length, dismissed=Object.keys(d.dismissed||{}).length;
+  return `<div class="docgrid">
+  <section>
+    <label class="drop" id="drop"><input type="file" id="files" multiple accept=".pdf,.docx,.txt,.md"><b>Drop deal documents here</b><span>PDF, Word or text. Read on this computer; nothing is uploaded.</span></label>
+    ${docs.length?`<ul class="doclist">${docs.map(x=>`<li><button class="dl" data-view="${x.id}" data-p="0"><b>${esc(x.name)}</b><small>${x.kind} · ${x.pages.length} page${x.pages.length>1?'s':''} · ${Math.round(x.pages.join('').length/1000)}k characters</small></button>
+      ${AI?`<button class="link" data-act="ai" data-id="${x.id}">${d.ai&&d.ai[x.id]?'Run Claude again':'Ask Claude'}</button>`:''}<button class="link danger" data-act="rmdoc" data-id="${x.id}" aria-label="Remove ${esc(x.name)}">Remove</button></li>`).join('')}</ul>`
+    :`<button class="btn" data-act="samples">Load sample documents</button><p class="muted small">Three short fictional drafts (purchase agreement, management agreement, lease) with typical problems in them.</p>`}
+    <div class="note"><b>What's checked</b><ul><li>Entity names that don't match across documents</li><li>Manager control before CDPH approval</li><li>Dates that conflict with the deal record</li><li>Required approvals missing from closing conditions</li><li>Missing schedules and exhibits</li><li>Blanks left in drafts</li><li>Signer authority</li></ul>
+    ${AI?'<p><b>Ask Claude</b> sends one document\'s text to Claude for a deeper read. Every quote it returns is matched against the document; anything that can\'t be found is thrown out.</p>':'<p>These checks run entirely on this computer.</p>'}</div>
+  </section>
+  <section>
+    ${!docs.length?'<div class="emptyf"><h3>No documents yet</h3><p class="muted">Add the purchase agreement, management agreement, leases and org charts. Findings appear here with the exact text and page.</p></div>':
+    `<div class="fhead"><h3>${fs.length?`${fs.length} finding${fs.length>1?'s':''}`:'No problems found'}</h3><span class="muted small">${n('high')} high · ${n('med')} medium · ${n('low')} low${dismissed?` · ${dismissed} dismissed <button class="link" data-act="undismiss">show</button>`:''}</span></div>
+    ${fs.map(f=>`<article class="finding">
+      <div class="fh"><span class="badge ${SEV[f.sev][1]}">${SEV[f.sev][0]}</span><span class="cat">${esc(f.cat)}${f.ai?' · Claude, quote verified':''}</span></div>
+      <h4>${esc(f.title)}</h4><p>${esc(f.why)}</p>${f.meta?`<p class="muted small">${esc(f.meta)}</p>`:''}
+      ${f.quotes.length?`<div class="quotes">${f.quotes.map(quoteHTML).join('')}</div>`:''}
+      ${f.src&&f.src.u?`<div class="srcs">${srcChips([f.src])}</div>`:''}
+      <div class="row">${f.fix?`<button class="btn small dark" data-act="fix" data-f="${esc(f.id)}">Use ${fmt(f.fix.outside)} as the outside date</button>`:''}
+        ${(d.custom||[]).some(t=>t.from===f.id)?'<span class="muted small">On the checklist</span>':`<button class="btn small" data-act="totask" data-f="${esc(f.id)}">Add to checklist</button>`}
+        ${f.request?((d.extraReq||[]).some(r=>r.from===f.id)?'<span class="muted small">On the request list</span>':`<button class="btn small" data-act="toreq" data-f="${esc(f.id)}">Add to requests</button>`):''}
+        <button class="link" data-act="dismiss" data-f="${esc(f.id)}">Dismiss</button></div>
+    </article>`).join('')}`}
+  </section></div>`;
+}
+
+/* viewer */
+function openViewer(docId,p,i,l){
+  const d=deal(),doc=(d.docs||[]).find(x=>x.id===docId);if(!doc)return;
+  const t=doc.pages[p]||'',has=i!=null&&!isNaN(i);
+  const body=has?esc(t.slice(0,i))+'<mark id="vh">'+esc(t.slice(i,i+l))+'</mark>'+esc(t.slice(i+l)):esc(t);
+  const v=document.getElementById('viewer');
+  v.innerHTML=`<div class="vbg" data-act="closeview"></div><aside class="vpanel" role="dialog" aria-label="${esc(doc.name)}"><header><div><b>${esc(doc.name)}</b><small>${doc.pages.length>1?`Page ${p+1} of ${doc.pages.length}`:doc.kind}</small></div>
+   <div class="row">${doc.pages.length>1?`<button class="btn small" data-view="${doc.id}" data-p="${Math.max(0,p-1)}" ${p===0?'disabled':''}>‹</button><button class="btn small" data-view="${doc.id}" data-p="${Math.min(doc.pages.length-1,p+1)}" ${p===doc.pages.length-1?'disabled':''}>›</button>`:''}<button class="btn small" data-act="closeview">Close</button></div></header><pre class="vtext">${body}</pre></aside>`;
+  v.hidden=false;const m=document.getElementById('vh');if(m)m.scrollIntoView({block:'center'});
+}
+
+/* Claude review: optional, per document, quotes verified locally */
+async function aiReview(d,docId){
+  const doc=d.docs.find(x=>x.id===docId),a=analyze(d,TODAY);
+  const text=doc.pages.map((t,i)=>doc.pages.length>1?`[Page ${i+1}]\n${t}`:t).join('\n\n').slice(0,90000);
+  const brief=`Deal: ${STRUCT[d.structure]}. We represent the ${d.side}. Facilities: ${d.facilities.map(f=>f.name).join(', ')}. Target closing ${d.target}${d.outside?`, outside date ${d.outside}`:''}. Required approvals: ${a.regimes.filter(r=>r.status==='req').map(r=>r.name).join('; ')}.`;
+  const prompt=`You are reviewing a document in a California skilled nursing facility (SNF) transaction for an associate at a law firm.\n${brief}\n\nFind up to 8 issues a careful transactional lawyer would raise: inconsistent party names, control or authority shifting before regulatory approval, approvals or consents not covered, risky allocation of Medicare/Medi-Cal liabilities, missing protections for the client side, ambiguous dates, internal cross-reference errors. Do not give legal conclusions; flag and explain.\n\nReturn ONLY a JSON array. Each item: {"title": short, "severity": "high"|"med"|"low", "why": 1-2 plain sentences, "quote": an EXACT verbatim passage of 8-40 words copied from the document that shows the issue}.\n\nDOCUMENT: ${doc.name}\n"""\n${text}\n"""`;
+  const out=await AI.json(prompt,{modelTier:'complex'});
+  const items=Array.isArray(out)?out:(out&&out.items)||[];
+  let dropped=0;const findings=[];
+  items.forEach((it,k)=>{const q=DocCheck.locate(d.docs,docId,it.quote);if(!q){dropped++;return}
+    findings.push({id:`ai:${docId}:${k}:${(it.title||'').slice(0,20)}`,sev:['high','med','low'].includes(it.severity)?it.severity:'med',cat:'Claude review',ai:true,title:String(it.title||'Issue'),why:String(it.why||''),quotes:[q]})});
+  return{findings,dropped,at:TODAY};
+}
+
+function docAct(act,t,d){
+  const F=id=>docFindings(d,analyze(d,TODAY)).find(f=>f.id===id);
+  if(act==='closeview'){document.getElementById('viewer').hidden=true;return true}
+  if(act==='samples'){d.docs=(d.docs||[]).concat(SAMPLE_DOCS.map(s=>({id:fid(),name:s.name,kind:'Text',pages:[s.text],added:TODAY})));save();render();toast('Sample documents loaded');return true}
+  if(act==='rmdoc'){d.docs=d.docs.filter(x=>x.id!==t.dataset.id);if(d.ai)delete d.ai[t.dataset.id];save();render();return true}
+  if(act==='dismiss'){(d.dismissed=d.dismissed||{})[t.dataset.f]=1;save();render();return true}
+  if(act==='undismiss'){d.dismissed={};save();render();return true}
+  if(act==='fix'){const f=F(t.dataset.f);if(f&&f.fix){Object.assign(d,f.fix);save();render();toast('Deal record updated')}return true}
+  if(act==='totask'){const f=F(t.dataset.f);if(f){(d.custom=d.custom||[]).push({id:'c'+fid(),from:f.id,ws:'From document check',title:f.task||f.title,due:addDays(TODAY,7),src:f.src?[f.src]:[{t:f.quotes[0]?f.quotes[0].docName:'Document check'}]});save();render();toast('Added to checklist')}return true}
+  if(act==='toreq'){const f=F(t.dataset.f);if(f){(d.extraReq=d.extraReq||[]);f.request.forEach(r=>d.extraReq.push({from:f.id,to:d.side==='seller'?'Buyer':'Seller',item:r.startsWith('Incumbency')?r:`Copy of ${r}`,why:'Referenced in the documents but not provided'}));save();render();toast('Added to document requests')}return true}
+  if(act==='ai'){if(!AI)return true;t.disabled=true;t.textContent='Claude is reading…';
+    aiReview(d,t.dataset.id).then(r=>{(d.ai=d.ai||{})[t.dataset.id]=r;save();render();toast(`${r.findings.length} finding${r.findings.length===1?'':'s'} from Claude${r.dropped?` · ${r.dropped} dropped (quote not found)`:''}`)})
+      .catch(e=>{render();toast(e&&e.code==='not_granted'?'Claude review not allowed here':'Claude review failed. Try again.')});return true}
+  return false;
+}
+
+async function addFiles(list){
+  const d=deal();if(!d)return;let ok=0;
+  for(const f of list){try{const x=await DocCheck.extract(f);if(!x.pages.join('').trim())throw new Error(`${f.name}: no text found (scanned image?)`);(d.docs=d.docs||[]).push({id:fid(),...x,added:TODAY});ok++}catch(e){toast(e.message)}}
+  if(ok){try{save()}catch(e){}render();toast(`${ok} document${ok>1?'s':''} added`)}
+}
+document.addEventListener('change',e=>{if(e.target.id==='files'){addFiles([...e.target.files]);e.target.value=''}});
+document.addEventListener('dragover',e=>{const z=e.target.closest&&e.target.closest('#drop');if(z){e.preventDefault();z.classList.add('over')}});
+document.addEventListener('dragleave',e=>{const z=e.target.closest&&e.target.closest('#drop');if(z)z.classList.remove('over')});
+document.addEventListener('drop',e=>{const z=e.target.closest&&e.target.closest('#drop');if(z){e.preventDefault();z.classList.remove('over');addFiles([...e.dataTransfer.files])}});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-view]');if(b){e.stopPropagation();openViewer(b.dataset.view,+b.dataset.p||0,b.dataset.i!=null?+b.dataset.i:null,+b.dataset.l||0)}},true);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('viewer').hidden=true});
+if(window.pdfjsLib)try{pdfjsLib.GlobalWorkerOptions.workerSrc=''}catch(e){}
+/* ?demo=checklist|docs opens the example deal (used for screenshots and portfolio links) */
+try{const dm=new URLSearchParams(location.search).get('demo');if(dm&&!DB.deals.length){const x=example();x.docs=SAMPLE_DOCS.map(s=>({id:fid(),name:s.name,kind:'Text',pages:[s.text],added:TODAY}));DB.deals.push(x);save();V.view='deal';V.dealId=x.id;V.tab=dm==='docs'?'documents':'checklist'}}catch(e){}
+render();
+</script>
