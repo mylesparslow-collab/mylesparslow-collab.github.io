@@ -161,8 +161,8 @@ WRAPW = {'legal': 176, 'research': 290, 'business': 150, 'creative': 128, 'desig
 
 # Legal: hub -> NW (pair with Research) -> N column
 ROUTE['legal'] = [HUB_NE, L_bend, P(L_bend[0], 34)]
-PINS['legal'] = {0: along(HUB_NE, 'NW', 52), 8: along(HUB_NE, 'NW', PAIR - 30), 9: P(L_bend[0], L_bend[1] - 27), 19: P(L_bend[0], 34)}
-SIDES['legal'] = ['NE'] * 9 + ['E'] * 11
+PINS['legal'] = {0: along(HUB_NE, 'NW', 52), 8: along(HUB_NE, 'NW', PAIR - 30), 9: P(L_bend[0], L_bend[1] - 27), 20: P(L_bend[0], 34)}
+SIDES['legal'] = ['NE'] * 9 + ['E'] * 12
 
 # Research: R01 (stub end) -> R02 -> hub -> NW (pair with Legal) -> R09
 r_stub = along(HUB_SW, 'SE', DR + 50)
