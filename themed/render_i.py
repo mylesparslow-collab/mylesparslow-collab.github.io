@@ -74,6 +74,8 @@ XCH = [
          why='The clay explainers are made with the same Blender clay kit as the business ads.'),
     dict(a='citationgate', b='citationaudit', key='both check citations',
          why='Both check whether a cited source says what it is cited for: court opinions in one, medical papers in the other.'),
+    dict(a='skippy', b='atlas', key='Atlas finds the files',
+         why='Skippy searches the files on the Mac through Atlas&#x27;s engine before it answers.'),
 ]
 XOF = {}
 for x in XCH:
@@ -126,7 +128,7 @@ def plen(pts):
 
 # ------------------------------------------------------------------ the network (design input)
 # Hub at (CX, CY). Paired lines run 14px apart; each interchange is a capsule across a pair.
-CX, CY = 700, 450
+CX, CY = 700, 490
 G = 14  # lane pitch
 h = G / 2
 o = round(h * S2, 3)
@@ -145,7 +147,8 @@ def along(p, dname, L):
 HUB_NE = P(CX + o, CY - o)   # NE side of a NW-SE pair
 HUB_SW = P(CX - o, CY + o)   # SW side of a NW-SE pair
 # Legal + Research run as a NW pair out of the hub (Legal on the NE side), meeting at L09/R09.
-PAIR = 350
+PAIR = 430
+SKA = 196  # distance from the hub to the Skippy L06 / Atlas R04 capsule along NW
 L_bend = along(HUB_NE, 'NW', PAIR)
 R_end = along(HUB_SW, 'NW', PAIR - 30)
 # Business over Creative run east out of the hub, meeting at B03/C03.
@@ -161,13 +164,13 @@ WRAPW = {'legal': 176, 'research': 290, 'business': 150, 'creative': 128, 'desig
 
 # Legal: hub -> NW (pair with Research) -> N column
 ROUTE['legal'] = [HUB_NE, L_bend, P(L_bend[0], 34)]
-PINS['legal'] = {0: along(HUB_NE, 'NW', 52), 8: along(HUB_NE, 'NW', PAIR - 30), 9: P(L_bend[0], L_bend[1] - 27), 20: P(L_bend[0], 34)}
+PINS['legal'] = {0: along(HUB_NE, 'NW', 52), 5: along(HUB_NE, 'NW', SKA), 8: along(HUB_NE, 'NW', PAIR - 30), 9: P(L_bend[0], L_bend[1] - 27), 20: P(L_bend[0], 34)}
 SIDES['legal'] = ['NE'] * 9 + ['E'] * 12
 
 # Research: R01 (stub end) -> R02 -> hub -> NW (pair with Legal) -> R09
 r_stub = along(HUB_SW, 'SE', DR + 50)
 ROUTE['research'] = [P(r_stub[0], r_stub[1] + 60), r_stub, HUB_SW, R_end]
-PINS['research'] = {0: P(r_stub[0], r_stub[1] + 60), 1: along(HUB_SW, 'SE', DR), 2: along(HUB_SW, 'NW', 84), 10: R_end}
+PINS['research'] = {0: P(r_stub[0], r_stub[1] + 60), 1: along(HUB_SW, 'SE', DR), 2: along(HUB_SW, 'NW', 84), 3: along(HUB_SW, 'NW', SKA), 10: R_end}
 SIDES['research'] = ['W', 'SW'] + ['SW'] * 8 + ['W']
 
 # Business: hub -> E (over Creative) -> NE -> N column
