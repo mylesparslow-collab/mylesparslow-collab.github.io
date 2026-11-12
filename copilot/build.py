@@ -167,12 +167,29 @@ def agent_dialog(a):
             % (slug, slug, slug, e(name), e(a["tagline"]), e(name + " details"), tl, tp))
 
 
+AREA_ORDER = ["Firm operations", "Litigation", "Government", "Construction", "Real estate", "Land use",
+              "Labor & employment", "Insurance recovery", "Family wealth"]
+areas = [x for x in AREA_ORDER if any(a["area"] == x for a in kit["agents"])]
+areas += sorted({a["area"] for a in kit["agents"]} - set(areas))  # any area not in the list goes last
 cards, dialogs = "", ""
+for ar in areas:
+    items = ""
+    for a in kit["agents"]:
+        if a["area"] != ar:
+            continue
+        items += ('<li><button type="button" class="card" data-open="d-%s"><span class="card__n">%s</span><span class="card__t">%s</span>'
+                  '<span class="card__m"><b>Who</b> %s</span><span class="card__m"><b>Where</b> %s</span><span class="card__go">Open details &rarr;</span></button></li>'
+                  % (a["slug"], e(a["name"]), e(a["tagline"]), e(a["who"]), e(a["where"])))
+    n_ar = sum(1 for a in kit["agents"] if a["area"] == ar)
+    cards += ('<div class="area" data-area="%s"><h3 class="area__h">%s <i>%d</i></h3><ul class="grid">%s</ul></div>'
+              % (e(ar), e(ar), n_ar, items))
 for a in kit["agents"]:
-    cards += ('<li><button type="button" class="card" data-open="d-%s"><span class="card__n">%s</span><span class="card__t">%s</span>'
-              '<span class="card__m"><b>Who</b> %s</span><span class="card__m"><b>Where</b> %s</span><span class="card__go">Open details &rarr;</span></button></li>'
-              % (a["slug"], e(a["name"]), e(a["tagline"]), e(a["who"]), e(a["where"])))
     dialogs += agent_dialog(a)
+
+achips = '<button type="button" class="chip2" data-area-f="all" aria-pressed="true">All <i>%d</i></button>' % len(kit["agents"])
+for ar in areas:
+    achips += '<button type="button" class="chip2" data-area-f="%s" aria-pressed="false">%s <i>%d</i></button>' % (
+        e(ar), e(ar), sum(1 for a in kit["agents"] if a["area"] == ar))
 
 chips = '<button type="button" class="chip2" data-role="all" aria-pressed="true">All <i>%d</i></button>' % len(prompts)
 for r in roles:
@@ -221,6 +238,9 @@ TEMPLATE = r"""<!doctype html>
 .cp .how li::before{content:counter(h);display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--c);color:var(--f);font-weight:800;margin-bottom:8px;padding-top:2px}
 .cp .how b{display:block;margin-bottom:2px}
 .cp .honest{margin-top:14px;padding:10px 14px;border-left:6px solid var(--c);background:var(--soft)}
+.cp .area{margin-top:22px}
+.cp .area__h{font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--mute);margin-bottom:8px}
+.cp .area__h i{font-style:normal;margin-left:4px}
 .cp .grid{list-style:none;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
 .cp .card{all:unset;box-sizing:border-box;display:flex;flex-direction:column;gap:8px;height:100%;width:100%;padding:16px;border:2px solid var(--ink);background:var(--white);cursor:pointer;font:400 15px/1.45 var(--ff)}
 .cp .card:hover{border-color:var(--c);box-shadow:5px 5px 0 var(--c)}
@@ -292,7 +312,7 @@ TEMPLATE = r"""<!doctype html>
 <a class="back" href="/legal/#copilotkit">&larr; Back to the Legal line</a><br>
 <span class="eyebrow">Legal line &middot; Copilot integrations</span>
 <h1>Copilot Kit</h1>
-<p class="lede">Agents and prompts that law-firm staff can set up in Microsoft 365 Copilot themselves, built on an invented firm.</p>
+<p class="lede">Agents and prompts that law-firm staff can set up in Microsoft 365 Copilot themselves, built on an invented firm. %%NAGENTS%% agents across %%NAREAS%% practice areas, and %%NPROMPTS%% prompts.</p>
 <div class="cta"><a class="btn" href="/copilot/downloads/copilot-kit.zip" download>Download the kit (.zip)</a><a class="btn alt" href="#prompts">Jump to the prompt library</a></div>
 </header>
 
@@ -308,8 +328,9 @@ TEMPLATE = r"""<!doctype html>
 
 <section class="s" aria-labelledby="h-agents">
 <h2 id="h-agents">The agents</h2>
-<p>%%NAGENTS%% agents. Open one to see a sample run, its instructions, starters, limits and install steps.</p>
-<ul class="grid" style="margin-top:14px">%%CARDS%%</ul>
+<p>%%NAGENTS%% agents across %%NAREAS%% practice areas. Open one to see a sample run, its instructions, starters, limits and install steps.</p>
+<div class="chipbar" role="group" aria-label="Filter agents by practice area">%%ACHIPS%%</div>
+<div id="agrid">%%CARDS%%</div>
 %%DIALOGS%%
 </section>
 
@@ -338,8 +359,13 @@ document.addEventListener('click',function(ev){
  else if(b.getAttribute('role')==='tab'){selTab(b)}
  else if(b.hasAttribute('data-role')){
   var r=b.getAttribute('data-role');
-  q('.chip2').forEach(function(c){c.setAttribute('aria-pressed',c===b?'true':'false')});
+  q('.chip2',b.parentNode).forEach(function(c){c.setAttribute('aria-pressed',c===b?'true':'false')});
   q('#plist .pr').forEach(function(p){p.hidden=!(r==='all'||p.getAttribute('data-role')===r)});
+ }
+ else if(b.hasAttribute('data-area-f')){
+  var f=b.getAttribute('data-area-f');
+  q('.chip2',b.parentNode).forEach(function(c){c.setAttribute('aria-pressed',c===b?'true':'false')});
+  q('#agrid .area').forEach(function(g){g.hidden=!(f==='all'||g.getAttribute('data-area')===f)});
  }
 });
 q('dialog').forEach(function(d){d.addEventListener('click',function(ev){if(ev.target===d&&d.close)d.close()})});
@@ -359,7 +385,7 @@ q('[role=tablist]').forEach(function(l){l.addEventListener('keydown',function(ev
 </html>
 """
 
-page = (TEMPLATE.replace("%%NAGENTS%%", str(len(kit["agents"]))).replace("%%NPROMPTS%%", str(len(prompts)))
+page = (TEMPLATE.replace("%%NAGENTS%%", str(len(kit["agents"]))).replace("%%NAREAS%%", {1:"one",2:"two",3:"three",4:"four",5:"five",6:"six",7:"seven",8:"eight",9:"nine"}.get(len(areas), str(len(areas)))).replace("%%ACHIPS%%", achips).replace("%%NPROMPTS%%", str(len(prompts)))
         .replace("%%CARDS%%", cards).replace("%%DIALOGS%%", dialogs).replace("%%CHIPS%%", chips).replace("%%PROMPTS%%", prows))
 (OUT / "index.html").write_text(page, encoding="utf-8")
 print("wrote index.html (%d bytes), %d agents, %d prompts" % (len(page), len(kit["agents"]), len(prompts)))
