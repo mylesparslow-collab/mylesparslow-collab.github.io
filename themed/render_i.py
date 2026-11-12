@@ -75,7 +75,7 @@ XCH = [
     dict(a='citationgate', b='citationaudit', key='both check citations',
          why='Both check whether a cited source says what it is cited for: court opinions in one, medical papers in the other.'),
     dict(a='skippy', b='atlas', key='Atlas finds the files',
-         why='Skippy searches the files on the Mac through Atlas&#x27;s engine before it answers.'),
+         why='Skippy searches the files on the Mac through Atlas’s engine before it answers.'),
 ]
 XOF = {}
 for x in XCH:
