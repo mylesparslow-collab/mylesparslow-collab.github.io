@@ -167,8 +167,9 @@ def agent_dialog(a):
             % (slug, slug, slug, e(name), e(a["tagline"]), e(name + " details"), tl, tp))
 
 
-AREA_ORDER = ["Firm operations", "Litigation", "Government", "Construction", "Real estate", "Land use",
-              "Labor & employment", "Insurance recovery", "Family wealth"]
+AREA_ORDER = ["Firm operations", "Litigation", "Appellate", "Government", "Government investigations", "Construction",
+              "Real estate", "Land use", "Environmental", "Labor & employment", "Employee benefits", "Senior housing & care",
+              "Health care", "Privacy & data", "Intellectual property", "Insurance recovery", "Family wealth"]
 areas = [x for x in AREA_ORDER if any(a["area"] == x for a in kit["agents"])]
 areas += sorted({a["area"] for a in kit["agents"]} - set(areas))  # any area not in the list goes last
 cards, dialogs = "", ""
@@ -288,7 +289,8 @@ TEMPLATE = r"""<!doctype html>
 .cp .doc>*+*{margin-top:8px}
 .cp .doc h3,.cp .doc h4,.cp .doc h5{font-size:16px;margin:10px 0 4px}
 .cp .tw{overflow-x:auto}
-.cp table{border-collapse:collapse;font-size:14px}
+.cp table{border-collapse:collapse;font-size:14px;min-width:640px}
+.cp td{min-width:9em}
 .cp th,.cp td{border:1px solid var(--rule);padding:5px 8px;text-align:left;vertical-align:top}
 .cp th{background:var(--soft)}
 .cp .meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px;color:var(--mute);font-weight:600}
