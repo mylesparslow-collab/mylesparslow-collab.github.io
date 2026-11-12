@@ -164,8 +164,8 @@ WRAPW = {'legal': 176, 'research': 290, 'business': 150, 'creative': 128, 'desig
 
 # Legal: hub -> NW (pair with Research) -> N column
 ROUTE['legal'] = [HUB_NE, L_bend, P(L_bend[0], 34)]
-PINS['legal'] = {0: along(HUB_NE, 'NW', 52), 5: along(HUB_NE, 'NW', SKA), 8: along(HUB_NE, 'NW', PAIR - 30), 9: P(L_bend[0], L_bend[1] - 27), 20: P(L_bend[0], 34)}
-SIDES['legal'] = ['NE'] * 9 + ['E'] * 12
+PINS['legal'] = {0: along(HUB_NE, 'NW', 52), 5: along(HUB_NE, 'NW', SKA), 8: along(HUB_NE, 'NW', PAIR - 30), 9: P(L_bend[0], L_bend[1] - 27), 21: P(L_bend[0], 34)}
+SIDES['legal'] = ['NE'] * 9 + ['E'] * 13
 
 # Research: R01 (stub end) -> R02 -> hub -> NW (pair with Legal) -> R09
 r_stub = along(HUB_SW, 'SE', DR + 50)
@@ -187,8 +187,8 @@ c_y = D_low - G
 c_down = along(c_turn, 'SE', (c_y - C0[1]) / S2)
 CD_x = c_down[0] + 120
 ROUTE['creative'] = [C0, c_turn, c_down, P(CD_x + 420, c_y)]
-PINS['creative'] = {0: P(CX + 150, C0[1]), 2: P(BC_x, C0[1]), 4: P(CD_x, c_y), 8: P(CD_x + 420, c_y)}
-SIDES['creative'] = ['S', 'S', 'S', 'NE', 'N', 'N', 'N', 'N', 'N']
+PINS['creative'] = {0: P(CX + 150, C0[1]), 2: P(BC_x, C0[1]), 4: P(CD_x, c_y), 9: P(CD_x + 420, c_y)}
+SIDES['creative'] = ['S', 'S', 'S', 'NE', 'N', 'N', 'N', 'N', 'N', 'N']
 
 # Design: D01..D05 on a W then SW arm, hub, D06 on the SE pair, then E under Creative
 d_w = P(470, CY)
