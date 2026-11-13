@@ -147,7 +147,7 @@ def along(p, dname, L):
 HUB_NE = P(CX + o, CY - o)   # NE side of a NW-SE pair
 HUB_SW = P(CX - o, CY + o)   # SW side of a NW-SE pair
 # Legal + Research run as a NW pair out of the hub (Legal on the NE side), meeting at L09/R09.
-PAIR = 430
+PAIR = 454
 SKA = 196  # distance from the hub to the Skippy L06 / Atlas R04 capsule along NW
 L_bend = along(HUB_NE, 'NW', PAIR)
 R_end = along(HUB_SW, 'NW', PAIR - 30)
@@ -170,8 +170,8 @@ SIDES['legal'] = ['NE'] * 9 + ['E', 'W'] * 9
 # Research: R01 (stub end) -> R02 -> hub -> NW (pair with Legal) -> R09
 r_stub = along(HUB_SW, 'SE', DR + 50)
 ROUTE['research'] = [P(r_stub[0], r_stub[1] + 60), r_stub, HUB_SW, R_end]
-PINS['research'] = {0: P(r_stub[0], r_stub[1] + 60), 1: along(HUB_SW, 'SE', DR), 2: along(HUB_SW, 'NW', 84), 3: along(HUB_SW, 'NW', SKA), 10: R_end}
-SIDES['research'] = ['W', 'SW'] + ['SW'] * 8 + ['W']
+PINS['research'] = {0: P(r_stub[0], r_stub[1] + 60), 1: along(HUB_SW, 'SE', DR), 2: along(HUB_SW, 'NW', 84), 3: along(HUB_SW, 'NW', SKA), 11: R_end}
+SIDES['research'] = ['W', 'SW'] + ['SW'] * 9 + ['W']
 
 # Business: hub -> E (over Creative) -> NE -> N column
 b_turn = P(BC_x + 50, B0[1])
