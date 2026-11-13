@@ -917,7 +917,7 @@
    "short": "Research",
    "letter": "R",
    "eyebrow": "Room 5 of 5",
-   "count": "13 projects",
+   "count": "14 projects",
    "lede": "Tools for working with AI agents and reading arguments, plus research and reference works: a Byzantine atlas, a medical evidence map, two evidence checks, a market-research terminal and a tool that turns a Claude session into a script.",
    "items": [
     {
@@ -928,7 +928,7 @@
     {
      "kind": "case",
      "id": "blackbox",
-     "count": "01 / 13",
+     "count": "01 / 14",
      "kickers": [
       "Native Mac app · Developer tool",
       ""
@@ -943,7 +943,7 @@
     {
      "kind": "case",
      "id": "agentforge",
-     "count": "02 / 13",
+     "count": "02 / 14",
      "kickers": [
       "Native Mac app · Local AI",
       ""
@@ -958,7 +958,7 @@
     {
      "kind": "case",
      "id": "agentforge-rust",
-     "count": "03 / 13",
+     "count": "03 / 14",
      "kickers": [
       "Desktop app for Mac, Windows and Linux · Local AI",
       ""
@@ -973,7 +973,7 @@
     {
      "kind": "case",
      "id": "atlas",
-     "count": "04 / 13",
+     "count": "04 / 14",
      "kickers": [
       "Native Mac app · Search",
       ""
@@ -986,7 +986,7 @@
     {
      "kind": "case",
      "id": "xray",
-     "count": "05 / 13",
+     "count": "05 / 14",
      "kickers": [
       "Reading tool",
       ""
@@ -1001,7 +1001,7 @@
     {
      "kind": "case",
      "id": "boardroom",
-     "count": "06 / 13",
+     "count": "06 / 14",
      "kickers": [
       "Decision tool",
       ""
@@ -1016,7 +1016,7 @@
     {
      "kind": "case",
      "id": "slmproof",
-     "count": "07 / 13",
+     "count": "07 / 14",
      "kickers": [
       "Local AI experiment",
       ""
@@ -1029,6 +1029,21 @@
      "thumb": ""
     },
     {
+     "kind": "case",
+     "id": "usage-flame",
+     "count": "08 / 14",
+     "kickers": [
+      "Claude Code skill · Developer tool",
+      ""
+     ],
+     "title": "Usage Flame",
+     "sub": "session usage profiler",
+     "lede": "Shows where a Claude Code session's usage went, down to the individual file read, command or subagent, and names the cheapest things to change. Every item is charged for what it cost to write, to send and to re-read, and the pieces always add up to the session's real total.",
+     "body_html": "<p class=\"links\"><a href=\"/demos/usage-flame/\" target=\"_blank\" rel=\"noopener\">Try the demo</a><span>The demo shows a made-up session on an invented project. The skill itself runs on your own Claude Code sessions.</span></p>\n\n    <div class=\"shots\">\n      <figure>\n        <img decoding=\"async\" src=\"../assets/usage-flame-1.jpg\" alt=\"The Usage Flame page for a sample session: a total of $4.03 over 78 calls, and three cards naming the cheapest fixes with an estimated saving on each, above the start of the flame graph.\" width=\"1400\" height=\"875\" loading=\"lazy\">\n        <figcaption>The top of the page for an invented session. Three fix cards, each with an estimated saving: keep big results out of the main conversation, avoid a cold cache, stop reading the same file twice.</figcaption>\n      </figure>\n      <figure>\n        <img decoding=\"async\" src=\"../assets/usage-flame-2.jpg\" alt=\"The flame graph zoomed into one request, with a subagent opened up into its own file reads, commands and thinking, above a table of the most expensive items with their size, how often each was re-read and its cost.\" width=\"1400\" height=\"875\" loading=\"lazy\">\n        <figcaption>One request zoomed in. A subagent review sits under the call that started it, and the table below ranks the most expensive items, with how many later calls re-read each.</figcaption>\n      </figure>\n    </div>\n\n    <div class=\"cols\">\n      <section class=\"block\">\n        <h3>The problem</h3>\n        <p>A long Claude Code session can use a large share of a weekly limit, and the usual view is a single total. It does not say whether the cost came from a file read, a long test run, thinking, a pause that emptied the cache or the fixed prompt that is sent again on every call. Without that there is nothing specific to change.</p>\n      </section>\n      <section class=\"block\">\n        <h3>What it does</h3>\n        <ul>\n          <li><strong>Charges every token to its cause:</strong> a file read, a command, a subagent, a skill load, a burst of thinking, a written reply, or the fixed overhead that rides along on every call.</li>\n          <li><strong>Names the cheapest fixes.</strong> Up to three cards, each with an estimated saving and the exact files or commands behind it: read part of a file instead of all of it, stop re-reading one, hand a big lookup to a subagent, or compact before a long break.</li>\n          <li><strong>Draws the session as a flame graph.</strong> Width is cost. Group it by what you asked or by kind of work, click a block to zoom in, and hover for the breakdown. A table lists the most expensive items, and subagents sit under the call that started them.</li>\n        </ul>\n      </section>\n    </div>\n\n    <div class=\"cols\">\n      <section class=\"block\">\n        <h3>Decisions behind it</h3>\n        <ul>\n          <li><strong>The parts add up.</strong> Every item's cost is worked out so that together they equal what the session actually used, so a slice of the graph is a real share, not a guess.</li>\n          <li><strong>Dollars are a yardstick.</strong> Figures use list prices so sessions can be compared. On a subscription they show relative usage, not a bill.</li>\n          <li><strong>Savings are estimates and say so.</strong> Each card explains how its figure was worked out, and the cards are not added together because they overlap.</li>\n          <li><strong>It stays on the computer.</strong> It reads the session's transcript and writes one self-contained page.</li>\n        </ul>\n      </section>\n      <section class=\"block\">\n        <h3>What it does not do</h3>\n        <p>Small items are sized from their text and scaled to the real counts, so single small items are approximate. The list of tool definitions cannot be itemised from a transcript, so it shows as one block. It says what a session cost, not whether the work was worth it.</p>\n      </section>\n    </div>\n\n    <div class=\"made\"><b>How it was built</b><p>Built with Claude Code as a skill that Claude can run on any session. I set the rule that the items must add up to the real total; Claude wrote the script and the page. The demo on this site uses an invented session, so no real prompts or files appear in it.</p></div>",
+     "links_html": "",
+     "thumb": "../assets/thumbs-hd/usage-flame.jpg"
+    },
+    {
      "kind": "group",
      "id": "g-history",
      "html": "<div class=\"gdiv\" id=\"g-history\" data-chrome=\"AI &amp; research\" data-short=\"Research\"><h2 class=\"gdiv__t\">Research and history</h2><p class=\"gdiv__p\">Reference works and original research, including medical research.</p></div>"
@@ -1036,7 +1051,7 @@
     {
      "kind": "case",
      "id": "byzantium",
-     "count": "08 / 13",
+     "count": "09 / 14",
      "kickers": [
       "Reference work",
       ""
@@ -1051,7 +1066,7 @@
     {
      "kind": "case",
      "id": "mecfs",
-     "count": "09 / 13",
+     "count": "10 / 14",
      "kickers": [
       "Medical research",
       ""
@@ -1066,7 +1081,7 @@
     {
      "kind": "case",
      "id": "aftercare",
-     "count": "10 / 13",
+     "count": "11 / 14",
      "kickers": [
       "Patient tool",
       ""
@@ -1081,7 +1096,7 @@
     {
      "kind": "case",
      "id": "white-space",
-     "count": "11 / 13",
+     "count": "12 / 14",
      "kickers": [
       "Local research tool · Market research",
       ""
@@ -1096,7 +1111,7 @@
     {
      "kind": "case",
      "id": "standing-orders",
-     "count": "12 / 13",
+     "count": "13 / 14",
      "kickers": [
       "Command-line tool · Automation",
       ""
@@ -1111,7 +1126,7 @@
     {
      "kind": "case",
      "id": "citationaudit",
-     "count": "13 / 13",
+     "count": "14 / 14",
      "kickers": [
       "Medical evidence check",
       ""
