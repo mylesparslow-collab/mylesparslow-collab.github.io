@@ -1,0 +1,1113 @@
+<meta charset="utf-8">
+<title>Motion Mapper</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,700;1,6..72,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a clerk's counter. Question and the two answers on top, rates as stamped counts, docket text on ruled paper below. */
+:root{
+  --paper:#f3f0e8; --sheet:#fffdf8; --ink:#24221e; --ink-2:#554f45; --ink-3:#847c6e; --rule:#ddd6c6; --rule-2:#c7bea9;
+  --a:#0e5a5a; --a-soft:#dcebea; --b:#a2481f; --b-soft:#f5e3d8; --hi:#f4d35e; --hi-ink:#2e2500;
+  --model:#5b3d9a; --model-soft:#ebe4f6; --warn:#8a5a00; --warn-soft:#faf0d6; --err:#9b2226; --err-soft:#f7e1e1;
+  --display:"Newsreader",Georgia,serif; --ui:"IBM Plex Sans",system-ui,-apple-system,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#16150f; --sheet:#1f1d16; --ink:#ece8dc; --ink-2:#bdb6a5; --ink-3:#8f8878; --rule:#333025; --rule-2:#474335;
+  --a:#6fc3c0; --a-soft:#173736; --b:#eb9a70; --b-soft:#3b2417; --hi:#d9b93f; --hi-ink:#1c1600;
+  --model:#b9a0ee; --model-soft:#2b2142; --warn:#e6b85c; --warn-soft:#352a12; --err:#f09a9d; --err-soft:#3a1d1e; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#16150f; --sheet:#1f1d16; --ink:#ece8dc; --ink-2:#bdb6a5; --ink-3:#8f8878; --rule:#333025; --rule-2:#474335;
+  --a:#6fc3c0; --a-soft:#173736; --b:#eb9a70; --b-soft:#3b2417; --hi:#d9b93f; --hi-ink:#1c1600;
+  --model:#b9a0ee; --model-soft:#2b2142; --warn:#e6b85c; --warn-soft:#352a12; --err:#f09a9d; --err-soft:#3a1d1e; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--ui);font-size:14px;line-height:1.5}
+.wrap{max-width:1100px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:16px}
+h1,h2,h3{font-family:var(--display);margin:0;font-weight:700;text-wrap:balance}
+h1{font-size:30px;letter-spacing:-.01em} h2{font-size:20px} h3{font-size:16px}
+.sub{color:var(--ink-2);margin:2px 0 0}
+button,select,input,textarea{font:inherit;color:inherit}
+.btn{border:1px solid var(--rule-2);background:var(--sheet);border-radius:6px;padding:7px 12px;cursor:pointer;font-weight:600;font-size:13px}
+.btn{transition:transform 140ms cubic-bezier(.23,1,.32,1),border-color 140ms} .btn:active:not(:disabled){transform:scale(.97)} @media (hover:hover) and (pointer:fine){.btn:hover{border-color:var(--a)}} .btn.primary{background:var(--a);border-color:var(--a);color:var(--sheet)} .btn:disabled{opacity:.5;cursor:not-allowed}
+:focus-visible{outline:2px solid var(--a);outline-offset:2px}
+select,input[type=text],textarea{background:var(--sheet);border:1px solid var(--rule-2);border-radius:6px;padding:6px 8px;max-width:100%}
+textarea{width:100%;resize:vertical;font-family:var(--mono);font-size:12px}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--rule);overflow-x:auto}
+.tabs button{border:0;background:none;padding:9px 14px;font-weight:600;color:var(--ink-2);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--a)}
+.panel{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:16px 18px;display:grid;gap:12px;min-width:0}
+.ctrl{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end}
+.ctrl label{display:grid;gap:3px;font-size:11px;color:var(--ink-3);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.ctrl label.chk{display:flex;gap:6px;align-items:center;text-transform:none;letter-spacing:0;font-size:13px;color:var(--ink-2)}
+.seg{display:inline-flex;border:1px solid var(--rule-2);border-radius:6px;overflow:hidden}
+.seg button{border:0;background:var(--sheet);padding:6px 12px;cursor:pointer;font-weight:600;color:var(--ink-2)}
+.seg button[aria-pressed="true"]{background:var(--a);color:var(--sheet)} .seg button:active{filter:brightness(.95)}
+.sides{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+@media (max-width:760px){.sides{grid-template-columns:1fr}}
+.side{--sc:var(--a);background:var(--sheet);border:1px solid var(--rule);border-top:4px solid var(--sc);border-radius:10px;padding:16px 18px;display:grid;gap:14px;align-content:start;min-width:0}
+.side.b{--sc:var(--b)}
+.who{font-size:11px;letter-spacing:.09em;text-transform:uppercase;font-weight:600;color:var(--sc)}
+.nm{font-size:22px;line-height:1.2;margin-top:2px}
+.answer{font-family:var(--display);font-size:19px;line-height:1.35;font-weight:500;color:var(--ink-2)}
+.cap{font-size:10.5px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.07em;font-weight:600;display:flex;justify-content:space-between;gap:8px}
+.meter{display:grid;gap:3px}
+.bar{display:flex;height:16px;border-radius:2px;overflow:hidden;background:var(--rule);transform-origin:left;animation:grow 240ms cubic-bezier(.23,1,.32,1)}
+.bar i{display:block;min-width:0} .bar i+i{margin-left:1px}
+@keyframes grow{from{transform:scaleX(.96);opacity:.4}to{transform:none;opacity:1}}
+.o-granted{background:var(--sc)} .o-partial{background:repeating-linear-gradient(135deg,var(--sc) 0 3px,var(--sheet) 3px 5px)}
+.o-denied{background:var(--ink-2)} .o-moot{background:var(--rule-2)} .o-withdrawn{background:repeating-linear-gradient(135deg,var(--rule-2) 0 3px,var(--sheet) 3px 5px)}
+.scale{position:relative;height:13px;font-size:10px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.scale span{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap} .scale span:first-child{transform:none} .scale span:last-child{transform:translateX(-100%)}
+.rates{display:flex;flex-wrap:wrap;gap:6px}
+.rate{border:1px solid var(--rule-2);background:var(--paper);border-radius:6px;padding:5px 9px;cursor:pointer;text-align:left;display:grid;gap:0;min-width:92px;transition:transform 140ms cubic-bezier(.23,1,.32,1),border-color 140ms}
+.rate:active:not([disabled]){transform:scale(.97)}
+.rate[aria-pressed="true"]{border-color:var(--sc);box-shadow:0 0 0 1px var(--sc)}
+@media (hover:hover) and (pointer:fine){.rate:hover:not([disabled]){border-color:var(--sc)}}
+.rate small{font-size:10.5px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em;font-weight:600;display:flex;align-items:center;gap:5px}
+.rate small i{width:9px;height:9px;border-radius:2px;display:inline-block;border:1px solid color-mix(in srgb,var(--ink) 18%,transparent)}
+.rate b{font-variant-numeric:tabular-nums;font-size:14px} .rate[disabled]{opacity:.55;cursor:default}
+.note{font-size:12px;color:var(--ink-2)}
+.flag{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;background:var(--warn-soft);color:var(--warn)}
+.chip{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;background:var(--paper);color:var(--ink-2);border:1px solid var(--rule);white-space:nowrap}
+.chip.model{background:var(--model-soft);color:var(--model);border-color:transparent} .chip.bad{background:var(--err-soft);color:var(--err);border-color:transparent} .chip.ok{background:var(--a-soft);color:var(--a);border-color:transparent} .chip.warn{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.strip{display:grid;gap:3px}
+.track{position:relative;margin:0 6px;border-bottom:1px solid var(--rule-2);background:repeating-linear-gradient(90deg,var(--rule) 0 1px,transparent 1px 25%)}
+.track::after{content:"";position:absolute;right:-1px;top:0;bottom:0;width:1px;background:var(--rule)}
+.dot{position:absolute;width:11px;height:11px;border-radius:50%;box-shadow:0 0 0 1.5px var(--sheet);margin-left:-5.5px}
+.dot.m{outline:2px solid var(--model);outline-offset:1px}
+.med{position:absolute;top:-2px;bottom:-2px;width:0;border-left:2px solid var(--ink);z-index:1}
+.medlab{position:absolute;top:-17px;font-size:10.5px;font-weight:600;color:var(--ink);white-space:nowrap;font-variant-numeric:tabular-nums}
+.axis{position:relative;height:13px;margin:0 6px;font-size:10px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.axis span{position:absolute;transform:translateX(-50%);white-space:nowrap} .axis span:first-child{transform:none} .axis span:last-child{transform:translateX(-100%)}
+.strip-wrap{padding-top:18px}
+.matrix{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}
+.matrix caption{text-align:left;padding-bottom:8px;font-size:12px;color:var(--ink-2)}
+.matrix th{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);font-weight:600;text-align:left;padding:6px 8px;border-bottom:2px solid var(--ink)}
+.matrix th.a{color:var(--a)} .matrix th.b{color:var(--b)} .matrix th span{display:block;text-transform:none;letter-spacing:0;font-family:var(--display);font-size:14px;color:var(--ink);overflow-wrap:anywhere}
+.matrix td{padding:7px 8px;border-bottom:1px solid var(--rule);vertical-align:middle}
+.matrix td.mt{padding:0}
+.matrix td.mt button{all:unset;box-sizing:border-box;display:block;width:100%;padding:7px 8px;cursor:pointer;font-weight:600;overflow-wrap:anywhere}
+.matrix td.mt button:focus-visible{outline:2px solid var(--a);outline-offset:-2px}
+.matrix tr.cur td{background:color-mix(in srgb,var(--hi) 22%,var(--sheet))}
+.cell b{font-size:16px;font-variant-numeric:tabular-nums;display:block;line-height:1.2} .cell small{font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.cell.few b,.cell.few small{color:var(--ink-3);font-weight:400} .cell.few b{opacity:.75}
+.cell.none b{color:var(--ink-3);font-weight:400;font-size:13px}
+.leaderbar{height:4px;background:var(--rule);margin-top:3px;border-radius:2px;overflow:hidden} .leaderbar i{display:block;height:100%;background:var(--sc,var(--a))}
+.matrix td.ca .leaderbar i{background:var(--a)} .matrix td.cb .leaderbar i{background:var(--b)} .cell.few .leaderbar i{opacity:.35}
+@media (max-width:520px){.matrix th,.matrix td{padding-inline:5px}.matrix col.c0{width:34%}}
+.docket{border:1px solid var(--rule-2);border-radius:8px;background:var(--paper);overflow:hidden;animation:fade 160ms ease-out}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.docket>header{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;padding:8px 12px;background:var(--sheet);border-bottom:2px solid var(--ink)}
+.docket>header .sp{flex:1}
+.dk-row{display:grid;grid-template-columns:48px 92px 1fr auto;gap:2px 12px;padding:9px 12px;border-bottom:1px solid var(--rule);align-items:start;background:linear-gradient(var(--rule),var(--rule)) 59px 0/1px 100% no-repeat}
+.dk-row:last-child{border-bottom:0}
+.dk-row .no{font-family:var(--mono);font-weight:500;font-size:13px;text-align:right;font-variant-numeric:tabular-nums}
+.dk-row .dd{font-family:var(--mono);font-size:12px;color:var(--ink-2);padding-top:1px;font-variant-numeric:tabular-nums}
+.dk-row .tx{min-width:0} .dk-row .bd{justify-self:end}
+.dk-row.hd{padding-block:5px;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);font-weight:600;background:var(--sheet)}
+.dk-row.hd>*{font:inherit}
+.dk-row.rl{background-color:color-mix(in srgb,var(--sc,var(--a)) 6%,var(--paper))}
+@media (max-width:560px){.dk-row{grid-template-columns:40px 1fr auto;background:none}.dk-row .tx{grid-column:1/-1}.dk-row .no{text-align:left}.dk-row.hd .tx{display:none}}
+.ambgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:2px solid var(--ink)}
+.ambgrid>div{padding:9px 12px;display:grid;gap:4px;align-content:start;min-width:0;border-right:1px solid var(--rule)} .ambgrid>div:last-child{border-right:0}
+@media (max-width:760px){.ambgrid{grid-template-columns:1fr}.ambgrid>div{border-right:0;border-bottom:1px solid var(--rule)}.ambgrid>div:last-child{border-bottom:0}}
+.quote{font-family:var(--mono);font-size:12px;overflow-wrap:anywhere;margin:0;padding:5px 8px;border-left:3px solid var(--ok,var(--a));background:var(--a-soft)}
+.quote.bad{border-left-color:var(--err);background:var(--err-soft);text-decoration:line-through;text-decoration-color:color-mix(in srgb,var(--err) 55%,transparent)}
+.tiles{display:flex;flex-wrap:wrap;gap:8px}
+.tile{border:1px solid var(--rule-2);border-radius:6px;padding:6px 12px;background:var(--paper);min-width:96px} .tile b{display:block;font-size:20px;font-variant-numeric:tabular-nums;font-family:var(--display);line-height:1.2} .tile small{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);font-weight:600}
+.tile.acc b{color:var(--a)} .tile.rej b{color:var(--err)}
+.dt{font-family:var(--mono);font-size:12.5px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;margin:0}
+.lab{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3)}
+mark{background:var(--hi);color:var(--hi-ink);padding:0 1px;border-radius:2px}
+.msg{border-radius:6px;padding:8px 12px;font-size:13px;background:var(--warn-soft);color:var(--warn)} .msg.err{background:var(--err-soft);color:var(--err)} .msg.ok{background:var(--a-soft);color:var(--a)}
+.foot{font-size:12px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:12px}
+.two{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.stream{font-family:var(--mono);font-size:12px;color:var(--ink-3);white-space:pre-wrap;max-height:80px;overflow:hidden}
+@media (prefers-reduced-motion:reduce){.bar,.docket{animation:none}.btn,.rate{transition:none}}
+</style>
+<div class="wrap">
+  <header>
+    <h1>Motion Mapper</h1>
+    <p class="sub">How a judge, or a law firm, has fared on five kinds of motion, read from docket entries. <b>Fictional demo data.</b></p>
+  </header>
+  <div class="tabs" role="tablist" id="tabs">
+    <button role="tab" data-tab="compare" id="tab-compare" aria-controls="v-compare" aria-selected="true" tabindex="0">Compare</button>
+    <button role="tab" data-tab="amb" aria-selected="false" tabindex="-1" aria-controls="v-amb" id="tab-amb">Ambiguous entries</button>
+    <button role="tab" data-tab="imp" id="tab-imp" aria-controls="v-imp" aria-selected="false" tabindex="-1">Import</button>
+  </div>
+  <section id="v-compare" role="tabpanel" aria-labelledby="tab-compare"></section>
+  <section id="v-amb" role="tabpanel" aria-labelledby="tab-amb" hidden></section>
+  <section id="v-imp" role="tabpanel" aria-labelledby="tab-imp" hidden></section>
+  <div class="foot">All judges, firms, parties and cases in the demo are fictional. Every figure describes invented dockets only and says nothing about any real judge or firm. Code reads the docket and does all the counting; the model is used only to tag entries the rules could not read, and its tags are kept only when its quoted evidence appears word for word in the entry.</div>
+</div>
+<script>/* Motion Mapper demo data. ENTIRELY FICTIONAL: invented judges, firms, parties and cases. No statistic here describes any real person or firm. */
+const MM_DATA = {
+  court: "C.D. Cal. (fictional demo court)",
+  note: "Fictional judges, firms, parties and cases. Docket text is written in the style of federal docket entries.",
+  cases: [
+ {
+  "case_id": "2:25-cv-01001",
+  "caption": "Marlowe Ridge Holdings v. Tessaly Foods Inc.",
+  "judge": "Judge Corliss Venable",
+  "plaintiff": "Marlowe Ridge Holdings",
+  "plaintiff_firm": "Harlow Pennick LLP",
+  "defendant": "Tessaly Foods Inc.",
+  "defendant_firm": "Vantreese & Oyelaran LLP"
+ },
+ {
+  "case_id": "2:25-cv-01188",
+  "caption": "Orsini v. Kellerman Logistics LLC",
+  "judge": "Judge Corliss Venable",
+  "plaintiff": "Orsini",
+  "plaintiff_firm": "Quillfeather Dray PC",
+  "defendant": "Kellerman Logistics LLC",
+  "defendant_firm": "Harlow Pennick LLP"
+ },
+ {
+  "case_id": "2:25-cv-01342",
+  "caption": "Brightwater Cooperative v. Nunez Media Group",
+  "judge": "Judge Corliss Venable",
+  "plaintiff": "Brightwater Cooperative",
+  "plaintiff_firm": "Vantreese & Oyelaran LLP",
+  "defendant": "Nunez Media Group",
+  "defendant_firm": "Quillfeather Dray PC"
+ },
+ {
+  "case_id": "2:25-cv-02010",
+  "caption": "Pellam v. Ostrander Software Inc.",
+  "judge": "Judge Ignatius Brandt-Whelan",
+  "plaintiff": "Pellam",
+  "plaintiff_firm": "Harlow Pennick LLP",
+  "defendant": "Ostrander Software Inc.",
+  "defendant_firm": "Quillfeather Dray PC"
+ },
+ {
+  "case_id": "2:25-cv-02254",
+  "caption": "Dunmore Clinics v. Ferrow Staffing Corp.",
+  "judge": "Judge Ignatius Brandt-Whelan",
+  "plaintiff": "Dunmore Clinics",
+  "plaintiff_firm": "Quillfeather Dray PC",
+  "defendant": "Ferrow Staffing Corp.",
+  "defendant_firm": "Vantreese & Oyelaran LLP"
+ },
+ {
+  "case_id": "2:25-cv-02391",
+  "caption": "Ashgrove v. Calloway Media Partners",
+  "judge": "Judge Ignatius Brandt-Whelan",
+  "plaintiff": "Ashgrove",
+  "plaintiff_firm": "Vantreese & Oyelaran LLP",
+  "defendant": "Calloway Media Partners",
+  "defendant_firm": "Harlow Pennick LLP"
+ }
+],
+  entries: [
+ {"entry_id":"E001","entry_number":1,"case_id":"2:25-cv-01001","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-01-13","entry_text":"COMPLAINT against Tessaly Foods Inc. (Filing fee $405, receipt number ACACDC-0000000) filed by Marlowe Ridge Holdings. (Attachments: # 1 Civil Cover Sheet) (Entered: 01/13/2025)","party_filing":"Plaintiff","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E002","entry_number":2,"case_id":"2:25-cv-01001","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-01-15","entry_text":"SUMMONS Issued as to Tessaly Foods Inc.. (Entered: 01/15/2025)","party_filing":"Plaintiff","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E003","entry_number":3,"case_id":"2:25-cv-01001","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-01-22","entry_text":"NOTICE of Appearance filed by attorney for Defendant Tessaly Foods Inc..","party_filing":"Defendant","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E004","entry_number":4,"case_id":"2:25-cv-01001","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-01-25","entry_text":"STANDING ORDER by Judge Corliss Venable regarding civil cases. (Entered: 01/25/2025)","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E005","entry_number":5,"case_id":"2:25-cv-01001","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-02-07","entry_text":"NOTICE OF MOTION AND MOTION to Dismiss Case pursuant to FRCP 12(b)(6) filed by Defendant Tessaly Foods Inc.. Motion set for hearing on 03/07/2025 at 10:00 AM before Judge Corliss Venable. (Attachments: # 1 Memorandum, # 2 Declaration, # 3 Proposed Order)","party_filing":"Defendant","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E006","entry_number":6,"case_id":"2:25-cv-01001","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-02-18","entry_text":"OPPOSITION to [5] MOTION to Dismiss filed by Plaintiff Marlowe Ridge Holdings. (Attachments: # 1 Declaration)","party_filing":"Plaintiff","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E007","entry_number":7,"case_id":"2:25-cv-01001","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-02-24","entry_text":"REPLY in support of [5] MOTION to Dismiss filed by Defendant Tessaly Foods Inc..","party_filing":"Defendant","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E008","entry_number":8,"case_id":"2:25-cv-01001","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-03-17","entry_text":"MINUTES (IN CHAMBERS) ORDER by Judge Corliss Venable GRANTING Defendant's Motion to Dismiss. The Court finds this matter appropriate for decision without oral argument. Fed. R. Civ. P. 78; L.R. 7-15.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E009","entry_number":9,"case_id":"2:25-cv-01001","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-03-24","entry_text":"STIPULATION to Continue Hearing on [5] MOTION to Dismiss filed by Plaintiff Marlowe Ridge Holdings.","party_filing":"Plaintiff","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E010","entry_number":10,"case_id":"2:25-cv-01001","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-03-26","entry_text":"ORDER by Judge Corliss Venable GRANTING [9] STIPULATION to Continue Hearing on [5] MOTION to Dismiss. Hearing continued.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E011","entry_number":11,"case_id":"2:25-cv-01001","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-04-01","entry_text":"NOTICE OF MOTION AND MOTION to Dismiss Case pursuant to FRCP 12(b)(6) filed by Defendant Tessaly Foods Inc.. Motion set for hearing on 04/29/2025 at 10:00 AM before Judge Corliss Venable. (Attachments: # 1 Memorandum, # 2 Declaration, # 3 Proposed Order)","party_filing":"Defendant","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E012","entry_number":12,"case_id":"2:25-cv-01001","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-04-15","entry_text":"OPPOSITION to [11] MOTION to Dismiss filed by Plaintiff Marlowe Ridge Holdings. (Attachments: # 1 Declaration)","party_filing":"Plaintiff","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E013","entry_number":13,"case_id":"2:25-cv-01001","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-04-22","entry_text":"REPLY in support of [11] MOTION to Dismiss filed by Defendant Tessaly Foods Inc..","party_filing":"Defendant","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E014","entry_number":14,"case_id":"2:25-cv-01001","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-05-05","entry_text":"MINUTES OF MOTION HEARING held before Judge Corliss Venable: Court hears oral argument on [11] MOTION to Dismiss. The motion is TAKEN UNDER SUBMISSION.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E015","entry_number":15,"case_id":"2:25-cv-01001","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-05-10","entry_text":"MINUTES (IN CHAMBERS) ORDER by Judge Corliss Venable GRANTING IN PART and DENYING IN PART [11] MOTION to Dismiss Case pursuant to FRCP 12(b)(6) filed by Defendant. Counts II and IV are dismissed with leave to amend within 21 days.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E016","entry_number":16,"case_id":"2:25-cv-01001","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-05-18","entry_text":"NOTICE OF MOTION AND MOTION for Preliminary Injunction filed by Plaintiff Marlowe Ridge Holdings. Motion set for hearing on 06/15/2025 at 10:00 AM before Judge Corliss Venable. (Attachments: # 1 Memorandum, # 2 Declaration, # 3 Proposed Order)","party_filing":"Plaintiff","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E017","entry_number":17,"case_id":"2:25-cv-01001","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-05-30","entry_text":"OPPOSITION to [16] MOTION for Preliminary Injunction filed by Defendant Tessaly Foods Inc.. (Attachments: # 1 Declaration)","party_filing":"Defendant","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E018","entry_number":18,"case_id":"2:25-cv-01001","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-06-05","entry_text":"REPLY in support of [16] MOTION for Preliminary Injunction filed by Plaintiff Marlowe Ridge Holdings.","party_filing":"Plaintiff","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E019","entry_number":19,"case_id":"2:25-cv-01001","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-06-30","entry_text":"ORDER by Judge Corliss Venable re: [16] Motion for Preliminary Injunction. Plaintiff's application is not well taken and the relief sought is REFUSED.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E020","entry_number":20,"case_id":"2:25-cv-01001","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-07-14","entry_text":"NOTICE OF MOTION AND MOTION to Compel Arbitration and Stay Proceedings filed by Defendant Tessaly Foods Inc.. Motion set for hearing on 08/11/2025 at 10:00 AM before Judge Corliss Venable. (Attachments: # 1 Memorandum, # 2 Declaration, # 3 Proposed Order)","party_filing":"Defendant","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E021","entry_number":21,"case_id":"2:25-cv-01001","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-07-26","entry_text":"NOTICE OF WITHDRAWAL of [20] MOTION to Compel Arbitration filed by Defendant Tessaly Foods Inc.. The parties have agreed to submit the dispute to mediation.","party_filing":"Defendant","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E022","entry_number":22,"case_id":"2:25-cv-01001","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-08-11","entry_text":"NOTICE OF MOTION AND MOTION for Summary Judgment, or in the Alternative Partial Summary Judgment filed by Defendant Tessaly Foods Inc.. Motion set for hearing on 09/08/2025 at 10:00 AM before Judge Corliss Venable. (Attachments: # 1 Memorandum, # 2 Declaration, # 3 Proposed Order)","party_filing":"Defendant","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E023","entry_number":23,"case_id":"2:25-cv-01001","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-08-22","entry_text":"OPPOSITION to [22] MOTION for Summary Judgment filed by Plaintiff Marlowe Ridge Holdings. (Attachments: # 1 Declaration)","party_filing":"Plaintiff","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E024","entry_number":24,"case_id":"2:25-cv-01001","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-08-27","entry_text":"REPLY in support of [22] MOTION for Summary Judgment filed by Defendant Tessaly Foods Inc..","party_filing":"Defendant","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E025","entry_number":25,"case_id":"2:25-cv-01001","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-09-25","entry_text":"ORDER by Judge Corliss Venable: [22] MOTION for Summary Judgment is GRANTED. The Court's reasoning is set forth in the attached order.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E026","entry_number":1,"case_id":"2:25-cv-01188","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-02-03","entry_text":"COMPLAINT against Kellerman Logistics LLC (Filing fee $405, receipt number ACACDC-0000000) filed by Orsini. (Attachments: # 1 Civil Cover Sheet) (Entered: 02/03/2025)","party_filing":"Plaintiff","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E027","entry_number":2,"case_id":"2:25-cv-01188","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-02-05","entry_text":"SUMMONS Issued as to Kellerman Logistics LLC. (Entered: 02/05/2025)","party_filing":"Plaintiff","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E028","entry_number":3,"case_id":"2:25-cv-01188","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-02-12","entry_text":"NOTICE of Appearance filed by attorney for Defendant Kellerman Logistics LLC.","party_filing":"Defendant","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E029","entry_number":4,"case_id":"2:25-cv-01188","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-02-15","entry_text":"STANDING ORDER by Judge Corliss Venable regarding civil cases. (Entered: 02/15/2025)","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E030","entry_number":5,"case_id":"2:25-cv-01188","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-02-28","entry_text":"MOTION to Dismiss Case pursuant to FRCP 12(b)(6) filed by Defendant Kellerman Logistics LLC. Motion set for hearing on 03/28/2025 at 10:00 AM before Judge Corliss Venable. (Attachments: # 1 Proposed Order)","party_filing":"Defendant","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E031","entry_number":6,"case_id":"2:25-cv-01188","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-03-10","entry_text":"OPPOSITION to [5] MOTION to Dismiss filed by Plaintiff Orsini. (Attachments: # 1 Declaration)","party_filing":"Plaintiff","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E032","entry_number":7,"case_id":"2:25-cv-01188","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-03-16","entry_text":"REPLY in support of [5] MOTION to Dismiss filed by Defendant Kellerman Logistics LLC.","party_filing":"Defendant","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E033","entry_number":8,"case_id":"2:25-cv-01188","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-04-03","entry_text":"ORDER by Judge Corliss Venable: Defendant's Motion to Dismiss is DENIED. The Court's reasoning is set forth in the attached order.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E034","entry_number":9,"case_id":"2:25-cv-01188","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-04-19","entry_text":"Special MOTION to Strike (Anti-SLAPP) pursuant to Cal. Code Civ. Proc. section 425.16 filed by Defendant Kellerman Logistics LLC. Motion set for hearing on 05/17/2025 at 10:00 AM before Judge Corliss Venable. (Attachments: # 1 Memorandum of Points and Authorities, # 2 Proposed Order)","party_filing":"Defendant","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E035","entry_number":10,"case_id":"2:25-cv-01188","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-05-04","entry_text":"OPPOSITION to [9] Special MOTION to Strike filed by Plaintiff Orsini. (Attachments: # 1 Declaration)","party_filing":"Plaintiff","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E036","entry_number":11,"case_id":"2:25-cv-01188","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-05-08","entry_text":"REPLY in support of [9] Special MOTION to Strike filed by Defendant Kellerman Logistics LLC.","party_filing":"Defendant","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E037","entry_number":12,"case_id":"2:25-cv-01188","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-05-09","entry_text":"MOTION to Compel Discovery Responses filed by Plaintiff Orsini. Motion set for hearing before the Magistrate Judge.","party_filing":"Plaintiff","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E038","entry_number":13,"case_id":"2:25-cv-01188","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-05-30","entry_text":"MINUTES (IN CHAMBERS) ORDER by Judge Corliss Venable: Defendant's special motion to strike [9] is OVERRULED in its entirety.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E039","entry_number":14,"case_id":"2:25-cv-01188","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-06-03","entry_text":"ORDER by Magistrate Judge GRANTING [12] MOTION to Compel Discovery Responses.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E040","entry_number":15,"case_id":"2:25-cv-01188","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-06-07","entry_text":"MOTION to Dismiss Case pursuant to FRCP 12(b)(6) filed by Defendant Kellerman Logistics LLC. Motion set for hearing on 07/05/2025 at 10:00 AM before Judge Corliss Venable. (Attachments: # 1 Memorandum, # 2 Declaration, # 3 Proposed Order)","party_filing":"Defendant","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E041","entry_number":16,"case_id":"2:25-cv-01188","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-06-20","entry_text":"OPPOSITION to [15] MOTION to Dismiss filed by Plaintiff Orsini. (Attachments: # 1 Declaration)","party_filing":"Plaintiff","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E042","entry_number":17,"case_id":"2:25-cv-01188","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-06-24","entry_text":"REPLY in support of [15] MOTION to Dismiss filed by Defendant Kellerman Logistics LLC.","party_filing":"Defendant","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E043","entry_number":18,"case_id":"2:25-cv-01188","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-07-15","entry_text":"MINUTES OF MOTION HEARING held before Judge Corliss Venable: Court hears oral argument on [15] MOTION to Dismiss. The motion is TAKEN UNDER SUBMISSION.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E044","entry_number":19,"case_id":"2:25-cv-01188","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-07-23","entry_text":"MINUTES (IN CHAMBERS) ORDER by Judge Corliss Venable GRANTING [15] MOTION to Dismiss Case pursuant to FRCP 12(b)(6) filed by Defendant. The Court finds this matter appropriate for decision without oral argument. Fed. R. Civ. P. 78; L.R. 7-15.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E045","entry_number":20,"case_id":"2:25-cv-01188","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-08-06","entry_text":"NOTICE OF MOTION AND MOTION to Compel Arbitration and Stay Proceedings filed by Defendant Kellerman Logistics LLC. Motion set for hearing on 09/03/2025 at 10:00 AM before Judge Corliss Venable. (Attachments: # 1 Memorandum of Points and Authorities, # 2 Proposed Order)","party_filing":"Defendant","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E046","entry_number":21,"case_id":"2:25-cv-01188","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-08-19","entry_text":"OPPOSITION to [20] MOTION to Compel Arbitration filed by Plaintiff Orsini. (Attachments: # 1 Declaration)","party_filing":"Plaintiff","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E047","entry_number":22,"case_id":"2:25-cv-01188","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-08-23","entry_text":"REPLY in support of [20] MOTION to Compel Arbitration filed by Defendant Kellerman Logistics LLC.","party_filing":"Defendant","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E048","entry_number":23,"case_id":"2:25-cv-01188","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-09-12","entry_text":"ORDER by Judge Corliss Venable re: [20]: Defendant's request is well taken. The arbitration agreement is enforceable and this action is STAYED pending arbitration.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E049","entry_number":24,"case_id":"2:25-cv-01188","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-09-24","entry_text":"NOTICE OF MOTION AND MOTION for Preliminary Injunction filed by Plaintiff Orsini. Motion set for hearing on 10/22/2025 at 10:00 AM before Judge Corliss Venable. (Attachments: # 1 Proposed Order)","party_filing":"Plaintiff","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E050","entry_number":25,"case_id":"2:25-cv-01188","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-10-08","entry_text":"OPPOSITION to [24] MOTION for Preliminary Injunction filed by Defendant Kellerman Logistics LLC. (Attachments: # 1 Declaration)","party_filing":"Defendant","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E051","entry_number":26,"case_id":"2:25-cv-01188","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-10-12","entry_text":"REPLY in support of [24] MOTION for Preliminary Injunction filed by Plaintiff Orsini.","party_filing":"Plaintiff","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E052","entry_number":27,"case_id":"2:25-cv-01188","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-10-28","entry_text":"MINUTES (IN CHAMBERS) ORDER by Judge Corliss Venable: [24] MOTION for Preliminary Injunction is DENIED AS MOOT in light of the parties' stipulated standstill.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E053","entry_number":1,"case_id":"2:25-cv-01342","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-02-24","entry_text":"COMPLAINT against Nunez Media Group (Filing fee $405, receipt number ACACDC-0000000) filed by Brightwater Cooperative. (Attachments: # 1 Civil Cover Sheet) (Entered: 02/24/2025)","party_filing":"Plaintiff","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E054","entry_number":2,"case_id":"2:25-cv-01342","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-02-26","entry_text":"SUMMONS Issued as to Nunez Media Group. (Entered: 02/26/2025)","party_filing":"Plaintiff","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E055","entry_number":3,"case_id":"2:25-cv-01342","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-03-05","entry_text":"NOTICE of Appearance filed by attorney for Defendant Nunez Media Group.","party_filing":"Defendant","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E056","entry_number":4,"case_id":"2:25-cv-01342","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-03-08","entry_text":"STANDING ORDER by Judge Corliss Venable regarding civil cases. (Entered: 03/08/2025)","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E057","entry_number":5,"case_id":"2:25-cv-01342","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-03-21","entry_text":"MOTION to Dismiss Case pursuant to FRCP 12(b)(6) filed by Defendant Nunez Media Group. Motion set for hearing on 04/18/2025 at 10:00 AM before Judge Corliss Venable. (Attachments: # 1 Proposed Order)","party_filing":"Defendant","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E058","entry_number":6,"case_id":"2:25-cv-01342","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-03-31","entry_text":"OPPOSITION to [5] MOTION to Dismiss filed by Plaintiff Brightwater Cooperative. (Attachments: # 1 Declaration)","party_filing":"Plaintiff","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E059","entry_number":7,"case_id":"2:25-cv-01342","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-04-08","entry_text":"REPLY in support of [5] MOTION to Dismiss filed by Defendant Nunez Media Group.","party_filing":"Defendant","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E060","entry_number":8,"case_id":"2:25-cv-01342","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-04-20","entry_text":"ORDER by Judge Corliss Venable: [5] MOTION to Dismiss is GRANTED. The Court's reasoning is set forth in the attached order.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E061","entry_number":9,"case_id":"2:25-cv-01342","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-05-04","entry_text":"NOTICE OF MOTION AND MOTION to Dismiss Case pursuant to FRCP 12(b)(6) filed by Defendant Nunez Media Group. Motion set for hearing on 06/01/2025 at 10:00 AM before Judge Corliss Venable. (Attachments: # 1 Proposed Order)","party_filing":"Defendant","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E062","entry_number":10,"case_id":"2:25-cv-01342","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-05-15","entry_text":"OPPOSITION to [9] MOTION to Dismiss filed by Plaintiff Brightwater Cooperative. (Attachments: # 1 Declaration)","party_filing":"Plaintiff","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E063","entry_number":11,"case_id":"2:25-cv-01342","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-05-23","entry_text":"REPLY in support of [9] MOTION to Dismiss filed by Defendant Nunez Media Group.","party_filing":"Defendant","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E064","entry_number":12,"case_id":"2:25-cv-01342","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-06-08","entry_text":"MINUTES (IN CHAMBERS) ORDER by Judge Corliss Venable re: [9] MOTION to Dismiss. Counts I and II of the Complaint are DISMISSED with leave to amend. Counts III through V shall proceed.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E065","entry_number":13,"case_id":"2:25-cv-01342","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-06-23","entry_text":"MOTION for Summary Judgment, or in the Alternative Partial Summary Judgment filed by Defendant Nunez Media Group. Motion set for hearing on 07/21/2025 at 10:00 AM before Judge Corliss Venable. (Attachments: # 1 Memorandum of Points and Authorities, # 2 Proposed Order)","party_filing":"Defendant","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E066","entry_number":14,"case_id":"2:25-cv-01342","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-07-05","entry_text":"OPPOSITION to [13] MOTION for Summary Judgment filed by Plaintiff Brightwater Cooperative. (Attachments: # 1 Declaration)","party_filing":"Plaintiff","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E067","entry_number":15,"case_id":"2:25-cv-01342","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-07-14","entry_text":"REPLY in support of [13] MOTION for Summary Judgment filed by Defendant Nunez Media Group.","party_filing":"Defendant","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E068","entry_number":16,"case_id":"2:25-cv-01342","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-07-21","entry_text":"MINUTES (IN CHAMBERS) ORDER by Judge Corliss Venable GRANTING IN PART and DENYING IN PART [13] MOTION for Summary Judgment, or in the Alternative Partial Summary Judgment filed by Defendant. The Court's reasoning is set forth in the attached order.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E069","entry_number":17,"case_id":"2:25-cv-01342","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-08-01","entry_text":"NOTICE OF MOTION AND MOTION for Preliminary Injunction filed by Plaintiff Brightwater Cooperative. Motion set for hearing on 08/29/2025 at 10:00 AM before Judge Corliss Venable. (Attachments: # 1 Memorandum of Points and Authorities, # 2 Proposed Order)","party_filing":"Plaintiff","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E070","entry_number":18,"case_id":"2:25-cv-01342","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-08-16","entry_text":"OPPOSITION to [17] MOTION for Preliminary Injunction filed by Defendant Nunez Media Group. (Attachments: # 1 Declaration)","party_filing":"Defendant","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E071","entry_number":19,"case_id":"2:25-cv-01342","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-08-18","entry_text":"REPLY in support of [17] MOTION for Preliminary Injunction filed by Plaintiff Brightwater Cooperative.","party_filing":"Plaintiff","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E072","entry_number":20,"case_id":"2:25-cv-01342","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-08-26","entry_text":"MINUTES (IN CHAMBERS) ORDER by Judge Corliss Venable DENYING [17] MOTION for Preliminary Injunction filed by Plaintiff.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E073","entry_number":21,"case_id":"2:25-cv-01342","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-09-07","entry_text":"NOTICE OF MOTION AND MOTION to Dismiss Case pursuant to FRCP 12(b)(6) filed by Defendant Nunez Media Group. Motion set for hearing on 10/05/2025 at 10:00 AM before Judge Corliss Venable. (Attachments: # 1 Proposed Order)","party_filing":"Defendant","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E074","entry_number":22,"case_id":"2:25-cv-01342","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-09-19","entry_text":"OPPOSITION to [21] MOTION to Dismiss filed by Plaintiff Brightwater Cooperative. (Attachments: # 1 Declaration)","party_filing":"Plaintiff","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E075","entry_number":23,"case_id":"2:25-cv-01342","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-09-24","entry_text":"REPLY in support of [21] MOTION to Dismiss filed by Defendant Nunez Media Group.","party_filing":"Defendant","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E076","entry_number":24,"case_id":"2:25-cv-01342","court":"C.D. Cal. (fictional demo court)","judge":"Judge Corliss Venable","filing_date":"2025-10-22","entry_text":"MINUTES (IN CHAMBERS) ORDER by Judge Corliss Venable: The Court grants [21] Motion to Dismiss as to Count 2 only. The motion is denied as to Count 3.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E077","entry_number":1,"case_id":"2:25-cv-02010","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-01-27","entry_text":"COMPLAINT against Ostrander Software Inc. (Filing fee $405, receipt number ACACDC-0000000) filed by Pellam. (Attachments: # 1 Civil Cover Sheet) (Entered: 01/27/2025)","party_filing":"Plaintiff","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E078","entry_number":2,"case_id":"2:25-cv-02010","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-01-29","entry_text":"SUMMONS Issued as to Ostrander Software Inc.. (Entered: 01/29/2025)","party_filing":"Plaintiff","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E079","entry_number":3,"case_id":"2:25-cv-02010","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-02-05","entry_text":"NOTICE of Appearance filed by attorney for Defendant Ostrander Software Inc..","party_filing":"Defendant","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E080","entry_number":4,"case_id":"2:25-cv-02010","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-02-08","entry_text":"STANDING ORDER by Judge Ignatius Brandt-Whelan regarding civil cases. (Entered: 02/08/2025)","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E081","entry_number":5,"case_id":"2:25-cv-02010","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-02-21","entry_text":"NOTICE OF MOTION AND MOTION to Dismiss Case pursuant to FRCP 12(b)(6) filed by Defendant Ostrander Software Inc.. Motion set for hearing on 03/21/2025 at 10:00 AM before Judge Ignatius Brandt-Whelan. (Attachments: # 1 Memorandum of Points and Authorities, # 2 Proposed Order)","party_filing":"Defendant","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E082","entry_number":6,"case_id":"2:25-cv-02010","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-03-07","entry_text":"OPPOSITION to [5] MOTION to Dismiss filed by Plaintiff Pellam. (Attachments: # 1 Declaration)","party_filing":"Plaintiff","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E083","entry_number":7,"case_id":"2:25-cv-02010","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-03-12","entry_text":"REPLY in support of [5] MOTION to Dismiss filed by Defendant Ostrander Software Inc..","party_filing":"Defendant","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E084","entry_number":8,"case_id":"2:25-cv-02010","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-04-07","entry_text":"STIPULATION to Continue Hearing on [5] MOTION to Dismiss filed by Plaintiff Pellam.","party_filing":"Plaintiff","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E085","entry_number":9,"case_id":"2:25-cv-02010","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-04-09","entry_text":"ORDER by Judge Ignatius Brandt-Whelan GRANTING [8] STIPULATION to Continue Hearing on [5] MOTION to Dismiss. Hearing continued.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E086","entry_number":10,"case_id":"2:25-cv-02010","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-05-02","entry_text":"MOTION to Compel Discovery Responses filed by Plaintiff Pellam. Motion set for hearing before the Magistrate Judge.","party_filing":"Plaintiff","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E087","entry_number":11,"case_id":"2:25-cv-02010","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-05-11","entry_text":"MINUTES (IN CHAMBERS) ORDER by Judge Ignatius Brandt-Whelan DENYING [5] MOTION to Dismiss Case pursuant to FRCP 12(b)(6) filed by Defendant.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E088","entry_number":12,"case_id":"2:25-cv-02010","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-05-21","entry_text":"NOTICE OF MOTION AND MOTION to Dismiss Case pursuant to FRCP 12(b)(6) filed by Defendant Ostrander Software Inc.. Motion set for hearing on 06/18/2025 at 10:00 AM before Judge Ignatius Brandt-Whelan. (Attachments: # 1 Memorandum, # 2 Declaration, # 3 Proposed Order)","party_filing":"Defendant","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E089","entry_number":13,"case_id":"2:25-cv-02010","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-05-27","entry_text":"ORDER by Magistrate Judge GRANTING [10] MOTION to Compel Discovery Responses.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E090","entry_number":14,"case_id":"2:25-cv-02010","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-06-04","entry_text":"OPPOSITION to [12] MOTION to Dismiss filed by Plaintiff Pellam. (Attachments: # 1 Declaration)","party_filing":"Plaintiff","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E091","entry_number":15,"case_id":"2:25-cv-02010","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-06-11","entry_text":"REPLY in support of [12] MOTION to Dismiss filed by Defendant Ostrander Software Inc..","party_filing":"Defendant","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E092","entry_number":16,"case_id":"2:25-cv-02010","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-08-15","entry_text":"MINUTES OF MOTION HEARING held before Judge Ignatius Brandt-Whelan: Court hears oral argument on [12] MOTION to Dismiss. The motion is TAKEN UNDER SUBMISSION.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E093","entry_number":17,"case_id":"2:25-cv-02010","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-08-20","entry_text":"MINUTES (IN CHAMBERS) ORDER by Judge Ignatius Brandt-Whelan DENYING [12] MOTION to Dismiss Case pursuant to FRCP 12(b)(6) filed by Defendant.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E094","entry_number":18,"case_id":"2:25-cv-02010","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-08-29","entry_text":"NOTICE OF MOTION AND MOTION to Compel Arbitration and Stay Proceedings filed by Defendant Ostrander Software Inc.. Motion set for hearing on 09/26/2025 at 10:00 AM before Judge Ignatius Brandt-Whelan. (Attachments: # 1 Proposed Order)","party_filing":"Defendant","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E095","entry_number":19,"case_id":"2:25-cv-02010","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-09-09","entry_text":"OPPOSITION to [18] MOTION to Compel Arbitration filed by Plaintiff Pellam. (Attachments: # 1 Declaration)","party_filing":"Plaintiff","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E096","entry_number":20,"case_id":"2:25-cv-02010","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-09-15","entry_text":"REPLY in support of [18] MOTION to Compel Arbitration filed by Defendant Ostrander Software Inc..","party_filing":"Defendant","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E097","entry_number":21,"case_id":"2:25-cv-02010","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-10-26","entry_text":"ORDER by Judge Ignatius Brandt-Whelan: Defendant's Motion to Compel Arbitration is GRANTED. The Court's reasoning is set forth in the attached order.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E098","entry_number":22,"case_id":"2:25-cv-02010","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-11-11","entry_text":"NOTICE OF MOTION AND MOTION for Summary Judgment, or in the Alternative Partial Summary Judgment filed by Defendant Ostrander Software Inc.. Motion set for hearing on 12/09/2025 at 10:00 AM before Judge Ignatius Brandt-Whelan. (Attachments: # 1 Memorandum of Points and Authorities, # 2 Proposed Order)","party_filing":"Defendant","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E099","entry_number":23,"case_id":"2:25-cv-02010","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-11-24","entry_text":"OPPOSITION to [22] MOTION for Summary Judgment filed by Plaintiff Pellam. (Attachments: # 1 Declaration)","party_filing":"Plaintiff","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E100","entry_number":24,"case_id":"2:25-cv-02010","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-11-29","entry_text":"REPLY in support of [22] MOTION for Summary Judgment filed by Defendant Ostrander Software Inc..","party_filing":"Defendant","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E101","entry_number":25,"case_id":"2:25-cv-02010","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2026-01-31","entry_text":"MINUTES (IN CHAMBERS) ORDER by Judge Ignatius Brandt-Whelan re: [22] Motion for Summary Judgment. There being no genuine dispute of material fact, judgment shall be entered for Defendant on all counts.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E102","entry_number":26,"case_id":"2:25-cv-02010","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2026-02-15","entry_text":"NOTICE OF MOTION AND MOTION for Preliminary Injunction filed by Plaintiff Pellam. Motion set for hearing on 03/15/2026 at 10:00 AM before Judge Ignatius Brandt-Whelan. (Attachments: # 1 Memorandum of Points and Authorities, # 2 Proposed Order)","party_filing":"Plaintiff","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E103","entry_number":27,"case_id":"2:25-cv-02010","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2026-02-27","entry_text":"OPPOSITION to [26] MOTION for Preliminary Injunction filed by Defendant Ostrander Software Inc.. (Attachments: # 1 Declaration)","party_filing":"Defendant","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E104","entry_number":28,"case_id":"2:25-cv-02010","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2026-03-07","entry_text":"REPLY in support of [26] MOTION for Preliminary Injunction filed by Plaintiff Pellam.","party_filing":"Plaintiff","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E105","entry_number":29,"case_id":"2:25-cv-02010","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2026-04-28","entry_text":"ORDER by Judge Ignatius Brandt-Whelan re: [26] Motion for Preliminary Injunction. Plaintiff has not shown a likelihood of success on the merits, so the request for injunctive relief fails.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E106","entry_number":1,"case_id":"2:25-cv-02254","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-03-10","entry_text":"COMPLAINT against Ferrow Staffing Corp. (Filing fee $405, receipt number ACACDC-0000000) filed by Dunmore Clinics. (Attachments: # 1 Civil Cover Sheet) (Entered: 03/10/2025)","party_filing":"Plaintiff","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E107","entry_number":2,"case_id":"2:25-cv-02254","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-03-12","entry_text":"SUMMONS Issued as to Ferrow Staffing Corp.. (Entered: 03/12/2025)","party_filing":"Plaintiff","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E108","entry_number":3,"case_id":"2:25-cv-02254","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-03-19","entry_text":"NOTICE of Appearance filed by attorney for Defendant Ferrow Staffing Corp..","party_filing":"Defendant","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E109","entry_number":4,"case_id":"2:25-cv-02254","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-03-22","entry_text":"STANDING ORDER by Judge Ignatius Brandt-Whelan regarding civil cases. (Entered: 03/22/2025)","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E110","entry_number":5,"case_id":"2:25-cv-02254","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-04-04","entry_text":"MOTION to Dismiss Case pursuant to FRCP 12(b)(6) filed by Defendant Ferrow Staffing Corp.. Motion set for hearing on 05/02/2025 at 10:00 AM before Judge Ignatius Brandt-Whelan. (Attachments: # 1 Memorandum, # 2 Declaration, # 3 Proposed Order)","party_filing":"Defendant","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E111","entry_number":6,"case_id":"2:25-cv-02254","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-04-16","entry_text":"OPPOSITION to [5] MOTION to Dismiss filed by Plaintiff Dunmore Clinics. (Attachments: # 1 Declaration)","party_filing":"Plaintiff","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E112","entry_number":7,"case_id":"2:25-cv-02254","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-04-24","entry_text":"REPLY in support of [5] MOTION to Dismiss filed by Defendant Ferrow Staffing Corp..","party_filing":"Defendant","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E113","entry_number":8,"case_id":"2:25-cv-02254","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-06-23","entry_text":"MINUTES OF MOTION HEARING held before Judge Ignatius Brandt-Whelan: Court hears oral argument on [5] MOTION to Dismiss. The motion is TAKEN UNDER SUBMISSION.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E114","entry_number":9,"case_id":"2:25-cv-02254","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-06-29","entry_text":"ORDER by Judge Ignatius Brandt-Whelan: [5] MOTION to Dismiss is DENIED. The Court's reasoning is set forth in the attached order.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E115","entry_number":10,"case_id":"2:25-cv-02254","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-07-15","entry_text":"NOTICE OF MOTION AND MOTION to Dismiss Case pursuant to FRCP 12(b)(6) filed by Defendant Ferrow Staffing Corp.. Motion set for hearing on 08/12/2025 at 10:00 AM before Judge Ignatius Brandt-Whelan. (Attachments: # 1 Memorandum of Points and Authorities, # 2 Proposed Order)","party_filing":"Defendant","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E116","entry_number":11,"case_id":"2:25-cv-02254","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-07-30","entry_text":"OPPOSITION to [10] MOTION to Dismiss filed by Plaintiff Dunmore Clinics. (Attachments: # 1 Declaration)","party_filing":"Plaintiff","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E117","entry_number":12,"case_id":"2:25-cv-02254","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-08-04","entry_text":"REPLY in support of [10] MOTION to Dismiss filed by Defendant Ferrow Staffing Corp..","party_filing":"Defendant","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E118","entry_number":13,"case_id":"2:25-cv-02254","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-09-07","entry_text":"MINUTES (IN CHAMBERS) ORDER by Judge Ignatius Brandt-Whelan GRANTING IN PART and DENYING IN PART [10] MOTION to Dismiss Case pursuant to FRCP 12(b)(6) filed by Defendant. Counts II and IV are dismissed with leave to amend within 21 days.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E119","entry_number":14,"case_id":"2:25-cv-02254","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-09-22","entry_text":"Special MOTION to Strike (Anti-SLAPP) pursuant to Cal. Code Civ. Proc. section 425.16 filed by Defendant Ferrow Staffing Corp.. Motion set for hearing on 10/20/2025 at 10:00 AM before Judge Ignatius Brandt-Whelan. (Attachments: # 1 Memorandum of Points and Authorities, # 2 Proposed Order)","party_filing":"Defendant","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E120","entry_number":15,"case_id":"2:25-cv-02254","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-10-03","entry_text":"OPPOSITION to [14] Special MOTION to Strike filed by Plaintiff Dunmore Clinics. (Attachments: # 1 Declaration)","party_filing":"Plaintiff","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E121","entry_number":16,"case_id":"2:25-cv-02254","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-10-09","entry_text":"REPLY in support of [14] Special MOTION to Strike filed by Defendant Ferrow Staffing Corp..","party_filing":"Defendant","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E122","entry_number":17,"case_id":"2:25-cv-02254","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-12-04","entry_text":"ORDER by Judge Ignatius Brandt-Whelan: Defendant's Special Motion to Strike is DENIED. The Court's reasoning is set forth in the attached order.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E123","entry_number":18,"case_id":"2:25-cv-02254","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-12-19","entry_text":"NOTICE OF MOTION AND MOTION for Summary Judgment, or in the Alternative Partial Summary Judgment filed by Defendant Ferrow Staffing Corp.. Motion set for hearing on 01/16/2026 at 10:00 AM before Judge Ignatius Brandt-Whelan. (Attachments: # 1 Proposed Order)","party_filing":"Defendant","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E124","entry_number":19,"case_id":"2:25-cv-02254","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2026-01-03","entry_text":"OPPOSITION to [18] MOTION for Summary Judgment filed by Plaintiff Dunmore Clinics. (Attachments: # 1 Declaration)","party_filing":"Plaintiff","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E125","entry_number":20,"case_id":"2:25-cv-02254","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2026-01-09","entry_text":"REPLY in support of [18] MOTION for Summary Judgment filed by Defendant Ferrow Staffing Corp..","party_filing":"Defendant","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E126","entry_number":21,"case_id":"2:25-cv-02254","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2026-03-12","entry_text":"ORDER by Judge Ignatius Brandt-Whelan: [18] MOTION for Summary Judgment is DENIED. The Court's reasoning is set forth in the attached order.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E127","entry_number":22,"case_id":"2:25-cv-02254","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2026-03-24","entry_text":"MOTION for Preliminary Injunction filed by Plaintiff Dunmore Clinics. Motion set for hearing on 04/21/2026 at 10:00 AM before Judge Ignatius Brandt-Whelan. (Attachments: # 1 Memorandum of Points and Authorities, # 2 Proposed Order)","party_filing":"Plaintiff","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E128","entry_number":23,"case_id":"2:25-cv-02254","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2026-04-03","entry_text":"OPPOSITION to [22] MOTION for Preliminary Injunction filed by Defendant Ferrow Staffing Corp.. (Attachments: # 1 Declaration)","party_filing":"Defendant","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E129","entry_number":24,"case_id":"2:25-cv-02254","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2026-04-14","entry_text":"REPLY in support of [22] MOTION for Preliminary Injunction filed by Plaintiff Dunmore Clinics.","party_filing":"Plaintiff","counsel_firm":"Quillfeather Dray PC"},
+ {"entry_id":"E130","entry_number":25,"case_id":"2:25-cv-02254","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2026-06-20","entry_text":"ORDER by Judge Ignatius Brandt-Whelan: In light of the parties' settlement of the issues raised in [22] Motion for Preliminary Injunction, the matter is removed from calendar and the motion is TERMINATED.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E131","entry_number":1,"case_id":"2:25-cv-02391","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-03-31","entry_text":"COMPLAINT against Calloway Media Partners (Filing fee $405, receipt number ACACDC-0000000) filed by Ashgrove. (Attachments: # 1 Civil Cover Sheet) (Entered: 03/31/2025)","party_filing":"Plaintiff","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E132","entry_number":2,"case_id":"2:25-cv-02391","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-04-02","entry_text":"SUMMONS Issued as to Calloway Media Partners. (Entered: 04/02/2025)","party_filing":"Plaintiff","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E133","entry_number":3,"case_id":"2:25-cv-02391","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-04-09","entry_text":"NOTICE of Appearance filed by attorney for Defendant Calloway Media Partners.","party_filing":"Defendant","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E134","entry_number":4,"case_id":"2:25-cv-02391","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-04-12","entry_text":"STANDING ORDER by Judge Ignatius Brandt-Whelan regarding civil cases. (Entered: 04/12/2025)","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E135","entry_number":5,"case_id":"2:25-cv-02391","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-04-25","entry_text":"NOTICE OF MOTION AND Special MOTION to Strike (Anti-SLAPP) pursuant to Cal. Code Civ. Proc. section 425.16 filed by Defendant Calloway Media Partners. Motion set for hearing on 05/23/2025 at 10:00 AM before Judge Ignatius Brandt-Whelan. (Attachments: # 1 Memorandum, # 2 Declaration, # 3 Proposed Order)","party_filing":"Defendant","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E136","entry_number":6,"case_id":"2:25-cv-02391","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-05-10","entry_text":"OPPOSITION to [5] Special MOTION to Strike filed by Plaintiff Ashgrove. (Attachments: # 1 Declaration)","party_filing":"Plaintiff","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E137","entry_number":7,"case_id":"2:25-cv-02391","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-05-16","entry_text":"REPLY in support of [5] Special MOTION to Strike filed by Defendant Calloway Media Partners.","party_filing":"Defendant","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E138","entry_number":8,"case_id":"2:25-cv-02391","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-07-01","entry_text":"MINUTES (IN CHAMBERS) ORDER by Judge Ignatius Brandt-Whelan DENYING [5] Special MOTION to Strike (Anti-SLAPP) pursuant to Cal. Code Civ. Proc. section 425.16 filed by Defendant.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E139","entry_number":9,"case_id":"2:25-cv-02391","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-07-10","entry_text":"NOTICE OF MOTION AND MOTION to Dismiss Case pursuant to FRCP 12(b)(6) filed by Defendant Calloway Media Partners. Motion set for hearing on 08/07/2025 at 10:00 AM before Judge Ignatius Brandt-Whelan. (Attachments: # 1 Memorandum of Points and Authorities, # 2 Proposed Order)","party_filing":"Defendant","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E140","entry_number":10,"case_id":"2:25-cv-02391","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-07-25","entry_text":"OPPOSITION to [9] MOTION to Dismiss filed by Plaintiff Ashgrove. (Attachments: # 1 Declaration)","party_filing":"Plaintiff","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E141","entry_number":11,"case_id":"2:25-cv-02391","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-07-28","entry_text":"REPLY in support of [9] MOTION to Dismiss filed by Defendant Calloway Media Partners.","party_filing":"Defendant","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E142","entry_number":12,"case_id":"2:25-cv-02391","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-09-06","entry_text":"MINUTES (IN CHAMBERS) ORDER by Judge Ignatius Brandt-Whelan re: [9] Motion to Dismiss. The Court adopts its tentative ruling as the final order of the Court.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E143","entry_number":13,"case_id":"2:25-cv-02391","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-09-15","entry_text":"MOTION to Dismiss Case pursuant to FRCP 12(b)(6) filed by Defendant Calloway Media Partners. Motion set for hearing on 10/13/2025 at 10:00 AM before Judge Ignatius Brandt-Whelan. (Attachments: # 1 Memorandum of Points and Authorities, # 2 Proposed Order)","party_filing":"Defendant","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E144","entry_number":14,"case_id":"2:25-cv-02391","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-09-25","entry_text":"OPPOSITION to [13] MOTION to Dismiss filed by Plaintiff Ashgrove. (Attachments: # 1 Declaration)","party_filing":"Plaintiff","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E145","entry_number":15,"case_id":"2:25-cv-02391","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-10-05","entry_text":"REPLY in support of [13] MOTION to Dismiss filed by Defendant Calloway Media Partners.","party_filing":"Defendant","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E146","entry_number":16,"case_id":"2:25-cv-02391","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-11-13","entry_text":"ORDER by Judge Ignatius Brandt-Whelan: [13] MOTION to Dismiss is DENIED. The Court's reasoning is set forth in the attached order.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E147","entry_number":17,"case_id":"2:25-cv-02391","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-11-29","entry_text":"NOTICE OF MOTION AND MOTION for Summary Judgment, or in the Alternative Partial Summary Judgment filed by Defendant Calloway Media Partners. Motion set for hearing on 12/27/2025 at 10:00 AM before Judge Ignatius Brandt-Whelan. (Attachments: # 1 Memorandum of Points and Authorities, # 2 Proposed Order)","party_filing":"Defendant","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E148","entry_number":18,"case_id":"2:25-cv-02391","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-12-09","entry_text":"OPPOSITION to [17] MOTION for Summary Judgment filed by Plaintiff Ashgrove. (Attachments: # 1 Declaration)","party_filing":"Plaintiff","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E149","entry_number":19,"case_id":"2:25-cv-02391","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2025-12-15","entry_text":"REPLY in support of [17] MOTION for Summary Judgment filed by Defendant Calloway Media Partners.","party_filing":"Defendant","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E150","entry_number":20,"case_id":"2:25-cv-02391","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2026-02-10","entry_text":"ORDER by Judge Ignatius Brandt-Whelan: Defendant's Motion for Summary Judgment is GRANTED. The Court's reasoning is set forth in the attached order.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E151","entry_number":21,"case_id":"2:25-cv-02391","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2026-02-25","entry_text":"MOTION to Dismiss Case pursuant to FRCP 12(b)(6) filed by Defendant Calloway Media Partners. Motion set for hearing on 03/25/2026 at 10:00 AM before Judge Ignatius Brandt-Whelan. (Attachments: # 1 Memorandum of Points and Authorities, # 2 Proposed Order)","party_filing":"Defendant","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E152","entry_number":22,"case_id":"2:25-cv-02391","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2026-03-09","entry_text":"OPPOSITION to [21] MOTION to Dismiss filed by Plaintiff Ashgrove. (Attachments: # 1 Declaration)","party_filing":"Plaintiff","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E153","entry_number":23,"case_id":"2:25-cv-02391","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2026-03-17","entry_text":"REPLY in support of [21] MOTION to Dismiss filed by Defendant Calloway Media Partners.","party_filing":"Defendant","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E154","entry_number":24,"case_id":"2:25-cv-02391","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2026-05-12","entry_text":"MINUTES (IN CHAMBERS) ORDER by Judge Ignatius Brandt-Whelan: The Court rules on the pending motion in accordance with the tentative ruling previously distributed to counsel.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E155","entry_number":25,"case_id":"2:25-cv-02391","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2026-05-23","entry_text":"NOTICE OF MOTION AND MOTION for Preliminary Injunction filed by Plaintiff Ashgrove. Motion set for hearing on 06/20/2026 at 10:00 AM before Judge Ignatius Brandt-Whelan. (Attachments: # 1 Memorandum, # 2 Declaration, # 3 Proposed Order)","party_filing":"Plaintiff","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E156","entry_number":26,"case_id":"2:25-cv-02391","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2026-06-07","entry_text":"OPPOSITION to [25] MOTION for Preliminary Injunction filed by Defendant Calloway Media Partners. (Attachments: # 1 Declaration)","party_filing":"Defendant","counsel_firm":"Harlow Pennick LLP"},
+ {"entry_id":"E157","entry_number":27,"case_id":"2:25-cv-02391","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2026-06-08","entry_text":"REPLY in support of [25] MOTION for Preliminary Injunction filed by Plaintiff Ashgrove.","party_filing":"Plaintiff","counsel_firm":"Vantreese & Oyelaran LLP"},
+ {"entry_id":"E158","entry_number":28,"case_id":"2:25-cv-02391","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2026-08-01","entry_text":"MINUTES OF MOTION HEARING held before Judge Ignatius Brandt-Whelan: Court hears oral argument on [25] MOTION for Preliminary Injunction. The motion is TAKEN UNDER SUBMISSION.","party_filing":"Court","counsel_firm":""},
+ {"entry_id":"E159","entry_number":29,"case_id":"2:25-cv-02391","court":"C.D. Cal. (fictional demo court)","judge":"Judge Ignatius Brandt-Whelan","filing_date":"2026-08-10","entry_text":"MINUTES (IN CHAMBERS) ORDER by Judge Ignatius Brandt-Whelan GRANTING [25] MOTION for Preliminary Injunction filed by Plaintiff. The Court finds this matter appropriate for decision without oral argument. Fed. R. Civ. P. 78; L.R. 7-15.","party_filing":"Court","counsel_firm":""}
+  ],
+  /* What the ten deliberately hard minute orders really say, for checking a model's tags. Never shown to the model. */
+  ambiguousTruth: {
+ "E019": {
+  "event_type": "PrelimInjunction",
+  "outcome": "Denied"
+ },
+ "E038": {
+  "event_type": "AntiSLAPP",
+  "outcome": "Denied"
+ },
+ "E048": {
+  "event_type": "CompelArb",
+  "outcome": "Granted"
+ },
+ "E064": {
+  "event_type": "MTD_12b6",
+  "outcome": "GrantedInPart"
+ },
+ "E076": {
+  "event_type": "MTD_12b6",
+  "outcome": "GrantedInPart"
+ },
+ "E101": {
+  "event_type": "MSJ",
+  "outcome": "Granted"
+ },
+ "E105": {
+  "event_type": "PrelimInjunction",
+  "outcome": "Denied"
+ },
+ "E130": {
+  "event_type": "PrelimInjunction",
+  "outcome": "Moot"
+ },
+ "E142": {
+  "event_type": "MTD_12b6",
+  "outcome": null
+ },
+ "E154": {
+  "event_type": "MTD_12b6",
+  "outcome": null
+ }
+}
+};
+</script>
+<script>/* Prompt builder shared by the page (live runs) and run.js (recorded run). */
+const MM_PROMPTS = {
+classify({ items }){
+const body = items.map(it => `=== ENTRY ${it.entry_id} | case ${it.case_id} | filed ${it.filing_date} ===
+${it.entry_text}
+Motions in this case still waiting for a ruling (by docket number): ${it.candidates.length ? it.candidates.map(c => `[${c.entry_number}] ${c.event_type}, filed ${c.filed}: ${c.text}`).join(" || ") : "none"}
+=== END ${it.entry_id} ===`).join("\n\n");
+return `You are a litigation docketing analyst. A rules engine has already coded the clear docket entries. The entries below are ones its rules could not code, usually minute orders or orders that decide a motion without using the standard words. For each entry, decide what the entry does, using only its own text.
+
+Allowed event_type values: MTD_12b6 (motion to dismiss for failure to state a claim), AntiSLAPP (special motion to strike), CompelArb (motion to compel arbitration), MSJ (summary judgment, full or partial), PrelimInjunction.
+Allowed outcome values: Granted, Denied, GrantedInPart, Moot, WithdrawnOrVacated.
+
+Rules:
+- Do not count, tally or compute anything. Only tag each entry.
+- If the entry's text does not make the outcome clear, or does not say which motion it decides, set event_type and outcome to null. Do not guess from what is typical for judges.
+- linked_motion_entry_number must be one of the docket numbers listed for that entry, or null if the entry does not point to one.
+- evidence_quote must be copied EXACTLY, character for character, from the entry text above: the shortest phrase that shows the outcome. Never paraphrase.
+
+Reply with ONLY a JSON object, no prose and no code fence, in this shape:
+{"tags":[{"entry_id":"E019","event_type":"MTD_12b6","outcome":"GrantedInPart","linked_motion_entry_number":18,"evidence_quote":"exact words from the entry"}]}
+Include one object for every entry below, in order.
+
+${body}`;
+}
+};
+</script>
+<script>/* Motion Mapper: ALL deterministic code. Shared by the page, run.js and test.js. No DOM. */
+const MM = {
+
+TYPES: ["MTD_12b6", "AntiSLAPP", "CompelArb", "MSJ", "PrelimInjunction"],
+OUTCOMES: ["Granted", "Denied", "GrantedInPart", "Moot", "WithdrawnOrVacated"],
+LABEL: { MTD_12b6: "12(b)(6) motions to dismiss", AntiSLAPP: "anti-SLAPP motions", CompelArb: "motions to compel arbitration", MSJ: "summary judgment motions", PrelimInjunction: "preliminary injunction motions" },
+SHORT: { MTD_12b6: "12(b)(6)", AntiSLAPP: "Anti-SLAPP", CompelArb: "Compel arbitration", MSJ: "Summary judgment", PrelimInjunction: "Prelim. injunction" },
+OUTLABEL: { Granted: "Granted", Denied: "Denied", GrantedInPart: "Granted in part", Moot: "Moot", WithdrawnOrVacated: "Withdrawn or vacated" },
+MIN_N: 5,
+EMPTY: "No coded rulings on file",
+
+/* ---------- motion filings ---------- */
+motionType(text){
+  const t = String(text || "");
+  let m;
+  if ((m = t.match(/anti-?SLAPP|special motion to strike|425\.16/i))) return { type: "AntiSLAPP", match: m[0] };
+  if ((m = t.match(/motion to compel arbitration|compel arbitration/i))) return { type: "CompelArb", match: m[0] };
+  if ((m = t.match(/(?:partial )?summary judgment/i))) return { type: "MSJ", match: m[0] };
+  if ((m = t.match(/preliminary injunction/i))) return { type: "PrelimInjunction", match: m[0] };
+  if ((m = t.match(/12\(b\)\(6\)|failure to state a claim/i))) return { type: "MTD_12b6", match: m[0] };
+  if (!/12\(b\)\([12345]\)/i.test(t) && (m = t.match(/motion to dismiss/i))) return { type: "MTD_12b6", match: m[0] };
+  return null;
+},
+NOT_A_FILING: /^\s*(ORDER|MINUTES|MINUTE ORDER|\(IN CHAMBERS\)|OPPOSITION|REPLY|RESPONSE|DECLARATION|STIPULATION|OBJECTION|MEMORANDUM|PROOF OF SERVICE|NOTICE OF (?:WITHDRAWAL|ERRATA|LODGING)|WITHDRAWAL|JUDGMENT|TEXT ONLY)/i,
+isMotionFiling(text){ const t = String(text || ""); return /\bMOTION\b/i.test(t) && /\bfiled by\b/i.test(t) && !MM.NOT_A_FILING.test(t); },
+isWithdrawal(text){ return /^\s*(NOTICE OF )?WITHDRAWAL/i.test(String(text || "")); },
+isOrder(text){ return /^\s*(MINUTES|MINUTE ORDER|ORDER|\(IN CHAMBERS\)|JUDGMENT|TEXT ONLY)/i.test(String(text || "")); },
+brackets(text){ return [...String(text || "").matchAll(/\[(\d+)\]/g)].map(m => +m[1]); },
+
+/* ---------- outcomes ---------- */
+PROC_WORD: /stipulat|ex parte|extension of time|briefing schedule|reschedul/i,
+OUT_WORD: /\bGRANT(?:S|ED|ING)?\b|\b(?:DENY(?:ING)?|DENIES|DENIED)\b|\bMOOT\b|withdr[ae]w|VACAT/i,
+/* Procedural only when the stipulation / ex parte application / extension IS the thing filed or ruled on
+   (the entry's subject), and no tracked motion outcome is ruled on after it. A stipulation merely mentioned in a ruling
+   on a tracked motion does not make the ruling procedural. */
+isProcedural(text){
+  const t = String(text || "");
+  if (!MM.PROC_WORD.test(t)) return false;
+  const body = t.replace(/^\s*(?:(?:MINUTES|MINUTE ORDER|ORDER|\(IN CHAMBERS\)|TEXT ONLY ENTRY)\b[\s:,.]*)+/i, "").replace(/^by (?:Magistrate )?Judge(?: [A-Z][a-z][\w'-]*){0,3}[:,]?\s*/, "").replace(/^(?:re|on)\b:?\s*/i, "");
+  const head = body.match(/^(?:(?:GRANTING|GRANTS|GRANTED|APPROVING|APPROVES|DENYING|DENIES|SO ORDERING)\s+)?(?:\[\d+\]\s*)?(?:(?:the |defendants?'?s? |plaintiffs?'?s? |parties'? |joint |ex parte )\s*){0,3}(?:STIPULATION|STIPULATED|EX PARTE|(?:APPLICATION|MOTION|REQUEST|PETITION)\s+(?:FOR|TO)\s+(?:AN?\s+)?(?:EXTENSION|EXTEND|CONTINU|RESCHEDUL|SHORTEN|ENLARGE)|EXTENSION OF TIME|BRIEFING SCHEDULE|RESCHEDUL)/i);
+  if (head){
+    const rest = body.slice(head[0].length);
+    return !(MM.motionType(rest) && MM.OUT_WORD.test(rest));
+  }
+  if (!MM.OUT_WORD.test(t)) return true;                    // "ORDER setting briefing schedule": no outcome at all
+  return !MM.motionType(t) && !MM.brackets(t).length;       // outcome word but no tracked motion anywhere in the entry
+},
+
+/* Returns { outcome, match } | { procedural:true } | { ambiguous:true, reason } */
+outcome(text){
+  const t = String(text || "");
+  let m;
+  if (MM.isProcedural(t)) return { procedural: true };
+  const wd = t.match(/withdr[ae]w\w*/i) || t.match(/(?:MOTION|\[\d+\])[^.;]{0,60}\b(?:is|are) (?:hereby )?(?:VACATED|STRICKEN|TAKEN OFF CALENDAR)/i) || (/VACAT/i.test(t) ? t.match(/VACAT\w*/i) : null);
+  const part = t.match(/GRANT(?:ING|ED|S)? IN PART/i), moot = t.match(/\bMOOT\b/i);
+  const u = t.replace(/GRANT(?:ING|ED|S)? IN PART|(?:DENY(?:ING)?|DENIES|DENIED) IN PART|(?:DENY(?:ING)?|DENIES|DENIED) AS MOOT/gi, " ");
+  const hasGrant = /\bGRANT(?:S|ED|ING)?\b/i.test(u), hasDeny = /\b(?:DENY(?:ING)?|DENIES|DENIED)\b/i.test(u);
+  const any = hasGrant || hasDeny || part || moot || wd || /\b(?:DENY(?:ING)?|DENIES|DENIED)\b/i.test(t);
+  if (!any && /under submission|continu/i.test(t)) return { procedural: true };
+  const kinds = [part && "part", moot && "moot", wd && "wd", !part && hasGrant && "grant", !part && hasDeny && "deny"].filter(Boolean);
+  if (kinds.length > 1) return { ambiguous: true, reason: "mixed order" };
+  if (part) return { outcome: "GrantedInPart", match: part[0] };
+  if (moot) return { outcome: "Moot", match: moot[0] };
+  if (wd) return { outcome: "WithdrawnOrVacated", match: wd[0] };
+  if (hasGrant){ m = u.match(/\bGRANT(?:S|ED|ING)?\b/i); return { outcome: "Granted", match: m[0] }; }
+  if (hasDeny){ m = u.match(/\b(?:DENY(?:ING)?|DENIES|DENIED)\b/i); return { outcome: "Denied", match: m[0] }; }
+  return { ambiguous: true, reason: "Ruling-style entry with no outcome words the rules recognise" };
+},
+
+/* ---------- dates ---------- */
+/* YYYY-MM-DD or M/D/YYYY (a real calendar date) -> ISO YYYY-MM-DD; anything else -> null */
+isoDate(s){
+  s = String(s == null ? "" : s).trim();
+  let y, m, d, x;
+  if ((x = s.match(/^(\d{4})-(\d{2})-(\d{2})$/))){ y = +x[1]; m = +x[2]; d = +x[3]; }
+  else if ((x = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/))){ m = +x[1]; d = +x[2]; y = +x[3]; }
+  else return null;
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  if (dt.getUTCFullYear() !== y || dt.getUTCMonth() !== m - 1 || dt.getUTCDate() !== d) return null;
+  return String(y).padStart(4, "0") + "-" + String(m).padStart(2, "0") + "-" + String(d).padStart(2, "0");
+},
+days(from, to){ const n = Math.round((Date.parse(to + "T00:00:00Z") - Date.parse(from + "T00:00:00Z")) / 86400000); return Number.isNaN(n) ? null : n; },
+median(a){ if (!a.length) return null; const s = [...a].sort((x, y) => x - y), i = s.length >> 1; return s.length % 2 ? s[i] : (s[i - 1] + s[i]) / 2; },
+
+/* ---------- coding ---------- */
+sortEntries(entries){
+  return [...entries].sort((a, b) => a.case_id < b.case_id ? -1 : a.case_id > b.case_id ? 1 : a.filing_date < b.filing_date ? -1 : a.filing_date > b.filing_date ? 1 : (a.entry_number || 0) - (b.entry_number || 0));
+},
+
+/* Opponent firm of a motion: the firm on the other side in the same case. */
+opponentFirm(motion, entries){
+  const c = {};
+  for (const e of entries) if (e.case_id === motion.case_id && e.counsel_firm && e.counsel_firm !== motion.counsel_firm && e.party_filing && e.party_filing !== motion.party_filing && /^(plaintiff|defendant)/i.test(e.party_filing)) c[e.counsel_firm] = (c[e.counsel_firm] || 0) + 1;
+  const best = Object.entries(c).sort((a, b) => b[1] - a[1])[0];
+  return best ? best[0] : "";
+},
+
+makeEvent(motion, ruling, outcome, extra, entries){
+  return Object.assign({
+    event_id: "CE-" + ruling.entry_id,
+    entry_id: ruling.entry_id, motion_entry_id: motion.entry_id, case_id: motion.case_id, judge: motion.judge || ruling.judge,
+    event_type: motion.type, outcome,
+    motion_date: motion.filing_date, ruling_date: ruling.filing_date,
+    days_from_filing: MM.days(motion.filing_date, ruling.filing_date),
+    filer_firm: motion.counsel_firm || "", opponent_firm: MM.opponentFirm(motion, entries),
+    source: "rules", motion_match: motion.match, outcome_match: "", evidence_quote: ""
+  }, extra);
+},
+
+/* candidates: tracked motions in the case filed on or before the ruling and not yet ruled on */
+openMotions(ctx, caseId, date, type){
+  return ctx.motions.filter(m => m.case_id === caseId && m.filing_date <= date && !ctx.done.has(m.entry_id) && (!type || m.type === type));
+},
+
+code(entries){
+  const sorted = MM.sortEntries(entries);
+  const ctx = { motions: [], done: new Set() };
+  const events = [], ambiguous = [], ignored = [];
+  const byNum = {}, otherMotion = new Set();
+  const key = (c, n) => c + "#" + n;
+  for (const e of sorted) if (e.entry_number != null && e.entry_number !== "") byNum[key(e.case_id, e.entry_number)] = e;
+  for (const e of sorted){
+    const text = e.entry_text;
+    if (!MM.isoDate(e.filing_date) || MM.isoDate(e.filing_date) !== e.filing_date){ ignored.push({ entry_id: e.entry_id, reason: "Filing date is not a valid YYYY-MM-DD date" }); continue; }
+    if (MM.isMotionFiling(text)){
+      const mt = MM.motionType(text);
+      if (mt) ctx.motions.push({ ...e, type: mt.type, match: mt.match });
+      else otherMotion.add(key(e.case_id, e.entry_number));
+      continue;
+    }
+    const withdrawal = MM.isWithdrawal(text);
+    if (!withdrawal && !MM.isOrder(text)) continue;
+    const o = withdrawal ? { outcome: "WithdrawnOrVacated", match: (text.match(/WITHDRAWAL/i) || [""])[0] } : MM.outcome(text);
+    if (o.procedural){ ignored.push({ entry_id: e.entry_id, reason: "Procedural entry (scheduling, stipulation or submission), not a ruling" }); continue; }
+    const refs = MM.brackets(text);
+    const typeInText = MM.motionType(text);
+    const mentionsMotion = /\bmotion\b|\bapplication\b/i.test(text) || refs.length > 0;
+    if (!mentionsMotion){ ignored.push({ entry_id: e.entry_id, reason: "Order does not refer to a motion" }); continue; }
+    const motionRefs = [...new Set(refs)].filter(n => ctx.motions.some(m => m.case_id === e.case_id && +m.entry_number === n) || otherMotion.has(key(e.case_id, n)));
+    if (motionRefs.length > 1){ ambiguous.push({ entry_id: e.entry_id, reason: "mixed order" }); continue; }
+    // 1. link by bracketed docket number
+    let motion = null, outOfScope = false;
+    for (const n of refs){
+      const hit = ctx.motions.find(m => m.case_id === e.case_id && +m.entry_number === n);
+      if (hit){ motion = hit; break; }
+      if (otherMotion.has(key(e.case_id, n))) outOfScope = true;
+    }
+    if (!motion && outOfScope){ ignored.push({ entry_id: e.entry_id, reason: "Rules on a motion type this tool does not code" }); continue; }
+    let how = "bracket";
+    // 2. fallback: nearest prior open motion of the type named in the text
+    if (!motion && typeInText){
+      const open = MM.openMotions(ctx, e.case_id, e.filing_date, typeInText.type);
+      motion = open[open.length - 1] || null; how = "nearest-open";
+    }
+    if (o.ambiguous){ ambiguous.push({ entry_id: e.entry_id, reason: o.reason }); continue; }
+    if (!motion){ ambiguous.push({ entry_id: e.entry_id, reason: typeInText ? "No open " + MM.SHORT[typeInText.type] + " motion found to link this ruling to" : "Ruling does not say which motion it decides" }); continue; }
+    if (ctx.done.has(motion.entry_id)){ ambiguous.push({ entry_id: e.entry_id, reason: "That motion already has a coded ruling" }); continue; }
+    ctx.done.add(motion.entry_id);
+    events.push(MM.makeEvent(motion, e, o.outcome, { outcome_match: o.match, link: how }, sorted));
+  }
+  return { events, ambiguous, ignored, motions: ctx.motions, openMotionIds: ctx.motions.filter(m => !ctx.done.has(m.entry_id)).map(m => m.entry_id) };
+},
+
+/* ---------- model fallback: verification ---------- */
+norm(s){ return String(s || "").replace(/[‘’‛′]/g, "'").replace(/[“”″]/g, '"').replace(/[–—]/g, "-").replace(/…/g, "...").replace(/\s+/g, " ").trim().toLowerCase(); },
+quoteFound(quote, text){
+  if (!quote || !text) return false;
+  const q = MM.norm(quote).replace(/^["']|["']$/g, "").replace(/^\.\.\.\s*|\s*\.\.\.$/g, "");
+  if (q.length < 8) return false;
+  const t = MM.norm(text);
+  if (t.includes(q)) return true;
+  const parts = q.split(/\s*\.\.\.\s*|\s*\[\.\.\.\]\s*/).filter(Boolean);
+  if (parts.length < 2 || parts.some(p => p.split(/\s+/).length < 3)) return false;
+  let at = 0;
+  for (const p of parts){ const i = t.indexOf(p, at); if (i < 0) return false; at = i + p.length; }
+  return true;
+},
+
+/* The quote itself must carry an outcome cue consistent with the tag; a verbatim quote of unrelated words proves nothing.
+   Cues beyond the rules engine's own: refused / overruled / not well taken / "request ... fails" (denied); well taken /
+   stayed pending arbitration / judgment shall be entered (granted); removed from calendar / stricken (withdrawn or vacated).
+   "Adopts the tentative ruling" is deliberately NOT a cue: the outcome would live in a document that is not in the entry. */
+outcomeCue(outcome, quote){
+  const q = MM.norm(quote);
+  const grant = /\bgrant(?:s|ed|ing)?\b|stayed pending arbitration|judgment shall be entered/.test(q) || /\bwell taken\b/.test(q.replace(/not well taken/g, ""));
+  const deny = /\b(?:deny|denies|denied|denying|refused|overruled)\b|not well taken|\b(?:request|relief|motion)\b[^.]{0,60}\bfails\b/.test(q);
+  const part = /\bin part\b/.test(q), moot = /\bmoot\b/.test(q);
+  /* "Counts I and II are DISMISSED ... Counts III through V shall proceed" = granted in part. */
+  const dismissed = /\bdismissed\b/.test(q), survives = /\bshall (?:proceed|remain)\b|\bremain(?:s)? pending\b|\bsurvive(?:s)?\b/.test(q);
+  /* "removed from calendar / terminated in light of the parties' settlement" = moot. */
+  const settledOut = /\bterminated\b|removed from calendar|off calendar/.test(q) && /\bsettle|\bresolved\b/.test(q);
+  switch (outcome){
+    case "Granted": return (grant || (dismissed && !survives)) && !deny && !part && !moot;
+    case "Denied": return deny && !grant && !part && !moot;
+    case "GrantedInPart": return part || (grant && deny) || (dismissed && survives);
+    case "Moot": return moot || settledOut;
+    case "WithdrawnOrVacated": return /withdr[ae]w|vacat|off calendar|removed from calendar|stricken/.test(q);
+  }
+  return false;
+},
+
+/* Candidate motions the model may link to, per ambiguous entry. */
+candidates(coded, entry){
+  return coded.motions.filter(m => m.case_id === entry.case_id && m.filing_date <= entry.filing_date && coded.openMotionIds.includes(m.entry_id))
+    .map(m => ({ entry_number: m.entry_number, event_type: m.type, filed: m.filing_date, text: m.entry_text.slice(0, 140) }));
+},
+
+/* tags: [{entry_id, event_type, outcome, linked_motion_entry_number, evidence_quote}]
+   Returns { accepted:[CodedEvent], rejected:[{entry_id, reason, tag}] }. A tag is accepted only if the quote is verbatim in that entry's text and every value is valid. */
+applyModelTags(tags, coded, entries){
+  const by = Object.fromEntries(entries.map(e => [e.entry_id, e]));
+  const amb = new Set(coded.ambiguous.map(a => a.entry_id));
+  const accepted = [], rejected = [], used = new Set(coded.events.map(ev => ev.motion_entry_id)), acceptedIds = new Set();
+  for (const tag of tags || []){
+    const rej = reason => rejected.push({ entry_id: tag && tag.entry_id, reason, tag });
+    if (!tag || !amb.has(tag.entry_id)){ rej("Not an entry in the ambiguous queue"); continue; }
+    const e = by[tag.entry_id];
+    if (!MM.TYPES.includes(tag.event_type) || !MM.OUTCOMES.includes(tag.outcome)){ rej("Tag is not one of the allowed values (the model left it undecided or invented a value)"); continue; }
+    if (!MM.quoteFound(tag.evidence_quote, e.entry_text)){ rej("Evidence quote does not appear word for word in the entry text"); continue; }
+    if (!MM.outcomeCue(tag.outcome, tag.evidence_quote)){ rej("Evidence quote has no wording that supports the outcome " + MM.OUTLABEL[tag.outcome]); continue; }
+    if (acceptedIds.has(tag.entry_id)){ rej("That entry already has an accepted tag"); continue; }
+    let motion = null;
+    const n = tag.linked_motion_entry_number;
+    if (n != null){
+      motion = coded.motions.find(m => m.case_id === e.case_id && +m.entry_number === +n && m.filing_date <= e.filing_date);
+      if (!motion){ rej("Linked motion number " + n + " is not an earlier motion in this case"); continue; }
+      if (motion.type !== tag.event_type){ rej("Linked motion is a different motion type than the tag"); continue; }
+    } else {
+      const named = [e.entry_text, tag.evidence_quote].some(x => (MM.motionType(x) || {}).type === tag.event_type);
+      if (!named){ rej("No link was given and neither the entry text nor the quote names a " + MM.LABEL[tag.event_type].replace(/ motions$/, "") + " motion, so the motion type is unconfirmed"); continue; }
+      const open = coded.motions.filter(m => m.case_id === e.case_id && m.filing_date <= e.filing_date && m.type === tag.event_type && !used.has(m.entry_id));
+      motion = open[open.length - 1];
+      if (!motion){ rej("No open motion of that type to link to"); continue; }
+    }
+    if (used.has(motion.entry_id)){ rej("That motion already has a coded ruling"); continue; }
+    used.add(motion.entry_id); acceptedIds.add(tag.entry_id);
+    accepted.push(MM.makeEvent(motion, e, tag.outcome, { source: "model", outcome_match: "", evidence_quote: tag.evidence_quote }, entries));
+  }
+  return { accepted, rejected };
+},
+
+/* ---------- aggregation ---------- */
+rate(num, den){
+  if (!den.length) return { num: 0, den: 0, pct: null, text: MM.EMPTY, ids: [], den_ids: [] };
+  const pct = Math.round(100 * num.length / den.length);
+  return { num: num.length, den: den.length, pct, text: `${num.length} of ${den.length} (${pct}%)`, ids: num.map(e => e.event_id), den_ids: den.map(e => e.event_id) };
+},
+/* role: "judge" | "filer" | "opponent". Returns one row per motion type. */
+aggregate(events, role, name, opts){
+  const incl = !opts || opts.includeModel !== false;
+  const pool = events.filter(e => (incl || e.source !== "model") && (role === "judge" ? e.judge === name : role === "filer" ? e.filer_firm === name : e.opponent_firm === name));
+  const rows = {};
+  for (const type of MM.TYPES){
+    const ev = pool.filter(e => e.event_type === type);
+    const of = o => ev.filter(e => e.outcome === o);
+    const days = ev.map(e => e.days_from_filing);
+    rows[type] = {
+      type, name, role, n: ev.length, empty: ev.length === 0, tooFew: ev.length > 0 && ev.length < MM.MIN_N,
+      granted: MM.rate(of("Granted"), ev), partial: MM.rate(of("GrantedInPart"), ev), denied: MM.rate(of("Denied"), ev),
+      moot: MM.rate(of("Moot"), ev), withdrawn: MM.rate(of("WithdrawnOrVacated"), ev),
+      median_days: MM.median(days), median_ids: ev.map(e => e.event_id), event_ids: ev.map(e => e.event_id),
+      model_n: ev.filter(e => e.source === "model").length
+    };
+  }
+  return { name, role, n: pool.length, rows };
+},
+fmtDays(d){ return d == null ? "n/a" : Number.isInteger(d) ? String(d) : d.toFixed(1); },
+/* The one-sentence answer. Every number in it comes from the row. */
+headline(row){
+  const who = row.name, lab = MM.LABEL[row.type];
+  if (row.empty) return `${who}: ${MM.EMPTY} for ${lab}.`;
+  const g = row.granted, nd = [row.withdrawn.num && row.withdrawn.num + " withdrawn", row.moot.num && row.moot.num + " moot"].filter(Boolean).join(", ");
+  const of = `${g.num} of ${g.den} coded (${g.pct}%${nd ? "; " + nd : ""})`;
+  const tail = ` median ${MM.fmtDays(row.median_days)} days` + (row.partial.num ? `; another ${row.partial.num} granted in part` : "") + (row.tooFew ? `. Only ${row.n} ruling${row.n === 1 ? "" : "s"}: too few to read.` : ".");
+  if (row.role === "judge") return `${who} granted ${lab} ${of},${tail}`;
+  if (row.role === "filer") return `${lab[0].toUpperCase() + lab.slice(1)} filed by ${who} were granted ${of},${tail}`;
+  return `${lab[0].toUpperCase() + lab.slice(1)} filed against ${who} were granted ${of},${tail}`;
+},
+names(events, entries){
+  const u = a => [...new Set(a.filter(Boolean))].sort();
+  return { judges: u(entries.map(e => e.judge)), firms: u([...entries.map(e => e.counsel_firm), ...events.map(e => e.opponent_firm)]) };
+},
+
+/* ---------- importers (parse text the user pastes or uploads; no network, no token) ---------- */
+parseCSV(text){
+  const rows = []; let row = [], f = "", q = false;
+  const s = String(text).replace(/^﻿/, "");
+  for (let i = 0; i < s.length; i++){
+    const c = s[i];
+    if (q){ if (c === '"'){ if (s[i + 1] === '"'){ f += '"'; i++; } else q = false; } else f += c; }
+    else if (c === '"') q = true;
+    else if (c === ","){ row.push(f); f = ""; }
+    else if (c === "\n" || c === "\r"){ if (c === "\r" && s[i + 1] === "\n") i++; row.push(f); f = ""; if (row.some(x => x !== "")) rows.push(row); row = []; }
+    else f += c;
+  }
+  row.push(f); if (row.some(x => x !== "")) rows.push(row);
+  return rows;
+},
+badDates(rej){ return "Skipped " + rej.length + " row" + (rej.length === 1 ? "" : "s") + " with a filing_date that is not YYYY-MM-DD or M/D/YYYY: " + rej.slice(0, 20).map(r => "row " + r.row + " (" + (r.value === "" ? "blank" : '"' + r.value + '"') + ")").join(", ") + (rej.length > 20 ? ", and " + (rej.length - 20) + " more" : "") + "."; },
+importCSV(text){
+  const rows = MM.parseCSV(text);
+  if (rows.length < 2) throw new Error("The CSV needs a header row and at least one entry.");
+  const head = rows[0].map(h => h.trim().toLowerCase());
+  for (const need of ["case_id", "filing_date", "entry_text"]) if (!head.includes(need)) throw new Error("The CSV is missing the column: " + need);
+  const idx = h => head.indexOf(h);
+  const out = [], rejected = [];
+  rows.slice(1).forEach((r, i) => {
+    const g = h => idx(h) < 0 ? "" : (r[idx(h)] || "").trim();
+    const num = g("entry_number"), date = MM.isoDate(g("filing_date"));
+    if (!date){ rejected.push({ row: i + 2, value: g("filing_date") }); return; }
+    out.push({ entry_id: g("entry_id") || "I" + String(i + 1).padStart(3, "0"), entry_number: num === "" ? null : +num, case_id: g("case_id"), court: g("court"), judge: g("judge"), filing_date: date, entry_text: g("entry_text"), party_filing: g("party_filing"), counsel_firm: g("counsel_firm") });
+  });
+  if (!out.length && rejected.length) throw new Error(MM.badDates(rejected));
+  out.rejected = rejected;
+  return out;
+},
+/* CourtListener v4: a docket object ({case_name, court_id, docket_number, assigned_to_str, ...}) and docket entries
+   ({entry_number, date_filed, description, recap_documents:[{description}]}), either as a list response ({results:[...]}),
+   a bare array, or an object holding both ({docket|dockets, docket_entries|entries|results}). */
+/* a docket reference that may be a URL (".../dockets/77/") or a bare id; URL -> "docket-77" so different dockets never merge */
+docketRef(v){
+  if (v == null || typeof v === "object") return "";
+  const s = String(v).trim();
+  if (!/^https?:/i.test(s)) return s;
+  const m = s.match(/\/dockets\/(\d+)/) || s.match(/(\d+)\/?(?:\?.*)?$/);
+  return m ? "docket-" + m[1] : s;
+},
+importCourtListener(json){
+  const out = [], rejected = [];
+  const dockets = Array.isArray(json) && json.length && json[0].docket_entries ? json : [json];
+  for (const d of dockets){
+    const meta = d.docket && typeof d.docket === "object" ? d.docket : d;
+    const list = d.docket_entries || d.entries || d.results || (Array.isArray(d) ? d : []);
+    const caseId = String(meta.docket_number || meta.case_name || MM.docketRef(d.docket) || "docket");
+    const judge = meta.assigned_to_str || (typeof meta.assigned_to === "string" ? meta.assigned_to : "") || "";
+    const court = meta.court_id || meta.court || "";
+    for (const e of list){
+      const parts = [e.description, ...(e.recap_documents || []).map(r => r.description)].filter(Boolean);
+      const text = [...new Set(parts)].join(" ").trim();
+      if (!text || !e.date_filed) continue;
+      const cid = e.docket_number || (meta !== d ? caseId : MM.docketRef(e.docket)) || caseId; /* entries inside a docket object belong to it; their "docket" field is just a URL */
+      const date = MM.isoDate(String(e.date_filed).slice(0, 10));
+      if (!date){ rejected.push({ row: "entry " + (e.entry_number == null ? e.id : e.entry_number), value: String(e.date_filed) }); continue; }
+      out.push({ entry_id: "CL" + (e.id != null ? e.id : cid + "-" + e.entry_number), entry_number: e.entry_number == null ? null : +e.entry_number, case_id: String(cid), court: String(court), judge, filing_date: date, entry_text: text, party_filing: (text.match(/filed by\s+(plaintiff|defendant)/i) || [, ""])[1].replace(/^./, c => c.toUpperCase()), counsel_firm: "" });
+    }
+  }
+  if (!out.length && rejected.length) throw new Error(MM.badDates(rejected));
+  if (!out.length) throw new Error("No docket entries found. Expected CourtListener docket-entries JSON with entry_number, date_filed and description.");
+  out.rejected = rejected;
+  return out;
+},
+importAuto(text){
+  const t = String(text || "").trim();
+  if (!t) throw new Error("Nothing to import.");
+  if (t[0] === "{" || t[0] === "["){ let j; try { j = JSON.parse(t); } catch (e) { throw new Error("That looks like JSON but does not parse: " + e.message); } const entries = MM.importCourtListener(j); return { format: "CourtListener JSON", entries, rejected: entries.rejected }; }
+  const entries = MM.importCSV(t); return { format: "CSV", entries, rejected: entries.rejected };
+}
+};
+</script>
+<script>const MM_RECORDED = {
+ "model": "claude-sonnet-5-5",
+ "recordedAt": "2026-11-12",
+ "secs": 10,
+ "sent": 10,
+ "tags": [
+  {
+   "entry_id": "E019",
+   "event_type": "PrelimInjunction",
+   "outcome": "Denied",
+   "linked_motion_entry_number": 16,
+   "evidence_quote": "the relief sought is REFUSED"
+  },
+  {
+   "entry_id": "E038",
+   "event_type": "AntiSLAPP",
+   "outcome": "Denied",
+   "linked_motion_entry_number": 9,
+   "evidence_quote": "special motion to strike [9] is OVERRULED in its entirety"
+  },
+  {
+   "entry_id": "E048",
+   "event_type": "CompelArb",
+   "outcome": "Granted",
+   "linked_motion_entry_number": 20,
+   "evidence_quote": "The arbitration agreement is enforceable and this action is STAYED pending arbitration."
+  },
+  {
+   "entry_id": "E064",
+   "event_type": "MTD_12b6",
+   "outcome": "GrantedInPart",
+   "linked_motion_entry_number": 9,
+   "evidence_quote": "Counts I and II of the Complaint are DISMISSED with leave to amend. Counts III through V shall proceed."
+  },
+  {
+   "entry_id": "E076",
+   "event_type": "MTD_12b6",
+   "outcome": "GrantedInPart",
+   "linked_motion_entry_number": 21,
+   "evidence_quote": "The Court grants [21] Motion to Dismiss as to Count 2 only. The motion is denied as to Count 3."
+  },
+  {
+   "entry_id": "E101",
+   "event_type": "MSJ",
+   "outcome": "Granted",
+   "linked_motion_entry_number": 22,
+   "evidence_quote": "judgment shall be entered for Defendant on all counts"
+  },
+  {
+   "entry_id": "E105",
+   "event_type": "PrelimInjunction",
+   "outcome": "Denied",
+   "linked_motion_entry_number": 26,
+   "evidence_quote": "the request for injunctive relief fails"
+  },
+  {
+   "entry_id": "E130",
+   "event_type": "PrelimInjunction",
+   "outcome": "Moot",
+   "linked_motion_entry_number": 22,
+   "evidence_quote": "In light of the parties' settlement of the issues raised in [22] Motion for Preliminary Injunction, the matter is removed from calendar and the motion is TERMINATED."
+  },
+  {
+   "entry_id": "E142",
+   "event_type": null,
+   "outcome": null,
+   "linked_motion_entry_number": 9,
+   "evidence_quote": "The Court adopts its tentative ruling as the final order of the Court."
+  },
+  {
+   "entry_id": "E154",
+   "event_type": null,
+   "outcome": null,
+   "linked_motion_entry_number": null,
+   "evidence_quote": "The Court rules on the pending motion in accordance with the tentative ruling previously distributed to counsel."
+  }
+ ],
+ "summary": {
+  "accepted": 8,
+  "rejected": 2,
+  "matchesIntended": 8,
+  "differsFromIntended": 0
+ },
+ "summaryRecheckedAt": "2026-11-12"
+};</script>
+<script>
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }, set(k, v){ try { localStorage.setItem(k, v); } catch(e){} } };
+const MODELS = { "claude-sonnet-5-5": { name: "Sonnet 5.5", tier: "default" }, "claude-opus-5-5": { name: "Opus 5.5", tier: "complex" }, "claude-fable-5-1": { name: "Fable 5.1", tier: "complex" } };
+let sample = null;
+const S = { entries: MM_DATA.entries, demo: true, tags: MM_RECORDED.tags || [], tagsLabel: `Recorded run on ${MODELS[MM_RECORDED.model]?.name || MM_RECORDED.model}, ${MM_RECORDED.recordedAt}`,
+  mode: "judge", role: "filer", type: "MTD_12b6", a: "", b: "", includeModel: true, open: null, tab: "compare" };
+let coded, applied, events, names;
+
+function recompute(){
+  coded = MM.code(S.entries);
+  applied = MM.applyModelTags(S.tags, coded, S.entries);
+  events = coded.events.concat(applied.accepted);
+  names = MM.names(events, S.entries);
+  const list = S.mode === "judge" ? names.judges : names.firms;
+  if (!list.includes(S.a)) S.a = list[0] || "";
+  if (!list.includes(S.b)) S.b = list[1] || list[0] || "";
+  $("#tab-amb").textContent = `Ambiguous entries (${coded.ambiguous.length})`;
+}
+const byId = () => Object.fromEntries(S.entries.map(e => [e.entry_id, e]));
+const evById = () => Object.fromEntries(events.map(e => [e.event_id, e]));
+const role = () => S.mode === "judge" ? "judge" : S.role;
+
+/* highlight needles inside text, whitespace-tolerant */
+function hi(text, needles){
+  const ns = needles.filter(n => n && String(n).length > 2).map(n => String(n).trim().replace(/^["']|["']$/g, "").replace(/[.\s]+$/, "")).filter(Boolean);
+  if (!ns.length) return esc(text);
+  const re = new RegExp(ns.map(n => n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+")).join("|"), "gi");
+  let out = "", last = 0, m;
+  while ((m = re.exec(text))){ out += esc(text.slice(last, m.index)) + "<mark>" + esc(m[0]) + "</mark>"; last = m.index + m[0].length; if (!m[0]) re.lastIndex++; }
+  return out + esc(text.slice(last));
+}
+
+/* ---------- Compare ---------- */
+const RATE_KEYS = [["granted", "Granted"], ["partial", "Granted in part"], ["denied", "Denied"], ["moot", "Moot"], ["withdrawn", "Withdrawn"]];
+const OKEY = { Granted: "granted", GrantedInPart: "partial", Denied: "denied", Moot: "moot", WithdrawnOrVacated: "withdrawn" };
+const SCALE = [0, 25, 50, 75, 100];
+const reduceMotion = () => window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+const isOpen = (which, k) => !!(S.open && S.open.side === which && S.open.k === k);
+
+function niceAxis(maxd){
+  const steps = [5, 10, 15, 20, 30, 50, 60, 90, 100, 150, 200, 300, 500, 1000, 2000];
+  const step = steps.find(s => Math.ceil(Math.max(maxd, 1) / s) <= 5) || 5000, top = Math.ceil(Math.max(maxd, 1) / step) * step;
+  return { step, top };
+}
+function stripHtml(row, axis){
+  if (row.empty) return `<div class="note">No rulings to plot.</div>`;
+  const ev = evById();
+  const pts = row.event_ids.map(id => ev[id]).filter(Boolean).map(e => ({ d: Math.max(0, e.days_from_filing), o: OKEY[e.outcome], t: `${e.event_id}: ${MM.OUTLABEL[e.outcome]}, ${e.days_from_filing} days${e.source === "model" ? " (model-coded)" : ""}`, m: e.source === "model" })).sort((a, b) => a.d - b.d);
+  const lanes = [], sep = 4.5;
+  pts.forEach(p => { p.x = Math.min(100, 100 * p.d / axis.top); let l = 0; while (lanes[l] !== undefined && p.x - lanes[l] < sep) l++; lanes[l] = p.x; p.l = l; });
+  const h = Math.max(1, lanes.length) * 14 + 8, mx = Math.min(100, 100 * row.median_days / axis.top);
+  const ticks = []; for (let v = 0; v <= axis.top; v += axis.step) ticks.push(`<span style="left:${100 * v / axis.top}%">${v}</span>`);
+  const lab = `<span class="medlab" style="left:${mx}%;${mx > 70 ? "transform:translateX(-100%);padding-right:6px" : "padding-left:6px"}">median ${MM.fmtDays(row.median_days)} d</span>`;
+  return `<div class="strip"><div class="cap"><span>Days from filing to ruling</span><span>one dot per ruling</span></div><div class="strip-wrap"><div class="track" style="height:${h}px" role="img" aria-label="${pts.length} rulings, median ${MM.fmtDays(row.median_days)} days">
+    <span class="med" style="left:${mx}%"></span>${lab}${pts.map(p => `<span class="dot o-${p.o}${p.m ? " m" : ""}" style="left:${p.x}%;top:${4 + p.l * 14}px" title="${esc(p.t)}"></span>`).join("")}</div><div class="axis" aria-hidden="true">${ticks.join("")}</div></div></div>`;
+}
+function sideHtml(which, name, row, axis){
+  if (!name) return `<div class="side${which === "a" ? "" : " b"}"><div class="who">${which === "a" ? "First" : "Second"}</div><div class="answer">Nothing to show: this data has no ${S.mode === "judge" ? "judge names" : "firm names"}.</div></div>`;
+  const cls = which === "a" ? "" : " b";
+  const pct = k => row.n ? 100 * row[k].num / row.n : 0;
+  const bar = row.empty ? "" : `<div class="meter"><div class="cap"><span>Outcome of every coded ruling</span><span>same 0-100% scale</span></div><div class="bar" role="img" aria-label="${esc(MM.headline(row))}">${RATE_KEYS.map(([k, lab]) => `<i class="o-${k}" style="width:${pct(k)}%" title="${lab}: ${row[k].num} of ${row.n}"></i>`).join("")}</div><div class="scale" aria-hidden="true">${SCALE.map(v => `<span style="left:${v}%">${v}%</span>`).join("")}</div></div>`;
+  const rate = (k, lab, val, sw) => `<button class="rate" type="button" data-side="${which}" data-k="${k}" ${row.empty ? "disabled" : ""} aria-pressed="${isOpen(which, k)}"><small>${sw ? `<i class="o-${k}"></i>` : ""}${lab}</small><b>${row.empty ? "none" : val}</b></button>`;
+  const rates = RATE_KEYS.map(([k, lab]) => rate(k, lab, `${row[k].num} of ${row[k].den}`, true)).join("") + rate("days", "Median days", MM.fmtDays(row.median_days), false);
+  return `<div class="side${cls}"><div><div class="who">${esc(S.mode === "judge" ? "Judge" : S.role === "filer" ? "Firm as filer" : "Firm as opponent")}</div><h2 class="nm">${esc(name)}</h2></div>
+    <div class="answer">${esc(MM.headline(row))}</div>${bar}${stripHtml(row, axis)}
+    <div class="rates">${rates}</div>
+    <div class="note">${row.empty ? "" : `n = ${row.n} coded ruling${row.n === 1 ? "" : "s"}. ${row.tooFew ? '<span class="flag">too few to read</span> ' : ""}Rates use every coded ruling as the denominator.${row.model_n ? ` <span class="chip model">${row.model_n} model-coded</span>` : ""}`}</div></div>`;
+}
+function matrixHtml(aggA, aggB){
+  const cell = (r, c) => r.empty ? `<td class="cell none c${c}"><b>none</b><small>n = 0</small></td>`
+    : `<td class="cell c${c}${r.tooFew ? " few" : ""} ${c === "a" ? "ca" : "cb"}"><b>${r.granted.pct}%</b><small>n = ${r.n}${r.tooFew ? " · too few" : ""}</small><div class="leaderbar"><i style="width:${r.granted.pct}%"></i></div></td>`;
+  const rows = MM.TYPES.map(t => `<tr class="${t === S.type ? "cur" : ""}"><td class="mt"><button type="button" data-mtype="${t}" aria-pressed="${t === S.type}">${esc(MM.SHORT[t])}</button></td>${cell(aggA.rows[t], "a").replace('class="cell', 'class="ca cell')}${cell(aggB.rows[t], "b").replace('class="cell', 'class="cb cell')}</tr>`).join("");
+  return `<div class="panel"><table class="matrix"><caption><b>All five motion types at a glance.</b> Each cell: share of coded rulings that were granted, and how many rulings (n). Muted cells have too few rulings to read. Click a motion type to show it above.</caption>
+    <colgroup><col class="c0"><col><col></colgroup><thead><tr><th scope="col">Motion</th><th scope="col" class="a">First<span>${esc(S.a)}</span></th><th scope="col" class="b">Second<span>${esc(S.b)}</span></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+function docketRow(kind, ent, text, needles, badge, party){
+  return `<div class="dk-row ${kind === "ruling" ? "rl" : ""}" role="row"><span class="no" role="cell">${ent.entry_number ?? "?"}</span><span class="dd" role="cell">${esc(ent.filing_date)}</span><div class="tx" role="cell"><p class="dt">${hi(text, needles)}</p>${party ? `<div class="note">${party}</div>` : ""}</div><span class="bd" role="cell">${badge}</span></div>`;
+}
+function drillHtml(rowFor){
+  if (!S.open) return "";
+  const name = S.open.side === "a" ? S.a : S.b, sc = S.open.side === "a" ? "" : " style=\"--sc:var(--b)\"";
+  const row = rowFor(S.open.side);
+  const k = S.open.k, ids = k === "days" ? row.median_ids : row[k].ids, ev = evById(), ent = byId();
+  const title = k === "days" ? "Median days to ruling" : RATE_KEYS.find(x => x[0] === k)[1];
+  const items = ids.map(id => ev[id]).filter(Boolean).map(e => {
+    const m = ent[e.motion_entry_id], r = ent[e.entry_id], wd = e.outcome === "WithdrawnOrVacated" && MM.isWithdrawal(r.entry_text), model = e.source === "model";
+    return `<article class="docket"${sc}><header><span class="chip">${esc(e.event_id)}</span><span class="note">${esc(e.case_id)}</span><span class="sp"></span><span class="chip ok">${esc(MM.OUTLABEL[e.outcome])}</span><span class="chip">${e.days_from_filing} days</span></header>
+      <div role="table" aria-label="Docket entries for ${esc(e.event_id)}"><div class="dk-row hd" role="row"><span class="no" role="columnheader">No.</span><span class="dd" role="columnheader">Filed</span><span class="tx" role="columnheader">Docket text</span><span class="bd" role="columnheader">Coded by</span></div>
+      ${docketRow("motion", m, m.entry_text, [e.motion_match], `<span class="chip">motion</span>`, `Filed${m.party_filing ? " by " + esc(m.party_filing) : ""}${m.counsel_firm ? ", " + esc(m.counsel_firm) : ""}. Words the rules matched to the motion type are marked.`)}
+      ${docketRow("ruling", r, r.entry_text, [model ? e.evidence_quote : e.outcome_match], model ? `<span class="chip model">model-coded</span>` : `<span class="chip ok">rule-coded</span>`, `${wd ? "Withdrawal" : "Ruling"}. ${model ? "Evidence the model quoted is marked." : "Words the rules matched are marked."}`)}</div></article>`;
+  }).join("");
+  return `<div class="panel" id="drillpanel"><div class="two" style="justify-content:space-between"><h3>${esc(name)}: ${esc(MM.SHORT[S.type])}, ${esc(title)} (${ids.length} entr${ids.length === 1 ? "y" : "ies"})</h3><button class="btn" id="closedrill" type="button">Close</button></div>
+    <div class="note">Each sheet is one coded ruling and the two docket entries it came from, as they read on the docket.</div>${items || `<div class="msg">No rulings in this group.</div>`}</div>`;
+}
+function renderCompare(){
+  const keep = document.activeElement, fk = keep && $("#v-compare").contains(keep) ? (keep.id ? "#" + keep.id : keep.dataset && keep.dataset.mode ? `[data-mode="${keep.dataset.mode}"]` : keep.dataset && keep.dataset.role ? `[data-role="${keep.dataset.role}"]` : keep.dataset && keep.dataset.mtype ? `[data-mtype="${keep.dataset.mtype}"]` : keep.dataset && keep.dataset.k ? `.rate[data-side="${keep.dataset.side}"][data-k="${keep.dataset.k}"]` : null) : null;
+  const list = S.mode === "judge" ? names.judges : names.firms;
+  const opts = sel => list.map(n => `<option ${n === sel ? "selected" : ""}>${esc(n)}</option>`).join("");
+  const noFirms = S.mode === "firm" && !list.length;
+  const aggA = S.a ? MM.aggregate(events, role(), S.a, { includeModel: S.includeModel }) : null, aggB = S.b ? MM.aggregate(events, role(), S.b, { includeModel: S.includeModel }) : null;
+  const rowA = aggA && aggA.rows[S.type], rowB = aggB && aggB.rows[S.type];
+  const evs = evById(), days = [rowA, rowB].filter(Boolean).flatMap(r => r.event_ids.map(id => evs[id]).filter(Boolean).map(e => Math.max(0, e.days_from_filing)));
+  const axis = niceAxis(Math.max(0, ...days));
+  const rowFor = side => side === "a" ? rowA : rowB;
+  $("#v-compare").innerHTML = `<div style="display:grid;gap:14px">
+    <div class="panel"><div class="ctrl">
+      <label>Compare<span class="seg"><button type="button" data-mode="judge" aria-pressed="${S.mode === "judge"}">Judges</button><button type="button" data-mode="firm" aria-pressed="${S.mode === "firm"}">Firms</button></span></label>
+      ${S.mode === "firm" ? `<label>Firm acting as<span class="seg"><button type="button" data-role="filer" aria-pressed="${S.role === "filer"}">Filer</button><button type="button" data-role="opponent" aria-pressed="${S.role === "opponent"}">Opponent</button></span></label>` : ""}
+      <label>Motion<select id="type">${MM.TYPES.map(t => `<option value="${t}" ${t === S.type ? "selected" : ""}>${esc(MM.SHORT[t])}</option>`).join("")}</select></label>
+      <label>First<select id="sa">${opts(S.a)}</select></label>
+      <label>Second<select id="sb">${opts(S.b)}</select></label>
+      <label class="chk"><input type="checkbox" class="inclm" id="inclm" ${S.includeModel ? "checked" : ""}> Include model-coded events</label>
+    </div>
+    ${noFirms ? `<div class="msg">This data has no firm names, so there is nothing to compare here. Judges still work.</div>` : ""}
+    <div class="note">${coded.events.length} rulings coded by rules${applied.accepted.length ? `, ${applied.accepted.length} more model-coded` : ""}; ${coded.ambiguous.length - applied.accepted.length} entr${coded.ambiguous.length - applied.accepted.length === 1 ? "y" : "ies"} still unread. ${S.demo ? "Showing the fictional demo dockets." : "Showing your imported data."}</div></div>
+    <div class="sides">${sideHtml("a", S.a, rowA, axis)}${sideHtml("b", S.b, rowB, axis)}</div>
+    ${aggA && aggB ? matrixHtml(aggA, aggB) : ""}
+    <div id="drill">${drillHtml(rowFor)}</div></div>`;
+  const v = $("#v-compare");
+  v.querySelectorAll("[data-mode]").forEach(b => b.onclick = () => { S.mode = b.dataset.mode; S.open = null; recompute(); renderCompare(); });
+  v.querySelectorAll("[data-role]").forEach(b => b.onclick = () => { S.role = b.dataset.role; S.open = null; renderCompare(); });
+  v.querySelectorAll("[data-mtype]").forEach(b => b.onclick = () => { S.type = b.dataset.mtype; S.open = null; renderCompare(); });
+  $("#type").onchange = e => { S.type = e.target.value; S.open = null; renderCompare(); };
+  $("#sa").onchange = e => { S.a = e.target.value; S.open = null; renderCompare(); };
+  $("#sb").onchange = e => { S.b = e.target.value; S.open = null; renderCompare(); };
+  $("#inclm").onchange = e => setIncl(e.target.checked);
+  v.querySelectorAll(".rate").forEach(b => b.onclick = () => { const o = { side: b.dataset.side, k: b.dataset.k }; S.open = S.open && S.open.side === o.side && S.open.k === o.k ? null : o; renderCompare(); if (S.open) $("#drillpanel").scrollIntoView({ block: "nearest", behavior: reduceMotion() ? "auto" : "smooth" }); });
+  if ($("#closedrill")) $("#closedrill").onclick = () => { S.open = null; renderCompare(); };
+  if (fk) { const el = v.querySelector(fk); if (el && !el.disabled) el.focus({ preventScroll: true }); }
+}
+/* one model-coded switch, shown on both tabs and kept in step */
+function setIncl(on){
+  S.includeModel = on; S.open = null;
+  document.querySelectorAll(".inclm").forEach(c => { c.checked = on; });
+  renderCompare(); updateAmbRates();
+}
+function updateAmbRates(){
+  const el = $("#amb-incl"); if (!el) return;
+  const n = applied.accepted.length;
+  el.textContent = S.includeModel ? `Model-coded events are counted in the rates (${n} of them).` : `Model-coded events are left out of the rates (${n} not counted).`;
+}
+
+/* ---------- Ambiguous ---------- */
+function modelOpts(){ const m = $("#model")?.value || S.model || "claude-sonnet-5-5"; return { model: m, modelTier: MODELS[m]?.tier || "default", effort: "low" }; }
+function parseJson(text){ const a = text.indexOf("{"), b = text.lastIndexOf("}"); if (a < 0 || b < a) throw { message: "Claude did not return a result in the expected format. Run it again." }; return JSON.parse(text.slice(a, b + 1)); }
+function errText(e){ if (e?.code === "rate_limited") return "Claude is rate limited right now. Wait a minute and run it again."; if (e?.code === "not_granted") return "Claude access was not allowed for this page. Allow it from the page's permissions to run live."; return e?.message || "The run did not finish. Run it again."; }
+function renderAmb(){
+  const ent = byId(), tagBy = Object.fromEntries((S.tags || []).filter(t => t && t.entry_id).map(t => [t.entry_id, t]));
+  const acc = new Set(applied.accepted.map(e => e.entry_id)), rej = Object.fromEntries(applied.rejected.map(r => [r.entry_id, r]));
+  const cards = coded.ambiguous.map(a => {
+    const e = ent[a.entry_id], tag = tagBy[a.entry_id], ok = acc.has(a.entry_id), ev = ok && applied.accepted.find(x => x.entry_id === a.entry_id);
+    const state = !tag ? `<span class="chip">no model tag yet</span>` : ok ? `<span class="chip ok">quote found</span>` : `<span class="chip bad">rejected</span>`;
+    const tagHtml = !tag ? `<span class="note">The model has not looked at this entry yet.</span>`
+      : `<div><span class="chip model">model tag</span></div><div><b>${tag.event_type ? esc(MM.SHORT[tag.event_type] || tag.event_type) : "undecided"}: ${tag.outcome ? esc(MM.OUTLABEL[tag.outcome] || tag.outcome) : "undecided"}</b></div><div class="note">${tag.linked_motion_entry_number != null ? "Points to docket " + esc(tag.linked_motion_entry_number) : "Points to no motion"}${ok ? `, ${ev.days_from_filing} days after filing` : ""}.</div>`;
+    const quoteHtml = !tag ? `<span class="note">Nothing to check.</span>`
+      : ok ? `<div><span class="chip ok">quote found</span> <span class="note">word for word in the entry; marked above. Counted in the rates.</span></div><p class="quote">${esc(tag.evidence_quote)}</p>`
+      : `<div><span class="chip bad">rejected because</span></div><div class="note">${esc(rej[a.entry_id]?.reason || "The tag did not pass the checks.")}</div>${tag.evidence_quote ? `<p class="quote bad">${esc(tag.evidence_quote)}</p>` : ""}<div class="note">Not counted. The entry stays unread.</div>`;
+    return `<article class="docket"><header><span class="chip">${esc(a.entry_id)}</span><span class="note">${esc(e.case_id)}</span><span class="sp"></span>${state}</header>
+      <div role="table" aria-label="Docket entry ${esc(a.entry_id)}"><div class="dk-row hd" role="row"><span class="no" role="columnheader">No.</span><span class="dd" role="columnheader">Filed</span><span class="tx" role="columnheader">Docket text</span><span class="bd" role="columnheader"></span></div>
+      ${docketRow("ruling", e, e.entry_text, ok ? [tag.evidence_quote] : [], `<span class="chip warn">unread by rules</span>`, "")}</div>
+      <div class="ambgrid"><div><span class="lab">Why the rules passed</span><div>${esc(a.reason)}</div></div><div><span class="lab">What the model said</span>${tagHtml}</div><div><span class="lab">Evidence check</span>${quoteHtml}</div></div></article>`;
+  }).join("");
+  const none = coded.ambiguous.filter(a => !tagBy[a.entry_id]).length;
+  $("#v-amb").innerHTML = `<div style="display:grid;gap:14px"><div class="panel"><h2>Entries the rules could not code</h2>
+    <p class="sub">${coded.ambiguous.length} entries look like rulings but do not use standard words, or do not say which motion they decide. A model can suggest a tag. Code keeps the tag only if the quoted evidence appears word for word in the entry and the values are valid; anything else stays here.</p>
+    <div class="tiles"><div class="tile acc"><b>${applied.accepted.length}</b><small>Accepted</small></div><div class="tile rej"><b>${applied.rejected.length}</b><small>Rejected</small></div><div class="tile"><b>${none}</b><small>No tag yet</small></div></div>
+    <div class="note">${esc(S.tagsLabel)}.</div>
+    <div class="ctrl"><label>Model<select id="model">${Object.entries(MODELS).map(([k, v]) => `<option value="${k}" ${k === (S.model || "claude-sonnet-5-5") ? "selected" : ""}>${esc(v.name)}</option>`).join("")}</select></label>
+      <button class="btn primary" id="runlive" type="button">${sample ? "Run model on these entries" : "Open in Claude to run live"}</button>
+      <label class="chk"><input type="checkbox" class="inclm" id="inclm2" ${S.includeModel ? "checked" : ""}> Include model-coded events in the rates</label></div>
+    <div class="note" id="amb-incl"></div>
+    <div id="busy">${S.busy || ""}</div></div>${cards || `<div class="panel">No ambiguous entries in this data.</div>`}</div>`;
+  $("#inclm2").onchange = e => setIncl(e.target.checked);
+  $("#model").onchange = e => { S.model = e.target.value; };
+  $("#runlive").onclick = runLive;
+  updateAmbRates();
+}
+let running = false;
+async function runLive(){
+  if (!sample){ $("#busy").innerHTML = `<div class="msg">Open this page in Claude to run the model live. The recorded run is shown above.</div>`; return; }
+  if (running) return; running = true;
+  const items = coded.ambiguous.map(a => { const e = byId()[a.entry_id]; return { entry_id: e.entry_id, case_id: e.case_id, filing_date: e.filing_date, entry_text: e.entry_text, candidates: MM.candidates(coded, e) }; });
+  if (!items.length){ $("#busy").innerHTML = `<div class="msg">Nothing to send.</div>`; running = false; return; }
+  $("#runlive").disabled = true; $("#busy").innerHTML = `<div class="stream" id="stream">Sending ${items.length} entries...</div>`;
+  try {
+    const opts = modelOpts();
+    const res = await sample(MM_PROMPTS.classify({ items }), { ...opts, cache: false, onText: ({ text }) => { const s = $("#stream"); if (s) s.textContent = text.length.toLocaleString() + " characters written"; } });
+    S.tags = parseJson(res.text).tags || []; S.tagsLabel = `Live run on ${MODELS[opts.model]?.name || opts.model}, today`;
+    S.model = opts.model; S.open = null; recompute(); S.busy = `<div class="msg ok">Done: accepted ${applied.accepted.length}, rejected ${applied.rejected.length}.</div>`; renderAmb(); renderCompare();
+  } catch(e){ S.busy = ""; $("#busy").innerHTML = `<div class="msg err">${esc(errText(e))}</div>`; }
+  running = false; if ($("#runlive")) $("#runlive").disabled = false;
+}
+
+/* ---------- Import ---------- */
+function renderImp(){
+  $("#v-imp").innerHTML = `<div class="panel"><h2>Use your own docket</h2>
+    <p class="sub">Paste or upload a CourtListener docket-entries JSON file, or a CSV with the columns <span class="chip">case_id</span> <span class="chip">filing_date</span> <span class="chip">entry_text</span> and, if you have them, <span class="chip">entry_id</span> <span class="chip">entry_number</span> <span class="chip">court</span> <span class="chip">judge</span> <span class="chip">party_filing</span> <span class="chip">counsel_firm</span>. The file is read in this page and goes nowhere.</p>
+    <div class="msg">Live CourtListener pulls need your own free API token and are not built in v1. Download the docket JSON yourself and paste it here. CourtListener data has no law firm names, so firm tables stay empty for it.</div>
+    <textarea id="imptext" rows="9" placeholder='Paste CSV or CourtListener JSON here'></textarea>
+    <div class="two"><input type="file" id="impfile" accept=".csv,.json,.txt"><button class="btn primary" id="impgo" type="button">Read this docket</button><button class="btn" id="impdemo" type="button">Back to the demo data</button></div>
+    <div id="impmsg"></div></div>`;
+  $("#impfile").onchange = e => { const f = e.target.files[0]; if (f) f.text().then(t => { $("#imptext").value = t; }); };
+  $("#impdemo").onclick = () => { S.entries = MM_DATA.entries; S.demo = true; S.tags = MM_RECORDED.tags || []; S.tagsLabel = `Recorded run on ${MODELS[MM_RECORDED.model]?.name || MM_RECORDED.model}, ${MM_RECORDED.recordedAt}`; S.open = null; S.busy = ""; recompute(); renderAll(); showTab("compare"); };
+  $("#impgo").onclick = () => {
+    const out = $("#impmsg");
+    try {
+      const imp = MM.importAuto($("#imptext").value);
+      S.entries = imp.entries; S.demo = false; S.tags = []; S.tagsLabel = "No model run on imported data yet"; S.open = null; S.busy = ""; recompute();
+      const judges = names.judges.length, firms = names.firms.length;
+      out.innerHTML = `<div class="msg ok">Read ${imp.entries.length} entries as ${esc(imp.format)}. ${imp.rejected && imp.rejected.length ? `<br>${esc(MM.badDates(imp.rejected))}<br>` : ""}Rules coded ${coded.events.length} rulings and left ${coded.ambiguous.length} ambiguous. ${judges} judge${judges === 1 ? "" : "s"}, ${firms} firm${firms === 1 ? "" : "s"} found. <button class="btn" id="goc" type="button">See the comparison</button></div>`;
+      $("#goc").onclick = () => { renderAll(); showTab("compare"); };
+      renderAmb(); renderCompare();
+    } catch(e){ out.innerHTML = `<div class="msg err">${esc(e.message)}</div>`; }
+  };
+}
+
+function renderAll(){ renderCompare(); renderAmb(); renderImp(); }
+function showTab(t){
+  S.tab = t;
+  document.querySelectorAll("#tabs button").forEach(b => { b.setAttribute("aria-selected", b.dataset.tab === t); b.tabIndex = b.dataset.tab === t ? 0 : -1; });
+  for (const k of ["compare", "amb", "imp"]) $("#v-" + k).hidden = k !== t;
+  store.set("mm:tab", t);
+}
+document.querySelectorAll("#tabs button").forEach(b => b.onclick = () => showTab(b.dataset.tab));
+$("#tabs").addEventListener("keydown", e => {
+  const tabs = [...document.querySelectorAll("#tabs button")], i = tabs.indexOf(document.activeElement);
+  const n = e.key === "ArrowRight" ? (i + 1) % tabs.length : e.key === "ArrowLeft" ? (i - 1 + tabs.length) % tabs.length : e.key === "Home" ? 0 : e.key === "End" ? tabs.length - 1 : -1;
+  if (i < 0 || n < 0) return; e.preventDefault(); showTab(tabs[n].dataset.tab); tabs[n].focus();
+});
+recompute(); renderAll();
+{ const t = store.get("mm:tab"); if (t === "compare" || t === "amb") showTab(t); }
+(async () => { try { sample = await window.claude?.use("sample"); } catch(e){ sample = null; } renderAmb(); })();
+</script>
