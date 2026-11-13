@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Knock It Off</title>
+<meta name="description" content="Play your cat in a cosy room and knock everything off the furniture.">
+<link rel="stylesheet" href="style.css">
+<script type="importmap">
+{
+  "imports": {
+    "three": "./vendor/three@0.170.0/build/three.module.js",
+    "three/addons/": "./vendor/three@0.170.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="hud" class="hidden">
+  <div class="pill"><span class="lbl">Knocked off</span><span id="score">0</span></div>
+  <div class="pill right"><span class="lbl">Time</span><span id="time">90</span></div>
+  <button id="muteBtn" class="icon" aria-label="Mute sound" title="Mute (M)">Sound on</button>
+</div>
+<div id="hint" class="hidden">Jump on the furniture. Bump things off the edge.</div>
+<div id="popups"></div>
+<div id="toast" class="hidden"></div>
+
+<div id="loading" class="card"><div class="spin"></div><p id="loadMsg">Setting the room...</p></div>
+
+<div id="title" class="card hidden">
+  <p class="eyebrow">Knock It Off</p>
+  <h1 id="petName">Your cat</h1>
+  <p class="how">Hop onto the furniture and bump everything over the edge. Fragile things score more. You have 90 seconds.</p>
+  <p class="keys"><b>WASD</b> or arrows to move, <b>Shift</b> to run, <b>Space</b> to jump, drag to look around.</p>
+  <p class="keys touchonly">Left stick to move (push far to run), button to jump, drag to look.</p>
+  <div id="pets" class="pets hidden" role="radiogroup" aria-label="Choose your cat"></div>
+  <button id="startBtn" class="btn">Start</button>
+  <br><a class="credits" href="CREDITS.txt" target="_blank" rel="noopener">Credits</a>
+</div>
+
+<div id="end" class="card hidden">
+  <p class="eyebrow">Time's up</p>
+  <h2><span id="finalScore">0</span> points</h2>
+  <p class="how"><span id="endNote"></span></p>
+  <p class="best">Best <b id="bestScore">0</b></p>
+  <div class="row">
+    <button id="again" class="btn">Play again</button>
+    <button id="share" class="btn ghost">Share</button>
+  </div>
+  <p id="shareNote" class="note"></p>
+</div>
+
+<div id="stick"><div id="knob"></div></div>
+<button id="jumpBtn" aria-label="Jump">Jump</button>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
