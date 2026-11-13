@@ -170,8 +170,8 @@ SIDES['legal'] = ['NE'] * 9 + ['E', 'W'] * 9
 # Research: R01 (stub end) -> R02 -> hub -> NW (pair with Legal) -> R09
 r_stub = along(HUB_SW, 'SE', DR + 50)
 ROUTE['research'] = [P(r_stub[0], r_stub[1] + 60), r_stub, HUB_SW, R_end]
-PINS['research'] = {0: P(r_stub[0], r_stub[1] + 60), 1: along(HUB_SW, 'SE', DR), 2: along(HUB_SW, 'NW', 84), 3: along(HUB_SW, 'NW', SKA), 13: R_end}
-SIDES['research'] = ['W', 'SW'] + ['SW'] * 11 + ['W']
+PINS['research'] = {0: P(r_stub[0], r_stub[1] + 60), 1: along(HUB_SW, 'SE', DR), 2: along(HUB_SW, 'NW', 84), 4: along(HUB_SW, 'NW', SKA), 14: R_end}
+SIDES['research'] = ['W', 'SW'] + ['SW'] * 12 + ['W']
 
 # Business: hub -> E (over Creative) -> NE -> N column
 b_turn = P(BC_x + 50, B0[1])
