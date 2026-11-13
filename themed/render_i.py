@@ -128,7 +128,7 @@ def plen(pts):
 
 # ------------------------------------------------------------------ the network (design input)
 # Hub at (CX, CY). Paired lines run 14px apart; each interchange is a capsule across a pair.
-CX, CY = 700, 510
+CX, CY = 700, 540
 G = 14  # lane pitch
 h = G / 2
 o = round(h * S2, 3)
@@ -147,7 +147,7 @@ def along(p, dname, L):
 HUB_NE = P(CX + o, CY - o)   # NE side of a NW-SE pair
 HUB_SW = P(CX - o, CY + o)   # SW side of a NW-SE pair
 # Legal + Research run as a NW pair out of the hub (Legal on the NE side), meeting at L09/R09.
-PAIR = 502
+PAIR = 540
 SKA = 196  # distance from the hub to the Skippy L06 / Atlas R04 capsule along NW
 L_bend = along(HUB_NE, 'NW', PAIR)
 R_end = along(HUB_SW, 'NW', PAIR - 30)
@@ -170,8 +170,8 @@ SIDES['legal'] = ['NE'] * 9 + ['E', 'W'] * 9
 # Research: R01 (stub end) -> R02 -> hub -> NW (pair with Legal) -> R09
 r_stub = along(HUB_SW, 'SE', DR + 50)
 ROUTE['research'] = [P(r_stub[0], r_stub[1] + 60), r_stub, HUB_SW, R_end]
-PINS['research'] = {0: P(r_stub[0], r_stub[1] + 60), 1: along(HUB_SW, 'SE', DR), 2: along(HUB_SW, 'NW', 84), 4: along(HUB_SW, 'NW', SKA), 14: R_end}
-SIDES['research'] = ['W', 'SW'] + ['SW'] * 12 + ['W']
+PINS['research'] = {0: P(r_stub[0], r_stub[1] + 60), 1: along(HUB_SW, 'SE', DR), 2: along(HUB_SW, 'NW', 84), 4: along(HUB_SW, 'NW', SKA), 15: R_end}
+SIDES['research'] = ['W', 'SW'] + ['SW'] * 13 + ['W']
 
 # Business: hub -> E (over Creative) -> NE -> N column
 b_turn = P(BC_x + 50, B0[1])
@@ -182,7 +182,7 @@ SIDES['business'] = ['N'] * 3 + ['E'] * 10
 
 # Creative: hub -> E (under Business) -> SE -> E (over Design) -> end
 c_turn = P(BC_x + 50, C0[1])
-D_low = 590
+D_low = 620
 c_y = D_low - G
 c_down = along(c_turn, 'SE', (c_y - C0[1]) / S2)
 CD_x = c_down[0] + 120
