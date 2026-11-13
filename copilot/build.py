@@ -36,6 +36,14 @@ def md(text):
         if not ln.strip():
             i += 1
             continue
+        if ln.lstrip().startswith("```"):
+            buf, i = [], i + 1
+            while i < n and not lines[i].lstrip().startswith("```"):
+                buf.append(lines[i])
+                i += 1
+            i += 1
+            out.append('<pre class="code">%s</pre>' % e("\n".join(buf)))
+            continue
         m = re.match(r"^(#{1,6})\s+(.*)$", ln)
         if m:
             lvl = min(len(m.group(1)) + 2, 6)  # keep page hierarchy: # -> h3
@@ -87,7 +95,7 @@ def md(text):
             out.append(html + "</%s>" % tag)
         else:
             buf = []
-            while i < n and lines[i].strip() and not re.match(r"^(#{1,6}\s|\s*[-*]\s|\s*\d+\.\s|>|\||\s*-{3,}\s*$)", lines[i]):
+            while i < n and lines[i].strip() and not re.match(r"^(#{1,6}\s|\s*[-*]\s|\s*\d+\.\s|>|\||\s*-{3,}\s*$|\s*```)", lines[i]):
                 buf.append(lines[i].strip())
                 i += 1
             if not buf:  # safety: never loop forever
@@ -186,6 +194,66 @@ for ar in areas:
               % (e(ar), e(ar), n_ar, items))
 for a in kit["agents"]:
     dialogs += agent_dialog(a)
+
+# ---------- labs: the code-backed integrations ----------
+LAB_ORDER = ["matter-api", "lex-mcp", "wall-connector", "brief-bench", "defined-terms-addin", "platform-agents", "evals"]
+LAB_DEMO = {"lex-mcp": ["demo/transcript.md"], "matter-api": ["demo/transcript.md"],
+            "wall-connector": ["demo/access-proof.md", "demo/sync-log.md"], "brief-bench": ["demo/report.md"],
+            "defined-terms-addin": ["demo/findings.md"], "evals": ["demo/summary.md"],
+            "platform-agents": ["demo/validator-all-labs.md", "demo/matter-pulse-haiku.md", "demo/privilege-log-builder-run.txt"]}
+SKIP = {"node_modules", ".venv", "cache", "out", "dist", "results", "__pycache__", ".pytest_cache", "_build", ".DS_Store"}
+LABS = KIT / "labs"
+labs = [json.loads(read(LABS / s / "lab.json")) for s in LAB_ORDER if (LABS / s / "lab.json").exists()]
+
+
+def zip_lab(slug):
+    import zipfile
+    dest = dl / ("lab-%s.zip" % slug)
+    with zipfile.ZipFile(dest, "w", zipfile.ZIP_DEFLATED) as z:
+        for p in sorted((LABS / slug).rglob("*")):
+            rel = p.relative_to(LABS / slug)
+            if not p.is_file() or set(rel.parts) & SKIP:
+                continue
+            if p.name.startswith(".env") and p.name != ".env.example":
+                continue  # never ship real env files
+            z.write(p, "%s/%s" % (slug, rel.as_posix()))
+    return dest.stat().st_size
+
+
+def lab_dialog(L):
+    slug = L["slug"]
+    ul = lambda xs: "<ul>%s</ul>" % "".join("<li>%s</li>" % inline(x) for x in xs)
+    tabs = [("what", "What it shows", ul(L["what_it_shows"]) + "<h4>Built with</h4>" + ul(L["stack"]))]
+    demo = ""
+    for f in LAB_DEMO.get(slug, []):
+        p = LABS / slug / f
+        if p.exists() and p.stat().st_size > 200:
+            body = '<pre class="code">%s</pre>' % e(read(p)) if p.suffix == ".txt" else md(read(p))
+            demo += '<div class="doc demo">%s</div>' % body
+    if demo:
+        tabs.append(("demo", "Real run", '<p class="note">Output saved from actually running the code on invented data.</p>' + demo))
+    if L.get("agents"):
+        tabs.append(("agents", "Agents", '<ul class="rows">%s</ul>' % "".join(
+            "<li><div><strong>%s</strong><p>%s</p></div></li>" % (e(a["name"]), e(a["tagline"])) for a in L["agents"])))
+    tabs.append(("proof", "Checked", "<h4>Verified here</h4>" + ul(L["verified"]) + "<h4>Not verified</h4>" + ul(L["not_verified"])))
+    kb = max(1, zip_lab(slug) // 1024)
+    tabs.append(("src", "Source", '<p>Run it yourself:</p><pre class="code">%s</pre><p class="links"><a href="/copilot/downloads/lab-%s.zip" download>Download the source (.zip, %s KB)</a></p>'
+                 % (e(L["run"]), slug, format(kb, ","))))
+    tl = "".join('<button type="button" role="tab" id="t-%s-%s" aria-controls="p-%s-%s" aria-selected="%s" tabindex="%s">%s</button>'
+                 % (slug, t[0], slug, t[0], "true" if k == 0 else "false", "0" if k == 0 else "-1", e(t[1])) for k, t in enumerate(tabs))
+    tp = "".join('<div role="tabpanel" id="p-%s-%s" aria-labelledby="t-%s-%s" class="tp"%s>%s</div>'
+                 % (slug, t[0], slug, t[0], "" if k == 0 else " hidden", t[2]) for k, t in enumerate(tabs))
+    return ('<dialog class="cp-dlg" id="d-lab-%s" aria-labelledby="dh-%s"><div class="dlg-h"><div><h3 id="dh-%s">%s</h3><p>%s</p></div>'
+            '<button type="button" class="tbtn" data-close>Close</button></div><div class="tabs" role="tablist" aria-label="%s">%s</div>%s</dialog>'
+            % (slug, slug, slug, e(L["name"]), e(L["tagline"]), e(L["name"] + " details"), tl, tp))
+
+
+lab_cards = "".join(
+    '<li><button type="button" class="card" data-open="d-lab-%s"><span class="card__n">%s</span><span class="card__t">%s</span>'
+    '<span class="card__m"><b>Kind</b> %s</span><span class="card__m"><b>Agents</b> %s</span><span class="card__go">Open details &rarr;</span></button></li>'
+    % (L["slug"], e(L["name"]), e(L["tagline"]), e(L["kind"]),
+       e(", ".join(a["name"] for a in L.get("agents", [])) or "None. It tests the other agents.")) for L in labs)
+lab_dialogs = "".join(lab_dialog(L) for L in labs)
 
 achips = '<button type="button" class="chip2" data-area-f="all" aria-pressed="true">All <i>%d</i></button>' % len(kit["agents"])
 for ar in areas:
@@ -295,6 +363,9 @@ TEMPLATE = r"""<!doctype html>
 .cp th{background:var(--soft)}
 .cp .meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px;color:var(--mute);font-weight:600}
 .cp pre.ins{margin:0;padding:12px 14px;border:2px solid var(--rule);background:var(--white);max-height:460px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.5 ui-monospace,Menlo,Consolas,monospace}
+.cp pre.code{margin:6px 0;padding:10px 12px;border:2px solid var(--rule);background:var(--soft);max-height:360px;overflow:auto;white-space:pre;font:13px/1.45 ui-monospace,Menlo,Consolas,monospace}
+.cp .doc.demo{max-height:none}
+.cp .doc.demo+.doc.demo{margin-top:14px}
 .cp .stat{font-size:14px;color:var(--mute);margin-left:8px}
 @media (max-width:760px){
  .cp .how{grid-template-columns:minmax(0,1fr)}
@@ -315,7 +386,7 @@ TEMPLATE = r"""<!doctype html>
 <span class="eyebrow">Legal line &middot; Copilot integrations</span>
 <h1>Copilot Kit</h1>
 <p class="lede">Agents and prompts that law-firm staff can set up in Microsoft 365 Copilot themselves, built on an invented firm. %%NAGENTS%% agents across %%NAREAS%% practice areas, and %%NPROMPTS%% prompts.</p>
-<div class="cta"><a class="btn" href="/copilot/downloads/copilot-kit.zip" download>Download the kit (.zip)</a><a class="btn alt" href="#prompts">Jump to the prompt library</a></div>
+<div class="cta"><a class="btn" href="/copilot/downloads/copilot-kit.zip" download>Download the kit (.zip)</a><a class="btn alt" href="#labs">See the labs</a><a class="btn alt" href="#prompts">Jump to the prompt library</a></div>
 </header>
 
 <section class="s" aria-labelledby="h-how">
@@ -334,6 +405,13 @@ TEMPLATE = r"""<!doctype html>
 <div class="chipbar" role="group" aria-label="Filter agents by practice area">%%ACHIPS%%</div>
 <div id="agrid">%%CARDS%%</div>
 %%DIALOGS%%
+</section>
+
+<section class="s" id="labs" aria-labelledby="h-labs">
+<h2 id="h-labs">Labs: the code underneath</h2>
+<p>The agents above need no code. These go further: a tool server, an API with ethical walls, a search connector, a custom engine agent, a Word add-in, newer Copilot agent features, and a test harness that checks every agent's safety rules. Each one ran for real on invented data; open one to see the saved run and exactly what was and was not verified.</p>
+<ul class="grid">%%LABCARDS%%</ul>
+%%LABDIALOGS%%
 </section>
 
 <section class="s" id="prompts" aria-labelledby="h-prompts">
@@ -388,6 +466,7 @@ q('[role=tablist]').forEach(function(l){l.addEventListener('keydown',function(ev
 """
 
 page = (TEMPLATE.replace("%%NAGENTS%%", str(len(kit["agents"]))).replace("%%NAREAS%%", {1:"one",2:"two",3:"three",4:"four",5:"five",6:"six",7:"seven",8:"eight",9:"nine"}.get(len(areas), str(len(areas)))).replace("%%ACHIPS%%", achips).replace("%%NPROMPTS%%", str(len(prompts)))
+        .replace("%%LABCARDS%%", lab_cards).replace("%%LABDIALOGS%%", lab_dialogs)
         .replace("%%CARDS%%", cards).replace("%%DIALOGS%%", dialogs).replace("%%CHIPS%%", chips).replace("%%PROMPTS%%", prows))
 (OUT / "index.html").write_text(page, encoding="utf-8")
 print("wrote index.html (%d bytes), %d agents, %d prompts" % (len(page), len(kit["agents"]), len(prompts)))
