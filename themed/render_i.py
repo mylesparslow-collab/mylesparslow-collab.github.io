@@ -133,7 +133,7 @@ def plen(pts):
 #   Legal (27)    : N up the corridor (paired with Research), W along the top, S down the left edge
 #   Research (16) : a straight N-S line through the hub, sharing the corridor with Legal
 #   Business (13) : E with Creative, then a long NE diagonal across the middle of the map
-#   Creative (10) : E with Business, SE, then E along the lower right
+#   Creative (11) : E with Business, SE, then E along the lower right
 #   Design (5)    : SE from the hub, then E along the bottom
 CX, CY = 560, 700
 G = 14  # lane pitch
@@ -183,8 +183,8 @@ C_low = CY + 150
 c_down = along(c_turn, 'SE', (C_low - C0[1]) / S2)
 C_end = 1890
 ROUTE['creative'] = [C0, c_turn, c_down, P(C_end, C_low)]
-PINS['creative'] = {0: P(CX + 120, C0[1]), 2: P(BC_x, C0[1]), 3: P(c_down[0] + 70, C_low), 9: P(C_end, C_low)}
-SIDES['creative'] = ['S', 'S', 'S', 'N', 'S', 'N', 'S', 'N', 'S', 'N']
+PINS['creative'] = {0: P(CX + 120, C0[1]), 2: P(BC_x, C0[1]), 3: P(c_down[0] + 70, C_low), 10: P(C_end, C_low)}
+SIDES['creative'] = ['S', 'S', 'S', 'N', 'S', 'N', 'S', 'N', 'S', 'N', 'S']
 
 D_low = CY + 245
 d_bend = along(P(CX, CY), 'SE', (D_low - CY) / S2)
