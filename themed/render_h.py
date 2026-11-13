@@ -18,6 +18,21 @@ import urllib.parse
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, 'mockup-h')
 D = json.load(open(os.path.join(ROOT, 'themed', 'live.json'), encoding='utf-8'))
+
+
+def _fill_cases(data):
+    """Treat keys that live.json omits on some cases (links_html, thumb, ...) as empty."""
+    for room in data['rooms']:
+        for it in room['items']:
+            if it.get('kind') == 'case':
+                for k in ('links_html', 'thumb', 'sub', 'lede', 'body_html', 'count', 'title'):
+                    it.setdefault(k, '')
+                it.setdefault('kickers', [])
+    n = sum(1 for room in data['rooms'] for it in room['items'] if it.get('kind') == 'case')
+    h = data['home']
+    h['hero_html'] = re.sub(r'(hero__count">)\d+( projects)', lambda m: m.group(1) + str(n) + m.group(2), h['hero_html'])
+    return data
+_fill_cases(D)
 HOME, ROOMS = D['home'], D['rooms']
 unesc = html.unescape
 
