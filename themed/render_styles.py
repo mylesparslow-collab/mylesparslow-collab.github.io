@@ -9,6 +9,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / 'styles'
+_LIVE = json.loads((ROOT / 'themed' / 'live.json').read_text(encoding='utf-8'))
+N_CASES = sum(1 for r in _LIVE['rooms'] for it in r['items'] if it.get('kind') == 'case')
 
 # newest first; href is relative to styles/index.html
 VERSIONS = [
@@ -126,7 +128,7 @@ footer{{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);color:
 <main>
 <section class="intro">
 <h1>Style archive</h1>
-<p>This portfolio is also a running design experiment. Each version renders the same case studies in a completely different style, from a museum floor plan to a 1991 law-firm word processor.</p>
+<p>This portfolio is also a running design experiment. Each version renders the same {N_CASES} case studies in a completely different style, from a museum floor plan to a 1991 law-firm word processor.</p>
 <p>Every version is built with AI from one shared content file, and checked against the ones before it so no two come out alike: they have to differ on at least four of eight traits, from the background colour to the one signature interaction.</p>
 </section>
 <div class="list">

@@ -128,7 +128,14 @@ def plen(pts):
 
 # ------------------------------------------------------------------ the network (design input)
 # Hub at (CX, CY). Paired lines run 14px apart; each interchange is a capsule across a pair.
-CX, CY = 700, 540
+# Layout rule (Nov 2026): track length follows station count, so the busy lines get the
+# long runs and every label sits on one side of its line with air between stations.
+#   Legal (27)    : N up the corridor (paired with Research), W along the top, S down the left edge
+#   Research (16) : a straight N-S line through the hub, sharing the corridor with Legal
+#   Business (13) : E with Creative, then a long NE diagonal across the middle of the map
+#   Creative (10) : E with Business, SE, then E along the lower right
+#   Design (5)    : SE from the hub, then E along the bottom
+CX, CY = 560, 700
 G = 14  # lane pitch
 h = G / 2
 o = round(h * S2, 3)
@@ -143,64 +150,51 @@ def along(p, dname, L):
     return P(p[0] + v[0] * L, p[1] + v[1] * L)
 
 
-# lanes leaving the hub
-HUB_NE = P(CX + o, CY - o)   # NE side of a NW-SE pair
-HUB_SW = P(CX - o, CY + o)   # SW side of a NW-SE pair
-# Legal + Research run as a NW pair out of the hub (Legal on the NE side), meeting at L09/R09.
-PAIR = 540
-SKA = 196  # distance from the hub to the Skippy L06 / Atlas R04 capsule along NW
-L_bend = along(HUB_NE, 'NW', PAIR)
-R_end = along(HUB_SW, 'NW', PAIR - 30)
-# Business over Creative run east out of the hub, meeting at B03/C03.
-B0, C0 = P(CX, CY - h), P(CX, CY + h)
-BC_x = CX + 330
-# Design + Research run as a SE pair out of the hub (Design on the NE side), meeting at D06/R02.
-DR = 140  # distance from hub to the D06/R02 capsule along SE
-
 ROUTE = {}
 PINS = {}
 SIDES = {}
-WRAPW = {'legal': 176, 'research': 290, 'business': 150, 'creative': 128, 'design': 124}
+WRAPW = {'legal': 176, 'research': 290, 'business': 170, 'creative': 150, 'design': 124}
 
-# Legal: hub -> NW (pair with Research) -> N column
-ROUTE['legal'] = [HUB_NE, L_bend, P(L_bend[0], -47)]
-PINS['legal'] = {0: along(HUB_NE, 'NW', 52), 5: along(HUB_NE, 'NW', SKA), 8: along(HUB_NE, 'NW', PAIR - 30), 9: P(L_bend[0], L_bend[1] - 27), 26: P(L_bend[0], -47)}
-SIDES['legal'] = ['NE'] * 9 + ['E', 'W'] * 9
+# The corridor: Legal on the W lane, Research on the E lane, two capsules on it.
+LW, RE = CX - h, CX + h
+Y1 = CY - 215          # Skippy L06 / Atlas R05
+Y2 = 76                # Citation Gate L09 / citation audit R16
+TOP = 30               # Legal's run along the top
+LX = 185               # Legal's west column
+ROUTE['legal'] = [P(LW, CY), P(LW, TOP + 30), P(LW - 30, TOP), P(LX + 30, TOP), P(LX, TOP + 30), P(LX, 905)]
+PINS['legal'] = {0: P(LW, CY - 55), 5: P(LW, Y1), 8: P(LW, Y2), 9: P(LX, 105), 26: P(LX, 905)}
+SIDES['legal'] = ['W'] * 9 + ['E'] * 18
 
-# Research: R01 (stub end) -> R02 -> hub -> NW (pair with Legal) -> R09
-r_stub = along(HUB_SW, 'SE', DR + 50)
-ROUTE['research'] = [P(r_stub[0], r_stub[1] + 60), r_stub, HUB_SW, R_end]
-PINS['research'] = {0: P(r_stub[0], r_stub[1] + 60), 1: along(HUB_SW, 'SE', DR), 2: along(HUB_SW, 'NW', 84), 4: along(HUB_SW, 'NW', SKA), 15: R_end}
-SIDES['research'] = ['W', 'SW'] + ['SW'] * 13 + ['W']
+ROUTE['research'] = [P(RE, CY + 175), P(RE, Y2)]
+PINS['research'] = {0: P(RE, CY + 175), 1: P(RE, CY + 110), 2: P(RE, CY - 85), 4: P(RE, Y1), 15: P(RE, Y2)}
+SIDES['research'] = ['W', 'W'] + ['E'] * 14
 
-# Business: hub -> E (over Creative) -> NE -> N column
-b_turn = P(BC_x + 50, B0[1])
-b_up = along(b_turn, 'NE', 60)
-ROUTE['business'] = [B0, b_turn, b_up, P(b_up[0], 40)]
-PINS['business'] = {0: P(CX + 90, B0[1]), 2: P(BC_x, B0[1]), 3: P(b_up[0], b_up[1] - 40), 5: P(b_up[0], 280), 12: P(b_up[0], 40)}
-SIDES['business'] = ['N'] * 3 + ['E'] * 10
+# Business over Creative run east out of the hub, meeting at B03/C03 (the Blender clay kit).
+B0, C0 = P(CX, CY - h), P(CX, CY + h)
+BC_x = CX + 330
+b_turn = P(BC_x + 60, B0[1])
+b_end = along(b_turn, 'NE', (b_turn[1] - 70) / S2)
+ROUTE['business'] = [B0, b_turn, b_end]
+PINS['business'] = {0: P(CX + 105, B0[1]), 2: P(BC_x, B0[1]), 3: along(b_turn, 'NE', 95), 12: b_end}
+SIDES['business'] = ['N'] * 3 + ['NW'] * 10
 
-# Creative: hub -> E (under Business) -> SE -> E (over Design) -> end
-c_turn = P(BC_x + 50, C0[1])
-D_low = 620
-c_y = D_low - G
-c_down = along(c_turn, 'SE', (c_y - C0[1]) / S2)
-CD_x = c_down[0] + 120
-ROUTE['creative'] = [C0, c_turn, c_down, P(CD_x + 420, c_y)]
-PINS['creative'] = {0: P(CX + 150, C0[1]), 2: P(BC_x, C0[1]), 4: P(CD_x, c_y), 9: P(CD_x + 420, c_y)}
-SIDES['creative'] = ['S', 'S', 'S', 'NE', 'N', 'N', 'N', 'N', 'N', 'N']
+c_turn = P(BC_x + 60, C0[1])
+C_low = CY + 150
+c_down = along(c_turn, 'SE', (C_low - C0[1]) / S2)
+C_end = 1890
+ROUTE['creative'] = [C0, c_turn, c_down, P(C_end, C_low)]
+PINS['creative'] = {0: P(CX + 120, C0[1]), 2: P(BC_x, C0[1]), 3: P(c_down[0] + 70, C_low), 9: P(C_end, C_low)}
+SIDES['creative'] = ['S', 'S', 'S', 'N', 'S', 'N', 'S', 'N', 'S', 'N']
 
-# Design: D01..D05 on a W then SW arm, hub, D06 on the SE pair, then E under Creative
-d_w = P(470, CY)
-d_end = along(d_w, 'SW', 200)
-d_bend = along(HUB_NE, 'SE', (D_low - HUB_NE[1]) / S2)
-ROUTE['design'] = [d_end, d_w, P(CX, CY)]
-PINS['design'] = {0: d_end, 4: P(CX - 150, CY)}
-SIDES['design'] = ['SE', 'SE', 'SE', 'SE', 'S']
+D_low = CY + 245
+d_bend = along(P(CX, CY), 'SE', (D_low - CY) / S2)
+ROUTE['design'] = [P(CX, CY), d_bend, P(d_bend[0] + 640, D_low)]
+PINS['design'] = {0: P(d_bend[0] + 60, D_low), 4: P(d_bend[0] + 640, D_low)}
+SIDES['design'] = ['S'] * 5
 
-# The one geographic flourish: a river through the empty middle, never under a label.
+# The one geographic flourish: a river through the empty upper right, never under a label.
 RIVER_W = 15
-RIVER = [P(650, -40), P(650, 146), P(804, 300.5), P(1300, 300.5), P(1360, 240.5), P(1800, 240.5)]
+RIVER = [P(1790, -60), P(1790, 130), P(1890, 230), P(1890, 430), P(1990, 530), P(2200, 530)]
 
 DEBUG = '--debug' in sys.argv
 ORDER = ['legal', 'business', 'creative', 'design', 'research']

@@ -18,6 +18,21 @@ import zlib
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, 'mockup-g')
 LIVE = json.load(open(os.path.join(ROOT, 'themed', 'live.json'), encoding='utf-8'))
+
+
+def _fill_cases(data):
+    """Treat keys that live.json omits on some cases (links_html, thumb, ...) as empty."""
+    for room in data['rooms']:
+        for it in room['items']:
+            if it.get('kind') == 'case':
+                for k in ('links_html', 'thumb', 'sub', 'lede', 'body_html', 'count', 'title'):
+                    it.setdefault(k, '')
+                it.setdefault('kickers', [])
+    n = sum(1 for room in data['rooms'] for it in room['items'] if it.get('kind') == 'case')
+    h = data['home']
+    h['hero_html'] = re.sub(r'(hero__count">)\d+( projects)', lambda m: m.group(1) + str(n) + m.group(2), h['hero_html'])
+    return data
+_fill_cases(LIVE)
 HOME = LIVE['home']
 ROOMS = LIVE['rooms']
 MAIL = 'mzpprojects1@gmail.com'
@@ -230,8 +245,8 @@ def tools():
 def blurb(depth):
     up = '../' * depth
     return ('<section class="blurb" id="archive" data-fitbox><p class="blurb__now">You&rsquo;re looking at: <b>Sticker Wall</b></p>'
-            '<p class="blurb__t"><b>Style archive.</b> This site is also a running design experiment. Each version renders the same 53 case studies in a completely different style, '
-            'from a museum floor plan to a 1991 law-firm word processor. <a class="big-link" href="%sstyles/index.html">See every version <span aria-hidden="true">&rarr;</span></a></p></section>') % up
+            '<p class="blurb__t"><b>Style archive.</b> This site is also a running design experiment. Each version renders the same %d case studies in a completely different style, '
+            'from a museum floor plan to a 1991 law-firm word processor. <a class="big-link" href="%sstyles/index.html">See every version <span aria-hidden="true">&rarr;</span></a></p></section>') % (sum(1 for r in ROOMS for i in r['items'] if i['kind'] == 'case'), up)
 
 
 def footer():
@@ -246,7 +261,7 @@ def footer():
 
 def build_home():
     inner = (topbar(0, 'home') + '<main id="main">' + hero() + ''.join(slab(r) for r in ROOMS) + rules() + tools() + blurb(1) + '</main>' + footer())
-    return page('Myles Parslow · Sticker Wall', 'Myles Parslow makes things with AI: 53 case studies, from legal software to cat songs and a kart racer, as stickers on a colour wall.', 0, 'page-home', inner, home=True)
+    return page('Myles Parslow · Sticker Wall', 'Myles Parslow makes things with AI: %d case studies, from legal software to cat songs and a kart racer, as stickers on a colour wall.' % sum(1 for r in ROOMS for i in r['items'] if i['kind'] == 'case'), 0, 'page-home', inner, home=True)
 
 
 # ------------------------------------------------------------------ room pages

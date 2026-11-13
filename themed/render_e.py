@@ -21,6 +21,21 @@ import re
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, 'mockup-e')
 LIVE = json.load(open(os.path.join(ROOT, 'themed', 'live.json'), encoding='utf-8'))
+
+
+def _fill_cases(data):
+    """Treat keys that live.json omits on some cases (links_html, thumb, ...) as empty."""
+    for room in data['rooms']:
+        for it in room['items']:
+            if it.get('kind') == 'case':
+                for k in ('links_html', 'thumb', 'sub', 'lede', 'body_html', 'count', 'title'):
+                    it.setdefault(k, '')
+                it.setdefault('kickers', [])
+    n = sum(1 for room in data['rooms'] for it in room['items'] if it.get('kind') == 'case')
+    h = data['home']
+    h['hero_html'] = re.sub(r'(hero__count">)\d+( projects)', lambda m: m.group(1) + str(n) + m.group(2), h['hero_html'])
+    return data
+_fill_cases(LIVE)
 HOME = LIVE['home']
 ROOMS = LIVE['rooms']
 MAIL = 'mzpprojects1@gmail.com'
@@ -69,7 +84,7 @@ for ri, r in enumerate(ROOMS, 1):
         it['ci'] = ci
         it['ex'] = '%s-%02d' % (r['letter'], ci)
         it['bates'] = 'PARSLOW-%04d%02d' % (ri, ci)
-assert total == 53, total
+TOTAL_CASES = total
 
 ICON_HOUSE = '<svg class="ico" viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" focusable="false"><path d="M2 9.5 10 2.5l8 7M4.5 8.5V17h4v-4.5h3V17h4V8.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></svg>'
 ICON_THEME = ('<svg class="ico ico-sun" viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" focusable="false"><circle cx="10" cy="10" r="3.6" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M10 2v2.2M10 15.8V18M2 10h2.2M15.8 10H18M4.3 4.3l1.5 1.5M14.2 14.2l1.5 1.5M4.3 15.7l1.5-1.5M14.2 5.8l1.5-1.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>'
@@ -208,7 +223,7 @@ def home_page():
 <div class="caption">
 <div class="caption__l"><h1 id="h-caption"><span class="c1">In the matter of</span> <span class="c2">Myles Parslow,</span> <span class="c3">who makes things with AI</span></h1></div>
 <div class="caption__p" aria-hidden="true">)<br>)<br>)<br>)<br>)</div>
-<div class="caption__r"><p class="caseno">Case No. MP-2026-053</p><p class="caption__t">Portfolio of Exhibits</p><p class="caption__c">@@N@@ exhibits &middot; 5 folders</p></div>
+<div class="caption__r"><p class="caseno">Case No. MP-2026-@@NN@@</p><p class="caption__t">Portfolio of Exhibits</p><p class="caption__c">@@N@@ exhibits &middot; 5 folders</p></div>
 </div>
 <div class="statement">
 <div class="statement__t"><h2 class="doc-h">Statement</h2>@@LEDE@@</div>
@@ -237,7 +252,7 @@ def home_page():
 
 <aside class="sticky" aria-label="Style archive">
 <p class="sticky__h hand">You&rsquo;re looking at: Case File</p>
-<p><strong>Style archive.</strong> This site is also a running design experiment. Each version renders the same 53 case studies in a completely different style, from a museum floor plan to a 1991 law-firm word processor. <a href="../styles/index.html"><strong>See every version &rarr;</strong></a></p>
+<p><strong>Style archive.</strong> This site is also a running design experiment. Each version renders the same @@N@@ case studies in a completely different style, from a museum floor plan to a 1991 law-firm word processor. <a href="../styles/index.html"><strong>See every version &rarr;</strong></a></p>
 </aside>
 
 <footer class="sheet pos" id="contact" aria-labelledby="h-pos">
@@ -250,12 +265,12 @@ def home_page():
 <div class="stamp-wrap" aria-hidden="true">@@RECEIVED@@</div>
 </footer>
 </div></main>""" \
-        .replace('@@N@@', str(total)).replace('@@LEDE@@', lede).replace('@@STATS@@', stats).replace('@@FOLDERS@@', ''.join(folders)) \
+        .replace('@@NN@@', '%03d' % total).replace('@@N@@', str(total)).replace('@@LEDE@@', lede).replace('@@STATS@@', stats).replace('@@FOLDERS@@', ''.join(folders)) \
         .replace('@@ROWS@@', ''.join(rows)).replace('@@RULES@@', rules).replace('@@TOOLS@@', tools).replace('@@M@@', MAIL) \
         .replace('@@GH@@', gh[0]).replace('@@GHT@@', gh[1]).replace('@@LP@@', lp[0]).replace('@@LPT@@', lp[1]) \
         .replace('@@STAMPBTN@@', stamp('btn', 'OPEN THE FILE', 'PRESS TO BEGIN', '&darr;', 54, 'stamp stamp--btn', 17, 2, 13, 2)) \
-        .replace('@@RECEIVED@@', stamp('rec', 'RECEIVED', 'MP-2026-053', YEAR, 38, 'stamp stamp--rec'))
-    return page_shell('Case File · Myles Parslow Portfolio', 'Myles Parslow makes things with AI: software for law firms and businesses, novels, games and reference works. 53 exhibits in five folders.',
+        .replace('@@RECEIVED@@', stamp('rec', 'RECEIVED', 'MP-2026-%03d' % total, YEAR, 38, 'stamp stamp--rec'))
+    return page_shell('Case File · Myles Parslow Portfolio', 'Myles Parslow makes things with AI: software for law firms and businesses, novels, games and reference works. %d exhibits in five folders.' % total,
                       0, 'home', inner, None)
 
 

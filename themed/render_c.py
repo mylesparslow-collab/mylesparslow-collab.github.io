@@ -18,6 +18,21 @@ import re
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, 'mockup-c')
 DATA = json.load(open(os.path.join(ROOT, 'themed', 'live.json'), encoding='utf-8'))
+
+
+def _fill_cases(data):
+    """Treat keys that live.json omits on some cases (links_html, thumb, ...) as empty."""
+    for room in data['rooms']:
+        for it in room['items']:
+            if it.get('kind') == 'case':
+                for k in ('links_html', 'thumb', 'sub', 'lede', 'body_html', 'count', 'title'):
+                    it.setdefault(k, '')
+                it.setdefault('kickers', [])
+    n = sum(1 for room in data['rooms'] for it in room['items'] if it.get('kind') == 'case')
+    h = data['home']
+    h['hero_html'] = re.sub(r'(hero__count">)\d+( projects)', lambda m: m.group(1) + str(n) + m.group(2), h['hero_html'])
+    return data
+_fill_cases(DATA)
 HOME = DATA['home']
 ROOMS = DATA['rooms']
 SLUGS = [r['slug'] for r in ROOMS]
@@ -333,7 +348,7 @@ def build_home():
 <section class="sec archive" id="archive" aria-labelledby="h-archive">
   <div class="archive__in">
     <h2 class="sub" id="h-archive">Style archive</h2>
-    <p>This site is also a running design experiment. Each version renders the same 53 case studies in a completely different style, from a museum floor plan to a 1991 law-firm word processor. <a href="../styles/index.html">See every version <span aria-hidden="true">&rarr;</span></a></p>
+    <p>This site is also a running design experiment. Each version renders the same %(ncases)d case studies in a completely different style, from a museum floor plan to a 1991 law-firm word processor. <a href="../styles/index.html">See every version <span aria-hidden="true">&rarr;</span></a></p>
     <p class="archive__now">You&rsquo;re looking at: The Museum.</p>
   </div>
 </section>
@@ -346,7 +361,7 @@ def build_home():
   <ul class="desk__links">%(flinks)s<li><a href="#lobby">Back to top <span aria-hidden="true">&uarr;</span></a></li></ul>
   <p class="desk__line">%(mid)s</p>
 </footer>
-""" % dict(bar=bar(), count=esc(count), hh=hh_link, himg=himg, hn=hn, hs=hs, lede=lede, plaques=plaques,
+""" % dict(ncases=sum(COUNT.values()), bar=bar(), count=esc(count), hh=hh_link, himg=himg, hn=hn, hs=hs, lede=lede, plaques=plaques,
            ghosts=''.join('<i class="vtg" data-room="%s" aria-hidden="true" style="left:%.3f%%;top:%.3f%%;width:%.3f%%;height:%.3f%%;--room:var(--%s)"></i>'
                           % ((s,) + tuple(v * 100 for v in ((RECTS[s][0] + 3) / 1200, (RECTS[s][1] + 3) / 570, (RECTS[s][2] - 6) / 1200, (RECTS[s][3] - 6) / 570)) + (s,))
                           for s in SLUGS),

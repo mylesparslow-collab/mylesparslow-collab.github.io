@@ -1,0 +1,3 @@
+# themed/
+
+All portfolio content lives in one file, `live.json` (every case study, room and the homepage sections). To add or change a project, edit `live.json`, then run `python3 -I themed/render_i.py` and `python3 -I themed/promote_i.py` to rebuild the live site (the Transit Map style at the repo root). To refresh the alternate styles in the Style dropdown (`mockup-b` to `mockup-h`) and the `styles/` archive page, run `python3 -I themed/render_all.py`; it re-renders each style from `live.json`, computing every count and total from the data, then re-adds the style switcher, and exits non-zero if any step fails. It does not touch the live site and does not regenerate the screenshots in `styles/shots`.

@@ -18,6 +18,21 @@ import re
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, 'mockup-d')
 LIVE = json.load(open(os.path.join(ROOT, 'themed', 'live.json'), encoding='utf-8'))
+
+
+def _fill_cases(data):
+    """Treat keys that live.json omits on some cases (links_html, thumb, ...) as empty."""
+    for room in data['rooms']:
+        for it in room['items']:
+            if it.get('kind') == 'case':
+                for k in ('links_html', 'thumb', 'sub', 'lede', 'body_html', 'count', 'title'):
+                    it.setdefault(k, '')
+                it.setdefault('kickers', [])
+    n = sum(1 for room in data['rooms'] for it in room['items'] if it.get('kind') == 'case')
+    h = data['home']
+    h['hero_html'] = re.sub(r'(hero__count">)\d+( projects)', lambda m: m.group(1) + str(n) + m.group(2), h['hero_html'])
+    return data
+_fill_cases(LIVE)
 HOME = LIVE['home']
 ROOMS = LIVE['rooms']
 SLUGS = [r['slug'] for r in ROOMS]
@@ -218,8 +233,8 @@ def code_entry(it, links):
 
 ARCH = '''<section class="scr" id="archive" data-file="C:\\PORTFOLIO\\ARCHIVE.DOC" data-pg="4" aria-labelledby="h-arch"><p class="docbar">ARCHIVE.DOC</p>
 <h2 id="h-arch" class="arch-t">Style archive.</h2>
-<p>This site is also a running design experiment. Each version renders the same 53 case studies in a completely different style, from a museum floor plan to a 1991 law-firm word processor. <a href="../styles/index.html"><b>See every version &rarr;</b></a></p>
-<p class="arch-here">You&rsquo;re looking at: MPWP 5.1</p></section>'''
+<p>This site is also a running design experiment. Each version renders the same @@NCASES@@ case studies in a completely different style, from a museum floor plan to a 1991 law-firm word processor. <a href="../styles/index.html"><b>See every version &rarr;</b></a></p>
+<p class="arch-here">You&rsquo;re looking at: MPWP 5.1</p></section>'''.replace('@@NCASES@@', str(n_files))
 
 
 # ------------------------------------------------------------------ home
