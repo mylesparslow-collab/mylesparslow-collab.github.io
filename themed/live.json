@@ -917,8 +917,8 @@
    "short": "Research",
    "letter": "R",
    "eyebrow": "Room 5 of 5",
-   "count": "12 projects",
-   "lede": "Tools for working with AI agents and reading arguments, plus research and reference works: a Byzantine atlas, a medical evidence map, two evidence checks and a market-research terminal.",
+   "count": "13 projects",
+   "lede": "Tools for working with AI agents and reading arguments, plus research and reference works: a Byzantine atlas, a medical evidence map, two evidence checks, a market-research terminal and a tool that turns a Claude session into a script.",
    "items": [
     {
      "kind": "group",
@@ -928,7 +928,7 @@
     {
      "kind": "case",
      "id": "blackbox",
-     "count": "01 / 12",
+     "count": "01 / 13",
      "kickers": [
       "Native Mac app · Developer tool",
       ""
@@ -943,7 +943,7 @@
     {
      "kind": "case",
      "id": "agentforge",
-     "count": "02 / 12",
+     "count": "02 / 13",
      "kickers": [
       "Native Mac app · Local AI",
       ""
@@ -958,7 +958,7 @@
     {
      "kind": "case",
      "id": "agentforge-rust",
-     "count": "03 / 12",
+     "count": "03 / 13",
      "kickers": [
       "Desktop app for Mac, Windows and Linux · Local AI",
       ""
@@ -973,7 +973,7 @@
     {
      "kind": "case",
      "id": "atlas",
-     "count": "04 / 12",
+     "count": "04 / 13",
      "kickers": [
       "Native Mac app · Search",
       ""
@@ -986,7 +986,7 @@
     {
      "kind": "case",
      "id": "xray",
-     "count": "05 / 12",
+     "count": "05 / 13",
      "kickers": [
       "Reading tool",
       ""
@@ -1001,7 +1001,7 @@
     {
      "kind": "case",
      "id": "boardroom",
-     "count": "06 / 12",
+     "count": "06 / 13",
      "kickers": [
       "Decision tool",
       ""
@@ -1016,7 +1016,7 @@
     {
      "kind": "case",
      "id": "slmproof",
-     "count": "07 / 12",
+     "count": "07 / 13",
      "kickers": [
       "Local AI experiment",
       ""
@@ -1036,7 +1036,7 @@
     {
      "kind": "case",
      "id": "byzantium",
-     "count": "08 / 12",
+     "count": "08 / 13",
      "kickers": [
       "Reference work",
       ""
@@ -1051,7 +1051,7 @@
     {
      "kind": "case",
      "id": "mecfs",
-     "count": "09 / 12",
+     "count": "09 / 13",
      "kickers": [
       "Medical research",
       ""
@@ -1066,7 +1066,7 @@
     {
      "kind": "case",
      "id": "aftercare",
-     "count": "10 / 12",
+     "count": "10 / 13",
      "kickers": [
       "Patient tool",
       ""
@@ -1081,7 +1081,7 @@
     {
      "kind": "case",
      "id": "white-space",
-     "count": "11 / 12",
+     "count": "11 / 13",
      "kickers": [
       "Local research tool · Market research",
       ""
@@ -1095,8 +1095,23 @@
     },
     {
      "kind": "case",
+     "id": "standing-orders",
+     "count": "12 / 13",
+     "kickers": [
+      "Command-line tool · Automation",
+      ""
+     ],
+     "title": "Standing Orders",
+     "sub": "session to shell script",
+     "lede": "Turn a finished Claude Code session into a shell script you can read, edit and run again with no model. It keeps the commands that did the work, writes a bash script with the inputs at the top, and stops at the first failed step with a note to hand back to Claude.",
+     "body_html": "<p class=\"links\"><span>A command-line tool for a computer, not part of this site. The pictures below are its real output.</span></p>\n\n    <div class=\"shots\">\n      <figure>\n        <img decoding=\"async\" src=\"../assets/standing-orders-1.jpg\" alt=\"The Standing Orders report for a compiled sales-batch run: a list of seven steps, each tagged as a check or a run, with step 3 opened to show its awk command and the output recorded when the agent ran it.\" width=\"1400\" height=\"875\" loading=\"lazy\">\n        <figcaption>The report that comes with every script. Each step is listed with what it does, the command, and the output recorded when Claude ran it. Steps that were only looking around are marked and left out.</figcaption>\n      </figure>\n      <figure>\n        <img decoding=\"async\" src=\"../assets/standing-orders-2.jpg\" alt=\"A terminal running the compiled script: six numbered steps, each printing its output and finishing with ok, ending with a listing of the archive it made.\" width=\"1400\" height=\"875\" loading=\"lazy\">\n        <figcaption>The compiled script run in a terminal with no AI model. Each step prints what it did and stops the run if it fails.</figcaption>\n      </figure>\n    </div>\n\n    <div class=\"cols\">\n      <section class=\"block\">\n        <h3>The problem</h3>\n        <p>When Claude does the same job for the third time, it spends time and money rediscovering the same commands. A mechanical job like that does not need to be thought through again, it needs to be run again, and run in a way you can read.</p>\n      </section>\n      <section class=\"block\">\n        <h3>What it does</h3>\n        <ul>\n          <li><strong>Reads a finished session.</strong> It takes the saved transcript of a Claude Code session and keeps the commands that did the work.</li>\n          <li><strong>Leaves out the looking around.</strong> Commands that only read, and calls that failed, become comments. The report says what was kept and what was dropped.</li>\n          <li><strong>Writes a plain bash script</strong> with the inputs at the top, such as a batch number or a folder, so you can change them without touching the steps.</li>\n          <li><strong>Stops where it fails.</strong> The script halts at the first failed step and writes a short note about that one step, ready to hand back to Claude.</li>\n        </ul>\n      </section>\n    </div>\n\n    <div class=\"cols\">\n      <section class=\"block\">\n        <h3>What happened when it was tried</h3>\n        <p>On a recorded agent run that processed a sales batch, the script produced output identical to the agent's. It ran again with a new batch number, and it stopped at the first step when its input file was renamed.</p>\n      </section>\n      <section class=\"block\">\n        <h3>What it does not do</h3>\n        <p>It is a command-line tool that runs on my own computer, not released or hosted. Only mechanical sessions compile well: if Claude read something and decided what to do next, the script keeps the result but not the reasoning. Commands are replayed as recorded, so read the script before you run it.</p>\n      </section>\n    </div>\n\n    <div class=\"made\"><b>How it was built</b><p>Python, standard library only, with no model used when it compiles or when the script runs. Built with Claude under my direction, from a written spec, and checked against a recorded run.</p></div>",
+     "links_html": "",
+     "thumb": "../assets/thumbs-hd/standing-orders.jpg"
+    },
+    {
+     "kind": "case",
      "id": "citationaudit",
-     "count": "12 / 12",
+     "count": "13 / 13",
      "kickers": [
       "Medical evidence check",
       ""
