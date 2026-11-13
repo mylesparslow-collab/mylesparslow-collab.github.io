@@ -36,6 +36,7 @@ textarea{width:100%;resize:vertical;font-family:var(--mono);font-size:12px}
 .tabs button{border:0;background:none;padding:9px 14px;font-weight:600;color:var(--ink-2);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap}
 .tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--a)}
 .panel{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:16px 18px;display:grid;gap:12px;min-width:0}
+.panel[hidden]{display:none}
 .ctrl{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end}
 .ctrl label{display:grid;gap:3px;font-size:11px;color:var(--ink-3);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
 .ctrl label.chk{display:flex;gap:6px;align-items:center;text-transform:none;letter-spacing:0;font-size:13px;color:var(--ink-2)}
@@ -128,8 +129,10 @@ mark{background:var(--hi);color:var(--hi-ink);padding:0 1px;border-radius:2px}
 <div class="wrap">
   <header>
     <h1>Motion Mapper</h1>
-    <p class="sub">How a judge, or a law firm, has fared on five kinds of motion, read from docket entries. <b>Fictional demo data.</b></p>
+    <p class="sub">How a judge, or a law firm, has fared on five kinds of motion, read from docket entries. <b id="subtag">Fictional demo data.</b></p>
   </header>
+  <div class="panel" id="dsbar" hidden><div class="ctrl"><label>Dataset<select id="dataset"></select></label></div></div>
+  <div class="msg" id="banner" role="note" hidden>RECAP holds only entries someone uploaded. This slice is <span id="bn-d"></span> dockets and <span id="bn-e"></span> entries fetched <span id="bn-f"></span>; rates describe this slice only, not the judges' records.</div>
   <div class="tabs" role="tablist" id="tabs">
     <button role="tab" data-tab="compare" id="tab-compare" aria-controls="v-compare" aria-selected="true" tabindex="0">Compare</button>
     <button role="tab" data-tab="amb" aria-selected="false" tabindex="-1" aria-controls="v-amb" id="tab-amb">Ambiguous entries</button>
@@ -138,7 +141,7 @@ mark{background:var(--hi);color:var(--hi-ink);padding:0 1px;border-radius:2px}
   <section id="v-compare" role="tabpanel" aria-labelledby="tab-compare"></section>
   <section id="v-amb" role="tabpanel" aria-labelledby="tab-amb" hidden></section>
   <section id="v-imp" role="tabpanel" aria-labelledby="tab-imp" hidden></section>
-  <div class="foot">All judges, firms, parties and cases in the demo are fictional. Every figure describes invented dockets only and says nothing about any real judge or firm. Code reads the docket and does all the counting; the model is used only to tag entries the rules could not read, and its tags are kept only when its quoted evidence appears word for word in the entry.</div>
+  <div class="foot" id="foot">All judges, firms, parties and cases in the demo are fictional. Every figure describes invented dockets only and says nothing about any real judge or firm. Code reads the docket and does all the counting; the model is used only to tag entries the rules could not read, and its tags are kept only when its quoted evidence appears word for word in the entry.</div>
 </div>
 <script>/* Motion Mapper demo data. ENTIRELY FICTIONAL: invented judges, firms, parties and cases. No statistic here describes any real person or firm. */
 const MM_DATA = {
@@ -406,6 +409,7 @@ const MM_DATA = {
 }
 };
 </script>
+<script>const MM_REAL = null;</script>
 <script>/* Prompt builder shared by the page (live runs) and run.js (recorded run). */
 const MM_PROMPTS = {
 classify({ items }){
@@ -456,13 +460,37 @@ motionType(text){
   return null;
 },
 NOT_A_FILING: /^\s*(ORDER|MINUTES|MINUTE ORDER|\(IN CHAMBERS\)|OPPOSITION|REPLY|RESPONSE|DECLARATION|STIPULATION|OBJECTION|MEMORANDUM|PROOF OF SERVICE|NOTICE OF (?:WITHDRAWAL|ERRATA|LODGING)|WITHDRAWAL|JUDGMENT|TEXT ONLY)/i,
-isMotionFiling(text){ const t = String(text || ""); return /\bMOTION\b/i.test(t) && /\bfiled by\b/i.test(t) && !MM.NOT_A_FILING.test(t); },
+/* The motion must be the thing filed: the entry starts with (Notice of / Amended / Defendant's ...) MOTION. An opposition, joinder, stipulation,
+   request for judicial notice or statement that merely mentions "Motion to Dismiss 13" is not a motion filing. */
+MOTION_LEAD: /^\s*(?:(?:AMENDED|SUPPLEMENTAL|RENEWED|EX PARTE|SPECIAL|SECOND|THIRD|JOINT|NOTICE OF|AND|[\w.-]+'S)\s+)*(?:MOTION|APPLICATION)\b/i,
+isMotionFiling(text){ const t = String(text || ""); return /\bMOTION\b/i.test(t) && /\bfiled by\b/i.test(t) && !MM.NOT_A_FILING.test(t) && MM.MOTION_LEAD.test(t); },
+/* Criminal matters are out of scope: the five tracked types are civil motions. */
+isCriminal(e){
+  const t = String(e.entry_text || "");
+  return /-(?:cr|mj)-/i.test(e.case_id || "") || /\[\d+:\d+-(?:cr|mj)-/i.test(t) || /Federal Rules? of Criminal Procedure|Fed\. ?R\. ?Crim|Rule 48\(a\)|Magistrate Complaint/i.test(t) || /\bPlaintiff USA\b[^.]*\bas to Defendant\b/i.test(t);
+},
 isWithdrawal(text){ return /^\s*(NOTICE OF )?WITHDRAWAL/i.test(String(text || "")); },
 isOrder(text){ return /^\s*(MINUTES|MINUTE ORDER|ORDER|\(IN CHAMBERS\)|JUDGMENT|TEXT ONLY)/i.test(String(text || "")); },
 brackets(text){ return [...String(text || "").matchAll(/\[(\d+)\]/g)].map(m => +m[1]); },
+/* Every docket-number reference format seen on real dockets: [n], (Doc. n), (Dkt. n), (ECF No. n), Docket No. n, [DKT. NOS. 91 & 92],
+   "Motion to Dismiss 25" / "Motion to Dismiss Case 13", and "granting 4 MOTION ...". */
+refs(text){
+  const t = String(text || ""), out = [];
+  for (const m of t.matchAll(/\[(\d+)\]/g)) out.push(+m[1]);
+  for (const m of t.matchAll(/\b(?:Docs?|Dkts?|ECF|Docket)\b\.?\s*(?:Nos?\b\.?)?\s*#?(\d+(?:\s*(?:,|&|and)\s*\d+)*)/gi)) for (const n of m[1].match(/\d+/g)) out.push(+n);
+  for (const m of t.matchAll(/\bmotion\s+(?:to dismiss|to compel arbitration|for (?:partial )?summary judgment|for preliminary injunction|to strike)(?:\s+case)?\s+(\d{1,4})\b(?!\s*[\/-])/gi)) out.push(+m[1]);
+  for (const m of t.matchAll(/\b(?:grant(?:s|ed|ing)?|den(?:y|ying|ies|ied)|moot(?:ing)?)\s+(?:in part\s+)?(\d{1,4})(?!\s+(?:days?|weeks?|hours?|months?|years?)\b)(?=\s+(?:MOTION|APPLICATION|PETITION|[A-Z][A-Za-z-]+))/gi)) out.push(+m[1]);
+  return [...new Set(out)];
+},
+/* The order's own words name a motion that is not one of the five tracked types (leave to file, seal, bifurcate, pro hac vice, set aside default ...). */
+namesOtherMotion(text){
+  const t = String(text || "");
+  if (MM.motionType(t.slice(0, 160))) return false;
+  return /\b(?:motion|application|petition|request)\s+(?:to|for)\s+\w+/i.test(t);
+},
 
 /* ---------- outcomes ---------- */
-PROC_WORD: /stipulat|ex parte|extension of time|briefing schedule|reschedul/i,
+PROC_WORD: /stipulat|ex parte|extension of time|briefing schedule|reschedul|resets? (?:the )?hearing|reset for hearing|expects? to issue|(?:is|are) set for \d/i,
 OUT_WORD: /\bGRANT(?:S|ED|ING)?\b|\b(?:DENY(?:ING)?|DENIES|DENIED)\b|\bMOOT\b|withdr[ae]w|VACAT/i,
 /* Procedural only when the stipulation / ex parte application / extension IS the thing filed or ruled on
    (the entry's subject), and no tracked motion outcome is ruled on after it. A stipulation merely mentioned in a ruling
@@ -471,13 +499,27 @@ isProcedural(text){
   const t = String(text || "");
   if (!MM.PROC_WORD.test(t)) return false;
   const body = t.replace(/^\s*(?:(?:MINUTES|MINUTE ORDER|ORDER|\(IN CHAMBERS\)|TEXT ONLY ENTRY)\b[\s:,.]*)+/i, "").replace(/^by (?:Magistrate )?Judge(?: [A-Z][a-z][\w'-]*){0,3}[:,]?\s*/, "").replace(/^(?:re|on)\b:?\s*/i, "");
-  const head = body.match(/^(?:(?:GRANTING|GRANTS|GRANTED|APPROVING|APPROVES|DENYING|DENIES|SO ORDERING)\s+)?(?:\[\d+\]\s*)?(?:(?:the |defendants?'?s? |plaintiffs?'?s? |parties'? |joint |ex parte )\s*){0,3}(?:STIPULATION|STIPULATED|EX PARTE|(?:APPLICATION|MOTION|REQUEST|PETITION)\s+(?:FOR|TO)\s+(?:AN?\s+)?(?:EXTENSION|EXTEND|CONTINU|RESCHEDUL|SHORTEN|ENLARGE)|EXTENSION OF TIME|BRIEFING SCHEDULE|RESCHEDUL)/i);
+  const head = body.match(/^(?:(?:GRANTING|GRANTS|GRANTED|APPROVING|APPROVES|DENYING|DENIES|SO ORDERING)\s+)?(?:\[\d+\]\s*)?(?:(?:the |defendants?'?s? |plaintiffs?'?s? |parties'? |joint |ex parte )\s*){0,3}(?:STIPULATION|STIPULATED|EX PARTE|(?:APPLICATION|MOTION|REQUEST|PETITION)\s+(?:FOR|TO)\s+(?:AN?\s+)?(?:EXTENSION|EXTEND|CONTINU|RESCHEDUL|SHORTEN|ENLARGE)|EXTENSION OF TIME|(?:SETTING\s+)?(?:FILING AND\s+)?BRIEFING SCHEDULE|RESCHEDUL)/i);
   if (head){
-    const rest = body.slice(head[0].length);
+    const rest = body.slice(head[0].length).replace(/\b(?:GRANT\w*|APPROV\w*)\s+the\s+(?:joint\s+)?stipulation[^.]*\./i, " ");
     return !(MM.motionType(rest) && MM.OUT_WORD.test(rest));
   }
   if (!MM.OUT_WORD.test(t)) return true;                    // "ORDER setting briefing schedule": no outcome at all
   return !MM.motionType(t) && !MM.brackets(t).length;       // outcome word but no tracked motion anywhere in the entry
+},
+
+/* Withdrawn / vacated / off calendar counts only when it applies to the motion itself ("[3] Motion is WITHDRAWN", "notice of withdrawal of motion 5",
+   "motion taken off calendar"), never to a stay, hearing date or deadline. Returns a match array or null. */
+motionWithdrawn(t){
+  let m = t.match(/withdr[ae]w\w*\s+(?:of\s+)?(?:(?:the|its|their|his|her|\w+'s?)\s+)*(?:\[\d+\]\s*|\d+\s+)?(?:motion|application|request)/i);
+  if (m) return m;
+  for (const s of t.split(/(?<=[.!?])\s+(?=[A-Z\[(])/)){
+    if (/\b(?:hearing|stay|deadlines?|dates?|trial|conference|under submission)\b/i.test(s)) continue;
+    m = s.match(/(?:\[\d+\]|\bmotions?\b)[^.;,]{0,60}?\b(?:is|are|be|has been|was)\s+(?:hereby\s+)?(?:WITHDRAWN|VACATED|STRICKEN|TAKEN OFF CALENDAR|OFF CALENDAR|REMOVED FROM CALENDAR)\b/i)
+      || s.match(/\bmotion\b[^.;,]{0,40}?\b(?:is|are|be)\s+(?:hereby\s+)?(?:taken|ordered|placed|removed)\s+(?:off|from)\s+(?:the\s+)?calendar/i);
+    if (m) return m;
+  }
+  return null;
 },
 
 /* Returns { outcome, match } | { procedural:true } | { ambiguous:true, reason } */
@@ -485,7 +527,7 @@ outcome(text){
   const t = String(text || "");
   let m;
   if (MM.isProcedural(t)) return { procedural: true };
-  const wd = t.match(/withdr[ae]w\w*/i) || t.match(/(?:MOTION|\[\d+\])[^.;]{0,60}\b(?:is|are) (?:hereby )?(?:VACATED|STRICKEN|TAKEN OFF CALENDAR)/i) || (/VACAT/i.test(t) ? t.match(/VACAT\w*/i) : null);
+  const wd = MM.motionWithdrawn(t);
   const part = t.match(/GRANT(?:ING|ED|S)? IN PART/i), moot = t.match(/\bMOOT\b/i);
   const u = t.replace(/GRANT(?:ING|ED|S)? IN PART|(?:DENY(?:ING)?|DENIES|DENIED) IN PART|(?:DENY(?:ING)?|DENIES|DENIED) AS MOOT/gi, " ");
   const hasGrant = /\bGRANT(?:S|ED|ING)?\b/i.test(u), hasDeny = /\b(?:DENY(?:ING)?|DENIES|DENIED)\b/i.test(u);
@@ -547,16 +589,25 @@ openMotions(ctx, caseId, date, type){
 },
 
 code(entries){
-  const sorted = MM.sortEntries(entries);
-  const ctx = { motions: [], done: new Set() };
   const events = [], ambiguous = [], ignored = [];
+  /* The same docket entry can arrive under several CourtListener ids (linked cv/mj dockets, overlapping pages); keep the first of each. */
+  const seenId = new Set(), seenKey = new Set(), uniq = [];
+  for (const e of MM.sortEntries(entries)){
+    const k = [e.case_id, e.entry_number, e.filing_date, MM.norm(e.entry_text)].join("|");
+    if (seenId.has(e.entry_id) || (e.entry_number != null && e.entry_number !== "" && seenKey.has(k))){ ignored.push({ entry_id: e.entry_id, reason: "Duplicate of an entry already in the data (same id, or same case, number, date and text)" }); continue; }
+    seenId.add(e.entry_id); seenKey.add(k); uniq.push(e);
+  }
+  const sorted = uniq;
+  const ctx = { motions: [], done: new Set() };
   const byNum = {}, otherMotion = new Set();
   const key = (c, n) => c + "#" + n;
   for (const e of sorted) if (e.entry_number != null && e.entry_number !== "") byNum[key(e.case_id, e.entry_number)] = e;
   for (const e of sorted){
     const text = e.entry_text;
     if (!MM.isoDate(e.filing_date) || MM.isoDate(e.filing_date) !== e.filing_date){ ignored.push({ entry_id: e.entry_id, reason: "Filing date is not a valid YYYY-MM-DD date" }); continue; }
+    const crimReason = "Criminal matter (Federal Rules of Criminal Procedure); this tool tracks civil motions only";
     if (MM.isMotionFiling(text)){
+      if (MM.isCriminal(e)){ ignored.push({ entry_id: e.entry_id, reason: crimReason }); continue; }
       const mt = MM.motionType(text);
       if (mt) ctx.motions.push({ ...e, type: mt.type, match: mt.match });
       else otherMotion.add(key(e.case_id, e.entry_number));
@@ -564,14 +615,16 @@ code(entries){
     }
     const withdrawal = MM.isWithdrawal(text);
     if (!withdrawal && !MM.isOrder(text)) continue;
+    if (MM.isCriminal(e)){ ignored.push({ entry_id: e.entry_id, reason: crimReason }); continue; }
     const o = withdrawal ? { outcome: "WithdrawnOrVacated", match: (text.match(/WITHDRAWAL/i) || [""])[0] } : MM.outcome(text);
     if (o.procedural){ ignored.push({ entry_id: e.entry_id, reason: "Procedural entry (scheduling, stipulation or submission), not a ruling" }); continue; }
-    const refs = MM.brackets(text);
+    const refs = MM.refs(text);
     const typeInText = MM.motionType(text);
     const mentionsMotion = /\bmotion\b|\bapplication\b/i.test(text) || refs.length > 0;
     if (!mentionsMotion){ ignored.push({ entry_id: e.entry_id, reason: "Order does not refer to a motion" }); continue; }
     const motionRefs = [...new Set(refs)].filter(n => ctx.motions.some(m => m.case_id === e.case_id && +m.entry_number === n) || otherMotion.has(key(e.case_id, n)));
-    if (motionRefs.length > 1){ ambiguous.push({ entry_id: e.entry_id, reason: "mixed order" }); continue; }
+    const trackedRefs = motionRefs.filter(n => ctx.motions.some(m => m.case_id === e.case_id && +m.entry_number === n));
+    if (motionRefs.length > 1 && trackedRefs.length){ ambiguous.push({ entry_id: e.entry_id, reason: "mixed order" }); continue; }
     // 1. link by bracketed docket number
     let motion = null, outOfScope = false;
     for (const n of refs){
@@ -580,6 +633,7 @@ code(entries){
       if (otherMotion.has(key(e.case_id, n))) outOfScope = true;
     }
     if (!motion && outOfScope){ ignored.push({ entry_id: e.entry_id, reason: "Rules on a motion type this tool does not code" }); continue; }
+    if (!motion && !outOfScope && MM.namesOtherMotion(text)){ ignored.push({ entry_id: e.entry_id, reason: "Rules on a motion type this tool does not code" }); continue; }
     let how = "bracket";
     // 2. fallback: nearest prior open motion of the type named in the text
     if (!motion && typeInText){
@@ -775,7 +829,7 @@ importCourtListener(json){
       const cid = e.docket_number || (meta !== d ? caseId : MM.docketRef(e.docket)) || caseId; /* entries inside a docket object belong to it; their "docket" field is just a URL */
       const date = MM.isoDate(String(e.date_filed).slice(0, 10));
       if (!date){ rejected.push({ row: "entry " + (e.entry_number == null ? e.id : e.entry_number), value: String(e.date_filed) }); continue; }
-      out.push({ entry_id: "CL" + (e.id != null ? e.id : cid + "-" + e.entry_number), entry_number: e.entry_number == null ? null : +e.entry_number, case_id: String(cid), court: String(court), judge, filing_date: date, entry_text: text, party_filing: (text.match(/filed by\s+(plaintiff|defendant)/i) || [, ""])[1].replace(/^./, c => c.toUpperCase()), counsel_firm: "" });
+      out.push({ entry_id: "CL" + (e.id != null ? e.id : cid + "-" + e.entry_number), entry_number: e.entry_number == null ? null : +e.entry_number, case_id: String(cid), court: String(court), judge, filing_date: date, entry_text: text, party_filing: (text.match(/filed by\s+(plaintiff|defendant)/i) || [, ""])[1].toLowerCase().replace(/^./, c => c.toUpperCase()), counsel_firm: "" });
     }
   }
   if (!out.length && rejected.length) throw new Error(MM.badDates(rejected));
@@ -882,7 +936,7 @@ const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&am
 const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }, set(k, v){ try { localStorage.setItem(k, v); } catch(e){} } };
 const MODELS = { "claude-sonnet-5-5": { name: "Sonnet 5.5", tier: "default" }, "claude-opus-5-5": { name: "Opus 5.5", tier: "complex" }, "claude-fable-5-1": { name: "Fable 5.1", tier: "complex" } };
 let sample = null;
-const S = { entries: MM_DATA.entries, demo: true, tags: MM_RECORDED.tags || [], tagsLabel: `Recorded run on ${MODELS[MM_RECORDED.model]?.name || MM_RECORDED.model}, ${MM_RECORDED.recordedAt}`,
+const S = { entries: MM_DATA.entries, demo: true, ds: "demo", tags: MM_RECORDED.tags || [], tagsLabel: `Recorded run on ${MODELS[MM_RECORDED.model]?.name || MM_RECORDED.model}, ${MM_RECORDED.recordedAt}`,
   mode: "judge", role: "filer", type: "MTD_12b6", a: "", b: "", includeModel: true, open: null, tab: "compare" };
 let coded, applied, events, names;
 
@@ -992,7 +1046,7 @@ function renderCompare(){
       <label class="chk"><input type="checkbox" class="inclm" id="inclm" ${S.includeModel ? "checked" : ""}> Include model-coded events</label>
     </div>
     ${noFirms ? `<div class="msg">This data has no firm names, so there is nothing to compare here. Judges still work.</div>` : ""}
-    <div class="note">${coded.events.length} rulings coded by rules${applied.accepted.length ? `, ${applied.accepted.length} more model-coded` : ""}; ${coded.ambiguous.length - applied.accepted.length} entr${coded.ambiguous.length - applied.accepted.length === 1 ? "y" : "ies"} still unread. ${S.demo ? "Showing the fictional demo dockets." : "Showing your imported data."}</div></div>
+    <div class="note">${coded.events.length} rulings coded by rules${applied.accepted.length ? `, ${applied.accepted.length} more model-coded` : ""}; ${coded.ambiguous.length - applied.accepted.length} entr${coded.ambiguous.length - applied.accepted.length === 1 ? "y" : "ies"} still unread. ${S.ds === "demo" ? "Showing the fictional demo dockets." : S.ds === "real" ? "Showing the real C.D. Cal. slice (the coverage note above applies)." : "Showing your imported data."}</div></div>
     <div class="sides">${sideHtml("a", S.a, rowA, axis)}${sideHtml("b", S.b, rowB, axis)}</div>
     ${aggA && aggB ? matrixHtml(aggA, aggB) : ""}
     <div id="drill">${drillHtml(rowFor)}</div></div>`;
@@ -1080,12 +1134,12 @@ function renderImp(){
     <div class="two"><input type="file" id="impfile" accept=".csv,.json,.txt"><button class="btn primary" id="impgo" type="button">Read this docket</button><button class="btn" id="impdemo" type="button">Back to the demo data</button></div>
     <div id="impmsg"></div></div>`;
   $("#impfile").onchange = e => { const f = e.target.files[0]; if (f) f.text().then(t => { $("#imptext").value = t; }); };
-  $("#impdemo").onclick = () => { S.entries = MM_DATA.entries; S.demo = true; S.tags = MM_RECORDED.tags || []; S.tagsLabel = `Recorded run on ${MODELS[MM_RECORDED.model]?.name || MM_RECORDED.model}, ${MM_RECORDED.recordedAt}`; S.open = null; S.busy = ""; recompute(); renderAll(); showTab("compare"); };
+  $("#impdemo").onclick = () => { setDataset("demo"); showTab("compare"); };
   $("#impgo").onclick = () => {
     const out = $("#impmsg");
     try {
       const imp = MM.importAuto($("#imptext").value);
-      S.entries = imp.entries; S.demo = false; S.tags = []; S.tagsLabel = "No model run on imported data yet"; S.open = null; S.busy = ""; recompute();
+      S.entries = imp.entries; S.demo = false; S.ds = "import"; renderPicker(); setBanner(); S.tags = []; S.tagsLabel = "No model run on imported data yet"; S.open = null; S.busy = ""; recompute();
       const judges = names.judges.length, firms = names.firms.length;
       out.innerHTML = `<div class="msg ok">Read ${imp.entries.length} entries as ${esc(imp.format)}. ${imp.rejected && imp.rejected.length ? `<br>${esc(MM.badDates(imp.rejected))}<br>` : ""}Rules coded ${coded.events.length} rulings and left ${coded.ambiguous.length} ambiguous. ${judges} judge${judges === 1 ? "" : "s"}, ${firms} firm${firms === 1 ? "" : "s"} found. <button class="btn" id="goc" type="button">See the comparison</button></div>`;
       $("#goc").onclick = () => { renderAll(); showTab("compare"); };
@@ -1095,6 +1149,30 @@ function renderImp(){
 }
 
 function renderAll(){ renderCompare(); renderAmb(); renderImp(); }
+
+/* ---------- Dataset picker: fictional demo (default) / real C.D. Cal. slice (only when the build embeds it) ---------- */
+const DEMO_FOOT = $("#foot").innerHTML;
+function renderPicker(){
+  if (typeof MM_REAL === "undefined" || !MM_REAL) return;
+  $("#dsbar").hidden = false;
+  $("#dataset").innerHTML = `<option value="demo" ${S.ds === "demo" ? "selected" : ""}>Fictional demo dockets (default)</option><option value="real" ${S.ds === "real" ? "selected" : ""}>Real dockets: C.D. Cal. slice (${MM_REAL.provenance.dockets} cases)</option>${S.ds === "import" ? `<option value="import" selected>Your imported data</option>` : ""}`;
+}
+function setBanner(){
+  const real = S.ds === "real" && MM_REAL;
+  $("#banner").hidden = !real;
+  $("#subtag").textContent = real ? "Real docket entries from CourtListener (RECAP), a small C.D. Cal. slice." : S.ds === "import" ? "Your imported data." : "Fictional demo data.";
+  $("#foot").innerHTML = real ? "Docket text is from CourtListener's RECAP archive and describes public court entries. Counts are for this slice only. Code reads the docket and does all the counting; the model is used only to tag entries the rules could not read, and its tags are kept only when its quoted evidence appears word for word in the entry." : DEMO_FOOT;
+  if (real){ $("#bn-d").textContent = MM_REAL.provenance.dockets; $("#bn-e").textContent = MM_REAL.provenance.entries; $("#bn-f").textContent = MM_REAL.provenance.fetched; }
+}
+function setDataset(ds){
+  const real = ds === "real";
+  S.ds = ds; S.demo = ds === "demo"; S.entries = real ? MM_REAL.entries : MM_DATA.entries;
+  S.tags = real ? [] : MM_RECORDED.tags || [];
+  S.tagsLabel = real ? "No model run on the real slice yet" : `Recorded run on ${MODELS[MM_RECORDED.model]?.name || MM_RECORDED.model}, ${MM_RECORDED.recordedAt}`;
+  S.open = null; S.busy = ""; recompute(); renderPicker(); setBanner(); renderAll();
+}
+renderPicker();
+if ($("#dataset")) $("#dataset").onchange = e => setDataset(e.target.value);
 function showTab(t){
   S.tab = t;
   document.querySelectorAll("#tabs button").forEach(b => { b.setAttribute("aria-selected", b.dataset.tab === t); b.tabIndex = b.dataset.tab === t ? 0 : -1; });
