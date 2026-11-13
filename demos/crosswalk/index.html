@@ -1,0 +1,911 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crosswalk</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,500;0,700;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a redline desk. One sentence of answer on top, three lanes of linked checks (broken, needs review, still matches), and a click-through sheet with the two texts side by side. */
+:root{
+  --paper:#f3f0e8; --sheet:#fffdf8; --ink:#25211b; --ink-2:#53493d; --ink-3:#7d7364; --rule:#ddd5c5; --rule-2:#c9bfab;
+  --accent:#0d5c58; --accent-soft:#dcebe8;
+  --del:#a8281d; --del-bg:#f8dcd6; --add:#17653f; --add-bg:#d9efdf;
+  --bad:#a8281d; --bad-soft:#f8e1dc; --warn:#8a5600; --warn-soft:#faedcf; --good:#17653f; --good-soft:#dcefe2; --hyp:#5b3f8c; --hyp-soft:#ece5f6;
+  --display:"Newsreader",Georgia,"Times New Roman",serif; --ui:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#171512; --sheet:#201d19; --ink:#eee8dc; --ink-2:#c3b9a8; --ink-3:#938876; --rule:#35302a; --rule-2:#474036;
+  --accent:#6fc2bb; --accent-soft:#17312f;
+  --del:#f19a8f; --del-bg:#47211d; --add:#82d0a0; --add-bg:#193524;
+  --bad:#f19a8f; --bad-soft:#3d1f1b; --warn:#e8b862; --warn-soft:#3a2d14; --good:#82d0a0; --good-soft:#183326; --hyp:#c5aef0; --hyp-soft:#2c2140; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#171512; --sheet:#201d19; --ink:#eee8dc; --ink-2:#c3b9a8; --ink-3:#938876; --rule:#35302a; --rule-2:#474036;
+  --accent:#6fc2bb; --accent-soft:#17312f;
+  --del:#f19a8f; --del-bg:#47211d; --add:#82d0a0; --add-bg:#193524;
+  --bad:#f19a8f; --bad-soft:#3d1f1b; --warn:#e8b862; --warn-soft:#3a2d14; --good:#82d0a0; --good-soft:#183326; --hyp:#c5aef0; --hyp-soft:#2c2140; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--ui);font-size:14px;line-height:1.5;margin:0}
+.wrap{max-width:1180px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:16px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;font-weight:700}
+h1{font-size:32px;letter-spacing:-.01em} h2{font-size:22px;line-height:1.3} h3{font-size:17px}
+.eyebrow{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+button,select,input,textarea{font:inherit;color:inherit}
+.btn{border:1px solid var(--rule-2);background:var(--sheet);border-radius:6px;padding:7px 12px;cursor:pointer;font-weight:600;font-size:13px}
+.btn:hover{border-color:var(--accent)} .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--sheet)} .btn:disabled{opacity:.5;cursor:not-allowed}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+select,input,textarea{background:var(--sheet);border:1px solid var(--rule-2);border-radius:6px;padding:6px 8px;min-width:0}
+label.f{display:grid;gap:4px;font-size:12px;color:var(--ink-2);font-weight:600}
+.top{display:flex;flex-wrap:wrap;gap:14px 24px;align-items:flex-end;justify-content:space-between}
+.top .id{display:grid;gap:4px;min-width:0}
+.caption{color:var(--ink-2);font-size:13px;max-width:62ch}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}
+.controls label{display:grid;gap:3px;font-size:11px;color:var(--ink-3);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.meta{font-size:12px;color:var(--ink-3)}
+.hyp{display:inline-flex;font-size:11px;font-weight:600;padding:1px 8px;border-radius:999px;background:var(--hyp-soft);color:var(--hyp);border:1px solid var(--hyp)}
+.banner{background:var(--hyp-soft);color:var(--hyp);border:1px solid var(--hyp);border-radius:8px;padding:8px 12px;font-size:13px;font-weight:500}
+.answer{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:18px 20px;display:grid;gap:12px}
+.answer .head{font-family:var(--display);font-size:26px;line-height:1.25;font-weight:500;text-wrap:balance}
+.answer .sub{color:var(--ink-2)}
+.seg{display:inline-flex;border:1px solid var(--rule-2);border-radius:8px;overflow:hidden;flex-wrap:wrap}
+.seg button{border:0;background:var(--sheet);padding:7px 12px;font-weight:600;font-size:13px;cursor:pointer;color:var(--ink-2)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--sheet)}
+.lanes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start}
+@media (max-width:900px){.lanes{grid-template-columns:minmax(0,1fr)}}
+.lane{display:grid;gap:6px;align-content:start}
+.lane h3{font-size:15px;display:flex;gap:8px;align-items:baseline}
+.lane h3 b{font-family:var(--ui);font-variant-numeric:tabular-nums}
+.lane .empty{font-size:13px;color:var(--ink-3);border:1px dashed var(--rule-2);border-radius:8px;padding:10px 12px}
+.card{display:grid;gap:5px;text-align:left;border:1px solid var(--rule);background:var(--sheet);border-radius:8px;padding:10px 12px;cursor:pointer;border-left:4px solid var(--rule-2);width:100%}
+.card[data-st="Broken"]{border-left-color:var(--bad)} .card[data-st="NeedsReview"]{border-left-color:var(--warn)} .card[data-st="Valid"]{border-left-color:var(--good)}
+.card[aria-current="true"]{border-color:var(--accent);border-left-width:4px;box-shadow:0 0 0 1px var(--accent)}
+.card .t{font-weight:500;line-height:1.35;overflow-wrap:anywhere}
+.mono{font-family:var(--mono);font-size:12px;color:var(--ink-2);overflow-wrap:anywhere}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chip{font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;background:var(--paper);color:var(--ink-2);border:1px solid var(--rule)}
+.chip.bad{background:var(--bad-soft);color:var(--bad);border-color:transparent} .chip.warn{background:var(--warn-soft);color:var(--warn);border-color:transparent} .chip.good{background:var(--good-soft);color:var(--good);border-color:transparent}
+.detail{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:18px 20px;display:grid;gap:16px;min-width:0}
+.detail .item{border-left:3px solid var(--rule-2);padding:2px 0 2px 12px;display:grid;gap:4px}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:760px){.vs{grid-template-columns:minmax(0,1fr)}}
+.side{border:1px solid var(--rule);border-radius:8px;padding:12px 14px;display:grid;gap:8px;align-content:start;background:var(--paper);min-width:0}
+.side .lab{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center;font-size:12px;font-weight:600;color:var(--ink-2)}
+.side .txt{font-family:var(--display);font-size:16px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
+del{background:var(--del-bg);color:var(--del);text-decoration:line-through;border-radius:2px;padding:0 1px}
+ins{background:var(--add-bg);color:var(--add);text-decoration:none;border-radius:2px;padding:0 1px;font-weight:600}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:760px){.cols{grid-template-columns:minmax(0,1fr)}}
+.box{border:1px solid var(--rule);border-radius:8px;padding:12px 14px;display:grid;gap:8px;align-content:start;min-width:0}
+.box h3{font-size:15px;font-family:var(--ui);font-weight:600}
+.box p{margin:0;color:var(--ink-2)}
+blockquote{margin:0;font-family:var(--display);font-style:italic;font-size:15px;border-left:3px solid var(--rule-2);padding-left:10px;overflow-wrap:anywhere}
+.ver{font-size:11px;font-weight:700}.ver.ok{color:var(--good)}.ver.no{color:var(--bad)}
+.signoff{border:1px solid var(--accent);border-radius:8px;padding:12px 14px;display:grid;gap:10px;background:var(--accent-soft)}
+.signoff .row{display:grid;grid-template-columns:minmax(0,1.4fr) 150px;gap:8px}
+@media (max-width:560px){.signoff .row{grid-template-columns:minmax(0,1fr)}}
+.errbox{background:var(--bad-soft);color:var(--bad);border-radius:6px;padding:8px 12px;font-size:13px}
+.warnbox{background:var(--warn-soft);color:var(--warn);border-radius:6px;padding:8px 12px;font-size:13px}
+.okbox{background:var(--good-soft);color:var(--good);border-radius:6px;padding:8px 12px;font-size:13px}
+.panel{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:16px 20px;display:grid;gap:10px;min-width:0}
+.audit{display:grid;gap:8px;font-size:13px}.audit div{border-bottom:1px solid var(--rule);padding-bottom:8px}
+.stream{font-family:var(--mono);font-size:12px;color:var(--ink-3);white-space:pre-wrap;max-height:80px;overflow:hidden}
+details summary{cursor:pointer;font-weight:600;color:var(--ink-2)}
+.foot{font-size:12px;color:var(--ink-3);display:grid;gap:6px}.foot a{color:var(--accent)}
+.demo-h{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;font-size:19px;margin-top:8px;padding-top:16px;border-top:1px solid var(--rule-2)}
+.real{border-color:var(--accent);border-width:1px 1px 1px 4px}
+.real .head{font-family:var(--display);font-size:26px;line-height:1.25;font-weight:500;text-wrap:balance}
+.real .row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:baseline;border-bottom:1px solid var(--rule);padding:6px 0;font-size:13px}
+.real .row:last-child{border-bottom:0}
+.real .row .t{overflow-wrap:anywhere}
+.real .src-list a{color:var(--accent)}
+.real details{border-top:1px solid var(--rule);padding-top:8px}
+.real .live{white-space:pre-wrap;font-family:var(--display);font-size:15px;line-height:1.5;border-left:3px solid var(--warn);padding-left:10px;overflow-wrap:anywhere}
+@media (max-width:560px){.real .row{grid-template-columns:minmax(0,1fr)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.wrap,.detail,.answer,.panel,.lane,.box,.side,.item,.signoff,.audit,.foot{grid-template-columns:minmax(0,1fr)}
+.mono,.chips,.meta{min-width:0}
+.seg button{white-space:normal;text-align:left}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="id">
+      <span class="eyebrow">Compliance cheat code</span>
+      <h1>Crosswalk</h1>
+      <div class="caption">When a rule's text changes, which checklist items built on it need a second look? Real California rule text, real items from two working apps, one hypothetical amendment.</div>
+    </div>
+    <div class="controls">
+      <label for="model">Model<select id="model"><option value="claude-sonnet-5-5">Sonnet 5.5</option><option value="claude-opus-5-5">Opus 5.5</option><option value="claude-fable-5-1">Fable 5.1</option></select></label>
+      <label for="depth">Depth<select id="depth"><option value="medium">Standard</option><option value="high">Deep</option><option value="low">Quick</option></select></label>
+      <button class="btn primary" id="rerun" type="button">Re-classify live</button>
+    </div>
+  </header>
+  <section class="panel real" id="real"></section>
+
+  <h2 class="demo-h">What-if demo <span class="hyp">Hypothetical amendment — not a real rule change</span></h2>
+  <div class="banner" id="banner"></div>
+  <div class="meta" id="meta"></div>
+  <div id="busy" hidden></div>
+
+  <section class="answer" id="answer"></section>
+  <section class="lanes" id="lanes"></section>
+  <section class="detail" id="detail" hidden></section>
+  <section class="panel" id="added" hidden></section>
+  <section class="panel" id="auditp" hidden></section>
+
+  <footer class="foot" id="foot"></footer>
+</div>
+
+<script>/* Crosswalk data.
+   REAL TEXT (version "current"): California Rules of Professional Conduct 7.1-7.4 as fetched from calbar.ca.gov, and three paragraphs of
+   CDPH All Facilities Letter 23-17 as fetched from cdph.ca.gov, both on 2026-11-12. Pasted exactly; the only change is that zero-width
+   characters were removed and the lettering of paragraphs (a), (b) ... is carried in section_num, because the web page draws it with CSS, and the sub-numbering ((1), (2) ... and (i), (ii)) is restored inline at the start of each sub-item for the same reason.
+   HYPOTHETICAL TEXT (version "hypothetical-v2"): invented for this demonstration. It is NOT a real rule change and is labelled that way
+   everywhere it is shown. Nothing invented is ever filed under a real version.
+   Downstream items are real item ids and wording from two of the author's own apps (Marketing Studio, SNF Deal Desk). */
+const CROSSWALK = {
+  today: "2026-11-12",
+  amendmentNotice: "Hypothetical amendment for demonstration \u2014 not a real rule change.",
+  sources: [
+    { id: "cal-rpc-ch7", title: "California Rules of Professional Conduct, Chapter 7 (rules 7.1\u20137.4)", url: "https://www.calbar.ca.gov/Attorneys/Conduct-Discipline/Rules/Rules-of-Professional-Conduct/Current-Rules/Chapter-7-Information-About-Legal-Services", retrieved: "2026-11-12", note: "Page header reads \u201cEffective November 1, 2018\u201d." },
+    { id: "cdph-afl-23-17", title: "CDPH AFL 23-17, Assembly Bill 1502: Change of Ownership and Change of Management Requirements", url: "https://www.cdph.ca.gov/Programs/CHCQ/LCP/Pages/AFL-23-17.aspx", retrieved: "2026-11-12", note: "Three paragraphs quoted. The letter has headings, not section numbers, so headings are used as section ids." }
+  ],
+  versions: {
+    current: { tag: "current@2026-11-12", label: "Current text (as fetched 2026-11-12)", hypothetical: false },
+    v2: { tag: "hypothetical-v2", label: "Hypothetical amendment", hypothetical: true }
+  },
+  rulebooks: {
+    "cal-rpc-ch7": {
+      current: `=== 7.1(a) | Rule 7.1 Communications Concerning a Lawyer’s Services
+A lawyer shall not make a false or misleading communication about the lawyer or the lawyer’s services. A communication is false or misleading if it contains a material misrepresentation of fact or law, or omits a fact necessary to make the communication considered as a whole not materially misleading.
+
+=== 7.1(b) | Rule 7.1 Communications Concerning a Lawyer’s Services
+The Board of Trustees of the State Bar may formulate and adopt standards as to communications that will be presumed to violate rule 7.1, 7.2, 7.3, 7.4 or 7.5. The standards shall only be used as presumptions affecting the burden of proof in disciplinary proceedings involving alleged violations of these rules. “Presumption affecting the burden of proof” means that presumption defined in Evidence Code sections 605 and 606. Such standards formulated and adopted by the Board, as from time to time amended, shall be effective and binding on all lawyers.
+
+=== 7.1 cmt [2] | Rule 7.1 Comment
+[2] A communication that contains an express guarantee or warranty of the result of a particular representation is a false or misleading communication under this rule. (See also Bus. & Prof. Code, § 6157.2, subd. (a).)
+
+=== 7.1 cmt [3] | Rule 7.1 Comment
+[3] This rule prohibits truthful statements that are misleading. A truthful statement is misleading if it omits a fact necessary to make the lawyer’s communication considered as a whole not materially misleading. A truthful statement is also misleading if it is presented in a manner that creates a substantial* likelihood that it will lead a reasonable* person* to formulate a specific conclusion about the lawyer or the lawyer’s services for which there is no reasonable* factual foundation. Any communication that states or implies “no fee without recovery” is also misleading unless the communication also expressly discloses whether or not the client will be liable for costs.
+
+=== 7.1 cmt [4] | Rule 7.1 Comment
+[4] A communication that truthfully reports a lawyer’s achievements on behalf of clients or former clients, or a testimonial about or endorsement of the lawyer, may be misleading if presented so as to lead a reasonable* person* to form an unjustified expectation that the same results could be obtained for other clients in similar matters without reference to the specific factual and legal circumstances of each client’s case. Similarly, an unsubstantiated comparison of the lawyer’s services or fees with the services or fees of other lawyers may be misleading if presented with such specificity as would lead a reasonable* person* to conclude that the comparison can be substantiated. An appropriate disclaimer or qualifying language often avoids creating unjustified expectations.
+
+=== 7.2(a) | Rule 7.2 Advertising
+Subject to the requirements of rules 7.1 and 7.3, a lawyer may advertise services through any written,* recorded or electronic means of communication, including public media.
+
+=== 7.2(b) | Rule 7.2 Advertising
+A lawyer shall not compensate, promise or give anything of value to a person* for the purpose of recommending or securing the services of the lawyer or the lawyer’s law firm,* except that a lawyer may:
+(1) pay the reasonable* costs of advertisements or communications permitted by this rule;
+(2) pay the usual charges of a legal services plan or a qualified lawyer referral service. A qualified lawyer referral service is a lawyer referral service established, sponsored and operated in accordance with the State Bar of California’s Minimum Standards for a Lawyer Referral Service in California;
+(3) pay for a law practice in accordance with rule 1.17;
+(4) refer clients to another lawyer or a nonlawyer professional pursuant to an arrangement not otherwise prohibited under these Rules or the State Bar Act that provides for the other person* to refer clients or customers to the lawyer, if:
+(i) the reciprocal referral arrangement is not exclusive; and
+(ii) the client is informed of the existence and nature of the arrangement;
+(5) offer or give a gift or gratuity to a person* having made a recommendation resulting in the employment of the lawyer or the lawyer’s law firm,* provided that the gift or gratuity was not offered or given in consideration of any promise, agreement, or understanding that such a gift or gratuity would be forthcoming or that referrals would be made or encouraged in the future.
+
+=== 7.2(c) | Rule 7.2 Advertising
+Any communication made pursuant to this rule shall include the name and address of at least one lawyer or law firm* responsible for its content.
+
+=== 7.3(a) | Rule 7.3 Solicitation of Clients
+A lawyer shall not by in-person, live telephone or real-time electronic contact solicit professional employment when a significant motive for doing so is the lawyer’s pecuniary gain, unless the person* contacted:
+(1) is a lawyer; or
+(2) has a family, close personal, or prior professional relationship with the lawyer.
+
+=== 7.3(b) | Rule 7.3 Solicitation of Clients
+A lawyer shall not solicit professional employment by written,* recorded or electronic communication or by in-person, telephone or real-time electronic contact even when not otherwise prohibited by paragraph (a), if:
+(1) the person* being solicited has made known* to the lawyer a desire not to be solicited by the lawyer; or
+(2) the solicitation is transmitted in any manner which involves intrusion, coercion, duress or harassment.
+
+=== 7.3(c) | Rule 7.3 Solicitation of Clients
+Every written,* recorded or electronic communication from a lawyer soliciting professional employment from any person* known* to be in need of legal services in a particular matter shall include the word “Advertisement” or words of similar import on the outside envelope, if any, and at the beginning and ending of any recorded or electronic communication, unless the recipient of the communication is a person* specified in paragraphs (a)(1) or (a)(2), or unless it is apparent from the context that the communication is an advertisement.
+
+=== 7.3(d) | Rule 7.3 Solicitation of Clients
+Notwithstanding the prohibitions in paragraph (a), a lawyer may participate with a prepaid or group legal service plan operated by an organization not owned or directed by the lawyer that uses in-person, live telephone or real-time electronic contact to solicit memberships or subscriptions for the plan from persons* who are not known* to need legal services in a particular matter covered by the plan.
+
+=== 7.3(e) | Rule 7.3 Solicitation of Clients
+As used in this rule, the terms “solicitation” and “solicit” refer to an oral or written* targeted communication initiated by or on behalf of the lawyer that is directed to a specific person* and that offers to provide, or can reasonably* be understood as offering to provide, legal services.
+
+=== 7.3(f) | Rule 7.3 Solicitation of Clients
+Even when not otherwise prohibited by this rule, a lawyer shall not solicit professional employment from a respondent in a domestic violence restraining order proceeding in connection with such proceeding, until after the respondent has been served with notice of the proceeding and proof of service appears on the court docket, unless the respondent is a current or former client and the communication is in furtherance of ongoing or potential representation consistent with rules 1.2, 1.4, or 1.9.
+
+=== 7.4(a) | Rule 7.4 Communication of Fields of Practice and Specialization
+A lawyer shall not state that the lawyer is a certified specialist in a particular field of law, unless:
+(1) the lawyer is currently certified as a specialist by the Board of Legal Specialization, or any other entity accredited by the State Bar to designate specialists pursuant to standards adopted by the Board of Trustees; and
+(2) the name of the certifying organization is clearly identified in the communication.
+
+=== 7.4(b) | Rule 7.4 Communication of Fields of Practice and Specialization
+Notwithstanding paragraph (a), a lawyer may communicate the fact that the lawyer does or does not practice in particular fields of law. A lawyer may also communicate that his or her practice specializes in, is limited to, or is concentrated in a particular field of law, subject to the requirements of rule 7.1.`,
+      v2: `=== 7.1(a) | Rule 7.1 Communications Concerning a Lawyer’s Services
+A lawyer shall not make a false or misleading communication about the lawyer or the lawyer’s services. A communication is false or misleading if it contains a material misrepresentation of fact or law, or omits a fact necessary to make the communication considered as a whole not materially misleading.
+
+=== 7.1(b) | Rule 7.1 Communications Concerning a Lawyer’s Services
+The Board of Trustees of the State Bar may formulate and adopt standards as to communications that will be presumed to violate rule 7.1, 7.2, 7.3, 7.4 or 7.5. The standards shall only be used as presumptions affecting the burden of proof in disciplinary proceedings involving alleged violations of these rules. “Presumption affecting the burden of proof” means that presumption defined in Evidence Code sections 605 and 606. Such standards formulated and adopted by the Board, as from time to time amended, shall be effective and binding on all lawyers.
+
+=== 7.1 cmt [2] | Rule 7.1 Comment
+[2] A communication that contains an express guarantee or warranty of the result of a particular representation is a false or misleading communication under this rule. (See also Bus. & Prof. Code, § 6157.2, subd. (a).)
+
+=== 7.1 cmt [4] | Rule 7.1 Comment
+[4] A communication that truthfully reports a lawyer’s achievements on behalf of clients or former clients, or a testimonial about or endorsement of the lawyer, may be misleading if presented so as to lead a reasonable* person* to form an unjustified expectation that the same results could be obtained for other clients in similar matters without reference to the specific factual and legal circumstances of each client’s case. Similarly, an unsubstantiated comparison of the lawyer’s services or fees with the services or fees of other lawyers may be misleading if presented with such specificity as would lead a reasonable* person* to conclude that the comparison can be substantiated. An appropriate disclaimer or qualifying language often avoids creating unjustified expectations.
+
+=== 7.2(a) | Rule 7.2 Advertising
+Subject to the requirements of rules 7.1 and 7.3, a lawyer may advertise services through any written,* recorded or electronic means of communication, including public media.
+
+=== 7.2(b) | Rule 7.2 Advertising
+A lawyer shall not compensate, promise or give anything of value to a person* for the purpose of recommending or securing the services of the lawyer or the lawyer’s law firm,* except that a lawyer may:
+(1) pay the reasonable* costs of advertisements or communications permitted by this rule;
+(2) pay the usual charges of a legal services plan or a qualified lawyer referral service. A qualified lawyer referral service is a lawyer referral service established, sponsored and operated in accordance with the State Bar of California’s Minimum Standards for a Lawyer Referral Service in California;
+(3) pay for a law practice in accordance with rule 1.17;
+(4) refer clients to another lawyer or a nonlawyer professional pursuant to an arrangement not otherwise prohibited under these Rules or the State Bar Act that provides for the other person* to refer clients or customers to the lawyer, if:
+(i) the reciprocal referral arrangement is not exclusive; and
+(ii) the client is informed of the existence and nature of the arrangement;
+(5) offer or give a gift or gratuity to a person* having made a recommendation resulting in the employment of the lawyer or the lawyer’s law firm,* provided that the gift or gratuity was not offered or given in consideration of any promise, agreement, or understanding that such a gift or gratuity would be forthcoming or that referrals would be made or encouraged in the future.
+
+=== 7.2(c) | Rule 7.2 Advertising
+Any communication made pursuant to this rule shall include the name and address of at least one lawyer or law firm* responsible for its content. The communication shall also state the State Bar of California license number of each lawyer named.
+
+=== 7.3(a) | Rule 7.3 Solicitation of Clients
+A lawyer shall not by in-person, live telephone or real-time electronic contact solicit professional employment when a significant motive for doing so is the lawyer’s pecuniary gain, unless the person* contacted:
+(1) is a lawyer; or
+(2) has a family, close personal, or prior professional relationship with the lawyer.
+
+=== 7.3(b) | Rule 7.3 Solicitation of Clients
+A lawyer shall not solicit professional employment by written,* recorded or electronic communication or by in-person, telephone or real-time electronic contact even when not otherwise prohibited by paragraph (a), if:
+(1) the person* being solicited has made known* to the lawyer a desire not to be solicited by the lawyer; or
+(2) the solicitation is transmitted in any manner which involves intrusion, coercion, duress or harassment.
+
+=== 7.3(c) | Rule 7.3 Solicitation of Clients
+A written,* recorded or electronic communication from a lawyer soliciting professional employment from any person* known* to be in need of legal services in a particular matter may include the word “Advertisement” or words of similar import.
+
+=== 7.3(d) | Rule 7.3 Solicitation of Clients
+Notwithstanding the prohibitions in paragraph (a), a lawyer may participate with a prepaid or group legal service plan operated by an organization not owned or directed by the lawyer that uses in-person, live telephone or real-time electronic contact to solicit memberships or subscriptions for the plan from persons* who are not known* to need legal services in a particular matter covered by the plan.
+
+=== 7.3(e) | Rule 7.3 Solicitation of Clients
+As used in this rule, the terms “solicitation” and “solicit” refer to an oral or written* targeted communication initiated by or on behalf of the lawyer that is directed to a specific person* and that offers to provide, or can reasonably* be understood as offering to provide, legal services.
+
+=== 7.3(f) | Rule 7.3 Solicitation of Clients
+Even when not otherwise prohibited by this rule, a lawyer shall not solicit professional employment from a respondent in a domestic violence restraining order proceeding in connection with such proceeding, until after the respondent has been served with notice of the proceeding and proof of service appears on the court docket, unless the respondent is a current or former client and the communication is in furtherance of ongoing or potential representation consistent with rules 1.2, 1.4, or 1.9.
+
+=== 7.4(a) | Rule 7.4 Communication of Fields of Practice and Specialization
+A lawyer shall not state that the lawyer is a certified specialist in a particular field of law, unless:
+(1) the lawyer is currently certified as a specialist by the Board of Legal Specialization, or any other entity accredited by the State Bar to designate specialists pursuant to standards adopted by the Board of Trustees; and
+(2) the name of the certifying organization is clearly identified in the communication.
+
+=== 7.4(b) | Rule 7.4 Communication of Fields of Practice and Specialization
+Notwithstanding paragraph (a), a lawyer may communicate the fact that the lawyer does or does not practice in particular fields of law. A lawyer may also communicate that the lawyer’s practice specializes in, is limited to, or is concentrated in a particular field of law, subject to the requirements of rule 7.1.
+
+=== 7.2(d) | Rule 7.2 Advertising
+A lawyer shall not state in an advertisement that the lawyer’s services are available in a jurisdiction where the lawyer is not licensed to practice, unless the advertisement names the jurisdiction in which the lawyer is licensed.`
+    },
+    "cdph-afl-23-17": {
+      current: `=== Prior approval | AFL 23-17: CDPH Approval Required Prior to a CHOW or CHOM Occurring
+AB 1502 requires all approvals to take place before the CHOW or CHOM can occur. Only those persons and entities approved by CDPH may operate or manage a SNF.
+
+=== Timelines ¶ notice | AFL 23-17: Timelines
+A SNF licensee planning to relinquish ownership, operation, or management must report the intended transaction to CDPH at least 120 days prior to its anticipated occurrence. The applicant for a CHOW or a CHOM must also submit its complete application to CDPH at least 120 days before the intended transaction. If CDPH determines that the submitted application is incomplete, it will provide written notice of the missing information to the applicant. If the applicant does not submit a completed application within 45 days after notification, the application will be denied.
+
+=== Timelines ¶ completion | AFL 23-17: Timelines
+The proposed transaction must be completed no later than 120 days after CDPH's notice of approval. The applicant may apply for one 60-day extension that includes notifying CDPH of the expected transfer date and the reasons for the delay. Both the applicant and licensee, or the person or entity relinquishing its license, must notify CDPH within 10 days of the final transaction that transfers the SNFs ownership, operations, or management to the applicant. If the proposed sale, transfer of operations, or change in management does not occur after the applicant submits their application to CDPH, the licensee must notify CDPH within 10 days of the event terminating the sale, transfer, or change, including, but not limited to, the end of contract negotiations or a transaction not closing escrow.`,
+      v2: `=== Prior approval | AFL 23-17: CDPH Approval Required Prior to a CHOW or CHOM Occurring
+AB 1502 requires all approvals to take place before the CHOW or CHOM can occur. Only those persons and entities approved by CDPH may operate or manage a SNF.
+
+=== Timelines ¶ notice | AFL 23-17: Timelines
+A SNF licensee planning to relinquish ownership, operation, or management must report the intended transaction to CDPH at least 150 days prior to its anticipated occurrence. The applicant for a CHOW or a CHOM must also submit its complete application to CDPH at least 150 days before the intended transaction. If CDPH determines that the submitted application is incomplete, it will provide written notice of the missing information to the applicant. If the applicant does not submit a completed application within 45 days after notification, the application will be denied.
+
+=== Timelines ¶ completion | AFL 23-17: Timelines
+The proposed transaction must be completed no later than 120 days after CDPH's notice of approval. The applicant may apply for one 60-day extension that includes notifying CDPH of the expected transfer date and the reasons for the delay. Both the applicant and licensee, or the person or entity relinquishing its license, must notify CDPH within 10 days of the final transaction that transfers the SNFs ownership, operations, or management to the applicant. If the proposed sale, transfer of operations, or change in management does not occur after the applicant submits their application to CDPH, the licensee must notify CDPH within 10 days of the event terminating the sale, transfer, or change, including, but not limited to, the end of contract negotiations or a transaction not closing escrow.`
+    }
+  },
+  /* Each edge pins the checksum of the rule text its item was last verified against (normally the current text).
+     cw-04 is deliberately pinned to an EARLIER snapshot whose text this demo does not hold, so it is out of date before any amendment. */
+  edges: [
+    { id: "cw-01", source_id: "cal-rpc-ch7", section_num: "7.4(a)", app: "Marketing Studio", item_id: "JURIS.CA.spec", target_kind: "ChecklistItem", risk_level: "medium", item_cite: "Cal. RPC 7.4(a)",
+      item_text: "A lawyer may claim to be a certified specialist only if certified by the State Bar Board of Legal Specialization or a Board-accredited body, and the ad must name the certifying body. Saying a practice is limited to or concentrated in a field is allowed (7.4(b))." },
+    { id: "cw-02", source_id: "cal-rpc-ch7", section_num: "7.4(b)", app: "Marketing Studio", item_id: "JURIS.CA.spec", target_kind: "ChecklistItem", risk_level: "low", item_cite: "Cal. RPC 7.4(a), text cites 7.4(b)",
+      item_text: "A lawyer may claim to be a certified specialist only if certified by the State Bar Board of Legal Specialization or a Board-accredited body, and the ad must name the certifying body. Saying a practice is limited to or concentrated in a field is allowed (7.4(b))." },
+    { id: "cw-03", source_id: "cal-rpc-ch7", section_num: "7.2(c)", app: "Marketing Studio", item_id: "JURIS.CA.resp", target_kind: "ChecklistItem", risk_level: "high", item_cite: "Cal. RPC 7.2(c)",
+      item_text: "the name and address of at least one lawyer or law firm responsible for its content" },
+    { id: "cw-04", source_id: "cal-rpc-ch7", section_num: "7.1(a)", app: "Marketing Studio", item_id: "JURIS.CA.results", target_kind: "ChecklistItem", risk_level: "medium", item_cite: "Cal. RPC 7.1(a)",
+      item_text: "A past result can be misleading without context. California does not mandate wording, but a disclaimer is the house rule.",
+      pin_literal: "4a0a7c299e4530fa32104781aa1d6e3e77ac9f2759d73092c0e40a338e605698", pin_note: "Pinned to an earlier snapshot of this rule. That snapshot's text is not held in this demo, so only its checksum is recorded." },
+    { id: "cw-05", source_id: "cal-rpc-ch7", section_num: "7.1(a)", app: "Marketing Studio", item_id: "JURIS.CA.testi", target_kind: "ChecklistItem", risk_level: "medium", item_cite: "Cal. RPC 7.1(a)",
+      item_text: "A client quote can imply results others should expect. Confirm the client's written consent and add a disclaimer." },
+    { id: "cw-06", source_id: "cal-rpc-ch7", section_num: "7.1 cmt [3]", app: "Marketing Studio", item_id: "JURIS.CA.nofee", target_kind: "ChecklistItem", risk_level: "high", item_cite: "Cal. RPC 7.1, Comment [3]",
+      item_text: "A \"no fee without recovery\" line is misleading unless it also says whether the client must pay costs." },
+    { id: "cw-07", source_id: "cal-rpc-ch7", section_num: "7.3(c)", app: "Marketing Studio", item_id: "JURIS.CA.solicit", target_kind: "ChecklistItem", risk_level: "high", item_cite: "Cal. RPC 7.3(c)",
+      item_text: "A targeted solicitation must carry the word \"Advertisement\" or similar words." },
+    { id: "cw-08", source_id: "cdph-afl-23-17", section_num: "Timelines \u00b6 notice", app: "SNF Deal Desk", item_id: "reg:notice", target_kind: "ChecklistItem", risk_level: "high", item_cite: "AFL 23-17 (source on the item)",
+      item_text: "The current licensee gives CDPH at least 120 calendar days' notice of the anticipated change." },
+    { id: "cw-09", source_id: "cdph-afl-23-17", section_num: "Timelines \u00b6 notice", app: "SNF Deal Desk", item_id: "task:cdph-<facility>", target_kind: "ChecklistItem", risk_level: "high", item_cite: "SNF CHOW packet; due date is target closing minus 120 days",
+      item_text: "CDPH change of ownership application" },
+    { id: "cw-10", source_id: "cdph-afl-23-17", section_num: "Timelines \u00b6 completion", app: "SNF Deal Desk", item_id: "date:final-transfer", target_kind: "ChecklistItem", risk_level: "medium", item_cite: "SNF CHOW packet",
+      item_text: "Tell CDPH the final transfer happened (within 10 days)" },
+    { id: "cw-11", source_id: "cdph-afl-23-17", section_num: "Timelines \u00b6 completion", app: "SNF Deal Desk", item_id: "date:latest-transfer", target_kind: "ChecklistItem", risk_level: "medium", item_cite: "SNF CHOW packet",
+      item_text: "Latest to finish the transfer if CDPH approves on the earliest date (120 days after approval)" },
+    { id: "cw-12", source_id: "cdph-afl-23-17", section_num: "Prior approval", app: "SNF Deal Desk", item_id: "reg:cdph", target_kind: "ChecklistItem", risk_level: "high", item_cite: "AFL 23-17; SNF CHOW packet",
+      item_text: "California SNF licenses can't be transferred. The new operator applies for its own license, and AB 1502 requires CDPH approval before closing." }
+  ]
+};
+</script>
+<script>/* Prompt builder shared by the page (live runs) and run.js (recorded run). One call per changed section that has linked checks. */
+const CW_PROMPTS = {
+  classify({ diff, edges, hypothetical = true }) {
+    const linked = edges.map(e => `- edge_id ${e.id}: item "${e.item_id}" (${e.app}). Item text: ${JSON.stringify(e.item_text)}`).join("\n");
+    return `You are helping a reviewer decide how a rule change affects checklist items that were built on that rule.
+
+The "amended" text below is a HYPOTHETICAL amendment written for a demonstration. It is not a real rule change. Use only the text given. Do not add law, numbers or citations from memory.
+
+Section: ${diff.section_num} (${diff.heading})
+Change type found by code: ${diff.diff_type}
+Code's minimum class: ${diff.code_class} (${diff.signals.join("; ")})
+
+CURRENT TEXT (v1):
+${diff.v1 ? '"""\n' + diff.v1 + '\n"""' : "(this section does not exist in v1)"}
+
+AMENDED TEXT (v2, hypothetical):
+${diff.v2 ? '"""\n' + diff.v2 + '\n"""' : "(this section was deleted in v2)"}
+
+LINKED CHECKLIST ITEMS built on this section:
+${linked}
+
+Classify the change with exactly one semantic_class:
+- Editorial: wording only, the duty is the same.
+- ModifiedAction: an existing duty changed (a number, deadline, actor, scope or condition).
+- NewObligation: a new duty was added.
+- RemovedObligation: a duty was removed, relaxed to optional, or the section was deleted.
+You may classify HIGHER than the code's minimum class if you see a real duty change the code missed. You may not classify lower: Editorial < ModifiedAction < NewObligation = RemovedObligation. If the code says ModifiedAction or higher, do not answer Editorial.
+
+Return ONLY a JSON object, no prose, in this shape:
+{
+  "semantic_class": "Editorial | ModifiedAction | NewObligation | RemovedObligation",
+  "what_changed": {
+    "summary": "one plain-English sentence",
+    "v1_quote": "an exact, word-for-word excerpt from the CURRENT TEXT that shows what changed, or \\"\\" if the section did not exist in v1",
+    "v2_quote": "an exact, word-for-word excerpt from the AMENDED TEXT that shows what changed, or \\"\\" if the section was deleted"
+  },
+  "proposed_update_per_edge": [
+    { "edge_id": "one of the linked edge_ids", "proposed_update": "the reworded checklist item text, or what the reviewer should do with it (retire, split, add a new item), in one or two sentences" }
+  ]
+}
+Quotes are checked by code character for character (whitespace aside). Copy them exactly; do not fix punctuation or shorten with ellipses. Include one entry in proposed_update_per_edge for every linked edge_id. You never decide whether an item is still valid: a human reviewer does that.`;
+  }
+};
+</script>
+<script>/* Crosswalk logic. Everything here is deterministic and runs the same in the page, run.js and test.js.
+   The model never decides a status: statuses come from checksums, sign-off is the only way back to Valid. */
+(function (root) {
+  /* ---------- SHA-256 (sync, UTF-8, no dependencies) ---------- */
+  const K = new Uint32Array([
+    0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5, 0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+    0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da, 0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+    0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85, 0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+    0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3, 0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2]);
+  function utf8(str) {
+    const out = [];
+    for (let i = 0; i < str.length; i++) {
+      let c = str.charCodeAt(i);
+      if (c >= 0xd800 && c < 0xdc00 && i + 1 < str.length) { const d = str.charCodeAt(i + 1); if (d >= 0xdc00 && d < 0xe000) { c = 0x10000 + ((c - 0xd800) << 10) + (d - 0xdc00); i++; } }
+      if (c < 0x80) out.push(c);
+      else if (c < 0x800) out.push(0xc0 | (c >> 6), 0x80 | (c & 63));
+      else if (c < 0x10000) out.push(0xe0 | (c >> 12), 0x80 | ((c >> 6) & 63), 0x80 | (c & 63));
+      else out.push(0xf0 | (c >> 18), 0x80 | ((c >> 12) & 63), 0x80 | ((c >> 6) & 63), 0x80 | (c & 63));
+    }
+    return out;
+  }
+  function sha256Hex(str) {
+    const m = utf8(String(str)), bitLen = m.length * 8;
+    m.push(0x80); while (m.length % 64 !== 56) m.push(0);
+    const hi = Math.floor(bitLen / 4294967296), lo = bitLen >>> 0;
+    for (const w of [hi, lo]) m.push((w >>> 24) & 255, (w >>> 16) & 255, (w >>> 8) & 255, w & 255);
+    const H = new Uint32Array([0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19]);
+    const w = new Uint32Array(64), rotr = (x, n) => (x >>> n) | (x << (32 - n));
+    for (let o = 0; o < m.length; o += 64) {
+      for (let i = 0; i < 16; i++) w[i] = (m[o + 4 * i] << 24) | (m[o + 4 * i + 1] << 16) | (m[o + 4 * i + 2] << 8) | m[o + 4 * i + 3];
+      for (let i = 16; i < 64; i++) {
+        const s0 = rotr(w[i - 15], 7) ^ rotr(w[i - 15], 18) ^ (w[i - 15] >>> 3), s1 = rotr(w[i - 2], 17) ^ rotr(w[i - 2], 19) ^ (w[i - 2] >>> 10);
+        w[i] = (w[i - 16] + s0 + w[i - 7] + s1) | 0;
+      }
+      let [a, b, c, d, e, f, g, h] = H;
+      for (let i = 0; i < 64; i++) {
+        const S1 = rotr(e, 6) ^ rotr(e, 11) ^ rotr(e, 25), ch = (e & f) ^ (~e & g), t1 = (h + S1 + ch + K[i] + w[i]) | 0;
+        const S0 = rotr(a, 2) ^ rotr(a, 13) ^ rotr(a, 22), mj = (a & b) ^ (a & c) ^ (b & c), t2 = (S0 + mj) | 0;
+        h = g; g = f; f = e; e = (d + t1) | 0; d = c; c = b; b = a; a = (t1 + t2) | 0;
+      }
+      H[0] += a; H[1] += b; H[2] += c; H[3] += d; H[4] += e; H[5] += f; H[6] += g; H[7] += h;
+    }
+    return Array.from(H, x => (x >>> 0).toString(16).padStart(8, "0")).join("");
+  }
+
+  /* ---------- rule nodes ---------- */
+  const norm = s => String(s ?? "").replace(/\s+/g, " ").trim();
+  const checksum = text => sha256Hex(norm(text));
+  const nodeKey = (source_id, section_num) => source_id + "::" + section_num;
+
+  /* Rulebook text format: blocks starting "=== <section_num> | <heading>" followed by the section text. */
+  function parseRulebook(source_id, version_tag, raw) {
+    const nodes = [], seen = new Set();
+    for (const block of String(raw).split(/^=== /m).slice(1)) {
+      const nl = block.indexOf("\n"), head = nl < 0 ? block : block.slice(0, nl), text = nl < 0 ? "" : block.slice(nl + 1);
+      const bar = head.indexOf(" | ");
+      if (bar < 0) throw new Error("bad section header: " + head);
+      const section_num = head.slice(0, bar).trim(), heading = head.slice(bar + 3).trim();
+      if (seen.has(section_num)) throw new Error("duplicate section " + section_num);
+      seen.add(section_num);
+      const clean = text.trim();
+      nodes.push({ source_id, version_tag, section_num, heading, text: clean, checksum: checksum(clean) });
+    }
+    return nodes;
+  }
+  const indexNodes = nodes => { const m = new Map(); for (const n of nodes) m.set(nodeKey(n.source_id, n.section_num), n); return m; };
+
+  /* ---------- word diff ---------- */
+  const tokens = s => norm(s).split(" ").filter(Boolean);
+  function wordDiff(a, b) {
+    const x = tokens(a), y = tokens(b), n = x.length, m = y.length;
+    const dp = Array.from({ length: n + 1 }, () => new Uint16Array(m + 1));
+    for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--) dp[i][j] = x[i] === y[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+    const ops = []; let i = 0, j = 0;
+    const push = (t, w) => { const l = ops[ops.length - 1]; if (l && l.t === t) l.w += " " + w; else ops.push({ t, w }); };
+    while (i < n && j < m) {
+      if (x[i] === y[j]) { push("eq", x[i]); i++; j++; }
+      else if (dp[i + 1][j] >= dp[i][j + 1]) { push("del", x[i]); i++; }
+      else { push("add", y[j]); j++; }
+    }
+    while (i < n) push("del", x[i++]);
+    while (j < m) push("add", y[j++]);
+    return ops;
+  }
+
+  /* ---------- code pre-classifier ---------- */
+  const CLASSES = ["Editorial", "ModifiedAction", "NewObligation", "RemovedObligation"];
+  const RANK = { Editorial: 0, ModifiedAction: 1, NewObligation: 2, RemovedObligation: 2 };
+  const numbersIn = s => (String(s).match(/\d+(?:[.,]\d+)?/g) || []).sort();
+  const modalCount = s => (String(s).toLowerCase().match(/\b(?:shall|must|prohibited|required|requires?|may not)\b/g) || []).length;
+  function preClass(v1, v2, diff_type) {
+    const signals = [];
+    if (diff_type === "Deleted") return { code_class: "RemovedObligation", signals: ["section deleted"] };
+    if (diff_type === "Added") return { code_class: "NewObligation", signals: ["section added"] };
+    const n1 = numbersIn(v1), n2 = numbersIn(v2), numbersChanged = n1.join("|") !== n2.join("|");
+    const m1 = modalCount(v1), m2 = modalCount(v2);
+    if (numbersChanged) signals.push("numbers changed: " + (n1.join(", ") || "none") + " → " + (n2.join(", ") || "none"));
+    if (m2 > m1) signals.push("duty words added (" + m1 + " → " + m2 + ")");
+    if (m2 < m1) signals.push("duty words removed (" + m1 + " → " + m2 + ")");
+    let c = "Editorial";
+    if (m2 > m1) c = "NewObligation"; else if (m2 < m1) c = "RemovedObligation"; else if (numbersChanged) c = "ModifiedAction";
+    if (!signals.length) signals.push("no numbers or duty words changed: candidate editorial");
+    return { code_class: c, signals };
+  }
+
+  /* Sections that differ between two versions of one rulebook. */
+  function diffSections(nodesA, nodesB) {
+    const a = indexNodes(nodesA), b = indexNodes(nodesB), out = [];
+    for (const [k, n] of a) {
+      const m = b.get(k);
+      if (!m) { out.push({ key: k, source_id: n.source_id, section_num: n.section_num, heading: n.heading, diff_type: "Deleted", v1: n.text, v2: "", ...preClass(n.text, "", "Deleted"), ops: wordDiff(n.text, "") }); continue; }
+      if (m.checksum !== n.checksum) out.push({ key: k, source_id: n.source_id, section_num: n.section_num, heading: n.heading, diff_type: "Modified", v1: n.text, v2: m.text, ...preClass(n.text, m.text, "Modified"), ops: wordDiff(n.text, m.text) });
+    }
+    for (const [k, m] of b) if (!a.has(k)) out.push({ key: k, source_id: m.source_id, section_num: m.section_num, heading: m.heading, diff_type: "Added", v1: "", v2: m.text, ...preClass("", m.text, "Added"), ops: wordDiff("", m.text) });
+    return out;
+  }
+
+  /* ---------- edges and drift ---------- */
+  /* An edge pins the checksum it was last verified against. Baseline: pinned to the node's checksum in the base version unless pin_literal says otherwise. */
+  function buildEdges(rawEdges, baseNodes) {
+    const idx = indexNodes(baseNodes);
+    return rawEdges.map(e => {
+      const n = idx.get(nodeKey(e.source_id, e.section_num));
+      const pinned_checksum = e.pin_literal || (n ? n.checksum : null);
+      if (!pinned_checksum) throw new Error("edge " + e.id + " points at a section that is not in the base version");
+      const { pin_literal, ...rest } = e;
+      return { ...rest, pinned_checksum, status: "Valid" };
+    });
+  }
+  /* Drift is the pinned checksum against the CURRENT node. It never looks at v1 vs v2 and never asks a model. */
+  function computeStatuses(edges, nodes) {
+    const idx = indexNodes(nodes);
+    return edges.map(e => {
+      const n = idx.get(nodeKey(e.source_id, e.section_num));
+      if (!n) return { ...e, status: "Broken", reason: "The section this item points at no longer exists in the current text.", current_checksum: null };
+      if (n.checksum !== e.pinned_checksum) return { ...e, status: "NeedsReview", reason: "The rule text no longer matches the checksum this item was last verified against.", current_checksum: n.checksum };
+      return { ...e, status: "Valid", reason: "Rule text still matches the checksum this item was verified against.", current_checksum: n.checksum };
+    });
+  }
+  const tally = st => ({ total: st.length, Valid: st.filter(e => e.status === "Valid").length, NeedsReview: st.filter(e => e.status === "NeedsReview").length, Broken: st.filter(e => e.status === "Broken").length });
+  function headline(st, baselineSt) {
+    const t = tally(st), b = baselineSt ? tally(baselineSt) : null;
+    let s = `${t.NeedsReview} of ${t.total} linked checks need review`;
+    if (t.Broken) s += `; ${t.Broken} ${t.Broken === 1 ? "is" : "are"} broken because ${t.Broken === 1 ? "its section was" : "their sections were"} deleted`;
+    s += ".";
+    const pre = b ? b.NeedsReview : 0;
+    return { text: s, tally: t, already_stale: pre };
+  }
+
+  /* ---------- model output check ---------- */
+  /* A quote must be long enough to mean something and must touch the words that actually changed on its side ("del" for v1, "add" for v2).
+     Position-based: the quote's span in the text must overlap at least one changed word. If that side has no changed words (pure insertion on the other side), only length is checked. */
+  const MIN_QUOTE_WORDS = 5;
+  function quoteProblem(q, text, ops, kind) {
+    const qt = tokens(q), tt = tokens(text);
+    if (qt.length < Math.min(MIN_QUOTE_WORDS, tt.length)) return `is too short (${qt.length} words; at least ${Math.min(MIN_QUOTE_WORDS, tt.length)} needed)`;
+    const changed = []; for (const o of ops) for (const _ of o.w.split(" ")) { if (o.t === kind) changed.push(true); else if (o.t === "eq") changed.push(false); }
+    if (changed.length !== tt.length || !changed.some(Boolean)) return "";
+    const tx = tt.join(" "), start = []; let p = 0; for (const w of tt) { start.push(p); p += w.length + 1; }
+    for (let at = tx.indexOf(qt.join(" ")); at >= 0; at = tx.indexOf(qt.join(" "), at + 1)) {
+      const end = at + qt.join(" ").length;
+      if (tt.some((w, i) => changed[i] && start[i] < end && start[i] + w.length > at)) return "";
+    }
+    return kind === "del" ? "does not include any word that was removed; it quotes only unchanged text" : "does not include any word that was added; it quotes only unchanged text";
+  }
+
+  function verifyModel(out, diff, linkedEdges) {
+    const reasons = [], res = { accepted: false, reasons, semantic_class: null, v1_quote_ok: false, v2_quote_ok: false, summary: "", updates: [], dropped_updates: [] };
+    if (!out || typeof out !== "object") { reasons.push("no JSON object returned"); return res; }
+    if (!CLASSES.includes(out.semantic_class)) reasons.push("semantic_class is not one of " + CLASSES.join(", "));
+    else if (RANK[out.semantic_class] < RANK[diff.code_class]) reasons.push(`model called this ${out.semantic_class} but the code found ${diff.code_class} (${diff.signals.join("; ")}); a model may escalate, never downgrade`);
+    else if ((diff.code_class === "NewObligation" || diff.code_class === "RemovedObligation") && out.semantic_class !== diff.code_class) reasons.push(`model called this ${out.semantic_class} but the code found ${diff.code_class}; New and Removed are different findings, so the model must match the code exactly`);
+    const wc = out.what_changed || {}, q1 = norm(wc.v1_quote), q2 = norm(wc.v2_quote), t1 = norm(diff.v1), t2 = norm(diff.v2);
+    if (diff.v1) { res.v1_quote_ok = !!q1 && t1.includes(q1); if (!res.v1_quote_ok) reasons.push(q1 ? "v1_quote is not verbatim in the current text" : "v1_quote is missing"); else { const w = quoteProblem(q1, t1, diff.ops, "del"); if (w) { res.v1_quote_ok = false; reasons.push("v1_quote " + w); } } }
+    else { res.v1_quote_ok = !q1; if (!res.v1_quote_ok) reasons.push("v1_quote must be empty for an added section"); }
+    if (diff.v2) { res.v2_quote_ok = !!q2 && t2.includes(q2); if (!res.v2_quote_ok) reasons.push(q2 ? "v2_quote is not verbatim in the amended text" : "v2_quote is missing"); else { const w = quoteProblem(q2, t2, diff.ops, "add"); if (w) { res.v2_quote_ok = false; reasons.push("v2_quote " + w); } } }
+    else { res.v2_quote_ok = !q2; if (!res.v2_quote_ok) reasons.push("v2_quote must be empty for a deleted section"); }
+    const ids = new Set(linkedEdges.map(e => e.id));
+    for (const u of Array.isArray(out.proposed_update_per_edge) ? out.proposed_update_per_edge : []) {
+      if (u && ids.has(u.edge_id) && typeof u.proposed_update === "string" && u.proposed_update.trim()) res.updates.push({ edge_id: u.edge_id, proposed_update: u.proposed_update.trim() });
+      else res.dropped_updates.push(u && u.edge_id);
+    }
+    res.semantic_class = CLASSES.includes(out.semantic_class) ? out.semantic_class : null;
+    res.summary = typeof wc.summary === "string" ? wc.summary : "";
+    res.v1_quote = wc.v1_quote || ""; res.v2_quote = wc.v2_quote || "";
+    res.accepted = reasons.length === 0;
+    if (!res.accepted) res.updates = [];
+    return res;
+  }
+
+  /* ---------- sign-off ---------- */
+  /* state = { edges, audit }. Returns { ok, error, edges, audit }; nothing is mutated. */
+  function signOff(state, req, nodes) {
+    const fail = error => ({ ok: false, error, edges: state.edges, audit: state.audit });
+    const edge = state.edges.find(e => e.id === req.edge_id);
+    if (!edge) return fail("Unknown check.");
+    const reviewer = String(req.reviewer ?? "").trim();
+    if (reviewer.length < 2 || !/\p{L}/u.test(reviewer)) return fail("Enter the reviewer's name.");
+    const date = String(req.date ?? "").trim(), dm = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+    if (!dm || new Date(Date.UTC(+dm[1], +dm[2] - 1, +dm[3])).toISOString().slice(0, 10) !== date) return fail("Enter the review date as YYYY-MM-DD.");
+    const node = indexNodes(nodes).get(nodeKey(edge.source_id, edge.section_num));
+    if (!node) return fail("This check is broken: its section no longer exists. Re-point or retire the check; it cannot be signed off.");
+    if (req.checksum !== node.checksum) return fail("Stale sign-off: the checksum you reviewed is not the current text's checksum. Reload the diff and review again.");
+    if (edge.pinned_checksum === node.checksum) return fail("Nothing to sign off: this check already matches the current text.");
+    const entry = { edge_id: edge.id, item_id: edge.item_id, reviewer, date, section_num: edge.section_num, from_checksum: edge.pinned_checksum, to_checksum: node.checksum, note: String(req.note ?? "").trim() };
+    return { ok: true, edges: state.edges.map(e => e.id === edge.id ? { ...e, pinned_checksum: node.checksum } : e), audit: [...state.audit, entry] };
+  }
+
+  /* Parse both versions of every rulebook and pair each changed section with the edges that point at it. */
+  function analyze(D) {
+    const cur = [], v2 = [];
+    for (const [id, rb] of Object.entries(D.rulebooks)) { cur.push(...parseRulebook(id, D.versions.current.tag, rb.current)); v2.push(...parseRulebook(id, D.versions.v2.tag, rb.v2)); }
+    const edges = buildEdges(D.edges, cur), diffs = diffSections(cur, v2);
+    for (const d of diffs) d.edge_ids = edges.filter(e => nodeKey(e.source_id, e.section_num) === d.key).map(e => e.id);
+    return { cur, v2, edges, diffs, jobs: diffs.filter(d => d.edge_ids.length), unlinked: diffs.filter(d => !d.edge_ids.length) };
+  }
+
+  const api = { analyze, sha256Hex, norm, checksum, nodeKey, parseRulebook, indexNodes, wordDiff, preClass, diffSections, buildEdges, computeStatuses, tally, headline, verifyModel, signOff, CLASSES, RANK };
+  const isNode = typeof module !== "undefined" && !!module.exports;
+  if (isNode) module.exports = api; else root.CW_LOGIC = api;
+})(typeof window !== "undefined" ? window : globalThis);
+</script>
+<script>const CW_REPORT = {"generated_at":"2026-11-13T00:00:11.452Z","checked_date":"2026-11-12","mode":"offline","user_agent":"patent-workflows crosswalk watcher","sources":{"cal-rpc-ch7":{"title":"California Rules of Professional Conduct, Chapter 7 (rules 7.1–7.6)","url":"https://www.calbar.ca.gov/Attorneys/Conduct-Discipline/Rules/Rules-of-Professional-Conduct/Current-Rules/Chapter-7-Information-About-Legal-Services","parser":"calbar-rules","fetched_at":"2026-11-12T23:41:54.033Z","http_status":200,"ok":true,"snapshot_date":"2026-11-12","sections_total":32,"sections_changed":[],"sections_added":[],"sections_removed":[],"baseline":true,"previous_snapshot_date":null},"cdph-afl-23-17":{"title":"CDPH AFL 23-17, AB 1502: Change of Ownership and Change of Management Requirements","url":"https://www.cdph.ca.gov/Programs/CHCQ/LCP/Pages/AFL-23-17.aspx","parser":"html-headings","fetched_at":"2026-11-12T23:41:59.012Z","http_status":200,"ok":true,"snapshot_date":"2026-11-12","sections_total":13,"sections_changed":[],"sections_added":[],"sections_removed":[],"baseline":true,"previous_snapshot_date":null},"cdph-afl-index-2026":{"title":"CDPH All Facilities Letters index, 2026","url":"https://www.cdph.ca.gov/Programs/CHCQ/LCP/Pages/LNCAFL26.aspx","parser":"afl-index","fetched_at":"2026-11-12T23:42:03.944Z","http_status":200,"ok":true,"snapshot_date":"2026-11-12","sections_total":34,"sections_changed":[],"sections_added":[],"sections_removed":[],"baseline":true,"previous_snapshot_date":null},"cdph-9167":{"title":"CDPH 9167 Current Licensee Notice (form)","url":"https://www.cdph.ca.gov/CDPH%20Document%20Library/ControlledForms/cdph9167.pdf","parser":"pdf-bytes","fetched_at":"2026-11-12T23:42:06.473Z","http_status":200,"ok":true,"snapshot_date":"2026-11-12","sections_total":1,"sections_changed":[],"sections_added":[],"sections_removed":[],"baseline":true,"previous_snapshot_date":null},"cdph-snf-chow":{"title":"CDPH SNF change of ownership application packet","url":"https://www.cdph.ca.gov/Programs/CHCQ/LCP/Pages/AppPacket/SNF-CHOW.aspx","parser":"html-headings","fetched_at":"2026-11-12T23:42:11.642Z","http_status":200,"ok":true,"snapshot_date":"2026-11-12","sections_total":4,"sections_changed":[],"sections_added":[],"sections_removed":[],"baseline":true,"previous_snapshot_date":null},"cdph-snf-chow-checklist":{"title":"CDPH SNF CHOW provider checklist","url":"https://www.cdph.ca.gov/Programs/CHCQ/LCP/Pages/SNF-CHOW-Provider-Checklist.aspx","parser":"html-headings","fetched_at":"2026-11-12T23:42:16.702Z","http_status":200,"ok":true,"snapshot_date":"2026-11-12","sections_total":5,"sections_changed":[],"sections_added":[],"sections_removed":[],"baseline":true,"previous_snapshot_date":null},"cdph-snf-chio-checklist":{"title":"CDPH SNF change of indirect ownership checklist","url":"https://www.cdph.ca.gov/Programs/CHCQ/LCP/Pages/SNF-CHIO-Provider-Checklist.aspx","parser":"html-headings","fetched_at":"2026-11-12T23:42:21.644Z","http_status":200,"ok":true,"snapshot_date":"2026-11-12","sections_total":3,"sections_changed":[],"sections_added":[],"sections_removed":[],"baseline":true,"previous_snapshot_date":null},"ecfr-42-489-18":{"title":"42 CFR 489.18 (Medicare change of ownership)","url":"https://www.ecfr.gov/current/title-42/chapter-IV/subchapter-G/part-489/subpart-A/section-489.18","parser":"ecfr-xml","fetched_at":"2026-11-12T23:42:26.108Z","http_status":200,"ok":true,"snapshot_date":"2026-11-12","sections_total":6,"sections_changed":[],"sections_added":[],"sections_removed":[],"baseline":true,"previous_snapshot_date":null},"ecfr-42-424-516":{"title":"42 CFR 424.516 (reporting changes)","url":"https://www.ecfr.gov/current/title-42/chapter-IV/subchapter-B/part-424/subpart-P/section-424.516","parser":"ecfr-xml","fetched_at":"2026-11-12T23:42:28.206Z","http_status":200,"ok":true,"snapshot_date":"2026-11-12","sections_total":9,"sections_changed":[],"sections_added":[],"sections_removed":[],"baseline":true,"previous_snapshot_date":null},"cms-snf-attachment-855a":{"title":"CMS SNF attachment guidance, Feb 24 2026 (PDF)","url":"https://www.cms.gov/files/document/guidance-snf-attachment-855a.pdf","parser":"pdf-bytes","fetched_at":"2026-11-12T23:42:30.620Z","http_status":200,"ok":true,"snapshot_date":"2026-11-12","sections_total":1,"sections_changed":[],"sections_added":[],"sections_removed":[],"baseline":true,"previous_snapshot_date":null},"cms-snf-chow-data-guidance":{"title":"CMS SNF CHOW data guidance v1.3 (PDF)","url":"https://data.cms.gov/sites/default/files/2026-07/SNF_CHOW_Data_Guidance.pdf","parser":"pdf-bytes","fetched_at":"2026-11-12T23:42:34.023Z","http_status":200,"ok":true,"snapshot_date":"2026-11-12","sections_total":1,"sections_changed":[],"sections_added":[],"sections_removed":[],"baseline":true,"previous_snapshot_date":null},"dhcs-provider-enrollment":{"title":"DHCS provider enrollment options","url":"https://www.dhcs.ca.gov/providers-partners/provider-enrollment-options/","parser":"html-headings","fetched_at":"2026-11-12T23:42:36.163Z","http_status":200,"ok":false,"error":"bot-challenge page instead of the real page (not bypassed)","snapshot_date":null,"sections_total":0,"sections_changed":[],"sections_added":[],"sections_removed":[],"baseline":false,"previous_snapshot_date":null},"hcai-ohca-faqs":{"title":"HCAI OHCA material change notice FAQs (rules amended Nov 2, 2026)","url":"https://hcai.ca.gov/affordability/ohca/assess-market-consolidation/mcn-cmir-faqs/","parser":"html-headings","fetched_at":"2026-11-12T23:42:39.071Z","http_status":200,"ok":true,"snapshot_date":"2026-11-12","sections_total":35,"sections_changed":[],"sections_added":[],"sections_removed":[],"baseline":true,"previous_snapshot_date":null},"hud-4232-1":{"title":"HUD Handbook 4232.1, Section III","url":"https://www.hud.gov/hudclips/handbooks/housing-4232-1","parser":"html-headings","fetched_at":"2026-11-12T23:42:42.023Z","http_status":200,"ok":true,"snapshot_date":"2026-11-12","sections_total":1,"sections_changed":[],"sections_added":[],"sections_removed":[],"baseline":true,"previous_snapshot_date":null},"ca-ag-nonprofit-hospitals":{"title":"CA Attorney General nonprofit health facility review","url":"https://www.oag.ca.gov/charities/nonprofithosp","parser":"html-headings","fetched_at":"2026-11-12T23:42:45.222Z","http_status":200,"ok":true,"snapshot_date":"2026-11-12","sections_total":58,"sections_changed":[],"sections_added":[],"sections_removed":[],"baseline":true,"previous_snapshot_date":null},"hhs-oig-leie":{"title":"HHS-OIG exclusions (LEIE)","url":"https://www.oig.hhs.gov/exclusions/","parser":"html-headings","fetched_at":"2026-11-12T23:42:47.937Z","http_status":200,"ok":true,"snapshot_date":"2026-11-12","sections_total":13,"sections_changed":[],"sections_added":[],"sections_removed":[],"baseline":true,"previous_snapshot_date":null},"cdph-calhealthfind":{"title":"CDPH Cal Health Find","url":"https://www.cdph.ca.gov/Programs/CHCQ/LCP/CalHealthFind/pages/home.aspx","parser":"html-headings","fetched_at":"2026-11-12T23:42:53.607Z","http_status":200,"ok":true,"snapshot_date":"2026-11-12","sections_total":1,"sections_changed":[],"sections_added":[],"sections_removed":[],"baseline":true,"previous_snapshot_date":null},"hcai-ltc-financial-data":{"title":"HCAI long-term care financial data","url":"https://hcai.ca.gov/data/cost-transparency/long-term-care-facility-financial-data/","parser":"html-headings","fetched_at":"2026-11-12T23:42:56.127Z","http_status":200,"ok":true,"snapshot_date":"2026-11-12","sections_total":10,"sections_changed":[],"sections_added":[],"sections_removed":[],"baseline":true,"previous_snapshot_date":null},"cms-provider-data-nursing-homes":{"title":"CMS nursing home Provider Data Catalog","url":"https://data.cms.gov/provider-data/topics/nursing-homes","parser":"html-headings","fetched_at":"2026-11-12T23:42:58.828Z","http_status":200,"ok":false,"error":"no sections found in the page (blocked, or the layout changed)","snapshot_date":null,"sections_total":0,"sections_changed":[],"sections_added":[],"sections_removed":[],"baseline":false,"previous_snapshot_date":null},"cal-rpc-ch1":{"title":"California Rules of Professional Conduct, Chapter 1 (incl. rule 1.7)","url":"https://www.calbar.ca.gov/legal-professionals/rules/rules-professional-conduct/current-rules-professional-conduct/chapter-1-lawyer-client-relationship","parser":"calbar-rules","fetched_at":"2026-11-12T23:43:01.491Z","http_status":200,"ok":true,"snapshot_date":"2026-11-12","sections_total":237,"sections_changed":[],"sections_added":[],"sections_removed":[],"baseline":true,"previous_snapshot_date":null},"ny-22-nycrr-1200-7-1":{"title":"22 NYCRR 1200.7.1 (Cornell LII)","url":"https://www.law.cornell.edu/regulations/new-york/22-NYCRR-1200.7.1","parser":"html-headings","fetched_at":"2026-11-12T23:43:04.171Z","http_status":200,"ok":true,"snapshot_date":"2026-11-12","sections_total":2,"sections_changed":[],"sections_added":[],"sections_removed":[],"baseline":true,"previous_snapshot_date":null},"tx-disciplinary-rules-part-vii":{"title":"Texas Disciplinary Rules of Professional Conduct, Part VII","url":"https://www.legalethicstexas.com/resources/rules/texas-disciplinary-rules-of-professional-conduct/","parser":"html-headings","fetched_at":"2026-11-12T23:43:06.845Z","http_status":200,"ok":true,"snapshot_date":"2026-11-12","sections_total":1,"sections_changed":[],"sections_added":[],"sections_removed":[],"baseline":true,"previous_snapshot_date":null},"fl-rrtfb":{"title":"Rules Regulating The Florida Bar","url":"https://www.floridabar.org/rules/rrtfb/","parser":"html-headings","fetched_at":"2026-11-12T23:43:09.220Z","http_status":200,"ok":true,"snapshot_date":"2026-11-12","sections_total":5,"sections_changed":[],"sections_added":[],"sections_removed":[],"baseline":true,"previous_snapshot_date":null},"aba-model-rule-7-2":{"title":"ABA Model Rule 7.2 Advertising","url":"https://www.americanbar.org/groups/professional_responsibility/publications/model_rules_of_professional_conduct/rule_7_2_advertising/","parser":"html-headings","fetched_at":"2026-11-12T23:43:11.691Z","http_status":403,"ok":false,"error":"HTTP 403 (blocked by the site; not bypassed)","snapshot_date":null,"sections_total":0,"sections_changed":[],"sections_added":[],"sections_removed":[],"baseline":false,"previous_snapshot_date":null}},"edges":{"cw-01":{"source_id":"cal-rpc-ch7","section_num":"7.4(a)","app":"Marketing Studio","item_id":"JURIS.CA.spec","pinned_checksum":"a61797af729f40c1587daa740f583d241e4b960098397cfbd0ad325fe4da0e1a","status":"Valid","reason":"The live page text for this section is identical to the text this check was verified against.","live_checksum":"a61797af729f40c1587daa740f583d241e4b960098397cfbd0ad325fe4da0e1a","snapshot_date":"2026-11-12","stale":false,"pinned_demo":false},"cw-02":{"source_id":"cal-rpc-ch7","section_num":"7.4(b)","app":"Marketing Studio","item_id":"JURIS.CA.spec","pinned_checksum":"c9863c168a3ff21d2b70ccb6001886d75e1008e4cc62435957a77ed4ffd31d03","status":"Valid","reason":"The live page text for this section is identical to the text this check was verified against.","live_checksum":"c9863c168a3ff21d2b70ccb6001886d75e1008e4cc62435957a77ed4ffd31d03","snapshot_date":"2026-11-12","stale":false,"pinned_demo":false},"cw-03":{"source_id":"cal-rpc-ch7","section_num":"7.2(c)","app":"Marketing Studio","item_id":"JURIS.CA.resp","pinned_checksum":"7bf18274f7184199204bfe830574e68813ad98c7e30a62732bd75fddc39437ab","status":"Valid","reason":"The live page text for this section is identical to the text this check was verified against.","live_checksum":"7bf18274f7184199204bfe830574e68813ad98c7e30a62732bd75fddc39437ab","snapshot_date":"2026-11-12","stale":false,"pinned_demo":false},"cw-04":{"source_id":"cal-rpc-ch7","section_num":"7.1(a)","app":"Marketing Studio","item_id":"JURIS.CA.results","pinned_checksum":"4a0a7c299e4530fa32104781aa1d6e3e77ac9f2759d73092c0e40a338e605698","status":"NeedsReview","reason":"Deliberately pinned to a made-up checksum for the what-if demo. This is not a change on the live page.","live_checksum":"e9eccbd2c8aab2d491c0a79756c21ae2e9e83450ca389375e5377cd20dc31178","snapshot_date":"2026-11-12","stale":false,"pinned_demo":true},"cw-05":{"source_id":"cal-rpc-ch7","section_num":"7.1(a)","app":"Marketing Studio","item_id":"JURIS.CA.testi","pinned_checksum":"e9eccbd2c8aab2d491c0a79756c21ae2e9e83450ca389375e5377cd20dc31178","status":"Valid","reason":"The live page text for this section is identical to the text this check was verified against.","live_checksum":"e9eccbd2c8aab2d491c0a79756c21ae2e9e83450ca389375e5377cd20dc31178","snapshot_date":"2026-11-12","stale":false,"pinned_demo":false},"cw-06":{"source_id":"cal-rpc-ch7","section_num":"7.1 cmt [3]","app":"Marketing Studio","item_id":"JURIS.CA.nofee","pinned_checksum":"a07430c70dceb318e9ff886635aff73e986bdb7ebb7906b66a07da0a75aa7560","status":"Valid","reason":"The live page text for this section is identical to the text this check was verified against.","live_checksum":"a07430c70dceb318e9ff886635aff73e986bdb7ebb7906b66a07da0a75aa7560","snapshot_date":"2026-11-12","stale":false,"pinned_demo":false},"cw-07":{"source_id":"cal-rpc-ch7","section_num":"7.3(c)","app":"Marketing Studio","item_id":"JURIS.CA.solicit","pinned_checksum":"9f390499fe5ba6eaff981ebe3f910b490ed9921313fb20c8e46f33459ce326d2","status":"Valid","reason":"The live page text for this section is identical to the text this check was verified against.","live_checksum":"9f390499fe5ba6eaff981ebe3f910b490ed9921313fb20c8e46f33459ce326d2","snapshot_date":"2026-11-12","stale":false,"pinned_demo":false},"cw-08":{"source_id":"cdph-afl-23-17","section_num":"Timelines ¶ notice","app":"SNF Deal Desk","item_id":"reg:notice","pinned_checksum":"64821cf313a481aeacf1ca25b371e97c93d205181a8772777136ed8b21a39ac9","status":"Valid","reason":"The live page text for this section is identical to the text this check was verified against.","live_checksum":"64821cf313a481aeacf1ca25b371e97c93d205181a8772777136ed8b21a39ac9","snapshot_date":"2026-11-12","stale":false,"pinned_demo":false},"cw-09":{"source_id":"cdph-afl-23-17","section_num":"Timelines ¶ notice","app":"SNF Deal Desk","item_id":"task:cdph-<facility>","pinned_checksum":"64821cf313a481aeacf1ca25b371e97c93d205181a8772777136ed8b21a39ac9","status":"Valid","reason":"The live page text for this section is identical to the text this check was verified against.","live_checksum":"64821cf313a481aeacf1ca25b371e97c93d205181a8772777136ed8b21a39ac9","snapshot_date":"2026-11-12","stale":false,"pinned_demo":false},"cw-10":{"source_id":"cdph-afl-23-17","section_num":"Timelines ¶ completion","app":"SNF Deal Desk","item_id":"date:final-transfer","pinned_checksum":"2ef6530028f52cc88c369cc5278766dc3614b72bfc7d7baec06d1cb6775189a5","status":"Valid","reason":"The live page text for this section is identical to the text this check was verified against.","live_checksum":"2ef6530028f52cc88c369cc5278766dc3614b72bfc7d7baec06d1cb6775189a5","snapshot_date":"2026-11-12","stale":false,"pinned_demo":false},"cw-11":{"source_id":"cdph-afl-23-17","section_num":"Timelines ¶ completion","app":"SNF Deal Desk","item_id":"date:latest-transfer","pinned_checksum":"2ef6530028f52cc88c369cc5278766dc3614b72bfc7d7baec06d1cb6775189a5","status":"Valid","reason":"The live page text for this section is identical to the text this check was verified against.","live_checksum":"2ef6530028f52cc88c369cc5278766dc3614b72bfc7d7baec06d1cb6775189a5","snapshot_date":"2026-11-12","stale":false,"pinned_demo":false},"cw-12":{"source_id":"cdph-afl-23-17","section_num":"Prior approval","app":"SNF Deal Desk","item_id":"reg:cdph","pinned_checksum":"be87c829eb2e68a92b32f0a9a33f9b4d52133dcd5f89937c1cdc6937bc007cb3","status":"Valid","reason":"The live page text for this section is identical to the text this check was verified against.","live_checksum":"be87c829eb2e68a92b32f0a9a33f9b4d52133dcd5f89937c1cdc6937bc007cb3","snapshot_date":"2026-11-12","stale":false,"pinned_demo":false}},"afl_index":{"source_id":"cdph-afl-index-2026","year":2026,"snapshot_date":"2026-11-12","count":34,"baseline":true,"ok":true,"latest":[{"num":"AFL 26-30","text":"All Facilities  | State of Emergency for El Niño  | 10/21/2026  | AFL-26-30.aspx"},{"num":"AFL 26-31","text":"Hospice Agencies  | Notice of Proposed Action Rulemaking for Hospice Agency DPH-18-002  | 10/30/2026  | AFL-26-31.aspx"},{"num":"AFL 26-32","text":"Acute Psychiatric Hospitals  | Acute Psychiatric Hospitals 5-Day Notice of Readoption of Emergency Regulatory Action DPH-19-001E  | 10/30/2026  | AFL-26-32.aspx"},{"num":"AFL 26-33","text":"General Acute Care Hospitals ; Acute Psychiatric Hospitals  | Guidance for Response to Anticipated Adult and Pediatric Surges in Respiratory Virus Transmission  | 11/04/2026  | AFL-26-33.aspx"},{"num":"AFL 26-34","text":"All Facilities  | Medi-Cal Certification Revalidation  | 11/09/2026  | AFL-26-34.aspx"}],"new_since_previous":[]}};</script>
+<script>const CW_RECORDED = {
+ "model": "claude-sonnet-5-5",
+ "recordedAt": "2026-11-12",
+ "secs": 24,
+ "results": [
+  {
+   "key": "cal-rpc-ch7::7.1 cmt [3]",
+   "section_num": "7.1 cmt [3]",
+   "secs": 14,
+   "output": {
+    "semantic_class": "RemovedObligation",
+    "what_changed": {
+     "summary": "Comment [3] to Rule 7.1 was deleted in v2, so the statement that a 'no fee without recovery' communication is misleading unless it discloses whether the client is liable for costs no longer appears.",
+     "v1_quote": "Any communication that states or implies “no fee without recovery” is also misleading unless the communication also expressly discloses whether or not the client will be liable for costs.",
+     "v2_quote": ""
+    },
+    "proposed_update_per_edge": [
+     {
+      "edge_id": "cw-06",
+      "proposed_update": "The source text for JURIS.CA.nofee was deleted in v2 and no other text was provided that restates the costs-disclosure duty. The reviewer should decide whether to retire this item or keep it, and if keeping it, find another source for it."
+     }
+    ]
+   }
+  },
+  {
+   "key": "cal-rpc-ch7::7.2(c)",
+   "section_num": "7.2(c)",
+   "secs": 14,
+   "output": {
+    "semantic_class": "NewObligation",
+    "what_changed": {
+     "summary": "The amendment adds a new duty to state the State Bar of California license number of each lawyer named in the communication, on top of the existing name-and-address requirement.",
+     "v1_quote": "Any communication made pursuant to this rule shall include the name and address of at least one lawyer or law firm* responsible for its content.",
+     "v2_quote": "The communication shall also state the State Bar of California license number of each lawyer named."
+    },
+    "proposed_update_per_edge": [
+     {
+      "edge_id": "cw-03",
+      "proposed_update": "Keep item JURIS.CA.resp as is for the name-and-address duty, and add a new item (or split this one) for the new duty: \"the State Bar of California license number of each lawyer named\". The existing item text does not cover the license number, so a reviewer should decide whether Marketing Studio needs a new check."
+     }
+    ]
+   }
+  },
+  {
+   "key": "cal-rpc-ch7::7.3(c)",
+   "section_num": "7.3(c)",
+   "secs": 17,
+   "output": {
+    "semantic_class": "RemovedObligation",
+    "what_changed": {
+     "summary": "The mandatory 'Advertisement' label on targeted solicitations, along with its placement requirements and exceptions, is replaced by a permissive 'may include' with no required placement or exceptions.",
+     "v1_quote": "shall include the word “Advertisement” or words of similar import on the outside envelope, if any, and at the beginning and ending of any recorded or electronic communication",
+     "v2_quote": "may include the word “Advertisement” or words of similar import."
+    },
+    "proposed_update_per_edge": [
+     {
+      "edge_id": "cw-07",
+      "proposed_update": "The amended text makes the 'Advertisement' label optional, so the item's 'must carry' requirement no longer matches the rule. Reviewer should retire the item or reword it as optional, e.g. 'A targeted solicitation may include the word \"Advertisement\" or similar words.'"
+     }
+    ]
+   }
+  },
+  {
+   "key": "cal-rpc-ch7::7.4(b)",
+   "section_num": "7.4(b)",
+   "secs": 16,
+   "output": {
+    "semantic_class": "Editorial",
+    "what_changed": {
+     "summary": "The phrase \"his or her practice\" was replaced with the gender-neutral \"the lawyer’s practice\"; the permission to communicate specialization, limitation or concentration of practice, subject to rule 7.1, is unchanged.",
+     "v1_quote": "A lawyer may also communicate that his or her practice specializes in, is limited to, or is concentrated in a particular field of law, subject to the requirements of rule 7.1.",
+     "v2_quote": "A lawyer may also communicate that the lawyer’s practice specializes in, is limited to, or is concentrated in a particular field of law, subject to the requirements of rule 7.1."
+    },
+    "proposed_update_per_edge": [
+     {
+      "edge_id": "cw-02",
+      "proposed_update": "No change needed to item JURIS.CA.spec: its reference to 7.4(b) and its statement that saying a practice is limited to or concentrated in a field is allowed still match the amended text. The reviewer may optionally confirm the citation and leave the item text as is."
+     }
+    ]
+   }
+  },
+  {
+   "key": "cdph-afl-23-17::Timelines ¶ notice",
+   "section_num": "Timelines ¶ notice",
+   "secs": 24,
+   "output": {
+    "semantic_class": "ModifiedAction",
+    "what_changed": {
+     "summary": "The advance notice period for reporting the intended transaction and for submitting the complete CHOW/CHOM application to CDPH increases from 120 days to 150 days, while the 45-day deadline to cure an incomplete application is unchanged.",
+     "v1_quote": "must report the intended transaction to CDPH at least 120 days prior to its anticipated occurrence",
+     "v2_quote": "must report the intended transaction to CDPH at least 150 days prior to its anticipated occurrence"
+    },
+    "proposed_update_per_edge": [
+     {
+      "edge_id": "cw-08",
+      "proposed_update": "Reword to: \"The current licensee gives CDPH at least 150 calendar days' notice of the anticipated change.\" Reviewer should confirm the amendment is adopted before changing the number."
+     },
+     {
+      "edge_id": "cw-09",
+      "proposed_update": "The item text names no timing, but the application must now be submitted at least 150 days (was 120) before the intended transaction. Reviewer should consider adding \"complete application submitted at least 150 days before the transaction\" to the item or its due-date logic, and keep the 45-day cure period for an incomplete application as is."
+     }
+    ]
+   }
+  }
+ ]
+};</script>
+<script>
+const L = window.CW_LOGIC, D = CROSSWALK, REC = CW_RECORDED;
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const MODELS = { "claude-opus-5-5": { name: "Opus 5.5", tier: "complex" }, "claude-sonnet-5-5": { name: "Sonnet 5.5", tier: "default" }, "claude-fable-5-1": { name: "Fable 5.1", tier: "complex" } };
+const CLASS_LABEL = { Editorial: "Wording only", ModifiedAction: "Changed duty", NewObligation: "New duty", RemovedObligation: "Duty removed" };
+const ST_LABEL = { Broken: "Broken", NeedsReview: "Needs review", Valid: "Still matches" };
+const ST_CLASS = { Broken: "bad", NeedsReview: "warn", Valid: "good", Stale: "warn" };
+const HYP = `<span class="hyp">Hypothetical amendment — not a real rule change</span>`;
+
+const A = L.analyze(D);
+const baselineStatus = L.computeStatuses(A.edges, A.cur);
+const state = { view: "after", edges: A.edges, audit: [], sel: null, models: {}, busy: false, flash: null };
+let sample = null;
+
+/* recorded model outputs, re-checked by code on load */
+for (const r of REC.results) if (r.output) state.models[r.key] = { output: r.output, from: "recorded", model: REC.model };
+
+function nodes(){ return state.view === "after" ? A.v2 : A.cur; }
+function statuses(){ return L.computeStatuses(state.edges, nodes()); }
+function diffOf(e){ return A.diffs.find(d => d.key === L.nodeKey(e.source_id, e.section_num)); }
+function verdict(d){ const m = state.models[d.key]; if (!m) return null; return { ...L.verifyModel(m.output, d, A.edges.filter(e => d.edge_ids.includes(e.id))), from: m.from, model: m.model }; }
+const short = h => h ? h.slice(0, 12) : "none";
+
+const REAL_LABEL = { Valid: "Still matches the live page", NeedsReview: "Live page changed: needs review", Broken: "Section not found on the live page", Stale: "Matched earlier; latest fetch failed", Unchecked: "Not checked yet" };
+function renderReal(){
+  const box = $("#real"), R = typeof CW_REPORT === "undefined" ? null : CW_REPORT;
+  if (!R){ box.innerHTML = `<div class="eyebrow">Real sources</div><div class="head">No live check has been run yet.</div><div class="meta">Run <span class="mono">node watch.js</span> in this folder, then rebuild.</div>`; return; }
+  const edges = D.edges.map(e => ({ ...e, rep: R.edges[e.id] || { status: "Unchecked", reason: "Not in the report." } }));
+  const n = k => edges.filter(e => e.rep.status === k).length, srcs = Object.entries(R.sources), okN = srcs.filter(([, s]) => s.ok).length;
+  const demo = edges.filter(e => e.rep.pinned_demo), live = edges.filter(e => !e.rep.pinned_demo);
+  const stale = live.filter(e => e.rep.status === "Stale"), bad = live.filter(e => e.rep.status !== "Valid" && e.rep.status !== "Stale"), good = live.filter(e => e.rep.status === "Valid");
+  const parts = [];
+  if (bad.length) parts.push(`${bad.length} ${bad.length === 1 ? "needs" : "need"} review`);
+  if (stale.length) parts.push(`${stale.length} matched on an earlier fetch but the latest fetch failed, so ${stale.length === 1 ? "it is" : "they are"} not confirmed`);
+  const head = (!parts.length ? `All ${live.length} real-pinned checks match the live pages.` : `${good.length} of ${live.length} real-pinned checks match the live pages; ${parts.join("; ")}.`) + (demo.length ? ` ${demo.length} more ${demo.length === 1 ? "is" : "are"} pinned to a demo snapshot and not counted.` : "");
+  const aflNew = R.afl_index ? (R.afl_index.baseline ? "first snapshot of the index, so nothing is flagged as new yet" : R.afl_index.new_since_previous.length ? R.afl_index.new_since_previous.map(a => a.num).join(", ") + " new since the last check" : "no new letters since the last check") : "";
+  const edgeRow = e => `<div class="row"><div class="t"><span class="mono">${esc(e.app)} · ${esc(e.item_id)}</span><br>${esc(e.item_cite)} → ${esc(e.section_num)}</div><span class="chip ${ST_CLASS[e.rep.status] || ""}">${esc(e.rep.pinned_demo ? "Pinned to a demo snapshot, not a live change" : REAL_LABEL[e.rep.status])}</span></div>`;
+  const reviewBlock = e => {
+    const nd = L.indexNodes(A.cur).get(L.nodeKey(e.source_id, e.section_num)), have = nd && nd.checksum === e.pinned_checksum && e.rep.live_text;
+    const body = have ? L.wordDiff(nd.text, e.rep.live_text).map(o => o.t === "del" ? `<del>${esc(o.w)}</del>` : o.t === "add" ? `<ins>${esc(o.w)}</ins>` : esc(o.w)).join(" ")
+      : e.rep.live_text ? esc(e.rep.live_text) : "";
+    return `<div class="item">${edgeRow(e)}<div class="meta">${esc(e.rep.reason)}</div>${body ? `<details><summary>Live text${have ? " compared with the pinned text" : ""}</summary><div class="live">${body}</div><div class="mono">pinned ${esc(short(e.pinned_checksum))}… · live ${esc(short(e.rep.live_checksum))}…</div></details>` : ""}</div>`;
+  };
+  const srcRow = ([id, s]) => {
+    const ch = s.baseline ? "first snapshot" : `+${s.sections_added.length} added · ${s.sections_changed.length} changed · ${s.sections_removed.length} removed`;
+    return `<div class="row"><div class="t"><a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.title)}</a><br><span class="mono">${esc(id)}${s.ok ? " · " + s.sections_total + " sections · " + ch : ""}</span>${s.error ? `<br><span class="meta">${esc(s.error)}${s.snapshot_date ? "; keeping the snapshot of " + esc(s.snapshot_date) : ""}</span>` : ""}</div><span class="chip ${s.ok ? "good" : "warn"}">${s.ok ? "Read OK" : "Could not read"}${s.http_status ? " · HTTP " + s.http_status : ""}</span></div>`;
+  };
+  box.innerHTML = `<div class="eyebrow">Real sources · live pages, not the demo</div>
+    <div class="head">${esc(head)}</div>
+    <div class="meta">Last fetched from the live sites ${esc(srcs.map(([, x]) => (x.fetched_at || "").slice(0, 10)).sort().pop() || "never")}. ${okN} of ${srcs.length} sources were readable${okN < srcs.length ? "; the rest are listed below with the reason" : ""}. Each check compares its pinned checksum with the checksum of the matching section on the live page.</div>
+    ${bad.map(reviewBlock).join("")}
+    ${stale.length ? `<details open><summary>${stale.length} checks matched earlier; latest fetch failed</summary>${stale.map(e => `<div class="item">${edgeRow(e)}<div class="meta">${esc(e.rep.reason)}</div></div>`).join("")}</details>` : ""}
+    <details><summary>${good.length} checks that still match</summary>${good.map(edgeRow).join("")}</details>
+    ${demo.length ? `<details><summary>${demo.length} pinned to a demo snapshot (not counted)</summary>${demo.map(e => `<div class="item">${edgeRow(e)}<div class="meta">${esc(e.rep.reason)}</div></div>`).join("")}</details>` : ""}
+    ${R.afl_index ? `<details><summary>CDPH All Facilities Letters, ${esc(R.afl_index.year)}: ${R.afl_index.count} letters; ${esc(aflNew)}</summary>${R.afl_index.latest.map(a => `<div class="row"><div class="t"><span class="mono">${esc(a.num)}</span><br>${esc(a.text.replace(/\s*\|\s*AFL-[\d-]+\.aspx$/, ""))}</div></div>`).join("")}<div class="meta">Newest five shown.</div></details>` : ""}
+    <details class="src-list"><summary>All ${srcs.length} watched sources</summary>${srcs.map(srcRow).join("")}</details>`;
+}
+
+function renderAll(){ renderBanner(); renderAnswer(); renderLanes(); renderDetail(); renderAdded(); renderAudit(); renderFoot(); }
+
+function renderBanner(){
+  $("#banner").innerHTML = state.view === "after" ? esc(D.amendmentNotice) + " Rule text on the right of each comparison is invented for this demo." : "Showing the current official text as fetched " + esc(D.today) + ". Switch to the amended text to see what a rule change does.";
+  const mm = REC.model ? (MODELS[REC.model]?.name || REC.model) : "";
+  $("#meta").textContent = `Recorded run on ${mm}, ${REC.recordedAt}, ${REC.secs} seconds. Statuses come from checksums in code; the model only explains changes and drafts updates.`;
+}
+function renderAnswer(){
+  const st = statuses(), h = L.headline(st, baselineStatus), t = h.tally;
+  const head = state.view === "after" ? h.text.replace(" need review", " need review under the hypothetical amendment") : (t.NeedsReview ? `${t.NeedsReview} of ${t.total} linked checks need review even before any amendment.` : `All ${t.total} linked checks match the current text.`);
+  const stale = st.filter(e => e.status === "NeedsReview" && baselineStatus.find(b => b.id === e.id).status === "NeedsReview").length;
+  const sub = state.view === "after"
+    ? `${t.Valid} still match${t.Valid === 1 ? "es" : ""} their pinned text.${stale ? ` ${stale} of the ones needing review ${stale === 1 ? "was" : "were"} already out of date before the amendment: its pinned checksum never matched the current official text.` : ""}${state.audit.length ? ` ${state.audit.length} signed off in this session.` : ""}`
+    : "Each check pins the checksum of the rule text it was last verified against. One check is pinned to an earlier snapshot, so it fails even here.";
+  $("#answer").innerHTML = `<div class="head">${esc(head)}</div><div class="sub">${esc(sub)}</div>
+    <div class="seg" role="group" aria-label="Which text to compare against"><button type="button" data-v="after" aria-pressed="${state.view === "after"}">After the amendment (hypothetical)</button><button type="button" data-v="before" aria-pressed="${state.view === "before"}">Current text</button></div>`;
+  $("#answer").querySelectorAll("[data-v]").forEach(b => b.onclick = () => { state.view = b.dataset.v; state.flash = null; renderAll(); });
+}
+function renderLanes(){
+  const st = statuses(), lanes = [["Broken", "Section deleted"], ["NeedsReview", "Needs review"], ["Valid", "Still matches"]];
+  $("#lanes").innerHTML = lanes.map(([k, title]) => {
+    const items = st.filter(e => e.status === k);
+    return `<div class="lane"><h3>${title} <b>${items.length}</b></h3>${items.length ? items.map(e => card(e)).join("") : `<div class="empty">${k === "Broken" ? "No check points at a deleted section." : k === "NeedsReview" ? "Nothing waiting for review." : "Nothing matches yet."}</div>`}</div>`;
+  }).join("");
+  $("#lanes").querySelectorAll(".card").forEach(c => c.onclick = () => { state.sel = c.dataset.id; state.flash = null; renderLanes(); renderDetail(); $("#detail").scrollIntoView({ block: "nearest", behavior: "smooth" }); });
+}
+function card(e){
+  const d = diffOf(e), cls = state.view === "after" && d ? CLASS_LABEL[d.code_class] : "";
+  return `<button class="card" type="button" data-id="${e.id}" data-st="${e.status}" aria-current="${state.sel === e.id}">
+    <span class="mono">${esc(e.app)} · ${esc(e.item_id)}</span>
+    <span class="t">${esc(e.item_text)}</span>
+    <span class="chips"><span class="chip">${esc(e.source_id === "cal-rpc-ch7" ? "Cal. RPC " : "AFL 23-17 ")}${esc(e.section_num)}</span>${cls ? `<span class="chip ${ST_CLASS[e.status]}">${esc(cls)}</span>` : ""}<span class="chip">risk: ${esc(e.risk_level)}</span></span></button>`;
+}
+
+function diffPanes(d){
+  const left = d.ops.filter(o => o.t !== "add").map(o => o.t === "del" ? `<del>${esc(o.w)}</del>` : esc(o.w)).join(" ");
+  const right = d.ops.filter(o => o.t !== "del").map(o => o.t === "add" ? `<ins>${esc(o.w)}</ins>` : esc(o.w)).join(" ");
+  return { left, right };
+}
+function renderDetail(){
+  const box = $("#detail"), e = statuses().find(x => x.id === state.sel);
+  if (!e){ box.hidden = true; return; }
+  box.hidden = false;
+  const d = diffOf(e), after = state.view === "after", node = L.indexNodes(nodes()).get(L.nodeKey(e.source_id, e.section_num)), curNode = L.indexNodes(A.cur).get(L.nodeKey(e.source_id, e.section_num));
+  let texts;
+  if (after && d){
+    const p = diffPanes(d);
+    texts = `<div class="vs"><div class="side"><div class="lab"><span>Current text · fetched ${esc(D.today)}</span></div><div class="txt">${p.left || "<i>(section did not exist)</i>"}</div></div>
+      <div class="side"><div class="lab"><span>Amended text</span>${HYP}</div><div class="txt">${d.v2 ? p.right : "<i>(section deleted in the hypothetical amendment)</i>"}</div></div></div>`;
+  } else {
+    texts = `<div class="side"><div class="lab"><span>${esc(e.section_num)} · ${after ? "unchanged by the amendment" : "current text"} · fetched ${esc(D.today)}</span></div><div class="txt">${esc(curNode?.text || "")}</div></div>`;
+  }
+  const code = after && d ? `<div class="box"><h3>What code found</h3><div class="chips"><span class="chip ${d.code_class === "Editorial" ? "" : "warn"}">${esc(CLASS_LABEL[d.code_class])}</span><span class="chip">${esc(d.diff_type)}</span></div><p>${esc(d.signals.join("; "))}.</p><p class="mono">Code sets a floor: the model can raise this class, never lower it.</p></div>`
+    : `<div class="box"><h3>What code found</h3><p>${after ? "This section's text is identical in both versions." : "Comparing against the current text only."}</p></div>`;
+  let model = "";
+  if (after && d){
+    const v = verdict(d);
+    if (!v) model = `<div class="box"><h3>What the model says</h3><p>No model result yet. Use Re-classify live.</p></div>`;
+    else {
+      const upd = v.updates.find(u => u.edge_id === e.id);
+      model = `<div class="box"><h3>What the model says <span class="chip ${v.accepted ? "good" : "bad"}">${v.accepted ? "accepted by code" : "rejected by code"}</span></h3>
+        ${v.semantic_class ? `<div class="chips"><span class="chip">${esc(CLASS_LABEL[v.semantic_class])}</span><span class="chip">${v.from === "live" ? "live run" : "recorded run"}</span></div>` : ""}
+        ${v.summary ? `<p>${esc(v.summary)}</p>` : ""}
+        ${v.v1_quote ? `<blockquote>${esc(v.v1_quote)}</blockquote><span class="ver ${v.v1_quote_ok ? "ok" : "no"}">${v.v1_quote_ok ? "✓ verbatim in the current text" : "✗ not found in the current text"}</span>` : ""}
+        ${v.v2_quote ? `<blockquote>${esc(v.v2_quote)}</blockquote><span class="ver ${v.v2_quote_ok ? "ok" : "no"}">${v.v2_quote_ok ? "✓ verbatim in the amended text" : "✗ not found in the amended text"}</span>` : ""}
+        ${v.accepted ? "" : `<div class="errbox">Not used: ${esc(v.reasons.join("; "))}</div>`}</div>`;
+      model += `<div class="box"><h3>Proposed update to this item</h3>${v.accepted && upd ? `<p>${esc(upd.proposed_update)}</p><p class="mono">A draft only. The item stays flagged until a reviewer signs off.</p>` : `<p>${v.accepted ? "The model did not propose an update for this item." : "None: the model's answer did not pass the code checks."}</p>`}</div>`;
+    }
+  } else model = `<div class="box"><h3>What the model says</h3><p>No model call for this item: ${after ? "its section did not change in the amendment." : "nothing to compare."}</p></div>`;
+  const pin = `<p class="mono">pinned ${esc(short(e.pinned_checksum))}… · current ${esc(short(e.current_checksum))}…</p>${e.pin_note ? `<p>${esc(e.pin_note)}</p>` : ""}`;
+  let sign = "";
+  if (e.status === "NeedsReview" && after){
+    sign = `<form class="signoff" id="sf"><h3>Reviewer sign-off</h3><p>Signing off says a person read the amended (hypothetical) text and confirmed or updated the item. It re-pins this check to checksum <span class="mono">${esc(short(node.checksum))}…</span> and is logged below.</p>
+      <div class="row"><label class="f" for="rv">Reviewer name<input id="rv" autocomplete="off"></label><label class="f" for="rd">Date<input id="rd" value="${esc(D.today)}" inputmode="numeric"></label></div>
+      <label class="f" for="rn">Note (optional)<input id="rn" autocomplete="off"></label>
+      <div><button class="btn primary" type="submit">Sign off and re-pin</button></div>${state.flash ? `<div class="errbox">${esc(state.flash)}</div>` : ""}</form>`;
+  } else if (e.status === "NeedsReview") sign = `<div class="warnbox">Switch to the amended text to review and sign off.</div>`;
+  else if (e.status === "Broken") sign = `<div class="errbox">Broken: the section this item points at was deleted. A reviewer has to re-point or retire the item; it cannot be signed off.</div>`;
+  else { const a = state.audit.filter(x => x.edge_id === e.id).pop(); sign = a ? `<div class="okbox">Signed off by ${esc(a.reviewer)} on ${esc(a.date)}; re-pinned to ${esc(short(a.to_checksum))}….${a.note ? " Note: " + esc(a.note) : ""}</div>` : ""; }
+  box.innerHTML = `<div class="item"><span class="mono">${esc(e.app)} · ${esc(e.item_id)} · ${esc(e.id)} · ${esc(e.item_cite)}</span><div style="font-weight:500">${esc(e.item_text)}</div>
+    <div class="chips"><span class="chip ${ST_CLASS[e.status]}">${ST_LABEL[e.status]}</span><span class="chip">${esc(e.section_num)} · ${esc(curNode?.heading || "")}</span></div><div class="meta">${esc(e.reason)}</div>${pin}</div>
+    ${texts}<div class="cols">${code}${model}</div>${sign}`;
+  const f = $("#sf");
+  if (f) f.onsubmit = ev => {
+    ev.preventDefault();
+    const r = L.signOff({ edges: state.edges, audit: state.audit }, { edge_id: e.id, reviewer: $("#rv").value, date: $("#rd").value, note: $("#rn").value, checksum: node.checksum }, nodes());
+    if (!r.ok){ state.flash = r.error; renderDetail(); return; }
+    state.edges = r.edges; state.audit = r.audit; state.flash = null; renderAll();
+  };
+}
+function renderAdded(){
+  const box = $("#added"), list = A.unlinked.filter(d => d.diff_type === "Added");
+  if (state.view !== "after" || !list.length){ box.hidden = true; return; }
+  box.hidden = false;
+  box.innerHTML = `<h3>New sections nothing links to ${HYP}</h3><p class="meta" style="margin:0">Added in the amendment, so no checklist item points at them yet. Code cannot decide whether you need a new item; a reviewer does.</p>` +
+    list.map(d => `<div class="side"><div class="lab"><span>${esc(d.section_num)} · ${esc(d.heading)}</span><span class="chip warn">${esc(CLASS_LABEL[d.code_class])}</span></div><div class="txt"><ins>${esc(d.v2)}</ins></div></div>`).join("");
+}
+function renderAudit(){
+  const box = $("#auditp");
+  if (!state.audit.length){ box.hidden = true; return; }
+  box.hidden = false;
+  box.innerHTML = `<h3>Sign-off log (this session only)</h3><div class="audit">${state.audit.map(a => `<div><b>${esc(a.item_id)}</b> (${esc(a.edge_id)}, ${esc(a.section_num)}) reviewed by ${esc(a.reviewer)} on ${esc(a.date)}<br><span class="mono">${esc(short(a.from_checksum))}… → ${esc(short(a.to_checksum))}…</span>${a.note ? `<br>${esc(a.note)}` : ""}</div>`).join("")}</div>`;
+}
+function renderFoot(){
+  $("#foot").innerHTML = `<div><b>Sources.</b> ${D.sources.map(s => `<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.title)}</a>, retrieved ${esc(s.retrieved)}. ${esc(s.note)}`).join(" ")}</div>
+    <div>Current-text sections are pasted from those pages (zero-width characters removed; paragraph letters and sub-item numbers added from the page's list numbering). Checklist items are quoted from the author's own Marketing Studio and SNF Deal Desk demos. ${HYP} Every amended passage in this page is invented for the demonstration. Checks, statuses and sign-offs are computed in code from SHA-256 checksums of whitespace-normalized text. Sign-offs live in this page only. This is a demonstration, not legal advice.</div>`;
+}
+
+/* ---------- live runs ---------- */
+function modelOpts(){ const m = $("#model").value; return { model: m, modelTier: MODELS[m]?.tier || "default", effort: $("#depth").value }; }
+function parseJson(text){ const a = text.indexOf("{"), b = text.lastIndexOf("}"); if (a < 0 || b < a) throw { message: "Claude did not return a result in the expected format. Run it again." }; return JSON.parse(text.slice(a, b + 1)); }
+function errText(e){
+  if (e?.code === "rate_limited") return "Claude is rate limited right now. Wait a minute and run it again.";
+  if (e?.code === "not_granted") return "Claude access was not allowed for this page. Allow it from the page's permissions to run live.";
+  return e?.message || "The run did not finish. Run it again.";
+}
+async function rerun(){
+  if (!sample || state.busy) return;
+  state.busy = true; $("#rerun").disabled = true;
+  const busy = $("#busy"), ctl = new AbortController(); let done = 0, failed = 0;
+  busy.hidden = false; busy.innerHTML = `<div class="warnbox">Re-classifying ${A.jobs.length} changed sections on Claude… <button class="btn" id="stop" type="button">Stop</button></div><div class="stream" id="stream"></div>`;
+  $("#stop").onclick = () => ctl.abort();
+  let next = 0;
+  const worker = async () => {
+    while (next < A.jobs.length && !ctl.signal.aborted){
+      const d = A.jobs[next++], edges = A.edges.filter(x => d.edge_ids.includes(x.id));
+      try {
+        const res = await sample(CW_PROMPTS.classify({ diff: d, edges }), { ...modelOpts(), signal: ctl.signal, cache: false, onText: ({ text }) => { const s = $("#stream"); if (s) s.textContent = d.section_num + ": " + text.length.toLocaleString() + " characters written"; } });
+        state.models[d.key] = { output: parseJson(res.text), from: "live", model: res.modelApplied || $("#model").value };
+        done++; renderAll();
+      } catch(e){ if (ctl.signal.aborted) return; failed++; busy.insertAdjacentHTML("beforeend", `<div class="errbox">${esc(d.section_num)}: ${esc(errText(e))}</div>`); }
+    }
+  };
+  await Promise.all([worker(), worker(), worker(), worker()]);
+  state.busy = false; $("#rerun").disabled = false;
+  busy.innerHTML = ctl.signal.aborted ? `<div class="warnbox">Run stopped. Sections already finished are updated; the rest keep their recorded results.</div>` : failed ? `<div class="warnbox">${done} of ${A.jobs.length} sections re-classified; ${failed} failed and keep their recorded results.</div>` : `<div class="okbox">All ${done} sections re-classified live. Every answer was re-checked by code.</div>`;
+  renderAll();
+}
+$("#rerun").onclick = () => { if (!sample){ $("#meta").textContent = "Open this page in Claude to re-classify live. The recorded run is shown below."; return; } rerun(); };
+
+/* ---------- boot ---------- */
+state.sel = (statuses().find(e => e.status === "Broken") || statuses().find(e => e.status === "NeedsReview") || statuses()[0]).id;
+renderReal();
+renderAll();
+(async () => {
+  try { sample = await window.claude?.use("sample"); } catch(e){ sample = null; }
+  if (!sample) $("#rerun").title = "Open this page in Claude to re-classify live";
+})();
+</script>

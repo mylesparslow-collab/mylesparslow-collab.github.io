@@ -1,0 +1,1947 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Exposure Modeler</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --paper:#f4f1e8; --sheet:#fffdf7; --ink:#25221b; --ink-2:#585244; --ink-3:#7d765f; --rule:#e0dac8; --rule-2:#cbc3ac;
+  --accent:#1c5a4b; --accent-soft:#dcebe5; --neg:#9c3322; --neg-soft:#f6e2dc; --warn:#8a5a00; --warn-soft:#f8ecd0; --band:#ece4cc;
+  --display:"Fraunces",Georgia,"Times New Roman",serif; --ui:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --ease-out:cubic-bezier(.23,1,.32,1); --shadow:0 1px 0 rgba(37,34,27,.04),0 6px 18px -10px rgba(37,34,27,.22);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#17160f; --sheet:#201e15; --ink:#efe9d6; --ink-2:#c0b8a0; --ink-3:#938b73; --rule:#302d20; --rule-2:#433f2e;
+  --accent:#7fc3ac; --accent-soft:#1c3029; --neg:#ef8f7c; --neg-soft:#3a1f19; --warn:#e6b85c; --warn-soft:#382c12; --band:#2b2818; --shadow:0 6px 18px -10px rgba(0,0,0,.7); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#17160f; --sheet:#201e15; --ink:#efe9d6; --ink-2:#c0b8a0; --ink-3:#938b73; --rule:#302d20; --rule-2:#433f2e;
+  --accent:#7fc3ac; --accent-soft:#1c3029; --neg:#ef8f7c; --neg-soft:#3a1f19; --warn:#e6b85c; --warn-soft:#382c12; --band:#2b2818; --shadow:0 6px 18px -10px rgba(0,0,0,.7); color-scheme:dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--ui);font-size:15px;line-height:1.5;font-variant-numeric:tabular-nums}
+.wrap{max-width:1080px;margin:0 auto;padding:16px}
+header.top{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;padding:8px 0 16px}
+h1{font-family:var(--display);font-size:24px;margin:0;font-weight:700;letter-spacing:-.015em}
+.sub{color:var(--ink-3);font-size:13px;margin-top:2px}
+.seg{display:inline-flex;border:1px solid var(--rule-2);border-radius:9px;overflow:hidden;background:var(--sheet)}
+.seg button{border:0;background:transparent;color:var(--ink-2);font:inherit;font-size:13px;padding:8px 14px;cursor:pointer;min-height:40px;transition:background-color 160ms ease,color 160ms ease}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--sheet);font-weight:600}
+.answer{background:var(--sheet);border:1px solid var(--rule-2);border-left:6px solid var(--accent);border-radius:12px;padding:18px 20px 16px;box-shadow:var(--shadow)}
+.kicker{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:6px}
+.answer .big{font-family:var(--display);font-size:26px;line-height:1.25;margin:0;font-weight:500}
+.answer .big b{font-weight:700}
+.nb{white-space:nowrap}
+.neg{color:var(--neg)} .pos{color:var(--accent)}
+.answer .meta{margin-top:10px;color:var(--ink-2);font-size:13px}
+.caution{margin-top:10px;background:var(--warn-soft);color:var(--warn);border-radius:6px;padding:8px 10px;font-size:13px}
+.err{margin-top:10px;background:var(--neg-soft);color:var(--neg);border-radius:6px;padding:8px 10px;font-size:13px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.btn{font:inherit;font-size:13px;border:1px solid var(--rule-2);background:var(--sheet);color:var(--ink);padding:8px 12px;border-radius:8px;cursor:pointer;min-height:40px;transition:transform 160ms var(--ease-out),background-color 160ms ease,border-color 160ms ease}
+.btn:active,.seg button:active{transform:scale(.97)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--sheet);font-weight:600}
+.btn:disabled{opacity:.5;cursor:default}
+@media (hover:hover) and (pointer:fine){.btn:hover{border-color:var(--ink-3)}.btn.primary:hover{filter:brightness(1.08)}}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* facts strip */
+.facts{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;padding-top:12px;border-top:1px solid var(--rule)}
+.fact{font:inherit;font-size:12px;text-align:left;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule-2);background:var(--paper);color:var(--ink);padding:5px 10px 5px 8px;border-radius:999px;cursor:pointer;min-height:32px;transition:border-color 160ms ease,transform 160ms var(--ease-out)}
+.fact:active{transform:scale(.97)}
+.fact .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex:none}
+.fact.no .dot{background:var(--warn)}
+.fact .fk{color:var(--ink-3)} .fact .fv{font-family:var(--mono);font-weight:500} .fact .fs{color:var(--ink-3)}
+.fact.no .fs{color:var(--warn);font-weight:600}
+@media (hover:hover) and (pointer:fine){.fact:hover{border-color:var(--ink-3)}}
+details.sec{background:var(--sheet);border:1px solid var(--rule);border-radius:12px;margin-top:14px}
+details.sec>summary{cursor:pointer;list-style:none;padding:14px 18px;font-family:var(--display);font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+details.sec>summary::-webkit-details-marker{display:none}
+details.sec>summary small{font-family:var(--ui);font-weight:400;color:var(--ink-3);font-size:12px}
+details.sec>summary::after{content:"+";color:var(--ink-3);font-family:var(--mono);margin-left:auto;padding-left:8px}
+details.sec[open]>summary::after{content:"\2212"}
+details.sec .body{padding:0 18px 18px}
+.hint{color:var(--ink-3);font-size:13px;margin:0 0 10px}
+/* decision tree */
+#tree{position:relative}
+#tree svg{display:block;width:100%;height:auto;overflow:visible}
+.tn{cursor:pointer;outline:none}
+.tn .tbox{fill:var(--paper);stroke:var(--rule-2);stroke-width:1;transition:stroke 160ms ease,fill 160ms ease}
+.tn:focus-visible .tbox{stroke:var(--accent);stroke-width:2}
+.tn.sel .tbox{fill:var(--sheet);stroke:var(--ink);stroke-width:2}
+@media (hover:hover) and (pointer:fine){.tn:hover .tbox{stroke:var(--ink-3)}.tn.sel:hover .tbox{stroke:var(--ink)}}
+.tn text{font-family:var(--ui);fill:var(--ink)}
+.tn .t1{font-size:11.5px;font-weight:600}
+.tn .t2{font-size:10.5px;fill:var(--ink-2);font-family:var(--mono)}
+.tn .t3{font-size:11px;font-weight:600;font-family:var(--mono)}
+.tn .t3.neg{fill:var(--neg)} .tn .t3.pos{fill:var(--accent)}
+.tn .t0{font-size:10.5px;fill:var(--ink-3)}
+.te{fill:none;stroke:var(--rule-2);stroke-linecap:round;transition:stroke 160ms ease}
+.te.on{stroke:var(--accent)}
+.tp rect{fill:var(--sheet);stroke:var(--rule-2)} .tp text{font:500 10px var(--mono);fill:var(--ink-2);text-anchor:middle}
+.tp.on rect{stroke:var(--accent)} .tp.on text{fill:var(--accent)}
+.keyline{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:12px;color:var(--ink-3);margin-top:8px}
+.keyline i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+#inspector{margin-top:14px;border:1px solid var(--rule);background:var(--paper);border-radius:10px;padding:14px 16px;animation:rise 200ms var(--ease-out)}
+@keyframes rise{from{opacity:.6;transform:translateY(4px)}to{opacity:1;transform:none}}
+.ihead{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline;margin-bottom:10px}
+.ihead b{font-family:var(--display);font-size:17px}
+.chip{font-family:var(--mono);font-size:11px;background:var(--accent-soft);color:var(--accent);border-radius:4px;padding:1px 6px;white-space:nowrap}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:6px}
+.tile{background:var(--sheet);border:1px solid var(--rule);border-radius:8px;padding:8px 10px}
+.tile .k{font-size:11px;color:var(--ink-3)} .tile .v{font-family:var(--mono);font-size:16px;font-weight:500;margin-top:1px}
+.term{font-size:13px;color:var(--ink-2)} .term b{color:var(--ink)}
+.sl{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 10px;align-items:baseline;margin:10px 0 0;font-size:13px}
+.sl .pv{font-family:var(--mono);font-weight:500;font-size:14px}
+.sl input[type=range]{grid-column:1/-1;width:100%;margin:2px 0 0;height:30px;background:transparent;-webkit-appearance:none;appearance:none;cursor:pointer;--v:50%}
+.sl input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:linear-gradient(to right,var(--accent) var(--v),var(--rule-2) var(--v))}
+.sl input[type=range]::-moz-range-track{height:6px;border-radius:3px;background:var(--rule-2)}
+.sl input[type=range]::-moz-range-progress{height:6px;border-radius:3px;background:var(--accent)}
+.sl input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;margin-top:-9px;border-radius:50%;background:var(--sheet);border:2px solid var(--accent);box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform 120ms var(--ease-out)}
+.sl input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--sheet);border:2px solid var(--accent)}
+.sl input[type=range]:active::-webkit-slider-thumb{transform:scale(1.1)}
+/* distribution */
+#dist svg{display:block;width:100%;height:auto;overflow:visible}
+#dist svg text,#memo-dist svg text{font-family:var(--ui);font-size:11px;fill:var(--ink-2)}
+.dstats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}
+.dstats .tile .s{font-size:11px;color:var(--ink-3);margin-top:2px;line-height:1.3}
+.dstats .tile.be{border-color:var(--accent);background:var(--accent-soft)}
+/* sensitivity */
+.sens{display:grid;gap:10px}
+.srow .lab{font-size:13px;margin-bottom:3px}
+.srow .lab span{color:var(--ink-3)}
+.bar{position:relative;height:22px;background:var(--band);border-radius:4px}
+.bar i{position:absolute;top:0;bottom:0;display:block}
+.bar i.l{background:var(--neg);right:50%;border-radius:4px 0 0 4px}
+.bar i.r{background:var(--accent);left:50%;border-radius:0 4px 4px 0}
+.bar:after{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--ink-3)}
+.bar em{position:absolute;top:2px;font-style:normal;font-family:var(--mono);font-size:11px;color:var(--ink);text-shadow:0 0 3px var(--sheet),0 0 3px var(--sheet)}
+.bar em.a{left:6px}.bar em.b{right:6px}
+/* chart */
+svg.chart{width:100%;height:auto;display:block}
+svg.chart text{font-family:var(--ui);font-size:11px;fill:var(--ink-2)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--ink-2);margin-top:6px}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{text-align:left;padding:5px 8px 5px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:600;color:var(--ink-2);font-size:12px}
+td.n,th.n{text-align:right;font-family:var(--mono);white-space:nowrap}
+.scroll{overflow-x:auto}
+/* posture */
+textarea{width:100%;min-height:160px;font:12.5px/1.5 var(--mono);background:var(--paper);color:var(--ink);border:1px solid var(--rule-2);border-radius:8px;padding:10px;resize:vertical}
+.prow{display:grid;grid-template-columns:150px minmax(0,1fr);gap:4px 12px;padding:10px 0;border-top:1px solid var(--rule)}
+.prow .k{font-weight:600;font-size:13px}
+.prow input[type=text],.prow input[type=number]{font:inherit;font-size:14px;width:100%;max-width:300px;background:var(--paper);color:var(--ink);border:1px solid var(--rule-2);border-radius:6px;padding:7px 8px;min-height:38px}
+.badge{display:inline-block;font-size:11px;border-radius:4px;padding:1px 7px;font-weight:600}
+.badge.ok{background:var(--accent-soft);color:var(--accent)} .badge.no{background:var(--warn-soft);color:var(--warn)}
+.q{font-size:12px;color:var(--ink-3);margin-top:3px;font-style:italic}
+.chk{display:flex;gap:6px;align-items:center;font-size:13px;margin-top:6px}
+@media (max-width:560px){.facts{display:grid;grid-template-columns:1fr 1fr}.fact{flex-wrap:wrap;align-items:flex-start;border-radius:12px;padding:6px 10px 6px 8px}.fact .dot{margin-top:5px}.fact .fs{flex-basis:100%;padding-left:14px;margin-top:-3px}.prow{grid-template-columns:1fr}.tiles{grid-template-columns:1fr 1fr 1fr}.tile .v{font-size:14px}.dstats{grid-template-columns:1fr 1fr}.answer .big{font-size:22px}.answer{padding:16px 16px 14px}details.sec .body{padding:0 12px 14px}}
+.foot{color:var(--ink-3);font-size:12px;margin:18px 0 8px;text-align:center}
+.stream{font-family:var(--mono);font-size:12px;color:var(--ink-3);white-space:pre-wrap;margin-top:8px}
+/* memo (screen preview; print rules below) */
+#memo{display:none}
+body.memo-mode .wrap>*:not(#memo):not(.memobar){display:none!important}
+body.memo-mode #memo{display:block;max-width:8.5in;margin:0 auto 24px;padding:.55in .6in;border:1px solid #bbb;box-shadow:var(--shadow);border-radius:4px}
+.memobar{display:none;gap:8px;margin:0 auto 12px;max-width:8.5in;flex-wrap:wrap}
+body.memo-mode .memobar{display:flex}
+@media (max-width:640px){body.memo-mode #memo{padding:18px 14px}}
+@media print{
+  @page{size:letter;margin:.55in .6in}
+  html,body{background:#fff!important}
+  .wrap{padding:0;max-width:none}
+  .wrap>*:not(#memo){display:none!important}
+  #memo{display:block!important;border:0!important;box-shadow:none!important;padding:0!important;max-width:none!important;margin:0!important;border-radius:0!important}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <div><h1>Exposure Modeler</h1><div class="sub">What is this whole case worth, stage by stage. Fictional case and fictional comps.</div></div>
+  <div class="seg" role="group" aria-label="Whose view"><button id="side-d" type="button" aria-pressed="true">Defendant's view</button><button id="side-p" type="button" aria-pressed="false">Plaintiff's view</button></div>
+</header>
+
+<section class="answer" aria-live="polite">
+  <div class="kicker" id="kicker">The answer</div>
+  <p class="big" id="headline"></p>
+  <div class="meta" id="answer-meta"></div>
+  <div id="answer-flags"></div>
+  <div class="facts" id="facts" aria-label="Facts from the complaint"></div>
+  <div class="actions"><button class="btn primary" id="export" type="button">Export 1-page memo</button></div>
+</section>
+
+<details class="sec" open>
+  <summary>Case tree <small>tap a stage, then drag its sliders</small></summary>
+  <div class="body">
+    <p class="hint">Each box is a stage of the case: the chance of getting there, the fees spent to get there, and the net expected value if you do. Lines get thicker the likelier the path.</p>
+    <div id="tree"></div>
+    <div class="keyline"><span><i style="background:var(--accent)"></i>better than the case average</span><span><i style="background:var(--neg)"></i>worse than the case average</span><span>EV = expected value after fees</span></div>
+    <div id="inspector" aria-live="polite"></div>
+    <div class="actions"><button class="btn" id="reset" type="button">Reset probabilities</button></div>
+  </div>
+</details>
+
+<details class="sec" open>
+  <summary>How the outcomes spread <small>10,000 simulated runs of the tree</small></summary>
+  <div class="body">
+    <p class="hint">Each bar counts how many simulated runs ended at that net result after fees. Dark bars sit between the 10th and 90th percentile. The green line marks the average result after fees. The settlement figure that beats that average is the break-even in the answer above.</p>
+    <div id="dist"></div>
+    <div class="dstats" id="dist-stats"></div>
+  </div>
+</details>
+
+<details class="sec" open>
+  <summary>What moves the answer <small>each stage's key chance, plus or minus 10 points</small></summary>
+  <div class="body"><p class="hint">Change in net expected value if that chance goes down or up by 10 points (the other branches rebalance). Longest bar matters most.</p><div class="sens" id="sens"></div></div>
+</details>
+
+<details class="sec" id="sec-rates">
+  <summary>Real federal patent rates <small id="rates-sum">fictional demo chances</small></summary>
+  <div class="body">
+    <p class="hint">The case tree starts with made-up chances. Pick a court to start it from real federal patent cases instead (Federal Judicial Center data, patent suits closed since 2010). The sliders still work. Only the stage chances change; the dollar comps stay fictional.</p>
+    <label class="hint" for="rates-src" style="display:block;margin-bottom:4px">Start the tree from</label>
+    <select id="rates-src" style="font:inherit;font-size:14px;min-height:38px;max-width:100%;background:var(--paper);color:var(--ink);border:1px solid var(--rule-2);border-radius:6px;padding:6px 8px"></select>
+    <div id="rates-out" style="margin-top:12px"></div>
+  </div>
+</details>
+
+<details class="sec" id="sec-comps">
+  <summary>Comparable cases <small id="comp-sum"></small></summary>
+  <div class="body">
+    <p class="hint">Each dot is a fictional past case: how big a share of the defendant's revenue it paid out (up the page) against how big the defendant was (across). Filled dots are the comps used.</p>
+    <div id="chart"></div>
+    <div class="legend" id="legend"></div>
+    <div class="actions"><button class="btn" id="csv-out" type="button">Export comps CSV</button><label class="btn" for="csv-in" style="display:inline-flex;align-items:center">Import comps CSV</label><input id="csv-in" type="file" accept=".csv,text/csv" hidden><button class="btn" id="csv-reset" type="button">Back to the built-in comps</button></div>
+    <div id="csv-msg" class="hint" style="margin-top:8px" role="status"></div>
+    <details style="margin-top:8px"><summary style="cursor:pointer;font-size:13px">Show the comps used</summary><div class="scroll" id="comp-table" style="margin-top:8px"></div></details>
+  </div>
+</details>
+
+<details class="sec" id="sec-facts">
+  <summary>Facts from the complaint <small id="posture-sum"></small></summary>
+  <div class="body">
+    <p class="hint">Claude reads the complaint and quotes it. The page checks every quote word for word. Anything it cannot find is marked "not confirmed" until you confirm or fix it. Only the revenue and the demand feed the model.</p>
+    <div id="posture"></div>
+    <div class="actions"><button class="btn" id="extract" type="button">Read this complaint with Claude</button><button class="btn" id="recorded" type="button">Back to the recorded run</button></div>
+    <div id="busy"></div>
+    <details style="margin-top:10px"><summary style="cursor:pointer;font-size:13px">The complaint text (fictional, editable)</summary><textarea id="complaint" spellcheck="false" style="margin-top:8px"></textarea></details>
+  </div>
+</details>
+
+<div class="foot">All parties, patents, cases and numbers in this tool are fictional. The comps are invented for demonstration and are not real verdicts or settlements. The optional "Real federal patent rates" use real Federal Judicial Center counts, but the dollar amounts stay fictional. Not legal advice.</div>
+
+<div class="memobar"><button class="btn primary" id="m-print" type="button">Print or save as PDF</button><button class="btn" id="m-save" type="button">Download memo</button><button class="btn" id="m-back" type="button">Back to the model</button></div>
+<article id="memo" class="memo"></article>
+</div>
+
+<script>/* Fictional demonstration data. Every party, patent, case and number here is invented. */
+const EXPOSURE_CASE = {
+  id: "kestrel-v-orvane",
+  title: "Kestrel Lattice Technologies v. Orvane Home Systems (fictional)",
+  side_default: "defendant",
+  complaint: "IN THE UNITED STATES DISTRICT COURT FOR THE FICTIONAL DISTRICT OF NORTH HARBOR\n\nKESTREL LATTICE TECHNOLOGIES, INC., Plaintiff,\n\nv.\n\nORVANE HOME SYSTEMS, INC., Defendant.\n\nCivil Action No. 1:26-cv-04417\n\nCOMPLAINT FOR PATENT INFRINGEMENT AND DEMAND FOR JURY TRIAL\n\n(This is a fictional complaint written for a demonstration. No real party, patent or court is meant.)\n\nPlaintiff Kestrel Lattice Technologies, Inc. (\"Kestrel\") alleges as follows against Defendant Orvane Home Systems, Inc. (\"Orvane\"):\n\nTHE PARTIES\n\n1. Kestrel is a Delaware corporation with its principal place of business in Port Alder. Kestrel designs low-power mesh networking modules for connected household devices.\n\n2. Orvane is a Nevada corporation with its principal place of business in Dunmere Falls. Orvane sells smart thermostats, door sensors and hub devices to consumers and builders throughout the United States. In its most recent annual report, Orvane reported annual revenue of approximately $182 million.\n\nJURISDICTION AND VENUE\n\n3. This action arises under the patent laws of the United States, 35 U.S.C. section 271 et seq. This Court has subject matter jurisdiction under 28 U.S.C. sections 1331 and 1338(a). Venue is proper in this District because Orvane maintains a regular and established place of business here.\n\nTHE PATENT\n\n4. Kestrel owns all right, title and interest in United States Patent No. 9,990,412, titled \"Self-Healing Mesh Routing for Low-Power Devices\" (the \"'412 Patent\"), issued on June 5, 2018. The '412 Patent is valid and enforceable.\n\n5. Claim 1 of the '412 Patent describes a method in which a battery-powered node detects a failed neighbor and re-routes traffic through an alternate node without waking a central hub.\n\nORVANE'S INFRINGING PRODUCTS\n\n6. Since at least March 2023, Orvane has made, used, sold and offered for sale its Orvane Mesh Hub and Orvane Mesh Sensor product lines (the \"Accused Products\"). Each Accused Product re-routes traffic around a failed neighbor node without waking a central hub, in the manner claimed in Claim 1 of the '412 Patent.\n\n7. On September 14, 2025, Kestrel sent Orvane a letter identifying the '412 Patent and the Accused Products and offering a license. Orvane did not respond to that letter and has continued to sell the Accused Products.\n\nCOUNT I: DIRECT INFRINGEMENT (35 U.S.C. section 271(a))\n\n8. Kestrel repeats the foregoing paragraphs. Orvane has directly infringed at least Claim 1 of the '412 Patent by making, using, selling and offering to sell the Accused Products in the United States.\n\nCOUNT II: INDUCED INFRINGEMENT (35 U.S.C. section 271(b))\n\n9. Orvane instructs its installers and customers, through its published setup guides, to configure the Accused Products in a manner that practices Claim 1. Orvane has done so with knowledge of the '412 Patent since at least September 14, 2025.\n\nCOUNT III: WILLFUL INFRINGEMENT AND ENHANCED DAMAGES (35 U.S.C. section 284)\n\n10. Orvane's infringement has been willful. Orvane received actual notice of the '412 Patent on September 14, 2025 and continued to sell the Accused Products without a license and without any good-faith basis to believe it did not infringe.\n\n11. This is an exceptional case under 35 U.S.C. section 285, and Kestrel is entitled to recover its reasonable attorneys' fees.\n\nPRAYER FOR RELIEF\n\nKestrel asks the Court to: (a) enter judgment that Orvane has infringed the '412 Patent; (b) award Kestrel damages of not less than $14,200,000, representing a reasonable royalty on Orvane's sales of the Accused Products since March 2023, together with pre-judgment and post-judgment interest; (c) increase damages up to three times under 35 U.S.C. section 284; (d) declare this case exceptional and award Kestrel its reasonable attorneys' fees under 35 U.S.C. section 285; (e) enter a permanent injunction; and (f) award such further relief as the Court deems just.\n\nDEMAND FOR JURY TRIAL\n\nKestrel demands a trial by jury on all issues so triable.\n\nDated: October 30, 2026\n"
+};
+
+/* Fictional comparable outcomes. effective_rate = award_usd / defendant_revenue_usd is computed in logic.js, never stored. */
+const EXPOSURE_COMPS = [
+  {"case_name":"Thornby Thermal Labs v. Sabine Sensor Labs","year":2018,"claim_type":"Patent infringement","defendant_revenue_usd":10100000,"outcome_type":"Judgment","award_usd":628000},
+  {"case_name":"Corbell Sensor Labs v. Marrowgate Instruments Holdings","year":2015,"claim_type":"Patent infringement","defendant_revenue_usd":10100000,"outcome_type":"Settlement","award_usd":533000},
+  {"case_name":"Brindle Power Group v. Pellam Analytics Group","year":2019,"claim_type":"Patent infringement","defendant_revenue_usd":10100000,"outcome_type":"Settlement","award_usd":440000},
+  {"case_name":"Jessup Signal Labs v. Pruitt Networks Labs","year":2017,"claim_type":"Patent infringement","defendant_revenue_usd":11500000,"outcome_type":"Judgment","award_usd":965000},
+  {"case_name":"Larkin Coatings Group v. Sabine Harbor Co.","year":2016,"claim_type":"Patent infringement","defendant_revenue_usd":19300000,"outcome_type":"Settlement","award_usd":848000},
+  {"case_name":"Ashgrove Fabrication Inc. v. Jessup Devices Co.","year":2015,"claim_type":"Trade secret misappropriation","defendant_revenue_usd":20700000,"outcome_type":"Settlement","award_usd":911000},
+  {"case_name":"Quillfeather Thermal Co. v. Rowntree Lattice Inc.","year":2009,"claim_type":"Trade secret misappropriation","defendant_revenue_usd":24000000,"outcome_type":"Judgment","award_usd":1240000},
+  {"case_name":"Larkin Signal Group v. Dunmore Lattice Systems","year":2012,"claim_type":"Patent infringement","defendant_revenue_usd":27900000,"outcome_type":"Settlement","award_usd":296000},
+  {"case_name":"Fenwick Harbor Co. v. Brindle Coatings Systems","year":2016,"claim_type":"Trade secret misappropriation","defendant_revenue_usd":32200000,"outcome_type":"Settlement","award_usd":406000},
+  {"case_name":"Quillfeather Textile Inc. v. Norwick Optics Group","year":2020,"claim_type":"Patent infringement","defendant_revenue_usd":35700000,"outcome_type":"Judgment","award_usd":2080000},
+  {"case_name":"Ostrander Sensor Inc. v. Marrowgate Analytics Inc.","year":2019,"claim_type":"Trademark infringement","defendant_revenue_usd":38200000,"outcome_type":"Settlement","award_usd":1010000},
+  {"case_name":"Marrowgate Signal Systems v. Corbell Pharma Co.","year":2023,"claim_type":"Patent infringement","defendant_revenue_usd":41900000,"outcome_type":"Settlement","award_usd":352000},
+  {"case_name":"Pruitt Devices Systems v. Kestrel Dynamics Group","year":2013,"claim_type":"Trademark infringement","defendant_revenue_usd":48400000,"outcome_type":"Judgment","award_usd":1080000},
+  {"case_name":"Yarrow Pharma Inc. v. Yarrow Power Holdings","year":2009,"claim_type":"Breach of contract","defendant_revenue_usd":48500000,"outcome_type":"Settlement","award_usd":1130000},
+  {"case_name":"Ostrander Harbor Holdings v. Mordaunt Pharma Holdings","year":2021,"claim_type":"Trade secret misappropriation","defendant_revenue_usd":49300000,"outcome_type":"Settlement","award_usd":1040000},
+  {"case_name":"Ibbotson Fabrication Inc. v. Yarrow Lattice Co.","year":2013,"claim_type":"Patent infringement","defendant_revenue_usd":55700000,"outcome_type":"Judgment","award_usd":1320000},
+  {"case_name":"Tessaly Harbor Systems v. Yarrow Coatings Labs","year":2016,"claim_type":"Patent infringement","defendant_revenue_usd":104600000,"outcome_type":"Settlement","award_usd":2160000},
+  {"case_name":"Corbell Thermal Holdings v. Sabine Networks Systems","year":2015,"claim_type":"Trade secret misappropriation","defendant_revenue_usd":109300000,"outcome_type":"Settlement","award_usd":2190000},
+  {"case_name":"Jessup Analytics Inc. v. Dunmore Analytics Labs","year":2016,"claim_type":"Breach of contract","defendant_revenue_usd":111700000,"outcome_type":"Judgment","award_usd":2300000},
+  {"case_name":"Thornby Motion Inc. v. Lindqvist Power Inc.","year":2016,"claim_type":"Patent infringement","defendant_revenue_usd":127100000,"outcome_type":"Settlement","award_usd":2780000},
+  {"case_name":"Mordaunt Power Inc. v. Tessaly Analytics Labs","year":2021,"claim_type":"Patent infringement","defendant_revenue_usd":145000000,"outcome_type":"Settlement","award_usd":1740000},
+  {"case_name":"Sabine Valve Systems v. Ashgrove Fabrication Holdings","year":2017,"claim_type":"Patent infringement","defendant_revenue_usd":185000000,"outcome_type":"Judgment","award_usd":4570000},
+  {"case_name":"Norwick Harbor Systems v. Yarrow Thermal Group","year":2018,"claim_type":"Patent infringement","defendant_revenue_usd":202600000,"outcome_type":"Settlement","award_usd":2570000},
+  {"case_name":"Norwick Dynamics Holdings v. Lindqvist Signal Systems","year":2012,"claim_type":"Patent infringement","defendant_revenue_usd":222700000,"outcome_type":"Settlement","award_usd":2240000},
+  {"case_name":"Dunmore Thermal Inc. v. Corbell Sensor Systems","year":2011,"claim_type":"Trade secret misappropriation","defendant_revenue_usd":233100000,"outcome_type":"Judgment","award_usd":7320000},
+  {"case_name":"Quillfeather Fabrication Co. v. Yarrow Logic Co.","year":2013,"claim_type":"Patent infringement","defendant_revenue_usd":268400000,"outcome_type":"Settlement","award_usd":4450000},
+  {"case_name":"Yarrow Power Co. v. Lindqvist Signal Group","year":2020,"claim_type":"Patent infringement","defendant_revenue_usd":309900000,"outcome_type":"Settlement","award_usd":3530000},
+  {"case_name":"Pellam Motion Co. v. Corbell Coatings Labs","year":2020,"claim_type":"Trade secret misappropriation","defendant_revenue_usd":326900000,"outcome_type":"Judgment","award_usd":10800000},
+  {"case_name":"Ostrander Valve Co. v. Sabine Lattice Co.","year":2023,"claim_type":"Patent infringement","defendant_revenue_usd":491200000,"outcome_type":"Settlement","award_usd":3920000},
+  {"case_name":"Brindle Harbor Group v. Dunmore Lattice Inc.","year":2010,"claim_type":"Trade secret misappropriation","defendant_revenue_usd":1000700000,"outcome_type":"Settlement","award_usd":7890000},
+  {"case_name":"Pruitt Power Systems v. Corbell Analytics Labs","year":2017,"claim_type":"Patent infringement","defendant_revenue_usd":1047800000,"outcome_type":"Judgment","award_usd":25500000},
+  {"case_name":"Galloway Motion Group v. Jessup Harbor Group","year":2018,"claim_type":"Patent infringement","defendant_revenue_usd":1187800000,"outcome_type":"Settlement","award_usd":4090000},
+  {"case_name":"Quillfeather Harbor Holdings v. Marrowgate Pharma Labs","year":2020,"claim_type":"Patent infringement","defendant_revenue_usd":4393700000,"outcome_type":"Settlement","award_usd":9290000},
+  {"case_name":"Marrowgate Lattice Labs v. Halvorsen Devices Co.","year":2014,"claim_type":"Breach of contract","defendant_revenue_usd":24883000000,"outcome_type":"Judgment","award_usd":197840000},
+  {"case_name":"Ibbotson Networks Labs v. Tessaly Thermal Systems","year":2019,"claim_type":"Patent infringement","defendant_revenue_usd":32374200000,"outcome_type":"Settlement","award_usd":76290000},
+  {"case_name":"Rowntree Coatings Co. v. Vantry Instruments Labs","year":2013,"claim_type":"Patent infringement","defendant_revenue_usd":48368000000,"outcome_type":"Settlement","award_usd":39930000},
+  {"case_name":"Pellam Devices Co. v. Tessaly Coatings Holdings","year":2022,"claim_type":"Trademark infringement","defendant_revenue_usd":54752200000,"outcome_type":"Judgment","award_usd":236600000},
+  {"case_name":"Kestrel Fabrication Holdings v. Mordaunt Harbor Inc.","year":2016,"claim_type":"Trade secret misappropriation","defendant_revenue_usd":80153800000,"outcome_type":"Settlement","award_usd":98440000},
+  {"case_name":"Rowntree Pharma Co. v. Corbell Dynamics Inc.","year":2010,"claim_type":"Patent infringement","defendant_revenue_usd":89056100000,"outcome_type":"Settlement","award_usd":42630000},
+  {"case_name":"Dunmore Networks Systems v. Quillfeather Power Holdings","year":2016,"claim_type":"Patent infringement","defendant_revenue_usd":145833000000,"outcome_type":"Judgment","award_usd":304410000}
+];
+
+const EXPOSURE_TREE = {
+  root: "notice",
+  /* Neutral terms: "payoff" is what the defendant would pay the plaintiff. The side toggle flips the sign. legal_spend_delta is the fees spent to reach that node (one side's own fees). */
+  nodes: {
+    notice:   { node_id: "notice", stage: "Notice", label: "Complaint served", legal_spend_delta: 30000,
+                children: [ { to: "early", label: "Settle early", branch_prob: 0.30, key: true }, { to: "mtd", label: "Fight on", branch_prob: 0.70 } ] },
+    early:    { node_id: "early", stage: "EarlySettlement", label: "Early settlement", legal_spend_delta: 50000, children: [], payoff_distribution: { type: "settlement" } },
+    mtd:      { node_id: "mtd", stage: "MTD", label: "Motion to dismiss decided", legal_spend_delta: 180000,
+                children: [ { to: "mtd_win", label: "Motion granted, case ends", branch_prob: 0.20, key: true }, { to: "disc", label: "Motion denied", branch_prob: 0.80 } ] },
+    mtd_win:  { node_id: "mtd_win", stage: "MTD", label: "Case dismissed", legal_spend_delta: 0, children: [], payoff_distribution: { type: "zero" } },
+    disc:     { node_id: "disc", stage: "Discovery", label: "Discovery", legal_spend_delta: 750000,
+                children: [ { to: "msj", label: "Proceed to summary judgment", branch_prob: 1.0 } ] },
+    msj:      { node_id: "msj", stage: "MSJ", label: "Summary judgment decided", legal_spend_delta: 250000,
+                children: [ { to: "msj_win", label: "Granted for defendant, case ends", branch_prob: 0.25, key: true }, { to: "trial", label: "Denied", branch_prob: 0.75 } ] },
+    msj_win:  { node_id: "msj_win", stage: "MSJ", label: "Judgment for defendant", legal_spend_delta: 0, children: [], payoff_distribution: { type: "zero" } },
+    trial:    { node_id: "trial", stage: "Trial", label: "Trial verdict", legal_spend_delta: 1100000,
+                children: [ { to: "trial_pl", label: "Plaintiff wins", branch_prob: 0.45, key: true }, { to: "trial_df", label: "Defendant wins", branch_prob: 0.55 } ] },
+    trial_pl: { node_id: "trial_pl", stage: "Trial", label: "Judgment for plaintiff", legal_spend_delta: 0, children: [], payoff_distribution: { type: "judgment" } },
+    trial_df: { node_id: "trial_df", stage: "Trial", label: "Judgment for defendant", legal_spend_delta: 0, children: [], payoff_distribution: { type: "zero" } }
+  }
+};
+
+const EXPOSURE_DATA = { caseInfo: EXPOSURE_CASE, comps: EXPOSURE_COMPS, tree: EXPOSURE_TREE };
+</script>
+<script>/* Prompt shared by the page (live runs) and run.js (recorded run). The model only reads the text; it does no arithmetic. */
+const EXPO_PROMPTS = {
+extract({ complaint }){
+return `You are a litigation paralegal reading a complaint or demand letter. Extract the case posture below. Do not estimate, calculate, convert or infer anything the text does not say. If the text does not state a field, use null (or an empty list, or applies:false) and give no quote for it.
+
+Every value must be backed by a verbatim quote copied character for character from the document, no more than about 40 words each. A quote that is not found word for word in the document will be thrown out, so do not paraphrase.
+
+Document:
+=== COMPLAINT ===
+${complaint}
+=== END ===
+
+Reply with ONLY a JSON object, no prose and no code fence, in this shape:
+{
+ "claim_count": integer number of separate counts or claims pleaded, or null,
+ "claim_types": ["short plain label per count, e.g. \\"direct patent infringement\\""],
+ "fee_shifting": { "applies": true or false (true only if the document invokes a fee-shifting statute or clause), "statute": "citation as written, or null", "quote": "verbatim sentence or null" },
+ "defendant_revenue_tier": one of "under $10M", "$10M-$100M", "$100M-$1B", "over $1B", "not stated" (use the stated revenue figure only; never guess from the company's industry),
+ "defendant_revenue_usd_if_stated": integer US dollars if the document states the defendant's revenue (write "$182 million" as 182000000), otherwise null,
+ "damages_demanded_usd": integer US dollars of the minimum or stated damages demanded, or null,
+ "quotes": [ { "field": "claim_count" | "claim_types" | "defendant_revenue" | "damages_demanded", "quote": "verbatim text from the document that supports that field" } ]
+}
+Give at least one quote for each of claim_count, claim_types, defendant_revenue and damages_demanded whenever its value is not null.`;
+}
+};
+</script>
+<script>/* All deterministic code for the Exposure Modeler: comps, tree checks, exact roll-up, seeded Monte Carlo, break-even, sensitivity.
+   Pure functions, no DOM. Shared by the page, run.js and test.js. */
+const EXPO = {
+
+/* ---------- comps ---------- */
+effectiveRate(c){ return c.award_usd / c.defendant_revenue_usd; },
+logRev(c){ return Math.log10(c.defendant_revenue_usd); },
+
+/* Comps within +-0.5 log10 of the defendant's revenue; widen to +-1 if fewer than 5. Reports which window was used. */
+matchComps(comps, revenue){
+  if (!(revenue > 0)) throw new Error("Defendant revenue must be a positive number.");
+  const L = Math.log10(revenue);
+  const within = w => comps.filter(c => Math.abs(EXPO.logRev(c) - L) <= w + 1e-12);
+  let window = 0.5, matched = within(0.5), widened = false;
+  if (matched.length < 5){ window = 1; widened = true; matched = within(1); }
+  const thin = matched.length < 5;
+  const note = widened
+    ? `Only ${within(0.5).length} comps within ±0.5 log10 of the revenue, so the window was widened to ±1.0 (${matched.length} comps).` + (thin ? " Still fewer than 5: treat the result as weak." : "")
+    : `${matched.length} comps within ±0.5 log10 of the revenue.`;
+  return { matched, window, widened, thin, note, log_revenue: L };
+},
+
+quantile(values, q){
+  if (!values.length) throw new Error("quantile of empty list");
+  const s = values.slice().sort((a, b) => a - b), pos = (s.length - 1) * q, lo = Math.floor(pos), hi = Math.ceil(pos);
+  return s[lo] + (s[hi] - s[lo]) * (pos - lo);
+},
+mean(values){ return values.reduce((a, b) => a + b, 0) / values.length; },
+
+/* Empirical rate pools from the matched comps. No parametric fit: simulation draws (bootstraps) a matched rate at random.
+   If one outcome type has no matched comps, that type falls back to all matched rates and the fallback is reported. */
+ratePools(matched){
+  const all = matched.map(EXPO.effectiveRate);
+  const by = t => matched.filter(c => c.outcome_type === t).map(EXPO.effectiveRate);
+  const pools = { settlement: by("Settlement"), judgment: by("Judgment") }, fallbacks = [];
+  for (const k of ["settlement", "judgment"]) if (!pools[k].length){ pools[k] = all.slice(); fallbacks.push(k); }
+  const stats = {};
+  for (const k of ["settlement", "judgment"]) stats[k] = { n: pools[k].length, p10: EXPO.quantile(pools[k], .1), p50: EXPO.quantile(pools[k], .5), p90: EXPO.quantile(pools[k], .9), mean: EXPO.mean(pools[k]) };
+  return { pools, fallbacks, stats };
+},
+
+/* Dollar payoff (what the defendant pays) for one terminal node, given a rate to apply. */
+payoffUsd(dist, rate, revenue, cap){
+  if (!dist || dist.type === "zero") return 0;
+  if (dist.type === "fixed") return dist.usd;
+  const v = rate * revenue;
+  return cap > 0 ? Math.min(v, cap) : v;
+},
+/* Expected payoff at a terminal: exact mean over the pool (so the roll-up matches what simulation converges to). */
+expectedPayoff(dist, pools, revenue, cap){
+  if (!dist || dist.type === "zero") return 0;
+  if (dist.type === "fixed") return dist.usd;
+  const pool = pools[dist.type];
+  if (!pool) throw new Error("Unknown payoff type: " + dist.type);
+  return EXPO.mean(pool.map(r => EXPO.payoffUsd(dist, r, revenue, cap)));
+},
+
+/* ---------- tree checks ---------- */
+validateTree(tree){
+  const errors = [], nodes = tree.nodes;
+  if (!nodes[tree.root]) return ["Root node \"" + tree.root + "\" does not exist."];
+  const seen = new Set();
+  const walk = (id, trail) => {
+    const n = nodes[id];
+    if (!n){ errors.push("Missing node \"" + id + "\"."); return; }
+    if (trail.includes(id)){ errors.push("Node \"" + id + "\" loops back to itself."); return; }
+    seen.add(id);
+    const kids = n.children || [];
+    if (kids.length){
+      const sum = kids.reduce((a, c) => a + c.branch_prob, 0);
+      if (kids.some(c => typeof c.branch_prob !== "number" || !Number.isFinite(c.branch_prob))) errors.push("Node \"" + id + "\" (" + n.stage + "): a branch probability is not a number.");
+      else if (kids.some(c => !(c.branch_prob >= 0 && c.branch_prob <= 1))) errors.push("Node \"" + id + "\" (" + n.stage + "): a branch probability is outside 0 to 1.");
+      if (Math.abs(sum - 1) > 1e-9) errors.push("Node \"" + id + "\" (" + n.stage + "): branch probabilities sum to " + sum.toFixed(4) + ", not 1.00.");
+      for (const c of kids) walk(c.to, trail.concat(id));
+    } else if (!n.payoff_distribution) errors.push("Terminal node \"" + id + "\" has no payoff_distribution.");
+  };
+  walk(tree.root, []);
+  return errors;
+},
+assertValid(tree){ const e = EXPO.validateTree(tree); if (e.length) throw new Error("Model refused to run: " + e.join(" ")); },
+
+/* Change one branch probability and renormalize its siblings in proportion (equal split if they were all 0). Returns a new tree. */
+setProb(tree, nodeId, childIdx, p){
+  const t = JSON.parse(JSON.stringify(tree)), kids = t.nodes[nodeId].children;
+  p = Math.min(1, Math.max(0, p));
+  const rest = kids.reduce((a, c, i) => i === childIdx ? a : a + c.branch_prob, 0), others = kids.length - 1;
+  kids.forEach((c, i) => {
+    if (i === childIdx) c.branch_prob = p;
+    else c.branch_prob = rest > 0 ? c.branch_prob * (1 - p) / rest : (others ? (1 - p) / others : 0);
+  });
+  return t;
+},
+
+/* ---------- exact roll-up ---------- */
+/* Returns expected payout (what the defendant pays) and expected legal spend, both positive numbers. */
+rollup(tree, pools, revenue, cap){
+  EXPO.assertValid(tree);
+  const go = id => {
+    const n = tree.nodes[id], kids = n.children || [];
+    let pay = 0, spend = 0;
+    if (!kids.length) pay = EXPO.expectedPayoff(n.payoff_distribution, pools, revenue, cap);
+    else for (const c of kids){ const r = go(c.to); pay += c.branch_prob * r.pay; spend += c.branch_prob * r.spend; }
+    return { pay, spend: spend + (n.legal_spend_delta || 0) };
+  };
+  return go(tree.root);
+},
+/* side: "plaintiff" receives the payout, "defendant" pays it. Both bear their own legal spend. */
+sign(side){ return side === "plaintiff" ? 1 : -1; },
+netEv(tree, pools, revenue, side, cap){
+  const r = EXPO.rollup(tree, pools, revenue, cap);
+  return EXPO.sign(side) * r.pay - r.spend;
+},
+
+/* ---------- seeded Monte Carlo ---------- */
+prng(seed){ let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; },
+
+simulate(tree, pools, revenue, side, { iterations = 10000, seed = 20261112, cap = 0 } = {}){
+  EXPO.assertValid(tree);
+  const rnd = EXPO.prng(seed), s = EXPO.sign(side), gross = new Array(iterations), net = new Array(iterations);
+  for (let i = 0; i < iterations; i++){
+    let id = tree.root, spend = 0, n = tree.nodes[id];
+    for (;;){
+      spend += n.legal_spend_delta || 0;
+      const kids = n.children || [];
+      if (!kids.length) break;
+      let u = rnd(), pick = kids[kids.length - 1];
+      for (const c of kids){ if (u < c.branch_prob){ pick = c; break; } u -= c.branch_prob; }
+      n = tree.nodes[pick.to];
+    }
+    const d = n.payoff_distribution; let rate = 0;
+    if (d && (d.type === "settlement" || d.type === "judgment")){ const pool = pools[d.type]; rate = pool[Math.floor(rnd() * pool.length)]; }
+    const pay = EXPO.payoffUsd(d, rate, revenue, cap);
+    gross[i] = s * pay; net[i] = s * pay - spend;
+  }
+  const q = (a, p) => EXPO.quantile(a, p);
+  return { iterations, seed, mean_gross: EXPO.mean(gross), mean_net: EXPO.mean(net),
+    gross: { p10: q(gross, .1), p50: q(gross, .5), p90: q(gross, .9) }, net: { p10: q(net, .1), p50: q(net, .5), p90: q(net, .9) } };
+},
+
+/* ---------- break-even and sensitivity ---------- */
+/* Settling now = paying (or receiving) S and spending only the notice-stage fees. Break-even S solves  sign*S - notice_spend = netEV. */
+breakEven(netEv, tree, side){
+  const root = tree.nodes[tree.root].legal_spend_delta || 0;
+  return EXPO.sign(side) * (netEv + root);
+},
+
+/* Key branch of each branching node moves +-delta (points of probability); siblings renormalize. Reports net EV at each end. */
+stageSensitivity(tree, pools, revenue, side, cap, delta = 0.10){
+  const base = EXPO.netEv(tree, pools, revenue, side, cap), out = [];
+  for (const id of Object.keys(tree.nodes)){
+    const n = tree.nodes[id], kids = n.children || [];
+    if (kids.length < 2) continue;
+    const idx = Math.max(0, kids.findIndex(c => c.key)), p = kids[idx].branch_prob;
+    const pLo = Math.max(0, p - delta), pHi = Math.min(1, p + delta);
+    const lo = EXPO.netEv(EXPO.setProb(tree, id, idx, pLo), pools, revenue, side, cap);
+    const hi = EXPO.netEv(EXPO.setProb(tree, id, idx, pHi), pools, revenue, side, cap);
+    out.push({ move_down: p - pLo, move_up: pHi - p, node_id: id, stage: n.stage, branch: kids[idx].label, prob: p, ev_if_down: lo, ev_if_up: hi, delta_down: lo - base, delta_up: hi - base, swing: Math.abs(hi - lo) });
+  }
+  return out.sort((a, b) => b.swing - a.swing);
+},
+
+/* ---------- the whole report ---------- */
+runModel({ tree, comps, revenue, side = "defendant", cap = 0, iterations = 10000, seed = 20261112 }){
+  EXPO.assertValid(tree);
+  const m = EXPO.matchComps(comps, revenue), rp = EXPO.ratePools(m.matched);
+  const roll = EXPO.rollup(tree, rp.pools, revenue, cap), s = EXPO.sign(side);
+  const sim = EXPO.simulate(tree, rp.pools, revenue, side, { iterations, seed, cap });
+  const net = s * roll.pay - roll.spend;
+  return { side, revenue, cap, match: m, rate_stats: rp.stats, fallbacks: rp.fallbacks,
+    p10: sim.net.p10, p50: sim.net.p50, p90: sim.net.p90, gross_bands: sim.gross,
+    expected_value: s * roll.pay, expected_legal_spend: roll.spend, net_of_fees_ev: net,
+    mc: sim, break_even_settlement: EXPO.breakEven(net, tree, side),
+    stage_sensitivity: EXPO.stageSensitivity(tree, rp.pools, revenue, side, cap) };
+},
+
+/* ---------- comps CSV (same columns as EXPOSURE_COMPS) ---------- */
+CSV_COLUMNS: ["case_name", "year", "claim_type", "defendant_revenue_usd", "outcome_type", "award_usd"],
+compsToCsv(comps){
+  const q = v => /[",\n]/.test(String(v)) ? '"' + String(v).replace(/"/g, '""') + '"' : String(v);
+  return [EXPO.CSV_COLUMNS.join(",")].concat(comps.map(c => EXPO.CSV_COLUMNS.map(k => q(c[k])).join(","))).join("\n");
+},
+csvToComps(text){
+  const rows = []; let row = [], cur = "", inQ = false;
+  for (let i = 0; i < text.length; i++){
+    const ch = text[i];
+    if (inQ){ if (ch === '"'){ if (text[i + 1] === '"'){ cur += '"'; i++; } else inQ = false; } else cur += ch; }
+    else if (ch === '"') inQ = true;
+    else if (ch === ","){ row.push(cur); cur = ""; }
+    else if (ch === "\n" || ch === "\r"){ if (ch === "\r" && text[i + 1] === "\n") i++; row.push(cur); cur = ""; if (row.some(x => x !== "")) rows.push(row); row = []; }
+    else cur += ch;
+  }
+  row.push(cur); if (row.some(x => x !== "")) rows.push(row);
+  if (!rows.length) throw new Error("The CSV is empty.");
+  const head = rows[0].map(h => h.trim());
+  const missing = EXPO.CSV_COLUMNS.filter(k => !head.includes(k));
+  if (missing.length) throw new Error("CSV is missing columns: " + missing.join(", "));
+  return rows.slice(1).map((r, i) => {
+    const o = {}; head.forEach((h, j) => o[h] = (r[j] || "").trim());
+    const c = { case_name: o.case_name, year: Number(o.year), claim_type: o.claim_type, defendant_revenue_usd: Number(o.defendant_revenue_usd), outcome_type: o.outcome_type, award_usd: Number(o.award_usd) };
+    if (!c.case_name || !(c.defendant_revenue_usd > 0) || !(c.award_usd >= 0) || !["Settlement", "Judgment"].includes(c.outcome_type)) throw new Error("CSV row " + (i + 2) + " is not a valid comp.");
+    return c;
+  });
+}
+};
+</script>
+<script>/* Word-for-word quote check for the extraction step (same approach as Testimony Check's verify.js). Shared by the page and run.js. */
+const EXPO_VERIFY = {
+norm(s){ return String(s || "").replace(/[‘’‛′]/g, "'").replace(/[“”″]/g, '"').replace(/[–—]/g, "-").replace(/…/g, "...").replace(/\s+/g, " ").trim().toLowerCase(); },
+find(quote, text){
+  if (!text || !quote) return false;
+  const q = EXPO_VERIFY.norm(quote).replace(/^["']|["']$/g, "").replace(/^\.\.\.\s*|\s*\.\.\.$/g, "");
+  const words = p => p.split(/\s+/).filter(Boolean).length;
+  if (words(q) < 5) return false;
+  const t = EXPO_VERIFY.norm(text);
+  if (t.includes(q)) return true;
+  /* an ellipsis may join two exact pieces, in order */
+  const parts = q.split(/\s*\.\.\.\s*|\s*\[\.\.\.\]\s*/).filter(Boolean);
+  if (parts.length < 2 || parts.some(p => words(p) < 3)) return false;
+  let at = 0;
+  for (const p of parts){ const i = t.indexOf(p, at); if (i < 0) return false; at = i + p.length; }
+  return true;
+},
+/* Every dollar figure in a string, as numbers: "$182 million" -> 182000000, "$1.2 billion" -> 1.2e9, "$14,200,000" -> 14200000. */
+dollars(s){
+  const mult = { thousand: 1e3, k: 1e3, million: 1e6, m: 1e6, mm: 1e6, billion: 1e9, b: 1e9, bn: 1e9, trillion: 1e12 }, out = [];
+  const re = /\$\s*(\d[\d,]*(?:\.\d+)?)(?:\s*(thousand|million|billion|trillion|mm|bn|k|m|b)\b)?/gi; let m;
+  while ((m = re.exec(String(s || "")))){ const v = Number(m[1].replace(/,/g, "")); if (Number.isFinite(v)) out.push(Math.round(v * (m[2] ? mult[m[2].toLowerCase()] : 1))); }
+  return out;
+},
+/* Number of "COUNT <roman numeral>" headings in the complaint, counted in code. */
+countClaims(text){
+  const seen = new Set(), re = /^[ \t]*COUNT[ \t]+([IVXLC]+)\b/gm; let m;
+  while ((m = re.exec(String(text || "")))) seen.add(m[1]);
+  return seen.size;
+},
+/* Schema check on whatever the model returned: numbers must be finite numbers (else null), quotes and claim_types must be arrays (else empty). */
+clean(r){
+  r = r && typeof r === "object" ? r : {};
+  const num = v => { if (v === null || v === undefined || v === "" || typeof v === "boolean") return null; const n = Number(v); return Number.isFinite(n) ? n : null; };
+  const fs = r.fee_shifting && typeof r.fee_shifting === "object" ? r.fee_shifting : {};
+  return { ...r,
+    claim_count: num(r.claim_count), defendant_revenue_usd_if_stated: num(r.defendant_revenue_usd_if_stated), damages_demanded_usd: num(r.damages_demanded_usd),
+    claim_types: Array.isArray(r.claim_types) ? r.claim_types.filter(x => typeof x === "string") : [],
+    quotes: Array.isArray(r.quotes) ? r.quotes.filter(q => q && typeof q === "object" && typeof q.quote === "string") : [],
+    fee_shifting: { applies: fs.applies === true, statute: typeof fs.statute === "string" ? fs.statute : null, quote: typeof fs.quote === "string" ? fs.quote : null },
+    defendant_revenue_tier: typeof r.defendant_revenue_tier === "string" ? r.defendant_revenue_tier : null };
+},
+MONEY_FIELDS: { defendant_revenue: "defendant_revenue_usd_if_stated", damages_demanded: "damages_demanded_usd" },
+FIELDS: ["claim_count", "claim_types", "fee_shifting", "defendant_revenue", "damages_demanded"],
+/* Which quotes back which field, and whether each is found in the complaint. A field is "verified" only if it has at least one quote and every quote is found. */
+checkAll(r, text){
+  r = EXPO_VERIFY.clean(r);
+  const quotes = [], list = Array.isArray(r.quotes) ? r.quotes : [];
+  for (const q of list) if (q && typeof q.quote === "string" && q.quote) quotes.push({ field: q.field, quote: q.quote });
+  if (r.fee_shifting && r.fee_shifting.quote) quotes.push({ field: "fee_shifting", quote: r.fee_shifting.quote });
+  const checked = quotes.map(q => ({ ...q, found: EXPO_VERIFY.find(q.quote, text) }));
+  const fields = {};
+  for (const f of EXPO_VERIFY.FIELDS){
+    const mine = checked.filter(q => q.field === f);
+    fields[f] = { verified: mine.length > 0 && mine.every(q => q.found), quotes: mine.length };
+    if (EXPO_VERIFY.MONEY_FIELDS[f]){
+      /* the model's number must equal the single dollar figure printed in a quote that was found word for word */
+      const val = r[EXPO_VERIFY.MONEY_FIELDS[f]];
+      const ok = typeof val === "number" && Number.isFinite(val) && mine.some(q => { if (!q.found) return false; const d = EXPO_VERIFY.dollars(q.quote); return d.length > 0 && d.every(x => x === Math.round(val)); });
+      fields[f].verified = ok && mine.every(q => q.found);
+    }
+  }
+  /* claim count comes from the complaint itself, never from the model */
+  const nClaims = EXPO_VERIFY.countClaims(text);
+  fields.claim_count = { verified: nClaims > 0, quotes: 0, value: nClaims };
+  return { claim_count: nClaims, total: checked.length, ok: checked.filter(q => q.found).length, misses: checked.filter(q => !q.found), fields };
+}
+};
+</script>
+<script>/* FJC Integrated Database (IDB) patent stage rates: row classification, aggregation, and conversion to tree probabilities.
+   Pure functions, no DOM, no I/O. Shared by fetch-idb.js (the importer), the page and test.js.
+   The mapping below is a judgment call. It is written out in sources/MAPPING.md and shown on the page. */
+const IDB = {
+
+/* Groups we keep. District codes are from the IDB civil codebook (DISTRICT field). */
+GROUPS: { national: { label: "National (all districts)" }, CACD: { label: "C.D. Cal.", code: "73" }, CAND: { label: "N.D. Cal.", code: "71" }, EDTX: { label: "E.D. Tex.", code: "40" }, DDE: { label: "D. Del.", code: "11" } },
+MIN_N: 30,
+
+/* Codebook codes (Civil Codebook 1988 Forward). */
+PROCPROG_LABELS: { "1": "Before issue joined: no court action", "2": "Before issue joined: order entered", "11": "Before issue joined: hearing held", "12": "Before issue joined: order decided", "3": "After issue joined: no court action", "4": "After issue joined: judgment on motion", "5": "After issue joined: pretrial conference held", "6": "During court trial", "7": "During jury trial", "8": "After court trial", "9": "After jury trial", "10": "Other", "13": "Request for trial de novo after arbitration" },
+DISP_LABELS: { "0": "Transfer to another district", "1": "Remanded to state court", "10": "MDL transfer", "11": "Remanded to U.S. agency", "2": "Dismissed: want of prosecution", "3": "Dismissed: lack of jurisdiction", "12": "Dismissed: voluntarily", "13": "Dismissed: settled", "14": "Dismissed: other", "4": "Judgment on: default", "5": "Judgment on: consent", "6": "Judgment on: motion before trial", "7": "Judgment on: jury verdict", "8": "Judgment on: directed verdict", "9": "Judgment on: court trial", "15": "Judgment on: award of arbitrator", "16": "Judgment on: stayed pending bankruptcy", "17": "Judgment on: other", "18": "Judgment on: statistical closing", "19": "Judgment on: appeal affirmed (magistrate)", "20": "Judgment on: appeal denied (magistrate)" },
+JUDGMENT_LABELS: { "1": "plaintiff", "2": "defendant", "3": "both", "4": "unknown", "0": "missing", "-8": "missing" },
+
+PRE_ANSWER: ["1", "2", "11", "12"],
+POST_ANSWER: ["3", "4", "5", "6", "7", "8", "9", "13"],
+EXCLUDED_DISP: { "0": "transfer_remand_mdl_agency", "1": "transfer_remand_mdl_agency", "10": "transfer_remand_mdl_agency", "11": "transfer_remand_mdl_agency", "16": "stayed_bankruptcy", "18": "statistical_closing", "19": "magistrate_appeal", "20": "magistrate_appeal" },
+
+/* Terminal leaves. Each kept case lands in exactly one. */
+LEAVES: ["early_settle", "mtd_dismiss", "disc_settle", "msj_win", "msj_pl", "trial_pl", "trial_df"],
+
+/* Returns { leaf } for a case that maps to a tree stage, or { skip: reason } for a case that cannot be placed.
+   Rules (see sources/MAPPING.md):
+   - PROCPROG says whether the case ended before the defendant answered. PROCPROG 10 ("Other") and missing cannot be placed.
+   - Before answer: settled/voluntary/consent/other dismissal -> early_settle; want of prosecution, lack of jurisdiction, or a contested
+     motion (not for the plaintiff) -> mtd_dismiss. Anything else is skipped.
+   - After answer: settled/voluntary/consent/other dismissal/want of prosecution -> disc_settle; lack of jurisdiction -> msj_win;
+     judgment on motion before trial by judgment-for (defendant -> msj_win, plaintiff -> msj_pl); jury verdict, directed verdict or
+     court trial by judgment-for (plaintiff -> trial_pl, defendant -> trial_df). Anything else (default, arbitrator, other judgment,
+     judgment-for both/unknown/missing) is skipped. */
+classify(procprog, disp, judgment){
+  const pp = String(procprog), d = String(disp), j = String(judgment);
+  if (Object.prototype.hasOwnProperty.call(IDB.EXCLUDED_DISP, d)) return { skip: IDB.EXCLUDED_DISP[d] };
+  if (!IDB.DISP_LABELS[d]) return { skip: "disp_missing" };
+  const pre = IDB.PRE_ANSWER.includes(pp), post = IDB.POST_ANSWER.includes(pp);
+  if (!pre && !post) return { skip: "stage_unknown" };
+  const settleish = ["12", "13", "5", "14"].includes(d);
+  if (pre){
+    if (settleish) return { leaf: "early_settle" };
+    if (d === "2" || d === "3") return { leaf: "mtd_dismiss" };
+    if (d === "6") return j === "1" ? { skip: "unmapped_outcome" } : { leaf: "mtd_dismiss" };
+    return { skip: "unmapped_outcome" };
+  }
+  if (settleish || d === "2") return { leaf: "disc_settle" };
+  if (d === "3") return { leaf: "msj_win" };
+  if (d === "6") return j === "2" ? { leaf: "msj_win" } : j === "1" ? { leaf: "msj_pl" } : { skip: "unmapped_outcome" };
+  if (d === "7" || d === "8" || d === "9") return j === "1" ? { leaf: "trial_pl" } : j === "2" ? { leaf: "trial_df" } : { skip: "unmapped_outcome" };
+  return { skip: "unmapped_outcome" };
+},
+
+/* ---------- aggregation ---------- */
+newGroup(){
+  return { n_terminated: 0, disp: {}, procprog: {}, judgment_all: {}, judgment_when_judgment_disp: {}, skipped: {}, leaves: {}, n_mapped: 0,
+           demanded_vals: [], demanded_blank: 0, amtrec_vals: [], amtrec_plaintiff_judgments: 0 };
+},
+newAgg(){ const a = {}; for (const k of Object.keys(IDB.GROUPS)) a[k] = IDB.newGroup(); return a; },
+bump(o, k){ o[k] = (o[k] || 0) + 1; },
+
+/* A raw IDB row (object keyed by the codebook field names, all strings) counts if it is a patent case (NOS 830), a terminated record
+   (STATUSCD L) with a termination date in or after fromYear. Returns true if the row was counted. */
+addRow(agg, r, fromYear = 2010){
+  if (String(r.NOS).trim() !== "830" || String(r.STATUSCD).trim() !== "L") return false;
+  const m = /(\d{4})\s*$/.exec(String(r.TERMDATE || "").trim());
+  if (!m || Number(m[1]) < fromYear) return false;
+  const groups = ["national"];
+  for (const k of Object.keys(IDB.GROUPS)) if (IDB.GROUPS[k].code && String(r.DISTRICT).trim() === IDB.GROUPS[k].code) groups.push(k);
+  const pp = String(r.PROCPROG).trim(), d = String(r.DISP).trim(), j = String(r.JUDGMENT).trim() || "-8";
+  const c = IDB.classify(pp, d, j);
+  const dem = Number(String(r.DEMANDED).trim()), amt = Number(String(r.AMTREC).trim());
+  const judgmentDisp = ["4", "5", "6", "7", "8", "9", "15", "17"].includes(d);
+  for (const g of groups){
+    const G = agg[g];
+    G.n_terminated++; IDB.bump(G.disp, d); IDB.bump(G.procprog, pp || "blank"); IDB.bump(G.judgment_all, j);
+    if (judgmentDisp) IDB.bump(G.judgment_when_judgment_disp, j);
+    if (c.leaf){ G.n_mapped++; IDB.bump(G.leaves, c.leaf); } else IDB.bump(G.skipped, c.skip);
+    if (Number.isFinite(dem) && dem > 0) G.demanded_vals.push(dem); else G.demanded_blank++;
+    if (j === "1"){
+      G.amtrec_plaintiff_judgments++;
+      if (Number.isFinite(amt) && amt > 0) G.amtrec_vals.push(amt);
+    }
+  }
+  return true;
+},
+
+quantile(sorted, q){ const pos = (sorted.length - 1) * q, lo = Math.floor(pos), hi = Math.ceil(pos); return sorted[lo] + (sorted[hi] - sorted[lo]) * (pos - lo); },
+/* Amount fields are in thousands of dollars. Demanded: under $500 is coded 1, over $10,000 (thousand) is coded 9999. */
+summarizeAmounts(vals, denominator){
+  const s = vals.slice().sort((a, b) => a - b), n = s.length;
+  const base = { filled: n, of: denominator, fill_rate: denominator ? n / denominator : 0, units: "thousands of dollars" };
+  if (!n) return base;
+  return Object.assign(base, { at_cap_9999: s.filter(v => v === 9999).length, at_floor_1: s.filter(v => v === 1).length,
+    p25_k: IDB.quantile(s, .25), p50_k: IDB.quantile(s, .5), p75_k: IDB.quantile(s, .75) });
+},
+
+/* Turns an aggregation into the JSON shape saved in sources/idb-patent-stage-rates.json (no raw value arrays). */
+finish(agg){
+  const out = {};
+  for (const [k, G] of Object.entries(agg)){
+    const o = { label: IDB.GROUPS[k].label, n_terminated: G.n_terminated, n_mapped: G.n_mapped, leaves: G.leaves, skipped: G.skipped,
+      disposition_counts: G.disp, procedural_progress_counts: G.procprog, judgment_for_all: G.judgment_all, judgment_for_when_disposed_by_judgment: G.judgment_when_judgment_disp,
+      demanded: IDB.summarizeAmounts(G.demanded_vals, G.n_terminated), amount_received_plaintiff_judgments: IDB.summarizeAmounts(G.amtrec_vals, G.amtrec_plaintiff_judgments) };
+    out[k] = o;
+  }
+  return out;
+},
+
+/* ---------- counts -> conditional probabilities at each node ---------- */
+/* Sequential denominators follow the tree. Returns { n, nodes: {notice, mtd, disc, msj, trial}, thin: [...] , tooFew }.
+   Each node has { n, probs: {...} } with probs summing to 1. A node with n = 0 has no estimate (probs null). */
+nodeCounts(leaves){
+  const L = k => leaves[k] || 0;
+  const E = L("early_settle"), M = L("mtd_dismiss"), S = L("disc_settle"), W = L("msj_win"), P = L("msj_pl"), TP = L("trial_pl"), TD = L("trial_df");
+  const T = E + M + S + W + P + TP + TD, afterEarly = T - E, afterMtd = afterEarly - M, afterDisc = afterMtd - S, afterMsj = afterDisc - W - P, atTrial = TP + TD;
+  return { total: T, notice: { n: T, early: E, fight: afterEarly }, mtd: { n: afterEarly, win: M, cont: afterMtd }, disc: { n: afterMtd, settle: S, cont: afterDisc },
+           msj: { n: afterDisc, win: W, pl: P, trial: afterMsj }, trial: { n: atTrial, pl: TP, df: TD } };
+},
+
+tooFew(n){ return n < IDB.MIN_N; },
+
+/* Builds a tree from a base tree plus one group's leaf counts. A node with no data (n = 0) keeps its base probabilities and is reported
+   in `fallback`. The derived tree adds two branches the base tree lacks: "Settled or dropped during discovery" (from Discovery) and
+   "Summary judgment for plaintiff" (from MSJ). Returns { tree, n, nodes, thin_nodes, fallback, too_few }. */
+treeFromCounts(base, leaves){
+  const C = IDB.nodeCounts(leaves), t = JSON.parse(JSON.stringify(base)), N = t.nodes, fallback = [], thin = [];
+  const set = (id, probs) => { N[id].children.forEach((c, i) => c.branch_prob = probs[i]); };
+  const stage = (id, label, n, probs) => { if (!n){ fallback.push(label); return false; } if (IDB.tooFew(n)) thin.push({ node: label, n }); set(id, probs); return true; };
+
+  N.disc.children = [ { to: "disc_settle", label: "Settled or dropped during discovery", branch_prob: 0, key: true }, { to: "msj", label: "Proceed to summary judgment", branch_prob: 1 } ];
+  N.disc_settle = { node_id: "disc_settle", stage: "Discovery", label: "Settled or dropped in discovery", legal_spend_delta: 0, children: [], payoff_distribution: { type: "settlement" } };
+  const baseMsj = base.nodes.msj.children;
+  N.msj.children = [ { to: "msj_win", label: "Granted for defendant, case ends", branch_prob: baseMsj[0].branch_prob, key: true }, { to: "msj_pl", label: "Granted for plaintiff, case ends", branch_prob: 0 }, { to: "trial", label: "Denied", branch_prob: baseMsj[1].branch_prob } ];
+  N.msj_pl = { node_id: "msj_pl", stage: "MSJ", label: "Judgment for plaintiff", legal_spend_delta: 0, children: [], payoff_distribution: { type: "judgment" } };
+  N.mtd.children[0].label = "Dismissed before answer, case ends";
+  N.mtd_win.label = "Case dismissed before answer";
+
+  /* A node with no data keeps its base probabilities; the two added branches then sit at 0, so the tree still sums to 1. */
+  const okN = stage("notice", "Notice", C.notice.n, [C.notice.early / C.notice.n, C.notice.fight / C.notice.n]);
+  const okM = stage("mtd", "MTD", C.mtd.n, [C.mtd.win / C.mtd.n, C.mtd.cont / C.mtd.n]);
+  const okD = stage("disc", "Discovery", C.disc.n, [C.disc.settle / C.disc.n, C.disc.cont / C.disc.n]);
+  const okS = stage("msj", "MSJ", C.msj.n, [C.msj.win / C.msj.n, C.msj.pl / C.msj.n, C.msj.trial / C.msj.n]);
+  const okT = stage("trial", "Trial", C.trial.n, [C.trial.pl / C.trial.n, C.trial.df / C.trial.n]);
+  return { tree: t, n: C.total, counts: C, thin_nodes: thin, fallback, too_few: IDB.tooFew(C.total), complete: okN && okM && okD && okS && okT };
+}
+};
+</script>
+<script>const IDB_RATES = {
+ "provenance": {
+  "source": "Federal Judicial Center, Integrated Database (IDB), Civil Cases Cumulative File (terminated SY1988 through the file date, plus pending)",
+  "source_page": "https://www.fjc.gov/research/idb/civil-cases-filed-terminated-and-pending-sy-1988-present",
+  "source_url": "https://www.fjc.gov/sites/default/files/idb/textfiles/cv88on.zip",
+  "file_name": "cv88on.zip (contains cv88on.txt, tab-delimited with header)",
+  "file_size_bytes": 329665474,
+  "sha256": "74405231a9a3c246c7090d471a1525924fa5afb513ff22b4dc0f4babbac7223d",
+  "last_modified_header": "Wed, 26 Aug 2026 15:28:04 GMT (from the HEAD request made before download; HEAD content-length 329665474 matched the downloaded file)",
+  "download_date": "2026-11-12",
+  "codebook_url": "https://www.fjc.gov/sites/default/files/idb/codebooks/Civil%20Codebook%201988%20Forward%2010252023.pdf",
+  "codebook_note": "Civil Codebook 1988 Forward, version dated 10/25/2023 in its file name",
+  "filter": "NOS = 830 (Patent), STATUSCD = L (terminated record), TERMDATE year >= 2010. NOS 835 (patent ANDA) is NOT included.",
+  "row_counts": {
+   "rows_read": 10960173,
+   "nos_830_rows_all_years_and_statuses": 119739,
+   "kept_patent_terminated_since_2010": 69444
+  },
+  "refetch": "node fetch-idb.js   (HEADs the file, refuses over 2 GB, streams it through unzip -p, rewrites this JSON, deletes the download)",
+  "raw_file_kept": false,
+  "mapping": "see sources/MAPPING.md",
+  "unzipped_size_bytes": 2009227701
+ },
+ "code_to_label": {
+  "procedural_progress": {
+   "1": "Before issue joined: no court action",
+   "2": "Before issue joined: order entered",
+   "3": "After issue joined: no court action",
+   "4": "After issue joined: judgment on motion",
+   "5": "After issue joined: pretrial conference held",
+   "6": "During court trial",
+   "7": "During jury trial",
+   "8": "After court trial",
+   "9": "After jury trial",
+   "10": "Other",
+   "11": "Before issue joined: hearing held",
+   "12": "Before issue joined: order decided",
+   "13": "Request for trial de novo after arbitration"
+  },
+  "disposition": {
+   "0": "Transfer to another district",
+   "1": "Remanded to state court",
+   "2": "Dismissed: want of prosecution",
+   "3": "Dismissed: lack of jurisdiction",
+   "4": "Judgment on: default",
+   "5": "Judgment on: consent",
+   "6": "Judgment on: motion before trial",
+   "7": "Judgment on: jury verdict",
+   "8": "Judgment on: directed verdict",
+   "9": "Judgment on: court trial",
+   "10": "MDL transfer",
+   "11": "Remanded to U.S. agency",
+   "12": "Dismissed: voluntarily",
+   "13": "Dismissed: settled",
+   "14": "Dismissed: other",
+   "15": "Judgment on: award of arbitrator",
+   "16": "Judgment on: stayed pending bankruptcy",
+   "17": "Judgment on: other",
+   "18": "Judgment on: statistical closing",
+   "19": "Judgment on: appeal affirmed (magistrate)",
+   "20": "Judgment on: appeal denied (magistrate)"
+  },
+  "judgment_for": {
+   "0": "missing",
+   "1": "plaintiff",
+   "2": "defendant",
+   "3": "both",
+   "4": "unknown",
+   "-8": "missing"
+  },
+  "districts": {
+   "CACD": {
+    "idb_district_code": "73",
+    "label": "C.D. Cal."
+   },
+   "CAND": {
+    "idb_district_code": "71",
+    "label": "N.D. Cal."
+   },
+   "EDTX": {
+    "idb_district_code": "40",
+    "label": "E.D. Tex."
+   },
+   "DDE": {
+    "idb_district_code": "11",
+    "label": "D. Del."
+   }
+  }
+ },
+ "mapping": {
+  "pre_answer_procprog": [
+   "1",
+   "2",
+   "11",
+   "12"
+  ],
+  "post_answer_procprog": [
+   "3",
+   "4",
+   "5",
+   "6",
+   "7",
+   "8",
+   "9",
+   "13"
+  ],
+  "stage_unknown_procprog": "10 (Other), blank, -8, 0",
+  "excluded_disp": {
+   "0": "transfer_remand_mdl_agency",
+   "1": "transfer_remand_mdl_agency",
+   "10": "transfer_remand_mdl_agency",
+   "11": "transfer_remand_mdl_agency",
+   "16": "stayed_bankruptcy",
+   "18": "statistical_closing",
+   "19": "magistrate_appeal",
+   "20": "magistrate_appeal"
+  },
+  "leaves": [
+   "early_settle",
+   "mtd_dismiss",
+   "disc_settle",
+   "msj_win",
+   "msj_pl",
+   "trial_pl",
+   "trial_df"
+  ],
+  "rules": "see classify() in idb.js and sources/MAPPING.md"
+ },
+ "groups": {
+  "national": {
+   "label": "National (all districts)",
+   "n_terminated": 69444,
+   "n_mapped": 43804,
+   "leaves": {
+    "early_settle": 27326,
+    "disc_settle": 12664,
+    "mtd_dismiss": 834,
+    "trial_df": 346,
+    "msj_win": 1796,
+    "trial_pl": 580,
+    "msj_pl": 258
+   },
+   "skipped": {
+    "transfer_remand_mdl_agency": 3697,
+    "statistical_closing": 4588,
+    "stage_unknown": 14988,
+    "stayed_bankruptcy": 60,
+    "unmapped_outcome": 2304,
+    "magistrate_appeal": 3
+   },
+   "disposition_counts": {
+    "0": 3150,
+    "1": 149,
+    "2": 392,
+    "3": 320,
+    "4": 885,
+    "5": 1224,
+    "6": 2808,
+    "7": 792,
+    "8": 19,
+    "9": 421,
+    "10": 289,
+    "11": 109,
+    "12": 22439,
+    "13": 16886,
+    "14": 13696,
+    "15": 2,
+    "16": 60,
+    "17": 1212,
+    "18": 4588,
+    "19": 2,
+    "20": 1
+   },
+   "procedural_progress_counts": {
+    "1": 19044,
+    "2": 12789,
+    "3": 4211,
+    "4": 4700,
+    "5": 8081,
+    "6": 8,
+    "7": 51,
+    "8": 622,
+    "9": 883,
+    "10": 17355,
+    "11": 229,
+    "12": 1468,
+    "13": 3
+   },
+   "judgment_for_all": {
+    "0": 59848,
+    "1": 2793,
+    "2": 3165,
+    "3": 683,
+    "4": 722,
+    "-8": 2233
+   },
+   "judgment_for_when_disposed_by_judgment": {
+    "1": 2793,
+    "2": 3165,
+    "3": 683,
+    "4": 722
+   },
+   "demanded": {
+    "filled": 1407,
+    "of": 69444,
+    "fill_rate": 0.020260929669949888,
+    "units": "thousands of dollars",
+    "at_cap_9999": 476,
+    "at_floor_1": 7,
+    "p25_k": 75,
+    "p50_k": 999,
+    "p75_k": 9999
+   },
+   "amount_received_plaintiff_judgments": {
+    "filled": 553,
+    "of": 2793,
+    "fill_rate": 0.19799498746867167,
+    "units": "thousands of dollars",
+    "at_cap_9999": 178,
+    "at_floor_1": 21,
+    "p25_k": 116,
+    "p50_k": 1250,
+    "p75_k": 9999
+   }
+  },
+  "CACD": {
+   "label": "C.D. Cal.",
+   "n_terminated": 4874,
+   "n_mapped": 2829,
+   "leaves": {
+    "disc_settle": 462,
+    "early_settle": 2083,
+    "msj_win": 107,
+    "mtd_dismiss": 113,
+    "msj_pl": 22,
+    "trial_df": 19,
+    "trial_pl": 23
+   },
+   "skipped": {
+    "stage_unknown": 1397,
+    "statistical_closing": 258,
+    "unmapped_outcome": 199,
+    "transfer_remand_mdl_agency": 183,
+    "stayed_bankruptcy": 8
+   },
+   "disposition_counts": {
+    "0": 165,
+    "1": 14,
+    "2": 41,
+    "3": 35,
+    "4": 63,
+    "5": 94,
+    "6": 258,
+    "7": 35,
+    "9": 10,
+    "10": 4,
+    "12": 1495,
+    "13": 1260,
+    "14": 966,
+    "16": 8,
+    "17": 168,
+    "18": 258
+   },
+   "procedural_progress_counts": {
+    "1": 1582,
+    "2": 804,
+    "3": 313,
+    "4": 289,
+    "5": 72,
+    "7": 2,
+    "8": 17,
+    "9": 52,
+    "10": 1574,
+    "11": 26,
+    "12": 142,
+    "13": 1
+   },
+   "judgment_for_all": {
+    "0": 4055,
+    "1": 272,
+    "2": 286,
+    "3": 44,
+    "4": 26,
+    "-8": 191
+   },
+   "judgment_for_when_disposed_by_judgment": {
+    "1": 272,
+    "2": 286,
+    "3": 44,
+    "4": 26
+   },
+   "demanded": {
+    "filled": 219,
+    "of": 4874,
+    "fill_rate": 0.0449322938038572,
+    "units": "thousands of dollars",
+    "at_cap_9999": 28,
+    "at_floor_1": 2,
+    "p25_k": 75,
+    "p50_k": 500,
+    "p75_k": 1650
+   },
+   "amount_received_plaintiff_judgments": {
+    "filled": 51,
+    "of": 272,
+    "fill_rate": 0.1875,
+    "units": "thousands of dollars",
+    "at_cap_9999": 7,
+    "at_floor_1": 2,
+    "p25_k": 15,
+    "p50_k": 110,
+    "p75_k": 1299.5
+   }
+  },
+  "CAND": {
+   "label": "N.D. Cal.",
+   "n_terminated": 3426,
+   "n_mapped": 2534,
+   "leaves": {
+    "disc_settle": 986,
+    "msj_win": 326,
+    "early_settle": 1074,
+    "trial_df": 21,
+    "mtd_dismiss": 75,
+    "msj_pl": 27,
+    "trial_pl": 25
+   },
+   "skipped": {
+    "magistrate_appeal": 1,
+    "stage_unknown": 399,
+    "unmapped_outcome": 206,
+    "statistical_closing": 192,
+    "transfer_remand_mdl_agency": 92,
+    "stayed_bankruptcy": 2
+   },
+   "disposition_counts": {
+    "0": 75,
+    "1": 11,
+    "2": 16,
+    "3": 18,
+    "4": 18,
+    "5": 49,
+    "6": 498,
+    "7": 53,
+    "9": 5,
+    "10": 6,
+    "12": 1402,
+    "13": 712,
+    "14": 278,
+    "16": 2,
+    "17": 90,
+    "18": 192,
+    "20": 1
+   },
+   "procedural_progress_counts": {
+    "1": 813,
+    "2": 436,
+    "3": 93,
+    "4": 173,
+    "5": 1309,
+    "6": 1,
+    "7": 2,
+    "8": 10,
+    "9": 51,
+    "10": 480,
+    "11": 9,
+    "12": 49
+   },
+   "judgment_for_all": {
+    "0": 2593,
+    "1": 104,
+    "2": 474,
+    "3": 108,
+    "4": 27,
+    "-8": 120
+   },
+   "judgment_for_when_disposed_by_judgment": {
+    "1": 104,
+    "2": 474,
+    "3": 108,
+    "4": 27
+   },
+   "demanded": {
+    "filled": 74,
+    "of": 3426,
+    "fill_rate": 0.021599532983070636,
+    "units": "thousands of dollars",
+    "at_cap_9999": 32,
+    "at_floor_1": 0,
+    "p25_k": 398,
+    "p50_k": 2000,
+    "p75_k": 9999
+   },
+   "amount_received_plaintiff_judgments": {
+    "filled": 21,
+    "of": 104,
+    "fill_rate": 0.20192307692307693,
+    "units": "thousands of dollars",
+    "at_cap_9999": 10,
+    "at_floor_1": 0,
+    "p25_k": 405,
+    "p50_k": 7655,
+    "p75_k": 9999
+   }
+  },
+  "EDTX": {
+   "label": "E.D. Tex.",
+   "n_terminated": 15685,
+   "n_mapped": 9509,
+   "leaves": {
+    "mtd_dismiss": 11,
+    "trial_pl": 69,
+    "disc_settle": 1486,
+    "trial_df": 41,
+    "msj_win": 18,
+    "early_settle": 7880,
+    "msj_pl": 4
+   },
+   "skipped": {
+    "stage_unknown": 3171,
+    "transfer_remand_mdl_agency": 755,
+    "statistical_closing": 1932,
+    "unmapped_outcome": 318
+   },
+   "disposition_counts": {
+    "0": 725,
+    "1": 4,
+    "2": 5,
+    "3": 4,
+    "4": 22,
+    "5": 25,
+    "6": 62,
+    "7": 194,
+    "8": 1,
+    "9": 10,
+    "10": 23,
+    "11": 3,
+    "12": 3370,
+    "13": 2003,
+    "14": 7074,
+    "17": 228,
+    "18": 1932
+   },
+   "procedural_progress_counts": {
+    "1": 5894,
+    "2": 4143,
+    "3": 424,
+    "4": 1165,
+    "5": 203,
+    "6": 3,
+    "7": 6,
+    "8": 31,
+    "9": 173,
+    "10": 3609,
+    "11": 2,
+    "12": 32
+   },
+   "judgment_for_all": {
+    "0": 14898,
+    "1": 111,
+    "2": 72,
+    "3": 7,
+    "4": 352,
+    "-8": 245
+   },
+   "judgment_for_when_disposed_by_judgment": {
+    "1": 111,
+    "2": 72,
+    "3": 7,
+    "4": 352
+   },
+   "demanded": {
+    "filled": 26,
+    "of": 15685,
+    "fill_rate": 0.0016576346828179789,
+    "units": "thousands of dollars",
+    "at_cap_9999": 3,
+    "at_floor_1": 0,
+    "p25_k": 75,
+    "p50_k": 750,
+    "p75_k": 1000
+   },
+   "amount_received_plaintiff_judgments": {
+    "filled": 32,
+    "of": 111,
+    "fill_rate": 0.2882882882882883,
+    "units": "thousands of dollars",
+    "at_cap_9999": 14,
+    "at_floor_1": 0,
+    "p25_k": 2163.5,
+    "p50_k": 6375,
+    "p75_k": 9999
+   }
+  },
+  "DDE": {
+   "label": "D. Del.",
+   "n_terminated": 10678,
+   "n_mapped": 6556,
+   "leaves": {
+    "disc_settle": 2257,
+    "trial_pl": 181,
+    "trial_df": 83,
+    "msj_win": 219,
+    "early_settle": 3748,
+    "msj_pl": 12,
+    "mtd_dismiss": 56
+   },
+   "skipped": {
+    "unmapped_outcome": 171,
+    "stage_unknown": 3039,
+    "statistical_closing": 541,
+    "transfer_remand_mdl_agency": 364,
+    "stayed_bankruptcy": 7
+   },
+   "disposition_counts": {
+    "0": 338,
+    "1": 5,
+    "2": 37,
+    "3": 41,
+    "4": 27,
+    "5": 291,
+    "6": 242,
+    "7": 136,
+    "8": 6,
+    "9": 233,
+    "10": 19,
+    "11": 2,
+    "12": 3757,
+    "13": 3719,
+    "14": 1182,
+    "16": 7,
+    "17": 95,
+    "18": 541
+   },
+   "procedural_progress_counts": {
+    "1": 2216,
+    "2": 1571,
+    "3": 1094,
+    "4": 356,
+    "5": 1249,
+    "6": 1,
+    "7": 6,
+    "8": 293,
+    "9": 184,
+    "10": 3431,
+    "11": 20,
+    "12": 257
+   },
+   "judgment_for_all": {
+    "0": 9495,
+    "1": 352,
+    "2": 441,
+    "3": 164,
+    "4": 73,
+    "-8": 153
+   },
+   "judgment_for_when_disposed_by_judgment": {
+    "1": 352,
+    "2": 441,
+    "3": 164,
+    "4": 73
+   },
+   "demanded": {
+    "filled": 13,
+    "of": 10678,
+    "fill_rate": 0.0012174564525191983,
+    "units": "thousands of dollars",
+    "at_cap_9999": 4,
+    "at_floor_1": 0,
+    "p25_k": 75,
+    "p50_k": 75,
+    "p75_k": 9999
+   },
+   "amount_received_plaintiff_judgments": {
+    "filled": 33,
+    "of": 352,
+    "fill_rate": 0.09375,
+    "units": "thousands of dollars",
+    "at_cap_9999": 20,
+    "at_floor_1": 0,
+    "p25_k": 2400,
+    "p50_k": 9999,
+    "p75_k": 9999
+   }
+  }
+ }
+};</script>
+<script>const EXPO_RECORDED = {
+ "model": "claude-sonnet-5-5",
+ "recordedAt": "2026-11-12",
+ "secs": 14,
+ "result": {
+  "claim_count": 3,
+  "claim_types": [
+   "direct patent infringement",
+   "induced patent infringement",
+   "willful patent infringement and enhanced damages"
+  ],
+  "fee_shifting": {
+   "applies": true,
+   "statute": "35 U.S.C. section 285",
+   "quote": "This is an exceptional case under 35 U.S.C. section 285, and Kestrel is entitled to recover its reasonable attorneys' fees."
+  },
+  "defendant_revenue_tier": "$100M-$1B",
+  "defendant_revenue_usd_if_stated": 182000000,
+  "damages_demanded_usd": 14200000,
+  "quotes": [
+   {
+    "field": "claim_count",
+    "quote": "COUNT I: DIRECT INFRINGEMENT (35 U.S.C. section 271(a))"
+   },
+   {
+    "field": "claim_count",
+    "quote": "COUNT II: INDUCED INFRINGEMENT (35 U.S.C. section 271(b))"
+   },
+   {
+    "field": "claim_count",
+    "quote": "COUNT III: WILLFUL INFRINGEMENT AND ENHANCED DAMAGES (35 U.S.C. section 284)"
+   },
+   {
+    "field": "claim_types",
+    "quote": "Orvane has directly infringed at least Claim 1 of the '412 Patent by making, using, selling and offering to sell the Accused Products in the United States."
+   },
+   {
+    "field": "claim_types",
+    "quote": "Orvane instructs its installers and customers, through its published setup guides, to configure the Accused Products in a manner that practices Claim 1."
+   },
+   {
+    "field": "claim_types",
+    "quote": "Orvane's infringement has been willful."
+   },
+   {
+    "field": "defendant_revenue",
+    "quote": "In its most recent annual report, Orvane reported annual revenue of approximately $182 million."
+   },
+   {
+    "field": "damages_demanded",
+    "quote": "award Kestrel damages of not less than $14,200,000, representing a reasonable royalty on Orvane's sales of the Accused Products since March 2023"
+   }
+  ]
+ },
+ "check": {
+  "total": 9,
+  "ok": 9,
+  "fields": {
+   "claim_count": {
+    "verified": true,
+    "quotes": 3
+   },
+   "claim_types": {
+    "verified": true,
+    "quotes": 3
+   },
+   "fee_shifting": {
+    "verified": true,
+    "quotes": 1
+   },
+   "defendant_revenue": {
+    "verified": true,
+    "quotes": 1
+   },
+   "damages_demanded": {
+    "verified": true,
+    "quotes": 1
+   }
+  }
+ }
+};</script>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const clone = o => JSON.parse(JSON.stringify(o));
+let sample = null, downloads = null;
+const MODEL = "claude-sonnet-5-5";
+
+const state = {
+  side: "defendant", tree: clone(EXPOSURE_TREE), comps: EXPOSURE_COMPS.slice(), compsLabel: "built-in fictional comps",
+  extract: EXPO_RECORDED.result, extractLabel: "recorded run on Sonnet 5.5",
+  revenue: null, demand: null, confirmed: {}, useCap: true, report: null, error: null, sel: EXPOSURE_TREE.root, stats: null, samples: null,
+  rates: "demo", ratesInfo: null
+};
+/* The tree "Reset" returns to: the fictional demo tree, or the tree built from the chosen court's real counts. */
+const baseTree = () => state.rates === "demo" ? clone(EXPOSURE_TREE) : clone(state.ratesInfo.tree);
+
+/* ---------- formatting ---------- */
+function money(n, opt = {}){
+  const a = Math.abs(n), sign = n < 0 ? "−" : (opt.plus && n > 0 ? "+" : "");
+  let s;
+  if (a >= 1e12) s = (a / 1e12).toFixed(1) + "T"; else if (a >= 1e9) s = (a / 1e9).toFixed(2) + "B"; else if (a >= 1e6) s = (a / 1e6).toFixed(a >= 1e7 ? 1 : 2) + "M"; else if (a >= 1e3) s = Math.round(a / 1e3) + "k"; else s = String(Math.round(a));
+  return sign + "$" + s;
+}
+const full = n => (n < 0 ? "−" : "") + "$" + Math.round(Math.abs(n)).toLocaleString("en-US");
+const pct = (x, d = 1) => (x * 100).toFixed(d) + "%";
+
+/* ---------- posture (extraction) ---------- */
+function currentCheck(){ return EXPO_VERIFY.checkAll(state.extract || {}, $("#complaint").value); }
+function applyExtract(){
+  state.extract = EXPO_VERIFY.clean(state.extract);
+  const r = state.extract, c = currentCheck();
+  state.revenue = r.defendant_revenue_usd_if_stated;
+  state.demand = r.damages_demanded_usd;
+  state.confirmed = {};
+  for (const f of EXPO_VERIFY.FIELDS) state.confirmed[f] = c.fields[f].verified;
+}
+/* the demand only caps payouts when it is confirmed */
+const capNow = () => state.useCap && state.demand && state.confirmed.damages_demanded ? state.demand : 0;
+function renderPosture(){
+  const r = EXPO_VERIFY.clean(state.extract), c = currentCheck(), by = f => (r.quotes || []).filter(q => q.field === f).map(q => q.quote);
+  const badge = f => c.fields[f].verified ? `<span class="badge ok">Verified in the complaint</span>` : `<span class="badge no">Not confirmed</span>`;
+  const quote = (f, extra) => { const q = f === "fee_shifting" ? (r.fee_shifting?.quote ? [r.fee_shifting.quote] : []) : by(f); return q.length ? `<div class="q">"${esc(q[0])}"</div>` : `<div class="q">${extra || "No supporting quote."}</div>`; };
+  const chk = f => `<label class="chk"><input type="checkbox" data-conf="${f}" ${state.confirmed[f] ? "checked" : ""}> I confirm this</label>`;
+  const fs = r.fee_shifting || {};
+  $("#posture").innerHTML = `
+   <div class="prow" id="row-claim_count"><div class="k">Counts pleaded</div><div>${badge("claim_count")} <b>${esc(c.claim_count || "not found")}</b> ${esc(r.claim_types.join("; "))}<div class="q">Counted in code from the "COUNT" headings in the complaint.${r.claim_count !== null && r.claim_count !== c.claim_count ? " Claude said " + esc(r.claim_count) + "; the count here is used." : ""}</div>${chk("claim_count")}</div></div>
+   <div class="prow" id="row-fee_shifting"><div class="k">Fee shifting</div><div>${badge("fee_shifting")} <b>${fs.applies ? "Invoked: " + esc(fs.statute || "") : "None found"}</b>${quote("fee_shifting", "The absence of fee-shifting language cannot be proved from a quote. Check the complaint.")}${chk("fee_shifting")}<div class="q">Noted in the memo only. The model does not add a fee award to the payouts.</div></div></div>
+   <div class="prow" id="row-defendant_revenue"><div class="k">Defendant's revenue (US$)</div><div>${badge("defendant_revenue")} <input type="number" id="in-rev" min="1" step="1000000" value="${esc(state.revenue ?? "")}" placeholder="Enter revenue"> <div class="q">Revenue tier read: ${esc(r.defendant_revenue_tier || "not stated")}</div>${quote("defendant_revenue")}${chk("defendant_revenue")}</div></div>
+   <div class="prow" id="row-damages_demanded"><div class="k">Damages demanded (US$)</div><div>${badge("damages_demanded")} <input type="number" id="in-dem" min="0" step="100000" value="${esc(state.demand ?? "")}" placeholder="Not stated">${quote("damages_demanded")}${chk("damages_demanded")}
+      <label class="chk"><input type="checkbox" id="in-cap" ${state.useCap ? "checked" : ""}> Cap each payout at the demand</label></div></div>`;
+  $("#posture-sum").textContent = `${c.ok} of ${c.total} quotes found word for word, from the ${state.extractLabel}`;
+  $("#in-rev").oninput = e => { state.revenue = Number(e.target.value) || null; state.confirmed.defendant_revenue = false; document.querySelector('[data-conf="defendant_revenue"]').checked = false; recompute(); };
+  $("#in-dem").oninput = e => { state.demand = Number(e.target.value) || null; state.confirmed.damages_demanded = false; document.querySelector('[data-conf="damages_demanded"]').checked = false; recompute(); };
+  $("#in-cap").onchange = e => { state.useCap = e.target.checked; recompute(); };
+  document.querySelectorAll("[data-conf]").forEach(el => el.onchange = () => { state.confirmed[el.dataset.conf] = el.checked; recompute(); });
+  renderFacts();
+}
+/* compact strip under the headline: each field, and whether it is verified, confirmed by you, or not confirmed */
+function renderFacts(){
+  const r = EXPO_VERIFY.clean(state.extract), c = currentCheck(), fs = r.fee_shifting || {};
+  const st = f => state.confirmed[f] ? (c.fields[f].verified ? "verified" : "confirmed by you") : "not confirmed";
+  const items = [
+    ["claim_count", "Counts", c.claim_count ? String(c.claim_count) : "none found"],
+    ["fee_shifting", "Fee shifting", fs.applies ? (fs.statute || "invoked").replace(/^35 U\.S\.C\. section /, "§") : "none found"],
+    ["defendant_revenue", "Revenue", state.revenue ? money(state.revenue) : "missing"],
+    ["damages_demanded", "Demand", state.demand ? money(state.demand) : "not stated"]
+  ];
+  $("#facts").innerHTML = items.map(([f, k, v]) => { const s = st(f); return `<button type="button" class="fact ${s === "not confirmed" ? "no" : "ok"}" data-fact="${f}" title="Open the facts section"><span class="dot"></span><span class="fk">${k}</span><span class="fv">${esc(v)}</span><span class="fs">${s}</span></button>`; }).join("");
+  document.querySelectorAll("[data-fact]").forEach(b => b.onclick = () => {
+    const sec = $("#sec-facts"); sec.open = true;
+    const row = document.getElementById("row-" + b.dataset.fact); if (row){ row.scrollIntoView({ block: "center", behavior: "smooth" }); const i = row.querySelector("input[type=checkbox]"); if (i) i.focus({ preventScroll: true }); }
+  });
+}
+
+/* ---------- model ---------- */
+function recompute(){
+  state.report = null; state.error = null; state.gated = false; state.samples = null;
+  try {
+    if (!state.revenue) throw new Error("Enter the defendant's revenue (or read the complaint) to run the model.");
+    if (!state.confirmed.defendant_revenue){ state.gated = true; throw new Error("The revenue is not verified in the complaint yet. Tick \"I confirm this\" in Facts, or fix the revenue, to run the model."); }
+    state.report = EXPO.runModel({ tree: state.tree, comps: state.comps, revenue: state.revenue, side: state.side, cap: capNow() });
+    state.samples = netSamples();
+  } catch(e){ state.error = e.message; }
+  state.stats = treeStats();
+  renderAnswer(); renderFacts(); renderTreeSvg(); updateInspector(); renderDist(); renderSens(); renderChart(); renderCompTable();
+}
+function renderAnswer(){
+  const h = $("#headline"), m = $("#answer-meta"), f = $("#answer-flags");
+  $("#kicker").textContent = "The answer · " + state.side + "'s view";
+  if (state.error){ h.innerHTML = state.gated ? "No answer yet: confirm the defendant's revenue" : "No answer yet."; m.textContent = ""; f.innerHTML = `<div class="err">${esc(state.error)}</div>`; return; }
+  const r = state.report, who = state.side, net = r.net_of_fees_ev, cls = net < 0 ? "neg" : "pos";
+  const band = `<span class="nb">p10 ${money(r.p10)}</span> … <span class="nb">p90 ${money(r.p90)}</span>`;
+  let tail;
+  if (who === "defendant") tail = r.break_even_settlement > 0 ? `Settle below <b>${money(r.break_even_settlement)}</b> and you beat the expected value of staying in.` : `No settlement amount beats staying in on these numbers.`;
+  else tail = r.break_even_settlement > 0 ? `Accept any settlement above <b>${money(r.break_even_settlement)}</b> and you beat the expected value of staying in.` : `Any settlement that pays you something beats staying in on these numbers.`;
+  h.innerHTML = `Net expected value to the ${who}: <b class="${cls}">${money(net, { plus: true })}</b> (${band}). ${tail}`;
+  m.textContent = `After fees. Defendant revenue ${money(state.revenue)}; ${r.match.matched.length} comps used. Run on ${r.mc.iterations.toLocaleString()} seeded simulations.`;
+  const flags = [];
+  if (!state.confirmed.defendant_revenue) flags.push("The revenue is not confirmed yet. Confirm it in Facts from the complaint.");
+  if (state.useCap && state.demand && !state.confirmed.damages_demanded) flags.push("The damages demand is not confirmed, so no cap was applied to the payouts. Confirm it in Facts from the complaint to cap each payout at the demand.");
+  if (state.rates !== "demo" && state.ratesInfo){ const g = IDB_RATES.groups[state.rates]; flags.push("Stage chances come from real federal patent cases (" + g.label + ", " + state.ratesInfo.n.toLocaleString() + " cases placed on the tree). The dollar comps and the complaint are still fictional; settlement-type exits (incl. voluntary and other dismissals) are not proof of payment." + (state.ratesInfo.too_few ? " Fewer than " + IDB.MIN_N + " cases: treat these chances as unreliable." : "") + (state.ratesInfo.thin_nodes.length ? " Thin stages (under " + IDB.MIN_N + " cases): " + state.ratesInfo.thin_nodes.map(x => x.node + " (" + x.n + ")").join(", ") + "." : "")); }
+  if (r.match.widened) flags.push(r.match.note);
+  if (r.fallbacks.length) flags.push("No matched " + r.fallbacks.join(" or ") + " comps, so all matched comps were used for that outcome.");
+  f.innerHTML = flags.map(x => `<div class="caution">${esc(x)}</div>`).join("");
+}
+
+/* ---------- decision tree ---------- */
+/* Per node: chance of reaching it, fees spent to reach it (this side's own), and net expected value of the whole case if you get there. */
+function treeStats(){
+  const t = state.tree, s = EXPO.sign(state.side), out = {};
+  let rp = null; try { if (state.report) rp = EXPO.ratePools(state.report.match.matched); } catch(e){}
+  const cap = capNow();
+  const go = (id, reach, before) => {
+    const n = t.nodes[id], fees = before + (n.legal_spend_delta || 0);
+    let ev = null;
+    if (rp){ const sub = EXPO.rollup({ root: id, nodes: t.nodes }, rp.pools, state.revenue, cap); ev = s * sub.pay - (before + sub.spend); }
+    out[id] = { reach, fees, ev };
+    (n.children || []).forEach(c => go(c.to, reach * c.branch_prob, fees));
+  };
+  go(t.root, 1, 0);
+  return out;
+}
+function wrapText(str, max, lines = 2){
+  const out = [""];
+  for (const w of String(str).split(" ")){
+    const cur = out[out.length - 1], tryIt = (cur ? cur + " " : "") + w;
+    if (tryIt.length <= max) out[out.length - 1] = tryIt;
+    else if (out.length < lines) out.push(w);
+    else { out[out.length - 1] = cur.slice(0, Math.max(1, max - 1)) + "…"; break; }
+  }
+  return out;
+}
+function renderTreeSvg(){
+  const host = $("#tree"), W = host.clientWidth; if (!W) return;
+  const keep = document.activeElement && host.contains(document.activeElement) ? document.activeElement.closest("[data-nid]")?.dataset.nid : null;
+  const t = state.tree, st = state.stats, rootEv = st[t.root].ev, order = [], depth = {}, parent = {};
+  const walk = (id, d) => { order.push(id); depth[id] = d; (t.nodes[id].children || []).forEach(c => { parent[c.to] = id; walk(c.to, d + 1); }); };
+  walk(t.root, 0);
+  const cols = Math.max(...Object.values(depth)) + 1, PAD = 6, GAP = 32, NWh = (W - 2 * PAD - (cols - 1) * GAP) / cols, horiz = NWh >= 112;
+  const pos = {}; let H, NW, NH;
+  if (horiz){
+    NW = Math.min(NWh, 170); NH = 76; const PITCH = 92; let leaf = 0;
+    const place = id => { const kids = t.nodes[id].children || []; let y; if (!kids.length) y = PAD + (leaf++) * PITCH; else { const ys = kids.map(c => place(c.to)); y = (Math.min(...ys) + Math.max(...ys)) / 2; } pos[id] = { x: PAD + depth[id] * (NW + GAP), y }; return y; };
+    place(t.root); H = PAD * 2 + leaf * PITCH - (PITCH - NH);
+  } else {
+    NH = 62; const PITCH = 70, IND = 14; NW = null;
+    order.forEach((id, i) => { pos[id] = { x: PAD + depth[id] * IND, y: PAD + i * PITCH }; });
+    H = PAD * 2 + order.length * PITCH - (PITCH - NH);
+  }
+  const col = id => { const e = st[id].ev; return e === null || rootEv === null ? "var(--ink-3)" : (e >= rootEv - 1 ? "var(--accent)" : "var(--neg)"); };
+  const evCls = e => e === null ? "" : (e < 0 ? "neg" : "pos");
+  const evTxt = e => e === null ? "EV —" : "EV " + money(e, { plus: true });
+  let edges = "", pills = "", nodes = "";
+  const selPath = new Set((t.nodes[state.sel].children || []).map(c => c.to));
+  for (const id of order){
+    const n = t.nodes[id], p = pos[id];
+    (n.children || []).forEach(c => {
+      const q = pos[c.to], w = 1.5 + st[c.to].reach * 6, on = id === state.sel;
+      let d, mx, my;
+      if (horiz){ const x1 = p.x + NW, y1 = p.y + NH / 2, x2 = q.x, y2 = q.y + NH / 2, mid = (x1 + x2) / 2; d = `M${x1},${y1} C${mid},${y1} ${mid},${y2} ${x2},${y2}`; mx = mid; my = (y1 + y2) / 2; }
+      else { const x1 = p.x + 10, y1 = p.y + NH, x2 = q.x, y2 = q.y + NH / 2; d = `M${x1},${y1} V${y2 - 6} Q${x1},${y2} ${x1 + 6},${y2} H${x2}`; }
+      edges += `<path class="te ${on ? "on" : ""}" d="${d}" stroke-width="${w.toFixed(2)}"/>`;
+      if (horiz && (n.children.length > 1)) pills += `<g class="tp ${on ? "on" : ""}" transform="translate(${mx},${my})"><rect x="-17" y="-9" width="34" height="18" rx="9"/><text y="3.5">${Math.round(c.branch_prob * 100)}%</text></g>`;
+    });
+  }
+  for (const id of order){
+    const n = t.nodes[id], p = pos[id], s = st[id], w = horiz ? NW : W - p.x - PAD, sel = id === state.sel, bar = col(id);
+    const aria = `${n.label}. Chance of reaching: ${pct(s.reach, 0)}. Fees to reach: ${money(s.fees)}. Expected value: ${s.ev === null ? "not available" : money(s.ev)}.${sel ? " Selected." : ""}`;
+    let body;
+    if (horiz){
+      const L = wrapText(n.label, Math.floor((w - 18) / 6.3), 2);
+      body = L.map((l, i) => `<text class="t1" x="12" y="${17 + i * 13}">${esc(l)}</text>`).join("") +
+        `<text class="t2" x="12" y="${50}">${pct(s.reach, 0)} · ${money(s.fees)} fees</text><text class="t3 ${evCls(s.ev)}" x="12" y="${67}">${evTxt(s.ev)}</text>`;
+    } else {
+      const parentKids = parent[id] ? t.nodes[parent[id]].children : null, br = parentKids ? parentKids.find(c => c.to === id) : null;
+      const top = br && parentKids.length > 1 ? `${br.label} · ${Math.round(br.branch_prob * 100)}%` : (br ? br.label : "Start");
+      body = `<text class="t0" x="12" y="15">${esc(wrapText(top, Math.floor((w - 20) / 5.6), 1)[0])}</text><text class="t1" x="12" y="31">${esc(wrapText(n.label, Math.floor((w - 20) / 6.4), 1)[0])}</text>` +
+        `<text class="t2" x="12" y="48">${pct(s.reach, 0)} · ${money(s.fees)} fees</text><text class="t3 ${evCls(s.ev)}" x="${w - 10}" y="48" text-anchor="end">${evTxt(s.ev)}</text>`;
+    }
+    nodes += `<g class="tn ${sel ? "sel" : ""}" data-nid="${id}" role="button" tabindex="0" aria-pressed="${sel}" aria-label="${esc(aria)}" transform="translate(${p.x},${p.y})"><rect class="tbox" width="${w}" height="${NH}" rx="9"/><rect x="0" y="9" width="4" height="${NH - 18}" rx="2" fill="${bar}"/>${body}</g>`;
+  }
+  host.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="group" aria-label="Decision tree of the case, ${horiz ? "left to right" : "top to bottom"}">${edges}${pills}${nodes}</svg>`;
+  if (keep){ const el = host.querySelector(`[data-nid="${keep}"]`); if (el) el.focus({ preventScroll: true }); }
+}
+function selectNode(id){
+  if (!state.tree.nodes[id] || id === state.sel) return;
+  state.sel = id; buildInspector(); renderTreeSvg();
+}
+$("#tree").addEventListener("click", e => { const g = e.target.closest("[data-nid]"); if (g) selectNode(g.dataset.nid); });
+$("#tree").addEventListener("keydown", e => { if (e.key !== "Enter" && e.key !== " ") return; const g = e.target.closest("[data-nid]"); if (g){ e.preventDefault(); selectNode(g.dataset.nid); } });
+
+/* ---------- node inspector: the sliders live here ---------- */
+function buildInspector(){
+  const t = state.tree, id = state.sel, n = t.nodes[id], kids = n.children || [];
+  let h = `<div class="ihead"><span class="chip">${esc(n.stage)}</span><b>${esc(n.label)}</b></div><div class="tiles" id="itiles"></div>`;
+  if (kids.length > 1) h += `<p class="hint" style="margin-top:8px">Chances at this stage. Drag one and the others rebalance so the total stays at 100%.</p>` +
+    kids.map((c, i) => `<div class="sl"><span>${esc(c.label)}</span><span class="pv" data-pct="${id}:${i}"></span><input type="range" min="0" max="100" step="1" value="${Math.round(c.branch_prob * 100)}" data-node="${id}" data-i="${i}" aria-label="${esc(n.label + ": " + c.label)}"></div>`).join("");
+  else if (kids.length === 1) h += `<p class="hint" style="margin:8px 0 0">This stage always goes on to "${esc(t.nodes[kids[0].to].label)}". Nothing to adjust here; pick a later stage.</p>`;
+  else h += `<div class="term" id="iterm" style="margin-top:8px"></div>`;
+  $("#inspector").innerHTML = h;
+  document.querySelectorAll("#inspector input[type=range]").forEach(el => el.oninput = () => {
+    state.tree = EXPO.setProb(state.tree, el.dataset.node, Number(el.dataset.i), Number(el.value) / 100);
+    recompute();
+  });
+  updateInspector();
+}
+function updateInspector(){
+  const t = state.tree, st = state.stats, id = state.sel, s = st && st[id];
+  if (!s) return;
+  $("#itiles").innerHTML = `<div class="tile"><div class="k">Chance of getting here</div><div class="v">${pct(s.reach, 1)}</div></div><div class="tile"><div class="k">Fees to get here</div><div class="v">${money(s.fees)}</div></div><div class="tile"><div class="k">Net value from here</div><div class="v ${s.ev === null ? "" : s.ev < 0 ? "neg" : "pos"}">${s.ev === null ? "—" : money(s.ev, { plus: true })}</div></div>`;
+  (t.nodes[id].children || []).forEach((c, i) => {
+    const v = Math.round(c.branch_prob * 100), p = document.querySelector(`[data-pct="${id}:${i}"]`), r = document.querySelector(`#inspector input[data-node="${id}"][data-i="${i}"]`);
+    if (p) p.textContent = v + "%";
+    if (r){ if (Number(r.value) !== v) r.value = v; r.style.setProperty("--v", v + "%"); }
+  });
+  const el = $("#iterm");
+  if (el){
+    const d = t.nodes[id].payoff_distribution; let txt = "";
+    if (d.type === "zero") txt = "Nothing is paid at this outcome.";
+    else if (state.report){ const rp = EXPO.ratePools(state.report.match.matched), cap = capNow(), ev = EXPO.expectedPayoff(d, rp.pools, state.revenue, cap); txt = `${d.type === "judgment" ? "Judgment" : "Settlement"} paid: <b>${money(ev)}</b> on average (middle ${money(EXPO.payoffUsd(d, rp.stats[d.type].p50, state.revenue, cap))}).`; }
+    el.innerHTML = txt;
+  }
+}
+
+/* ---------- outcome distribution (histogram of the simulated net results) ---------- */
+/* Replays the seeded simulation (same generator, same seed, same steps as EXPO.simulate) to keep every run, so the histogram bars are the runs behind the p10/p50/p90 in the headline. */
+function netSamples(){
+  const r = state.report, pools = EXPO.ratePools(r.match.matched).pools, tree = state.tree, s = EXPO.sign(state.side), rnd = EXPO.prng(r.mc.seed), N = r.mc.iterations, out = new Array(N);
+  for (let i = 0; i < N; i++){
+    let spend = 0, n = tree.nodes[tree.root];
+    for (;;){
+      spend += n.legal_spend_delta || 0;
+      const kids = n.children || [];
+      if (!kids.length) break;
+      let u = rnd(), pick = kids[kids.length - 1];
+      for (const c of kids){ if (u < c.branch_prob){ pick = c; break; } u -= c.branch_prob; }
+      n = tree.nodes[pick.to];
+    }
+    const d = n.payoff_distribution; let rate = 0;
+    if (d && (d.type === "settlement" || d.type === "judgment")){ const pool = pools[d.type]; rate = pool[Math.floor(rnd() * pool.length)]; }
+    out[i] = s * EXPO.payoffUsd(d, rate, r.revenue, r.cap) - spend;
+  }
+  return out;
+}
+function niceTicks(lo, hi, n){
+  const raw = (hi - lo) / n, mag = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / mag, step = (f < 1.5 ? 1 : f < 3.5 ? 2 : f < 7.5 ? 5 : 10) * mag, out = [];
+  for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) out.push(Math.abs(v) < step * 1e-9 ? 0 : v);
+  return out;
+}
+/* Pure SVG string. compact = memo size. Colours come from CSS variables so it follows dark mode on the page and the paper colours in the memo. */
+function histSvg(W, H, compact){
+  const r = state.report, xs = state.samples, N = xs.length;
+  let lo = Math.min(...xs), hi = Math.max(...xs); if (hi - lo < 1){ lo -= 1; hi += 1; }
+  const nb = compact ? 24 : 36, cnt = new Array(nb).fill(0), bw = (hi - lo) / nb;
+  xs.forEach(v => { cnt[Math.min(nb - 1, Math.floor((v - lo) / bw))]++; });
+  const mx = Math.max(...cnt), fs = compact ? 8.5 : 11, rowH = compact ? 11 : 15;
+  const be = r.break_even_settlement, marks = [
+    { k: "p10", v: r.p10, t: "p10 " + money(r.p10), row: 0 }, { k: "p50", v: r.p50, t: "p50 " + money(r.p50), row: 1 }, { k: "p90", v: r.p90, t: "p90 " + money(r.p90), row: 2 },
+    { k: "be", v: r.net_of_fees_ev, t: "average after fees " + money(r.net_of_fees_ev), row: 3 }
+  ];
+  const ml = 10, mr = 10, mt = 4 * rowH + 8, mb = compact ? 18 : 26, x = v => ml + (v - lo) / (hi - lo) * (W - ml - mr), y = c => H - mb - c / mx * (H - mb - mt);
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Histogram of ${N.toLocaleString()} simulated net outcomes after fees. 10th percentile ${money(r.p10)}, median ${money(r.p50)}, 90th percentile ${money(r.p90)}, average after fees ${money(r.net_of_fees_ev)}.">`;
+  const ticks = niceTicks(lo, hi, compact ? 3 : (W < 420 ? 3 : 5));
+  ticks.forEach(v => { s += `<line x1="${x(v)}" x2="${x(v)}" y1="${mt}" y2="${H - mb}" stroke="var(--rule)"/><text x="${x(v)}" y="${H - mb + (compact ? 12 : 17)}" text-anchor="middle" style="font-size:${fs}px">${money(v)}</text>`; });
+  cnt.forEach((c, i) => {
+    if (!c) return;
+    const x0 = x(lo + i * bw) + .5, w = Math.max(1, x(lo + (i + 1) * bw) - x(lo + i * bw) - 1), top = y(c), h = H - mb - top, rr = Math.min(3, w / 2, h), mid = lo + (i + .5) * bw, inside = mid >= r.p10 && mid <= r.p90;
+    s += `<path d="M${x0},${H - mb} V${top + rr} Q${x0},${top} ${x0 + rr},${top} H${x0 + w - rr} Q${x0 + w},${top} ${x0 + w},${top + rr} V${H - mb} Z" fill="var(--accent)" fill-opacity="${inside ? .9 : .32}"><title>${money(lo + i * bw)} to ${money(lo + (i + 1) * bw)} after fees: ${c.toLocaleString()} runs (${(c / N * 100).toFixed(1)}%)</title></path>`;
+  });
+  s += `<line x1="${ml}" x2="${W - mr}" y1="${H - mb}" y2="${H - mb}" stroke="var(--ink-3)"/>`;
+  marks.forEach(m => {
+    const mxp = x(m.v), ly = 4 + m.row * rowH + rowH - 3, right = mxp < W * .62, be = m.k === "be", c = be ? "var(--accent)" : "var(--ink)";
+    s += `<line x1="${mxp}" x2="${mxp}" y1="${ly + 3}" y2="${H - mb}" stroke="${c}" stroke-width="${be ? 2 : 1.25}" ${be ? "" : 'stroke-dasharray="4 3"'}/>` +
+      `<text x="${mxp + (right ? 5 : -5)}" y="${ly}" text-anchor="${right ? "start" : "end"}" style="font-size:${fs}px;font-weight:${be ? 700 : 600};fill:${be ? "var(--accent)" : "var(--ink)"}">${esc(m.t)}</text>`;
+  });
+  return s + "</svg>";
+}
+function renderDist(){
+  const host = $("#dist"), W = host.clientWidth;
+  if (!state.report){ host.innerHTML = ""; $("#dist-stats").innerHTML = ""; return; }
+  if (!W) return;
+  host.innerHTML = histSvg(Math.round(W), W < 480 ? 230 : 270, false);
+  const r = state.report, be = r.break_even_settlement;
+  const tile = (k, v, sub, cls) => `<div class="tile ${cls || ""}"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${sub}</div></div>`;
+  $("#dist-stats").innerHTML = tile("p10", money(r.p10), "1 in 10 runs ends this bad or worse") + tile("p50", money(r.p50), "the middle run") + tile("p90", money(r.p90), "1 in 10 runs ends this good or better") +
+    tile("Break-even", be > 0 ? money(be) : "none", be > 0 ? (state.side === "defendant" ? "settle for less than this to beat the average run" : "accept more than this to beat the average run") : "no settlement amount beats staying in", "be");
+}
+
+/* ---------- sensitivity ---------- */
+function renderSens(){
+  const el = $("#sens");
+  if (!state.report){ el.innerHTML = ""; return; }
+  const rows = state.report.stage_sensitivity, max = Math.max(1, ...rows.map(r => Math.max(Math.abs(r.delta_down), Math.abs(r.delta_up))));
+  el.innerHTML = rows.map(r => {
+    const neg = Math.min(r.delta_down, r.delta_up), posv = Math.max(r.delta_down, r.delta_up);
+    return `<div class="srow"><div class="lab"><b>${esc(r.stage)}</b>: ${esc(r.branch)} <span>(now ${Math.round(r.prob * 100)}%${Math.round(r.move_down * 100) === Math.round(r.move_up * 100) ? "" : "; tested " + movePts(r)})</span></div>
+    <div class="bar"><i class="l" style="width:${Math.abs(neg) / max * 50}%"></i><i class="r" style="width:${posv / max * 50}%"></i><em class="a">${money(neg, { plus: true })}</em><em class="b">${money(posv, { plus: true })}</em></div></div>`;
+  }).join("");
+}
+
+/* ---------- chart ---------- */
+function renderChart(){
+  const comps = state.comps, W = 480, H = 330, m = { l: 62, r: 22, t: 12, b: 40 };
+  const xs = comps.map(EXPO.logRev), ys = comps.map(c => Math.log10(Math.max(EXPO.effectiveRate(c), 1e-6)));
+  const x0 = Math.floor(Math.min(...xs)), x1 = Math.ceil(Math.max(...xs)), y0 = Math.floor(Math.min(...ys)), y1 = Math.ceil(Math.max(...ys));
+  const X = v => m.l + (v - x0) / (x1 - x0 || 1) * (W - m.l - m.r), Y = v => H - m.b - (v - y0) / (y1 - y0 || 1) * (H - m.t - m.b);
+  const matched = new Set(state.report ? state.report.match.matched : []);
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Scatter of payout as a share of revenue against defendant revenue">`;
+  if (state.report){ const L = state.report.match.log_revenue, w = state.report.match.window; s += `<rect x="${X(Math.max(x0, L - w))}" y="${m.t}" width="${X(Math.min(x1, L + w)) - X(Math.max(x0, L - w))}" height="${H - m.t - m.b}" fill="var(--band)"/><line x1="${X(L)}" x2="${X(L)}" y1="${m.t}" y2="${H - m.b}" stroke="var(--ink)" stroke-dasharray="4 3"/>`; }
+  for (let v = x0; v <= x1; v++) s += `<line x1="${X(v)}" x2="${X(v)}" y1="${H - m.b}" y2="${H - m.b + 4}" stroke="var(--ink-3)"/><text x="${X(v)}" y="${H - m.b + 17}" text-anchor="middle">${money(Math.pow(10, v))}</text>`;
+  for (let v = y0; v <= y1; v++) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--rule)"/><text x="${m.l - 6}" y="${Y(v) + 4}" text-anchor="end">${pct(Math.pow(10, v), Math.pow(10, v) < 0.01 ? 2 : 1)}</text>`;
+  s += `<line x1="${m.l}" x2="${W - m.r}" y1="${H - m.b}" y2="${H - m.b}" stroke="var(--ink-3)"/><line x1="${m.l}" x2="${m.l}" y1="${m.t}" y2="${H - m.b}" stroke="var(--ink-3)"/>`;
+  s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 6}" text-anchor="middle">Defendant revenue (log scale)</text><text transform="translate(12 ${(m.t + H - m.b) / 2}) rotate(-90)" text-anchor="middle">Payout as share of revenue (log scale)</text>`;
+  comps.forEach((c, i) => {
+    const cx = X(xs[i]), cy = Y(ys[i]), on = matched.has(c), col = on ? "var(--accent)" : "var(--ink-3)", fill = on ? col : "none", sw = on ? 1 : 1.4;
+    const tip = `<title>${esc(c.case_name)} (${c.year}), ${c.outcome_type}: ${full(c.award_usd)} on ${full(c.defendant_revenue_usd)} revenue = ${pct(EXPO.effectiveRate(c), 2)}</title>`;
+    s += c.outcome_type === "Settlement" ? `<circle cx="${cx}" cy="${cy}" r="${on ? 5 : 4}" fill="${fill}" stroke="${col}" stroke-width="${sw}">${tip}</circle>`
+      : `<rect x="${cx - 4.5}" y="${cy - 4.5}" width="9" height="9" transform="rotate(45 ${cx} ${cy})" fill="${fill}" stroke="${col}" stroke-width="${sw}">${tip}</rect>`;
+  });
+  $("#chart").innerHTML = s + "</svg>";
+  $("#legend").innerHTML = `<span>● Settlement</span><span>◆ Judgment</span><span>Filled = used for this defendant</span><span>Dashed line = defendant's revenue; shaded = comp window</span>`;
+  $("#comp-sum").textContent = state.report ? state.report.match.note : "";
+}
+function renderCompTable(){
+  if (!state.report){ $("#comp-table").innerHTML = ""; return; }
+  const rows = state.report.match.matched.slice().sort((a, b) => EXPO.logRev(a) - EXPO.logRev(b));
+  $("#comp-table").innerHTML = compTableHtml(rows);
+}
+function compTableHtml(rows){
+  return `<table><thead><tr><th>Case (fictional)</th><th>Year</th><th>Type</th><th class="n">Revenue</th><th>Outcome</th><th class="n">Award</th><th class="n">Rate</th></tr></thead><tbody>` +
+    rows.map(c => `<tr><td>${esc(c.case_name)}</td><td>${c.year}</td><td>${esc(c.claim_type)}</td><td class="n">${money(c.defendant_revenue_usd)}</td><td>${c.outcome_type}</td><td class="n">${money(c.award_usd)}</td><td class="n">${pct(EXPO.effectiveRate(c), 2)}</td></tr>`).join("") + `</tbody></table>`;
+}
+
+/* ---------- save / csv ---------- */
+async function saveFile(filename, data, type){
+  if (downloads && typeof downloads.save === "function"){ try { await downloads.save({ filename, data }); return; } catch(e){} }
+  try { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([data], { type })); a.download = filename; document.body.appendChild(a); a.click(); a.remove(); }
+  catch(e){ $("#csv-msg").textContent = "Downloads are not available here. Open this page in Claude or a browser."; }
+}
+$("#csv-out").onclick = () => saveFile("comps.csv", EXPO.compsToCsv(state.comps), "text/csv");
+$("#csv-in").onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try { state.comps = EXPO.csvToComps(await f.text()); state.compsLabel = f.name; $("#csv-msg").textContent = `Loaded ${state.comps.length} comps from ${f.name}.`; recompute(); }
+  catch(err){ $("#csv-msg").textContent = "Could not use that file: " + err.message; }
+  e.target.value = "";
+};
+$("#csv-reset").onclick = () => { state.comps = EXPOSURE_COMPS.slice(); state.compsLabel = "built-in fictional comps"; $("#csv-msg").textContent = "Back to the built-in comps."; recompute(); };
+
+/* ---------- memo ---------- */
+const movePts = s => { const d = Math.round(s.move_down * 100), u = Math.round(s.move_up * 100); return d === u ? "±" + d + " points" : "+" + u + " / −" + d + " points"; };
+/* One stylesheet for the on-screen preview, the printed page and the downloaded file. Colours are fixed (paper), never the dark theme. */
+const MEMO_CSS = `
+.memo{--ink:#16140f;--ink-2:#3b372c;--ink-3:#6b6554;--rule:#ddd6c3;--rule-2:#b9b19a;--accent:#1c5a4b;--neg:#9c3322;--sheet:#fff;
+  background:#fff;color:#16140f;font:9.5pt/1.38 Georgia,"Times New Roman",serif;font-variant-numeric:tabular-nums}
+.memo *{box-sizing:border-box}
+.memo .mh{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2.5px solid #16140f;padding-bottom:6px}
+.memo .mt{font:700 22pt/1 "Fraunces",Georgia,serif;letter-spacing:.14em}
+.memo .mfic{font:600 8pt/1.2 "IBM Plex Sans",system-ui,sans-serif;text-transform:uppercase;letter-spacing:.08em;color:#6b6554;text-align:right}
+.memo .mm{width:100%;border-collapse:collapse;margin:6px 0 0;font-size:9.5pt}
+.memo .mm td{border:0;padding:0;vertical-align:top}
+.memo .mm td:first-child{width:62px;font:600 8pt "IBM Plex Sans",system-ui,sans-serif;letter-spacing:.08em;color:#6b6554;padding-top:3px}
+.memo .rule{border:0;border-top:1px solid #16140f;margin:8px 0 0}
+.memo h3{font:700 8pt "IBM Plex Sans",system-ui,sans-serif;text-transform:uppercase;letter-spacing:.09em;margin:9px 0 3px;color:#16140f}
+.memo .bl{font:500 12.5pt/1.28 "Fraunces",Georgia,serif;margin:8px 0 0}
+.memo .bl b{font-weight:700}
+.memo .grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:0 18px;align-items:start}
+.memo table.t{border-collapse:collapse;width:100%;font-size:8.5pt}
+.memo table.t th,.memo table.t td{text-align:left;padding:1.5px 6px 1.5px 0;border-bottom:1px solid #ddd6c3;vertical-align:top}
+.memo table.t th{font:600 7.5pt "IBM Plex Sans",system-ui,sans-serif;color:#6b6554;text-transform:uppercase;letter-spacing:.05em}
+.memo .n{text-align:right!important;white-space:nowrap}
+.memo ul{margin:0;padding-left:15px;font-size:9pt} .memo li{margin:0 0 1px}
+.memo .cap{font:400 8pt "IBM Plex Sans",system-ui,sans-serif;color:#6b6554;margin-top:2px}
+.memo .cav{border:1px solid #16140f;padding:5px 8px;font-size:8.5pt;margin-top:9px}
+.memo .sig{font:400 8pt "IBM Plex Sans",system-ui,sans-serif;color:#6b6554;margin-top:6px;display:flex;justify-content:space-between}
+.memo svg{max-width:100%;height:auto}
+.memo svg text{font-family:"IBM Plex Sans",system-ui,sans-serif;fill:#3b372c}
+@media (max-width:640px){.memo .grid{grid-template-columns:1fr}}
+@media print{@page{size:letter;margin:.55in .6in}}
+`;
+(() => { const s = document.createElement("style"); s.textContent = MEMO_CSS; document.head.appendChild(s); })();
+function memoHtml(){
+  const r = state.report, who = state.side, today = new Date().toISOString().slice(0, 10), ex = state.extract || {};
+  const treeRows = [];
+  const go = (id, d) => { const n = state.tree.nodes[id]; (n.children || []).forEach(c => { treeRows.push(`<tr><td>${"&nbsp;&nbsp;".repeat(d)}${esc(state.tree.nodes[id].stage)}: ${esc(c.label)}</td><td class="n">${pct(c.branch_prob, 0)}</td><td class="n">${pct(state.stats[c.to].reach, 1)}</td><td class="n">${money(state.stats[c.to].fees)}</td></tr>`); go(c.to, d + 1); }); };
+  go(state.tree.root, 0);
+  const rs = r.rate_stats, lo = Math.min(...r.match.matched.map(c => c.defendant_revenue_usd)), hi = Math.max(...r.match.matched.map(c => c.defendant_revenue_usd));
+  const bottom = `Net expected value to the ${who}: <b>${money(r.net_of_fees_ev, { plus: true })}</b> (p10 ${money(r.p10)} … p90 ${money(r.p90)}). ${who === "defendant" ? (r.break_even_settlement > 0 ? `Settle below <b>${money(r.break_even_settlement)}</b> and you beat the expected value of staying in.` : `No settlement amount beats staying in on these numbers.`) : (r.break_even_settlement > 0 ? `Accept any settlement above <b>${money(r.break_even_settlement)}</b> and you beat the expected value of staying in.` : `Any settlement that pays you something beats staying in on these numbers.`)}`;
+  return `<div class="mh"><div class="mt">MEMORANDUM</div><div class="mfic">Fictional case<br>For demonstration only</div></div>
+  <table class="mm"><tbody><tr><td>TO</td><td>Case file and deal team</td></tr><tr><td>FROM</td><td>Exposure Modeler (a calculation, not legal advice)</td></tr><tr><td>DATE</td><td>${today}</td></tr><tr><td>RE</td><td>${esc(EXPOSURE_CASE.title)}: case exposure, ${who}'s view</td></tr></tbody></table>
+  <hr class="rule">
+  <div class="bl">${bottom}</div>
+  <div class="grid" style="margin-top:4px">
+   <div><h3>Result</h3>
+    <table class="t"><tbody>
+     <tr><td>Expected payout, before fees</td><td class="n">${full(r.expected_value)}</td></tr>
+     <tr><td>Expected legal spend (${who}'s own fees)</td><td class="n">${full(-r.expected_legal_spend)}</td></tr>
+     <tr><td><b>Net expected value after fees</b></td><td class="n"><b>${full(r.net_of_fees_ev)}</b></td></tr>
+     <tr><td>After fees: 10th / 50th / 90th percentile</td><td class="n">${money(r.p10)} / ${money(r.p50)} / ${money(r.p90)}</td></tr>
+     <tr><td>Before fees: 10th / 50th / 90th percentile</td><td class="n">${money(r.gross_bands.p10)} / ${money(r.gross_bands.p50)} / ${money(r.gross_bands.p90)}</td></tr>
+     <tr><td>Break-even settlement now (counts notice-stage fees)</td><td class="n">${full(r.break_even_settlement)}</td></tr></tbody></table></div>
+   <div><h3>Spread of ${r.mc.iterations.toLocaleString()} simulated outcomes</h3><div id="memo-dist">${histSvg(300, 125, true)}</div><div class="cap">Net result after fees. Dark bars: 10th to 90th percentile.</div></div>
+  </div>
+  <h3>Assumptions</h3>
+  <ul>
+   <li>Defendant revenue: ${full(state.revenue)} (${state.confirmed.defendant_revenue ? "confirmed" : "NOT yet confirmed"}). Damages demanded: ${state.demand ? full(state.demand) : "not stated"}${r.cap > 0 ? "; each payout capped at the demand" : (state.useCap && state.demand ? "; payouts NOT capped because the demand is not confirmed" : "; payouts not capped")}.</li>
+   <li>Claims in the complaint: ${EXPO_VERIFY.countClaims($("#complaint").value) || "?"} (${esc(EXPO_VERIFY.clean(ex).claim_types.join("; "))}). Fee shifting: ${ex.fee_shifting?.applies ? esc(ex.fee_shifting.statute || "invoked") + " (flagged, not added to the payouts)" : "none found"}.</li>
+   <li>Payouts are drawn from ${r.match.matched.length} comps with revenue from ${money(lo)} to ${money(hi)}. ${esc(r.match.note)} Settlement rate: median ${pct(rs.settlement.p50, 2)} (10th ${pct(rs.settlement.p10, 2)}, 90th ${pct(rs.settlement.p90, 2)}). Judgment rate: median ${pct(rs.judgment.p50, 2)} (10th ${pct(rs.judgment.p10, 2)}, 90th ${pct(rs.judgment.p90, 2)}).</li>
+   ${state.rates !== "demo" && state.ratesInfo ? `<li>Stage chances started from real federal patent cases (${esc(IDB_RATES.groups[state.rates].label)}, ${state.ratesInfo.n.toLocaleString()} cases, Federal Judicial Center data, closed 2010 or later), then adjusted by counsel. The dollar comps are fictional.</li>` : ""}
+   <li>Expected values are exact roll-ups of the tree. Bands come from a fixed-seed simulation (seed ${r.mc.seed}), so they repeat.</li></ul>
+  <div class="grid">
+   <div><h3>Case tree</h3><table class="t"><thead><tr><th>Stage and branch</th><th class="n">Chance</th><th class="n">Reach</th><th class="n">Fees to reach</th></tr></thead><tbody>${treeRows.join("")}</tbody></table></div>
+   <div><h3>What moves it most</h3><ul>${r.stage_sensitivity.slice(0, 3).map(s => `<li>${esc(s.stage)}: ${esc(s.branch)} (${Math.round(s.prob * 100)}% now). ${movePts(s)} moves net value by ${money(Math.min(s.delta_down, s.delta_up), { plus: true })} to ${money(Math.max(s.delta_down, s.delta_up), { plus: true })}.</li>`).join("")}</ul></div>
+  </div>
+  <div class="cav"><b>Caveat.</b> The comparable cases are fictional and were invented for this demonstration. They are not real verdicts or settlements, and this memo is not a reserve recommendation. Replace them with real comps before relying on any number here. Probabilities are counsel's inputs, not predictions.</div>
+  <div class="sig"><span>Exposure Modeler · fictional demonstration</span><span>${today}</span></div>`;
+}
+function memoDoc(){ return `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Case exposure memo</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;600&display=swap"><style>body{margin:0;background:#fff}.memo{max-width:8.5in;margin:0 auto;padding:.55in .6in}@media (max-width:640px){.memo{padding:18px 14px}}${MEMO_CSS}</style><article class="memo">${memoHtml()}</article>`; }
+$("#export").onclick = () => { if (!state.report) return; $("#memo").innerHTML = memoHtml(); document.body.classList.add("memo-mode"); window.scrollTo(0, 0); };
+$("#m-back").onclick = () => document.body.classList.remove("memo-mode");
+$("#m-print").onclick = () => window.print();
+$("#m-save").onclick = () => saveFile("case-exposure-memo.html", memoDoc(), "text/html");
+
+/* ---------- Claude runs ---------- */
+function modelOpts(){ return { model: MODEL, modelTier: "default", effort: "low" }; }
+function parseJson(text){ const a = text.indexOf("{"), b = text.lastIndexOf("}"); if (a < 0 || b < a) throw { message: "Claude did not return a result in the expected format. Run it again." }; return JSON.parse(text.slice(a, b + 1)); }
+function errText(e){
+  if (e?.code === "rate_limited") return "Claude is rate limited right now. Wait a minute and run it again.";
+  if (e?.code === "not_granted") return "Claude access was not allowed for this page. Allow it from the page's permissions to run live.";
+  return e?.message || "The run did not finish. Run it again.";
+}
+$("#extract").onclick = async () => {
+  const busy = $("#busy");
+  if (!sample){ busy.innerHTML = `<div class="caution">Open this page in Claude to read a complaint live. The recorded run is shown instead.</div>`; return; }
+  const btn = $("#extract"); btn.disabled = true; busy.innerHTML = `<div class="stream" id="stream">Reading...</div>`;
+  try {
+    const res = await sample(EXPO_PROMPTS.extract({ complaint: $("#complaint").value }), { ...modelOpts(), cache: false, onText: ({ text }) => { const s = $("#stream"); if (s) s.textContent = `${text.length.toLocaleString()} characters written`; } });
+    state.extract = parseJson(res.text); state.extractLabel = "live run"; applyExtract(); busy.innerHTML = ""; renderPosture(); recompute();
+  } catch(e){ busy.innerHTML = `<div class="err">${esc(errText(e))}</div>`; }
+  btn.disabled = false;
+};
+$("#recorded").onclick = () => { $("#complaint").value = EXPOSURE_CASE.complaint; state.extract = EXPO_RECORDED.result; state.extractLabel = "recorded run on Sonnet 5.5"; $("#busy").innerHTML = ""; applyExtract(); renderPosture(); recompute(); };
+$("#complaint").oninput = () => { const c = currentCheck(); for (const f of ["defendant_revenue", "damages_demanded"]) state.confirmed[f] = c.fields[f].verified; renderPosture(); recompute(); };
+
+/* ---------- side toggle, reset, resize ---------- */
+function setSide(s){ state.side = s; $("#side-d").setAttribute("aria-pressed", s === "defendant"); $("#side-p").setAttribute("aria-pressed", s === "plaintiff"); recompute(); }
+$("#side-d").onclick = () => setSide("defendant"); $("#side-p").onclick = () => setSide("plaintiff");
+$("#reset").onclick = () => { state.tree = baseTree(); if (!state.tree.nodes[state.sel]) state.sel = state.tree.root; recompute(); buildInspector(); };
+
+/* ---------- real federal patent rates (FJC IDB) ---------- */
+const RATE_LEAF_ROWS = [
+  ["early_settle", "Notice → Settle early", "Ended before the defendant answered: settled, dropped voluntarily, consent judgment or other dismissal."],
+  ["mtd_dismiss", "MTD → Dismissed before answer", "Ended before the defendant answered by a dismissal for want of prosecution or lack of jurisdiction, or a contested motion not won by the plaintiff."],
+  ["disc_settle", "Discovery → Settled or dropped", "Ended after the defendant answered, with no ruling on the merits: settled, dropped, consent judgment, other dismissal or want of prosecution. Includes late settlements, even mid-trial."],
+  ["msj_win", "MSJ → Granted for defendant", "Judgment on a motion before trial for the defendant, or dismissal for lack of jurisdiction after the answer."],
+  ["msj_pl", "MSJ → Granted for plaintiff", "Judgment on a motion before trial for the plaintiff."],
+  ["trial_pl", "Trial → Plaintiff wins", "Jury verdict, directed verdict or court trial, judgment for the plaintiff."],
+  ["trial_df", "Trial → Defendant wins", "Jury verdict, directed verdict or court trial, judgment for the defendant."]
+];
+const SKIP_LABELS = { stage_unknown: "Stage cannot be told (procedural progress \"Other\" or blank)", unmapped_outcome: "Outcome cannot be placed (default judgment, arbitration, other judgment, judgment for both or unknown)", statistical_closing: "Statistical closing (inactive, not a real ending)", transfer_remand_mdl_agency: "Transferred, remanded or sent to MDL (the case went elsewhere)", stayed_bankruptcy: "Stayed pending bankruptcy", magistrate_appeal: "Magistrate-judge appeal" };
+const nfmt = n => Number(n).toLocaleString("en-US");
+function buildRatesSelect(){
+  const sel = $("#rates-src");
+  sel.innerHTML = `<option value="demo">Fictional demo chances (default)</option>` + Object.keys(IDB_RATES.groups).map(k => { const g = IDB_RATES.groups[k]; return `<option value="${k}">${esc(g.label)} · ${nfmt(g.n_mapped)} cases${IDB.tooFew(g.n_mapped) ? " (too few)" : ""}</option>`; }).join("");
+  sel.value = state.rates;
+}
+function renderRates(){
+  const out = $("#rates-out"), sum = $("#rates-sum");
+  if (state.rates === "demo"){ sum.textContent = "fictional demo chances"; out.innerHTML = `<p class="hint">Using the fictional demo chances. Pick a court above to start from real federal patent cases.</p>${ratesNotes()}`; return; }
+  const g = IDB_RATES.groups[state.rates], info = state.ratesInfo, C = info.counts;
+  sum.textContent = g.label + " · " + nfmt(info.n) + " cases";
+  const flag = info.too_few ? `<div class="err">Only ${nfmt(info.n)} cases here, under ${IDB.MIN_N}. These chances are not reliable.</div>` : "";
+  const fb = info.fallback.length ? `<div class="caution">No cases reached ${esc(info.fallback.join(", "))}, so that stage keeps the demo chances.</div>` : "";
+  const thin = info.thin_nodes.length ? `<div class="caution">Thin stages (under ${IDB.MIN_N} cases): ${info.thin_nodes.map(x => esc(x.node) + " (" + x.n + ")").join(", ")}.</div>` : "";
+  const nodeRows = [["Notice", C.notice.n, "Settle early", C.notice.early], ["MTD", C.mtd.n, "Dismissed before answer", C.mtd.win], ["Discovery", C.disc.n, "Settled or dropped", C.disc.settle], ["MSJ", C.msj.n, "Granted for defendant / plaintiff", C.msj.win + " / " + C.msj.pl], ["Trial", C.trial.n, "Plaintiff wins", C.trial.pl]]
+    .map(r => `<tr><td>${r[0]}</td><td class="n">${nfmt(r[1])}</td><td>${r[2]}</td><td class="n">${typeof r[3] === "number" ? nfmt(r[3]) : r[3]}</td></tr>`).join("");
+  const skipRows = Object.entries(g.skipped).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<tr><td>${esc(SKIP_LABELS[k] || k)}</td><td class="n">${nfmt(v)}</td></tr>`).join("");
+  out.innerHTML = flag + fb + thin + `<p><b>${nfmt(g.n_terminated)}</b> patent cases closed since 2010 in ${esc(g.label)}; <b>${nfmt(info.n)}</b> could be placed on the tree. The rest are listed below.</p>
+    <div class="scroll"><table><thead><tr><th>Stage</th><th class="n">Cases reaching it</th><th>Chance shown is for</th><th class="n">Cases</th></tr></thead><tbody>${nodeRows}</tbody></table></div>
+    <details style="margin-top:8px"><summary style="cursor:pointer;font-size:13px">Cases left out (${nfmt(g.n_terminated - info.n)})</summary><div class="scroll" style="margin-top:8px"><table><tbody>${skipRows}</tbody></table></div></details>` + ratesNotes();
+}
+function ratesNotes(){
+  const nat = IDB_RATES.groups.national, p = IDB_RATES.provenance;
+  const rows = RATE_LEAF_ROWS.map(r => `<tr><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join("");
+  const dem = nat.demanded, amt = nat.amount_received_plaintiff_judgments;
+  return `<details style="margin-top:8px"><summary style="cursor:pointer;font-size:13px">How court outcomes were mapped onto the tree, and what the data cannot tell you</summary><div style="margin-top:8px;font-size:13px">
+    <div class="scroll"><table><thead><tr><th>Tree branch</th><th>Which closed cases count</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <ul class="hint" style="margin-top:10px;padding-left:18px">
+      <li>This mapping is a judgment call, written out in sources/MAPPING.md. The court data records how a case ended, not which stage a lawyer would call it.</li>
+      <li>"Settled" is not the same as "paid". Voluntary dismissals and "other" dismissals are counted as early or discovery exits, and some of those are plaintiffs walking away with nothing. Chances of a payout are probably overstated.</li>
+      <li>The data cannot tell a settlement reached before the answer from a later one except through the "before or after answer" progress code. About ${pct(nat.skipped.stage_unknown / nat.n_terminated, 0)} of national cases have no usable progress code and are left out; if they skew late or early, the chances shift.</li>
+      <li>Motions to dismiss that were granted are hard to see: many show up only as "dismissed, other" and land in the early-exit bucket. Treat the motion-to-dismiss chance as a floor.</li>
+      <li>Each lawsuit is one case. In busy courts, one patent holder suing many defendants adds many near-identical cases that mostly end early.</li>
+      <li>There is no real dollar distribution here. The court data's money fields are weak: the demand is filled in on ${pct(dem.fill_rate, 1)} of patent cases (in thousands of dollars, capped at 9,999) and the amount received on ${pct(amt.fill_rate, 0)} of plaintiff wins (${pct(amt.at_cap_9999 / amt.filled, 0)} of those are the 9,999 cap, and the court's own codebook advises against using it). So the comps stay fictional.</li>
+      <li>Source: Federal Judicial Center Integrated Database, civil file 1988 to present (${esc(p.file_name.split(" ")[0])}, ${nfmt(p.file_size_bytes)} bytes, downloaded ${esc(p.download_date)}), patent cases (nature of suit 830) closed 2010 or later. Patent drug-application suits (835) are not included.</li>
+    </ul></div></details>`;
+}
+function setRates(k){
+  state.rates = k;
+  if (k === "demo") state.ratesInfo = null;
+  else state.ratesInfo = IDB.treeFromCounts(EXPOSURE_TREE, IDB_RATES.groups[k].leaves);
+  state.tree = baseTree();
+  if (!state.tree.nodes[state.sel]) state.sel = state.tree.root;
+  renderRates(); recompute(); buildInspector();
+}
+$("#rates-src").onchange = e => setRates(e.target.value);
+let rz = 0, lastW = 0;
+window.addEventListener("resize", () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => { const w = $("#tree").clientWidth; if (w === lastW) return; lastW = w; renderTreeSvg(); renderDist(); }); });
+document.querySelectorAll("details.sec").forEach(d => d.addEventListener("toggle", () => { renderTreeSvg(); renderDist(); }));
+
+/* ---------- boot ---------- */
+$("#complaint").value = EXPOSURE_CASE.complaint;
+buildRatesSelect(); renderRates();
+applyExtract(); renderPosture(); buildInspector(); recompute(); lastW = $("#tree").clientWidth;
+(async () => {
+  try { sample = await window.claude?.use("sample"); } catch(e){ sample = null; }
+  try { downloads = await window.claude?.use("downloads"); } catch(e){ downloads = null; }
+  if (!sample) $("#extract").title = "Open this page in Claude to read a complaint live";
+})();
+</script>
+</body>
+</html>
