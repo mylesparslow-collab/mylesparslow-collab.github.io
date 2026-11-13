@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Usage Flame (sample data)</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f6f5f2; --surface: #fcfcfb; --line: #e2e0da;
+  --ink: #0b0b0b; --ink-2: #52514e; --ink-3: #7b7a75;
+  --k-overhead: #2a78d6; --k-thinking: #eb6834; --k-reply: #1baf7a; --k-files: #eda100;
+  --k-shell: #e87ba4; --k-web: #008300; --k-agents: #6250d6; --k-other: #9a9891;
+  --k-rebuild: #d03b3b; --k-group: #dedcd5; --accent: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #121211; --surface: #1a1a19; --line: #33332f;
+    --ink: #f0efec; --ink-2: #c3c2b7; --ink-3: #8f8e86;
+    --k-overhead: #3987e5; --k-thinking: #d95926; --k-reply: #199e70; --k-files: #c98500;
+    --k-shell: #d55181; --k-web: #008300; --k-agents: #9085e9; --k-other: #6f6e68;
+    --k-rebuild: #e66767; --k-group: #3a3a36; --accent: #3987e5;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121211; --surface: #1a1a19; --line: #33332f;
+  --ink: #f0efec; --ink-2: #c3c2b7; --ink-3: #8f8e86;
+  --k-overhead: #3987e5; --k-thinking: #d95926; --k-reply: #199e70; --k-files: #c98500;
+  --k-shell: #d55181; --k-web: #008300; --k-agents: #9085e9; --k-other: #6f6e68;
+  --k-rebuild: #e66767; --k-group: #3a3a36; --accent: #3987e5;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+  font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; }
+main { max-width: 1120px; margin: 0 auto; padding: 32px 16px 64px; }
+h1 { font-size: 26px; line-height: 1.2; margin: 0 0 6px; letter-spacing: -0.01em; }
+h2 { font-size: 15px; margin: 36px 0 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-2); }
+.sub { color: var(--ink-2); margin: 0; }
+.sample { margin: 10px 0 0; padding: 8px 12px; border: 1px dashed var(--line); border-radius: 8px; background: var(--surface); color: var(--ink-2); font-size: 13px; }
+.sample a { color: var(--accent); }
+.num { font-variant-numeric: tabular-nums; }
+.hero { display: flex; gap: 28px; flex-wrap: wrap; align-items: baseline; margin-top: 18px; }
+.hero .big { font-size: 44px; font-weight: 650; letter-spacing: -0.02em; line-height: 1; }
+.hero .cap { color: var(--ink-2); font-size: 13px; }
+.fixes { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+.fix { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
+.fix .n { color: var(--ink-3); font-size: 12px; }
+.fix h3 { margin: 2px 0 8px; font-size: 16px; line-height: 1.3; }
+.fix .save { font-weight: 600; margin: 0 0 8px; }
+.fix p { margin: 0 0 8px; color: var(--ink-2); font-size: 14px; }
+.fix summary, details > summary { cursor: pointer; color: var(--accent); font-size: 13px; }
+.fix ul { margin: 8px 0 0; padding-left: 18px; color: var(--ink-2); font-size: 13px; }
+.none { background: var(--surface); border: 1px dashed var(--line); border-radius: 10px; padding: 16px; color: var(--ink-2); }
+.bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.seg button { border: 0; background: none; color: var(--ink-2); font: inherit; font-size: 13px; padding: 6px 12px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+.crumbs { font-size: 13px; color: var(--ink-2); min-height: 20px; }
+.crumbs button { border: 0; background: none; color: var(--accent); font: inherit; cursor: pointer; padding: 0; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: var(--ink-2); margin: 10px 0 0; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+#flame { position: relative; width: 100%; }
+.cell { position: absolute; height: 26px; border-radius: 4px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  font-size: 12px; line-height: 26px; padding: 0 6px; border: 0; cursor: pointer; text-align: left; font-family: inherit;
+  transition: filter .12s; }
+.cell:hover, .cell:focus-visible { filter: brightness(1.12); outline: 2px solid var(--ink); outline-offset: -2px; }
+.cell.dim { opacity: .55; }
+#tip { position: fixed; z-index: 10; pointer-events: none; max-width: 360px; background: var(--ink); color: var(--surface);
+  border-radius: 8px; padding: 10px 12px; font-size: 12.5px; line-height: 1.45; display: none; box-shadow: 0 6px 24px rgba(0,0,0,.25); }
+#tip b { font-size: 13.5px; }
+#tip .row { display: flex; justify-content: space-between; gap: 16px; }
+#tip .d { opacity: .75; margin-top: 6px; word-break: break-word; }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 10px; }
+th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--ink-3); font-weight: 500; font-size: 12px; }
+td.r, th.r { text-align: right; }
+.tw { overflow-x: auto; }
+.foot { color: var(--ink-3); font-size: 12.5px; margin-top: 28px; }
+.foot li { margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Where this session's usage went</h1>
+  <p class="sub" id="meta"></p>
+  <p class="sample">Sample data: this is a made-up coding session on an invented project, shown so you can try the page. <a href="/research/#usage-flame">Back to the case study</a></p>
+  <div class="hero">
+    <div><div class="big num" id="total"></div><div class="cap">at API list price</div></div>
+    <div><div class="big num" id="calls"></div><div class="cap">calls to the model</div></div>
+    <div><div class="big num" id="outshare"></div><div class="cap">of the cost was writing and thinking</div></div>
+  </div>
+
+  <h2>Cheapest fixes</h2>
+  <div class="fixes" id="fixes"></div>
+
+  <h2>Flame graph</h2>
+  <div class="card">
+    <div class="bar">
+      <div class="seg" role="group" aria-label="Group by">
+        <button id="by-turn" aria-pressed="true">By what you asked</button>
+        <button id="by-kind" aria-pressed="false">By kind of work</button>
+      </div>
+      <div class="crumbs" id="crumbs"></div>
+    </div>
+    <div id="flame" role="img" aria-label="Flame graph of session cost. The same figures are in the table below."></div>
+    <div class="legend" id="legend"></div>
+  </div>
+  <p class="sub" style="font-size:13px;margin-top:8px">Width is cost. Click a block to zoom in; click the top bar to zoom back out. Hover for the breakdown.</p>
+
+  <h2>Most expensive items</h2>
+  <details open>
+    <summary>Show the table</summary>
+    <div class="tw"><table id="table"></table></div>
+  </details>
+
+  <ul class="foot" id="foot"></ul>
+</main>
+<div id="tip"></div>
+<script>
+const D = {"session": "c41e7a90-2b8d-4f6a-a3c5-0e91d7b2f664", "total": 4.026938, "calls": 78, "minutes": 214, "tokens": {"in": 1850, "write": 324492, "read": 5360273, "out": 40765}, "models": {"claude-opus-5-5": 3.900712, "claude-sonnet-5-5": 0.116653, "claude-haiku-5-5": 0.009572}, "turns": ["Before the first message", "Add a waitlist for plots that are fully booked", "Why do the booking tests fail on the new waitlist?", "Show the waitlist position on each plot page", "Email people when a plot opens up", "Match how the other emails look and are sent", "Check the waitlist against last season's export", "Add a README section for the waitlist", "Tidy up and run everything one last time"], "kinds": {"overhead": "Fixed overhead", "thinking": "Thinking", "reply": "Written replies", "files": "Files", "shell": "Commands", "web": "Web and connectors", "agents": "Subagents", "other": "Everything else", "rebuild": "Cache rebuilds"}, "nodes": [{"label": "System prompt", "kind": "overhead", "group": "System prompt", "detail": "", "turn": -1, "gen": 0.0, "write": 0.0256, "carry": 0.03712, "tokens": 3200, "rtok": 0, "calls": 58}, {"label": "Tool definitions and other fixed instructions", "kind": "overhead", "group": "Tool definitions", "detail": "", "turn": -1, "gen": 0.0, "write": 0.0952, "carry": 0.13804, "tokens": 11900, "rtok": 0, "calls": 58}, {"label": "List of skills", "kind": "overhead", "group": "List of skills", "detail": "", "turn": -1, "gen": 0.0, "write": 0.0184, "carry": 0.02668, "tokens": 2300, "rtok": 0, "calls": 58}, {"label": "Your CLAUDE.md and memory index", "kind": "overhead", "group": "Your CLAUDE.md and memory index", "detail": "", "turn": -1, "gen": 0.0, "write": 0.0136, "carry": 0.01972, "tokens": 1700, "rtok": 0, "calls": 58}, {"label": "Environment details", "kind": "overhead", "group": "Environment details", "detail": "", "turn": -1, "gen": 0.0, "write": 0.0052, "carry": 0.00754, "tokens": 650, "rtok": 0, "calls": 58}, {"label": "Thinking", "kind": "thinking", "group": "Thinking", "detail": "", "turn": 1, "gen": 0.092, "write": 0.0, "carry": 0.0, "tokens": 4600, "rtok": 0, "calls": 0}, {"label": "Find files src/larkspur/**/*.py", "kind": "files", "group": "Glob", "detail": "src/larkspur/**/*.py", "turn": 1, "gen": 0.0008, "write": 0.00592, "carry": 0.008436, "tokens": 740, "rtok": 700, "calls": 57}, {"label": "Read README.md", "kind": "files", "group": "Read", "detail": "/work/larkspur/README.md", "turn": 1, "gen": 0.0014, "write": 0.01496, "carry": 0.021318, "tokens": 1870, "rtok": 1800, "calls": 57}, {"label": "Reply: I'll start by looking at how bookings are stored.", "kind": "reply", "group": "Written replies", "detail": "", "turn": 1, "gen": 0.0008, "write": 0.00032, "carry": 0.000456, "tokens": 40, "rtok": 0, "calls": 57}, {"label": "Read bookings.py", "kind": "files", "group": "Read", "detail": "/work/larkspur/src/larkspur/bookings.py", "turn": 1, "gen": 0.0014, "write": 0.05176, "carry": 0.072464, "tokens": 6470, "rtok": 6400, "calls": 56}, {"label": "Read models.py", "kind": "files", "group": "Read", "detail": "/work/larkspur/src/larkspur/models.py", "turn": 1, "gen": 0.0014, "write": 0.02536, "carry": 0.035504, "tokens": 3170, "rtok": 3100, "calls": 56}, {"label": "Search def book_plot", "kind": "files", "group": "Grep", "detail": "src/larkspur", "turn": 1, "gen": 0.0012, "write": 0.00768, "carry": 0.01056, "tokens": 960, "rtok": 900, "calls": 55}, {"label": "Read schedule.py", "kind": "files", "group": "Read", "detail": "/work/larkspur/src/larkspur/schedule.py", "turn": 1, "gen": 0.0014, "write": 0.03176, "carry": 0.04367, "tokens": 3970, "rtok": 3900, "calls": 55}, {"label": "Read config.py", "kind": "files", "group": "Read", "detail": "/work/larkspur/src/larkspur/config.py", "turn": 1, "gen": 0.0014, "write": 0.01256, "carry": 0.016956, "tokens": 1570, "rtok": 1500, "calls": 54}, {"label": "List migrations", "kind": "shell", "group": "Bash", "detail": "ls migrations && git log --oneline -5", "turn": 1, "gen": 0.0018, "write": 0.00488, "carry": 0.006466, "tokens": 610, "rtok": 520, "calls": 53}, {"label": "Write 0007_waitlist.sql", "kind": "files", "group": "Write", "detail": "/work/larkspur/migrations/0007_waitlist.sql", "turn": 1, "gen": 0.0076, "write": 0.00352, "carry": 0.004576, "tokens": 440, "rtok": 60, "calls": 52}, {"label": "Reply: Adding a table for the waitlist with one row per \u2026", "kind": "reply", "group": "Written replies", "detail": "", "turn": 1, "gen": 0.0011, "write": 0.00044, "carry": 0.000572, "tokens": 55, "rtok": 0, "calls": 52}, {"label": "Edit models.py", "kind": "files", "group": "Edit", "detail": "/work/larkspur/src/larkspur/models.py", "turn": 1, "gen": 0.0124, "write": 0.00592, "carry": 0.007548, "tokens": 740, "rtok": 120, "calls": 51}, {"label": "Edit bookings.py", "kind": "files", "group": "Edit", "detail": "/work/larkspur/src/larkspur/bookings.py", "turn": 1, "gen": 0.025, "write": 0.01096, "carry": 0.0137, "tokens": 1370, "rtok": 120, "calls": 50}, {"label": "Edit schedule.py", "kind": "files", "group": "Edit", "detail": "/work/larkspur/src/larkspur/schedule.py", "turn": 1, "gen": 0.0096, "write": 0.0048, "carry": 0.00588, "tokens": 600, "rtok": 120, "calls": 49}, {"label": "Apply the migration", "kind": "shell", "group": "Bash", "detail": "python -m larkspur.migrate up", "turn": 1, "gen": 0.0018, "write": 0.0028, "carry": 0.00336, "tokens": 350, "rtok": 260, "calls": 48}, {"label": "Run a quick smoke test", "kind": "shell", "group": "Bash", "detail": "python -c 'from larkspur import bookings; print(bookings.join_waitlist)'", "turn": 1, "gen": 0.0018, "write": 0.00216, "carry": 0.002538, "tokens": 270, "rtok": 180, "calls": 47}, {"label": "Reply: The waitlist is in: when a plot is full, join_wai\u2026", "kind": "reply", "group": "Written replies", "detail": "", "turn": 1, "gen": 0.0038, "write": 0.00152, "carry": 0.001748, "tokens": 190, "rtok": 0, "calls": 46}, {"label": "Thinking", "kind": "thinking", "group": "Thinking", "detail": "", "turn": 2, "gen": 0.056, "write": 0.0, "carry": 0.0, "tokens": 2800, "rtok": 0, "calls": 0}, {"label": "Run the booking tests", "kind": "shell", "group": "Bash", "detail": "pytest tests/test_bookings.py -x", "turn": 2, "gen": 0.0014, "write": 0.04376, "carry": 0.04923, "tokens": 5470, "rtok": 5400, "calls": 45}, {"label": "Read test_bookings.py", "kind": "files", "group": "Read", "detail": "/work/larkspur/tests/test_bookings.py", "turn": 2, "gen": 0.0014, "write": 0.07416, "carry": 0.081576, "tokens": 9270, "rtok": 9200, "calls": 44}, {"label": "Reply: The failure is in a fixture that assumes every pl\u2026", "kind": "reply", "group": "Written replies", "detail": "", "turn": 2, "gen": 0.0014, "write": 0.00056, "carry": 0.000616, "tokens": 70, "rtok": 0, "calls": 44}, {"label": "Search capacity", "kind": "files", "group": "Grep", "detail": "src/larkspur", "turn": 2, "gen": 0.0012, "write": 0.00928, "carry": 0.009976, "tokens": 1160, "rtok": 1100, "calls": 43}, {"label": "Read bookings.py", "kind": "files", "group": "Read", "detail": "/work/larkspur/src/larkspur/bookings.py", "turn": 2, "gen": 0.0014, "write": 0.05576, "carry": 0.058548, "tokens": 6970, "rtok": 6900, "calls": 42}, {"label": "Edit bookings.py", "kind": "files", "group": "Edit", "detail": "/work/larkspur/src/larkspur/bookings.py", "turn": 2, "gen": 0.0104, "write": 0.00512, "carry": 0.005248, "tokens": 640, "rtok": 120, "calls": 41}, {"label": "Edit test_bookings.py", "kind": "files", "group": "Edit", "detail": "/work/larkspur/tests/test_bookings.py", "turn": 2, "gen": 0.0112, "write": 0.00544, "carry": 0.00544, "tokens": 680, "rtok": 120, "calls": 40}, {"label": "Run the booking tests", "kind": "shell", "group": "Bash", "detail": "pytest tests/test_bookings.py", "turn": 2, "gen": 0.0018, "write": 0.01592, "carry": 0.015522, "tokens": 1990, "rtok": 1900, "calls": 39}, {"label": "Run the whole suite", "kind": "shell", "group": "Bash", "detail": "pytest -q", "turn": 2, "gen": 0.0018, "write": 0.01912, "carry": 0.018164, "tokens": 2390, "rtok": 2300, "calls": 38}, {"label": "Reply: Fixed. The fixture hard-coded capacity 3, so any \u2026", "kind": "reply", "group": "Written replies", "detail": "", "turn": 2, "gen": 0.003, "write": 0.0012, "carry": 0.00111, "tokens": 150, "rtok": 0, "calls": 37}, {"label": "Thinking", "kind": "thinking", "group": "Thinking", "detail": "", "turn": 3, "gen": 0.038, "write": 0.0, "carry": 0.0, "tokens": 1900, "rtok": 0, "calls": 0}, {"label": "Read plot.html", "kind": "files", "group": "Read", "detail": "/work/larkspur/templates/plot.html", "turn": 3, "gen": 0.0014, "write": 0.03896, "carry": 0.035064, "tokens": 4870, "rtok": 4800, "calls": 36}, {"label": "Read views.py", "kind": "files", "group": "Read", "detail": "/work/larkspur/src/larkspur/views.py", "turn": 3, "gen": 0.0014, "write": 0.03016, "carry": 0.027144, "tokens": 3770, "rtok": 3700, "calls": 36}, {"label": "Search waitlist", "kind": "files", "group": "Grep", "detail": "src templates", "turn": 3, "gen": 0.0012, "write": 0.0056, "carry": 0.0049, "tokens": 700, "rtok": 640, "calls": 35}, {"label": "Edit views.py", "kind": "files", "group": "Edit", "detail": "/work/larkspur/src/larkspur/views.py", "turn": 3, "gen": 0.0084, "write": 0.00432, "carry": 0.003672, "tokens": 540, "rtok": 120, "calls": 34}, {"label": "Edit plot.html", "kind": "files", "group": "Edit", "detail": "/work/larkspur/templates/plot.html", "turn": 3, "gen": 0.0112, "write": 0.00544, "carry": 0.004488, "tokens": 680, "rtok": 120, "calls": 33}, {"label": "Start the dev server and fetch a plot page", "kind": "shell", "group": "Bash", "detail": "python -m larkspur.dev & sleep 2 && curl -s localhost:8000/plots/12 | head -60", "turn": 3, "gen": 0.0018, "write": 0.01432, "carry": 0.011456, "tokens": 1790, "rtok": 1700, "calls": 32}, {"label": "Edit plot.html", "kind": "files", "group": "Edit", "detail": "/work/larkspur/templates/plot.html", "turn": 3, "gen": 0.0048, "write": 0.00288, "carry": 0.002232, "tokens": 360, "rtok": 120, "calls": 31}, {"label": "Reply: The position showed as 0 for the first person. Sw\u2026", "kind": "reply", "group": "Written replies", "detail": "", "turn": 3, "gen": 0.0011, "write": 0.00044, "carry": 0.000341, "tokens": 55, "rtok": 0, "calls": 31}, {"label": "Fetch the plot page again", "kind": "shell", "group": "Bash", "detail": "curl -s localhost:8000/plots/12 | grep -n waitlist", "turn": 3, "gen": 0.0018, "write": 0.00376, "carry": 0.00282, "tokens": 470, "rtok": 380, "calls": 30}, {"label": "Reply: Each full plot now says \"You are 2nd in line\" for\u2026", "kind": "reply", "group": "Written replies", "detail": "", "turn": 3, "gen": 0.0026, "write": 0.00104, "carry": 0.000754, "tokens": 130, "rtok": 0, "calls": 29}, {"label": "Thinking", "kind": "thinking", "group": "Thinking", "detail": "", "turn": 4, "gen": 0.093, "write": 0.0, "carry": 0.0, "tokens": 4650, "rtok": 0, "calls": 0}, {"label": "Read notifications.py", "kind": "files", "group": "Read", "detail": "/work/larkspur/src/larkspur/notifications.py", "turn": 4, "gen": 0.0014, "write": 0.03416, "carry": 0.023912, "tokens": 4270, "rtok": 4200, "calls": 28}, {"label": "Read mailer.py", "kind": "files", "group": "Read", "detail": "/work/larkspur/src/larkspur/mailer.py", "turn": 4, "gen": 0.0014, "write": 0.04216, "carry": 0.028458, "tokens": 5270, "rtok": 5200, "calls": 27}, {"label": "Agent: Explore how emails are sent", "kind": "agents", "group": "Agent", "detail": "Find every place an email is sent, and what each one looks like. [ran on claude-haiku-5-5; 8 calls; read-only]", "turn": 4, "gen": 0.0052, "write": 0.00928, "carry": 0.006032, "tokens": 1160, "rtok": 900, "calls": 26, "model": "claude-haiku-5-5", "children": [{"label": "System prompt", "kind": "overhead", "group": "System prompt", "detail": "", "turn": -1, "gen": 0.0, "write": 0.00104, "carry": 0.000364, "tokens": 5200, "rtok": 0, "calls": 7}, {"label": "Tool definitions and other fixed instructions", "kind": "overhead", "group": "Tool definitions", "detail": "", "turn": -1, "gen": 0.0, "write": 0.00156, "carry": 0.000546, "tokens": 7800, "rtok": 0, "calls": 7}, {"label": "Thinking", "kind": "thinking", "group": "Thinking", "detail": "", "turn": 1, "gen": 0.000455, "write": 0.0, "carry": 0.0, "tokens": 910, "rtok": 0, "calls": 0}, {"label": "Search send_mail|send_email", "kind": "files", "group": "Grep", "detail": "src templates", "turn": 1, "gen": 3e-05, "write": 0.000292, "carry": 8.8e-05, "tokens": 1460, "rtok": 1400, "calls": 6}, {"label": "Read mailer.py", "kind": "files", "group": "Read", "detail": "/work/larkspur/src/larkspur/mailer.py", "turn": 1, "gen": 3.5e-05, "write": 0.001054, "carry": 0.000264, "tokens": 5270, "rtok": 5200, "calls": 5}, {"label": "Read notifications.py", "kind": "files", "group": "Read", "detail": "/work/larkspur/src/larkspur/notifications.py", "turn": 1, "gen": 3.5e-05, "write": 0.000854, "carry": 0.000214, "tokens": 4270, "rtok": 4200, "calls": 5}, {"label": "Find files templates/email/*.html", "kind": "files", "group": "Glob", "detail": "templates/email/*.html", "turn": 1, "gen": 2e-05, "write": 9.2e-05, "carry": 1.8e-05, "tokens": 460, "rtok": 420, "calls": 4}, {"label": "Read base.html", "kind": "files", "group": "Read", "detail": "/work/larkspur/templates/email/base.html", "turn": 1, "gen": 3.5e-05, "write": 0.000394, "carry": 5.9e-05, "tokens": 1970, "rtok": 1900, "calls": 3}, {"label": "Read booking_confirmed.html", "kind": "files", "group": "Read", "detail": "/work/larkspur/templates/email/booking_confirmed.html", "turn": 1, "gen": 3.5e-05, "write": 0.000534, "carry": 8e-05, "tokens": 2670, "rtok": 2600, "calls": 3}, {"label": "Search def send_", "kind": "files", "group": "Grep", "detail": "src", "turn": 1, "gen": 3e-05, "write": 0.000172, "carry": 1.7e-05, "tokens": 860, "rtok": 800, "calls": 2}, {"label": "Read reminders.py", "kind": "files", "group": "Read", "detail": "/work/larkspur/src/larkspur/reminders.py", "turn": 1, "gen": 3.5e-05, "write": 0.000574, "carry": 2.9e-05, "tokens": 2870, "rtok": 2800, "calls": 1}, {"label": "Read reminder.html", "kind": "files", "group": "Read", "detail": "/work/larkspur/templates/email/reminder.html", "turn": 1, "gen": 3.5e-05, "write": 0.000314, "carry": 0.0, "tokens": 1570, "rtok": 1500, "calls": 0}, {"label": "Reply: Emails go out from mailer.send(): three kinds, bo\u2026", "kind": "reply", "group": "Written replies", "detail": "", "turn": 1, "gen": 0.00026, "write": 0.0, "carry": 0.0, "tokens": 520, "rtok": 0, "calls": 0}, {"label": "You: Find every place an email is sent, and what each \u2026", "kind": "other", "group": "Your messages", "detail": "", "turn": 1, "gen": 0.0, "write": 7e-06, "carry": 2e-06, "tokens": 33, "rtok": 33, "calls": 7}]}, {"label": "Read config.py", "kind": "files", "group": "Read", "detail": "/work/larkspur/src/larkspur/config.py", "turn": 4, "gen": 0.0014, "write": 0.01256, "carry": 0.00785, "tokens": 1570, "rtok": 1500, "calls": 25}, {"label": "Write waitlist_mail.py", "kind": "files", "group": "Write", "detail": "/work/larkspur/src/larkspur/waitlist_mail.py", "turn": 4, "gen": 0.028, "write": 0.01168, "carry": 0.007008, "tokens": 1460, "rtok": 60, "calls": 24}, {"label": "Reply: Writing the notifier as its own module so booking\u2026", "kind": "reply", "group": "Written replies", "detail": "", "turn": 4, "gen": 0.0009, "write": 0.00036, "carry": 0.000216, "tokens": 45, "rtok": 0, "calls": 24}, {"label": "Edit bookings.py", "kind": "files", "group": "Edit", "detail": "/work/larkspur/src/larkspur/bookings.py", "turn": 4, "gen": 0.0076, "write": 0.004, "carry": 0.0023, "tokens": 500, "rtok": 120, "calls": 23}, {"label": "Send a test email to the dev inbox", "kind": "shell", "group": "Bash", "detail": "python -m larkspur.dev send-test waitlist_open", "turn": 4, "gen": 0.0018, "write": 0.01032, "carry": 0.005676, "tokens": 1290, "rtok": 1200, "calls": 22}, {"label": "Reply: When someone cancels, the first person on the wai\u2026", "kind": "reply", "group": "Written replies", "detail": "", "turn": 4, "gen": 0.0024, "write": 0.00096, "carry": 0.000504, "tokens": 120, "rtok": 0, "calls": 21}, {"label": "Thinking", "kind": "thinking", "group": "Thinking", "detail": "", "turn": 5, "gen": 0.048, "write": 0.0, "carry": 0.0, "tokens": 2400, "rtok": 0, "calls": 0}, {"label": "Read mailer.py", "kind": "files", "group": "Read", "detail": "/work/larkspur/src/larkspur/mailer.py", "turn": 5, "gen": 0.0014, "write": 0.04216, "carry": 0.02108, "tokens": 5270, "rtok": 5200, "calls": 20}, {"label": "Read booking_confirmed.html", "kind": "files", "group": "Read", "detail": "/work/larkspur/templates/email/booking_confirmed.html", "turn": 5, "gen": 0.0014, "write": 0.02136, "carry": 0.010146, "tokens": 2670, "rtok": 2600, "calls": 19}, {"label": "Read base.html", "kind": "files", "group": "Read", "detail": "/work/larkspur/templates/email/base.html", "turn": 5, "gen": 0.0014, "write": 0.01576, "carry": 0.007486, "tokens": 1970, "rtok": 1900, "calls": 19}, {"label": "Write waitlist_open.html", "kind": "files", "group": "Write", "detail": "/work/larkspur/templates/email/waitlist_open.html", "turn": 5, "gen": 0.014, "write": 0.00608, "carry": 0.002736, "tokens": 760, "rtok": 60, "calls": 18}, {"label": "Edit waitlist_mail.py", "kind": "files", "group": "Edit", "detail": "/work/larkspur/src/larkspur/waitlist_mail.py", "turn": 5, "gen": 0.0092, "write": 0.00464, "carry": 0.001972, "tokens": 580, "rtok": 120, "calls": 17}, {"label": "Agent: Review the waitlist change", "kind": "agents", "group": "Agent", "detail": "Read the diff for the waitlist and tell me what could go wrong. [ran on claude-opus-5-5; 6 calls]", "turn": 5, "gen": 0.0062, "write": 0.01288, "carry": 0.005152, "tokens": 1610, "rtok": 1300, "calls": 16, "model": "claude-opus-5-5", "children": [{"label": "System prompt", "kind": "overhead", "group": "System prompt", "detail": "", "turn": -1, "gen": 0.0, "write": 0.0416, "carry": 0.0052, "tokens": 5200, "rtok": 0, "calls": 5}, {"label": "Tool definitions and other fixed instructions", "kind": "overhead", "group": "Tool definitions", "detail": "", "turn": -1, "gen": 0.0, "write": 0.0624, "carry": 0.0078, "tokens": 7800, "rtok": 0, "calls": 5}, {"label": "Thinking", "kind": "thinking", "group": "Thinking", "detail": "", "turn": 1, "gen": 0.056, "write": 0.0, "carry": 0.0, "tokens": 2800, "rtok": 0, "calls": 0}, {"label": "Show the diff", "kind": "shell", "group": "Bash", "detail": "git diff main --stat && git diff main -- src", "turn": 1, "gen": 0.0014, "write": 0.04216, "carry": 0.004216, "tokens": 5270, "rtok": 5200, "calls": 4}, {"label": "Read bookings.py", "kind": "files", "group": "Read", "detail": "/work/larkspur/src/larkspur/bookings.py", "turn": 1, "gen": 0.0014, "write": 0.05976, "carry": 0.004482, "tokens": 7470, "rtok": 7400, "calls": 3}, {"label": "Read waitlist_mail.py", "kind": "files", "group": "Read", "detail": "/work/larkspur/src/larkspur/waitlist_mail.py", "turn": 1, "gen": 0.0014, "write": 0.02056, "carry": 0.001542, "tokens": 2570, "rtok": 2500, "calls": 3}, {"label": "Read models.py", "kind": "files", "group": "Read", "detail": "/work/larkspur/src/larkspur/models.py", "turn": 1, "gen": 0.0014, "write": 0.02696, "carry": 0.001348, "tokens": 3370, "rtok": 3300, "calls": 2}, {"label": "Search hold_until", "kind": "files", "group": "Grep", "detail": "src", "turn": 1, "gen": 0.0012, "write": 0.00608, "carry": 0.000152, "tokens": 760, "rtok": 700, "calls": 1}, {"label": "Try two people taking one opened plot", "kind": "shell", "group": "Bash", "detail": "python scripts/race_demo.py", "turn": 1, "gen": 0.0018, "write": 0.00792, "carry": 0.0, "tokens": 990, "rtok": 900, "calls": 0}, {"label": "Reply: One real problem: if two cancellations happen at \u2026", "kind": "reply", "group": "Written replies", "detail": "", "turn": 1, "gen": 0.0076, "write": 0.0, "carry": 0.0, "tokens": 380, "rtok": 0, "calls": 0}, {"label": "You: Read the diff for the waitlist and tell me what c\u2026", "kind": "other", "group": "Your messages", "detail": "", "turn": 1, "gen": 0.0, "write": 0.0002, "carry": 2.5e-05, "tokens": 25, "rtok": 25, "calls": 5}]}, {"label": "Reply: Asking a reviewer to look over the whole waitlist\u2026", "kind": "reply", "group": "Written replies", "detail": "", "turn": 5, "gen": 0.0008, "write": 0.00032, "carry": 0.000128, "tokens": 40, "rtok": 0, "calls": 16}, {"label": "Edit bookings.py", "kind": "files", "group": "Edit", "detail": "/work/larkspur/src/larkspur/bookings.py", "turn": 5, "gen": 0.0072, "write": 0.00384, "carry": 0.00144, "tokens": 480, "rtok": 120, "calls": 15}, {"label": "Run the tests", "kind": "shell", "group": "Bash", "detail": "pytest -q", "turn": 5, "gen": 0.0018, "write": 0.01752, "carry": 0.006132, "tokens": 2190, "rtok": 2100, "calls": 14}, {"label": "Reply: The email now matches the booking confirmation an\u2026", "kind": "reply", "group": "Written replies", "detail": "", "turn": 5, "gen": 0.0032, "write": 0.00128, "carry": 0.000416, "tokens": 160, "rtok": 0, "calls": 13}, {"label": "Thinking", "kind": "thinking", "group": "Thinking", "detail": "", "turn": 6, "gen": 0.045, "write": 0.0, "carry": 0.0, "tokens": 2250, "rtok": 0, "calls": 0}, {"label": "Find files data/**/*.json", "kind": "files", "group": "Glob", "detail": "data/**/*.json", "turn": 6, "gen": 0.0008, "write": 0.00336, "carry": 0.001008, "tokens": 420, "rtok": 380, "calls": 12}, {"label": "Read export_2025.json", "kind": "files", "group": "Read", "detail": "/work/larkspur/data/export_2025.json", "turn": 6, "gen": 0.0014, "write": 0.09016, "carry": 0.024794, "tokens": 11270, "rtok": 11200, "calls": 11}, {"label": "Read test_bookings.py", "kind": "files", "group": "Read", "detail": "/work/larkspur/tests/test_bookings.py", "turn": 6, "gen": 0.0014, "write": 0.07576, "carry": 0.01894, "tokens": 9470, "rtok": 9400, "calls": 10}, {"label": "Agent: Replay last season's bookings", "kind": "agents", "group": "Agent", "detail": "Replay every booking from last season through the new waitlist and compare. [ran on claude-sonnet-5-5; 5 calls]", "turn": 6, "gen": 0.0058, "write": 0.01112, "carry": 0.002502, "tokens": 1390, "rtok": 1100, "calls": 9, "model": "claude-sonnet-5-5", "children": [{"label": "System prompt", "kind": "overhead", "group": "System prompt", "detail": "", "turn": -1, "gen": 0.0, "write": 0.0208, "carry": 0.00208, "tokens": 5200, "rtok": 0, "calls": 4}, {"label": "Tool definitions and other fixed instructions", "kind": "overhead", "group": "Tool definitions", "detail": "", "turn": -1, "gen": 0.0, "write": 0.0312, "carry": 0.00312, "tokens": 7800, "rtok": 0, "calls": 4}, {"label": "Thinking", "kind": "thinking", "group": "Thinking", "detail": "", "turn": 1, "gen": 0.0078, "write": 0.0, "carry": 0.0, "tokens": 780, "rtok": 0, "calls": 0}, {"label": "Find files data/*.json", "kind": "files", "group": "Glob", "detail": "data/*.json", "turn": 1, "gen": 0.0004, "write": 0.00136, "carry": 0.000102, "tokens": 340, "rtok": 300, "calls": 3}, {"label": "Read compare_replay.py", "kind": "files", "group": "Read", "detail": "/work/larkspur/scripts/compare_replay.py", "turn": 1, "gen": 0.0007, "write": 0.00868, "carry": 0.000651, "tokens": 2170, "rtok": 2100, "calls": 3}, {"label": "Run the replay for 2025", "kind": "shell", "group": "Bash", "detail": "python scripts/compare_replay.py --season 2025 --verbose", "turn": 1, "gen": 0.0009, "write": 0.02476, "carry": 0.001238, "tokens": 6190, "rtok": 6100, "calls": 2}, {"label": "Re-run for the busiest weekend", "kind": "shell", "group": "Bash", "detail": "python scripts/compare_replay.py --season 2025 --week 22", "turn": 1, "gen": 0.0009, "write": 0.00556, "carry": 0.000139, "tokens": 1390, "rtok": 1300, "calls": 1}, {"label": "Count who got a plot", "kind": "shell", "group": "Bash", "detail": "python scripts/compare_replay.py --season 2025 --summary", "turn": 1, "gen": 0.0009, "write": 0.00244, "carry": 0.0, "tokens": 610, "rtok": 520, "calls": 0}, {"label": "Reply: 41 plots filled at some point. The waitlist would\u2026", "kind": "reply", "group": "Written replies", "detail": "", "turn": 1, "gen": 0.0028, "write": 0.0, "carry": 0.0, "tokens": 280, "rtok": 0, "calls": 0}, {"label": "You: Replay every booking from last season through the\u2026", "kind": "other", "group": "Your messages", "detail": "", "turn": 1, "gen": 0.0, "write": 0.000112, "carry": 1.1e-05, "tokens": 28, "rtok": 28, "calls": 4}]}, {"label": "Check the replay numbers", "kind": "shell", "group": "Bash", "detail": "python scripts/compare_replay.py --season 2025", "turn": 6, "gen": 0.0018, "write": 0.00792, "carry": 0.001584, "tokens": 990, "rtok": 900, "calls": 8}, {"label": "Reply: Replaying the 2025 season, 41 plots were full at \u2026", "kind": "reply", "group": "Written replies", "detail": "", "turn": 6, "gen": 0.0022, "write": 0.00088, "carry": 0.000154, "tokens": 110, "rtok": 0, "calls": 7}, {"label": "Thinking", "kind": "thinking", "group": "Thinking", "detail": "", "turn": 7, "gen": 0.01, "write": 0.0, "carry": 0.0, "tokens": 500, "rtok": 0, "calls": 0}, {"label": "Read README.md", "kind": "files", "group": "Read", "detail": "/work/larkspur/README.md", "turn": 7, "gen": 0.0014, "write": 0.01736, "carry": 0.002604, "tokens": 2170, "rtok": 2100, "calls": 6}, {"label": "Edit README.md", "kind": "files", "group": "Edit", "detail": "/work/larkspur/README.md", "turn": 7, "gen": 0.0112, "write": 0.00544, "carry": 0.00068, "tokens": 680, "rtok": 120, "calls": 5}, {"label": "Reply: Added a short Waitlist section: how it works, the\u2026", "kind": "reply", "group": "Written replies", "detail": "", "turn": 7, "gen": 0.0018, "write": 0.00072, "carry": 7.2e-05, "tokens": 90, "rtok": 0, "calls": 4}, {"label": "Thinking", "kind": "thinking", "group": "Thinking", "detail": "", "turn": 8, "gen": 0.012, "write": 0.0, "carry": 0.0, "tokens": 600, "rtok": 0, "calls": 0}, {"label": "Run formatter and linter", "kind": "shell", "group": "Bash", "detail": "ruff format . && ruff check .", "turn": 8, "gen": 0.0018, "write": 0.00712, "carry": 0.000534, "tokens": 890, "rtok": 800, "calls": 3}, {"label": "Edit waitlist_mail.py", "kind": "files", "group": "Edit", "detail": "/work/larkspur/src/larkspur/waitlist_mail.py", "turn": 8, "gen": 0.0032, "write": 0.00224, "carry": 0.000112, "tokens": 280, "rtok": 120, "calls": 2}, {"label": "Run everything", "kind": "shell", "group": "Bash", "detail": "pytest -q && python -m larkspur.dev check", "turn": 8, "gen": 0.0018, "write": 0.01752, "carry": 0.000438, "tokens": 2190, "rtok": 2100, "calls": 1}, {"label": "Show what changed", "kind": "shell", "group": "Bash", "detail": "git status --short && git diff --stat", "turn": 8, "gen": 0.0018, "write": 0.00632, "carry": 0.0, "tokens": 790, "rtok": 700, "calls": 0}, {"label": "Reply: All checks pass. Nine files changed, ready for yo\u2026", "kind": "reply", "group": "Written replies", "detail": "", "turn": 8, "gen": 0.0016, "write": 0.0, "carry": 0.0, "tokens": 80, "rtok": 0, "calls": 0}, {"label": "You: Add a waitlist for plots that are fully booked", "kind": "other", "group": "Your messages", "detail": "", "turn": 1, "gen": 0.0, "write": 0.00016, "carry": 0.000232, "tokens": 20, "rtok": 20, "calls": 58}, {"label": "You: Why do the booking tests fail on the new waitlist?", "kind": "other", "group": "Your messages", "detail": "", "turn": 2, "gen": 0.0, "write": 0.000168, "carry": 0.000193, "tokens": 21, "rtok": 21, "calls": 46}, {"label": "You: Show the waitlist position on each plot page", "kind": "other", "group": "Your messages", "detail": "", "turn": 3, "gen": 0.0, "write": 0.000152, "carry": 0.000141, "tokens": 19, "rtok": 19, "calls": 37}, {"label": "You: Email people when a plot opens up", "kind": "other", "group": "Your messages", "detail": "", "turn": 4, "gen": 0.0, "write": 0.000128, "carry": 9.3e-05, "tokens": 16, "rtok": 16, "calls": 29}, {"label": "You: Match how the other emails look and are sent", "kind": "other", "group": "Your messages", "detail": "", "turn": 5, "gen": 0.0, "write": 0.000152, "carry": 8e-05, "tokens": 19, "rtok": 19, "calls": 21}, {"label": "You: Check the waitlist against last season's export", "kind": "other", "group": "Your messages", "detail": "", "turn": 6, "gen": 0.0, "write": 0.00016, "carry": 5.2e-05, "tokens": 20, "rtok": 20, "calls": 13}, {"label": "You: Add a README section for the waitlist", "kind": "other", "group": "Your messages", "detail": "", "turn": 7, "gen": 0.0, "write": 0.000144, "carry": 2.5e-05, "tokens": 18, "rtok": 18, "calls": 7}, {"label": "You: Tidy up and run everything one last time", "kind": "other", "group": "Your messages", "detail": "", "turn": 8, "gen": 0.0, "write": 0.000144, "carry": 1.4e-05, "tokens": 18, "rtok": 18, "calls": 4}, {"label": "Cache rebuilt after a 2-hour pause", "kind": "rebuild", "group": "Cache rebuilds", "detail": "85,250 tokens of earlier context had to be re-sent at the write price.", "turn": 4, "gen": 0.0, "write": 0.66495, "carry": 0.0, "tokens": 85250, "rtok": 0, "calls": 0}], "fixes": [{"title": "Keep the biggest results out of the main conversation", "saving": 0.866579, "share": 0.215196, "how": "Read only the part you need (a line range or a search), or hand the reading to a subagent so only its short answer comes back. A large result is paid for once when it arrives and again, at the re-read price, on every call for the rest of the session.", "evidence": ["Read test_bookings.py: about 9,200 tokens, re-read on 44 later calls, $0.16", "Read bookings.py: about 6,400 tokens, re-read on 56 later calls, $0.12", "Read export_2025.json: about 11,200 tokens, re-read on 11 later calls, $0.11", "Read bookings.py: about 6,900 tokens, re-read on 42 later calls, $0.11", "Read test_bookings.py: about 9,400 tokens, re-read on 10 later calls, $0.09"]}, {"title": "Avoid coming back to a cold cache", "saving": 0.66495, "share": 0.165125, "how": "After a long pause the saved context expires and the whole conversation is re-sent at the write price. Before stepping away from a long session, compact it or finish and start a new one when you return.", "evidence": ["Cache rebuilt after a 2-hour pause: 85,250 tokens re-sent, $0.66"]}, {"title": "Stop reading the same file twice", "saving": 0.107814, "share": 0.026773, "how": "The whole file was already in the conversation and had not been edited with the file tools since. Refer back to it, or re-read only the lines that changed. (An edit made by a shell command is not visible here.)", "evidence": ["Read mailer.py: read again, $0.06", "Read config.py: read again, $0.02", "Read README.md: read again, $0.02"]}], "caveats": ["Dollar figures are API list prices. On a subscription they are a relative measure of usage, not a bill.", "Item sizes are estimated from text length and scaled to the real token counts, so small items are approximate."], "made": "2026-11-13 14:20"};
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const money = (v) => v < 0.005 ? "<$0.01" : "$" + v.toFixed(2);
+const pct = (v) => (v * 100 < 0.5 ? "<1" : Math.round(v * 100)) + "%";
+const num = (v) => Math.round(v).toLocaleString("en-US");
+const own = (n) => n.gen + n.write + n.carry;
+const full = (n) => own(n) + (n.children || []).reduce((s, c) => s + full(c), 0);
+
+// ---- header
+const outCost = (function walk(ns) { return ns.reduce((s, n) => s + n.gen + walk(n.children || []), 0); })(D.nodes);
+$("meta").textContent = [D.session.slice(0, 8), D.minutes != null ? D.minutes + " minutes" : null,
+  Object.entries(D.models).map(([m, c]) => m.replace("claude-", "") + " " + money(c)).join(", "),
+  "made " + D.made].filter(Boolean).join(" · ");
+$("total").textContent = money(D.total);
+$("calls").textContent = num(D.calls);
+$("outshare").textContent = pct(outCost / (D.total || 1));
+
+// ---- fixes
+const fx = D.fixes.slice(0, 3);
+$("fixes").innerHTML = fx.length ? fx.map((f, i) => `
+  <div class="fix"><div class="n">Fix ${i + 1}</div><h3>${esc(f.title)}</h3>
+  <p class="save num">Would have saved about ${money(f.saving)} (${pct(f.share)} of the session)</p>
+  <p>${esc(f.how)}</p>
+  <details><summary>What it found</summary><ul>${f.evidence.map((e) => `<li>${esc(e)}</li>`).join("")}</ul></details></div>`).join("")
+  : `<div class="none">Nothing worth fixing stood out. No single avoidable cost came to more than half a percent of this session.</div>`;
+
+// ---- tree
+const KIND_ORDER = ["overhead", "thinking", "reply", "files", "shell", "web", "agents", "other", "rebuild"];
+function leafNode(n) {
+  const t = { label: n.label, kind: n.kind, n, kids: [] };
+  if (n.children && n.children.length) {
+    t.n = null; t.note = n.detail;
+    if (own(n) > 0) t.kids.push({ label: "The call and its report", kind: n.kind, n: { ...n, children: null }, kids: [] });
+    const byKind = {};
+    n.children.forEach((c) => (byKind[c.kind] = byKind[c.kind] || []).push(c));
+    Object.entries(byKind).forEach(([k, cs]) => t.kids.push({ label: D.kinds[k] + " (inside the subagent)", kind: k, kids: cs.map(leafNode) }));
+  }
+  return t;
+}
+function group(nodes, keyFn, labelFn, next) {
+  const m = new Map();
+  nodes.forEach((n) => { const k = keyFn(n); if (!m.has(k)) m.set(k, []); m.get(k).push(n); });
+  return [...m.entries()].map(([k, ns]) => ({ label: labelFn(k), key: k, kind: next ? null : ns[0].kind, kids: next ? next(ns) : ns.map(leafNode) }));
+}
+function build(mode) {
+  let kids;
+  if (mode === "turn") {
+    kids = group(D.nodes, (n) => n.turn, (t) => t < 0 ? "Fixed overhead, re-read on every call" : (t === 0 ? D.turns[0] : `${t}. ${D.turns[t]}`),
+      (ns) => group(ns, (n) => n.kind, (k) => D.kinds[k]).map((g) => ({ ...g, kind: g.key })));
+    kids.sort((a, b) => a.key - b.key);
+  } else {
+    kids = group(D.nodes, (n) => n.kind, (k) => D.kinds[k],
+      (ns) => group(ns, (n) => n.group, (g) => g).map((g) => ({ ...g, kind: ns[0].kind })));
+    kids.forEach((k) => (k.kind = k.key));
+    kids.sort((a, b) => KIND_ORDER.indexOf(a.key) - KIND_ORDER.indexOf(b.key));
+  }
+  const root = { label: "Whole session", kind: null, kids };
+  (function sum(t, parent, depth) {
+    t.parent = parent; t.depth = depth;
+    t.value = t.n ? own(t.n) : 0;
+    t.kids.forEach((c) => (t.value += sum(c, t, depth + 1)));
+    if (!(mode === "turn" && depth === 0)) t.kids.sort((a, b) => b.value - a.value);
+    return t.value;
+  })(root, null, 0);
+  return root;
+}
+
+// ---- render
+const ROW = 28;
+let mode = "turn", root = build(mode), focus = root;
+function ink(varName) {
+  const c = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  const m = c.match(/^#([0-9a-f]{6})$/i);
+  if (!m) return "#fff";
+  const [r, g, b] = [0, 2, 4].map((i) => parseInt(m[1].slice(i, i + 2), 16) / 255).map((v) => v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.3 ? "#0b0b0b" : "#ffffff";
+}
+function draw() {
+  const el = $("flame"), W = el.clientWidth;
+  el.innerHTML = "";
+  let maxDepth = 0;
+  const anc = [];
+  for (let a = focus.parent; a; a = a.parent) anc.unshift(a);
+  const place = (t, x, w, row, dim) => {
+    if (w < 1.5) return;
+    maxDepth = Math.max(maxDepth, row);
+    const b = document.createElement("button");
+    b.className = "cell" + (dim ? " dim" : "");
+    const v = t.kind ? `--k-${t.kind}` : "--k-group";
+    b.style.cssText = `left:${x}px;top:${row * ROW}px;width:${Math.max(w - 2, 1)}px;background:var(${v});color:${ink(v)}`;
+    b.textContent = w > 46 ? `${t.label}  ${money(t.value)}` : "";
+    b.setAttribute("aria-label", `${t.label}, ${money(t.value)}, ${pct(t.value / D.total)} of the session`);
+    b.onclick = () => { focus = (t === focus && t.parent) ? t.parent : (t.kids.length ? t : (t.parent || t)); draw(); };
+    b.onmousemove = (e) => tip(t, e.clientX, e.clientY);
+    b.onmouseleave = () => ($("tip").style.display = "none");
+    b.onfocus = () => { const r = b.getBoundingClientRect(); tip(t, r.left, r.bottom); };
+    b.onblur = () => ($("tip").style.display = "none");
+    el.appendChild(b);
+  };
+  anc.forEach((a, i) => place(a, 0, W, i, true));
+  (function rec(t, x, w, row) {
+    place(t, x, w, row, false);
+    let cx = x;
+    t.kids.forEach((c) => { const cw = t.value ? w * c.value / t.value : 0; rec(c, cx, cw, row + 1); cx += cw; });
+  })(focus, 0, W, anc.length);
+  el.style.height = (maxDepth + 1) * ROW + "px";
+  $("crumbs").innerHTML = focus === root ? "" :
+    [...anc, focus].map((a, i, arr) => i < arr.length - 1 ? `<button data-i="${i}">${esc(a.label)}</button>` : `<span>${esc(a.label)}</span>`).join(" › ");
+  $("crumbs").querySelectorAll("button").forEach((b) => (b.onclick = () => { focus = [...anc, focus][+b.dataset.i]; draw(); }));
+}
+function tip(t, x, y) {
+  const el = $("tip"), n = t.n;
+  let h = `<b>${esc(t.label)}</b><div class="row"><span>${money(t.value)}</span><span>${pct(t.value / D.total)} of the session</span></div>`;
+  if (n) {
+    const rows = [["Writing it", n.gen], ["Sending it the first time", n.write], [`Re-reading it on ${n.calls} later call${n.calls === 1 ? "" : "s"}`, n.carry]];
+    h += rows.filter((r) => r[1] > 0.00005).map((r) => `<div class="row"><span>${r[0]}</span><span>${money(r[1])}</span></div>`).join("");
+    if (n.tokens) h += `<div class="row"><span>Size in the conversation</span><span>about ${num(n.tokens)} tokens</span></div>`;
+    if (n.model) h += `<div class="row"><span>Subagent model</span><span>${esc(n.model.replace("claude-", ""))}</span></div>`;
+    if (n.detail) h += `<div class="d">${esc(n.detail)}</div>`;
+  } else if (t.kids.length) h += `<div class="d">${t.note ? esc(t.note) + " " : ""}${t.kids.length} part${t.kids.length === 1 ? "" : "s"}. Click to zoom in.</div>`;
+  el.innerHTML = h; el.style.display = "block";
+  const r = el.getBoundingClientRect();
+  el.style.left = Math.max(8, Math.min(x + 14, innerWidth - r.width - 8)) + "px";
+  el.style.top = (y + 18 + r.height > innerHeight ? Math.max(8, y - r.height - 12) : y + 18) + "px";
+}
+function setMode(m) {
+  mode = m; root = build(m); focus = root;
+  $("by-turn").setAttribute("aria-pressed", m === "turn"); $("by-kind").setAttribute("aria-pressed", m === "kind");
+  draw();
+}
+$("by-turn").onclick = () => setMode("turn");
+$("by-kind").onclick = () => setMode("kind");
+addEventListener("resize", draw);
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", draw);
+
+// ---- legend
+const present = new Set(); (function w(ns) { ns.forEach((n) => { present.add(n.kind); w(n.children || []); }); })(D.nodes);
+$("legend").innerHTML = KIND_ORDER.filter((k) => present.has(k)).map((k) =>
+  `<span><i style="background:var(--k-${k})"></i>${k === "rebuild" ? "⚠ " : ""}${esc(D.kinds[k])}</span>`).join("");
+
+// ---- table
+const flat = []; (function w(ns, where) { ns.forEach((n) => {
+  flat.push({ n, where: where || (n.turn < 0 ? "Fixed overhead" : (n.turn === 0 ? D.turns[0] : `${n.turn}. ${D.turns[n.turn]}`)) });
+  if (n.children) w(n.children, "Inside: " + n.label);
+}); })(D.nodes);
+flat.sort((a, b) => own(b.n) - own(a.n));
+$("table").innerHTML = `<thead><tr><th>What</th><th>Kind</th><th>Asked in</th><th class="r">Size (tokens)</th><th class="r">Re-read</th><th class="r">Cost</th><th class="r">Share</th></tr></thead><tbody>` +
+  flat.slice(0, 25).map(({ n, where }) => `<tr><td>${esc(n.label)}</td><td>${esc(D.kinds[n.kind])}</td><td>${esc(where)}</td>
+  <td class="r num">${n.tokens ? num(n.tokens) : ""}</td><td class="r num">${n.calls ? n.calls + "×" : ""}</td>
+  <td class="r num">${money(own(n))}</td><td class="r num">${pct(own(n) / D.total)}</td></tr>`).join("") + "</tbody>";
+
+$("foot").innerHTML = D.caveats.map((c) => `<li>${esc(c)}</li>`).join("") +
+  `<li>Tokens billed: ${num(D.tokens.read)} re-read from cache, ${num(D.tokens.write)} written to cache, ${num(D.tokens.in)} uncached, ${num(D.tokens.out)} generated.</li>`;
+draw();
+</script>
+</body>
+</html>
