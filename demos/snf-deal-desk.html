@@ -255,7 +255,7 @@ const ENTITY={corp:'Corporation',llc:'LLC',partnership:'Partnership',nonprofit:'
 
 function blankDeal(today){return{
   id:'d'+Math.random().toString(36).slice(2,9),name:'',client:'',side:'buyer',structure:'asset',entity:'llc',
-  target:addDays(today,150),outside:'',mgmt:'no',assign:'undecided',ohca:'unk',
+  target:addDays(today,150),outside:'',state:'CA',mgmt:'no',assign:'undecided',ohca:'unk',
   facilities:[blankFacility()],tasks:{},docs:[],created:today,updated:today}}
 function blankFacility(){return{id:'f'+Math.random().toString(36).slice(2,9),name:'',city:'',beds:'',licensee:'',medi:'yes',nonprofit:'no',hud:'no',leased:'no',app:'none',appDate:''}}
 
@@ -392,7 +392,8 @@ function analyze(d,today){
   const counts={req:R.filter(r=>r.status==='req').length,info:R.filter(r=>r.status==='info').length,review:R.filter(r=>r.status==='review').length};
   return{regimes:R,dates:D,tasks:K,requests:Q,per,earliest,gap,latest,counts};
 }
-global.Rules={analyze,blankDeal,blankFacility,STRUCT,ENTITY,SRC,P,F,addDays,diff};
+const STATES={AL:'Alabama',AK:'Alaska',AZ:'Arizona',AR:'Arkansas',CA:'California',CO:'Colorado',CT:'Connecticut',DE:'Delaware',DC:'District of Columbia',FL:'Florida',GA:'Georgia',HI:'Hawaii',ID:'Idaho',IL:'Illinois',IN:'Indiana',IA:'Iowa',KS:'Kansas',KY:'Kentucky',LA:'Louisiana',ME:'Maine',MD:'Maryland',MA:'Massachusetts',MI:'Michigan',MN:'Minnesota',MS:'Mississippi',MO:'Missouri',MT:'Montana',NE:'Nebraska',NV:'Nevada',NH:'New Hampshire',NJ:'New Jersey',NM:'New Mexico',NY:'New York',NC:'North Carolina',ND:'North Dakota',OH:'Ohio',OK:'Oklahoma',OR:'Oregon',PA:'Pennsylvania',RI:'Rhode Island',SC:'South Carolina',SD:'South Dakota',TN:'Tennessee',TX:'Texas',UT:'Utah',VT:'Vermont',VA:'Virginia',WA:'Washington',WV:'West Virginia',WI:'Wisconsin',WY:'Wyoming'};
+global.Rules={STATES,analyze,blankDeal,blankFacility,STRUCT,ENTITY,SRC,P,F,addDays,diff};
 })(window);
 
 /* Document checks. Text is extracted in the browser and checked here; nothing leaves the machine. */
@@ -426,12 +427,25 @@ function snippet(text,idx,len,pad=140){
 }
 function each(docs,re,fn){docs.forEach(d=>d.pages.forEach((t,p)=>{re.lastIndex=0;let m;while((m=re.exec(t))){fn(d,p,t,m);if(!re.global)break}}))}
 const cite=(d,p,t,idx,len)=>({doc:d.id,docName:d.name,page:d.pages.length>1?p+1:null,pageIdx:p,idx,len,...snippet(t,idx,len)});
-const isAPA=d=>/purchase agreement/i.test(d.name)||/purchase agreement/i.test(d.pages.join(' ').slice(0,3000));
+const APA_RE=/(?:purchase|sale)\s+(?:and\s+(?:sale|purchase)\s+)?agreement|(?:stock|share|equity|asset)\s+purchase|asset\s+sale/i;
+const OTA_RE=/operations?\s+transfer\s+agreement/i;
+/* type comes from the title (file name and the first lines), not from words later in the text: an operations transfer agreement mentions the purchase agreement it sits beside */
+function docType(d){
+  const head=norm(d.pages.join(' ').slice(0,400)).slice(0,300);
+  const o=OTA_RE.exec(head),a=APA_RE.exec(head);
+  if(o&&(!a||o.index<=a.index))return'ota';
+  if(a)return'apa';
+  if(OTA_RE.test(d.name))return'ota';
+  if(APA_RE.test(d.name))return'apa';
+  return APA_RE.test(d.pages.join(' ').slice(0,3000))?'apa':'other';
+}
+const isAPA=d=>docType(d)==='apa';
 const isMSA=d=>/management/i.test(d.name)||/management (services )?agreement/i.test(d.pages.join(' ').slice(0,3000));
 
 /* ---------- entity names ---------- */
 const SUFFIX=/,?[ \t]+(LLC|L\.L\.C\.|Inc\.?|Incorporated|Corporation|Corp\.|L\.P\.|LP|LLP|Ltd\.)(?=[\s,.;:)"']|$)/;
-const ENT_RE=new RegExp(`((?:[A-Z][A-Za-z0-9&'.-]*[ \\t]+){0,7}[A-Z][A-Za-z0-9&'.-]*)${SUFFIX.source}`,'g');
+const ENT_RE=new RegExp(`((?:(?:[A-Z0-9][A-Za-z0-9&'.-]*|of|and|the)(?:[ \\t]+|[ \\t]*\\r?\\n[ \\t]*)){0,7}[A-Z][A-Za-z0-9&'.-]*)${SUFFIX.source}`,'g');
+const DEFINED=/^[^()]{0,160}\(\s*(?:the |each a |each an |each, a |collectively,? the )?["“”]/i;
 const LEAD=new Set('the this and each by between among with to of from for name witness whereas now therefore agreement in on at as a an any such said owner new old certain all its their our sign signed title dated'.split(' '));
 const SYN=[['opco','operations','operating','operator','ops'],['holdings','holding','holdco'],['propco','property','properties','realty'],['management','mgmt','managers'],['healthcare','health care']];
 const synKey=w=>{for(const g of SYN)if(g.includes(w))return g[0];return w};
@@ -443,8 +457,11 @@ function entities(docs){
     const base=words.join(' '),suf=m[2].replace(/\./g,'').toUpperCase().replace('INCORPORATED','INC').replace('CORPORATION','CORP');
     const key=(base.toLowerCase().replace(/[^a-z0-9 ]/g,'')+' '+suf).trim();
     const start=m.index+m[0].indexOf(words[0]);
-    if(!map.has(key))map.set(key,{key,base,suf,display:base.replace(/\b([A-Z])([A-Z]+)\b/g,(x,a,b)=>a+b.toLowerCase())+', '+(suf==='INC'?'Inc.':suf),hits:[]});
-    map.get(key).hits.push(cite(d,p,t,start,m.index+m[0].length-start));
+    if(!map.has(key))map.set(key,{key,base,suf,defined:false,display:base.replace(/\b([A-Z])([A-Z]+)\b/g,(x,a,b)=>a+b.toLowerCase())+', '+(suf==='INC'?'Inc.':suf),hits:[]});
+    const e=map.get(key);e.hits.push(cite(d,p,t,start,m.index+m[0].length-start));
+    const after=t.slice(m.index+m[0].length,m.index+m[0].length+220).replace(/\s+/g,' ');
+    /* introduced as a party: given a defined term, or described as ", a California ..." */
+    if(DEFINED.test(after)||/^,\s+an?\s+[A-Z][a-z]+/.test(after))e.defined=true;
   });
   return[...map.values()];
 }
@@ -454,7 +471,7 @@ function nameIssues(ents){
   for(let i=0;i<ents.length;i++)for(let j=i+1;j<ents.length;j++){
     const A=ents[i],B=ents[j],a=A.base.toLowerCase().replace(/[^a-z0-9 ]/g,''),b=B.base.toLowerCase().replace(/[^a-z0-9 ]/g,'');
     let why=null;
-    if(a===b&&A.suf!==B.suf)why=`Same name, different entity type (${A.suf} vs ${B.suf}).`;
+    if(a===b&&A.suf!==B.suf){if(A.defined&&B.defined)continue;/* owner and operator pair, both defined parties */why=`Same name, different entity type (${A.suf} vs ${B.suf}).`}
     else{
       const wa=a.split(' ').map(synKey),wb=b.split(' ').map(synKey);
       if(a!==b&&wa.join(' ')===wb.join(' '))why='Names differ only by a word that usually means the same entity (for example Opco / Operations).';
@@ -471,13 +488,28 @@ function nameIssues(ents){
 }
 
 /* ---------- missing schedules and exhibits ---------- */
+const ROMAN={I:1,II:2,III:3,IV:4,V:5,VI:6,VII:7,VIII:8,IX:9,X:10,XI:11,XII:12};
+/* Schedule I and Schedule 1 are the same attachment */
+const attKey=(kind,ref)=>(kind+' '+(ROMAN[ref]||ref)).toLowerCase();
+const TITLE_CTX=/title (?:commitment|insurance|company|policy|report)|commitment (?:for|no)|exceptions? to title|survey exception/i;
+const CONNECT=new Set('of and the to for in on a an or by at with from'.split(' '));
+/* a heading is the label alone or a short title after it; a line that merely starts with a reference and goes on as a sentence is a mention */
+function isHeadingLine(rest){
+  rest=rest.trim().replace(/^[.]$/,'');
+  if(!rest)return true;
+  if(/[,;]\s*$/.test(rest))return false;
+  if(/^[-–—:.]\s*\S/.test(rest))return true;
+  if(/^\(/.test(rest))return false;
+  return rest.split(/\s+/).every(w=>/^[A-Z0-9(]/.test(w)||CONNECT.has(w.toLowerCase())||/^[-–—&]$/.test(w));
+}
 function missingAttachments(docs){
   const refs=new Map(),heads=new Set();
-  const ref=/\b(Schedule|Exhibit|Annex|Appendix)\s+([0-9]+(?:\.[0-9]+)*(?:\([a-z0-9]+\))*|[A-Z](?:-[0-9]+)?)(?![A-Za-z])/gi;
+  const ref=/\b(Schedule|Exhibit|Annex|Appendix)\s+([0-9]+(?:\.[0-9]+)*[A-Z]?(?:\([a-z0-9]+\))*|[A-Z](?:-(?:[0-9]+|[IVX]+))?)(?![A-Za-z0-9])/gi;
   each(docs,ref,(d,p,t,m)=>{
     const lineStart=t.lastIndexOf('\n',m.index)+1,lineEnd=t.indexOf('\n',m.index),before=t.slice(lineStart,m.index).trim(),line=t.slice(lineStart,lineEnd<0?undefined:lineEnd).trim();
-    const key=(m[1]+' '+m[2]).toLowerCase();
-    if(before===''&&line.length<90)heads.add(key);
+    const key=attKey(m[1],m[2]);
+    if(/^B(?:-|$)/i.test(m[2])&&/^schedule$/i.test(m[1])&&TITLE_CTX.test(t.slice(Math.max(0,m.index-250),m.index+250).replace(/\s+/g,' ')))return;
+    if(before===''&&line.length<90&&isHeadingLine(t.slice(m.index+m[0].length,lineEnd<0?undefined:lineEnd)))heads.add(key);
     else if(!refs.has(key))refs.set(key,{label:m[1][0].toUpperCase()+m[1].slice(1).toLowerCase()+' '+m[2],c:cite(d,p,t,m.index,m[0].length)});
   });
   docs.forEach(d=>{const n=d.name.toLowerCase();refs.forEach((v,k)=>{if(n.includes(k))heads.add(k)})});
@@ -508,9 +540,12 @@ function earlyControl(docs){
 function parseDate(s){const m=new RegExp(`(${MONTHS})\\s+(\\d{1,2}),\\s*(\\d{4})`).exec(s);if(!m)return null;const mo=MONTHS.split('|').indexOf(m[1])+1;return `${m[3]}-${String(mo).padStart(2,'0')}-${String(m[2]).padStart(2,'0')}`}
 function dateIssues(docs,deal,fmt){
   const out=[];
-  const re=new RegExp(`["“](Outside Date|Termination Date|End Date)["”][^.]{0,120}?((?:${MONTHS})\\s+\\d{1,2},\\s*\\d{4})`,'g');
+  const DT=`((?:${MONTHS})\\s+\\d{1,2},\\s*\\d{4})`;
+  /* defined outside/termination date, or a closing deadline written as a covenant */
+  const re=new RegExp(`["“](?:Outside Date|Termination Date|End Date)["”][^.]{0,120}?${DT}|\\b(?:Outside|Termination|End) Date\\s+(?:shall be|will be|is|means?)\\s+${DT}|\\bClosing\\s+(?:Date\\s+)?(?:shall|will|must)\\s+(?:occur|take place|be held|be consummated|have occurred)[^.]{0,60}?(?:on or before|no later than|not later than)\\s+${DT}|\\b(?:on or before|no later than|not later than)\\s+${DT}\\s*\\(\\s*the\\s+["“](?:Closing Date|Outside Date|Termination Date)["”]`,'g');
+  const seen=new Set();
   each(docs.filter(isAPA),re,(d,p,t,m)=>{
-    const dt=parseDate(m[2]);if(!dt)return;
+    const dt=parseDate(m[1]||m[2]||m[3]||m[4]);if(!dt||seen.has(d.id+dt))return;seen.add(d.id+dt);
     if(!deal.outside)out.push({id:'date:'+d.id+dt,sev:'low',cat:'Dates',title:`Agreement sets the outside date at ${fmt(dt)}`,why:'The deal record has no outside date. Add it so the timeline can check the approvals against it.',quotes:[cite(d,p,t,m.index,m[0].length)],fix:{outside:dt}});
     else if(dt!==deal.outside)out.push({id:'date:'+d.id+dt,sev:'high',cat:'Dates',title:`Outside date doesn't match: ${fmt(dt)} in the agreement, ${fmt(deal.outside)} in the deal record`,why:'One of them is wrong. The timeline and every approval check use the deal record.',quotes:[cite(d,p,t,m.index,m[0].length)],fix:{outside:dt}});
   });
@@ -518,10 +553,13 @@ function dateIssues(docs,deal,fmt){
 }
 
 /* ---------- conditions to closing cover the required approvals ---------- */
-function conditionGaps(docs,regimes){
+function conditionGaps(docs,regimes,deal){
   const apas=docs.filter(isAPA);if(!apas.length)return[];
+  const st=(deal&&deal.state)||'CA';
+  if(st!=='CA'){const nm=(Rules.STATES&&Rules.STATES[st])||st;
+    return[{id:'cp:state',sev:'low',cat:'Conditions',title:`Approvals not checked for ${nm}`,why:`The approval checks here cover California only (CDPH, Medi-Cal, OHCA, Attorney General). Check the purchase agreement against ${nm}'s licensing, Medicaid and any certificate-of-need requirements yourself.`,quotes:[]}]}
   const text=apas.map(d=>d.pages.join('\n')).join('\n');
-  const tests={cdph:/CDPH|Department of Public Health|license (?:approval|issued)|AB 1502/i,hud:/HUD|Housing and Urban Development|Section 232/i,ag:/Attorney General/i,landlord:/landlord|lessor/i,ohca:/OHCA|Health Care Affordability|HCAI/i,medi:/Medi-Cal|DHCS/i};
+  const tests={cdph:/CDPH|Department of Public Health|license (?:approval|issued)|AB 1502/i,hud:/HUD|Housing and Urban Development|Section 232/i,ag:/Attorney General/i,landlord:/landlord|lessor/i,ohca:/OHCA|Health Care Affordability|HCAI/i,medi:/Medi-Cal|Medicaid|DHCS/i};
   const out=[];
   regimes.filter(r=>r.status==='req'&&tests[r.id]).forEach(r=>{
     if(!tests[r.id].test(text))out.push({id:'cp:'+r.id,sev:'high',cat:'Conditions',title:`Purchase agreement never mentions: ${r.name}`,why:`This deal needs it, but the purchase agreement doesn't refer to it anywhere. It should usually be a condition to closing with a covenant to pursue it.`,quotes:[],src:r.src[0],task:`Add ${r.name} as a condition to closing in the purchase agreement`});
@@ -530,16 +568,36 @@ function conditionGaps(docs,regimes){
 }
 
 /* ---------- blanks, signers ---------- */
+/* Blanks that are meant to stay blank: notary acknowledgments, and the closing forms (bill of sale, certificates, assignments) attached after the signature page. */
+const NOTARY=/STATE OF|COUNTY OF|acknowledged before me|notary public|before me,|commission expires/i;
+const FORM_HEAD=/^[ \t]*(?:EXHIBIT|ANNEX|APPENDIX|SCHEDULE)\s+[A-Z0-9][A-Z0-9.\-]*\b[^\n]*/gim;
+const FORM_WORDS=/FORM OF|CERTIFICATE|BILL OF SALE|ASSIGNMENT|AFFIDAVIT|ACKNOWLEDG|DEED|STOCK POWER|RECEIPT|LEGAL OPINION|ESCROW|BRING-?DOWN|WARRANTY|POWER OF ATTORNEY|RELEASE|NOTICE|CONSENT|ESTOPPEL|CLOSING STATEMENT/i;
+const SIG_MARK=/IN WITNESS WHEREOF|SIGNATURE PAGE/i;
+/* returns a test for "this offset is inside a form exhibit that follows the signature page" for each page; state carries across pages */
+function formRegions(d){
+  let seen=false;
+  return d.pages.map(t=>{
+    let from=0;
+    if(!seen){const m=SIG_MARK.exec(t);if(m){seen=true;from=m.index}else return[]}
+    const heads=[];FORM_HEAD.lastIndex=from;let m;
+    while((m=FORM_HEAD.exec(t))){if(m[0].trim().length<110)heads.push({at:m.index,form:FORM_WORDS.test(m[0]+' '+t.slice(m.index+m[0].length,m.index+m[0].length+260))})}
+    return heads.map((h,k)=>h.form?[h.at,k+1<heads.length?heads[k+1].at:t.length]:null).filter(Boolean);
+  });
+}
+const inForm=(regs,p,idx)=>(regs[p]||[]).some(([a,b])=>idx>=a&&idx<b);
+const inNotary=(t,idx)=>NOTARY.test(t.slice(Math.max(0,idx-700),idx+120));
 function blanks(docs){
   const out=[];const re=/\[(?:●|•|\*|_{2,}|TBD|TBC|insert[^\]]{0,40}|bracket[^\]]{0,20}|\s*)\]|_{6,}/gi;
-  docs.forEach(d=>{const qs=[];d.pages.forEach((t,p)=>{re.lastIndex=0;let m;while((m=re.exec(t)))qs.push(cite(d,p,t,m.index,m[0].length))});
+  docs.forEach(d=>{const qs=[],regs=formRegions(d);d.pages.forEach((t,p)=>{re.lastIndex=0;let m;while((m=re.exec(t))){if(inForm(regs,p,m.index)||inNotary(t,m.index))continue;qs.push(cite(d,p,t,m.index,m[0].length))}});
     if(qs.length)out.push({id:'blank:'+d.id,sev:'med',cat:'Drafting',title:`${qs.length} blank${qs.length>1?'s':''} left in ${d.name}`,why:'Placeholders that still need a value before signing.',quotes:qs.slice(0,3),meta:qs.length>3?`+${qs.length-3} more`:''})});
   return out;
 }
 function signers(docs){
-  const out=[];const re=/By:\s*(?:\/s\/)?\s*([^\n]{0,60})\n?\s*(?:Name:\s*([^\n]{0,60})\n?\s*)?Title:\s*([^\n]{2,60})/g;
+  const out=[];const re=/By:\s*(?:\/s\/)?\s*([^\n]{0,60})\n?\s*(?:Name:\s*([^\n]{0,60})\n?\s*)?(?:Title|Its):[ \t]*([^\n]{2,60})/g;
+  const regs=new Map(docs.map(d=>[d.id,formRegions(d)]));
   each(docs,re,(d,p,t,m)=>{
     const title=m[3].trim();
+    if(/^[_\s.\-]*$/.test(title)||inForm(regs.get(d.id),p,m.index)||inNotary(t,m.index))return; /* blank title or a form block: nothing to judge */
     if(/\b(Chief Executive|CEO|President(?!.*Vice)|Managing Member|Manager|Sole Member|General Partner|Secretary)\b/i.test(title)&&!/vice|assistant|associate|director of/i.test(title))return;
     out.push({id:'sig:'+d.id+':'+m.index,sev:'low',cat:'Authority',title:`Signer's authority: ${title} (${d.name})`,why:'Titles below the top officer usually need a board or member resolution or an incumbency certificate.',quotes:[cite(d,p,t,m.index,m[0].length)],request:[`Incumbency certificate or authorizing resolution for the signer on ${d.name}`]});
   });
@@ -554,7 +612,7 @@ function facilityMentions(docs,deal){
 function check(deal,docs,regimes,fmt){
   if(!docs.length)return[];
   const ents=entities(docs);
-  return[...earlyControl(docs),...nameIssues(ents),...dateIssues(docs,deal,fmt),...conditionGaps(docs,regimes),...missingAttachments(docs),...blanks(docs),...signers(docs),...facilityMentions(docs,deal)];
+  return[...earlyControl(docs),...nameIssues(ents),...dateIssues(docs,deal,fmt),...conditionGaps(docs,regimes,deal),...missingAttachments(docs),...blanks(docs),...signers(docs),...facilityMentions(docs,deal)];
 }
 
 /* verify an AI quote really appears in the document */
@@ -565,7 +623,7 @@ function locate(docs,docId,quote){
   for(let p=0;p<d.pages.length;p++){const m=re.exec(d.pages[p]);if(m)return cite(d,p,d.pages[p],m.index,m[0].length)}
   return null;
 }
-global.DocCheck={extract,check,locate,entities};
+global.DocCheck={extract,check,locate,entities,docType};
 })(window);
 
 /* Fictional sample documents for the example deal. Planted issues: name mismatch, early manager control,
@@ -782,6 +840,7 @@ function formView(){
     <div class="fl">We represent${opt('side',d.side,[['buyer','Buyer'],['seller','Seller']])}</div>
     <label class="fl">What's happening<select name="structure">${Object.entries(STRUCT).map(([k,l])=>`<option value="${k}" ${d.structure===k?'selected':''}>${l}</option>`).join('')}</select></label>
     ${d.structure==='equity'?`<label class="fl">Licensee entity type<select name="entity">${Object.entries(ENTITY).map(([k,l])=>`<option value="${k}" ${d.entity===k?'selected':''}>${l}</option>`).join('')}</select></label>`:''}
+    <label class="fl">State of the facilities<select name="state">${Object.entries(Rules.STATES).map(([k,l])=>`<option value="${k}" ${(d.state||'CA')===k?'selected':''}>${l}</option>`).join('')}</select><span class="opt">Approval checks in the document tab cover California only</span></label>
     <div class="two"><label class="fl">Target closing<input type="date" name="target" value="${d.target}" required></label><label class="fl">Outside date <span class="opt">optional</span><input type="date" name="outside" value="${d.outside}"></label></div>
    </fieldset>
    <fieldset><legend>Operations and money</legend>
@@ -817,7 +876,7 @@ function previewPanel(d,a){
 }
 function readForm(){
   const f=document.getElementById('f');if(!f)return;const d=V.draft,fd=new FormData(f);
-  ['name','client','structure','target','outside'].forEach(k=>{if(fd.has(k))d[k]=fd.get(k)});
+  ['name','client','structure','target','outside','state'].forEach(k=>{if(fd.has(k))d[k]=fd.get(k)});
   ['side','mgmt','assign','ohca','entity'].forEach(k=>{if(fd.has(k))d[k]=fd.get(k)});
   f.querySelectorAll('.fac').forEach(el=>{const i=+el.dataset.fi,fa=d.facilities[i];
     el.querySelectorAll('[data-f]').forEach(inp=>fa[inp.dataset.f]=inp.value);
