@@ -166,8 +166,8 @@ PINS['legal'] = {0: P(LW, CY - 55), 5: P(LW, Y1), 8: P(LW, Y2), 9: P(LX, 105), 2
 SIDES['legal'] = ['W'] * 9 + ['E'] * 19
 
 ROUTE['research'] = [P(RE, CY + 175), P(RE, Y2)]
-PINS['research'] = {0: P(RE, CY + 175), 1: P(RE, CY + 110), 2: P(RE, CY - 85), 4: P(RE, Y1), 15: P(RE, Y2)}
-SIDES['research'] = ['W', 'W'] + ['E'] * 14
+PINS['research'] = {0: P(RE, CY + 175), 1: P(RE, CY + 110), 2: P(RE, CY - 85), 4: P(RE, Y1), 16: P(RE, Y2)}
+SIDES['research'] = ['W', 'W'] + ['E'] * 15
 
 # Business over Creative run east out of the hub, meeting at B03/C03 (the Blender clay kit).
 B0, C0 = P(CX, CY - h), P(CX, CY + h)
