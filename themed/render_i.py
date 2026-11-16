@@ -10,6 +10,7 @@ Writes mockup-i/index.html, mockup-i/<room>/index.html, mockup-i/i.css, mockup-i
 Run: python3 -I themed/render_i.py
 """
 import html
+from urllib.parse import quote
 import json
 import math
 import os
@@ -130,8 +131,8 @@ def plen(pts):
 # Hub at (CX, CY). Paired lines run 14px apart; each interchange is a capsule across a pair.
 # Layout rule (Nov 2026): track length follows station count, so the busy lines get the
 # long runs and every label sits on one side of its line with air between stations.
-#   Legal (27)    : N up the corridor (paired with Research), W along the top, S down the left edge
-#   Research (16) : a straight N-S line through the hub, sharing the corridor with Legal
+#   Legal (28)    : N up the corridor (paired with Research), W along the top, S down the left edge
+#   Research (17) : a straight N-S line through the hub, sharing the corridor with Legal
 #   Business (13) : E with Creative, then a long NE diagonal across the middle of the map
 #   Creative (11) : E with Business, SE, then E along the lower right
 #   Design (5)    : SE from the hub, then E along the bottom
@@ -162,12 +163,12 @@ Y2 = 76                # Citation Gate L09 / citation audit R16
 TOP = 30               # Legal's run along the top
 LX = 185               # Legal's west column
 ROUTE['legal'] = [P(LW, CY), P(LW, TOP + 30), P(LW - 30, TOP), P(LX + 30, TOP), P(LX, TOP + 30), P(LX, 905)]
-PINS['legal'] = {0: P(LW, CY - 55), 5: P(LW, Y1), 8: P(LW, Y2), 9: P(LX, 105), 27: P(LX, 905)}
-SIDES['legal'] = ['W'] * 9 + ['E'] * 19
+PINS['legal'] = {0: P(LW, CY - 55), 5: P(LW, Y1), 8: P(LW, Y2), 9: P(LX, 105), 28: P(LX, 905)}
+SIDES['legal'] = ['W'] * 9 + ['E'] * 20
 
 ROUTE['research'] = [P(RE, CY + 175), P(RE, Y2)]
-PINS['research'] = {0: P(RE, CY + 175), 1: P(RE, CY + 110), 2: P(RE, CY - 85), 4: P(RE, Y1), 16: P(RE, Y2)}
-SIDES['research'] = ['W', 'W'] + ['E'] * 15
+PINS['research'] = {0: P(RE, CY + 175), 1: P(RE, CY + 110), 2: P(RE, CY - 85), 4: P(RE, Y1), 17: P(RE, Y2)}
+SIDES['research'] = ['W', 'W'] + ['E'] * 16
 
 # Business over Creative run east out of the hub, meeting at B03/C03 (the Blender clay kit).
 B0, C0 = P(CX, CY - h), P(CX, CY + h)
@@ -605,6 +606,42 @@ def badge(r, txt=None):
     return '<span class="lbadge" style="--c:%s;--f:%s"><b>%s</b>%s</span>' % (r['c'], r['fg'], r['letter'], esc(txt if txt is not None else r['short']))
 
 
+TIERS = {'flagship': 'Flagship system', 'weekend': 'Weekend build', 'study': 'Study'}
+
+
+def tier_tag(it, extra=''):
+    t = it.get('tier')
+    return '<span class="tier tier--%s%s">%s</span>' % (t, extra, TIERS[t]) if t else ''
+
+
+def contact_mail():
+    return re.search(r'href="mailto:([^"]+)"', HOME['foot_html']).group(1)
+
+
+def routes_html():
+    """'Start here if you're...': one card per audience, three stations each, in no ranked order."""
+    cards = []
+    for k, rt in enumerate(HOME.get('routes', [])):
+        ln = BY[rt['line']]
+        stops = []
+        for cid, why in rt['stops']:
+            it = CASE[cid]
+            r = it['room']
+            stops.append('<li style="--c:%s;--f:%s"><a href="%s/index.html#%s"><span class="rt__code">%s</span> %s</a>%s<span class="rt__why">%s</span></li>'
+                         % (r['c'], r['fg'], r['slug'], cid, it['code'], it['title'], tier_tag(it, ' tier--sm'), why))
+        cards.append('<li class="rt" id="route-%s" style="--c:%s;--f:%s"><h3 class="rt__h"><span class="rt__n">Route %d</span>%s</h3>'
+                     '<p class="rt__p">%s</p><ol class="rt__ol">%s</ol>'
+                     '<a class="rt__more" href="%s/index.html">Ride the whole %s line &rarr;</a></li>'
+                     % (rt['key'], ln['c'], ln['fg'], k + 1, rt['who'], rt['pitch'], ''.join(stops), ln['slug'], esc(ln['short'])))
+    if not cards:
+        return ''
+    return ('<section class="routes" id="start" aria-labelledby="h-start"><div class="routes__h"><h2 id="h-start" class="sec-h">Start here if you&rsquo;re&hellip;</h2>'
+            '<p class="sec-l">Three short routes through the strongest work for each kind of visitor. The full network, every line and the A to Z index are below.</p></div>'
+            '<ol class="rts">%s</ol>'
+            '<p class="routes__alt"><span>Just looking around?</span> <button type="button" class="tbtn" id="surprise">Surprise me</button> '
+            '<a href="#map">See the whole network &darr;</a></p></section>') % ''.join(cards)
+
+
 def home():
     L = layout()
     hhtml = HOME['hero_html']
@@ -649,7 +686,7 @@ def home():
                 ch = ''.join('<span class="lv__x">Change for <a href="%s/index.html#%s">%s</a> &middot; %s line</span>'
                              % (CASE[o]['room']['slug'], o, CASE[o]['title'], esc(CASE[o]['room']['short'])) for o, _ in XOF[it['id']])
             items.append('<li class="%s"><a href="%s/index.html#%s"><span class="lv__c">%s</span> %s</a><span class="lv__s">%s</span>%s</li>'
-                         % ('is-x' if ch else '', r['slug'], it['id'], it['code'], it['title'], it['sub'], ch))
+                         % ('is-x' if ch else '', r['slug'], it['id'], it['code'], it['title'], it['sub'] + tier_tag(it, ' tier--sm'), ch))
         lv.append('<section class="lv" style="--c:%s;--f:%s" aria-labelledby="lv-%s"><h3 id="lv-%s"><a href="%s/index.html">%s</a> <span class="lv__n">%d stations</span></h3><ol>%s</ol></section>'
                   % (r['c'], r['fg'], r['slug'], r['slug'], r['slug'], badge(r, r['short'] + ' line'), r['n'], ''.join(items)))
 
@@ -673,9 +710,9 @@ def home():
         rows.append('<li><a href="%s/index.html#%s">%s</a><span class="ix__s">%s</span>'
                     '<span class="ix__m"><span class="ldot" style="--c:%s;--f:%s" title="%s line"><span aria-hidden="true">%s</span><span class="vh">%s line</span></span>'
                     '<span class="ix__z">Zone %d</span><span class="ix__sq"><span class="vh">Map square </span>%s</span></span></li>'
-                    % (r['slug'], it['id'], it['title'], it['sub'], r['c'], r['fg'], esc(r['short']), r['letter'], esc(r['short']), it['zone'], sq[it['id']]))
+                    % (r['slug'], it['id'], it['title'], it['sub'] + tier_tag(it, ' tier--sm'), r['c'], r['fg'], esc(r['short']), r['letter'], esc(r['short']), it['zone'], sq[it['id']]))
     index = ('<section class="ix" id="index" aria-labelledby="h-ix"><h2 id="h-ix" class="sec-h">Station index</h2>'
-             '<p class="sec-l">All %d stations, A to Z: station &middot; line &middot; zone &middot; map square. Each one opens on its line.</p>'
+             '<p class="sec-l">All %d stations, A to Z: station &middot; line &middot; zone &middot; map square. Each one opens on its line. <span class="tier tier--flagship tier--sm">Flagship system</span> marks the largest production builds; <span class="tier tier--weekend tier--sm">Weekend build</span> and <span class="tier tier--study tier--sm">Study</span> mark the small, quick ones.</p>'
              '<ol class="ixl">%s</ol></section>' % (N_CASES, ''.join(rows)))
 
     # rules of travel
@@ -721,7 +758,7 @@ def home():
 
     footer = footer_html(0)
 
-    inner = topbar(0, 'home') + '\n<main id="main">\n' + '\n'.join([title, net, index, rules_html, tools_html, notice]) + '\n</main>\n' + footer
+    inner = topbar(0, 'home') + '\n<main id="main">\n' + '\n'.join([title, routes_html(), net, index, rules_html, tools_html, notice]) + '\n</main>\n' + footer
     redirect = '<script>(function(){var M=%s,h=location.hash.slice(1);if(h&&Object.prototype.hasOwnProperty.call(M,h))location.replace(M[h]+"/index.html#"+h)})()</script>\n' % HOME['redirect_map']
     desc = 'Myles Parslow makes things with AI: %d case studies on five lines, drawn as a transit map.' % N_CASES
     return page('Myles Parslow', desc, 0, 'pg-home', inner, redirect), L
@@ -737,13 +774,31 @@ def strip(r):
             xo = ''.join('<i class="sx" style="--c:%s" title="Change for %s"></i>' % (CASE[o]['room']['c'], qa(CASE[o]['room']['short'])) for o, _ in XOF[it['id']])
         mw = max(76, int(max(tw(wd, 12.5) for wd in plain(it['title']).split()) * 1.06) + 14)
         lis.append('<li class="%s" data-id="%s"%s><a href="#%s"><span class="sn">%s</span><span class="sm" aria-hidden="true">%s</span><span class="sy">You are here</span></a></li>'
-                   % ('is-x' if x else '', it['id'], (' style="min-width:%dpx"' % mw) if mw > 76 else '', it['id'], it['title'], xo))
+                   % (('is-x' if x else '') + (' is-flag' if it.get('tier') == 'flagship' else ''), it['id'], (' style="min-width:%dpx"' % mw) if mw > 76 else '', it['id'], it['title'], xo))
     return ('<nav class="strip" id="strip" aria-label="%s line stations" style="--c:%s;--f:%s"><div class="strip__sc" id="strip-sc"><ol class="strip__ol">%s</ol></div></nav>'
             % (esc(r['short']), r['c'], r['fg'], ''.join(lis)))
 
 
+WALK = {'legal', 'business'}
+
+
+def ask_html(r, it):
+    """A low-friction way to reach out from the case itself: a prefilled email, no form."""
+    name = unesc(plain(it['title']))
+    if r['slug'] in WALK or it.get('tier') == 'flagship':
+        subj, lead, body, cta = ('Walkthrough: ' + name, 'Want to see %s running?' % it['title'],
+                                 'I can walk you through it on a short screen share and answer questions about how it was built and what it would take for your team.',
+                                 'Book a walkthrough')
+    else:
+        subj, lead, body, cta = ('About ' + name, 'Questions about %s?' % it['title'],
+                                 'Happy to talk through how it was made and which AI did which part.', 'Email me')
+    href = 'mailto:%s?subject=%s' % (contact_mail(), quote(subj))
+    return ('<aside class="ask" aria-label="Contact about %s"><p class="ask__t"><b>%s</b> %s</p>'
+            '<a class="ask__a" href="%s">%s &rarr;</a></aside>') % (qa(name), lead, body, qa(href), cta)
+
+
 def stop(r, it):
-    kick = ''.join('<span class="kk">%s</span>' % k for k in it['kickers'] if k)
+    kick = tier_tag(it) + ''.join('<span class="kk">%s</span>' % k for k in it['kickers'] if k)
     chg = ''
     for o, x in XOF.get(it['id'], []):
         oc = CASE[o]
@@ -755,8 +810,8 @@ def stop(r, it):
             '<p class="stop__code"><span class="code">%s</span> <span class="cnt">%s</span>%s</p>'
             '<h2 class="stop__t" id="t-%s">%s</h2><p class="stop__sub">%s</p>'
             '%s<p class="stop__lede">%s</p></header>'
-            '<div class="cbody">%s</div></article>') % (
-        it['id'], it['id'], ' is-x' if it['id'] in XOF else '', it['code'], it['count'], kick, it['id'], it['title'], it['sub'], chg, it['lede'], fix_body(it['body_html']))
+            '<div class="cbody">%s</div>%s</article>') % (
+        it['id'], it['id'], ' is-x' if it['id'] in XOF else '', it['code'], it['count'], kick, it['id'], it['title'], it['sub'], chg, it['lede'], fix_body(it['body_html']), ask_html(r, it))
 
 
 def room(r):
@@ -1156,6 +1211,44 @@ h1,h2,h3,h4,p,ol,ul,dl,figure,table{margin:0}
 .cbody .count{font-weight:800;font-size:20px;font-variant-numeric:tabular-nums}
 .cbody .logline{font-size:19px;font-weight:600}
 
+/* ---------- start here: audience routes ---------- */
+.routes{max-width:var(--max);margin:0 auto;padding:0 var(--gut) clamp(8px,2vw,20px);scroll-margin-top:var(--barh)}
+.rts{list-style:none;padding:0;margin-top:18px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(14px,2vw,24px)}
+.rt{border:3px solid var(--ink);background:var(--white);display:flex;flex-direction:column;min-width:0;scroll-margin-top:calc(var(--barh) + 12px)}
+.rt__h{display:flex;flex-direction:column;gap:2px;background:var(--c);color:var(--f);padding:10px 16px 8px;font-weight:800;font-size:21px;line-height:1.15;border-bottom:3px solid var(--ink)}
+.rt__n{font-weight:600;font-size:13px;letter-spacing:.04em;text-transform:uppercase;opacity:.9}
+.rt__p{padding:12px 16px 0;font-size:15.5px;line-height:1.45;color:var(--mute)}
+.rt__ol{list-style:none;padding:4px 0 0;margin:8px 16px 0 25px;border-left:8px solid var(--c);flex:1}
+.rt[style*="#ffd300"] .rt__ol{box-shadow:-1.5px 0 0 var(--ink)}
+.rt__ol li{position:relative;padding:6px 0 10px 18px}
+.rt__ol li::before{content:"";position:absolute;left:-14px;top:9px;width:20px;height:20px;border-radius:50%;background:var(--white);border:4px solid var(--c);box-shadow:0 0 0 1.5px var(--ink)}
+.rt__ol a{font-weight:800;font-size:17px;line-height:1.25;text-decoration:none;margin-right:6px}
+.rt__ol a:hover{text-decoration:underline}
+.rt__code{font-weight:600;font-size:13px;color:var(--mute);font-variant-numeric:tabular-nums}
+.rt__why{display:block;margin-top:3px;font-size:14.5px;line-height:1.4;color:var(--mute)}
+.rt__more{display:block;margin-top:auto;padding:11px 16px 9px;border-top:2px solid var(--ink);font-weight:800;font-size:15px;text-decoration:none}
+.rt__more:hover{background:var(--ink);color:var(--white)}
+.routes__alt{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-top:16px;font-weight:600;font-size:15.5px}
+.routes__alt a{font-weight:600}
+
+/* ---------- tiers: flagship systems vs weekend builds and studies ---------- */
+.tier{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 11px 1px;font-size:13px;font-weight:800;line-height:1.35;white-space:nowrap;vertical-align:1px}
+.tier--flagship{background:var(--ink);color:var(--white);border:1.5px solid var(--ink)}
+.tier--flagship::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--white);margin-top:-2px}
+.tier--weekend,.tier--study{border:1.5px dashed var(--mute);color:var(--mute);font-weight:600;background:transparent}
+.tier--sm{font-size:11.5px;padding:2px 8px 0;margin-left:6px;gap:5px}
+.tier--sm.tier--flagship::before{width:5px;height:5px}
+.rt__ol .tier--sm{margin-left:0}
+.sec-l .tier--sm{margin-left:0}
+
+/* ---------- ask: contact from a case ---------- */
+.ask{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px;margin-top:clamp(28px,4vh,44px);max-width:1240px;border:3px solid var(--ink);border-left:12px solid var(--c);background:var(--white);padding:14px 18px 12px}
+.room-design .ask{box-shadow:inset 1.5px 0 0 var(--ink)}
+.ask__t{flex:1 1 30em;font-size:16.5px;line-height:1.45}
+.ask__t b{font-weight:800}
+.ask__a{flex:none;font-weight:800;font-size:15px;text-decoration:none;background:var(--ink);color:var(--white);border-radius:999px;padding:10px 16px 8px}
+.ask__a:hover{background:var(--c);color:var(--f)}
+
 /* ---------- responsive ---------- */
 @media (max-width:1100px){
   .chip span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
@@ -1166,6 +1259,7 @@ h1,h2,h3,h4,p,ol,ul,dl,figure,table{margin:0}
 }
 @media (max-width:900px){
   .sheet{grid-template-columns:minmax(0,1fr)}
+  .rts{grid-template-columns:minmax(0,1fr)}
   .legend{grid-template-columns:minmax(0,1fr)}
   .rl{grid-template-columns:minmax(0,1fr)}
   .cbody .grid3{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -1246,6 +1340,13 @@ JS = r'''/* Mockup I, "Transit Map". Generated by themed/render_i.py. */
     if (!r) return;
     var set = function () { c.style.setProperty('--pos', r.value + '%'); };
     r.addEventListener('input', set); set();
+  });
+
+  /* ---------- surprise me: a random station from the A to Z index ---------- */
+  var sp = d.getElementById('surprise');
+  if (sp) sp.addEventListener('click', function () {
+    var all = qsa('.ixl a');
+    if (all.length) location.href = all[Math.floor(Math.random() * all.length)].getAttribute('href');
   });
 
   /* ---------- copy the email ---------- */

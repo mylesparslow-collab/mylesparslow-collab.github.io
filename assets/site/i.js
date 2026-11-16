@@ -40,6 +40,13 @@
     r.addEventListener('input', set); set();
   });
 
+  /* ---------- surprise me: a random station from the A to Z index ---------- */
+  var sp = d.getElementById('surprise');
+  if (sp) sp.addEventListener('click', function () {
+    var all = qsa('.ixl a');
+    if (all.length) location.href = all[Math.floor(Math.random() * all.length)].getAttribute('href');
+  });
+
   /* ---------- copy the email ---------- */
   var cb = d.getElementById('copy');
   if (cb) cb.addEventListener('click', function () {
