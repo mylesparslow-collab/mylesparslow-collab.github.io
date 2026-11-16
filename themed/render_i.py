@@ -184,8 +184,8 @@ C_low = CY + 150
 c_down = along(c_turn, 'SE', (C_low - C0[1]) / S2)
 C_end = 1890
 ROUTE['creative'] = [C0, c_turn, c_down, P(C_end, C_low)]
-PINS['creative'] = {0: P(CX + 120, C0[1]), 2: P(BC_x, C0[1]), 3: P(c_down[0] + 70, C_low), 10: P(C_end, C_low)}
-SIDES['creative'] = ['S', 'S', 'S', 'N', 'S', 'N', 'S', 'N', 'S', 'N', 'S']
+PINS['creative'] = {0: P(CX + 120, C0[1]), 2: P(BC_x, C0[1]), 3: P(c_down[0] + 70, C_low), 12: P(C_end, C_low)}
+SIDES['creative'] = ['S', 'S', 'S', 'N', 'S', 'N', 'S', 'N', 'S', 'N', 'S', 'N', 'S']
 
 D_low = CY + 245
 d_bend = along(P(CX, CY), 'SE', (D_low - CY) / S2)
