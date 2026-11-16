@@ -337,7 +337,7 @@ details.case[hidden] { display: none; }
         <button type="button" class="ap-btn" id="surprise">Surprise me</button>
       </div>
       
-      <p class="find-empty" role="status" hidden>No projects match. Try a different word.</p>
+      <p class="find-empty" role="status" aria-live="polite"></p>
       <div class="ix-group ix-index">
         <div class="ix-grid">
         <a class="tile" href="#songs" data-hay="cat songs &amp; videos suno + animation music &amp; animation a repeatable way to write songs with suno, and a toolkit that turns a finished song into a timed storyboard and an animated music video starring my cats."><span class="thumb"><img src="../assets/thumbs/songs.jpg" alt="Three cats in sequin boy-band suits singing on stage, from the Open up the Door video" width="1034" height="646" loading="lazy" decoding="async"></span><span class="lbl"><strong>Cat songs &amp; videos</strong><small>Suno + animation</small></span></a>
@@ -839,7 +839,7 @@ details.case[hidden] { display: none; }
     groups.forEach(function (g) { g.hidden = !g.querySelector('.tile:not([hidden])'); });
     document.body.classList.toggle('searching', words.length > 0);
     if (window.__applyChip) window.__applyChip();
-    empty.hidden = shown > 0;
+    empty.textContent = (words.length && !shown) ? 'No projects match. Try a different word.' : '';
   }
   if (find) {
     find.addEventListener('input', filter);

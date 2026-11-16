@@ -337,7 +337,7 @@ details.case[hidden] { display: none; }
         <button type="button" class="ap-btn" id="surprise">Surprise me</button>
       </div>
       
-      <p class="find-empty" role="status" hidden>No projects match. Try a different word.</p>
+      <p class="find-empty" role="status" aria-live="polite"></p>
       <div class="ix-group ix-index">
         <div class="ix-grid">
         <a class="tile" href="#blackbox" data-hay="blackbox agent recorder developer tool a flight recorder for ai coding agents. it captures what claude code actually did, prompts, tool calls, file edits, failures and subagent handoffs, and lets you replay a session, trace a file change back to the agent that made it, and see how a failure was recovered. nothing leaves the mac."><span class="thumb"><img src="../assets/thumbs/blackbox.jpg" alt="" width="560" height="337" loading="lazy" decoding="async"><img class="alt" data-src="../assets/thumbs/blackbox-2.jpg" alt="" decoding="async"></span><span class="lbl"><strong>BLACKBOX</strong><small>agent recorder</small></span></a>
@@ -903,7 +903,7 @@ details.case[hidden] { display: none; }
     groups.forEach(function (g) { g.hidden = !g.querySelector('.tile:not([hidden])'); });
     document.body.classList.toggle('searching', words.length > 0);
     if (window.__applyChip) window.__applyChip();
-    empty.hidden = shown > 0;
+    empty.textContent = (words.length && !shown) ? 'No projects match. Try a different word.' : '';
   }
   if (find) {
     find.addEventListener('input', filter);
