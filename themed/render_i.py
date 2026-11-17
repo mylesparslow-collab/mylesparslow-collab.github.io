@@ -504,13 +504,15 @@ def map_svg(L):
             xl = ''
             if it['id'] in XOF:
                 xl = ', interchange with ' + ', '.join(unesc(CASE[o]['title']) for o, _ in XOF[it['id']])
-            lab = '%s, %s line, %s%s' % (unesc(it['title']), r['short'], unesc(it['sub']), xl)
+            lab = '%s, %s line, %s%s%s' % (unesc(it['title']), r['short'], unesc(it['sub']), ', flagship system' if it.get('tier') == 'flagship' else '', xl)
             out.append('<a class="st%s" href="%s/index.html#%s" data-line="%s" data-id="%s" data-code="%s" data-t="%s" data-s="%s" aria-label="%s">'
                        '<rect class="hit" x="%.1f" y="%.1f" width="%.1f" height="%.1f"/><rect class="hit" x="%.1f" y="%.1f" width="12" height="12"/>'
-                       '<circle class="dot" cx="%.1f" cy="%.1f" r="5"/>'
+                       '<circle class="dot" cx="%.1f" cy="%.1f" r="5"/>%s'
                        '<text text-anchor="%s">%s</text></a>'
                        % (' is-x' if s.get('x') else '', slug, it['id'], slug, it['id'], it['code'], qa(unesc(it['title'])), qa(unesc(it['sub'])), qa(lab),
-                          b[0] - 1, b[1] - 1, b[2] - b[0] + 2, b[3] - b[1] + 2, p[0] - 6, p[1] - 6, p[0], p[1], anchor, tsp))
+                          b[0] - 1, b[1] - 1, b[2] - b[0] + 2, b[3] - b[1] + 2, p[0] - 6, p[1] - 6, p[0], p[1],
+                          ('<path class="fstar" transform="translate(%.1f %.1f)" d="%s"/>' % (p[0], p[1], STAR_D)) if it.get('tier') == 'flagship' else '',
+                          anchor, tsp))
         out.append('</g>')
     if DEBUG:
         for s in st:
@@ -614,6 +616,24 @@ def tier_tag(it, extra=''):
     return '<span class="tier tier--%s%s">%s</span>' % (t, extra, TIERS[t]) if t else ''
 
 
+def star_d(R=8.0, r=3.3):
+    """A five-point star centred on 0,0: the flagship marker on the map, the line strip and the key."""
+    import math
+    pts = []
+    for k in range(10):
+        a = math.pi / 2 + k * math.pi / 5
+        q = R if k % 2 == 0 else r
+        pts.append('%.2f %.2f' % (q * math.cos(a), -q * math.sin(a)))
+    return 'M' + 'L'.join(pts) + 'Z'
+
+
+STAR_D = star_d()
+
+
+def star_svg(cls='fsym'):
+    return '<svg class="%s" viewBox="-10 -10 20 20" aria-hidden="true" focusable="false"><path d="%s"/></svg>' % (cls, STAR_D)
+
+
 def contact_mail():
     return re.search(r'href="mailto:([^"]+)"', HOME['foot_html']).group(1)
 
@@ -673,8 +693,9 @@ def home():
     legend = ('<div class="legend"><div class="legend__lines"><h3 class="legend__h">Lines</h3><ul class="lbs">%s</ul>'
               '<p class="legend__tip">Choose a line to isolate it. Choose it again, press Esc or click the empty map to show the whole network.</p></div>'
               '<div class="legend__x"><h3 class="legend__h">Interchanges</h3><ul class="xk">%s</ul>'
-              '<p class="xk__hub"><span class="hubsym" aria-hidden="true"></span><span><b>You are here:</b> the Myles Parslow interchange, where all five lines meet.</span></p></div></div>'
-              ) % (''.join(lb), ''.join(xk))
+              '<p class="xk__hub"><span class="hubsym" aria-hidden="true"></span><span><b>You are here:</b> the Myles Parslow interchange, where all five lines meet.</span></p>'
+              '<p class="xk__hub xk__flag">%s<span><b>Flagship system:</b> the largest production builds. Every &ldquo;Start here&rdquo; pick is one.</span></p></div></div>'
+              ) % (''.join(lb), ''.join(xk), star_svg('fsym fsym--key'))
 
     # list view (vertical line diagrams)
     lv = []
@@ -773,8 +794,10 @@ def strip(r):
         if x:
             xo = ''.join('<i class="sx" style="--c:%s" title="Change for %s"></i>' % (CASE[o]['room']['c'], qa(CASE[o]['room']['short'])) for o, _ in XOF[it['id']])
         mw = max(76, int(max(tw(wd, 12.5) for wd in plain(it['title']).split()) * 1.06) + 14)
-        lis.append('<li class="%s" data-id="%s"%s><a href="#%s"><span class="sn">%s</span><span class="sm" aria-hidden="true">%s</span><span class="sy">You are here</span></a></li>'
-                   % (('is-x' if x else '') + (' is-flag' if it.get('tier') == 'flagship' else ''), it['id'], (' style="min-width:%dpx"' % mw) if mw > 76 else '', it['id'], it['title'], xo))
+        fl = it.get('tier') == 'flagship'
+        lis.append('<li class="%s" data-id="%s"%s><a href="#%s"%s><span class="sn">%s</span><span class="sm%s" aria-hidden="true">%s</span><span class="sy">You are here</span></a></li>'
+                   % (('is-x' if x else '') + (' is-flag' if fl else ''), it['id'], (' style="min-width:%dpx"' % mw) if mw > 76 else '', it['id'],
+                      (' title="%s: flagship system"' % qa(unesc(plain(it['title'])))) if fl else '', it['title'], ' sm--star' if fl else '', (star_svg() if fl else '') + xo))
     return ('<nav class="strip" id="strip" aria-label="%s line stations" style="--c:%s;--f:%s"><div class="strip__sc" id="strip-sc"><ol class="strip__ol">%s</ol></div></nav>'
             % (esc(r['short']), r['c'], r['fg'], ''.join(lis)))
 
@@ -814,9 +837,36 @@ def stop(r, it):
         it['id'], it['id'], ' is-x' if it['id'] in XOF else '', it['code'], it['count'], kick, it['id'], it['title'], it['sub'], chg, it['lede'], fix_body(it['body_html']), ask_html(r, it))
 
 
+def overview(r):
+    """'This line at a glance': the zones as an agenda, each with its stations, for presenting the line top to bottom."""
+    zs, cur = [], None
+    for it in r['items']:
+        if it['kind'] == 'group':
+            t = re.search(r'gdiv__t">(.*?)</h2>', it['html'], re.S).group(1)
+            cur = dict(id=it['id'], z=it['zone'], t=t, st=[])
+            zs.append(cur)
+        elif it['kind'] == 'case' and cur is not None:
+            cur['st'].append(it)
+    if len(zs) < 2:
+        return ''
+    cards = []
+    for z in zs:
+        lis = ''.join('<li%s><a href="#%s"><span class="ov__c">%s</span> %s</a>%s</li>'
+                      % (' class="is-flag"' if it.get('tier') == 'flagship' else '', it['id'], it['code'], it['title'],
+                         star_svg('fsym ov__star') if it.get('tier') == 'flagship' else '') for it in z['st'])
+        cards.append('<li class="ov__z"><a class="ov__h" href="#%s"><span class="ov__n">Zone %d</span><span class="ov__t">%s</span><span class="ov__k">%d</span></a><ol>%s</ol></li>'
+                     % (z['id'], z['z'], z['t'], len(z['st']), lis))
+    return ('<section class="ov" id="glance" aria-labelledby="h-glance"><div class="ov__hd"><h2 id="h-glance" class="ov__ht">This line at a glance</h2>'
+            '<p class="ov__l">%d tools in %d groups, flagships first, then by practice area. %s marks a flagship system. Every client, matter and person in the demos is invented.</p></div>'
+            '<ol class="ov__zs">%s</ol></section>') % (r['n'], len(zs), star_svg('fsym fsym--in'), ''.join(cards))
+
+
+OVERVIEW = {'legal'}
+
+
 def room(r):
     i = r['i']
-    parts = []
+    parts = [overview(r)] if r['slug'] in OVERVIEW else []
     for it in r['items']:
         k = it['kind']
         if k == 'group':
@@ -1231,13 +1281,44 @@ h1,h2,h3,h4,p,ol,ul,dl,figure,table{margin:0}
 .routes__alt{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-top:16px;font-weight:600;font-size:15.5px}
 .routes__alt a{font-weight:600}
 
+/* ---------- flagship star: map, line strip, key, glance ---------- */
+.fsym{display:inline-block;flex:none;width:18px;height:18px;vertical-align:-3px}
+.fsym path{fill:var(--ink);stroke:var(--white);stroke-width:1.6;stroke-linejoin:round;paint-order:stroke}
+.fsym--key{width:30px;height:30px}
+.fsym--in{width:17px;height:17px;vertical-align:-3px}
+.net .fstar{fill:var(--ink);stroke:var(--white);stroke-width:2;stroke-linejoin:round;paint-order:stroke;pointer-events:none}
+.sm--star{width:22px;height:22px;margin-top:0;background:none!important;box-shadow:none!important;display:grid;place-items:center}
+.sm--star .fsym{width:22px;height:22px}
+.strip__ol .here .sm--star{width:28px;height:28px;margin-top:0;border:0;border-radius:0;background:none;box-shadow:none}
+.strip__ol .here .sm--star .fsym{width:30px;height:30px}
+/* ---------- line at a glance (Legal) ---------- */
+.ov{position:relative;margin-left:var(--ind);padding-top:clamp(40px,6vh,72px);min-width:0}
+.ov__hd{border-top:3px solid var(--ink);padding-top:16px;max-width:62em}
+.ov__ht{font-weight:800;font-size:clamp(24px,2.4vw,34px);line-height:1.1}
+.ov__l{margin-top:8px;color:var(--mute);font-size:18px;max-width:46em}
+.ov__zs{list-style:none;margin:22px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.ov__z{background:var(--white);border:2px solid var(--ink);border-radius:10px;padding:12px 14px 14px;min-width:0}
+.ov__z:first-child{border-color:var(--c);box-shadow:inset 0 5px 0 var(--c)}
+.ov__h{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:baseline;gap:4px 10px;text-decoration:none;color:var(--ink);padding-bottom:8px;border-bottom:1.5px solid var(--rule);margin-bottom:8px}
+.ov__n{grid-column:1/-1;font-size:12.5px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--mute)}
+.ov__t{font-weight:800;font-size:19px;line-height:1.2}
+.ov__k{justify-self:end;align-self:start;margin-top:2px;font-weight:800;font-size:14px;background:var(--c);color:var(--f);border-radius:999px;padding:2px 9px 0;min-width:26px;text-align:center}
+.ov__h:hover .ov__t{text-decoration:underline}
+.ov__z ol{list-style:none;margin:0;padding:0;display:grid;gap:3px}
+.ov__z li{display:flex;align-items:center;gap:6px;font-size:15.5px;line-height:1.3}
+.ov__z li a{color:var(--ink);text-decoration:none}
+.ov__z li a:hover{text-decoration:underline}
+.ov__z li.is-flag a{font-weight:700}
+.ov__c{font-size:12.5px;font-weight:700;color:var(--mute);margin-right:2px;font-variant-numeric:tabular-nums}
+.ov__star{width:15px;height:15px}
+@media (max-width:760px){.ov{margin-left:var(--ind)}.ov__zs{grid-template-columns:minmax(0,1fr)}}
 /* ---------- tiers: flagship systems vs weekend builds and studies ---------- */
 .tier{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 11px 1px;font-size:13px;font-weight:800;line-height:1.35;white-space:nowrap;vertical-align:1px}
 .tier--flagship{background:var(--ink);color:var(--white);border:1.5px solid var(--ink)}
-.tier--flagship::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--white);margin-top:-2px}
+.tier--flagship::before{content:"";width:11px;height:11px;background:var(--white);margin-top:-2px;clip-path:polygon(50% 0,61.8% 35.4%,100% 35.4%,69.1% 57.3%,80.9% 92.7%,50% 70.8%,19.1% 92.7%,30.9% 57.3%,0 35.4%,38.2% 35.4%)}
 .tier--weekend,.tier--study{border:1.5px dashed var(--mute);color:var(--mute);font-weight:600;background:transparent}
 .tier--sm{font-size:11.5px;padding:2px 8px 0;margin-left:6px;gap:5px}
-.tier--sm.tier--flagship::before{width:5px;height:5px}
+.tier--sm.tier--flagship::before{width:9px;height:9px}
 .rt__ol .tier--sm{margin-left:0}
 .sec-l .tier--sm{margin-left:0}
 
