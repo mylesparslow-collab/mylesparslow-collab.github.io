@@ -33,3 +33,7 @@ def run(keys=None):
 
 if __name__ == '__main__':
     print('style switcher added to', run(), 'pages')
+    import sys as _sys
+    _sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import add_shared  # flagship stars + Start-here routes for every alternate style
+    print('shared features added to', add_shared.run(), 'pages')

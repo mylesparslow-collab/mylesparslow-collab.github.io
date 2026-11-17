@@ -1,3 +1,7 @@
 # themed/
 
 All portfolio content lives in one file, `live.json` (every case study, room and the homepage sections). To add or change a project, edit `live.json`, then run `python3 -I themed/render_i.py` and `python3 -I themed/promote_i.py` to rebuild the live site (the Transit Map style at the repo root). To refresh the alternate styles in the Style dropdown (`mockup-b` to `mockup-h`) and the `styles/` archive page, run `python3 -I themed/render_all.py`; it re-renders each style from `live.json`, computing every count and total from the data, then re-adds the style switcher, and exits non-zero if any step fails. It does not touch the live site and does not regenerate the screenshots in `styles/shots`.
+
+**One command rebuilds everything:** `python3 -I themed/build.py` renumbers the projects from their order in `live.json` (`normalize_live.py`), rebuilds the live Transit Map (`render_i.py` + `promote_i.py`) and then every other style (`render_all.py`). The workflow `.github/workflows/render-site.yml` runs the same command on every pull request and push to main that touches `themed/`, and commits whatever it changes, so a new project reaches every style even if a step is skipped locally.
+
+**Shared features:** the flagship star and the "Start here if you're..." routes are built into the Transit Map; every other style gets them from `add_shared.py` (run automatically after each render, styled by `assets/site/shared.css`). Mark a project as a flagship with `"tier": "flagship"` in `live.json` and pick Start-here stops in `home.routes`; every style follows.
