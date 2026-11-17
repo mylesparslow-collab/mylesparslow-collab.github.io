@@ -1,0 +1,43 @@
+name: Rebuild every site style from live.json
+
+# Every version of the site (the live Transit Map and each style in the Style dropdown)
+# renders from themed/live.json. When live.json or a renderer changes, this rebuilds all
+# of them with themed/build.py and commits the result, so no style is left behind.
+
+on:
+  pull_request:
+    paths: ['themed/**', 'assets/site/shared.css']
+  push:
+    branches: [main]
+    paths: ['themed/**', 'assets/site/shared.css']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: render-site-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    # A pull request from a fork can't be pushed to; it just gets the check.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Rebuild all styles
+        run: python3 -I themed/build.py
+      - name: Commit any changes
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then echo "Every style is already current."; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Rebuild every style from live.json"
+          git push origin HEAD:${{ github.head_ref || github.ref_name }}
