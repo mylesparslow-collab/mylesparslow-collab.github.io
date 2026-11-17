@@ -176,8 +176,8 @@ BC_x = CX + 330
 b_turn = P(BC_x + 60, B0[1])
 b_end = along(b_turn, 'NE', (b_turn[1] - 70) / S2)
 ROUTE['business'] = [B0, b_turn, b_end]
-PINS['business'] = {0: P(CX + 105, B0[1]), 2: P(BC_x, B0[1]), 3: along(b_turn, 'NE', 95), 12: b_end}
-SIDES['business'] = ['N'] * 3 + ['NW'] * 10
+PINS['business'] = {0: P(CX + 105, B0[1]), 2: P(BC_x, B0[1]), 3: along(b_turn, 'NE', 95), 13: b_end}
+SIDES['business'] = ['N'] * 3 + ['NW'] * 11
 
 c_turn = P(BC_x + 60, C0[1])
 C_low = CY + 150
