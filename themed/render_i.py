@@ -597,6 +597,7 @@ def footer_html(depth):
     lp = re.search(r'<a href="([^"]*)">Legal portfolio</a>', foot).group(1)
     sign = re.search(r'<span>([^<]*)</span>\s*</div>', foot).group(1)
     extra = '' if depth == 0 else ' <a href="../index.html#tools">Which AI for what by project &rarr;</a>'
+    extra += ' <a href="%spets/index.html">Meet the cats</a>' % ('../' * depth)
     return ('<footer class="foot" id="contact" aria-labelledby="h-foot"><h2 id="h-foot" class="foot__t">Say hello.</h2>'
             '<p class="foot__mail"><a href="mailto:%s">%s</a> <button type="button" class="tbtn" id="copy" data-copy="%s">Copy address</button> <span id="copystat" class="foot__st" aria-live="polite"></span></p>'
             '<p class="foot__row"><a href="%s" target="_blank" rel="noopener">GitHub</a> <a href="%s" target="_blank" rel="noopener">Legal portfolio</a> <a href="#top">Back to top &uarr;</a>%s</p>'
