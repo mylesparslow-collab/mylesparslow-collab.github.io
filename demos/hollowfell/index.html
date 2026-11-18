@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hollowfell — store</title>
+<meta name="description" content="Hollowfell: eight pocket tools, each sold with a logbook. A fictional maker and a demo store. No payment is taken.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Caveat:wght@500&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<script>document.documentElement.classList.add('js');if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('scrub')</script>
+<style>
+:root{
+  /* Layout idea: a lookout logbook. One margin rule down the left, ruled rows, typed labels, one stamp colour. */
+  --paper:#e6e9e1;      /* lichen-grey ledger paper */
+  --paper-2:#d8dcd1;    /* shaded cell, drawing fill */
+  --leaf:#f3f5ef;       /* blade steel, raised sheet */
+  --ink:#16201c;        /* pine-black ink */
+  --mute:#566159;       /* pencil */
+  --rule:#aeb6a8;       /* ruled line */
+  --stamp:#2a3ec0;      /* stamp-pad indigo: the only accent */
+  --pine:#12201b;       /* the one dark page */
+  --display:"Archivo","Arial Narrow","Helvetica Neue",Arial,sans-serif;
+  --body:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --typed:"Courier Prime","Courier New",Courier,monospace;
+  --hand:"Caveat","Bradley Hand","Segoe Print",cursive;
+  --out:cubic-bezier(.19,1,.22,1);
+  --gut:clamp(16px,4.2vw,64px);
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 17px/1.5 var(--body);font-stretch:100%;overflow-x:clip;
+  background-image:linear-gradient(90deg,transparent calc(var(--gut) - 9px),color-mix(in srgb,var(--stamp) 38%,transparent) calc(var(--gut) - 9px),color-mix(in srgb,var(--stamp) 38%,transparent) calc(var(--gut) - 8px),transparent calc(var(--gut) - 8px))}
+img,svg{max-width:100%;display:block}
+h1,h2,h3,p,dl,dd,ul,ol,figure{margin:0}
+ul,ol{padding:0;list-style:none}
+a{color:inherit;text-underline-offset:.18em;text-decoration-thickness:1px}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--stamp);outline-offset:3px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.typed{font-family:var(--typed);font-size:.8rem;letter-spacing:.02em;text-transform:uppercase}
+.wrap{padding-inline:var(--gut)}
+svg.ink{color:var(--ink);fill:none;stroke:currentColor;stroke-width:1.5;stroke-linejoin:round;stroke-linecap:round}
+svg.ink *{vector-effect:non-scaling-stroke}
+
+/* ---------- header ---------- */
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:10px var(--gut);background:color-mix(in srgb,var(--paper) 90%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--rule)}
+.mark{display:flex;align-items:center;gap:10px;text-decoration:none;font:700 1.18rem/1 var(--display);font-stretch:75%;letter-spacing:.01em}
+.mark svg{width:68px;height:8.5px;overflow:visible;margin-right:2px}
+.top nav{display:flex;gap:clamp(14px,2.2vw,30px)}
+.top nav a{text-decoration:none;font-size:.93rem;padding:8px 0;background:linear-gradient(currentColor,currentColor) 0 calc(100% - 5px)/0 1px no-repeat;transition:background-size .5s var(--out)}
+.top nav a:hover{background-size:100% 1px}
+.slip-tab{display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:0 14px;border:1px solid var(--ink);background:var(--leaf);font-weight:600;font-size:.95rem}
+.slip-tab:hover{background:var(--ink);color:var(--paper)}
+.tally{display:inline-flex;gap:5px;align-items:center;min-width:8px}
+.tally svg{height:16px;width:auto;stroke:currentColor;stroke-width:1.6;fill:none;stroke-linecap:round}
+.tally.pop{animation:pop .45s var(--out)}
+@keyframes pop{0%{transform:scale(1.5) rotate(-6deg)}100%{transform:none}}
+@media (max-width:760px){.top nav{display:none}}
+
+.demo-strip{padding:7px var(--gut);border-bottom:1px solid var(--rule);color:var(--stamp)}
+
+/* ---------- hero ---------- */
+.hero{padding:clamp(28px,5vw,72px) var(--gut) clamp(36px,6vw,88px);display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:24px;row-gap:clamp(20px,3vw,40px);align-items:end}
+.hero h1{grid-column:1/-1;font:600 clamp(3rem,8.6vw,8.8rem)/.88 var(--display);font-stretch:62%;letter-spacing:-.012em;text-wrap:balance;max-width:15ch}
+.hero h1 em{font-style:normal;color:var(--stamp)}
+.hero-plate{grid-column:5/-1;grid-row:2;position:relative}
+.hero-copy{grid-column:1/5;grid-row:2;display:grid;gap:18px;align-content:end}
+.hero-copy p{max-width:34ch;font-size:1.12rem}
+.hero-plate svg{width:100%;height:auto;overflow:visible}
+.hero-plate text{font:400 17px var(--typed);fill:var(--mute);stroke:none}
+.dim{stroke:var(--mute);stroke-width:1}
+.label{position:absolute;right:0;top:-6px;background:var(--leaf);border:1px solid var(--ink);padding:9px 12px 8px;font:400 .76rem/1.45 var(--typed);text-transform:uppercase;transform:rotate(1.4deg);box-shadow:3px 3px 0 color-mix(in srgb,var(--ink) 16%,transparent)}
+.label b{display:block;font:700 1.05rem/1.1 var(--display);font-stretch:75%;text-transform:none;letter-spacing:0}
+.cta{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 20px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);font-weight:600;text-decoration:none;transition:background .25s,color .25s,transform .25s var(--out)}
+.btn:hover{background:var(--stamp);border-color:var(--stamp);color:#fff}
+.btn:active{transform:translateY(1px)}
+.btn-ghost{background:transparent;color:var(--ink)}
+.plate{position:relative;background:var(--paper-2);border:1px solid var(--ink);overflow:hidden}
+.plate img{width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.08);mix-blend-mode:multiply;opacity:.92}
+.plate figcaption{position:absolute;inset:auto 0 0 0;padding:5px 8px;background:var(--leaf);border-top:1px solid var(--ink);font:400 .68rem/1.3 var(--typed)}
+.plate-hero{width:min(100%,250px);aspect-ratio:4/3}
+@media (prefers-reduced-motion:no-preference){
+  .hero h1{animation:rise 1s var(--out) both}
+  .hero-plate .draw{stroke-dasharray:1;animation:draw 1.6s .15s var(--out) both}
+  .hero-plate .fillin{animation:fillin .8s 1s both}
+  .label{animation:labelin .7s 1.1s var(--out) both}
+}
+@keyframes rise{from{transform:translateY(22px);clip-path:inset(0 0 100% 0)}to{transform:none;clip-path:inset(-10% 0 -10% 0)}}
+@keyframes draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+@keyframes fillin{from{fill-opacity:0}}
+@keyframes labelin{from{transform:rotate(-5deg) translateY(-14px);opacity:0}}
+@media (max-width:860px){
+  .hero-plate{grid-column:1/-1;grid-row:2;padding-top:26px}
+  .hero-copy{grid-column:1/-1;grid-row:3}
+  .hero-plate text{font-size:24px}
+  .label{position:relative;top:auto;right:auto;display:block;width:max-content;margin:0 0 4px auto}
+  .hero h1{font-size:clamp(3rem,15.5vw,6rem);max-width:9ch}
+}
+
+/* ---------- section heads ---------- */
+.sec,.fold,.steel{scroll-margin-top:64px}
+.sec{padding:clamp(48px,8vw,120px) var(--gut) 0}
+.sec-head{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:24px;row-gap:12px;align-items:end;padding-bottom:22px;border-bottom:2px solid var(--ink)}
+.sec-head .typed{grid-column:1/-1;color:var(--mute)}
+.sec-head h2{grid-column:1/8;font:600 clamp(2.3rem,6.4vw,5.4rem)/.92 var(--display);font-stretch:66%;text-wrap:balance}
+.sec-head p{grid-column:8/-1;max-width:44ch;color:var(--ink)}
+@media (max-width:860px){.sec-head h2,.sec-head p{grid-column:1/-1}}
+
+/* ---------- register ---------- */
+.row{display:grid;grid-template-columns:64px 190px minmax(0,1.25fr) minmax(0,1.5fr) auto;gap:22px;align-items:center;padding:20px 0;border-bottom:1px solid var(--rule);position:relative}
+.row::before{content:"";position:absolute;inset:0 calc(var(--gut)*-1);background:var(--leaf);opacity:0;transition:opacity .3s;z-index:-1}
+.row:hover::before{opacity:.8}
+.row-no{font:400 .8rem var(--typed);color:var(--mute)}
+.row-draw{display:block;width:100%}
+.row-draw svg{width:100%;height:auto;color:var(--ink);fill:none;stroke:currentColor;stroke-width:1.4;stroke-linejoin:round;stroke-linecap:round;transition:transform .7s var(--out)}
+.row:hover .row-draw svg{transform:rotate(-3deg) scale(1.04)}
+.row h3{font:600 1.95rem/1 var(--display);font-stretch:70%;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
+.row-name{text-align:left;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:.16em;text-decoration-color:var(--rule)}
+.row-name:hover{text-decoration-color:var(--stamp);color:var(--stamp)}
+.row-name::after{content:"";position:absolute;inset:0 30% 0 0}
+.row-kind{font:400 .74rem var(--typed);text-transform:uppercase;color:var(--mute)}
+.row-main p{margin-top:8px;max-width:38ch;color:var(--ink)}
+.row-spec{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 16px;font-size:.86rem;line-height:1.3}
+.row-spec dt{font:400 .68rem var(--typed);text-transform:uppercase;color:var(--mute)}
+.row-buy{display:grid;gap:8px;justify-items:end;position:relative;z-index:1}
+.price{font:600 1.7rem/1 var(--display);font-stretch:70%;font-variant-numeric:tabular-nums}
+.btn-add{min-height:44px;padding:0 16px;white-space:nowrap}
+.btn-add.done{background:var(--stamp);border-color:var(--stamp);color:#fff}
+@media (max-width:1100px){
+  .row{grid-template-columns:56px 150px minmax(0,1fr) auto}
+  .row-spec{grid-column:3/-1;grid-row:2}
+}
+@media (max-width:700px){
+  .row{grid-template-columns:minmax(0,1fr) auto;gap:12px 16px;padding:22px 0 24px}
+  .row-no{grid-column:1;grid-row:1}
+  .row-draw{grid-column:1/-1;grid-row:2;max-width:300px}
+  .row-main{grid-column:1/-1;grid-row:3}
+  .row-spec{grid-column:1/-1;grid-row:4}
+  .row-buy{grid-column:1/-1;grid-row:5;grid-template-columns:auto 1fr;align-items:center;justify-items:stretch;gap:16px}
+  .row-name::after{inset:0 0 40% 0}
+}
+
+/* ---------- the fold (signature) ---------- */
+.fold{margin-top:clamp(48px,8vw,120px);border-block:2px solid var(--ink);background:var(--leaf)}
+.fold-stage{padding:clamp(20px,3vw,40px) var(--gut);display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:clamp(16px,3vw,56px);align-items:center}
+.scrub .fold{height:430vh}
+.scrub .fold-stage{position:sticky;top:0;height:100vh;height:100svh;padding-top:74px}
+.fold-fig{min-width:0;display:grid;gap:10px}
+.fold-fig svg{width:100%;height:auto;max-height:66svh;overflow:visible}
+.fold-fig .arc{stroke:var(--rule)}
+.fold-fig .arc-on{stroke:var(--stamp);stroke-width:2.5}
+.fold-fig .ticks line{stroke:var(--mute);stroke-width:1}
+.fold-fig .tip{fill:var(--stamp);stroke:none}
+.fold-fig .spring{stroke:var(--stamp);stroke-width:2.5}
+.fold-fig.tick svg{animation:tick .22s var(--out)}
+@keyframes tick{0%{transform:translateY(5px)}100%{transform:none}}
+.lever{display:none;align-items:center;gap:12px}
+.js .lever{display:flex}
+.lever label{font:400 .72rem var(--typed);text-transform:uppercase;color:var(--mute);white-space:nowrap}
+.lever input{flex:1;min-width:0;height:44px;accent-color:var(--stamp);background:transparent}
+.fold-side{min-width:0;display:grid;gap:18px}
+.fold-side h2{font:600 clamp(2rem,4.6vw,4rem)/.92 var(--display);font-stretch:66%}
+.readout{display:flex;align-items:baseline;gap:14px;border-block:1px solid var(--ink);padding:8px 0}
+.readout b{font:600 clamp(3rem,6.5vw,5.6rem)/.9 var(--display);font-stretch:62%;font-variant-numeric:tabular-nums;min-width:2.25ch}
+.readout span{font:700 .82rem var(--typed);text-transform:uppercase;color:var(--stamp)}
+.stations{display:grid;gap:2px;counter-reset:st}
+.stations li{display:grid;grid-template-columns:54px minmax(0,1fr);gap:10px;padding:9px 0;border-bottom:1px solid var(--rule);transition:opacity .35s}
+.stations li b{font:400 .78rem/1.9 var(--typed);color:var(--mute)}
+.stations li strong{font-weight:600}
+.stations li p{font-size:.95rem;line-height:1.42}
+.scrub .stations li,.js .fold.manual .stations li{opacity:.34}
+.scrub .stations li.on,.js .fold.manual .stations li.on{opacity:1}
+.stations li.on b{color:var(--stamp);font-weight:700}
+.fold-note{font:500 1.35rem/1.15 var(--hand);color:var(--stamp);transform:rotate(-1.5deg);max-width:26ch}
+@media (max-width:860px){
+  .fold-stage{grid-template-columns:minmax(0,1fr);align-content:start;gap:10px}
+  .scrub .fold-stage{padding-top:70px}
+  .fold-side{order:-1;gap:8px}
+  .fold-side>p.intro{display:none}
+  .fold-side h2{font-size:2rem}
+  .readout{padding:4px 0}
+  .readout b{font-size:3rem}
+  .fold-fig{order:1}
+  .fold-fig svg{max-height:40svh}
+  .stations{order:2}
+  .fold-stage{display:flex;flex-direction:column;justify-content:center}
+  .stations li p{font-size:1.04rem}
+  .stations{min-height:8.2em}
+  .fold-stage>*{width:100%}
+  .fold-side{display:contents}
+  .fold-side h2{order:-3}.readout{order:-2}.fold-note{display:none}
+  .scrub .stations li,.js .fold.manual .stations li{display:none}
+  .scrub .stations li.on,.js .fold.manual .stations li.on{display:grid;border-bottom:0}
+}
+
+/* ---------- steel (the one dark page) ---------- */
+.steel{margin-top:0;background:var(--pine);color:var(--paper);padding:clamp(48px,8vw,120px) var(--gut)}
+.steel .sec-head{border-color:var(--paper)}
+.steel .sec-head .typed,.steel .sec-head p{color:color-mix(in srgb,var(--paper) 72%,transparent)}
+.steel-table{width:100%;border-collapse:collapse;margin-top:6px}
+.steel-table th,.steel-table td{text-align:left;padding:16px 14px 16px 0;border-bottom:1px solid color-mix(in srgb,var(--paper) 26%,transparent);vertical-align:top}
+.steel-table thead th{font:400 .7rem var(--typed);text-transform:uppercase;color:color-mix(in srgb,var(--paper) 66%,transparent);padding-block:12px}
+.steel-table tbody th{font:600 1.7rem/1 var(--display);font-stretch:70%;white-space:nowrap}
+.steel-table tbody th small{display:block;margin-top:6px;font:400 .7rem var(--typed);text-transform:uppercase;color:color-mix(in srgb,var(--paper) 66%,transparent);white-space:normal}
+.steel-table td.say{max-width:34ch;font-size:.95rem}
+.pips{display:inline-block;width:66px;height:10px;border:1px solid currentColor;
+  background:repeating-linear-gradient(90deg,transparent 0 12px,var(--pine) 12px 13px),linear-gradient(90deg,currentColor calc(var(--n)*13px - 1px),transparent 0)}
+.pips+i{font:400 .72rem var(--typed);font-style:normal;margin-left:8px;opacity:.7}
+.table-scroll{overflow-x:auto}
+.angle{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:clamp(20px,4vw,64px);align-items:center;margin-top:clamp(36px,5vw,72px)}
+.angle svg{color:var(--paper);fill:none;stroke:currentColor;stroke-width:1.5}
+.angle svg text{font:400 15px var(--typed);fill:currentColor;stroke:none}
+.angle h3{font:600 clamp(1.7rem,3.6vw,2.8rem)/1 var(--display);font-stretch:68%;max-width:18ch;text-wrap:balance}
+.angle p{margin-top:14px;max-width:52ch;color:color-mix(in srgb,var(--paper) 82%,transparent)}
+@media (max-width:760px){
+  .angle{grid-template-columns:minmax(0,1fr)}
+  .angle svg{max-width:260px}
+  .steel-table thead{display:none}
+  .steel-table,.steel-table tbody,.steel-table tr,.steel-table th,.steel-table td{display:block}
+  .steel-table tr{padding:18px 0;border-bottom:1px solid color-mix(in srgb,var(--paper) 26%,transparent);display:grid;grid-template-columns:1fr 1fr;gap:10px 16px}
+  .steel-table th,.steel-table td{border:0;padding:0}
+  .steel-table tbody th,.steel-table td.say{grid-column:1/-1}
+  .steel-table td[data-l]::before{content:attr(data-l);display:block;font:400 .66rem var(--typed);text-transform:uppercase;opacity:.66;margin-bottom:3px}
+}
+
+/* ---------- field log ---------- */
+.log{position:relative;margin-top:26px;background:var(--leaf);border:1px solid var(--ink);padding:18px clamp(14px,2.4vw,30px) 8px;
+  background-image:repeating-linear-gradient(transparent 0 35px,color-mix(in srgb,var(--stamp) 16%,transparent) 35px 36px)}
+.log-head{display:flex;flex-wrap:wrap;gap:6px 28px;font:400 .76rem/1.6 var(--typed);text-transform:uppercase;padding-bottom:12px;border-bottom:2px solid var(--ink)}
+.log-head b{font-weight:700}
+.log table{width:100%;border-collapse:collapse;font:400 .93rem/1.4 var(--typed)}
+.log th{font-size:.68rem;text-transform:uppercase;text-align:left;color:var(--mute);font-weight:400;padding:10px 12px 6px 0}
+.log td{padding:9px 12px 9px 0;vertical-align:top;border-top:1px solid var(--rule)}
+.log td:first-child{white-space:nowrap}
+.log td.edge{font-weight:700}
+.log tr.dull td.edge{color:var(--stamp)}
+.pencil{font:500 1.45rem/1.1 var(--hand);color:var(--stamp);display:inline-block;transform:rotate(-2deg);margin:10px 0 10px 12%}
+@media (max-width:760px){
+  .log thead{display:none}
+  .log table,.log tbody,.log tr,.log td{display:block}
+  .log tr{padding:12px 0;border-top:1px solid var(--rule)}
+  .log td{border:0;padding:1px 0}
+  .log td:first-child{font-weight:700}
+  .log td[data-l]::before{content:attr(data-l) ": ";color:var(--mute);font-size:.7rem;text-transform:uppercase}
+  .pencil{margin-left:0}
+}
+.plates{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin-top:22px}
+.plates .plate{aspect-ratio:3/4}
+.plates:not(:has(img)){display:none}
+@media (max-width:860px){.plates{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:480px){.plates{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.care{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin-top:clamp(28px,4vw,56px);border-top:2px solid var(--ink)}
+.care li{padding:20px 22px 22px 0;border-right:1px solid var(--rule)}
+.care li+li{padding-left:22px}
+.care li:last-child{border-right:0}
+.care b{display:block;font:600 2.3rem/1 var(--display);font-stretch:66%;margin:6px 0 8px}
+.care p{max-width:36ch;font-size:.97rem}
+@media (max-width:760px){.care{grid-template-columns:1fr}.care li,.care li+li{padding:18px 0;border-right:0;border-bottom:1px solid var(--rule)}}
+
+/* ---------- questions ---------- */
+.faq{margin-top:6px;max-width:980px}
+.faq details{border-bottom:1px solid var(--rule)}
+.faq summary{display:flex;justify-content:space-between;gap:20px;align-items:baseline;padding:18px 0;cursor:pointer;list-style:none;font:600 clamp(1.3rem,2.6vw,1.9rem)/1.1 var(--display);font-stretch:72%}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";font:400 1.3rem var(--typed);color:var(--stamp);transition:transform .4s var(--out)}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq details p{padding:0 0 20px;max-width:62ch}
+
+/* ---------- footer ---------- */
+footer{margin-top:clamp(56px,9vw,130px);padding:28px var(--gut) 26px;border-top:2px solid var(--ink);display:grid;gap:26px}
+.foot-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:28px}
+.foot-grid h2{font:400 .74rem var(--typed);text-transform:uppercase;color:var(--mute);margin-bottom:10px}
+.foot-grid p{max-width:42ch}
+.credits{columns:2;column-gap:28px;font-size:.82rem;line-height:1.35}
+.credits li{break-inside:avoid;padding:0 0 9px}
+.credits span{display:block;color:var(--mute);font:400 .7rem var(--typed);text-transform:uppercase}
+.bigmark{font:700 clamp(4rem,28.6vw,30rem)/.84 var(--display);font-stretch:62%;letter-spacing:-.02em;margin:6px 0 0 -.03em;white-space:nowrap;overflow-x:clip}
+.fine{display:flex;flex-wrap:wrap;gap:6px 24px;justify-content:space-between;color:var(--mute)}
+@media (max-width:760px){.foot-grid{grid-template-columns:1fr}.credits{columns:1}}
+
+/* ---------- sheets (dialogs) ---------- */
+dialog{position:fixed;inset:0 0 0 auto;margin:0;width:min(540px,100vw);max-width:100vw;height:100vh;height:100dvh;max-height:none;border:0;border-left:2px solid var(--ink);padding:0;background:var(--paper);color:var(--ink);overflow:auto;overscroll-behavior:contain}
+dialog::backdrop{background:color-mix(in srgb,var(--pine) 55%,transparent)}
+@media (prefers-reduced-motion:no-preference){dialog[open]{animation:sheet .55s var(--out)}dialog[open]::backdrop{animation:fade .4s both}}
+@keyframes sheet{from{transform:translateX(60px);opacity:0}}
+@keyframes fade{from{opacity:0}}
+.sheet-top{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;padding:10px 20px;background:var(--paper);border-bottom:1px solid var(--ink)}
+.x{min-width:44px;min-height:44px;font:400 .8rem var(--typed);text-transform:uppercase;text-decoration:underline;text-underline-offset:.2em}
+.sheet-body{padding:20px;display:grid;gap:18px}
+.spec-draw{background:var(--leaf);border:1px solid var(--ink);padding:22px 18px;position:relative}
+.spec-draw svg{width:100%;height:auto;color:var(--ink);fill:none;stroke:currentColor;stroke-width:1.5;stroke-linejoin:round;stroke-linecap:round}
+.spec-draw .typed{position:absolute;left:10px;top:8px;color:var(--mute);font-size:.68rem}
+.sheet-body h2{font:600 3.4rem/.9 var(--display);font-stretch:64%}
+.sheet-body .lede{font-size:1.1rem;max-width:36ch}
+.hand-note{border-left:3px solid var(--stamp);padding:2px 0 2px 14px}
+.hand-note .typed{color:var(--mute);font-size:.68rem;display:block;margin-bottom:2px}
+.specs{display:grid;grid-template-columns:auto minmax(0,1fr);border-top:1px solid var(--ink)}
+.specs dt,.specs dd{padding:9px 0;border-bottom:1px solid var(--rule)}
+.specs dt{font:400 .72rem/1.9 var(--typed);text-transform:uppercase;color:var(--mute);padding-right:22px}
+.sheet-plate{aspect-ratio:16/10}
+.buybar{position:sticky;bottom:0;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:12px 20px;background:var(--paper);border-top:1px solid var(--ink)}
+.buybar .btn{flex:1;max-width:260px}
+
+/* requisition slip */
+.slip-meta{display:flex;justify-content:space-between;gap:12px;font:400 .74rem/1.5 var(--typed);text-transform:uppercase}
+.slip-lines{border-top:2px solid var(--ink)}
+.slip-lines li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;padding:14px 0;border-bottom:1px solid var(--rule)}
+.slip-lines h3{font:600 1.5rem/1 var(--display);font-stretch:70%}
+.slip-lines .typed{color:var(--mute);font-size:.68rem}
+.slip-lines .lt{font:600 1.3rem/1 var(--display);font-stretch:70%;font-variant-numeric:tabular-nums;text-align:right}
+.qty{display:inline-flex;align-items:center;border:1px solid var(--ink);background:var(--leaf)}
+.qty button{width:44px;height:44px;font-size:1.2rem;line-height:1}
+.qty button:hover{background:var(--ink);color:var(--paper)}
+.qty output{min-width:34px;text-align:center;font:700 1rem var(--typed)}
+.rm{justify-self:end;align-self:center;min-height:44px;font:400 .72rem var(--typed);text-transform:uppercase;text-decoration:underline;text-underline-offset:.2em;color:var(--mute)}
+.rm:hover{color:var(--stamp)}
+.slip-sum{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:baseline}
+.slip-sum dt{font:400 .74rem var(--typed);text-transform:uppercase}
+.slip-sum dd{text-align:right;font-variant-numeric:tabular-nums}
+.slip-sum .tot{font:600 2.3rem/1 var(--display);font-stretch:66%}
+.demo-note{border:1px dashed var(--stamp);color:var(--stamp);padding:10px 12px;font:400 .8rem/1.45 var(--typed)}
+.empty{padding:26px 0 10px;display:grid;gap:14px;justify-items:start}
+.empty p{max-width:34ch}
+.stamped{position:relative;display:grid;gap:16px;justify-items:start;padding:8px 0 4px}
+.stamp{display:inline-block;border:4px double var(--stamp);color:var(--stamp);padding:10px 16px 8px;font:800 1.75rem/1 var(--display);font-stretch:66%;text-transform:uppercase;letter-spacing:.04em;transform:rotate(-7deg);margin:8px 0 6px 6px;
+  -webkit-mask-image:radial-gradient(circle at 30% 40%,#000 55%,rgba(0,0,0,.72) 70%,#000 86%);mask-image:radial-gradient(circle at 30% 40%,#000 55%,rgba(0,0,0,.72) 70%,#000 86%)}
+.stamp small{display:block;margin-top:5px;font:700 .72rem var(--typed);letter-spacing:.06em}
+@media (prefers-reduced-motion:no-preference){.stamp{animation:stamp .42s cubic-bezier(.2,1.4,.4,1) both}.stamped{animation:thud .3s .16s}}
+@keyframes stamp{from{transform:rotate(-16deg) scale(2.3);opacity:0}}
+@keyframes thud{0%{transform:translateY(0)}35%{transform:translateY(4px)}100%{transform:none}}
+noscript p{margin:0;padding:10px var(--gut);background:var(--ink);color:var(--paper);font-size:.9rem}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="currentColor" stroke-width="1" opacity=".42"/></pattern>
+    <pattern id="grain" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(8)"><line x1="0" y1="2" x2="9" y2="2" stroke="currentColor" stroke-width=".8" opacity=".38"/><line x1="0" y1="6.5" x2="5" y2="6.5" stroke="currentColor" stroke-width=".8" opacity=".3"/></pattern>
+
+    <!-- large slipjoint, pivot at 355,80; blade drawn open, pointing left -->
+    <path id="g-blade" d="M355 52 L130 52 C92 53 56 64 28 88 C90 107 190 113 298 112 L304 103 L318 108 L355 108 A28 28 0 0 0 355 52 Z"/>
+    <path id="g-handle" d="M342 44 L684 44 C714 44 732 60 732 81 C732 104 714 118 684 118 L342 118 C324 118 316 102 316 81 C316 60 324 44 342 44 Z"/>
+    <path id="g-bolster" d="M342 44 L396 44 L396 118 L342 118 C324 118 316 102 316 81 C316 60 324 44 342 44 Z"/>
+
+    <symbol id="k-tarn" viewBox="0 0 240 80">
+      <path fill="var(--leaf)" d="M112 31 L62 31 C48 31 36 35 27 42 C38 49 62 51 100 51 L102 47 L108 50 L112 50 A9.5 9.5 0 0 0 112 31 Z"/><path d="M27 42 C52 44 80 45 102 45M70 35 Q82 32 94 35"/>
+      <path fill="url(#grain)" d="M108 27 L200 27 C212 27 219 33 219 41 C219 49 212 55 200 55 L108 55 C101 55 99 48 99 41 C99 34 101 27 108 27 Z"/>
+      <path fill="var(--paper-2)" d="M108 27 L124 27 L124 55 L108 55 C101 55 99 48 99 41 C99 34 101 27 108 27 Z"/><circle cx="112" cy="41" r="3"/><circle cx="160" cy="41" r="1.6"/><circle cx="204" cy="41" r="1.6"/>
+    </symbol>
+    <symbol id="k-ridge" viewBox="0 0 240 80">
+      <path fill="var(--leaf)" d="M108 27 L50 27 C34 28 20 34 9 46 C30 53 68 54 96 53 L98 48 L104 52 L108 52 A12.5 12.5 0 0 0 108 27 Z"/><path d="M9 46 C40 46 72 47 98 46"/><circle cx="90" cy="33" r="2.6" fill="var(--paper-2)"/>
+      <path fill="url(#hatch)" d="M104 23 L210 23 C226 23 234 31 234 41 C234 51 228 57 212 57 L176 57 C166 57 164 60 152 60 L104 58 C96 58 94 49 94 40 C94 31 97 23 104 23 Z"/>
+      <path fill="var(--leaf)" d="M150 29 L222 29 C227 29 227 35 222 35 L150 35 Z"/><circle cx="108" cy="40" r="4"/><path d="M105 40 H111"/><circle cx="156" cy="32" r="1.3"/><circle cx="218" cy="48" r="2.6"/>
+    </symbol>
+    <symbol id="k-lookout" viewBox="0 0 240 80">
+      <path fill="var(--leaf)" d="M108 27 L60 27 L40 33 C27 36 15 41 7 48 C30 54 70 55 96 53 L98 48 L104 52 L108 52 A12.5 12.5 0 0 0 108 27 Z"/><path d="M7 48 C40 47 72 47 98 46M64 31 Q78 28 92 31"/>
+      <path fill="url(#grain)" d="M104 23 L210 23 C226 23 234 31 234 41 C234 52 226 58 210 58 L104 58 C96 58 94 49 94 40 C94 31 97 23 104 23 Z"/>
+      <path fill="var(--paper-2)" d="M104 23 L126 23 L126 58 L104 58 C96 58 94 49 94 40 C94 31 97 23 104 23 Z"/>
+      <path fill="var(--leaf)" d="M168 23 L190 23 L190 28 Q179 31 168 28 Z"/><circle cx="108" cy="40" r="3.6"/><circle cx="150" cy="40" r="1.7"/><circle cx="200" cy="40" r="1.7"/><circle cx="222" cy="41" r="2.8"/>
+    </symbol>
+    <symbol id="k-drover" viewBox="0 0 240 80">
+      <path fill="var(--leaf)" d="M100 26 L44 26 C28 27 15 33 6 45 C30 54 72 55 100 55 Z"/><path d="M6 45 C34 43 70 43 100 43"/>
+      <path fill="url(#grain)" d="M100 24 L208 24 C224 24 234 31 234 40 C234 50 226 57 210 57 L150 57 C138 57 134 60 122 59 L100 57 Z"/>
+      <circle cx="120" cy="40" r="2.2"/><circle cx="162" cy="40" r="2.2"/><circle cx="200" cy="40" r="2.2"/><circle cx="220" cy="40" r="3.2" fill="var(--leaf)"/><path d="M100 24 V57"/>
+    </symbol>
+    <symbol id="k-packrat" viewBox="0 0 240 80">
+      <path fill="var(--leaf)" d="M72 33 L22 29 C12 29 7 33 7 38 L7 39 L62 39 Z"/><path fill="var(--leaf)" d="M72 47 L22 51 C12 51 7 47 7 42 L7 41 L62 41 Z"/><path d="M16 39 v-3 M24 39 v-3 M32 39 v-3 M40 39 v-3 M16 41 v3 M24 41 v3 M32 41 v3 M40 41 v3"/>
+      <path fill="url(#hatch)" d="M82 31 L226 20 C233 20 235 25 233 30 L86 39 Z"/><path fill="url(#hatch)" d="M82 49 L226 60 C233 60 235 55 233 50 L86 41 Z"/>
+      <circle cx="76" cy="40" r="8" fill="var(--paper-2)"/><circle cx="76" cy="40" r="2.6"/><circle cx="222" cy="25.5" r="1.6"/><circle cx="222" cy="54.5" r="1.6"/>
+    </symbol>
+    <symbol id="k-whet" viewBox="0 0 240 80">
+      <path fill="var(--leaf)" d="M42 20 H190 V31 H42 Z"/><path fill="url(#hatch)" d="M42 31 H190 V42 H42 Z"/><path fill="url(#grain)" d="M30 42 H202 V52 H30 Z"/>
+      <path fill="var(--paper-2)" d="M210 52 L234 52 L210 40 Z"/><rect x="58" y="62" width="150" height="8" rx="4" fill="var(--paper-2)"/><path d="M208 66 H226"/><circle cx="229" cy="66" r="3"/>
+    </symbol>
+    <symbol id="k-ember" viewBox="0 0 240 80">
+      <rect x="70" y="27" width="136" height="9" rx="4.5" fill="var(--leaf)"/><rect x="22" y="21" width="52" height="21" rx="7" fill="url(#grain)"/>
+      <path d="M22 31 C4 31 4 60 30 62 C52 64 62 60 92 60"/><path fill="var(--paper-2)" d="M92 54 H160 V66 H92 Z"/><path d="M100 66 v-4 M108 66 v-4 M116 66 v-4 M124 66 v-4 M132 66 v-4 M140 66 v-4 M148 66 v-4"/>
+      <path d="M212 26 l7 -6 M214 32 h10 M212 38 l8 5 M222 22 l3 -5 M226 38 l5 1"/>
+    </symbol>
+    <symbol id="k-slip" viewBox="0 0 240 80">
+      <path fill="url(#grain)" d="M96 16 C96 4 146 4 146 16 Z"/><path fill="var(--paper-2)" d="M72 16 H170 L176 60 C177 68 169 73 160 73 H82 C73 73 65 68 66 60 Z"/>
+      <path stroke-dasharray="4 3.2" d="M79 22 L73 60 C73 64 78 67 83 67 H159 C164 67 169 64 169 60 L163 22"/><path d="M72 16 H170"/>
+    </symbol>
+  </defs>
+</svg>
+
+<header class="top">
+  <a class="mark" href="#top" aria-label="Hollowfell, back to top">
+    <svg viewBox="20 36 720 90" aria-hidden="true" class="ink"><g id="markBlade"><use href="#g-blade" fill="var(--leaf)"/></g><use href="#g-handle" fill="var(--ink)"/><circle cx="355" cy="80" r="10" fill="var(--paper)" stroke="none"/></svg>
+    Hollowfell
+  </a>
+  <nav aria-label="Sections">
+    <a href="#register">Register</a><a href="#fold">The fold</a><a href="#steel">Steel</a><a href="#log">Field log</a><a href="#questions">Questions</a>
+  </nav>
+  <button class="slip-tab" type="button" id="slipTab" aria-haspopup="dialog">Slip <span class="tally" id="tally" aria-hidden="true"></span><span class="vh" id="tallyText">0 items</span></button>
+</header>
+<noscript><p>The requisition slip and the specimen sheets need JavaScript. Everything else on this page reads without it.</p></noscript>
+<p class="demo-strip typed" id="top">Demo store: no payment is taken. Hollowfell is a fictional maker.</p>
+
+<main>
+<section class="hero" aria-labelledby="h1">
+  <h1 id="h1">A knife you'll have to mention in <em>your will.</em></h1>
+  <div class="hero-plate">
+    <div class="label">Acc. no. HF-001<b>Tarn</b>Slipjoint · 14C28N · 52 g</div>
+    <svg viewBox="0 24 760 196" class="ink" role="img" aria-label="Line drawing of the Tarn folding knife, open, with its dimensions: 68 millimetre blade, 158 millimetres overall">
+      <path class="arc" d="M682 80 A327 327 0 0 1 675 148" stroke="var(--mute)" stroke-dasharray="3 6"/>
+      <use href="#g-handle" class="draw fillin" pathLength="1" fill="var(--paper-2)"/>
+      <use href="#g-blade" class="draw fillin" pathLength="1" fill="var(--leaf)"/>
+      <path class="draw" pathLength="1" d="M28 88 C96 92 200 95 300 97"/><path d="M150 62 Q185 55 220 62"/>
+      <use href="#g-handle" class="fillin" fill="url(#grain)" stroke="none"/>
+      <use href="#g-bolster" class="draw fillin" pathLength="1" fill="var(--paper-2)"/>
+      <circle cx="355" cy="80" r="9" fill="var(--leaf)"/><path d="M349 80 H361"/><circle cx="540" cy="81" r="4"/><circle cx="690" cy="81" r="4"/>
+      <g class="dim"><path d="M28 150 H316 M28 142 V158 M316 142 V158"/><path d="M28 194 H732 M28 186 V202 M732 186 V202"/></g>
+      <text x="36" y="176">68 mm blade</text><text x="420" y="186">158 mm open</text>
+    </svg>
+  </div>
+  <div class="hero-copy">
+    <figure class="plate plate-hero"><img src="https://images.pexels.com/photos/4313722/pexels-photo-4313722.jpeg?auto=compress&cs=tinysrgb&w=900" alt="A hand holding a wooden-handled folding knife outdoors" loading="lazy" decoding="async" onerror="this.parentNode.remove()"><figcaption>Plate 01. A hand holding a wooden-handled folding knife outdoors. Photo Gantas Vaičiulėnas, Pexels.</figcaption></figure>
+    <p>Hollowfell makes eight tools in small batches and sells each one with a logbook. Sharpen it twice a year and it will outlast the pocket you carry it in.</p>
+    <div class="cta"><a class="btn" href="#register">Read the register</a><a class="btn btn-ghost" href="#fold">Open one</a></div>
+  </div>
+</section>
+
+<section class="sec" id="register" aria-labelledby="h-reg">
+  <div class="sec-head">
+    <span class="typed">Page 2 · Register of tools</span>
+    <h2 id="h-reg">Eight tools. That's the catalogue.</h2>
+    <p>Each has an accession number, the way a museum numbers a specimen, because we expect it to be around long enough to need one.</p>
+  </div>
+  <ol class="rows">
+      <li class="row" data-id="tarn">
+        <span class="row-no">HF-001</span>
+        <button class="row-draw" type="button" data-open="tarn" aria-label="See the Tarn specimen sheet" tabindex="-1">
+          <svg viewBox="0 0 240 80" aria-hidden="true"><use href="#k-tarn"/></svg>
+        </button>
+        <div class="row-main">
+          <h3><button type="button" class="row-name" data-open="tarn">Tarn</button> <span class="row-kind">Slipjoint folder</span></h3>
+          <p>Lives in the coin pocket and opens the post for thirty years.</p>
+        </div>
+        <dl class="row-spec">
+          <div><dt>Steel</dt><dd>14C28N stainless</dd></div>
+          <div><dt>Blade</dt><dd>68 mm</dd></div>
+          <div><dt>Weight</dt><dd>52 g</dd></div>
+          <div><dt>Lock</dt><dd>Slipjoint, half-stop</dd></div>
+          <div><dt>Handle</dt><dd>Stabilised birch</dd></div>
+        </dl>
+        <div class="row-buy">
+          <span class="price">$84</span>
+          <button type="button" class="btn btn-add" data-add="tarn">Add <span class="vh">Tarn </span>to slip</button>
+        </div>
+      </li>
+      <li class="row" data-id="ridgeline">
+        <span class="row-no">HF-002</span>
+        <button class="row-draw" type="button" data-open="ridgeline" aria-label="See the Ridgeline specimen sheet" tabindex="-1">
+          <svg viewBox="0 0 240 80" aria-hidden="true"><use href="#k-ridge"/></svg>
+        </button>
+        <div class="row-main">
+          <h3><button type="button" class="row-name" data-open="ridgeline">Ridgeline</button> <span class="row-kind">Liner-lock folder</span></h3>
+          <p>One hand opens it while the other holds the rope.</p>
+        </div>
+        <dl class="row-spec">
+          <div><dt>Steel</dt><dd>N690 stainless</dd></div>
+          <div><dt>Blade</dt><dd>86 mm</dd></div>
+          <div><dt>Weight</dt><dd>96 g</dd></div>
+          <div><dt>Lock</dt><dd>Liner lock</dd></div>
+          <div><dt>Handle</dt><dd>Canvas micarta</dd></div>
+        </dl>
+        <div class="row-buy">
+          <span class="price">$148</span>
+          <button type="button" class="btn btn-add" data-add="ridgeline">Add <span class="vh">Ridgeline </span>to slip</button>
+        </div>
+      </li>
+      <li class="row" data-id="lookout">
+        <span class="row-no">HF-003</span>
+        <button class="row-draw" type="button" data-open="lookout" aria-label="See the Lookout specimen sheet" tabindex="-1">
+          <svg viewBox="0 0 240 80" aria-hidden="true"><use href="#k-lookout"/></svg>
+        </button>
+        <div class="row-main">
+          <h3><button type="button" class="row-name" data-open="lookout">Lookout</button> <span class="row-kind">Back-lock folder</span></h3>
+          <p>Named for the people who sit on a peak all summer and watch for smoke.</p>
+        </div>
+        <dl class="row-spec">
+          <div><dt>Steel</dt><dd>D2 tool steel</dd></div>
+          <div><dt>Blade</dt><dd>92 mm</dd></div>
+          <div><dt>Weight</dt><dd>118 g</dd></div>
+          <div><dt>Lock</dt><dd>Back lock</dd></div>
+          <div><dt>Handle</dt><dd>Oiled walnut</dd></div>
+        </dl>
+        <div class="row-buy">
+          <span class="price">$132</span>
+          <button type="button" class="btn btn-add" data-add="lookout">Add <span class="vh">Lookout </span>to slip</button>
+        </div>
+      </li>
+      <li class="row" data-id="drover">
+        <span class="row-no">HF-004</span>
+        <button class="row-draw" type="button" data-open="drover" aria-label="See the Drover specimen sheet" tabindex="-1">
+          <svg viewBox="0 0 240 80" aria-hidden="true"><use href="#k-drover"/></svg>
+        </button>
+        <div class="row-main">
+          <h3><button type="button" class="row-name" data-open="drover">Drover</button> <span class="row-kind">Fixed blade</span></h3>
+          <p>Splits kindling at dusk and slices tomatoes at dawn. Wipe it in between.</p>
+        </div>
+        <dl class="row-spec">
+          <div><dt>Steel</dt><dd>80CrV2 carbon</dd></div>
+          <div><dt>Blade</dt><dd>105 mm</dd></div>
+          <div><dt>Weight</dt><dd>162 g</dd></div>
+          <div><dt>Lock</dt><dd>None. Full tang</dd></div>
+          <div><dt>Handle</dt><dd>Ash, veg-tan sheath</dd></div>
+        </dl>
+        <div class="row-buy">
+          <span class="price">$156</span>
+          <button type="button" class="btn btn-add" data-add="drover">Add <span class="vh">Drover </span>to slip</button>
+        </div>
+      </li>
+      <li class="row" data-id="packrat">
+        <span class="row-no">HF-005</span>
+        <button class="row-draw" type="button" data-open="packrat" aria-label="See the Packrat specimen sheet" tabindex="-1">
+          <svg viewBox="0 0 240 80" aria-hidden="true"><use href="#k-packrat"/></svg>
+        </button>
+        <div class="row-main">
+          <h3><button type="button" class="row-name" data-open="packrat">Packrat</button> <span class="row-kind">Multitool</span></h3>
+          <p>Eleven tools. We cut the twelfth because nobody could say what it was for.</p>
+        </div>
+        <dl class="row-spec">
+          <div><dt>Steel</dt><dd>14C28N stainless</dd></div>
+          <div><dt>Blade</dt><dd>62 mm</dd></div>
+          <div><dt>Weight</dt><dd>187 g</dd></div>
+          <div><dt>Lock</dt><dd>Every tool locks</dd></div>
+          <div><dt>Handle</dt><dd>Bead-blasted stainless</dd></div>
+        </dl>
+        <div class="row-buy">
+          <span class="price">$118</span>
+          <button type="button" class="btn btn-add" data-add="packrat">Add <span class="vh">Packrat </span>to slip</button>
+        </div>
+      </li>
+      <li class="row" data-id="whet">
+        <span class="row-no">HF-006</span>
+        <button class="row-draw" type="button" data-open="whet" aria-label="See the Whet specimen sheet" tabindex="-1">
+          <svg viewBox="0 0 240 80" aria-hidden="true"><use href="#k-whet"/></svg>
+        </button>
+        <div class="row-main">
+          <h3><button type="button" class="row-name" data-open="whet">Whet</button> <span class="row-kind">Sharpening kit</span></h3>
+          <p>Twenty minutes, twice a year. This kit is why the thirty-year claim is true.</p>
+        </div>
+        <dl class="row-spec">
+          <div><dt>Steel</dt><dd>—</dd></div>
+          <div><dt>Blade</dt><dd>1000 / 4000 grit</dd></div>
+          <div><dt>Weight</dt><dd>640 g</dd></div>
+          <div><dt>Lock</dt><dd>—</dd></div>
+          <div><dt>Handle</dt><dd>Beech base, leather strop</dd></div>
+        </dl>
+        <div class="row-buy">
+          <span class="price">$64</span>
+          <button type="button" class="btn btn-add" data-add="whet">Add <span class="vh">Whet </span>to slip</button>
+        </div>
+      </li>
+      <li class="row" data-id="ember">
+        <span class="row-no">HF-007</span>
+        <button class="row-draw" type="button" data-open="ember" aria-label="See the Ember specimen sheet" tabindex="-1">
+          <svg viewBox="0 0 240 80" aria-hidden="true"><use href="#k-ember"/></svg>
+        </button>
+        <div class="row-main">
+          <h3><button type="button" class="row-name" data-open="ember">Ember</button> <span class="row-kind">Fire kit</span></h3>
+          <p>About 10,000 strikes. Works wet, works cold, works when the lighter doesn&#x27;t.</p>
+        </div>
+        <dl class="row-spec">
+          <div><dt>Steel</dt><dd>80CrV2 striker</dd></div>
+          <div><dt>Blade</dt><dd>Rod 10 × 100 mm</dd></div>
+          <div><dt>Weight</dt><dd>148 g</dd></div>
+          <div><dt>Lock</dt><dd>—</dd></div>
+          <div><dt>Handle</dt><dd>Ash grip, tin case</dd></div>
+        </dl>
+        <div class="row-buy">
+          <span class="price">$38</span>
+          <button type="button" class="btn btn-add" data-add="ember">Add <span class="vh">Ember </span>to slip</button>
+        </div>
+      </li>
+      <li class="row" data-id="slip">
+        <span class="row-no">HF-008</span>
+        <button class="row-draw" type="button" data-open="slip" aria-label="See the Slip specimen sheet" tabindex="-1">
+          <svg viewBox="0 0 240 80" aria-hidden="true"><use href="#k-slip"/></svg>
+        </button>
+        <div class="row-main">
+          <h3><button type="button" class="row-name" data-open="slip">Slip</button> <span class="row-kind">Pocket pouch</span></h3>
+          <p>Keeps keys off the blade and lint out of the pivot.</p>
+        </div>
+        <dl class="row-spec">
+          <div><dt>Steel</dt><dd>—</dd></div>
+          <div><dt>Blade</dt><dd>Fits Tarn, Ridgeline, Lookout</dd></div>
+          <div><dt>Weight</dt><dd>31 g</dd></div>
+          <div><dt>Lock</dt><dd>—</dd></div>
+          <div><dt>Handle</dt><dd>Veg-tan leather, linen thread</dd></div>
+        </dl>
+        <div class="row-buy">
+          <span class="price">$29</span>
+          <button type="button" class="btn btn-add" data-add="slip">Add <span class="vh">Slip </span>to slip</button>
+        </div>
+      </li>
+  </ol>
+</section>
+
+<section class="fold" id="fold" aria-labelledby="h-fold">
+  <div class="fold-stage">
+    <div class="fold-fig" id="foldFig">
+      <svg viewBox="0 20 740 420" class="ink" role="img" aria-labelledby="foldAlt">
+        <title id="foldAlt">Cutaway drawing of the Tarn slipjoint. The blade swings out of the handle through 180 degrees and parks at a half-stop at 90.</title>
+        <path class="arc" d="M682 80 A327 327 0 0 1 28 80"/>
+        <path class="arc-on" id="arcOn" d="M682 80 A327 327 0 0 1 28 80" pathLength="180" stroke-dasharray="180 180"/>
+        <g class="ticks"><line x1="682.0" y1="80.0" x2="698.0" y2="80.0"/><line x1="670.9" y1="164.6" x2="679.6" y2="167.0"/><line x1="638.2" y1="243.5" x2="646.0" y2="248.0"/><line x1="586.2" y1="311.2" x2="597.5" y2="322.5"/><line x1="518.5" y1="363.2" x2="523.0" y2="371.0"/><line x1="439.6" y1="395.9" x2="442.0" y2="404.6"/><line x1="355.0" y1="407.0" x2="355.0" y2="423.0"/><line x1="270.4" y1="395.9" x2="268.0" y2="404.6"/><line x1="191.5" y1="363.2" x2="187.0" y2="371.0"/><line x1="123.8" y1="311.2" x2="112.5" y2="322.5"/><line x1="71.8" y1="243.5" x2="64.0" y2="248.0"/><line x1="39.1" y1="164.6" x2="30.4" y2="167.0"/><line x1="28.0" y1="80.0" x2="12.0" y2="80.0"/></g>
+        <use href="#g-handle" fill="var(--paper-2)"/>
+        <g id="blade"><use href="#g-blade" fill="#fff"/><path d="M28 88 C96 92 200 95 300 97"/><path d="M150 62 Q185 55 220 62"/><circle class="tip" cx="28" cy="88" r="5"/></g>
+        <use href="#g-handle" fill="url(#grain)" stroke="none" opacity=".8"/>
+        <path class="spring" id="spring" d="M398 52 Q556 52 716 52"/>
+        <use href="#g-handle"/>
+        <use href="#g-bolster" fill="var(--paper-2)"/>
+        <circle cx="355" cy="80" r="9" fill="var(--leaf)"/><path d="M349 80 H361"/><circle cx="540" cy="84" r="4"/><circle cx="690" cy="84" r="4"/>
+      </svg>
+      <div class="lever"><label for="lever">Or work it by hand</label><input type="range" id="lever" min="0" max="180" step="1" value="180" aria-describedby="foldState"></div>
+    </div>
+    <div class="fold-side">
+      <h2 id="h-fold">Open it slowly.</h2>
+      <p class="intro">This is the Tarn. No lock, one spring, 52 grams. Scroll and the blade follows your hand. Collectors call the pull and the snap of a slipjoint its walk and talk. This is the walk.</p>
+      <p class="readout" aria-live="off"><b id="deg">180°</b><span id="foldState">Open</span></p>
+      <ol class="stations" id="stations">
+        <li data-a="0"><b>000°</b><p><strong>Closed.</strong> The edge sits inside, against the spring. In a pocket it is a smooth 9 cm bar. Your keys can't reach the blade.</p></li>
+        <li data-a="10"><b>030°</b><p><strong>Nail nick.</strong> A thumbnail in the nick lifts the blade. The steel pushes back. That push is what keeps it shut in your pocket.</p></li>
+        <li data-a="82"><b>090°</b><p><strong>Half-stop.</strong> The tang has a flat here, so the blade parks at ninety degrees. If your grip slips while closing, it stops on the flat and not on your fingers.</p></li>
+        <li data-a="100"><b>135°</b><p><strong>Spring loading.</strong> The backspring bows 0.6 mm at its peak. Ours did this 20,000 times on the test rig and hasn't taken a set.</p></li>
+        <li data-a="172" class="on"><b>180°</b><p><strong>Open.</strong> The spring drops onto the tang and the spine sits flush with the handle. Run a thumb along the back. There is no step.</p></li>
+      </ol>
+      <p class="fold-note">it stops at 90 on purpose. keep going.</p>
+    </div>
+  </div>
+</section>
+
+<section class="steel" id="steel" aria-labelledby="h-steel">
+  <div class="sec-head">
+    <span class="typed">Page 4 · Steel</span>
+    <h2 id="h-steel">Four steels. Each one gives something up.</h2>
+    <p>No steel wins every column. These are our shop ratings out of five, from sharpening and breaking our own samples.</p>
+  </div>
+  <div class="table-scroll">
+  <table class="steel-table">
+    <thead><tr><th scope="col">Steel</th><th scope="col">Holds an edge</th><th scope="col">Resists rust</th><th scope="col">Takes abuse</th><th scope="col">Easy to sharpen</th><th scope="col">In plain words</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">14C28N<small>Tarn, Packrat</small></th><td data-l="Holds an edge"><span class="pips" style="--n:3"></span><i>3</i></td><td data-l="Resists rust"><span class="pips" style="--n:5"></span><i>5</i></td><td data-l="Takes abuse"><span class="pips" style="--n:4"></span><i>4</i></td><td data-l="Easy to sharpen"><span class="pips" style="--n:5"></span><i>5</i></td><td class="say">Stainless that sharpens on the bottom of a mug. The forgiving one.</td></tr>
+      <tr><th scope="row">N690<small>Ridgeline</small></th><td data-l="Holds an edge"><span class="pips" style="--n:4"></span><i>4</i></td><td data-l="Resists rust"><span class="pips" style="--n:4"></span><i>4</i></td><td data-l="Takes abuse"><span class="pips" style="--n:3"></span><i>3</i></td><td data-l="Easy to sharpen"><span class="pips" style="--n:3"></span><i>3</i></td><td class="say">Keeps a working edge through a week of cardboard and rope.</td></tr>
+      <tr><th scope="row">D2<small>Lookout</small></th><td data-l="Holds an edge"><span class="pips" style="--n:4"></span><i>4</i></td><td data-l="Resists rust"><span class="pips" style="--n:2"></span><i>2</i></td><td data-l="Takes abuse"><span class="pips" style="--n:3"></span><i>3</i></td><td data-l="Easy to sharpen"><span class="pips" style="--n:2"></span><i>2</i></td><td class="say">Keeps biting long after it stops shaving. Wipe it dry and it will forgive you.</td></tr>
+      <tr><th scope="row">80CrV2<small>Drover, Ember striker</small></th><td data-l="Holds an edge"><span class="pips" style="--n:3"></span><i>3</i></td><td data-l="Resists rust"><span class="pips" style="--n:1"></span><i>1</i></td><td data-l="Takes abuse"><span class="pips" style="--n:5"></span><i>5</i></td><td data-l="Easy to sharpen"><span class="pips" style="--n:4"></span><i>4</i></td><td class="say">Carbon steel. Rusts if you ignore it, goes grey and handsome if you don't.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="angle">
+    <svg viewBox="0 0 300 170" role="img" aria-label="Two edge cross-sections side by side: 17 degrees per side for folders and 20 degrees per side for the Drover">
+      <path d="M40 20 L95 20 L67.5 110 Z" fill="url(#hatch)"/><path d="M67.5 110 V140" stroke-dasharray="3 4"/>
+      <path d="M187 20 L253 20 L220 110 Z" fill="url(#hatch)"/><path d="M220 110 V140" stroke-dasharray="3 4"/>
+      <text x="36" y="160">17° a side</text><text x="186" y="160">20° a side</text>
+    </svg>
+    <div>
+      <h3>Three degrees decide what the knife is for.</h3>
+      <p>We grind the folders to 17° a side. That edge slides through a tomato skin under its own weight. The Drover gets 20°, which is thicker behind the edge and survives a knot in oak. The brass guide in the Whet kit holds both angles, so you don't have to guess.</p>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="log" aria-labelledby="h-log">
+  <div class="sec-head">
+    <span class="typed">Page 5 · Field log</span>
+    <h2 id="h-log">It comes with a logbook. Here is one of ours.</h2>
+    <p>Fire lookouts write down the time, the wind and what they saw, every day, whether or not anything burned. We test knives the same way. A 48-page logbook ships with every tool.</p>
+  </div>
+  <div class="log">
+    <p class="log-head"><span>Tool <b>HF-003 Lookout</b></span><span>Steel <b>D2</b></span><span>Keeper <b>R. Aldous, workshop</b></span><span>Year <b>2026</b></span></p>
+    <table>
+      <thead><tr><th scope="col">Date</th><th scope="col">Place</th><th scope="col">Weather</th><th scope="col">Work done</th><th scope="col">Edge after</th></tr></thead>
+      <tbody>
+        <tr><td>14 Mar</td><td data-l="Place">Workshop bench</td><td data-l="Weather">Dry, 12°C</td><td data-l="Work">Broke down 40 cartons for recycling.</td><td class="edge" data-l="Edge">Shaves arm hair</td></tr>
+        <tr><td>02 May</td><td data-l="Place">Creek camp, 1,140 m</td><td data-l="Weather">Rain, 6°C</td><td data-l="Work">Feather sticks from wet pine. Nine before one took a flame.</td><td class="edge" data-l="Edge">Slices paper</td></tr>
+        <tr><td>21 Jun</td><td data-l="Place">Lookout tower stairs</td><td data-l="Weather">Wind NW, 30 km/h</td><td data-l="Work">Cut 12 m of cord to lash a loose shutter.</td><td class="edge" data-l="Edge">Slices paper</td></tr>
+        <tr class="dull"><td>09 Aug</td><td data-l="Place">Kitchen</td><td data-l="Weather">Indoors</td><td data-l="Work">Peeled 3 kg of apples. Blade now smells of apples.</td><td class="edge" data-l="Edge">Tears paper. Time.</td></tr>
+        <tr><td>10 Aug</td><td data-l="Place">Kitchen table</td><td data-l="Weather">Indoors</td><td data-l="Work">Whet kit. 1000 grit, then 4000, then the strop.</td><td class="edge" data-l="Edge">Shaves arm hair</td></tr>
+      </tbody>
+    </table>
+    <p class="pencil">18 minutes. told you. — R.</p>
+  </div>
+  <div class="plates" aria-label="Field plates: stock photographs"><figure class="plate "><img src="https://images.pexels.com/photos/4378650/pexels-photo-4378650.jpeg?auto=compress&cs=tinysrgb&w=900" alt="A stainless pocket knife resting on a wooden log" loading="lazy" decoding="async" onerror="this.parentNode.remove()"><figcaption>Plate 02. A stainless pocket knife resting on a wooden log. Photo Markus Spiske, Pexels.</figcaption></figure><figure class="plate "><img src="https://images.pexels.com/photos/22798297/pexels-photo-22798297/free-photo-of-pocket-knife-and-lighter-on-field-notebook.jpeg?auto=compress&cs=tinysrgb&w=900" alt="A field notebook, a wooden-handled knife and a lighter on a rough table, seen from above" loading="lazy" decoding="async" onerror="this.parentNode.remove()"><figcaption>Plate 03. A field notebook, a wooden-handled knife and a lighter on a rough table, seen from above. Photo Osman SRAN, Pexels.</figcaption></figure><figure class="plate "><img src="https://images.pexels.com/photos/2599276/pexels-photo-2599276.jpeg?auto=compress&cs=tinysrgb&w=900" alt="A pocket knife on a weathered tree stump" loading="lazy" decoding="async" onerror="this.parentNode.remove()"><figcaption>Plate 04. A pocket knife on a weathered tree stump. Photo Matt Hatchett, Pexels.</figcaption></figure><figure class="plate "><img src="https://images.pexels.com/photos/11783261/pexels-photo-11783261.jpeg?auto=compress&cs=tinysrgb&w=900" alt="A folding knife on a log among autumn leaves" loading="lazy" decoding="async" onerror="this.parentNode.remove()"><figcaption>Plate 05. A folding knife on a log among autumn leaves. Photo Connor Scott McManus, Pexels.</figcaption></figure><figure class="plate "><img src="https://images.pexels.com/photos/5224633/pexels-photo-5224633.jpeg?auto=compress&cs=tinysrgb&w=900" alt="A wooden-handled folding knife lying on rough ground" loading="lazy" decoding="async" onerror="this.parentNode.remove()"><figcaption>Plate 06. A wooden-handled folding knife lying on rough ground. Photo Hamed Falahi, Pexels.</figcaption></figure><figure class="plate "><img src="https://images.pexels.com/photos/18268059/pexels-photo-18268059/free-photo-of-string-and-pocket-knife.jpeg?auto=compress&cs=tinysrgb&w=900" alt="A worn pocket knife on palm leaves beside a length of twine" loading="lazy" decoding="async" onerror="this.parentNode.remove()"><figcaption>Plate 07. A worn pocket knife on palm leaves beside a length of twine. Photo Ömer BÜLBÜL, Pexels.</figcaption></figure></div>
+  <ol class="care">
+    <li><span class="typed">Care, rule 1</span><b>Dry it.</b><p>Water doesn't hurt steel. Water left overnight does. Wipe the blade on your trouser leg before it goes back in the pocket.</p></li>
+    <li><span class="typed">Care, rule 2</span><b>One drop.</b><p>When the pivot squeaks, give it one drop of oil. Any oil. Open and close it ten times and wipe off what comes out.</p></li>
+    <li><span class="typed">Care, rule 3</span><b>Sharpen early.</b><p>Touch it up when it stops slicing paper cleanly. A dull knife takes an hour to fix and a tired one takes five minutes.</p></li>
+  </ol>
+</section>
+
+<section class="sec" id="questions" aria-labelledby="h-q">
+  <div class="sec-head">
+    <span class="typed">Page 6 · Questions</span>
+    <h2 id="h-q">Asked at the counter.</h2>
+    <p>Short answers. The first one matters most.</p>
+  </div>
+  <div class="faq">
+    <details open><summary>Is this a real shop?</summary><p>No. Hollowfell is a fictional maker and this is a demo store. You can fill a requisition slip and stamp it, but no payment is taken, no card is asked for and nothing ships.</p></details>
+    <details><summary>How would shipping work?</summary><p>Tools would leave the workshop within two working days by tracked post: a flat $9, free over $150. An adult signs for anything with an edge.</p></details>
+    <details><summary>What does the warranty cover?</summary><p>Thirty years on materials and workmanship. It follows the knife and not the buyer, so it still counts when you hand the knife down. We sharpen any Hollowfell for free, for life; you pay the postage. Prying, throwing and losing it are on you.</p></details>
+    <details><summary>Can I carry it where I live?</summary><p>That depends on where you live. Rules on blade length, locking blades and carrying in public differ between countries, states and cities, and they change. Check your local law before you carry any knife, and never take one through airport security. We can't give legal advice. Sales are to adults only.</p></details>
+    <details><summary>What if I don't get on with it?</summary><p>Send it back unused within 60 days for a full refund. If you have used it, send it back anyway and tell us what was wrong. We would rather know.</p></details>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="foot-grid">
+    <div>
+      <h2>Hollowfell</h2>
+      <p>Pocket tools and the logbooks to go with them. Established 2026, in a text editor. This is a demo store: no payment is taken.</p>
+    </div>
+    <div>
+      <h2>Photograph credits · all free stock from Pexels</h2>
+      <ul class="credits"><li><a href="https://www.pexels.com/photo/person-holding-a-folding-knife-4313722/">A hand holding a wooden-handled folding knife outdoors</a> <span>Gantas Vaičiulėnas · Pexels</span></li><li><a href="https://www.pexels.com/photo/close-up-shot-of-a-pocket-knife-with-brown-handle-7523545/">Close-up of a folding knife with a textured brown handle</a> <span>Hamed Falahi · Pexels</span></li><li><a href="https://www.pexels.com/photo/8380438/">A hand gripping a folding pocket knife against a dark background</a> <span>Saif71.com · Pexels</span></li><li><a href="https://www.pexels.com/photo/photography-of-knife-near-leaves-1000836/">A wooden-handled folding knife on a forest floor among leaves and rocks</a> <span>Jeff Li · Pexels</span></li><li><a href="https://www.pexels.com/photo/person-holding-a-wood-building-a-campfire-6063422/">A campfire close up, with sparks rising from the wood</a> <span>Denys Razumovskyi · Pexels</span></li><li><a href="https://www.pexels.com/photo/pocket-knives-on-wood-12749403/">Assorted pocket knives laid out on a wooden surface</a> <span>Tiham Ul Haq · Pexels</span></li><li><a href="https://www.pexels.com/photo/man-sharpening-a-knife-6811356/">A man sharpening a knife on a honing steel</a> <span>cottonbro studio · Pexels</span></li><li><a href="https://www.pexels.com/photo/burning-bonfire-in-winter-forest-in-twilight-6372617/">A log campfire burning in a snowy valley beside a conifer forest at dusk</a> <span>Bastian Riccardi · Pexels</span></li><li><a href="https://www.pexels.com/photo/knife-and-board-on-table-14401947/">A pocket knife on a wooden desk in low light</a> <span>Axwell Wallets · Pexels</span></li><li><a href="https://www.pexels.com/photo/a-stainless-knife-on-a-wooden-log-4378650/">A stainless pocket knife resting on a wooden log</a> <span>Markus Spiske · Pexels</span></li><li><a href="https://www.pexels.com/photo/folding-knife-2599276/">A pocket knife on a weathered tree stump</a> <span>Matt Hatchett · Pexels</span></li><li><a href="https://www.pexels.com/photo/pocket-knife-and-lighter-on-field-notebook-22798297/">A field notebook, a wooden-handled knife and a lighter on a rough table, seen from above</a> <span>Osman SRAN · Pexels</span></li><li><a href="https://www.pexels.com/photo/a-folding-knife-on-a-wooden-log-11783261/">A folding knife on a log among autumn leaves</a> <span>Connor Scott McManus · Pexels</span></li><li><a href="https://www.pexels.com/photo/a-knife-on-the-ground-5224633/">A wooden-handled folding knife lying on rough ground</a> <span>Hamed Falahi · Pexels</span></li><li><a href="https://www.pexels.com/photo/string-and-pocket-knife-18268059/">A worn pocket knife on palm leaves beside a length of twine</a> <span>Ömer BÜLBÜL · Pexels</span></li></ul>
+    </div>
+  </div>
+  <p class="bigmark" aria-hidden="true">Hollowfell</p>
+  <p class="fine typed"><span>Drawings: original SVG. Photographs show no Hollowfell product.</span><span>Demo store · no payment is taken</span></p>
+</footer>
+
+<dialog id="sheet" aria-labelledby="sheetName">
+  <div class="sheet-top"><span class="typed" id="sheetNo">Specimen sheet</span><button class="x" type="button" data-close>Close</button></div>
+  <div class="sheet-body" id="sheetBody"></div>
+  <div class="buybar"><span class="price" id="sheetPrice"></span><button class="btn" type="button" id="sheetAdd">Add to slip</button></div>
+</dialog>
+
+<dialog id="slip" aria-labelledby="slipTitle">
+  <div class="sheet-top"><span class="typed" id="slipTitle">Requisition slip</span><button class="x" type="button" data-close>Close</button></div>
+  <div class="sheet-body" id="slipBody"></div>
+</dialog>
+<p class="vh" role="status" aria-live="polite" id="say"></p>
+
+<script>
+(function(){
+'use strict';
+var P = [{"id": "tarn", "no": "HF-001", "name": "Tarn", "kind": "Slipjoint folder", "price": 84, "sym": "k-tarn", "photo": "brown", "line": "Lives in the coin pocket and opens the post for thirty years.", "hand": "Disappears in a coin pocket. Opens with a thumbnail and a soft double click.", "steel": "14C28N stainless", "blade": "68 mm", "weight": "52 g", "lock": "Slipjoint, half-stop", "handle": "Stabilised birch", "extra": ["Open length", "158 mm"], "photoSrc": "https://images.pexels.com/photos/7523545/pexels-photo-7523545.jpeg?auto=compress&cs=tinysrgb&w=900", "photoAlt": "Close-up of a folding knife with a textured brown handle", "photoBy": "Hamed Falahi"}, {"id": "ridgeline", "no": "HF-002", "name": "Ridgeline", "kind": "Liner-lock folder", "price": 148, "sym": "k-ridge", "photo": "grip", "line": "One hand opens it while the other holds the rope.", "hand": "Fills the palm. The micarta gets grippier when your hands are wet.", "steel": "N690 stainless", "blade": "86 mm", "weight": "96 g", "lock": "Liner lock", "handle": "Canvas micarta", "extra": ["Open length", "198 mm"], "photoSrc": "https://images.pexels.com/photos/8380438/pexels-photo-8380438.jpeg?auto=compress&cs=tinysrgb&w=900", "photoAlt": "A hand gripping a folding pocket knife against a dark background", "photoBy": "Saif71.com"}, {"id": "lookout", "no": "HF-003", "name": "Lookout", "kind": "Back-lock folder", "price": 132, "sym": "k-lookout", "photo": "leaves", "line": "Named for the people who sit on a peak all summer and watch for smoke.", "hand": "Walnut warms up in a minute. The lock shuts like the door of a well-made car.", "steel": "D2 tool steel", "blade": "92 mm", "weight": "118 g", "lock": "Back lock", "handle": "Oiled walnut", "extra": ["Open length", "211 mm"], "photoSrc": "https://images.pexels.com/photos/1000836/pexels-photo-1000836.jpeg?auto=compress&cs=tinysrgb&w=900", "photoAlt": "A wooden-handled folding knife on a forest floor among leaves and rocks", "photoBy": "Jeff Li"}, {"id": "drover", "no": "HF-004", "name": "Drover", "kind": "Fixed blade", "price": 156, "sym": "k-drover", "photo": "sparks", "line": "Splits kindling at dusk and slices tomatoes at dawn. Wipe it in between.", "hand": "Balances on the first finger. Heavy enough to baton, light enough to forget on your belt.", "steel": "80CrV2 carbon", "blade": "105 mm", "weight": "162 g", "lock": "None. Full tang", "handle": "Ash, veg-tan sheath", "extra": ["Spine", "4 mm, square for a ferro rod"], "photoSrc": "https://images.pexels.com/photos/6063422/pexels-photo-6063422.jpeg?auto=compress&cs=tinysrgb&w=900", "photoAlt": "A campfire close up, with sparks rising from the wood", "photoBy": "Denys Razumovskyi"}, {"id": "packrat", "no": "HF-005", "name": "Packrat", "kind": "Multitool", "price": 118, "sym": "k-packrat", "photo": "many", "line": "Eleven tools. We cut the twelfth because nobody could say what it was for.", "hand": "Dense, like a full roll of coins. The pliers open with one hand.", "steel": "14C28N stainless", "blade": "62 mm", "weight": "187 g", "lock": "Every tool locks", "handle": "Bead-blasted stainless", "extra": ["Tools", "Pliers, wire cutter, blade, saw, awl, file, 2 drivers, opener, scissors, ruler"], "photoSrc": "https://images.pexels.com/photos/12749403/pexels-photo-12749403.jpeg?auto=compress&cs=tinysrgb&w=900", "photoAlt": "Assorted pocket knives laid out on a wooden surface", "photoBy": "Tiham Ul Haq"}, {"id": "whet", "no": "HF-006", "name": "Whet", "kind": "Sharpening kit", "price": 64, "sym": "k-whet", "photo": "hone", "line": "Twenty minutes, twice a year. This kit is why the thirty-year claim is true.", "hand": "The stone is the size of a paperback and stays put on a wet towel.", "steel": "Not applicable", "blade": "1000 / 4000 grit", "weight": "640 g", "lock": "Not applicable", "handle": "Beech base, leather strop", "extra": ["Angle guide", "17° and 20°, brass"], "photoSrc": "https://images.pexels.com/photos/6811356/pexels-photo-6811356.jpeg?auto=compress&cs=tinysrgb&w=900", "photoAlt": "A man sharpening a knife on a honing steel", "photoBy": "cottonbro studio"}, {"id": "ember", "no": "HF-007", "name": "Ember", "kind": "Fire kit", "price": 38, "sym": "k-ember", "photo": "winter", "line": "About 10,000 strikes. Works wet, works cold, works when the lighter doesn't.", "hand": "The rod is as thick as a pencil. The striker bites on the first pull.", "steel": "80CrV2 striker", "blade": "Rod 10 × 100 mm", "weight": "148 g", "lock": "Not applicable", "handle": "Ash grip, tin case", "extra": ["In the tin", "Rod, striker, 12 waxed jute tinders"], "photoSrc": "https://images.pexels.com/photos/6372617/pexels-photo-6372617.jpeg?auto=compress&cs=tinysrgb&w=900", "photoAlt": "A log campfire burning in a snowy valley beside a conifer forest at dusk", "photoBy": "Bastian Riccardi"}, {"id": "slip", "no": "HF-008", "name": "Slip", "kind": "Pocket pouch", "price": 29, "sym": "k-slip", "photo": "desk", "line": "Keeps keys off the blade and lint out of the pivot.", "hand": "Stiff for a week. Then it takes the shape of the knife and the colour of your hands.", "steel": "Not applicable", "blade": "Fits Tarn, Ridgeline, Lookout", "weight": "31 g", "lock": "Not applicable", "handle": "Veg-tan leather, linen thread", "extra": ["Stitching", "Saddle stitch, by hand"], "photoSrc": "https://images.pexels.com/photos/14401947/pexels-photo-14401947.jpeg?auto=compress&cs=tinysrgb&w=900", "photoAlt": "A pocket knife on a wooden desk in low light", "photoBy": "Axwell Wallets"}];
+var byId = {}; P.forEach(function(p){ byId[p.id] = p; });
+var $ = function(s, r){ return (r || document).querySelector(s); };
+var $$ = function(s, r){ return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+var esc = function(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
+var money = function(n){ return '$' + n.toLocaleString('en-US'); };
+var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- slip (cart) ---------- */
+var KEY = 'hollowfell-slip', cart = {}, stamped = false;
+try { cart = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { cart = {}; }
+Object.keys(cart).forEach(function(k){ if (!byId[k] || !(cart[k] > 0)) delete cart[k]; });
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(cart)); } catch (e) {} }
+function count(){ return Object.keys(cart).reduce(function(n, k){ return n + cart[k]; }, 0); }
+function total(){ return Object.keys(cart).reduce(function(n, k){ return n + cart[k] * byId[k].price; }, 0); }
+function tallySvg(n){
+  var out = '', g = 0;
+  for (; n > 0 && g < 3; n -= 5, g++) {
+    var k = Math.min(n, 5), s = '';
+    for (var i = 0; i < Math.min(k, 4); i++) s += '<path d="M' + (3 + i * 5) + ' 2.5 l' + (i % 2 ? .8 : -.6) + ' 13"/>';
+    if (k === 5) s += '<path d="M0.5 13.5 L21 4"/>';
+    out += '<svg viewBox="0 0 22 18" width="22" height="18">' + s + '</svg>';
+  }
+  return out;
+}
+function paintTab(pop){
+  var n = count(), t = $('#tally');
+  t.innerHTML = n > 15 ? '<b>' + n + '</b>' : tallySvg(n);
+  $('#tallyText').textContent = n + (n === 1 ? ' item' : ' items');
+  if (pop && !reduced) { t.classList.remove('pop'); void t.offsetWidth; t.classList.add('pop'); }
+}
+function slipNo(){ var d = new Date(); return 'REQ-' + String(d.getFullYear()).slice(2) + ('0' + (d.getMonth() + 1)).slice(-2) + ('0' + d.getDate()).slice(-2); }
+function paintSlip(){
+  var b = $('#slipBody'), ids = Object.keys(cart);
+  if (stamped) {
+    b.innerHTML = '<div class="stamped"><p class="slip-meta"><span>' + slipNo() + '</span><span>Issued to: you</span></p>' +
+      '<p class="stamp">Demo<small>No payment taken · ' + new Date().toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'}) + '</small></p>' +
+      '<p><strong>Stamped.</strong> Nothing was charged and nothing will ship. If Hollowfell were real, your tools would leave the workshop within two working days, each with a blank logbook.</p>' +
+      '<button class="btn" type="button" data-new>Start a new slip</button></div>';
+    return;
+  }
+  if (!ids.length) {
+    b.innerHTML = '<div class="empty"><p><strong>Nothing requisitioned yet.</strong> Most people start with the Tarn. It is the small one and it costs $84.</p>' +
+      '<button class="btn" type="button" data-add="tarn">Put a Tarn on the slip</button><p class="demo-note">Demo store: no payment is taken.</p></div>';
+    return;
+  }
+  b.innerHTML = '<p class="slip-meta"><span>' + slipNo() + '</span><span>Issued to: you</span></p><ul class="slip-lines">' + ids.map(function(id){
+    var p = byId[id], q = cart[id];
+    return '<li><div><span class="typed">' + p.no + ' · ' + esc(p.kind) + '</span><h3>' + p.name + '</h3></div><span class="lt">' + money(p.price * q) + '</span>' +
+      '<div class="qty" role="group" aria-label="Quantity of ' + p.name + '"><button type="button" data-dec="' + id + '" aria-label="One fewer ' + p.name + '">−</button><output>' + q + '</output><button type="button" data-inc="' + id + '" aria-label="One more ' + p.name + '">+</button></div>' +
+      '<button class="rm" type="button" data-rm="' + id + '">Strike off<span class="vh"> ' + p.name + '</span></button></li>';
+  }).join('') + '</ul><dl class="slip-sum"><dt>Subtotal, ' + count() + (count() === 1 ? ' item' : ' items') + '</dt><dd class="tot">' + money(total()) + '</dd>' +
+    '<dt>Postage</dt><dd>' + (total() >= 150 ? 'Free over $150' : '$9 flat') + '</dd></dl>' +
+    '<p class="demo-note">Demo store: no payment is taken. There are no card fields. Stamping the slip only shows you what happens next.</p>' +
+    '<button class="btn" type="button" data-stamp>Stamp the slip (demo checkout)</button>';
+}
+function add(id, n){
+  cart[id] = Math.max(0, (cart[id] || 0) + n); if (!cart[id]) delete cart[id];
+  stamped = false; save(); paintTab(n > 0); paintSlip();
+}
+function say(t){ $('#say').textContent = t; }
+function open(d){ if (!d.open) { if (d.showModal) d.showModal(); else d.setAttribute('open', ''); } }
+function close(d){ if (d.close) d.close(); else d.removeAttribute('open'); }
+
+/* ---------- specimen sheet ---------- */
+var sheetId = null;
+function showSheet(id){
+  var p = byId[id]; if (!p) return; sheetId = id;
+  var na = function(v){ return v === 'Not applicable' ? '<span style="color:var(--mute)">Not applicable</span>' : esc(v); };
+  $('#sheetNo').textContent = 'Specimen sheet · ' + p.no;
+  $('#sheetPrice').textContent = money(p.price);
+  $('#sheetAdd').textContent = 'Add ' + p.name + ' to slip';
+  $('#sheetBody').innerHTML =
+    '<div class="spec-draw"><span class="typed">' + p.no + ' · drawn at about 1:2</span><svg viewBox="0 0 240 80" aria-hidden="true"><use href="#' + p.sym + '"/></svg></div>' +
+    '<div><span class="typed" style="color:var(--mute)">' + esc(p.kind) + '</span><h2 id="sheetName">' + p.name + '</h2></div>' +
+    '<p class="lede">' + esc(p.line) + '</p>' +
+    '<p class="hand-note"><span class="typed">In the hand</span>' + esc(p.hand) + '</p>' +
+    '<dl class="specs"><dt>Steel</dt><dd>' + na(p.steel) + '</dd><dt>Blade</dt><dd>' + esc(p.blade) + '</dd><dt>Weight</dt><dd>' + esc(p.weight) + '</dd><dt>Lock</dt><dd>' + na(p.lock) + '</dd><dt>Handle</dt><dd>' + esc(p.handle) + '</dd><dt>' + esc(p.extra[0]) + '</dt><dd>' + esc(p.extra[1]) + '</dd><dt>Warranty</dt><dd>30 years, transferable</dd></dl>' +
+    '<figure class="plate sheet-plate"><img src="' + p.photoSrc + '" alt="' + esc(p.photoAlt) + '" loading="lazy" onerror="this.parentNode.remove()"><figcaption>Stock photograph for mood, not a Hollowfell tool. Photo ' + esc(p.photoBy) + ', Pexels.</figcaption></figure>';
+  open($('#sheet')); $('#sheet').scrollTop = 0;
+}
+
+document.addEventListener('click', function(e){
+  var t = e.target.closest('button,[data-close]');
+  if (!t) { if (e.target.tagName === 'DIALOG') close(e.target); return; }
+  var d = t.dataset;
+  if (d.open) showSheet(d.open);
+  else if (d.add) {
+    add(d.add, 1); say(byId[d.add].name + ' added to the slip. ' + count() + ' on the slip.');
+    if (t.classList.contains('btn-add')) { var old = t.innerHTML; t.classList.add('done'); t.textContent = 'On the slip'; setTimeout(function(){ t.classList.remove('done'); t.innerHTML = old; }, 1300); }
+  }
+  else if (d.inc) add(d.inc, 1);
+  else if (d.dec) add(d.dec, -1);
+  else if (d.rm) { var nm = byId[d.rm].name; delete cart[d.rm]; save(); paintTab(); paintSlip(); say(nm + ' struck off the slip.'); }
+  else if ('stamp' in d) { stamped = true; cart = {}; save(); paintTab(); paintSlip(); say('Stamped. Demo only. No payment was taken.'); }
+  else if ('new' in d) { stamped = false; paintSlip(); }
+  else if ('close' in d) close(t.closest('dialog'));
+});
+$('#slipTab').addEventListener('click', function(){ paintSlip(); open($('#slip')); });
+$('#sheetAdd').addEventListener('click', function(){
+  if (!sheetId) return; add(sheetId, 1); say(byId[sheetId].name + ' added to the slip.');
+  close($('#sheet')); open($('#slip'));
+});
+paintTab(); paintSlip();
+
+/* ---------- the fold: blade angle from scroll, or from the lever ---------- */
+var fold = $('#fold'), blade = $('#blade'), arcOn = $('#arcOn'), spring = $('#spring'), deg = $('#deg'), state = $('#foldState'),
+    lever = $('#lever'), fig = $('#foldFig'), stations = $$('#stations li'), markBlade = $('#markBlade');
+var scrub = document.documentElement.classList.contains('scrub'), lastState = '', cur = 180;
+var io = function(t){ return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
+function angleAt(p){            /* dwell closed, travel, dwell on the half-stop, travel, dwell open */
+  if (p < .07) return 0;
+  if (p < .38) return 90 * io((p - .07) / .31);
+  if (p < .52) return 90;
+  if (p < .86) return 90 + 90 * io((p - .52) / .34);
+  return 180;
+}
+function setAngle(a, fromLever){
+  a = Math.max(0, Math.min(180, a)); cur = a;
+  blade.setAttribute('transform', 'rotate(' + (a - 180).toFixed(2) + ' 355 80)');
+  arcOn.setAttribute('stroke-dasharray', a.toFixed(1) + ' 400');
+  var bow = Math.abs(Math.sin(a * Math.PI / 90)) * 9;   /* spring rests at 0, 90 and 180 */
+  spring.setAttribute('d', 'M398 52 Q556 ' + (52 - bow).toFixed(1) + ' 716 52');
+  var r = Math.round(a);
+  deg.textContent = ('00' + r).slice(-3) + '°';
+  var s = r <= 1 ? 'Closed' : r < 88 ? 'Lifting' : r <= 92 ? 'Half-stop' : r < 179 ? 'Spring loading' : 'Open';
+  if (s !== lastState) {
+    state.textContent = s;
+    if (lastState && !reduced && (s === 'Closed' || s === 'Half-stop' || s === 'Open')) { fig.classList.remove('tick'); void fig.offsetWidth; fig.classList.add('tick'); }
+    lastState = s;
+  }
+  var on = 0; stations.forEach(function(li, i){ if (r >= +li.dataset.a) on = i; });
+  stations.forEach(function(li, i){ li.classList.toggle('on', i === on); });
+  if (!fromLever) lever.value = r;
+}
+function pageKnife(){
+  if (!markBlade) return;
+  var max = document.documentElement.scrollHeight - innerHeight, p = max > 0 ? Math.min(1, scrollY / max) : 1;
+  markBlade.setAttribute('transform', 'rotate(' + (-180 + 180 * p).toFixed(1) + ' 355 80)');
+}
+var queued = false;
+function onScroll(){
+  if (queued) return; queued = true;
+  requestAnimationFrame(function(){
+    queued = false;
+    if (!reduced) pageKnife();
+    if (!scrub) return;
+    var r = fold.getBoundingClientRect(), span = r.height - innerHeight;
+    if (span <= 0) return;
+    var p = Math.max(0, Math.min(1, -r.top / span));
+    if (r.top > innerHeight || r.bottom < 0) return;
+    setAngle(angleAt(p));
+  });
+}
+lever.addEventListener('input', function(){ fold.classList.add('manual'); setAngle(+lever.value, true); });
+if (scrub) { setAngle(0); addEventListener('scroll', onScroll, {passive: true}); addEventListener('resize', onScroll); onScroll(); }
+else { setAngle(180); if (!reduced) addEventListener('scroll', onScroll, {passive: true}); }
+if (reduced && markBlade) markBlade.removeAttribute('transform');
+})();
+</script>
+</body>
+</html>
