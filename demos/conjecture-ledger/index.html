@@ -118,8 +118,8 @@ footer{padding-block:28px 56px;color:var(--muted);font-size:13.5px;border-top:1p
 <header class="top">
   <div class="eyebrow">Combinatorics · Graph theory · November 2026</div>
   <h1>Conjecture Ledger</h1>
-  <p>Six open questions from published papers, OEIS, MathOverflow and the Graffiti.pc conjecture catalogue. ChatGPT produced each proof or counterexample. Before going on this page, each result had its computer checks re-run and its argument read through. Three of the results are drawn below so you can check them with your own eyes.</p>
-  <div class="tally"><span><b>2</b> disproved</span><span><b>4</b> proved</span><span><b>0</b> peer-reviewed</span><span><b>46,233</b> permutations, <b>65,536</b> compositions, <b>82,500</b> Dyck paths and <b>131,070</b> binary words re-checked</span></div>
+  <p>Nine open questions from published papers, OEIS, MathOverflow and the Graffiti.pc conjecture catalogue. ChatGPT produced six of the proofs and counterexamples, and Claude produced the last three. Before going on this page, each result had its computer checks re-run and its argument read through. Three of the results are drawn below so you can check them with your own eyes.</p>
+  <div class="tally"><span><b>2</b> disproved</span><span><b>7</b> proved</span><span><b>0</b> peer-reviewed</span><span><b>46,233</b> permutations, <b>65,536</b> compositions, <b>82,500</b> Dyck paths and <b>131,070</b> binary words re-checked</span></div>
 </header>
 
 <section class="exhibit" id="plactic" aria-labelledby="plactic-h">
@@ -312,8 +312,70 @@ footer{padding-block:28px 56px;color:var(--muted);font-size:13.5px;border-top:1p
 
 </section>
 
+<section class="ledger" id="claude-solves" aria-labelledby="claude-h">
+  <h2 id="claude-h">Claude's own solves</h2>
+  <p class="prior" style="max-width:68ch;margin:0 0 8px">Three more open conjectures, proved by Claude (Opus 5.5) rather than ChatGPT. Each was screened against earlier work before the proof was written. Two other candidates turned out to be solved already, and they are left out.</p>
+
+  <article class="entry" id="e-a371567">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b>Mikhail Kurkov</b><br>OEIS A258173, Nov 2024<br>array A371567</span>
+      <span>Proved by Claude. Checked against every Dyck path up to semilength 10.</span>
+      <span class="chip prior-open">No prior proof found</span>
+    </aside>
+    <div class="entry-body">
+      <h3>Dyck paths weighted by their peak heights</h3>
+      <p class="claim">Take every mountain-range path of semilength <var>n</var>, weight each one by the product of its peak heights, and add the weights. Kurkov conjectured the total is the first column of a recursively defined array. It is, and every other entry of the array has a meaning too.</p>
+      <div class="tbl"><svg id="peakfig" viewBox="0 0 640 116" role="img" aria-label="A Dyck path with peaks at heights 2, 3 and 1" style="min-width:420px"></svg></div>
+      <p class="sub" style="margin:0;font-size:13px;color:var(--muted)">One path of semilength 5. Its peaks sit at heights 2, 3 and 1, so it adds 2 · 3 · 1 = 6 to the total.</p>
+      <details><summary>How the proof goes</summary><div>
+        <p>Read the array entry A(<var>n</var>, <var>k</var>) as the weighted number of ways to finish a path. The path is standing at height <var>k</var> + 1 just after an up step, with <var>n</var> up steps still to use. The next step is either another up step (weight 1), or a down step. A down step makes the current point a peak worth <var>k</var> + 1, and the path then slides down to some lower height and steps up again. Those two cases are exactly the two terms of Kurkov's recurrence, and the starting row <var>k</var> + 1 is the final peak.</p>
+      </div></details>
+      <p class="prior"><b>Earlier work.</b> OEIS still lists this as a conjecture. The Omega Institute's AI-proof project opened a placeholder issue for it on October 31, 2026 that mentions a withheld proof, but no proof is public.</p>
+      <p class="prior"><a href="https://oeis.org/A258173">A258173</a> · <a href="https://oeis.org/A371567">A371567</a></p>
+    </div>
+  </article>
+
+  <article class="entry" id="e-a369595">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b>Mikhail Kurkov</b><br>OEIS A369595, Oct 2024</span>
+      <span>Proved by Claude. Checked for the first 12 rows and columns.</span>
+      <span class="chip prior-open">No prior proof found</span>
+    </aside>
+    <div class="entry-body">
+      <h3>A binomial array that counts generalized Bell numbers</h3>
+      <p class="claim">Each entry of the array adds the entry two places right in the previous row to a binomial-weighted sum of earlier entries. Kurkov conjectured its first column gives the generalized Bell numbers A135920: 1, 2, 7, 37, 264, 2433, … It does, and the whole array has the closed form A(<var>n</var>, <var>k</var>) = Σ <var>t</var>(<var>n</var>, <var>m</var>) · <var>m</var><sup><var>k</var></sup>.</p>
+      <details><summary>How the proof goes</summary><div>
+        <p>Feed the geometric row <var>m</var><sup><var>k</var></sup> into the recurrence. The binomial theorem gives back <var>m</var>² · <var>m</var><sup><var>k</var></sup> + (<var>m</var> + 1)<sup><var>k</var></sup>. So the recurrence acts on these rows like a walk that either stays at state <var>m</var> with weight <var>m</var>² or climbs to <var>m</var> + 1. That walk is exactly what the generating function of A135920 counts, a fact Ira Gessel proved in general on MathOverflow in 2024. The new step here is the reduction from the array to the walk.</p>
+      </div></details>
+      <p class="prior"><b>Earlier work.</b> OEIS still lists this as a conjecture. A sister conjecture, A369527, falls straight out of Gessel's answer, so it is not counted here. Nothing covers A369595 itself.</p>
+      <p class="prior"><a href="https://oeis.org/A369595">A369595</a> · <a href="https://oeis.org/A135920">A135920</a> · <a href="https://mathoverflow.net/a/462813">Gessel 2024</a></p>
+    </div>
+  </article>
+
+  <article class="entry" id="e-a370382">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b>Hanna · Kurkov</b><br>OEIS A249833, Apr 2024<br>array A370382</span>
+      <span>Proved by Claude. Checked against an exact series solution through <var>n</var> = 12.</span>
+      <span class="chip prior-open">No prior proof found</span>
+    </aside>
+    <div class="entry-body">
+      <h3>An array that solves a differential equation</h3>
+      <p class="claim">Paul Hanna's sequence A249833 is defined by a differential equation for its exponential generating function: <var>A</var>′ = <var>A</var>(1 + <var>A</var> log <var>A</var>). Kurkov conjectured that a simple integer array reproduces it. It does, because the array's recurrence is that equation run step by step.</p>
+      <details><summary>How the proof goes</summary><div>
+        <p>Package each row as an exponential generating function in <var>k</var>. The recurrence becomes a single operator, <var>F</var> ↦ ((1 + <var>y</var>e<sup><var>y</var></sup>)<var>F</var>)′. Applying it repeatedly is the same as moving along the flow of <var>y</var>′ = 1 + <var>y</var>e<sup><var>y</var></sup>. At <var>y</var> = 0 that flow produces exactly the equation that defines A249833.</p>
+      </div></details>
+      <p class="prior"><b>Earlier work.</b> OEIS still lists this as a conjecture. The Omega Institute's project opened a placeholder issue for it on November 1, 2026, with no proof posted.</p>
+      <p class="prior"><a href="https://oeis.org/A249833">A249833</a> · <a href="https://oeis.org/A370382">A370382</a></p>
+    </div>
+  </article>
+</section>
+
+
 <footer>
-  <p>Proofs and counterexamples were generated by ChatGPT from prompts by Myles Parslow. Every listed check was re-run on November 18, 2026. None of these results has been peer-reviewed. A search for earlier work can show what is already public. It cannot prove a result is new.</p>
+  <p>The first six proofs and counterexamples were generated by ChatGPT from prompts by Myles Parslow. The last three were found and written by Claude (Opus 5.5). Every listed check was re-run on November 18, 2026. None of these results has been peer-reviewed. A search for earlier work can show what is already public. It cannot prove a result is new.</p>
 </footer>
 </div>
 <div class="tip" id="tip" hidden></div>
@@ -429,6 +491,14 @@ function update(){
 kS.addEventListener("input",()=>{kO.value=kS.value;update()});
 domBtn.addEventListener("click",()=>{showDom=!showDom;domBtn.setAttribute("aria-pressed",showDom);drawGraph(null)});
 update();
+/* A371567 peak figure */
+(function(){const s=document.getElementById("peakfig");if(!s)return;const w="UUDUUDDDUD",u=26,base=104;let x=40,h=0;const pts=[[x,base]];
+  for(let k=0;k<=3;k++)el("line",{x1:40,x2:40+w.length*u,y1:base-k*u,y2:base-k*u,stroke:"var(--grid)"},s);
+  for(let i=0;i<w.length;i++){h+=w[i]==="U"?1:-1;x+=u;pts.push([x,base-h*u]);}
+  el("polyline",{points:pts.map(p=>p.join(",")).join(" "),fill:"none",stroke:"var(--ink)","stroke-width":2.5,"stroke-linejoin":"round"},s);
+  h=0;for(let i=0;i<w.length-1;i++){h+=w[i]==="U"?1:-1;if(w[i]==="U"&&w[i+1]==="D"){const px=40+(i+1)*u,py=base-h*u;el("circle",{cx:px,cy:py,r:6,fill:"var(--accent)",stroke:"var(--sheet)","stroke-width":2},s);el("text",{x:px,y:py-11,"text-anchor":"middle",fill:"var(--accent-ink)","font-size":13},s).textContent=h}}
+  el("text",{x:40+w.length*u+24,y:base-30,fill:"var(--ink)","font-size":15},s).textContent="2 · 3 · 1 = 6";
+})();
 /* Fibonacci complement scatter */
 (function(){const cv=document.getElementById("fibplot");if(!cv)return;const ctx=cv.getContext("2d");
   const F=[0,1,1];while(F.length<80)F.push(F[F.length-1]+F[F.length-2]);
