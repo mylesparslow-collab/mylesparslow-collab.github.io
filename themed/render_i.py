@@ -72,11 +72,11 @@ N_CASES = len(CASE)
 # Interchanges: real links stated in the case text (see the legend copy for each).
 XCH = [
     dict(a='rscads', b='clayexplainers', key='same Blender clay kit',
-         why='The clay explainers are made with the same Blender clay kit as the business ads.'),
+         why='One Blender claymation kit powers both the client video ads and the explainer shorts.'),
     dict(a='citationgate', b='citationaudit', key='both check citations',
-         why='Both check whether a cited source says what it is cited for: court opinions in one, medical papers in the other.'),
+         why='The same check of whether a cited source backs up the claim, applied to court opinions in one build and clinical guidelines in the other.'),
     dict(a='skippy', b='atlas', key='Atlas finds the files',
-         why='Skippy searches the files on the Mac through Atlas’s engine before it answers.'),
+         why='Skippy searches the private legal files on the Mac through Atlas’s index before a single word of the answer is written.'),
 ]
 XOF = {}
 for x in XCH:
@@ -601,6 +601,7 @@ def footer_html(depth):
     return ('<footer class="foot" id="contact" aria-labelledby="h-foot"><h2 id="h-foot" class="foot__t">Say hello.</h2>'
             '<p class="foot__mail"><a href="mailto:%s">%s</a> <button type="button" class="tbtn" id="copy" data-copy="%s">Copy address</button> <span id="copystat" class="foot__st" aria-live="polite"></span></p>'
             '<p class="foot__row"><a href="%s" target="_blank" rel="noopener">GitHub</a> <a href="%s" target="_blank" rel="noopener">Legal portfolio</a> <a href="#top">Back to top &uarr;</a>%s</p>'
+            '<p class="foot__mlp"><b>Want this for your business?</b> Through MLP Consulting I build fast websites, automated follow-up and private, human-approved AI tools for owner-run businesses and legal teams. <a href="https://mlpconsults.com/" target="_blank" rel="noopener">Visit MLPConsults.com &rarr;</a></p>'
             '<p class="foot__sign">%s</p></footer>') % (mail, mail, mail, gh, lp, extra, sign)
 
 
@@ -652,31 +653,31 @@ def routes_html():
                          % (r['c'], r['fg'], r['slug'], cid, it['code'], it['title'], tier_tag(it, ' tier--sm'), why))
         cards.append('<li class="rt" id="route-%s" style="--c:%s;--f:%s"><h3 class="rt__h"><span class="rt__n">Route %d</span>%s</h3>'
                      '<p class="rt__p">%s</p><ol class="rt__ol">%s</ol>'
-                     '<a class="rt__more" href="%s/index.html">Ride the whole %s line &rarr;</a></li>'
-                     % (rt['key'], ln['c'], ln['fg'], k + 1, rt['who'], rt['pitch'], ''.join(stops), ln['slug'], esc(ln['short'])))
+                     '<a class="rt__more" href="%s/index.html">Explore all %d %s builds &rarr;</a></li>'
+                     % (rt['key'], ln['c'], ln['fg'], k + 1, rt['who'], rt['pitch'], ''.join(stops), ln['slug'], ln['n'], esc(ln['short'])))
     if not cards:
         return ''
-    return ('<section class="routes" id="start" aria-labelledby="h-start"><div class="routes__h"><h2 id="h-start" class="sec-h">Start here if you&rsquo;re&hellip;</h2>'
-            '<p class="sec-l">Three short routes through the strongest work for each kind of visitor. The full network, every line and the A to Z index are below.</p></div>'
+    return ('<section class="routes" id="start" aria-labelledby="h-start"><div class="routes__h"><h2 id="h-start" class="sec-h">Pick your line.</h2>'
+            '<p class="sec-l">%d projects is a lot to explore cold. Start with the route built for what you care about, or go straight to the full map below.</p></div>'
             '<ol class="rts">%s</ol>'
-            '<p class="routes__alt"><span>Just looking around?</span> <button type="button" class="tbtn" id="surprise">Surprise me</button> '
-            '<a href="#map">See the whole network &darr;</a></p></section>') % ''.join(cards)
+            '<p class="routes__alt"><span>Just browsing?</span> <button type="button" class="tbtn" id="surprise">Take me somewhere random</button> '
+            '<a href="#map">Open the full map &darr;</a></p></section>') % (N_CASES, ''.join(cards))
 
 
 def home():
     L = layout()
     hhtml = HOME['hero_html']
-    count = re.search(r'hero__count">(.*?)</span>', hhtml).group(1).replace('52', str(N_CASES))
+    count = '%d stations &middot; %d lines' % (N_CASES, len(ROOMS))
     lede = re.search(r'<p class="lede"><span class="hero__count">.*?</span>(.*?)</p>', hhtml, re.S).group(1)
     stats = re.findall(r'<dt>(.*?)</dt><dd>(.*?)</dd>', hhtml, re.S)
     st_rows = ''.join('<tr><th scope="row">%s</th><td><span class="num">%s</span></td></tr>' % (dt, dd) for dt, dd in stats)
 
     title = ('<section class="sheet" id="top" aria-labelledby="h-name">'
-             '<div class="sheet__name"><p class="sheet__kicker">Network map &middot; November 2026</p>'
-             '<h1 id="h-name"><span class="fit nm" data-cap="168">Myles Parslow</span> <span class="ttl">makes things with AI</span></h1></div>'
+             '<div class="sheet__name"><p class="sheet__kicker">System map &middot; November 2026 &middot; %d builds</p>'
+             '<h1 id="h-name"><span class="fit nm" data-cap="168">Myles Parslow</span> <span class="ttl">%d builds with AI, shown in full</span></h1></div>'
              '<aside class="svc" aria-labelledby="h-svc"><h2 id="h-svc" class="svc__h"><span class="svc__i" aria-hidden="true">i</span>Service information</h2>'
              '<p class="svc__count">%s</p><p class="svc__lede">%s</p>'
-             '<table class="svc__t"><tbody>%s</tbody></table></aside></section>') % (count, lede, st_rows)
+             '<table class="svc__t"><tbody>%s</tbody></table></aside></section>') % (N_CASES, N_CASES, count, lede, st_rows)
 
     # legend
     lb = []
@@ -692,10 +693,11 @@ def home():
                   % (a['room']['c'], b['room']['c'], esc(x['key']), a['room']['slug'], a['id'], a['title'], esc(a['room']['short']),
                      b['room']['slug'], b['id'], b['title'], esc(b['room']['short']), esc(x['why'])))
     legend = ('<div class="legend"><div class="legend__lines"><h3 class="legend__h">Lines</h3><ul class="lbs">%s</ul>'
-              '<p class="legend__tip">Choose a line to isolate it. Choose it again, press Esc or click the empty map to show the whole network.</p></div>'
+              '<p class="legend__tip">Select a line to filter the map. Select it again, press Esc or click open space to bring the full network back.</p></div>'
               '<div class="legend__x"><h3 class="legend__h">Interchanges</h3><ul class="xk">%s</ul>'
-              '<p class="xk__hub"><span class="hubsym" aria-hidden="true"></span><span><b>You are here:</b> the Myles Parslow interchange, where all five lines meet.</span></p>'
-              '<p class="xk__hub xk__flag">%s<span><b>Flagship system:</b> the largest production builds. Every &ldquo;Start here&rdquo; pick is one.</span></p></div></div>'
+              '<p class="xk__hub"><span class="hubsym" aria-hidden="true"></span><span><b>Central hub:</b> the Myles Parslow interchange, where all five lines cross.</span></p>'
+              '<p class="xk__hub xk__flag">%s<span><b>Flagship system:</b> the full-scale production builds. Every guided route is made of them.</span></p>'
+              '<p class="xk__hub"><span class="tier tier--weekend tier--sm">Weekend build</span> <span class="tier tier--study tier--sm">Study</span><span>Focused prototypes, creative sprints and benchmarks.</span></p></div></div>'
               ) % (''.join(lb), ''.join(xk), star_svg('fsym fsym--key'))
 
     # list view (vertical line diagrams)
@@ -713,13 +715,13 @@ def home():
                   % (r['c'], r['fg'], r['slug'], r['slug'], r['slug'], badge(r, r['short'] + ' line'), r['n'], ''.join(items)))
 
     net = ('<section class="netsec" id="map" aria-labelledby="h-map">'
-           '<div class="netsec__h"><h2 id="h-map" class="sec-h">The network</h2>'
+           '<div class="netsec__h"><h2 id="h-map" class="sec-h">The full network</h2>'
            '<div class="ctl" role="group" aria-label="Map view">'
            '<button type="button" class="tbtn" id="view" aria-pressed="false">List view</button>'
            '<span class="zoom"><button type="button" class="tbtn sq" id="zin" aria-label="Zoom in">+</button>'
            '<button type="button" class="tbtn sq" id="zout" aria-label="Zoom out">&minus;</button>'
            '<button type="button" class="tbtn" id="zfit">Whole map</button></span></div></div>'
-           '<div class="board" id="board" aria-live="polite"><span class="board__d">Hover or tab to a station. Choose a line in the key to ride it.</span></div>'
+           '<div class="board" id="board" aria-live="polite"><span class="board__d">Hover or tab across stations to inspect them. Choose a line in the key to isolate it.</span></div>'
            '<div class="frame" id="frame" style="--ar:%.0f/%.0f">%s</div>'
            '<div class="lview" id="lview" hidden>%s</div>'
            '%s</section>') % ((lambda svg: (L['vb'][2], L['vb'][3], svg))(map_svg(L)) + (''.join(lv), legend))
@@ -733,8 +735,8 @@ def home():
                     '<span class="ix__m"><span class="ldot" style="--c:%s;--f:%s" title="%s line"><span aria-hidden="true">%s</span><span class="vh">%s line</span></span>'
                     '<span class="ix__z">Zone %d</span><span class="ix__sq"><span class="vh">Map square </span>%s</span></span></li>'
                     % (r['slug'], it['id'], it['title'], it['sub'] + tier_tag(it, ' tier--sm'), r['c'], r['fg'], esc(r['short']), r['letter'], esc(r['short']), it['zone'], sq[it['id']]))
-    index = ('<section class="ix" id="index" aria-labelledby="h-ix"><h2 id="h-ix" class="sec-h">Station index</h2>'
-             '<p class="sec-l">All %d stations, A to Z: station &middot; line &middot; zone &middot; map square. Each one opens on its line. <span class="tier tier--flagship tier--sm">Flagship system</span> marks the largest production builds; <span class="tier tier--weekend tier--sm">Weekend build</span> and <span class="tier tier--study tier--sm">Study</span> mark the small, quick ones.</p>'
+    index = ('<section class="ix" id="index" aria-labelledby="h-ix"><h2 id="h-ix" class="sec-h">All %d stations, A to Z</h2>'
+             '<p class="sec-l">Every project indexed by station, line, zone and map square. Choose any entry to jump straight to its write-up. <span class="tier tier--flagship tier--sm">Flagship system</span> marks the production systems; <span class="tier tier--weekend tier--sm">Weekend build</span> and <span class="tier tier--study tier--sm">Study</span> mark sprints and benchmarks.</p>'
              '<ol class="ixl">%s</ol></section>' % (N_CASES, ''.join(rows)))
 
     # rules of travel
@@ -782,7 +784,7 @@ def home():
 
     inner = topbar(0, 'home') + '\n<main id="main">\n' + '\n'.join([title, routes_html(), net, index, rules_html, tools_html, notice]) + '\n</main>\n' + footer
     redirect = '<script>(function(){var M=%s,h=location.hash.slice(1);if(h&&Object.prototype.hasOwnProperty.call(M,h))location.replace(M[h]+"/index.html#"+h)})()</script>\n' % HOME['redirect_map']
-    desc = 'Myles Parslow makes things with AI: %d case studies on five lines, drawn as a transit map.' % N_CASES
+    desc = 'Myles Parslow: %d builds with AI, from law-firm software to novels and games, each shown with the work behind it, drawn as a transit map.' % N_CASES
     return page('Myles Parslow', desc, 0, 'pg-home', inner, redirect), L
 
 
@@ -1105,6 +1107,8 @@ h1,h2,h3,h4,p,ol,ul,dl,figure,table{margin:0}
 .foot__st{font-size:14px;color:#d6d3cc}
 .foot__row{margin-top:22px;display:flex;flex-wrap:wrap;gap:10px 22px;font-weight:600}
 .foot__row a{color:var(--white)}
+.foot__mlp{margin-top:22px;line-height:1.5}
+.foot__mlp a{font-weight:700;white-space:nowrap}
 .foot__sign{margin-top:18px;color:#bdb9b0;font-size:14px}
 .foot :focus-visible{outline-color:var(--white)}
 
