@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>One Search, End to End</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: one vertical flow, top to bottom; wall stops sit beside the step they guard; three AI options fan out as columns. Square corners throughout (firm style). */
+:root{
+  --bg:#F2F2F2; --surface:#FFFFFF; --ink:#211E1F; --muted:#4F5B63;
+  --navy:#2D4459; --navy-ink:#FFFFFF; --teal:#436C6D; --sea:#66938F;
+  --mint:#BFE0D5; --mint-ink:#1E3A3B; --orange:#E16E39; --orange-ink:#211E1F;
+  --line:#9AAAB4; --soft:#E6EEEC;
+  --font:"Figtree",Arial,"Helvetica Neue",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#101A23; --surface:#16222E; --ink:#E8F1EE; --muted:#9FB3B0;
+  --navy:#2D4459; --navy-ink:#FFFFFF; --teal:#5E8F8B; --sea:#7FB0AB;
+  --mint:#BFE0D5; --mint-ink:#16302F; --orange:#E16E39; --orange-ink:#1A1112;
+  --line:#4C6275; --soft:#1C2C39; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#101A23; --surface:#16222E; --ink:#E8F1EE; --muted:#9FB3B0;
+  --navy:#2D4459; --navy-ink:#FFFFFF; --teal:#5E8F8B; --sea:#7FB0AB;
+  --mint:#BFE0D5; --mint-ink:#16302F; --orange:#E16E39; --orange-ink:#1A1112;
+  --line:#4C6275; --soft:#1C2C39; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 64px}
+.wrap{max-width:1120px;margin:0 auto}
+h1{font-size:clamp(30px,4.4vw,44px);font-weight:800;color:var(--ink);margin:0 0 8px;letter-spacing:-.01em;text-wrap:balance}
+.lede{font-size:18px;color:var(--muted);max-width:68ch;margin:0 0 24px}
+h2{font-size:18px;font-weight:700;margin:0 0 4px;text-wrap:balance}
+p{margin:0}
+.small{font-size:14px;color:var(--muted)}
+
+/* legend */
+.legend{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;padding:14px 16px;background:var(--surface);border:1px solid var(--line);margin-bottom:32px;font-size:14px}
+.legend span{display:inline-flex;gap:8px;align-items:center}
+.sw{width:26px;height:16px;display:inline-block}
+.sw.today{background:var(--surface);border:2px solid var(--teal)}
+.sw.new{background:var(--surface);border:2px dashed var(--line)}
+.sw.stop{background:var(--orange)}
+.sw.opt{background:var(--mint)}
+
+/* badges */
+.badge{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;margin-top:10px;margin-right:6px}
+.badge.today{background:var(--teal);color:#fff}
+.badge.new{border:1.5px dashed var(--muted);color:var(--muted)}
+
+/* flow rows */
+.row{display:grid;grid-template-columns:minmax(0,2.1fr) minmax(0,1fr);gap:20px;align-items:stretch}
+.row.full{grid-template-columns:minmax(0,1fr)}
+.box{background:var(--surface);border:2px solid var(--teal);padding:16px 18px;min-width:0}
+.box.new{border-style:dashed;border-color:var(--line)}
+.box.navy{background:var(--navy);border-color:var(--navy);color:var(--navy-ink)}
+.box.navy .small{color:#D5E1E8}
+.num{display:inline-block;min-width:26px;height:26px;line-height:26px;text-align:center;font-weight:800;font-size:14px;background:var(--navy);color:#fff;margin-right:8px;vertical-align:2px}
+.box.navy .num{background:var(--mint);color:var(--mint-ink)}
+.stop{background:var(--orange);color:var(--orange-ink);padding:14px 16px;position:relative;min-width:0}
+.stop b.tag{display:block;font-size:12px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.stop p{font-size:15px}
+.stop.inbox{margin-top:14px}
+.stop.inbox::before{display:none}
+.stop::before{content:"";position:absolute;left:-20px;top:50%;width:20px;border-top:2px solid var(--orange)}
+
+/* connectors */
+.arrow{height:38px;position:relative;width:calc((100% - 20px) * 2.1 / 3.1)}
+.row.full + .arrow, .arrow.c{width:100%}
+.arrow::before{content:"";position:absolute;left:50%;top:4px;bottom:10px;border-left:2px solid var(--line)}
+.arrow::after{content:"";position:absolute;left:calc(50% - 7px);bottom:2px;border-left:8px solid transparent;border-right:8px solid transparent;border-top:10px solid var(--line);margin-left:-.5px}
+.arrow .lbl{position:absolute;left:calc(50% + 14px);top:9px;font-size:13px;color:var(--muted);white-space:nowrap}
+
+/* data layer */
+.layer{border:2px dashed var(--line);background:var(--soft);padding:16px}
+.layer-head{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;justify-content:space-between;margin-bottom:12px}
+.sources{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.src{background:var(--surface);border:1.5px solid var(--sea);padding:10px 12px;min-width:0}
+.src h3{font-size:15px;font-weight:700;margin:0 0 2px}
+.src p{font-size:13px;color:var(--muted)}
+.src .badge{margin-top:8px;font-size:11px}
+.methods{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.method{padding:10px 12px;background:var(--surface);border:2px solid var(--teal);font-size:14px;min-width:0}
+.method.new{border-style:dashed;border-color:var(--line)}
+.method b{display:block;font-size:15px}
+
+/* fork after results */
+.fork{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px}
+.endcap{background:var(--surface);border:2px solid var(--teal);padding:14px 16px}
+
+/* router */
+.checks{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:6px;counter-reset:c}
+.checks li{display:grid;grid-template-columns:22px 1fr;gap:8px;font-size:15px;counter-increment:c}
+.checks li::before{content:counter(c,lower-alpha);font-weight:800;color:var(--mint)}
+.checks em{font-style:normal;color:#F3B08F;font-weight:600}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.86em}
+.box.navy code{color:var(--mint)}
+
+/* fan-out */
+.fan{position:relative;height:44px}
+.fan .stem{position:absolute;left:50%;top:0;height:18px;border-left:2px solid var(--line)}
+.fan .bar{position:absolute;left:16.66%;right:16.66%;top:18px;border-top:2px solid var(--line)}
+.fan i{position:absolute;top:18px;height:16px;border-left:2px solid var(--line)}
+.fan i::after{content:"";position:absolute;left:-9px;bottom:-10px;border-left:8px solid transparent;border-right:8px solid transparent;border-top:10px solid var(--line)}
+.fan i:nth-of-type(1){left:16.66%}.fan i:nth-of-type(2){left:50%}.fan i:nth-of-type(3){left:83.33%}
+.fan .lbl{position:absolute;left:calc(50% + 14px);top:-1px;font-size:13px;color:var(--muted)}
+
+.options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-items:stretch}
+.opt{background:var(--surface);border:2px dashed var(--sea);display:flex;flex-direction:column;min-width:0}
+.opt-head{background:var(--mint);color:var(--mint-ink);padding:12px 14px}
+.opt-head .k{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.opt-head h3{font-size:18px;margin:2px 0 0;line-height:1.25}
+.opt-body{padding:14px;display:flex;flex-direction:column;gap:10px;flex:1}
+.opt-body p{font-size:15px}
+.mini{display:grid;gap:0}
+.mini div{border:1.5px solid var(--line);padding:8px 10px;font-size:14px;background:var(--bg)}
+.mini div.new{border-style:dashed}
+.mini div + div{border-top:none}
+.mini div.lawyer{border:2px solid var(--navy);background:var(--surface)}
+.mini div.lawyer + div{border-top:1.5px dashed var(--line)}
+.mini b{font-weight:700}
+.dest{display:flex;flex-wrap:wrap;gap:6px}
+.dest span{font-size:13px;font-weight:700;padding:3px 8px;border:1.5px solid var(--teal);color:var(--ink)}
+.dest span.new{border-style:dashed;border-color:var(--line);color:var(--muted)}
+.leaves{font-size:14px;padding-top:8px;border-top:1px solid var(--line);margin-top:auto}
+.leaves b{color:var(--ink)}
+.opt .badge{margin-top:0;align-self:flex-start}
+.legend .sw.stop::before{display:none}
+
+.refuse{margin-top:14px;display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;background:var(--surface);border:2px solid var(--orange);padding:10px 14px;font-size:15px}
+.refuse b.tag{background:var(--orange);color:var(--orange-ink);font-size:12px;letter-spacing:.1em;text-transform:uppercase;padding:4px 8px}
+
+.merge{position:relative;height:44px}
+.merge .bar{position:absolute;left:16.66%;right:16.66%;top:18px;border-top:2px solid var(--line)}
+.merge i{position:absolute;top:0;height:18px;border-left:2px solid var(--line)}
+.merge i:nth-of-type(1){left:16.66%}.merge i:nth-of-type(2){left:50%}.merge i:nth-of-type(3){left:83.33%}
+.merge .stem{position:absolute;left:50%;top:18px;height:16px;border-left:2px solid var(--line)}
+.merge .stem::after{content:"";position:absolute;left:-9px;bottom:-10px;border-left:8px solid transparent;border-right:8px solid transparent;border-top:10px solid var(--line)}
+
+.box.wiki{border-color:var(--sea)}
+.wiki-pages{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.wiki-pages span{font-size:13px;font-weight:600;padding:3px 8px;background:var(--mint);color:var(--mint-ink)}
+.notes{margin-top:36px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.notes .card{background:var(--surface);border:1px solid var(--line);padding:16px 18px}
+.notes ul{margin:8px 0 0;padding-left:18px;font-size:15px}
+.notes li{margin:4px 0}
+
+@media (max-width:860px){
+  .row{grid-template-columns:minmax(0,1fr);gap:10px}
+  .stop.inbox{margin-top:14px}
+.stop.inbox::before{display:none}
+.stop::before{display:none}
+  .arrow{width:100%}
+  .sources{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .methods,.fork,.options,.notes{grid-template-columns:minmax(0,1fr)}
+  .fan .bar,.fan i,.merge .bar,.merge i{display:none}
+  .fan .stem,.merge .stem{height:34px}
+  .fan .stem::after{content:"";position:absolute;left:-9px;bottom:-10px;border-left:8px solid transparent;border-right:8px solid transparent;border-top:10px solid var(--line)}
+  .merge .stem{top:0}
+}
+@media (max-width:420px){.sources{grid-template-columns:minmax(0,1fr)}}
+</style>
+
+<div class="wrap">
+  <h1>One search, end to end</h1>
+  <p class="lede">How a single lawyer's search would move through the firm's systems, the matter wiki, the shared data layer, the ethical-wall stops and the AI choices, and where we get to choose the path.</p>
+
+  <div class="legend" aria-label="Legend">
+    <span><i class="sw today"></i>Works in Conflion today (prototype, fictional data)</span>
+    <span><i class="sw new"></i>New work</span>
+    <span><i class="sw stop"></i>Ethical-wall stop</span>
+    <span><i class="sw opt"></i>Optional path: we choose per task</span>
+  </div>
+
+  <!-- 1 -->
+  <div class="row full">
+    <div class="box">
+      <h2><span class="num">1</span>A lawyer searches or asks a question</h2>
+      <p class="small">Example: "Have we acted for anyone in the Meridian Solar corporate family, and what indemnity caps did we agree?" Asked from Conflion, a firm tool, or a chat window.</p>
+    </div>
+  </div>
+  <div class="arrow c"></div>
+
+  <!-- 2 -->
+  <div class="row">
+    <div class="box">
+      <h2><span class="num">2</span>Who is asking? Check walls, confidentiality and role</h2>
+      <p class="small">One access rule decides what this person may see before anything is searched. Conflion already cuts each person's view of the data this way.</p>
+      <span class="badge today">In Conflion today</span><span class="badge new">One rule for every tool: new work</span>
+    </div>
+    <div class="stop">
+      <b class="tag">Wall stop 1</b>
+      <p>Walled matters are never searched, scored or counted. A hidden hit looks exactly like no hit, so nobody can probe for it.</p>
+    </div>
+  </div>
+  <div class="arrow"></div>
+
+  <!-- 3 -->
+  <div class="row">
+    <div class="box new wiki">
+      <h2><span class="num">3</span>Read the matter wiki first</h2>
+      <p class="small">Each matter, client and attorney has a short wiki page: who is on it, the parties and their roles, key documents, open issues and decisions, and links to where everything else lives. The AI and the search read it first, so they know what to look for and where.</p>
+      <div class="wiki-pages" aria-label="Example wiki pages">
+        <span>Matter page</span><span>Client page</span><span>Attorney page</span><span>Links into Aderant, iManage, Conflion</span>
+      </div>
+      <span class="badge new">New work</span>
+    </div>
+    <div class="stop">
+      <b class="tag">Same walls apply</b>
+      <p>Each page is tagged with its matter and follows that matter's wall. A summary page puts many names in one place, so the wider walled-name scan matters most here.</p>
+    </div>
+  </div>
+  <div class="arrow"></div>
+
+  <!-- 4 -->
+  <div class="row full">
+    <div class="layer">
+      <div class="layer-head">
+        <h2><span class="num">4</span>The data layer (simbaOS) searches across the firm's systems</h2>
+        <span class="small">Sits beside these systems and reads from them. It replaces none of them.</span>
+      </div>
+      <div class="sources">
+        <div class="src"><h3>Aderant</h3><p>Clients, matters, billing. Stays the record. Read only.</p><span class="badge new">Connector: new work</span></div>
+        <div class="src"><h3>iManage</h3><p>Documents and versions. Stays the record.</p><span class="badge new">Connector: new work</span></div>
+        <div class="src"><h3>Conflion</h3><p>Parties, walls, conflicts decisions, re-checks.</p><span class="badge today">Today</span></div>
+        <div class="src"><h3>LexAtlas</h3><p>Corporate families and ownership, with evidence.</p><span class="badge new">Link: new work</span></div>
+        <div class="src"><h3>Know-how</h3><p>Approved precedents, clause bank, playbooks.</p><span class="badge today">In Conflion</span></div>
+      </div>
+      <div class="methods">
+        <div class="method"><b>Full-text search</b>Keyword search with the access rule applied inside the index. This is how Conflion searches today.</div>
+        <div class="method new"><b>Meaning search (new work)</b>Finds "same idea, different words" using embeddings made by a local model, so firm text never leaves to build the index. Conflion has no embeddings yet.</div>
+      </div>
+    </div>
+  </div>
+  <div class="arrow"></div>
+
+  <!-- 5 -->
+  <div class="row">
+    <div class="box">
+      <h2><span class="num">5</span>Results are filtered again before anyone sees them</h2>
+      <p class="small">Every result carries the matter and party tags that govern it, and each snippet is checked on the way out.</p>
+      <span class="badge today">In Conflion today</span>
+    </div>
+    <div class="stop">
+      <b class="tag">Wall stop 2</b>
+      <p>A walled name is blanked even inside a document the person is allowed to open.</p>
+    </div>
+  </div>
+  <div class="arrow c"></div>
+
+  <div class="fork">
+    <div class="endcap">
+      <h2>Stop here if a list is enough</h2>
+      <p class="small">The lawyer gets ranked results with links into iManage and the matter. No AI is involved, so nothing leaves the firm.</p>
+    </div>
+    <div class="endcap" style="border-color:var(--navy)">
+      <h2>Or ask for an AI answer</h2>
+      <p class="small">The results, plus the question, go to the AI router below. It picks where the work may run, one task at a time.</p>
+    </div>
+  </div>
+  <div class="arrow c"><span class="lbl">AI answer requested</span></div>
+
+  <!-- 6 -->
+  <div class="row full">
+    <div class="box navy">
+      <h2><span class="num">6</span>The AI router decides, task by task, where this may go</h2>
+      <p class="small">Conflion's <code>aiRoute.ts</code> runs these checks in order on every AI call today. It has two routes now: local and Claude.</p>
+      <ul class="checks">
+        <li><span>Can this person see every item referenced? If not, <em>refuse</em>.</span></li>
+        <li><span>Do the client's outside counsel guidelines bar AI? <em>Refuse</em>, or <em>local only</em>.</span></li>
+        <li><span>Is this task cleared for outside AI? If not, <em>local only</em>.</span></li>
+        <li><span>Scan the full outgoing text for walled matter, client and wall names. Any hit, <em>local only</em>.</span></li>
+      </ul>
+      <div class="stop inbox">
+        <b class="tag">Wall stop 3</b>
+        <p>Text that names a walled matter or party never goes to an outside AI. Widening the scan to adverse parties, aliases and former names is new work.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="fan" aria-hidden="true"><span class="stem"></span><span class="bar"></span><i></i><i></i><i></i><span class="lbl">Three optional paths</span></div>
+
+  <!-- options -->
+  <div class="options">
+    <div class="opt">
+      <div class="opt-head"><span class="k">Option A</span><h3>A local model answers the whole thing</h3></div>
+      <div class="opt-body">
+        <p>A model on firm hardware reads the results and writes the answer. Best for walled matters, sensitive clients, and anything a client's guidelines keep off outside AI.</p>
+        <div class="dest"><span>Local model on firm servers</span></div>
+        <span class="badge today">Local route in Conflion today</span>
+        <p class="leaves"><b>What leaves the firm:</b> nothing.</p>
+      </div>
+    </div>
+
+    <div class="opt">
+      <div class="opt-head"><span class="k">Option B</span><h3>Anonymize locally, a lawyer checks, then send out</h3></div>
+      <div class="opt-body">
+        <div class="mini">
+          <div class="new"><b>Local model strips names.</b> Parties and matters become placeholders such as "Company A".</div>
+          <div class="lawyer"><b>A lawyer checks</b> the redacted text before anything is sent.</div>
+          <div class="new"><b>Send out</b> to the strongest model for the task.</div>
+          <div class="new"><b>Names go back in locally</b> when the answer returns.</div>
+        </div>
+        <div class="dest"><span>Claude</span><span class="new">Copilot</span><span class="new">Another API</span></div>
+        <span class="badge new">New work</span>
+        <p class="leaves"><b>What leaves the firm:</b> text with names removed, after a lawyer has seen it.</p>
+      </div>
+    </div>
+
+    <div class="opt">
+      <div class="opt-head"><span class="k">Option C</span><h3>Straight to Claude for safe tasks</h3></div>
+      <div class="opt-body">
+        <p>For tasks the firm has cleared for outside use, with no walled names in the text. Drafting, long-document reading, pulling quotes.</p>
+        <div class="dest"><span>Claude (firm account)</span><span class="new">Copilot hand-off in Word or Outlook</span></div>
+        <span class="badge today">Claude route in Conflion today</span>
+        <p class="leaves"><b>What leaves the firm:</b> only fields the task is cleared to send.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="refuse"><b class="tag">Refuse</b><span>If the person can't see an item, or the client bars all AI, the answer is "not available", worded the same as "doesn't exist".</span></div>
+
+  <div class="merge" aria-hidden="true"><i></i><i></i><i></i><span class="bar"></span><span class="stem"></span></div>
+
+  <!-- 7 -->
+  <div class="row">
+    <div class="box">
+      <h2><span class="num">7</span>The answer comes back with its sources, and the lawyer checks it</h2>
+      <p class="small">Each claim links to the passage it came from, so the lawyer can verify it before relying on it.</p>
+      <p class="small" style="margin-top:8px"><b style="color:var(--ink)">Back into the wiki:</b> anything worth keeping, such as a new decision or a key document, can be added to the matter page once a lawyer approves it.</p>
+      <span class="badge new">Wiki update: new work</span>
+    </div>
+    <div class="box new">
+      <h2 style="font-size:16px">Every step is logged</h2>
+      <p class="small">Which route, which model, which fields were sent, and the wall-check result, so any answer can be traced and replayed.</p>
+      <span class="badge new">Full log: new work</span>
+    </div>
+  </div>
+
+  <div class="notes">
+    <div class="card">
+      <h2>Where we have a choice</h2>
+      <ul>
+        <li>Whether to stop at a list of results or ask for an AI answer.</li>
+        <li>Which of the three paths each kind of task takes. The router can default by task and still override per matter.</li>
+        <li>Which outside model Option B and Option C use. Claude today; Copilot and other APIs could be added.</li>
+        <li>How strict the lawyer check in Option B is, and who signs off.</li>
+        <li>Who owns each matter wiki page and approves changes to it.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>What is real today</h2>
+      <ul>
+        <li>Conflion, a standalone prototype on fictional data, already enforces walls, searches by full text, and routes each AI task to local or Claude.</li>
+        <li>The matter wiki, anonymizing, meaning search, the Copilot and other-API routes, and live connections to Aderant and iManage are new work.</li>
+        <li>simbaOS is a written design for the shared layer, built from Conflion's pieces. It works alongside Aderant and iManage; it doesn't replace them.</li>
+      </ul>
+    </div>
+  </div>
+</div>
