@@ -1,0 +1,537 @@
+<!doctype html><html><head><meta name="robots" content="noindex, nofollow"><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="en">
+<head><meta name="robots" content="noindex, nofollow">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>AI for the Firm, Animated</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&family=Silkscreen&display=swap">
+<style>
+/* One 16:9 pixel stage, a caption strip and transport controls beneath it.
+   Same arcade look as "The Data Layer", in the firm's colours, with a white and a dark background. */
+:root{
+  --bg:#101A23;--panel:#16222E;--line:#2D4459;--fg:#E8F1EE;--muted:#9FB3B0;--accent:#E16E39;--mint:#BFE0D5;
+  --pixel:"Silkscreen","Courier New",monospace;
+  --body:"Pixelify Sans","Trebuchet MS",system-ui,sans-serif;
+  color-scheme:dark;
+}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);box-sizing:border-box;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px}
+.wrap{max-width:1320px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+header{display:flex;align-items:baseline;gap:6px 14px;flex-wrap:wrap}
+h1{font-family:var(--pixel);font-weight:400;font-size:24px;margin:0;letter-spacing:.06em;color:var(--mint)}
+header p{margin:0;color:var(--muted);font-size:16px}
+.player{display:flex;flex-direction:column;gap:10px;background:var(--bg)}
+.stage{position:relative;width:min(100%,max(300px,calc((100vh - 240px) * 16 / 9)));max-width:100%;aspect-ratio:16/9;margin:0 auto;
+  border:2px solid var(--line);background:var(--panel);overflow:hidden;box-sizing:border-box}
+canvas{display:block;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges}
+.labels{position:absolute;inset:0;pointer-events:none}
+.lb{position:absolute;font-family:var(--pixel);font-size:calc(var(--u,3px)*4.6);line-height:1.2;color:var(--fg);white-space:pre;
+  opacity:0;transition:opacity .3s steps(3);text-shadow:calc(var(--u,3px)*.5) calc(var(--u,3px)*.5) 0 #0B1219}
+.lb.on{opacity:1}
+.lb.c{transform:translateX(-50%);text-align:center}
+.lb.r{transform:translateX(-100%);text-align:right}
+.lb.sm{font-size:calc(var(--u,3px)*3.5)}
+.lb.big{font-size:calc(var(--u,3px)*7);color:var(--mint);line-height:1.25}
+.lb.chip{background:#0E1820;padding:calc(var(--u,3px)*.8) calc(var(--u,3px)*2);border:calc(var(--u,3px)*.5) solid var(--line);text-shadow:none}
+.lb.warn{color:var(--accent);border-color:var(--accent)}
+.lb.ink{color:#211E1F;text-shadow:none}
+.lb.hdr{color:#F2F2F2;text-shadow:none}
+.start{position:absolute;inset:0;display:grid;place-items:center;background:rgba(16,26,35,.55)}
+.start[hidden]{display:none!important}
+.bigplay{font-family:var(--pixel);font-size:clamp(14px,2.6vw,26px);color:#211E1F;background:var(--mint);border:0;padding:.7em 1.3em;cursor:pointer;box-shadow:6px 6px 0 var(--accent)}
+.bigplay:focus-visible,.ctl button:focus-visible,.chips button:focus-visible,.ctl label:focus-within{outline:3px solid var(--accent);outline-offset:2px}
+.cap{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:baseline;min-height:3.4em;width:min(100%,max(300px,calc((100vh - 240px) * 16 / 9)));margin:0 auto}
+.cap .num{font-family:var(--pixel);color:var(--accent);font-size:clamp(13px,1.5vw,17px);letter-spacing:.05em}
+.cap .txt{font-size:clamp(17px,2.1vw,25px);line-height:1.25;min-width:0}
+.cap .say{grid-column:1/-1;color:var(--muted);font-size:clamp(14px,1.5vw,17px);line-height:1.4;border-left:3px solid var(--line);padding-left:10px}
+.ctl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;width:min(100%,max(300px,calc((100vh - 240px) * 16 / 9)));margin:0 auto}
+.ctl button,.chips button{font-family:var(--pixel);font-size:13px;color:var(--fg);background:var(--panel);border:2px solid var(--line);padding:7px 11px;cursor:pointer}
+.ctl button:hover,.chips button:hover{border-color:var(--mint)}
+.ctl button.primary{background:var(--mint);color:#211E1F;border-color:var(--mint);min-width:7.5em}
+.ctl label{display:flex;align-items:center;gap:6px;font-size:15px;color:var(--muted);cursor:pointer;user-select:none}
+.ctl input{accent-color:var(--accent);width:16px;height:16px}
+.ctl .sp{flex:1}
+.chips{display:flex;flex-wrap:wrap;gap:4px;width:min(100%,max(300px,calc((100vh - 240px) * 16 / 9)));margin:0 auto}
+.chips button{position:relative;padding:6px 9px;font-size:12px;overflow:hidden;min-width:2.6em}
+.chips button[aria-current="true"]{border-color:var(--accent);color:var(--accent)}
+.chips button .bar{position:absolute;left:0;bottom:0;height:3px;background:var(--accent)}
+.foot{color:var(--muted);font-size:14px;margin:2px auto 0;width:min(100%,max(300px,calc((100vh - 240px) * 16 / 9)))}
+.keys{font-family:var(--pixel);font-size:11px;color:var(--muted)}
+.player:fullscreen{justify-content:center;padding:16px;box-sizing:border-box}
+.player:fullscreen .stage,.player:fullscreen .cap,.player:fullscreen .ctl,.player:fullscreen .chips{width:min(100%,calc((100vh - 170px) * 16 / 9))}
+/* White version: the page and the stage switch together */
+:root.lightpage{--bg:#F4F7F6;--panel:#FFFFFF;--line:#C3D2D6;--fg:#211E1F;--muted:#55636F;--mint:#2D4459;color-scheme:light}
+:root.lightpage .stage{background:#FFFFFF}
+:root.lightpage .start{background:rgba(255,255,255,.55)}
+:root.lightpage .bigplay{background:#2D4459;color:#FFFFFF}
+:root.lightpage .ctl button.primary{background:#2D4459;color:#FFFFFF;border-color:#2D4459}
+:root.lightpage .lb{color:#211E1F;text-shadow:none}
+:root.lightpage .lb.chip{background:#FFFFFF;border-color:#2D4459}
+:root.lightpage .lb.warn{color:#C25425;border-color:#E16E39}
+:root.lightpage .lb.big{color:#2D4459}
+:root.lightpage .lb.hdr,:root.lightpage .lb.ondark{color:#F2F2F2}
+@media (max-width:560px){ .keys{display:none} h1{font-size:20px} }
+@media (prefers-reduced-motion:reduce){ .lb{transition:none} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>AI FOR THE FIRM</h1>
+    <p>What I've built, how I think about it, and how I can help. Starring Newton.</p>
+  </header>
+
+  <div class="player" id="player">
+    <div class="stage" id="stage">
+      <canvas id="cv" width="320" height="180" aria-label="Pixel art animation of the AI for the Firm presentation, starring an attorney cat named Newton."></canvas>
+      <div class="labels" id="labels" aria-hidden="true"></div>
+      <div class="start" id="start"><button class="bigplay" id="bigplay" type="button">&#9654; PLAY</button></div>
+    </div>
+
+    <div class="cap" aria-live="polite">
+      <span class="num" id="capNum">1 / 9</span>
+      <span class="txt" id="capTxt"></span>
+      <span class="say" id="capSay" hidden></span>
+    </div>
+
+    <div class="ctl">
+      <button type="button" class="primary" id="playBtn">&#9654; PLAY</button>
+      <button type="button" id="prevBtn" aria-label="Previous scene">&#9664; PREV</button>
+      <button type="button" id="nextBtn" aria-label="Next scene">NEXT &#9654;</button>
+      <button type="button" id="restartBtn">RESTART</button>
+      <button type="button" id="fsBtn">FULL SCREEN</button>
+      <button type="button" id="themeBtn" aria-pressed="true">DARK BG</button>
+      <span class="sp"></span>
+      <label for="optCap"><input type="checkbox" id="optCap" checked> Captions</label>
+      <label for="optSay"><input type="checkbox" id="optSay"> Script</label>
+      <label for="optStep"><input type="checkbox" id="optStep"> Pause after each scene</label>
+    </div>
+    <div class="chips" id="chips" role="group" aria-label="Scenes"></div>
+  </div>
+
+  <p class="foot">Illustration only, with no real client or matter data. Every tool shown is a standalone prototype built on invented data; none is in use at the firm. <span class="keys">Keys: space play/pause · arrows change scene · F full screen</span></p>
+</div>
+
+<script>
+(function(){
+"use strict";
+const W=320,H=180;
+const cv=document.getElementById('cv');
+const c=cv.getContext('2d');
+c.imageSmoothingEnabled=false;
+
+let LIGHT=true;
+const C={deep:'#16222E',navy:'#2D4459',navyHi:'#4A6B8C',sea:'#66938F',teal:'#436C6D',mint:'#BFE0D5',
+  orange:'#E16E39',orangeDk:'#A84E25',grey:'#F2F2F2',ink:'#211E1F',stone:'#8696A3',stoneDk:'#55636F',
+  manila:'#E3C37D',gooLt:'#E2F4EC',gooDk:'#2F5A57',wall:'#CFE3EC',
+  wood:'#7A5638',woodDk:'#5E422C',line:'#9AA9B4',back:'#18262F',win:'#24384A'};
+
+/* ---------- pixel helpers (shared with The Data Layer) ---------- */
+const rnd=i=>{const x=Math.sin(i*127.1+311.7)*43758.5453;return x-Math.floor(x);};
+const cl=(v,a=0,b=1)=>v<a?a:v>b?b:v;
+const seg=(t,a,b)=>cl((t-a)/(b-a));
+const ease=v=>v*v*(3-2*v);
+const lerp=(a,b,f)=>a+(b-a)*f;
+function R(x,y,w,h,col){c.fillStyle=col;c.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h));}
+function P(x,y,col){c.fillStyle=col;c.fillRect(Math.round(x),Math.round(y),1,1);}
+function box(x,y,w,h,col){R(x,y,w,1,col);R(x,y+h-1,w,1,col);R(x,y,1,h,col);R(x+w-1,y,1,h,col);}
+function L(x0,y0,x1,y1,col,dash,off){x0=Math.round(x0);y0=Math.round(y0);x1=Math.round(x1);y1=Math.round(y1);
+  const dx=Math.abs(x1-x0),sx=x0<x1?1:-1,dy=-Math.abs(y1-y0),sy=y0<y1?1:-1;let err=dx+dy,n=0;c.fillStyle=col;
+  for(let g=0;g<2000;g++){if(!dash||((n+(off||0))%(dash*2))<dash)c.fillRect(x0,y0,1,1);n++;if(x0===x1&&y0===y1)break;const e2=2*err;if(e2>=dy){err+=dy;x0+=sx;}if(e2<=dx){err+=dx;y0+=sy;}}}
+function disc(cx,cy,r,col){for(let dy=-r;dy<=r;dy++){const w=Math.floor(Math.sqrt(r*r-dy*dy+r*0.6));R(cx-w,cy+dy,2*w+1,1,col);}}
+function oval(cx,cy,rx,ry,col){for(let dy=-ry;dy<=ry;dy++){const w=Math.floor(rx*Math.sqrt(Math.max(0,1-(dy*dy)/(ry*ry))));R(cx-w,cy+dy,2*w+1,1,col);}}
+const B4=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
+function dither(x,y,w,h,a,col){if(a<=0)return;if(a>=1){R(x,y,w,h,col);return;}c.fillStyle=col;const th=a*16;
+  for(let yy=y;yy<y+h;yy++)for(let xx=x;xx<x+w;xx++)if(B4[(yy&3)*4+(xx&3)]<th)c.fillRect(xx,yy,1,1);}
+function dashBox(x,y,w,h,col,off){L(x,y,x+w-1,y,col,2,off);L(x+w-1,y,x+w-1,y+h-1,col,2,off);L(x+w-1,y+h-1,x,y+h-1,col,2,off);L(x,y+h-1,x,y,col,2,off);}
+function path(t,K){if(t<=K[0][0])return [K[0][1],K[0][2]];
+  for(let i=0;i<K.length-1;i++){const a=K[i],b=K[i+1];if(t<=b[0]){const f=ease(seg(t,a[0],b[0]));return [lerp(a[1],b[1],f),lerp(a[2],b[2],f)-Math.sin(f*Math.PI)*(b[3]||0)];}}
+  const z=K[K.length-1];return [z[1],z[2]];}
+
+/* ---------- scenery ---------- */
+function bg(t){R(0,0,W,H,LIGHT?'#FFFFFF':C.deep);if(LIGHT)return;
+  for(let i=0;i<46;i++){const x=Math.floor(rnd(i)*W),y=Math.floor(rnd(i+50)*H*0.72);const tw=Math.sin(t*1.6+i*1.7);P(x,y,tw>0.75?C.mint:'#2A3D4F');}}
+function ground(y){R(0,y,W,H-y,LIGHT?'#EEF2F4':'#1B2836');R(0,y,W,1,LIGHT?'#D5DEE3':'#2A3D4F');}
+
+function icon(n,x,y){x=Math.round(x);y=Math.round(y);
+  if(n==='ledger'){R(x,y,12,10,C.teal);R(x+2,y+1,9,8,C.mint);R(x,y,2,10,C.sea);R(x+3,y+3,7,1,C.teal);R(x+3,y+5,7,1,C.teal);R(x+3,y+7,4,1,C.teal);}
+  else if(n==='folder'){R(x,y,5,2,C.manila);R(x,y+2,12,8,C.manila);R(x,y+2,12,1,'#F2DCA6');R(x+2,y+5,8,1,'#B8975A');R(x+2,y+7,6,1,'#B8975A');}
+  else if(n==='cards'){R(x+2,y,3,5,C.grey);R(x+5,y+1,3,4,C.grey);R(x+8,y,2,5,C.grey);R(x+5,y+1,3,1,C.orange);R(x,y+4,12,6,C.teal);R(x+1,y+5,10,4,C.sea);R(x+5,y+6,2,1,C.mint);}
+  else if(n==='mail'){R(x,y+1,12,8,C.grey);if(LIGHT)box(x,y+1,12,8,C.stone);L(x,y+1,x+5,y+5,C.stoneDk);L(x+11,y+1,x+6,y+5,C.stoneDk);R(x+5,y+5,2,1,C.orange);}
+  else if(n==='gavel'){R(x+1,y+1,8,4,C.wood);R(x+1,y+1,8,1,'#9A7550');R(x+4,y+5,2,5,C.woodDk);R(x,y+10,12,2,C.woodDk);}
+  else if(n==='globe'){disc(x+6,y+5,5,C.sea);R(x+2,y+3,3,2,C.teal);R(x+7,y+6,3,2,C.teal);R(x+1,y+5,10,1,C.mint);R(x+6,y,1,11,C.mint);}
+}
+
+function machine(x,y,w,h,t,k,o){o=o||{};
+  R(x,y,w,h,'#24384A');box(x,y,w,h,o.hot?C.orange:C.navyHi);
+  R(x+w/2-4,y-3,8,3,C.stoneDk);
+  if(o.mini){R(x+3,y+3,w-6,4,C.deep);if(o.on)for(let i=0;i<w-6;i+=2)if(Math.sin(t*6+i+k)>-0.2)P(x+3+i,y+4+(i%3?1:0),C.mint);
+    P(x+3,y+h-4,Math.sin(t*5+k)>0?C.orange:'#3B5168');return;}
+  if(!o.noScreen)R(x+3,y+3,w-6,8,C.deep);
+  if(o.noScreen){}else if(o.on){for(let i=0;i<w-8;i+=2){const hg=1+Math.floor((Math.sin(t*6+i*0.9+k)+1)*2.5);R(x+4+i,y+10-hg,1,hg,C.mint);}}
+  for(let i=0;i<3;i++)P(x+3+i*3,y+h-4,(o.on&&Math.sin(t*5+i*2+k)>0)?C.orange:'#3B5168');
+  const gx=x+w-8,gy=y+h-7,sp=o.on?(o.fast?16:7):1,a=Math.floor(t*sp+k)%2;
+  R(gx+1,gy,3,5,C.stone);R(gx,gy+1,5,3,C.stone);P(gx+2,gy+2,'#24384A');
+  if(a){P(gx,gy,C.stone);P(gx+4,gy,C.stone);P(gx,gy+4,C.stone);P(gx+4,gy+4,C.stone);}else{P(gx+2,gy-1,C.stone);P(gx+2,gy+5,C.stone);P(gx-1,gy+2,C.stone);P(gx+5,gy+2,C.stone);}
+}
+
+function tblock(x,y,t,k,hot){x=Math.round(x);y=Math.round(y);
+  R(x,y,13,10,'#24384A');box(x,y,13,10,hot?C.orange:C.navyHi);R(x+2,y+2,9,3,C.deep);
+  for(let i=0;i<9;i+=2)if(Math.sin(t*6+i+k*1.7)>-0.2)P(x+2+i,y+3,C.mint);
+  P(x+2,y+7,Math.sin(t*5+k)>0?C.orange:'#3B5168');P(x+5,y+7,'#3B5168');R(x+9,y+6,2,2,C.stone);}
+
+function goo(x,y,w,h,level,t){const base=y+h;
+  for(let i=0;i<w;i++){const X=x+i;
+    const wave=Math.round(Math.sin(X*0.25+t*3)*0.9+Math.sin(X*0.11-t*1.7)*0.6);
+    const top=Math.max(y,Math.round(base-level+wave));if(top>=base)continue;
+    R(X,top,1,1,C.gooLt);R(X,top+1,1,base-top-1,C.sea);
+    const mid=top+Math.floor((base-top)*0.45);c.fillStyle=C.teal;
+    for(let yy=mid+((X+mid)&1);yy<base;yy+=2)c.fillRect(X,yy,1,1);}
+}
+function tank(x,y,w,h,level,t){R(x,y,w,h,C.back);goo(x+1,y+1,w-2,h-2,level,t);box(x,y,w,h,C.wall);
+  c.globalAlpha=.28;R(x+2,y+2,1,h-4,'#FFFFFF');c.globalAlpha=1;}
+
+function straw(x,y0,y1,t,k){R(x,y0,2,y1-y0,C.teal);for(let yy=y1-((t*24+k*5)%6);yy>y0;yy-=6)R(x,yy,2,2,C.mint);}
+
+function paper(x,y,marks,stamp){x=Math.round(x);y=Math.round(y);
+  R(x,y,16,20,C.grey);if(LIGHT)box(x,y,16,20,C.stone);R(x+12,y,4,4,C.line);R(x+12,y,1,1,LIGHT?C.stone:C.deep);
+  for(let i=0;i<6;i++)R(x+3,y+5+i*2,i===5?6:10,1,C.line);
+  if(marks){for(let i=0;i<marks;i++)R(x+2+(i%2)*3,y+5+i*3,[7,5,8,4,6][i%5],1,C.orange);}
+  if(stamp){box(x+3,y+7,10,8,C.orange);R(x+5,y+11,1,1,C.orange);R(x+6,y+12,1,1,C.orange);R(x+7,y+11,1,1,C.orange);R(x+8,y+10,1,1,C.orange);R(x+9,y+9,1,1,C.orange);}
+}
+function lock(x,y){R(x+2,y,8,1,C.stone);R(x+2,y,1,5,C.stone);R(x+9,y,1,5,C.stone);R(x,y+5,12,9,C.orange);R(x,y+5,12,1,'#F08A5B');R(x+5,y+8,2,3,C.deep);}
+function envl(x,y,sens){x=Math.round(x);y=Math.round(y);const f=sens?C.orange:C.grey,d=sens?C.orangeDk:C.stoneDk;R(x,y,7,5,f);if(LIGHT&&!sens)box(x,y,7,5,C.stone);L(x,y,x+3,y+2,d);L(x+6,y,x+3,y+2,d);}
+function check(x,y,col){col=col||C.mint;P(x,y+2,col);P(x+1,y+3,col);P(x+2,y+4,col);P(x+3,y+3,col);P(x+4,y+2,col);P(x+5,y+1,col);P(x+6,y,col);}
+function toolbox(x,y){x=Math.round(x);y=Math.round(y);R(x+4,y,6,1,C.stoneDk);R(x+4,y,1,3,C.stoneDk);R(x+9,y,1,3,C.stoneDk);
+  R(x,y+3,14,9,C.orange);R(x,y+3,14,1,'#F08A5B');R(x,y+7,14,1,C.orangeDk);R(x+6,y+6,2,3,C.grey);}
+function cloud(x,y){const col=LIGHT?'#DCE8E4':'#2A3D4F';disc(x+12,y+10,8,col);disc(x+26,y+7,10,col);disc(x+40,y+11,7,col);R(x+4,y+11,44,8,col);}
+function link(x,y,col){box(x,y,6,4,col);}
+
+/* The firm's building: windows light up as `lit` rises */
+function building(x,y,w,h,lit,t){
+  R(x,y,w,h,C.navy);R(x,y,w,2,C.navyHi);R(x-3,y-2,w+6,2,C.stoneDk);
+  let k=0;for(let wy=y+8;wy<y+h-18;wy+=11){for(let wx=x+6;wx<x+w-8;wx+=10){const on=rnd(k*3.1+7)<lit;
+    R(wx,wy,6,7,on?C.manila:C.win);if(on)R(wx,wy,6,1,'#F2DCA6');k++;}}
+  R(x+w/2-7,y+h-16,14,16,C.deep);R(x+w/2,y+h-16,1,16,C.stoneDk);
+}
+function sign(x,y,on){R(x+5,y+10,2,4,C.stoneDk);R(x+29,y+10,2,4,C.stoneDk);R(x,y,36,10,on?C.teal:C.stoneDk);box(x,y,36,10,on?C.mint:C.stone);}
+function platform(x,y,w){R(x,y,w,2,C.mint);R(x,y+2,w,2,C.sea);for(let r=0;r<4;r++)R(x+2+r*3,y+4+r*2,w-4-r*6,2,r%2?'#3A5E5F':C.teal);}
+
+/* Newton, from the CatGPT cat room sprite (orange tabby, white blaze, chest and socks), dressed for court. */
+const SIT=['...o..........o...','..opo........opo..','..obpo......opbo..','..obppooooooppbo..','.obbbbmwwwwmbbbbo.','.obbbmbbwwbbmbbbo.',
+ 'obbbbbbbwwbbbbbbbo','obbbkhbbwwbbkhbbbo','obbbekbbllbbekbbbo','osbbbbllppllbbbbso','.osmbblqllqlbbmso.','..ossbllllllbsso..',
+ '...osbllccllbso...','..osbbllCCllbbso..','..osbbllllllbbso..','.osbbbllllllbbbso.','.osbbbbllllbbbbso.','.osbaabbllbbaabso.',
+ '.oaaaaobllboaaaao.','..oooo.oooo.oooo..'];
+const BLINK=['obbbbbbbwwbbbbbbbo','obbkkkbbllbbkkkbbo'];
+const CATPAL={newton:{o:'#2a1d2e',b:'#e9a05a',s:'#c47a3a',m:'#b5632a',l:'#fbf3e6',c:'#fbf3e6',C:'#fbf3e6',w:'#fbf3e6',a:'#fbf3e6',e:'#b9c25a',k:'#1e1a22',h:'#ffffff',p:'#f2a0a8',q:'#d9bba8'}};
+function cat(x,y,s,o){o=o||{};x=Math.round(x);y=Math.round(y);
+  const pal=Object.assign({},CATPAL.newton);const suit=C.navy,hi=C.navyHi;
+  pal.S=suit;pal.H=hi;pal.W=C.grey;pal.T=C.orange;pal.U=C.orangeDk;pal.M=C.mint;
+  const g=SIT.map(r=>r.split(''));
+  if(o.blink){g[7]=BLINK[0].split('');g[8]=BLINK[1].split('');}
+  for(let r=12;r<20;r++)for(let q=0;q<18;q++){const ch=g[r][q];
+    if(ch==='b'||ch==='s'||ch==='m')g[r][q]='S';else if(ch==='l'||ch==='c'||ch==='C')g[r][q]=(r>=15?'S':'W');}
+  [[12,8],[12,9]].forEach(([r,q])=>g[r][q]='U');[[13,8],[13,9],[14,8],[14,9],[15,8],[15,9],[16,8],[16,9],[17,8],[17,9]].forEach(([r,q])=>g[r][q]='T');
+  g[13][6]='H';g[13][11]='H';g[14][7]='H';g[14][10]='H';g[15][12]='M';g[18][8]='S';g[18][9]='S';
+  const clearPaw=left=>{const cols=left?[1,2,3,4,5,6]:[11,12,13,14,15,16];
+    cols.forEach(q=>{if(g[17][q]==='a')g[17][q]='S';});
+    cols.forEach(q=>{const ch=g[18][q];if(ch==='a')g[18][q]='S';});
+    g[19].forEach((ch,q)=>{if(cols.includes(q)&&ch==='o')g[19][q]='.';});
+    cols.forEach(q=>{if(g[18][q]==='S'&&(g[19][q]==='.'))g[19][q]='o';});
+    if(left){g[18][1]='.';g[17][1]='o';g[18][2]='o';}else{g[18][16]='.';g[17][16]='o';g[18][15]='o';}};
+  if(o.pose==='push'||o.pose==='stamp')clearPaw(true);
+  if(o.pose==='pen'||o.pose==='carry'||o.pad)clearPaw(false);
+  const Q=(lx,ly,w,h,col)=>R(x+lx*s,y+ly*s,w*s,h*s,col);
+  for(let r=0;r<20;r++)for(let q=0;q<18;q++){const ch=g[r][q];if(ch!=='.')Q(q,r,1,1,pal[ch]);}
+  const paw=pal.a,ol=pal.o;
+  if(o.pose==='push'){Q(-4,12,6,1,ol);Q(-4,16,6,1,ol);Q(-4,13,7,3,suit);Q(-8,12,4,5,ol);Q(-7,13,3,3,paw);}
+  else if(o.pose==='stamp'){const ay=Math.round(lerp(8,12,o.down||0));for(let r=ay;r<=13;r++)Q(-2,r,4,3,suit);Q(-3,ay,1,Math.max(3,16-ay),ol);Q(-7,ay-1,5,5,ol);Q(-6,ay,3,3,paw);Q(-5,ay-3,1,3,C.orangeDk);Q(-7,ay+3,5,2,C.orange);}
+  else if(o.pose==='pen'){const dx=o.penDx||0;Q(16,12,7+dx,1,ol);Q(16,16,7+dx,1,ol);Q(15,13,8+dx,3,suit);Q(22+dx,12,4,5,ol);Q(23+dx,13,3,3,paw);Q(25+dx,9,1,6,C.orange);}
+  else if(o.pose==='carry'){Q(16,12,4,1,ol);Q(16,16,4,1,ol);Q(15,13,5,3,suit);Q(19,12,4,5,ol);Q(20,13,3,3,paw);}
+  if(o.pad){Q(13,13,5,6,C.grey);for(let i=0;i<o.pad;i++)Q(14,14+i*2,3,1,C.line);Q(16+(o.penDx||0),11,1,4,C.orange);}
+}
+const walkBob=(t,moving)=>moving?(Math.floor(t*7)%2):0;
+
+/* ---------- scenes: one per slide, plus the opening ---------- */
+const COLS=[{x:14,n:14,name:"RUNNING\nTHE FIRM",hot:'Guideline Guard'},{x:118,n:10,name:"LITIGATION",hot:'Win your case ASAP'},{x:222,n:8,name:"MATTERS, DEALS\nAND DOCUMENTS",hot:'SNF Deal Desk'}];
+const BLOCKS=[];COLS.forEach((col,ci)=>{for(let j=0;j<col.n;j++)BLOCKS.push({ci,j,x:col.x+4+(j%5)*16,y:50+Math.floor(j/5)*14});});
+const blockOrder=BLOCKS.map((b,i)=>i).sort((a,b)=>(BLOCKS[a].j-BLOCKS[b].j)||(BLOCKS[a].ci-BLOCKS[b].ci));
+const blockAt=[];blockOrder.forEach((bi,k)=>{blockAt[bi]=1+k*0.14;});
+
+const SCENES=[
+{title:'The firm\'s call',dur:10,
+ cap:"The firm has already made its call on AI. Here's what one person can build on top of it.",
+ say:"The firm has already made the big call on AI: Claude firmwide, alongside Copilot. Here's what one person who knows this firm can build on top of it.",
+ labels:[{x:160,y:6,t:"AI FOR THE FIRM",a:.3,cls:'c big'},
+   {x:136,y:39.6,t:"CLAUDE",a:1.6,cls:'c sm hdr'},{x:184,y:39.6,t:"COPILOT",a:2.4,cls:'c sm hdr'},
+   {x:160,y:161,t:"The firm chose Claude, firmwide, alongside Copilot",a:2.8,b:6.4,cls:'c chip'},
+   {x:160,y:161,t:"What can one person build on top of it?",a:6.6,cls:'c chip'}],
+ draw(t){bg(t);ground(150);
+  building(110,50,100,100,0.12+0.6*seg(t,0.6,3.4),t);
+  sign(118,38,t>1.6);sign(166,38,t>2.4);
+  const walking=t>1&&t<4.6;const nx=lerp(-44,52,ease(seg(t,1,4.6)));
+  cat(nx,110+walkBob(t,walking),2,{pose:t<4.8?'carry':null,blink:(t%3.2)<0.14});
+  if(t<4.8)toolbox(nx+42,134+walkBob(t,walking));else toolbox(90,138);
+  if(t>5.2){const f=seg(t,5.2,6);for(let k=0;k<5;k++)if(Math.sin(t*6+k)>0)P(97+Math.cos(k*1.3)*8*f,134-Math.sin(k*1.3)*6*f,C.orange);}
+ }},
+{title:'What I\'ve built',dur:13,
+ cap:"Thirty-two working legal tools so far, each a standalone prototype on invented data.",
+ say:"So far I've built thirty-two working legal tools: fourteen for running the firm, ten for litigation, and eight for matters, deals and documents. Three to know: Guideline Guard, Win your case ASAP, and SNF Deal Desk. Each is a standalone prototype on invented data. None is in use at the firm.",
+ labels:COLS.map(col=>({x:col.x+42,y:col.name.includes('\n')?28:32,t:col.name,a:.4,cls:'c sm'}))
+   .concat(COLS.map((col,ci)=>({x:col.x+42,y:14,t:'',a:.4,cls:'c sm warn',fn:lt=>{let n=0;BLOCKS.forEach((b,i)=>{if(b.ci===ci&&lt>=blockAt[i])n++;});return String(n);}})))
+   .concat(COLS.map(col=>({x:col.x+42,y:100,t:col.hot,a:6.6,cls:'c chip warn sm'})),[
+   {x:184,y:118,t:'',a:1,cls:'c big',fn:lt=>{let n=0;blockAt.forEach(a=>{if(lt>=a)n++;});return n+' WORKING LEGAL TOOLS';}},
+   {x:184,y:152,t:"Prototypes on invented data.\nNone is in use at the firm.",a:8.8,cls:'c chip sm'}]),
+ draw(t){bg(t);
+  COLS.forEach((col,ci)=>{R(col.x,44,84,1,C.line);});
+  BLOCKS.forEach((b,i)=>{const a=blockAt[i];if(t<a)return;const age=t-a;const hot=b.j===0&&t>6.2;
+    if(age<0.12){R(b.x-1,b.y-1,15,12,LIGHT?C.orange:C.grey);return;}
+    tblock(b.x,b.y,t,i,hot);
+    if(hot&&Math.sin(t*5)>0)box(b.x-2,b.y-2,17,14,C.orange);});
+  const nb=Math.floor(Math.sin(t*9)*2);
+  cat(8,134,2,{pad:Math.min(3,1+Math.floor(t/3)),penDx:nb,blink:(t%2.9)<0.14});
+ }},
+{title:'Three layers',dur:12,
+ cap:"Three layers, from daily work to firm strategy, and four rules for every tool.",
+ say:"I think about AI in three layers: running the firm, practicing law, and responding to where AI is going. Every tool follows four rules: lawyers decide, code checks the model, client data stays protected, and everything is traceable. IT approves anything that touches client data.",
+ labels:[{x:52,y:118.5,t:"1 RUNNING THE FIRM",a:.9,cls:'l sm ondark'},{x:52,y:88.5,t:"2 PRACTICING LAW",a:2.5,cls:'l sm ondark'},
+   {x:52,y:58.5,t:"3 RESPONDING TO AI\n  DEVELOPMENTS",a:4.1,cls:'l sm ondark'},
+   {x:250,y:30,t:"FOUR RULES FOR EVERY TOOL",a:5.6,cls:'c sm'},
+   {x:198,y:44,t:"Lawyers decide",a:6,cls:'l chip sm'},{x:198,y:60,t:"Code checks the model",a:6.8,cls:'l chip sm'},
+   {x:198,y:76,t:"Client data stays protected",a:7.6,cls:'l chip sm'},{x:198,y:92,t:"Everything is traceable",a:8.4,cls:'l chip sm'},
+   {x:160,y:160,t:"IT approves anything that touches client data",a:9.4,cls:'c chip'}],
+ draw(t){bg(t);
+  const FL=[{y:112,ic:['ledger','cards']},{y:82,ic:['gavel','folder']},{y:52,ic:['globe','mail']}];
+  FL.forEach((f,i)=>{const on=t>0.8+i*1.6;R(24,f.y,150,26,on?C.teal:C.win);box(24,f.y,150,26,on?C.mint:C.navyHi);
+    if(on){icon(f.ic[0],29,f.y+3);icon(f.ic[1],29,f.y+14);}
+    R(28,f.y+26,4,i===0?6:4,C.stoneDk);R(166,f.y+26,4,i===0?6:4,C.stoneDk);});
+  R(18,138,162,4,C.stoneDk);
+  const [nx,ny]=path(t,[[0,152,92],[2.4,152,92],[3,152,62,12],[4,152,62],[4.6,152,32,12]]);
+  cat(nx,ny,1,{blink:(t%3)<0.12});
+  [44,60,76,92].forEach((y,i)=>{if(t>6+i*0.8)check(188,y+1.5,LIGHT?C.teal:C.mint);});
+ }},
+{title:'In practice',dur:15,
+ cap:"One prototype per layer, all on invented data. Each is narrow on purpose, and a lawyer stays in charge.",
+ say:"One prototype for each layer. Guideline Guard catches prebill entries that break a client's billing rules, before the bill goes out. Win your case ASAP reads a new complaint and lists the early motions that could end the case, for a lawyer to judge. And my conflicts prototype, Conflion, runs on a local model by default, enforces ethical walls on the server, and keeps a tamper-evident audit trail.",
+ labels:[{x:56,y:6,t:"Prebill +\nbilling rules",a:.3,cls:'c sm'},{x:160,y:8,t:"New complaint",a:.3,cls:'c sm'},{x:264,y:8,t:"Conflicts search",a:.3,cls:'c sm'},
+   {x:56,y:68,t:"Guideline\nGuard",cls:'c sm ondark'},{x:160,y:68,t:"Win your\ncase ASAP",cls:'c sm ondark'},{x:264,y:70.5,t:"Conflion",cls:'c sm ondark'},
+   {x:56,y:136,t:"Flags rule-breaking\nentries, with fixes",a:3.4,cls:'c sm'},{x:160,y:136,t:"Early motions, for\na lawyer to judge",a:4,cls:'c sm'},
+   {x:264,y:136,t:"Local model, walls,\naudit trail",a:4.6,cls:'c sm'},
+   {x:160,y:160,t:"Narrow on purpose. A lawyer stays in charge.",a:9.5,cls:'c chip'}],
+ draw(t){bg(t);
+  const CX=[56,160,264];
+  CX.forEach((cx,i)=>{
+    const t0=0.5+i*0.6,per=4;
+    // input papers fall into the machine
+    if(t>t0){const p=((t-t0)/per)%1;if(p<0.4)paper(cx-8,lerp(18,56,ease(p/0.4)));}
+    if(i===2){L(cx-32,58,cx,44,C.stone);L(cx,44,cx+32,58,C.stone);R(cx-30,58,2,40,C.stone);R(cx+28,58,2,40,C.stone);}
+    const busy=t>t0&&(((t-t0)/per)%1)>0.35&&(((t-t0)/per)%1)<0.6;
+    machine(cx-22,62,44,30,t,i,{on:t>t0,fast:busy,noScreen:true});
+    const out=seg(t,t0+2.4,t0+3);
+    if(out>0){
+      if(i===0){paper(cx-8,lerp(90,110,ease(out)),Math.min(4,Math.floor(seg(t,t0+3,t0+6)*4)+1));}
+      if(i===1){paper(cx-14,lerp(90,110,ease(out)),0,t>t0+5.4);
+        let pose=null,down=0;if(t>t0+4.4&&t<t0+5.8){pose='stamp';down=t>t0+4.9&&t<t0+5.4?1:0;}
+        cat(cx+6,110,1,{pose,down,blink:(t%2.6)<0.14});}
+      if(i===2){lock(cx-6,104);const n=Math.min(8,Math.floor(seg(t,t0+3,t0+10)*8));
+        for(let k=0;k<n;k++)link(cx-26+k*6,124+(k%2),k===n-1&&Math.sin(t*8)>0?C.orange:C.sea);}
+    }
+  });
+ }},
+{title:'What\'s next',dur:13,
+ cap:"From small to firm-wide. Which ideas, and in what order, is leadership's call.",
+ say:"What could come next? Start small, with one IT-approved pilot. Then plug proven tools into firm systems. And, for discussion, one firm-owned platform every tool builds on. On build versus buy: get more from the Claude and Copilot we already have, pay for what's truly hard to build, and build what's specific to our practices.",
+ labels:[{x:160,y:4,t:"Which ones, and in what order, is leadership's call",a:.3,cls:'c sm'},
+   {x:56,y:82,t:"START SMALL",a:.8,cls:'c sm'},{x:56,y:136,t:"One IT-approved\npilot",a:1.6,cls:'c sm'},
+   {x:160,y:62,t:"CONNECT",a:4.2,cls:'c sm'},{x:160,y:146,t:"Plug proven tools\ninto firm systems",a:5,cls:'c sm'},
+   {x:268,y:32,t:"FIRM-WIDE,\nFOR DISCUSSION",a:7.6,cls:'c sm'},{x:268,y:92,t:"One firm-owned\nplatform",a:8.4,cls:'c sm'},
+   {x:160,y:165,t:"Build vs. buy: get more from Claude and Copilot, build what's specific to us",a:9.6,cls:'c chip warn sm'}],
+ draw(t){bg(t);
+  platform(16,120,80);platform(120,100,80);platform(224,80,88);
+  // start small: one pilot
+  if(t>1.2){machine(52,104,24,14,t,0,{mini:true,on:true});if(t>2.2)check(80,96,LIGHT?C.teal:C.mint);}
+  // connect: tools piped down to firm systems
+  if(t>4.4){machine(146,84,20,14,t,1,{mini:true,on:true});machine(172,84,20,14,t,2,{mini:true,on:true});
+    const pg=seg(t,4.8,6);[155,181].forEach((px,k)=>{const h=22*pg;R(px,110,2,h,C.teal);if(pg>=1)for(let yy=110+((t*20+k*4)%6);yy<132;yy+=6)R(px,yy,2,2,C.mint);});
+    if(pg>=1){icon('ledger',150,132);icon('folder',176,132);}}
+  // firm-wide: one platform, still dashed because it is for discussion
+  const fz=seg(t,7.8,8.8);
+  if(fz>0){dither(246,66,64,14,fz,C.back);if(fz>=1){tank(246,66,64,14,9,t);for(let k=0;k<4;k++){straw(251+k*15,62,68,t,k);machine(246+k*15,50,12,12,t,k+3,{mini:true,on:true});}}}
+  dashBox(244,44,68,38,C.orange,Math.floor(t*6));
+  const [nx,ny]=path(t,[[0,-24,100],[0.8,22,100,0],[4,22,100],[4.7,124,80,22],[7.4,124,80],[8.1,224,60,20]]);
+  cat(nx,ny,1,{blink:(t%3.3)<0.14});
+ }},
+{title:'Local AI',dur:13,
+ cap:"For the most sensitive work, a local option alongside Claude. What runs where is IT's call.",
+ say:"For the most sensitive work, local AI keeps client data in the building. An open model on our own servers reads and drafts, with walls checked first. A middle path: swap names for placeholders locally, use Claude, then put the names back, with a person spot-checking. What runs where is IT's call.",
+ labels:[{x:160,y:4,t:"Local AI keeps client data in the building",a:.3,cls:'c chip'},
+   {x:43,y:138,t:"Our\nservers",a:1,cls:'c sm'},{x:92,y:96,t:"Walls checked\nfirst",a:2,cls:'c sm'},
+   {x:141,y:108,t:"Swap\nnames",a:3.6,cls:'c sm'},{x:246,y:62,t:"CLAUDE",a:3.6,cls:'c sm'},
+   {x:252,y:96,t:"Anonymize locally,\nthen use Claude",a:4.4,cls:'c chip sm'},
+   {x:252,y:124,t:"A person spot-checks",a:6.6,cls:'c chip sm'},
+   {x:160,y:165,t:"IT's call: what runs here, what goes to Claude, what never leaves",a:9,cls:'c chip warn sm'}],
+ draw(t){bg(t);ground(150);
+  R(14,50,146,100,LIGHT?'#F4F7F6':'#1B2836');
+  L(8,50,87,30,C.stone);L(87,30,166,50,C.stone);R(12,50,152,2,C.stone);R(12,50,2,100,C.stone);R(160,50,2,62,C.stone);
+  machine(28,84,30,50,t,0,{on:true});
+  // files feed the model through the wall check
+  icon('folder',108,136);icon('ledger',124,136);
+  R(84,112,2,36,C.orange);if(t>2)check(81,105,LIGHT?C.teal:C.mint);
+  if(t>1.4)L(106,140,60,128,C.sea,2,-Math.floor(t*8));
+  // sensitive work circles inside the building
+  for(let k=0;k<3;k++){const a=t*1.1+k*2.1;envl(100+Math.cos(a)*34-3,70+Math.sin(a)*8-2,true);}
+  // the middle path: names swapped out, sent to Claude, swapped back
+  R(130,118,22,14,C.navy);box(130,118,22,14,C.navyHi);R(134,123,5,3,C.orange);R(143,123,5,3,C.grey);
+  cloud(220,52);
+  let ok=false;
+  if(t>3.4){const per=4.2,p=((t-3.4)/per)%1;
+    const go=[[60,122],[132,124],[152,124],[162,124],[236,72]];const back=go.slice().reverse();
+    const pts=p<0.5?go:back,f=p<0.5?p/0.5:(p-0.5)/0.5;const j=Math.min(3,Math.floor(f*4)),g=f*4-j;
+    const x=lerp(pts[j][0],pts[j+1][0],g),y=lerp(pts[j][1],pts[j+1][1],g);
+    const outside=x>148;envl(x-3,y-2,!outside);
+    if(p>0.92||p<0.04)ok=true;}
+  cat(178,130,1,{blink:(t%2.8)<0.14});
+  if(ok&&t>6.4)check(184,120,LIGHT?C.teal:C.mint);
+ }},
+{title:'Where I\'m strongest',dur:12,
+ cap:"Where I'm strongest: turning how lawyers work into a working tool, fast.",
+ say:"Where am I strongest? Turning how lawyers actually work into a working tool, fast. Designing around what AI gets wrong: code checks the model, and a lawyer decides. Knowing both the practice and the technology, and judging vendor pitches with a builder's eye. My biggest takeaway from thousands of hours with AI: taste and iteration are the key to useful tools.",
+ labels:[{x:136,y:28,t:"How lawyers\nwork",a:.6,cls:'l sm'},{x:155,y:114,t:"Tool",a:.6,cls:'c sm'},{x:90,y:114,t:"Test",a:.6,cls:'c sm'},
+   {x:122,y:72,t:'',a:1,cls:'c big',fn:lt=>'v'+Math.min(24,1+Math.floor(Math.max(0,lt-1)*2))},
+   {x:198,y:24,t:"Turning how lawyers work\ninto a working tool, fast",a:1.6,cls:'l chip sm warn'},
+   {x:198,y:46,t:"Code checks the model;\na lawyer decides",a:3.2,cls:'l chip sm'},
+   {x:198,y:68,t:"Knowing the practice\nand the technology",a:4.6,cls:'l chip sm'},
+   {x:198,y:90,t:"Judging vendor pitches\nwith a builder's eye",a:6,cls:'l chip sm'},
+   {x:200,y:150,t:"Taste and iteration are the key",a:8,cls:'c chip'}],
+ draw(t){bg(t);
+  const cx=122,cy=78,r=32;
+  for(let n=0;n<120;n++){if(((n+Math.floor(t*12))%6)>=3)continue;const a=n/120*Math.PI*2;P(cx+r*Math.cos(a),cy+r*Math.sin(a)*0.9,C.stone);}
+  paper(cx-8,cy-r-12,Math.floor(t*2)%4);
+  machine(cx+20,cy+16,22,14,t,0,{mini:true,on:true});
+  R(cx-40,cy+16,16,14,LIGHT?'#FFFFFF':C.deep);box(cx-40,cy+16,16,14,C.sea);check(cx-36,cy+20,LIGHT?C.teal:C.mint);
+  if(t>1){for(let k=0;k<2;k++){const a=-Math.PI/2+(t-1)*3.2+k*Math.PI;R(cx+r*Math.cos(a)-1,cy+r*Math.sin(a)*0.9-1,3,3,C.orange);}}
+  R(4,136,84,4,C.wood);R(4,136,84,1,'#9A7550');R(4,140,84,4,C.woodDk);R(8,144,4,30,C.woodDk);R(80,144,4,30,C.woodDk);
+  cat(10,96,2,{pose:'pen',penDx:Math.round(Math.sin(t*10)*2),blink:(t%2.7)<0.14});
+  paper(58,118,Math.min(5,Math.floor(t)));
+ }},
+{title:'Value for the firm',dur:12,
+ cap:"The value: more from what the firm already licenses, and workflows the firm owns.",
+ say:"The value for the firm: more from the Claude and Copilot we already license, workflows the firm owns, code and data, and less reliance on outside vendors where that makes sense. It starts with one IT-approved pilot, and a partner signs off on each practice tool.",
+ labels:[{x:136,y:39.6,t:"CLAUDE",cls:'c sm hdr'},{x:184,y:39.6,t:"COPILOT",cls:'c sm hdr'},
+   {x:8,y:30,t:"More from the Claude and\nCopilot we already license",a:2.3,cls:'l chip sm'},
+   {x:312,y:30,t:"Workflows the firm owns,\ncode and data",a:4.1,cls:'r chip sm'},
+   {x:8,y:64,t:"Less reliance on vendors,\nwhere it makes sense",a:5.9,cls:'l chip sm'},
+   {x:312,y:64,t:"One IT-approved pilot first;\na partner signs off",a:7.7,cls:'r chip sm'},
+   {x:160,y:161,t:"Hands to build on the direction the firm already chose",a:9.4,cls:'c chip'}],
+ draw(t){bg(t);ground(150);
+  const SPOT=[[126,62],[182,62],[126,96],[182,96]];
+  let landed=0;SPOT.forEach((s,i)=>{if(t>2.3+i*1.8)landed++;});
+  building(116,50,90,100,0.2+0.18*landed,t);sign(118,38,true);sign(166,38,true);
+  const walking=t<1.6;const nx=lerp(-24,92,ease(seg(t,0,1.6)));
+  cat(nx,130+walkBob(t,walking),1,{pose:'carry',blink:(t%3)<0.12});
+  SPOT.forEach((s,i)=>{const t0=1.8+i*1.8,f=seg(t,t0,t0+0.5);if(f<=0){if(t>1.6&&i===landed)toolbox(nx+20,136);return;}
+    const x=lerp(nx+20,s[0],ease(f)),y=lerp(132,s[1],ease(f))-Math.sin(f*Math.PI)*20;
+    machine(x,y,14,10,t,i,{mini:true,on:f>=1});
+    if(f>=1&&t<t0+0.9){for(let k=0;k<6;k++)P(s[0]+7+Math.cos(k)*10*(t-t0-0.5)*2,s[1]+5+Math.sin(k)*8*(t-t0-0.5)*2,C.orange);}});
+ }},
+{title:'For discussion',dur:12,
+ cap:"What I'm thinking about. These are questions for the room.",
+ say:"Here's what I'm thinking about. Where are the biggest opportunities for AI, beyond the tools we already license? Which attorneys or practice groups would suit a pilot? How should the firm build its own AI capability? And how can I help with the larger projects ahead?",
+ labels:[{x:160,y:4,t:"WHAT I'M THINKING ABOUT",a:.3,cls:'c sm'},
+   {x:70,y:20,t:"1 Biggest opportunities,\nbeyond what we license?",a:1.2,cls:'c chip sm'},
+   {x:250,y:20,t:"2 Which attorneys or groups\nsuit a pilot?",a:2.8,cls:'c chip sm'},
+   {x:70,y:62,t:"3 How should the firm build\nits own AI capability?",a:4.4,cls:'c chip sm'},
+   {x:250,y:62,t:"4 How can I help with\nthe larger projects?",a:6,cls:'c chip sm'},
+   {x:160,y:162,t:"Thank you. Let's talk.",a:8.4,cls:'c chip'}],
+ draw(t){bg(t);ground(150);
+  const BUB=[[70,36],[250,36],[70,78],[250,78]];
+  BUB.forEach((b,i)=>{if(t<1.2+i*1.6)return;L(b[0]+(b[0]<160?30:-30),b[1]+2,160+(b[0]<160?-10:10),96,C.stone,1,0);});
+  cat(142,88,2,{blink:(t%3.1)<0.14,pose:(t>1.2&&t<7.6&&Math.floor(t*0.625)%2===0)?'push':null});
+  oval(160,134,74,13,C.wood);oval(160,132,72,11,'#9A7550');oval(160,133,70,10,C.wood);
+  R(98,144,4,10,C.woodDk);R(218,144,4,10,C.woodDk);
+  [[112,126],[198,126],[136,136],[178,136]].forEach(([x,y],k)=>{R(x,y,6,6,k%2?C.grey:C.mint);R(x+6,y+1,2,3,C.stone);});
+  paper(150,128,0,t>8.4);
+ }}
+];
+const total=SCENES.reduce((s,x)=>s+x.dur,0);
+const starts=[];{let acc=0;SCENES.forEach(s=>{starts.push(acc);acc+=s.dur;});}
+
+/* ---------- player ---------- */
+const stage=document.getElementById('stage'),labelsEl=document.getElementById('labels'),startEl=document.getElementById('start');
+const capNum=document.getElementById('capNum'),capTxt=document.getElementById('capTxt'),capSay=document.getElementById('capSay');
+const playBtn=document.getElementById('playBtn'),optCap=document.getElementById('optCap'),optSay=document.getElementById('optSay'),optStep=document.getElementById('optStep');
+const chipsEl=document.getElementById('chips');
+let T=0,playing=false,last=null,cur=-1;
+
+const chipBars=SCENES.map((s,i)=>{const b=document.createElement('button');b.type='button';b.title=s.title;b.setAttribute('aria-label','Scene '+(i+1)+': '+s.title);
+  b.innerHTML=(i+1)+'<span class="bar"></span>';b.addEventListener('click',()=>{seek(starts[i]+0.001);});chipsEl.appendChild(b);return b;});
+
+function sizeU(){stage.style.setProperty('--u',(stage.clientWidth/W)+'px');}
+if(window.ResizeObserver)new ResizeObserver(sizeU).observe(stage);else window.addEventListener('resize',sizeU);sizeU();
+
+function sceneAt(x){for(let i=SCENES.length-1;i>=0;i--)if(x>=starts[i])return i;return 0;}
+function buildLabels(s){labelsEl.textContent='';s.labels.forEach(l=>{const d=document.createElement('div');d.className='lb '+(l.cls||'c');d.textContent=l.fn?l.fn(0):l.t;
+  d.style.left=(l.x/W*100)+'%';d.style.top=(l.y/H*100)+'%';l.el=d;l.last=null;labelsEl.appendChild(d);});}
+function setCaption(i){const s=SCENES[i];capNum.textContent=(i+1)+' / '+SCENES.length+' · '+s.title.toUpperCase();capTxt.textContent=optCap.checked?s.cap:'';capSay.textContent=s.say;capSay.hidden=!optSay.checked;
+  chipBars.forEach((b,j)=>b.setAttribute('aria-current',j===i?'true':'false'));}
+function setPlayLabel(){playBtn.innerHTML=playing?'&#10074;&#10074; PAUSE':(T>=total-0.01?'&#8634; REPLAY':'&#9654; PLAY');}
+
+function render(){
+  const tt=Math.min(T,total-0.0005),i=sceneAt(tt),s=SCENES[i],lt=tt-starts[i];
+  if(i!==cur){cur=i;buildLabels(s);setCaption(i);}
+  c.globalAlpha=1;s.draw(lt);
+  const fin=1-seg(lt,0,0.45),fout=i<SCENES.length-1?seg(lt,s.dur-0.35,s.dur):0;
+  const fa=Math.max(fin,fout);if(fa>0)dither(0,0,W,H,fa,LIGHT?'#FFFFFF':C.deep);
+  s.labels.forEach(l=>{const on=lt>=(l.a||0)&&lt<(l.b==null?1e9:l.b)&&fa<0.5;l.el.classList.toggle('on',on);
+    if(l.fn){const v=l.fn(lt);if(v!==l.last){l.el.textContent=v;l.last=v;}}});
+  chipBars.forEach((b,j)=>{b.querySelector('.bar').style.width=(j<i?100:j>i?0:lt/s.dur*100)+'%';});
+}
+function tick(now){
+  if(last==null)last=now;const dt=Math.min(0.1,(now-last)/1000);last=now;
+  if(playing){const before=sceneAt(T);T+=dt;
+    if(T>=total){T=total;playing=false;setPlayLabel();}
+    else if(optStep.checked&&sceneAt(T)!==before){T=starts[sceneAt(T)];playing=false;setPlayLabel();}}
+  render();requestAnimationFrame(tick);
+}
+function play(){if(T>=total-0.01)T=0;playing=true;startEl.hidden=true;setPlayLabel();}
+function pause(){playing=false;setPlayLabel();}
+function toggle(){playing?pause():play();}
+function seek(x){T=cl(x,0,total);startEl.hidden=true;last=null;render();setPlayLabel();}
+function step(d){const i=sceneAt(Math.min(T,total-0.001));const lt=T-starts[i];let j=i+d;if(d<0&&lt>1.2)j=i;seek(starts[cl(j,0,SCENES.length-1)]+0.001);}
+
+document.getElementById('bigplay').addEventListener('click',play);
+playBtn.addEventListener('click',toggle);
+document.getElementById('prevBtn').addEventListener('click',()=>step(-1));
+document.getElementById('nextBtn').addEventListener('click',()=>step(1));
+document.getElementById('restartBtn').addEventListener('click',()=>{seek(0);play();});
+function fullscreen(){const p=document.getElementById('player');try{if(document.fullscreenElement){document.exitFullscreen().catch(()=>{});}else if(p.requestFullscreen){p.requestFullscreen().catch(()=>{});}}catch(e){}}
+document.getElementById('fsBtn').addEventListener('click',fullscreen);
+optCap.addEventListener('change',()=>setCaption(cur<0?0:cur));
+optSay.addEventListener('change',()=>setCaption(cur<0?0:cur));
+document.addEventListener('keydown',e=>{
+  const tag=(e.target&&e.target.tagName)||'';const onCtl=tag==='BUTTON'||tag==='INPUT';
+  if(e.code==='Space'&&!onCtl){e.preventDefault();toggle();}
+  else if(e.key==='ArrowRight'){e.preventDefault();step(1);}
+  else if(e.key==='ArrowLeft'){e.preventDefault();step(-1);}
+  else if((e.key==='f'||e.key==='F')&&!onCtl){fullscreen();}
+});
+const themeBtn=document.getElementById('themeBtn');
+function applyTheme(light){LIGHT=light;C.wall=light?'#8FAFC0':'#CFE3EC';C.back=light?'#E8F0F1':'#18262F';document.documentElement.classList.toggle('lightpage',light);
+  themeBtn.textContent=light?'DARK BG':'WHITE BG';themeBtn.setAttribute('aria-pressed',String(!light));try{localStorage.setItem('aff-theme',light?'light':'dark');}catch(e){}render();}
+themeBtn.addEventListener('click',()=>applyTheme(!LIGHT));
+let savedTheme=null;try{savedTheme=localStorage.getItem('aff-theme');}catch(e){}
+window.__seek=x=>{seek(x);};
+window.__theme=l=>applyTheme(l);
+window.__scenes=()=>SCENES.map((s,i)=>({title:s.title,start:starts[i],dur:s.dur}));
+applyTheme(savedTheme!=='dark');setPlayLabel();render();
+requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>
+
+</body></html>

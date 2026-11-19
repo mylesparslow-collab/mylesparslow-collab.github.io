@@ -1,0 +1,954 @@
+<!doctype html><html><head><meta name="robots" content="noindex, nofollow"><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Marketing Studio</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a drafting desk. Brief and the rules in force on the left; the draft, marked up by the rule check and Claude's review, on the right. */
+:root{
+  --bg:#f3f5f6; --panel:#ffffff; --ink:#15212b; --muted:#5b6a76; --line:#d9e0e5;
+  --accent:#0f6e66; --accent-ink:#ffffff; --accent-soft:#e1f0ee;
+  --fix:#b42318; --fix-soft:#fdecea; --verify:#9a6200; --verify-soft:#fdf3dc; --ok:#1f7a3d; --ok-soft:#e5f4ea;
+  --ph:#6b3fa0; --ph-soft:#f1eafa;
+  --display:"IBM Plex Serif",Georgia,serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f161c; --panel:#16212a; --ink:#e6edf2; --muted:#93a4b1; --line:#2a3946;
+  --accent:#4fc1b4; --accent-ink:#06201d; --accent-soft:#163430;
+  --fix:#ff8a7a; --fix-soft:#3a1d1a; --verify:#f2c25b; --verify-soft:#352a12; --ok:#6fd38f; --ok-soft:#173222;
+  --ph:#c9a6f5; --ph-soft:#2c2140; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f161c; --panel:#16212a; --ink:#e6edf2; --muted:#93a4b1; --line:#2a3946;
+  --accent:#4fc1b4; --accent-ink:#06201d; --accent-soft:#163430;
+  --fix:#ff8a7a; --fix-soft:#3a1d1a; --verify:#f2c25b; --verify-soft:#352a12; --ok:#6fd38f; --ok-soft:#173222;
+  --ph:#c9a6f5; --ph-soft:#2c2140; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+.wrap{max-width:1280px;margin:0 auto;display:grid;gap:16px}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+h1{font-family:var(--display);font-weight:600;font-size:clamp(24px,3.2vw,32px);margin:0;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:2px 0 0;max-width:64ch}
+.side{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:8px}
+.status{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px;flex-basis:100%;justify-content:flex-end}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--panel)}
+.seg button{all:unset;cursor:pointer;padding:6px 11px;font-size:13px;color:var(--muted);border-left:1px solid var(--line)}
+.seg button:first-child{border-left:0}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.seg button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.juris{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+select,input[type=text],input[type=date],textarea.sm{border:1px solid var(--line);border-radius:8px;padding:7px 10px;background:var(--panel);color:var(--ink);font:14px var(--body);min-width:0}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.dot.on{background:var(--ok)}
+.navs{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+.navgroup{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.navgroup .label{margin:0 4px 0 0}
+.navs button{font:500 14px var(--body);border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:8px 13px;border-radius:999px;cursor:pointer}
+.navs button.check{border-color:var(--accent);color:var(--accent)}
+.navs button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+button:focus-visible,textarea:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+details.profile{background:var(--panel);border:1px solid var(--line);border-radius:10px}
+details.profile summary{cursor:pointer;padding:12px 16px;display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline;list-style:none}
+details.profile summary::-webkit-details-marker{display:none}
+details.profile summary b{font:600 14px var(--body)}
+details.profile summary span{color:var(--muted);font-size:13.5px}
+details.profile summary::after{content:"Edit";margin-left:auto;color:var(--accent);font:500 13px var(--body)}
+details.profile[open] summary::after{content:"Done"}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;padding:0 16px 16px}
+.pgrid label{display:grid;gap:4px;font-size:12.5px;color:var(--muted)}
+.pgrid textarea.sm{min-height:64px;resize:vertical}
+.desk{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:16px;align-items:start}
+@media (max-width:920px){.desk{grid-template-columns:minmax(0,1fr)}}
+.col{display:grid;gap:16px;min-width:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;min-width:0}
+.label{font:600 11px var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+.brief h2,.out h2{font-family:var(--display);font-size:20px;margin:0 0 4px;font-weight:600;text-wrap:balance}
+.brief p.what{margin:0 0 12px;color:var(--muted)}
+textarea#input{width:100%;min-height:250px;resize:vertical;border:1px solid var(--line);border-radius:8px;padding:12px;background:var(--bg);color:var(--ink);font:13.5px/1.55 var(--mono)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+.btn{font:600 14px var(--body);border-radius:8px;padding:10px 16px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn.sm{padding:5px 10px;font-size:12.5px;font-weight:500}
+.btn:disabled{opacity:.5;cursor:default}
+.hint{font-size:12.5px;color:var(--muted);margin:8px 0 0}
+.kindrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px;font-size:13px;color:var(--muted)}
+.rulepack h3{font:600 15px var(--display);margin:0 0 2px}
+.rulepack .checked{font-size:12px;color:var(--muted);margin:0 0 10px}
+.rulepack ul{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+.rulepack li{display:grid;grid-template-columns:minmax(0,1fr);gap:1px;font-size:13.5px}
+.rulepack li code,.cite{font:500 11.5px var(--mono);color:var(--accent)}
+.rulepack .warn{margin-top:10px;font-size:12.5px;color:var(--verify);background:var(--verify-soft);border-radius:6px;padding:8px 10px}
+.rulepack .srcs{margin-top:10px;font-size:12.5px;display:flex;flex-wrap:wrap;gap:4px 12px}
+.rulepack .srcs a{color:var(--accent)}
+.out .meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}
+.chip{font:500 12px var(--body);padding:3px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.chip.sample{border-color:var(--ph);color:var(--ph);background:var(--ph-soft)}
+.chip.live{border-color:var(--ok);color:var(--ok);background:var(--ok-soft)}
+.chip.stale{border-color:var(--verify);color:var(--verify);background:var(--verify-soft)}
+.scorebar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:6px 0 14px}
+@media (max-width:520px){.scorebar{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.score{border-radius:8px;padding:9px 12px;border:1px solid transparent}
+.score b{display:block;font:600 22px var(--display);font-variant-numeric:tabular-nums}
+.score span{font-size:12px;color:var(--muted)}
+.score.fix{background:var(--fix-soft)}.score.fix b{color:var(--fix)}
+.score.verify{background:var(--verify-soft)}.score.verify b{color:var(--verify)}
+.score.ph{background:var(--ph-soft)}.score.ph b{color:var(--ph)}
+.score.ok{background:var(--ok-soft)}.score.ok b{color:var(--ok)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:14px;overflow-x:auto}
+.tabs button{font:500 14px var(--body);background:none;border:0;border-bottom:2px solid transparent;padding:8px 10px;color:var(--muted);cursor:pointer;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.tabs button .n{font:600 11px var(--body);margin-left:4px;padding:0 6px;border-radius:999px;background:var(--fix-soft);color:var(--fix)}
+.section h3{font:600 13px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 6px;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.copy{font:500 12px var(--body);border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:6px;padding:3px 8px;cursor:pointer;text-transform:none;letter-spacing:0}
+.prose{font-family:var(--display);font-size:16px;line-height:1.65;max-width:68ch}
+.prose p{margin:0 0 10px}.prose ul{margin:0 0 10px;padding-left:20px}
+.prose table{border-collapse:collapse;font:13.5px/1.4 var(--body);width:100%}
+.tablebox{overflow-x:auto;margin-bottom:10px}
+.prose th,.prose td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+.prose th{font-weight:600;color:var(--muted)}
+mark.ph{background:var(--ph-soft);color:var(--ph);border-radius:4px;padding:0 3px;font:500 .85em var(--mono)}
+mark.src{background:var(--accent-soft);color:var(--accent);border-radius:4px;padding:0 3px;font:500 .8em var(--mono)}
+mark.hit{background:none;color:inherit;border-bottom:2px solid var(--verify);cursor:pointer;padding:0 1px}
+mark.hit.fix{border-bottom-color:var(--fix);background:var(--fix-soft)}
+mark.hit.verify{background:var(--verify-soft)}
+mark.hit.pulse{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+.review{margin-top:16px;border-top:1px solid var(--line);padding-top:14px;display:grid;gap:10px}
+.review .head{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.flags{display:grid;gap:8px}
+.flag{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;border-radius:8px;padding:10px 12px;border:1px solid var(--line)}
+.flag.on{border-color:var(--accent)}
+.pill{font:600 11px var(--body);letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.flag.fix .pill{background:var(--fix-soft);color:var(--fix)}
+.flag.verify .pill{background:var(--verify-soft);color:var(--verify)}
+.flag.ok .pill{background:var(--ok-soft);color:var(--ok)}
+.flag p{margin:0}.flag small{color:var(--muted);display:block;margin-top:2px}
+.flag .acts{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-top:6px}
+.flag .by{font-size:11.5px;color:var(--muted)}
+.linkbtn{all:unset;cursor:pointer;color:var(--accent);font:500 12.5px var(--body)}
+.linkbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.passed{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px}
+.passed span{padding:2px 8px;border-radius:999px;background:var(--ok-soft);color:var(--ok);font-size:12px}
+.revise{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.revise input{flex:1 1 260px}
+.signoff{display:grid;gap:12px;max-width:68ch}
+.signoff .item{display:flex;gap:10px;align-items:flex-start;font-size:14px}
+.signoff .item input[type=checkbox]{margin-top:3px;accent-color:var(--accent)}
+.signoff .state{font:600 12px var(--body);padding:1px 8px;border-radius:999px;white-space:nowrap}
+.signoff .state.no{background:var(--fix-soft);color:var(--fix)}
+.signoff .state.yes{background:var(--ok-soft);color:var(--ok)}
+.signoff .fields{display:flex;flex-wrap:wrap;gap:10px}
+.signoff .fields label{display:grid;gap:4px;font-size:12.5px;color:var(--muted);flex:1 1 200px}
+.thinking{color:var(--muted);font-style:italic}
+.err{color:var(--fix);font-size:13.5px;margin-top:8px}
+footer{font-size:12.5px;color:var(--muted);max-width:96ch;display:grid;gap:6px}
+@media (prefers-reduced-motion:no-preference){.fadein{animation:f .3s ease-out}@keyframes f{from{opacity:.5}to{opacity:1}}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Marketing Studio</h1>
+      <p class="sub">Drafts law-firm marketing in the firm's voice, then checks every word against the source and the attorney advertising rules of the state you pick, before anyone publishes it.</p>
+    </div>
+    <div class="side">
+      <label class="juris" for="juris">Rules
+        <select id="juris">
+          <option value="CA">California</option>
+          <option value="NY">New York</option>
+          <option value="TX">Texas</option>
+          <option value="FL">Florida</option>
+          <option value="ABA">ABA Model Rules</option>
+        </select>
+      </label>
+      <div class="seg" role="group" aria-label="Claude model" id="models">
+        <button data-m="opus" aria-pressed="true" title="Claude Opus 5.5: strong, balanced default">Opus</button>
+        <button data-m="sonnet" aria-pressed="false" title="Claude Sonnet 5.5: faster, lighter">Sonnet</button>
+        <button data-m="fable" aria-pressed="false" title="Claude Fable 5.1: most capable, slowest">Fable</button>
+      </div>
+      <div class="status"><span class="dot" id="dot"></span><span id="statusText">Connecting to Claude…</span></div>
+    </div>
+  </header>
+
+  <details class="profile" id="profileBox">
+    <summary><b>Firm profile</b><span id="profileSum"></span></summary>
+    <div class="pgrid">
+      <label for="pf-firm">Firm name<input type="text" id="pf-firm" placeholder="the firm"></label>
+      <label for="pf-attorney">Responsible attorney<input type="text" id="pf-attorney" placeholder="e.g. Alex Kim"></label>
+      <label for="pf-office">Office address<input type="text" id="pf-office" placeholder="e.g. 425 Market St., San Francisco, CA"></label>
+      <label for="pf-voice">House voice notes<textarea class="sm" id="pf-voice" placeholder="e.g. Warm but brief. Say 'clients', never 'customers'."></textarea></label>
+      <label for="pf-banned">Extra words to avoid (comma-separated)<textarea class="sm" id="pf-banned" placeholder="e.g. aggressive, bulldog, cutting-edge"></textarea></label>
+      <label for="pf-cert">Certified specialists (name, area, certifying body)<textarea class="sm" id="pf-cert" placeholder="e.g. Alex Kim, Estate Planning, State Bar of California Board of Legal Specialization"></textarea></label>
+    </div>
+  </details>
+
+  <div class="navs" id="navs"></div>
+
+  <div class="desk">
+    <div class="col">
+      <section class="card brief" aria-labelledby="briefTitle">
+        <p class="label" id="briefLabel">Brief</p>
+        <h2 id="briefTitle"></h2>
+        <p class="what" id="briefWhat"></p>
+        <div class="kindrow" id="kindRow" hidden>
+          <label for="kind">This copy is a</label>
+          <select id="kind">
+            <option value="ad">paid ad or social post</option>
+            <option value="website">website page</option>
+            <option value="email">marketing email</option>
+            <option value="submission">directory or RFP submission</option>
+          </select>
+        </div>
+        <label class="label" for="input" id="inputLabel">Source material (made-up demo data)</label>
+        <textarea id="input" spellcheck="false"></textarea>
+        <div class="row">
+          <button class="btn" id="run">Draft with Claude</button>
+          <button class="btn ghost" id="stop" hidden>Stop</button>
+          <button class="btn ghost" id="reset">Reset demo input</button>
+        </div>
+        <p class="hint" id="runHint">Runs on your own Claude account. Uses only what is in the box: no client data, no web.</p>
+        <div class="err" id="err" hidden></div>
+      </section>
+      <section class="card rulepack" id="rulepack" aria-label="Rules in force"></section>
+    </div>
+
+    <section class="card out fadein" id="out" aria-live="polite">
+      <div class="meta"><p class="label" style="margin:0" id="outLabel">Draft</p><span class="chip" id="runChip"></span><span class="chip" id="jurisChip"></span></div>
+      <h2 id="outTitle"></h2>
+      <div class="scorebar" id="scorebar"></div>
+      <div class="tabs" role="tablist" id="tabs"></div>
+      <div id="panel"></div>
+      <div class="review" id="review"></div>
+      <div class="revise" id="reviseBox" hidden>
+        <p class="label">Ask for a change</p>
+        <div class="row" style="margin-top:0">
+          <input type="text" id="revise" placeholder="e.g. Make the short bio warmer and mention bilingual board presentations">
+          <button class="btn ghost" id="reviseBtn">Revise</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <p>Demo build on made-up data. Example runs on first load were drafted by Claude from the inputs shown, using the instructions this page sends, under California rules. The instant rule check runs in your browser on every draft and every jurisdiction; Claude's review is the second pass. Neither one is legal advice: the responsible attorney approves every piece before it is published.</p>
+    <p id="rulesAsOf"></p>
+  </footer>
+</div>
+
+<script>
+/* ---------- Rule packs. Each line carries its citation so flags can cite it. ---------- */
+const JURIS = {
+  CA:{name:"California", short:"California",
+    checked:"Rule text read at calbar.ca.gov, Rules of Professional Conduct, Chapter 7, on November 7, 2026.",
+    mis:"Cal. RPC 7.1(a)", superl:"Cal. RPC 7.1(a)", guar:"Cal. RPC 7.1(a)",
+    spec:{rule:"Cal. RPC 7.4(a)", text:"A lawyer may claim to be a certified specialist only if certified by the State Bar Board of Legal Specialization or a Board-accredited body, and the ad must name the certifying body. Saying a practice is limited to or concentrated in a field is allowed (7.4(b))."},
+    resp:{rule:"Cal. RPC 7.2(c)", need:"the name and address of at least one lawyer or law firm responsible for its content"},
+    results:{rule:"Cal. RPC 7.1(a)", required:false, wording:"Prior results do not guarantee a similar outcome.", text:"A past result can be misleading without context. California does not mandate wording, but a disclaimer is the house rule."},
+    testi:{rule:"Cal. RPC 7.1(a)", text:"A client quote can imply results others should expect. Confirm the client's written consent and add a disclaimer."},
+    nofee:{rule:"Cal. RPC 7.1, Comment [3]", text:"A \"no fee without recovery\" line is misleading unless it also says whether the client must pay costs."},
+    label:null, filing:null, retention:null,
+    solicit:{rule:"Cal. RPC 7.3(c)", text:"A targeted solicitation must carry the word \"Advertisement\" or similar words."},
+    src:[["Cal. Rules of Prof. Conduct, Ch. 7","https://www.calbar.ca.gov/Attorneys/Conduct-Discipline/Rules/Rules-of-Professional-Conduct/Current-Rules/Chapter-7-Information-About-Legal-Services"]]},
+  NY:{name:"New York", short:"New York",
+    checked:"From 22 NYCRR 1200.7.1 as published on Cornell LII, read November 7, 2026.",
+    warn:"Amendments to Rules 7.1, 7.3 and 7.4 took effect June 1, 2026 and are not yet reflected here. Check the current text before relying on these cites.",
+    mis:"NY RPC 7.1(a)", superl:"NY RPC 7.1(a)", guar:"NY RPC 7.1(a)",
+    spec:{rule:"NY RPC 7.4", text:"New York limits claims to be a \"specialist\" or \"specializing\" to certified lawyers, with required disclosures. Use \"focuses on\" instead."},
+    resp:null,
+    results:{rule:"NY RPC 7.1(e)(3)", required:true, wording:"Prior results do not guarantee a similar outcome.", text:"An ad that describes past results must carry the exact words \"Prior results do not guarantee a similar outcome.\""},
+    testi:{rule:"NY RPC 7.1(d)(3), (e)(3)-(4)", text:"Client testimonials are allowed with the prior-results disclaimer. A testimonial about a pending matter needs the client's informed consent, confirmed in writing."},
+    nofee:null,
+    label:{rule:"NY RPC 7.1(f)", text:"Label it \"Attorney Advertising\" on the first page, or on the home page of a website. A marketing email puts \"ATTORNEY ADVERTISING\" in the subject line."},
+    filing:null,
+    retention:{rule:"NY RPC 7.1(k)", text:"Keep a copy for 3 years after first use (1 year for computer-accessed communications). Save website copies at launch, at each redesign, and at least every 90 days."},
+    solicit:{rule:"NY RPC 7.3", text:"Solicitations have their own filing and labeling rules. Not covered by this demo."},
+    src:[["22 NYCRR 1200.7.1 (Cornell LII)","https://www.law.cornell.edu/regulations/new-york/22-NYCRR-1200.7.1"]]},
+  TX:{name:"Texas", short:"Texas",
+    checked:"Rule text read at the Texas Center for Legal Ethics (current Part VII), November 7, 2026.",
+    mis:"Tex. RPC 7.01(a)", superl:"Tex. RPC 7.01(a)", guar:"Tex. RPC 7.01(a)",
+    spec:{rule:"Tex. RPC 7.02(b)", text:"No claim of certification or special competence except \"Board Certified, [area] -- Texas Board of Legal Specialization\", or membership in a TBLS-accredited organization."},
+    resp:{rule:"Tex. RPC 7.02(a)", need:"the name of a lawyer responsible for its content and that lawyer's primary practice location"},
+    results:{rule:"Tex. RPC 7.01(a)", required:false, wording:"Prior results do not guarantee a similar outcome.", text:"A statement is misleading if it is likely to create unjustified expectations about the results the lawyer can achieve."},
+    testi:{rule:"Tex. RPC 7.01(a)", text:"A client quote must not create unjustified expectations about results."},
+    nofee:{rule:"Tex. RPC 7.02(c)", text:"An ad offering contingent fees must say whether the client pays other expenses, such as litigation costs."},
+    label:null,
+    filing:{rule:"Tex. RPC 7.04, 7.05", text:"File with the State Bar Advertising Review Committee no later than 10 days after first use, unless Rule 7.05 exempts it. Exempt examples: website pages other than the homepage, and newsletters sent only to clients, other lawyers or people who asked for them.", website:"homepage"},
+    retention:null,
+    solicit:{rule:"Tex. RPC 7.03, 7.04", text:"Solicitation communications are restricted and must be filed."},
+    src:[["Tex. Disciplinary Rules, Part VII","https://www.legalethicstexas.com/resources/rules/texas-disciplinary-rules-of-professional-conduct/"]]},
+  FL:{name:"Florida", short:"Florida",
+    checked:"Rule text read in the Rules Regulating The Florida Bar, Chapter 4 (edition of October 22, 2026), November 7, 2026.",
+    mis:"Fla. Bar R. 4-7.13(a)", superl:"Fla. Bar R. 4-7.13(b)(3)", guar:"Fla. Bar R. 4-7.13(b)(1)",
+    spec:{rule:"Fla. Bar R. 4-7.14(a)(4)-(6)", text:"\"Specialist\" or \"expert\" needs certification or must be objectively verifiable from the lawyer's education, training or experience. A firm-wide claim needs a disclaimer that not all of its lawyers specialize. \"Board certified\" must name the area and the certifying body."},
+    resp:{rule:"Fla. Bar R. 4-7.12(a)", need:"the name of at least one responsible lawyer or the firm, and the city, town or county of an office"},
+    results:{rule:"Fla. Bar R. 4-7.13(b)(2)", required:false, wording:"Prior results do not guarantee a similar outcome.", text:"Past results are allowed only if objectively verifiable. Keep the documentation."},
+    testi:{rule:"Fla. Bar R. 4-7.13(b)(9)", text:"A testimonial must be the client's own experience, not written by the lawyer, not paid for, and must include the disclaimer that the prospective client may not obtain the same or similar results."},
+    nofee:null, label:null,
+    filing:{rule:"Fla. Bar R. 4-7.19(a), 4-7.20", text:"File with The Florida Bar at least 20 days before first use, unless 4-7.20 exempts it. Exempt examples: website content, and mail sent only to existing or former clients or other lawyers.", website:"exempt"},
+    retention:null,
+    solicit:{rule:"Fla. Bar R. 4-7.18", text:"Direct contact with prospective clients is restricted."},
+    src:[["Rules Regulating The Florida Bar","https://www.floridabar.org/rules/rrtfb/"]]},
+  ABA:{name:"ABA Model Rules", short:"ABA Model",
+    checked:"Rule 7.2 text read at americanbar.org on November 7, 2026. States adopt their own versions; use a state pack for real work.",
+    mis:"ABA Model Rule 7.1", superl:"ABA Model Rule 7.1", guar:"ABA Model Rule 7.1",
+    spec:{rule:"ABA Model Rule 7.2(c)", text:"No claim of certification as a specialist unless certified by an approved or ABA-accredited body, and the communication names it."},
+    resp:{rule:"ABA Model Rule 7.2(d)", need:"the name and contact information of at least one lawyer or law firm responsible for its content"},
+    results:{rule:"ABA Model Rule 7.1", required:false, wording:"Prior results do not guarantee a similar outcome.", text:"A truthful past result can still mislead without context."},
+    testi:{rule:"ABA Model Rule 7.1", text:"A client quote can create unjustified expectations."},
+    nofee:null, label:null, filing:null, retention:null,
+    solicit:{rule:"ABA Model Rule 7.3", text:"Live person-to-person solicitation is restricted."},
+    src:[["ABA Model Rule 7.2","https://www.americanbar.org/groups/professional_responsibility/publications/model_rules_of_professional_conduct/rule_7_2_advertising/"]]}
+};
+
+function jurisPrompt(j){
+  const J = JURIS[j], L = [];
+  L.push(`- ${J.mis}: no false or misleading statements, including superlatives or comparisons that cannot be verified (${J.superl}) and anything that predicts or guarantees results (${J.guar}).`);
+  L.push(`- ${J.spec.rule}: ${J.spec.text}`);
+  if (J.resp) L.push(`- ${J.resp.rule}: an advertisement must include ${J.resp.need}.`);
+  L.push(`- ${J.results.rule}: ${J.results.text}${J.results.required?` Required wording: "${J.results.wording}"`:` Use: "${J.results.wording}"`}`);
+  L.push(`- ${J.testi.rule}: ${J.testi.text}`);
+  if (J.nofee) L.push(`- ${J.nofee.rule}: ${J.nofee.text}`);
+  if (J.label) L.push(`- ${J.label.rule}: ${J.label.text}`);
+  if (J.filing) L.push(`- ${J.filing.rule}: ${J.filing.text}`);
+  return `JURISDICTION: ${J.name}. Cite these rules by the exact citation shown:\n` + L.join("\n");
+}
+
+/* ---------- Workflows ---------- */
+const FLOWS = {
+  check: { name:"Compliance check", group:"check", kind:null,
+    what:"Paste any copy: a bio, web page, ad, social post or email. The rule check marks it up as you type; Claude then reviews it and suggests a compliant rewrite.",
+    input:`Riverside's BEST personal injury lawyers! Our expert trial team has recovered over $50 million for clients, including a $4.2 million verdict last year. We guarantee you'll get the compensation you deserve.
+
+"They fought for me like family and got me everything." - Maria G.
+
+No fee unless we win! Call today.` },
+  bio: { name:"Attorney bio", group:"draft", kind:"website",
+    what:"Website bio, short bio and RFP one-liner from notes, a CV or an old bio.",
+    task:`Write three versions of an attorney bio: "Website bio" (150-250 words, 2-3 paragraphs), "Short bio" (50-70 words, for speaker intros), "One-line bio" (under 25 words, for RFP team charts). Then "Representative matters" (bullets, only matters marked public or client consented, written as "Advised [type of client] on [issue]") and "Website tags" (comma-separated practice and industry tags).`,
+    input:`Attorney: Jordan Reyes
+Pronouns: not provided
+Practice: water law and public agency rate-setting
+Experience: 15 years
+Work: advises special districts on Proposition 218 rate studies, water supply agreements, and groundwater sustainability agencies
+Prior role: deputy general counsel at a regional water agency
+Languages: Spanish
+Education: JD, UC Davis
+Admissions: California
+Personal: trail running
+Matters:
+- Advised a county water district on its 2025 rate study (client consented to be named)` },
+  practice: { name:"Practice page", group:"draft", kind:"website",
+    what:"A practice or industry page with search title, meta description and an FAQ, from practice notes.",
+    task:`Write a practice page. Sections: "Page copy" (bold H1 line; a 2-sentence intro; "What we do" bullets; "Representative matters" bullets, only matters marked public or consented, followed by the past-results disclaimer; a one-line call to action with the contact placeholder), "Search title and description" (a title under 60 characters and a meta description under 155 characters), "FAQ" (3 questions a client would ask, each answered only from the source; if the source cannot answer, write [ATTORNEY TO CONFIRM: ...]).`,
+    input:`Practice: Public agency employment
+Clients: cities, counties, special districts, school districts
+Work: labor negotiations and impasse procedures under the Meyers-Milias-Brown Act (MMBA); unfair practice charges before PERB; disciplinary appeals and Skelly hearings; workplace investigations; CalPERS compliance; harassment prevention training, including AB 1661 training for elected officials
+Matters:
+- Represented a city in a PERB unfair practice case brought by a police officers' association; PERB dismissed the charge (public decision)
+- Negotiated successor MOUs for a county with five bargaining units (client consented)
+Contact: [practice chair]` },
+  alert: { name:"Client alert", group:"draft", kind:"email",
+    what:"Turns a new law, regulation or decision into a client alert, LinkedIn post and email subject line.",
+    task:`Write a client alert from ONLY the source text. Every legal statement ends with a [Source: section] tag pointing to where it came from. If readers would ask something the source does not answer, write [ATTORNEY TO CONFIRM: question]. Sections: "Alert" (headline; Key takeaways as 3 bullets; What changed; Who is affected; What to do now as a checklist; How we can help; disclaimer "This alert is for general information and is not legal advice."), "LinkedIn post" (under 120 words), "Email subject line" (one line).`,
+    input:`SOURCE (made up for this demo, not a real bill):
+Assembly Bill 9999 (2026) amends the Ralph M. Brown Act to require local agencies to post meeting agendas on the agency's website homepage at least 96 hours before a regular meeting, up from 72 hours, effective January 1, 2027. Agencies with fewer than 10 employees may continue to post 72 hours before until January 1, 2028.
+
+AUDIENCE: cities, special districts, joint powers authorities
+RESPONSIBLE ATTORNEY: [name]` },
+  result: { name:"Case result", group:"draft", kind:"website",
+    what:"A case result post, LinkedIn post and disclaimer block, written only as far as the client's consent goes.",
+    task:`Write a case result announcement. Sections: "Case result post" (bold headline; 2 short paragraphs stating only what the source says; the team; the past-results disclaimer), "LinkedIn post" (under 80 words, with the disclaimer), "Disclaimer block" (the disclaimer text to place next to any results list). Name the client only if the source says the client consented to being named. Never describe an amount sought as an amount won. If finality (post-trial motions, appeal) is not stated, write [ATTORNEY TO CONFIRM: is the result final?].`,
+    input:`Matter: defended a mid-size construction company in a breach of contract suit over a public works project
+Result: jury verdict for our client on all claims, Riverside County Superior Court, September 2026
+Plaintiff sought: $3.1 million
+Client consent to publicize: yes, but do not name the client
+Team: [names]` },
+  hire: { name:"Lateral hire", group:"draft", kind:"website",
+    what:"Press release, website news item and LinkedIn post for a new partner, using only approved facts and quotes.",
+    task:`Write a lateral hire announcement. Sections: "Press release" (bold headline; dateline paragraph; 2 paragraphs on the lawyer's practice; the approved quote exactly as given, attributed; "About the firm" as [NEEDS INPUT: approved boilerplate]; media contact placeholder), "Website news item" (under 120 words), "LinkedIn post" (under 70 words). Use the pronouns the source gives. Never change an approved quote.`,
+    input:`Lawyer: Sam Okafor
+Pronouns: they/them
+Joins as: partner, Land Use and CEQA practice
+Office: Oakland
+From: [prior firm]
+Experience: 12 years; CEQA compliance for infill housing; SB 35 and SB 423 streamlined approvals; general plan updates for cities
+Education: JD, UCLA; BA, Urban Studies, UC Berkeley
+Approved quote (Sam signed off): "I'm glad to join a team that works with the cities I have advised for my whole career."` },
+  event: { name:"Event invite", group:"draft", kind:"email",
+    what:"Invitation email, registration page and reminder for a webinar, without overstating MCLE credit.",
+    task:`Write event marketing. Sections: "Invitation email" (a "Subject:" line, then the body: what, who it is for, 3 bullets on what attendees will learn drawn only from the source, date and time, speakers, how to register, MCLE status exactly as the source states it), "Registration page" (under 120 words), "Reminder email" (a "Subject:" line and under 60 words). Never call the program MCLE-approved unless the source says it is approved.`,
+    input:`Webinar: Brown Act basics for new board members
+Date: January 14, 2027, 12:00 to 1:00 p.m. Pacific
+Speakers: Jordan Reyes; [second speaker]
+Audience: newly elected officials of cities and special districts
+Topics: what counts as a meeting; serial meetings and group texts; agenda posting deadlines
+Cost: free
+MCLE: the firm has applied for 1 hour of California general credit; not yet approved
+Registration: [link]` },
+  rfp: { name:"RFP response", group:"draft", kind:"submission",
+    what:"Builds the compliance matrix, win themes and first-draft answers for a public agency RFQ.",
+    task:`Respond to the RFP/RFQ. Sections: "Requirements matrix" (a markdown table with columns Requirement | RFP section | Status, listing EVERY requirement, form, limit and deadline; Status is "Draft below", "Needs input" or "Firm sign-off"), "Easy to miss" (bullets: forms, disclosures, insurance, signatures, Levine Act or campaign contribution disclosure where a public agency contract may trigger it), "Win themes" (3 bullets tied to the evaluation weights, using only evidence in the source), "Cover letter draft" (under 2 pages, using placeholders for anything not in the source). Never state a rate, insurance limit, conflict status or reference that is not in the source.`,
+    input:`RFQ (made up): Request for Qualifications for General Counsel Services, regional transit district.
+Requires: cover letter (2 pages max); firm overview; team bios; three references from public agencies; hourly rates for partners, associates and paralegals; proof of professional liability insurance of $2 million; conflict of interest disclosure; signed non-collusion affidavit.
+Due: 21 days from release.
+Evaluation: experience 40%, team 30%, cost 20%, references 10%.
+
+FIRM CONTENT WE CAN USE:
+- The firm serves as general or special counsel to cities, transit and transportation districts, water and fire districts, and joint powers authorities.
+- Team lead: [partner name]; other team members: [names]
+- Rates, insurance certificate and references: not yet supplied` },
+  award: { name:"Award submission", group:"draft", kind:"submission",
+    what:"Fills a directory or award form from matter notes, keeping confidential matters marked for the researcher only.",
+    task:`Draft a Chambers-style practice submission. Sections: "Practice overview" (under 150 words), "Work highlights" (one block per matter: client type, what the team did, why it mattered, team, and a label PUBLIC or CONFIDENTIAL (RESEARCHER ONLY) exactly as the source marks it), "What sets the practice apart" (one paragraph, only evidence in the source), "Referees" (a template table with [NEEDS INPUT] slots; never invent referees).`,
+    input:`Practice: employment class action defense.
+Matters:
+1. Defended a regional hospital district in a wage-and-hour class action; resolved before trial. Client consented to be named: Yes. PUBLIC.
+2. Advised a senior living operator on a statewide pay practices audit. CONFIDENTIAL, researcher only.
+Team: [names]
+Form limits: overview 150 words; up to 10 work highlights.` }
+};
+
+/* ---------- Example runs (drafted by Claude from the inputs above, California rules) ---------- */
+const EXAMPLES = {
+  check:{draft:{title:"Personal injury ad: review",sections:[
+    {heading:"Your copy",body:FLOWS.check.input},
+    {heading:"Suggested rewrite",body:"**Hurt in an accident in Riverside County?**\n\nThe firm's trial team represents people with personal injury claims. [NEEDS INPUT: one recent result the client agreed to share, with documentation on file]\n\n*Prior results do not guarantee a similar outcome.*\n\nThe firm works on a contingency fee: no attorney's fee unless there is a recovery. [ATTORNEY TO CONFIRM: whether clients pay case costs if there is no recovery, and say so here]\n\nCall [phone] for a free consultation.\n\n[Responsible attorney], [office address]"}]},
+   review:{flags:[
+    {level:"fix",quote:"has recovered over $50 million for clients",rule:"Cal. RPC 7.1(a)",text:"A lifetime recovery total implies results a new client can expect, and nothing in the copy supports the figure.",fix:"Drop it, or replace with one documented result plus the disclaimer."},
+    {level:"fix",quote:"They fought for me like family and got me everything.",rule:"Cal. RPC 7.1(a)",text:"The testimonial implies a complete win and has no disclaimer.",fix:"Confirm written consent, cut \"got me everything\", and add the disclaimer next to it."},
+    {level:"verify",quote:"Riverside's",rule:"Cal. RPC 7.1(a)",text:"The ad targets Riverside but gives no office location there.",fix:"Confirm the firm has a Riverside office or remove the local framing."},
+    {level:"ok",text:"No client is named in full; \"Maria G.\" still needs consent on file."}]}},
+  bio:{draft:{title:"Jordan Reyes: bio set",sections:[
+    {heading:"Website bio",body:"Jordan Reyes advises California public agencies on water supply and rate-setting. Jordan's practice focuses on Proposition 218 rate studies, water supply agreements and the work of groundwater sustainability agencies, with special districts as core clients.\n\nBefore joining the firm, Jordan served as deputy general counsel at a regional water agency. That experience gives Jordan a working knowledge of how agency boards, staff and ratepayers approach rate and supply decisions. Jordan brings 15 years of experience to this work and advises clients in English and Spanish.\n\nJordan earned a J.D. from UC Davis and is admitted to practice in California. Outside the office, Jordan is a trail runner."},
+    {heading:"Short bio",body:"Jordan Reyes advises special districts and other California public agencies on Proposition 218 rate studies, water supply agreements and groundwater sustainability. A former deputy general counsel at a regional water agency, Jordan has 15 years of experience and works with clients in English and Spanish."},
+    {heading:"One-line bio",body:"Water and rate-setting counsel to special districts; former regional water agency deputy general counsel; 15 years."},
+    {heading:"Representative matters",body:"- Advised a county water district on its 2025 rate study."},
+    {heading:"Website tags",body:"Water law, Public agencies, Special districts, Proposition 218, Rates and fees, Groundwater, SGMA"}]},
+   review:{flags:[
+    {level:"verify",quote:"Advised a county water district on its 2025 rate study.",rule:"Cal. RPC 7.1(a)",text:"The matter is listed as client consented.",fix:"Confirm written consent is on file with the responsible partner before it goes on the website."},
+    {level:"verify",quote:"SGMA",text:"\"SGMA\" in the tags is inferred from \"groundwater sustainability agencies\".",fix:"Keep only if Jordan agrees it describes the work."},
+    {level:"verify",text:"Pronouns were not provided, so the draft uses Jordan's name throughout.",fix:"Ask Jordan for pronouns before publishing, then smooth the repeated name."},
+    {level:"ok",text:"Every fact traces to the notes. No invented clients, results or awards."}]}},
+  practice:{draft:{title:"Public Agency Employment: practice page",sections:[
+    {heading:"Page copy",body:"**Public Agency Employment**\n\nCities, counties, special districts and school districts work with the firm on bargaining, discipline, investigations and the other rules that govern California public employers. The team advises on day-to-day questions and represents agencies when disputes reach PERB or a hearing officer.\n\n**What we do**\n- Labor negotiations and impasse procedures under the Meyers-Milias-Brown Act\n- Unfair practice charges before the Public Employment Relations Board\n- Disciplinary appeals and Skelly hearings\n- Workplace investigations\n- CalPERS compliance\n- Harassment prevention training, including AB 1661 training for elected officials\n\n**Representative matters**\n- Represented a city before PERB in an unfair practice case brought by a police officers' association. PERB dismissed the charge.\n- Negotiated successor memoranda of understanding for a county with five bargaining units.\n\n*Prior results do not guarantee a similar outcome.*\n\nTo talk through a bargaining, discipline or investigation question, contact [practice chair]."},
+    {heading:"Search title and description",body:"Title: Public Agency Employment Counsel | [Firm name]\n\nDescription: Advice for California cities, counties, special districts and school districts on MMBA bargaining, PERB charges, discipline, investigations and CalPERS."},
+    {heading:"FAQ",body:"**Does the firm represent employees or unions?**\n[ATTORNEY TO CONFIRM: the source lists public agency clients only]\n\n**Can the firm investigate a complaint against a department head?**\nThe team conducts workplace investigations for public employers. [ATTORNEY TO CONFIRM: whether the firm uses outside investigators for senior staff]\n\n**Do you train elected officials?**\nYes. The team provides harassment prevention training, including AB 1661 training for elected officials."}]},
+   review:{flags:[
+    {level:"verify",quote:"PERB dismissed the charge.",rule:"Cal. RPC 7.1(a)",text:"The source marks the PERB matter as a public decision, so the result can be stated.",fix:"Link to the decision so the result is verifiable."},
+    {level:"verify",quote:"represents agencies when disputes reach PERB or a hearing officer",text:"\"Hearing officer\" goes slightly past the source, which mentions Skelly hearings and disciplinary appeals.",fix:"Have the practice chair confirm the wording."},
+    {level:"ok",text:"Disclaimer sits directly under the representative matters."},
+    {level:"ok",text:"\"Counsel\" in the search title in place of \"specialists\" or \"experts\"."}]}},
+  alert:{draft:{title:"Brown Act agenda posting moves to 96 hours",sections:[
+    {heading:"Alert",body:"**New law gives local agencies an extra day's notice for regular meeting agendas**\n\n**Key takeaways**\n- Regular meeting agendas must be posted on the agency's website homepage at least 96 hours in advance, up from 72. [Source: AB 9999]\n- The change takes effect January 1, 2027. [Source: AB 9999]\n- Agencies with fewer than 10 employees keep the 72-hour rule until January 1, 2028. [Source: AB 9999]\n\n**What changed**\nAB 9999 amends the Ralph M. Brown Act so that local agencies must post regular meeting agendas on their website homepage at least 96 hours before the meeting, instead of 72 hours. [Source: AB 9999]\n\n**Who is affected**\nCities, special districts and joint powers authorities that hold regular meetings. Smaller agencies with fewer than 10 employees have an extra year. [Source: AB 9999] [ATTORNEY TO CONFIRM: does the 96-hour rule also change physical posting requirements, or only the website?]\n\n**What to do now**\n- Move agenda deadlines for staff reports one business day earlier starting with meetings in January 2027.\n- Confirm the agenda link appears on the homepage itself.\n- Count employees to see whether the 2028 date applies. [ATTORNEY TO CONFIRM: how employees are counted, such as part-time or contract staff]\n- Update board calendars and clerk procedures before December 2026.\n\n**How we can help**\nThe firm advises cities, special districts and joint powers authorities on Brown Act compliance. Contact [name] with questions.\n\n*This alert is for general information and is not legal advice.*"},
+    {heading:"LinkedIn post",body:"Starting January 1, 2027, California local agencies must post regular meeting agendas on their website homepage 96 hours ahead, up from 72, under AB 9999. Agencies with fewer than 10 employees have until January 1, 2028. Clerks and staff should plan to move report deadlines up a day. Our alert covers who is affected and what to do now. [link]"},
+    {heading:"Email subject line",body:"Brown Act update: agenda posting moves to 96 hours in 2027"}]},
+   review:{flags:[
+    {level:"fix",text:"The source is labeled as made up for this demo.",fix:"Replace with the real bill text before any client sees this."},
+    {level:"verify",quote:"Move agenda deadlines for staff reports one business day earlier",text:"This checklist item is practical advice, not from the source.",fix:"Have the responsible attorney approve the checklist items."},
+    {level:"ok",text:"Every legal statement carries a [Source] tag the attorney can check."},
+    {level:"ok",text:"Disclaimer present. No promises of outcomes."}]}},
+  result:{draft:{title:"Defense verdict: public works contract dispute",sections:[
+    {heading:"Case result post",body:"**Jury returns defense verdict for construction company in public works contract dispute**\n\nIn September 2026, a Riverside County Superior Court jury returned a verdict for the firm's client, a mid-size construction company, on all claims in a breach of contract suit over a public works project. The plaintiff had sought $3.1 million. [ATTORNEY TO CONFIRM: is the result final, or are post-trial motions or an appeal pending?]\n\nThe trial team included [names].\n\n*Prior results do not guarantee a similar outcome.*"},
+    {heading:"LinkedIn post",body:"A Riverside County jury returned a verdict for our client, a construction company, on all claims in a public works contract dispute. Congratulations to the trial team, [names]. Prior results do not guarantee a similar outcome. [link]"},
+    {heading:"Disclaimer block",body:"Prior results do not guarantee a similar outcome. Each result depended on the facts and law of that matter."}]},
+   review:{flags:[
+    {level:"verify",quote:"The plaintiff had sought $3.1 million.",rule:"Cal. RPC 7.1(a)",text:"Stating the amount sought is accurate, but readers can mistake it for an amount won.",fix:"Keep \"had sought\" or drop the figure; confirm the client is comfortable with it."},
+    {level:"verify",quote:"is the result final",text:"Finality is not stated in the source.",fix:"Hold publication until post-trial motions are resolved, or say the verdict is subject to them."},
+    {level:"ok",text:"Client is described by type only, matching the consent terms."},
+    {level:"ok",text:"Disclaimer appears in both the post and the LinkedIn version."}]}},
+  hire:{draft:{title:"Sam Okafor joins Land Use and CEQA",sections:[
+    {heading:"Press release",body:"**Sam Okafor joins the firm as a partner in its Land Use and CEQA practice**\n\nOAKLAND, Calif., [Date] - Sam Okafor has joined the firm as a partner in its Land Use and CEQA practice, based in the Oakland office. Okafor joins from [prior firm].\n\nOkafor's 12-year practice focuses on CEQA compliance for infill housing, streamlined approvals under SB 35 and SB 423, and general plan updates for cities. They advise public agencies on how to move housing approvals forward on a record that holds up.\n\n\"I'm glad to join a team that works with the cities I have advised for my whole career,\" said Okafor.\n\nOkafor earned a J.D. from UCLA and a B.A. in Urban Studies from UC Berkeley.\n\n**About the firm**\n[NEEDS INPUT: approved boilerplate]\n\nMedia contact: [name, email, phone]"},
+    {heading:"Website news item",body:"Sam Okafor has joined the firm as a partner in the Land Use and CEQA practice in Oakland. Okafor's practice focuses on CEQA compliance for infill housing, SB 35 and SB 423 streamlined approvals, and general plan updates for cities, built over 12 years of practice. \"I'm glad to join a team that works with the cities I have advised for my whole career,\" said Okafor."},
+    {heading:"LinkedIn post",body:"Please welcome Sam Okafor, who joins our Land Use and CEQA practice as a partner in Oakland. Sam brings 12 years advising cities on CEQA for infill housing, SB 35 and SB 423 approvals, and general plan updates. Welcome, Sam."}]},
+   review:{flags:[
+    {level:"fix",quote:"on a record that holds up",text:"This implies an outcome (approvals that survive challenge) the source does not support.",fix:"Cut the clause or replace it with a fact from Sam's notes."},
+    {level:"verify",quote:"[prior firm]",text:"The prior firm is a placeholder.",fix:"Check whether the prior firm agreed to be named in the release."},
+    {level:"ok",text:"They/them used as the source states. Quote reproduced exactly as approved."},
+    {level:"ok",text:"\"Focuses on\" used throughout; no specialist claims."}]}},
+  event:{draft:{title:"Brown Act basics for new board members",sections:[
+    {heading:"Invitation email",body:"Subject: Webinar, Jan. 14: Brown Act basics for new board members\n\nNewly elected to a city council or special district board? Join the firm for a one-hour webinar on the open meeting rules you will work under from your first meeting.\n\n**You'll learn**\n- What counts as a meeting, and what does not\n- How serial meetings happen, including through group texts\n- The agenda posting deadlines your clerk works to\n\n**When:** January 14, 2027, 12:00 to 1:00 p.m. Pacific\n**Speakers:** Jordan Reyes and [second speaker]\n**Cost:** free\n**MCLE:** The firm has applied for 1 hour of California general MCLE credit. Approval is pending.\n\nRegister: [link]"},
+    {heading:"Registration page",body:"**Brown Act basics for new board members**\n\nA free one-hour webinar for newly elected officials of cities and special districts. Jordan Reyes and [second speaker] cover what counts as a meeting, how serial meetings happen (including group texts), and agenda posting deadlines.\n\nJanuary 14, 2027, 12:00 to 1:00 p.m. Pacific. MCLE: 1 hour of California general credit applied for; approval pending.\n\n[Register button]"},
+    {heading:"Reminder email",body:"Subject: Tomorrow at noon: Brown Act basics\n\nA reminder that the webinar for new board members starts tomorrow, January 14, at 12:00 p.m. Pacific. Your join link: [link]. See you there."}]},
+   review:{flags:[
+    {level:"verify",quote:"Approval is pending.",text:"MCLE status is stated correctly as applied for.",fix:"Update all three pieces the day approval arrives, with the provider number."},
+    {level:"verify",quote:"Tomorrow at noon",text:"The reminder assumes it goes out January 13.",fix:"Schedule the send for January 13 or change the wording."},
+    {level:"ok",text:"Topics come only from the source; nothing promised beyond them."}]}},
+  rfp:{draft:{title:"General Counsel Services RFQ: response kit",sections:[
+    {heading:"Requirements matrix",body:"| Requirement | RFP section | Status |\n|---|---|---|\n| Cover letter, 2 pages max | Submission contents | Draft below |\n| Firm overview | Submission contents | Draft below |\n| Team bios | Submission contents | Needs input |\n| Three public agency references | Submission contents | Needs input |\n| Hourly rates: partners, associates, paralegals | Cost (20%) | Needs input |\n| Professional liability insurance, $2 million, proof | Insurance | Needs input |\n| Conflict of interest disclosure | Disclosures | Firm sign-off |\n| Signed non-collusion affidavit | Forms | Firm sign-off |\n| Due 21 days from release | Schedule | Set internal deadline |"},
+    {heading:"Easy to miss",body:"- The non-collusion affidavit needs a signature from an authorized partner, not just a filled form.\n- The insurance requirement asks for proof, so request a certificate from the broker early.\n- The conflict disclosure goes to the conflicts team and relationship partner for sign-off before it is written.\n- A contract with a public agency can trigger Levine Act (Gov. Code 84308) campaign contribution disclosures. [ATTORNEY TO CONFIRM: whether this district requires a disclosure form]\n- Set the internal deadline at least five business days before the due date for signatures."},
+    {heading:"Win themes",body:"- **Experience (40%):** the firm already serves as general or special counsel to transit and transportation districts, cities and joint powers authorities.\n- **Team (30%):** [NEEDS INPUT: team lead's transit experience and years as general counsel]\n- **References (10%):** [NEEDS INPUT: three public agency clients willing to serve as references]"},
+    {heading:"Cover letter draft",body:"[Date]\n\n[Name], [Title]\n[Transit district]\n\nRe: Request for Qualifications for General Counsel Services\n\nDear [Name]:\n\nThe firm is pleased to submit its qualifications to serve as General Counsel to the District. We serve as general or special counsel to transit and transportation districts, cities, water and fire districts and joint powers authorities across California, and we understand the governance, public contracting and open-government issues a transit board faces each month.\n\nOur proposed team is led by [partner name], supported by [names]. [NEEDS INPUT: one sentence on the team lead's transit or general counsel experience.]\n\nThe enclosed materials include our firm overview, team bios, three public agency references, our proposed rates, proof of professional liability insurance, our conflict of interest disclosure and the signed non-collusion affidavit.\n\nWe would welcome the opportunity to discuss how we can support the District.\n\nSincerely,\n\n[Partner name]"}]},
+   review:{flags:[
+    {level:"fix",text:"Four required items have no content yet: rates, insurance proof, references and team bios.",fix:"Assign owners now; the RFQ is not compliant without them."},
+    {level:"verify",quote:"The enclosed materials include",text:"The cover letter lists enclosures that are still missing.",fix:"Re-check the letter against the matrix before signing."},
+    {level:"verify",quote:"Levine Act",text:"The Levine Act point is general guidance, not from the RFQ.",fix:"Have the relationship partner confirm whether a disclosure form applies."},
+    {level:"ok",text:"No rate, insurance limit, conflict status or reference was invented."}]}},
+  award:{draft:{title:"Employment class action defense: directory submission",sections:[
+    {heading:"Practice overview",body:"The firm defends employers in wage-and-hour and other employment class actions, with a focus on public agencies, health care and senior living. The team handles matters from early case assessment through resolution and advises clients on pay practices before claims arise. [NEEDS INPUT: number of lawyers, offices, and notable trends in the past year]"},
+    {heading:"Work highlights",body:"**1. Regional hospital district: wage-and-hour class action**  PUBLIC\nDefended a regional hospital district in a wage-and-hour class action that was resolved before trial. [NEEDS INPUT: why the matter mattered to the client or the sector] Team: [names].\n\n**2. Senior living operator: statewide pay practices audit**  CONFIDENTIAL (RESEARCHER ONLY)\nAdvised a senior living operator on a statewide audit of its pay practices. [NEEDS INPUT: scope and outcome the client is comfortable sharing with the researcher] Team: [names]."},
+    {heading:"What sets the practice apart",body:"The practice combines class action defense with advice that helps employers find and fix pay practice issues before they turn into claims, as its work for a senior living operator shows. [NEEDS INPUT: one more piece of evidence, such as client feedback or volume of matters]"},
+    {heading:"Referees",body:"| Name | Organization | Role | Email | Phone | Matter |\n|---|---|---|---|---|---|\n| [NEEDS INPUT] | [NEEDS INPUT] | [NEEDS INPUT] | [NEEDS INPUT] | [NEEDS INPUT] | [NEEDS INPUT] |\n| [NEEDS INPUT] | [NEEDS INPUT] | [NEEDS INPUT] | [NEEDS INPUT] | [NEEDS INPUT] | [NEEDS INPUT] |"}]},
+   review:{flags:[
+    {level:"fix",quote:"with a focus on public agencies, health care and senior living",text:"This goes beyond two matters.",fix:"Confirm with the practice leader or soften to \"including\"."},
+    {level:"verify",text:"The hospital district is named as a client type only, though consent allows naming it.",fix:"Decide whether to use the client's name in the public section."},
+    {level:"ok",text:"Confidential matter is labeled RESEARCHER ONLY exactly as the source marks it."},
+    {level:"ok",text:"No outcomes beyond \"resolved before trial\". No invented referees."}]}}
+};
+
+/* ---------- Instant rule check (runs in the browser, no Claude needed) ---------- */
+const SUPERL = /\b(best|leading|premier|pre-?eminent|top[- ](?:rated|ranked|notch)|renowned|world[- ]class|unparalleled|unmatched|unrivaled|finest|foremost|elite|most experienced|number one|#1|no\.? ?1)\b/gi;
+const SPECW = /\b(specialists?|speciali[sz](?:e|es|ed|ing)|specialty|experts?|board[- ]certified|certified specialists?)\b/gi;
+const GUAR = /\b(guarantee[sd]?|guaranty|we will win|we always win|never lose|100% (?:success|win)|promise (?:you|a|that))\b/gi;
+const RESULTW = /(\$\s?[\d.,]+\s*(?:million|billion|[mk]\b)?)[^.\n]{0,60}\b(verdict|settlement|recover(?:ed|y|ies)|won|awarded|judgment)\b|\b(verdict|settlement|recover(?:ed|y)|awarded|judgment|dismissed|acquitt(?:al|ed))\b/gi;
+const DISCL = /(prior|past) results do not guarantee|results do not guarantee|may not obtain the same or similar results/i;
+const TESTI = /[“"]([^”"\n]{20,})[”"]\s*(?:[-–—]\s*[A-Z][a-z]+)/g;
+const NOFEE = /\b(no (?:fees?|charge) unless|no recovery,? no fee|don'?t pay unless|you pay nothing unless)\b/gi;
+const NEGATE = /\b(not|no|nor|never|without)\s+(?:a\s+)?$/i;
+const plain = s => String(s||"").replace(/\*/g,"");
+
+function lint(sections, ctx){
+  const J = JURIS[ctx.juris], out = [], passed = [];
+  const add = f => out.push({...f, by:"rule"});
+  const texts = sections.map(s=>plain(s.body)); const all = texts.join("\n\n");
+  const kind = ctx.kind, adLike = kind!=="submission";
+  const certified = (ctx.profile.cert||"").trim();
+  const extra = (ctx.profile.banned||"").split(",").map(w=>w.trim()).filter(Boolean);
+  const scan = (re, fn) => { re.lastIndex = 0; let m, seen = new Set(); while ((m = re.exec(all))){ const before = all.slice(Math.max(0,m.index-12), m.index); if (NEGATE.test(before)) continue; const k = m[0].toLowerCase(); if (seen.has(k)) continue; seen.add(k); fn(m); } return seen.size; };
+
+  const nS = scan(SUPERL, m=>add({level:"fix", quote:m[0], rule:J.superl, text:`"${m[0]}" is a comparison or superlative the reader cannot verify.`, fix:"Replace it with a specific, sourced fact."}));
+  if (!nS) passed.push("No superlatives");
+  const nP = scan(SPECW, m=>add({level: certified ? "verify" : "fix", quote:m[0], rule:J.spec.rule, text: certified ? `"${m[0]}": allowed only for the certified lawyers in the firm profile.` : `"${m[0]}" claims specialist status. ${J.spec.text}`, fix: certified ? "Confirm the lawyer named is certified in this area and name the certifying body next to the claim." : "Use \"focuses on\" or \"advises on\" instead."}));
+  if (!nP) passed.push("No specialist claims");
+  const nG = scan(GUAR, m=>add({level:"fix", quote:m[0], rule:J.guar, text:`"${m[0]}" predicts or promises a result.`, fix:"Remove the promise."}));
+  if (!nG) passed.push("No guarantees");
+  extra.forEach(w=>{ const re = new RegExp("\\b"+w.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\b","i"); const m = all.match(re); if (m) add({level:"verify", quote:m[0], rule:"Firm style", text:`"${m[0]}" is on the firm's list of words to avoid.`, fix:"Reword."}); });
+
+  if (adLike && kind!=="submission"){
+    // Disclaimers have to sit with the result they qualify, so these checks run section by section.
+    let resultsSeen = false, resultsOk = true;
+    texts.forEach(txt=>{
+      RESULTW.lastIndex = 0; const r = RESULTW.exec(txt);
+      if (r){
+        resultsSeen = true;
+        const has = J.results.required ? txt.includes(J.results.wording) : DISCL.test(txt);
+        if (!has){ resultsOk = false; add({level: J.results.required || kind==="ad" ? "fix":"verify", quote:r[1]||r[0], rule:J.results.rule, text: J.results.required ? `Past results appear without the required words "${J.results.wording}"` : "Past results appear without a disclaimer.", fix:`Add "${J.results.wording}" next to the result.${ctx.juris==="FL"?" Keep proof the result is objectively verifiable.":""}`}); }
+      }
+      TESTI.lastIndex = 0; const t = TESTI.exec(txt);
+      if (t){
+        const ok = ctx.juris==="FL" ? /may not obtain the same or similar results/i.test(txt) : DISCL.test(txt);
+        add({level: ok ? "verify" : "fix", quote:t[1], rule:J.testi.rule, text: ok ? "Client testimonial with a disclaimer." : "Client testimonial without a disclaimer.", fix:J.testi.text});
+      }
+      NOFEE.lastIndex = 0; const nf = NOFEE.exec(txt);
+      if (nf){ const rule = J.nofee || {rule:J.mis, text:"Say whether the client pays costs if there is no recovery."};
+        const costs = /\bcosts?\b|\bexpenses?\b/i.test(txt.slice(nf.index, nf.index+240));
+        if (!costs) add({level:"fix", quote:nf[0], rule:rule.rule, text:`"${nf[0]}" without saying who pays costs.`, fix:rule.text}); }
+    });
+    if (resultsSeen && resultsOk) passed.push("Results carry the disclaimer");
+    if (J.label && kind!=="submission"){
+      if (!/attorney advertising/i.test(all)) add({level: kind==="ad"||kind==="email" ? "fix":"verify", rule:J.label.rule, text: kind==="email" ? "No \"ATTORNEY ADVERTISING\" in the email subject line." : kind==="website" ? "No \"Attorney Advertising\" label. It belongs on the site's home page." : "No \"Attorney Advertising\" label.", fix:J.label.text});
+      else passed.push("Attorney Advertising label");
+    }
+    if (J.resp && (kind==="ad"||kind==="email")){
+      const p = ctx.profile, haveName = p.attorney && all.includes(p.attorney), haveOffice = p.office && all.includes(p.office.split(",")[0]);
+      if (!(haveName||haveOffice)) add({level:"verify", rule:J.resp.rule, text:`An ad must include ${J.resp.need}.`, fix: p.attorney||p.office ? "Add the responsible attorney and office from the firm profile to the copy or its footer." : "Fill in the firm profile, then add the responsible attorney and office to the copy or its footer."});
+      else passed.push("Responsible lawyer named");
+    }
+    if (J.filing && !(kind==="website" && J.filing.website==="exempt")){
+      add({level:"verify", rule:J.filing.rule, text: kind==="website" ? "Texas filing applies to the website homepage, not to inner pages." : `${J.name} filing: check whether this piece must be filed.`, fix:J.filing.text});
+    }
+  }
+  if (ctx.source && /pronouns:\s*(not provided|none|unknown|n\/a)/i.test(ctx.source)){
+    const m = all.match(/\b(he|she|him|her|his|hers|himself|herself)\b/i);
+    if (m) add({level:"fix", quote:m[0], rule:"House rule", text:"The source gives no pronouns, but the draft uses one.", fix:"Use the person's name instead."});
+    else passed.push("No assumed pronouns");
+  }
+  const gaps = (all.match(/\[(NEEDS INPUT|ATTORNEY TO CONFIRM)[^\]]*\]/g)||[]);
+  if (gaps.length) add({level:"verify", quote:gaps[0], rule:"Open items", text:`${gaps.length} gap${gaps.length>1?"s":""} marked for input before this can go out.`, fix:"Fill each [NEEDS INPUT] and [ATTORNEY TO CONFIRM] item."});
+  return {flags:out, passed};
+}
+
+/* ---------- State ---------- */
+const $ = id => document.getElementById(id);
+let flow = "check", state = {}, sample = null, downloads = null, ctl = null, activeTab = 0, focusFlag = null;
+let juris = "CA", model = "opus";
+const inputs = {}; for (const k in FLOWS) inputs[k] = FLOWS[k].input;
+const kinds = {check:"ad"};
+const signoff = {};
+let profile = {firm:"", attorney:"", office:"", voice:"", banned:"", cert:""};
+try{ const p = JSON.parse(localStorage.getItem("ms-profile")||"null"); if (p) profile = {...profile, ...p}; }catch{}
+try{ const j = localStorage.getItem("ms-juris"); if (JURIS[j]) juris = j; }catch{}
+const MODELS = {
+  opus:{id:"claude-opus-5-5", tier:"complex", name:"Opus 5.5"},
+  sonnet:{id:"claude-sonnet-5-5", tier:"default", name:"Sonnet 5.5"},
+  fable:{id:"claude-fable-5-1", tier:"complex", name:"Fable 5.1"}
+};
+try{ const m = localStorage.getItem("ms-model"); if (MODELS[m]) model = m; }catch{}
+const kindOf = () => flow==="check" ? kinds.check : FLOWS[flow].kind;
+
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function inline(s){
+  return esc(s).replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>").replace(/(^|[^*])\*([^*]+)\*/g,"$1<em>$2</em>")
+    .replace(/\[Source:([^\]]*)\]/g,'<mark class="src">Source:$1</mark>')
+    .replace(/\[([^\]\[<]{1,90})\]/g,'<mark class="ph">[$1]</mark>');
+}
+function md(text){
+  const lines = String(text).split("\n"); let html = "", i = 0;
+  while (i < lines.length){
+    const l = lines[i];
+    if (/^\s*\|/.test(l)){
+      const rows=[]; while(i<lines.length && /^\s*\|/.test(lines[i])) rows.push(lines[i++]);
+      const cells = r => r.trim().replace(/^\||\|$/g,"").split("|").map(c=>c.trim());
+      const body = rows.filter((r,j)=>!(j===1 && /^[\s|:-]+$/.test(r)));
+      html += '<div class="tablebox"><table><thead><tr>'+cells(body[0]).map(c=>"<th>"+inline(c)+"</th>").join("")+"</tr></thead><tbody>"+
+        body.slice(1).map(r=>"<tr>"+cells(r).map(c=>"<td>"+inline(c)+"</td>").join("")+"</tr>").join("")+"</tbody></table></div>";
+      continue;
+    }
+    if (/^\s*[-•]\s+/.test(l)){
+      let items=""; while(i<lines.length && /^\s*[-•]\s+/.test(lines[i])) items += "<li>"+inline(lines[i++].replace(/^\s*[-•]\s+/,""))+"</li>";
+      html += "<ul>"+items+"</ul>"; continue;
+    }
+    if (!l.trim()){ i++; continue; }
+    let para=[]; while(i<lines.length && lines[i].trim() && !/^\s*(\||[-•]\s)/.test(lines[i])) para.push(inline(lines[i++]));
+    html += "<p>"+para.join("<br>")+"</p>";
+  }
+  return html;
+}
+
+function current(){ return state[flow] || {...EXAMPLES[flow], example:true, juris:"CA"}; }
+function allFlags(s){
+  const secs = s.draft?.sections || [];
+  const L = lint(secs, {juris, kind:kindOf(), profile, source:flow==="check"?"":inputs[flow]});
+  const claudeFlags = (s.review?.flags||[]).map(f=>({...f, by:"claude"}));
+  const flags = [...L.flags, ...claudeFlags];
+  const order = {fix:0, verify:1, ok:2};
+  flags.sort((a,b)=>(order[a.level]??3)-(order[b.level]??3));
+  flags.forEach(f=>{ f.sec = -1; if (f.quote){ const q = plain(f.quote).toLowerCase(); f.sec = secs.findIndex(x=>plain(x.body).toLowerCase().includes(q)); } });
+  return {flags, passed:L.passed};
+}
+
+/* ---------- Render ---------- */
+function renderNav(){
+  const btn = (k,f) => `<button data-k="${k}" class="${f.group==="check"?"check":""}" aria-pressed="${k===flow}">${esc(f.name)}</button>`;
+  const entries = Object.entries(FLOWS);
+  $("navs").innerHTML = `<div class="navgroup"><span class="label">Check</span>${entries.filter(([,f])=>f.group==="check").map(([k,f])=>btn(k,f)).join("")}</div>
+    <div class="navgroup"><span class="label">Draft</span>${entries.filter(([,f])=>f.group==="draft").map(([k,f])=>btn(k,f)).join("")}</div>`;
+  $("navs").querySelectorAll("button").forEach(b=>b.onclick=()=>{ if(ctl) return; inputs[flow]=$("input").value; flow=b.dataset.k; activeTab=0; focusFlag=null; render(); });
+}
+function renderRules(){
+  const J = JURIS[juris], li = (rule, text) => `<li><code>${esc(rule)}</code><span>${esc(text)}</span></li>`;
+  const items = [
+    li(J.mis, "No false or misleading statements, unverifiable superlatives or promised results."),
+    li(J.spec.rule, J.spec.text),
+    J.resp ? li(J.resp.rule, `Ads must include ${J.resp.need}.`) : "",
+    li(J.results.rule, J.results.text),
+    li(J.testi.rule, J.testi.text),
+    J.nofee ? li(J.nofee.rule, J.nofee.text) : "",
+    J.label ? li(J.label.rule, J.label.text) : "",
+    J.filing ? li(J.filing.rule, J.filing.text) : "",
+    J.retention ? li(J.retention.rule, J.retention.text) : "",
+    li("House rules", "Facts only from the source; gaps become placeholders. No assumed pronouns. Clients named only with recorded consent.")
+  ].join("");
+  $("rulepack").innerHTML = `<p class="label">Rules in force</p><h3>${esc(J.name)}</h3><p class="checked">${esc(J.checked)}</p><ul>${items}</ul>
+    ${J.warn?`<p class="warn">${esc(J.warn)}</p>`:""}
+    <p class="srcs">${J.src.map(([t,u])=>`<a href="${u}" target="_blank" rel="noopener">${esc(t)}</a>`).join("")}</p>`;
+}
+function render(){
+  renderNav(); renderRules(); paintProfileSum();
+  const f = FLOWS[flow], isCheck = flow==="check";
+  $("briefLabel").textContent = isCheck ? "Check" : "Brief";
+  $("briefTitle").textContent = f.name; $("briefWhat").textContent = f.what;
+  $("kindRow").hidden = !isCheck; $("kind").value = kinds.check;
+  $("inputLabel").textContent = isCheck ? "Copy to check (made-up example)" : "Source material (made-up demo data)";
+  $("input").value = inputs[flow];
+  $("revise").placeholder = isCheck ? "e.g. Keep it under 50 words for an Instagram caption" : "e.g. Make the short bio warmer and mention bilingual board presentations";
+  setStatus();
+  renderOut(current());
+}
+function renderOut(s){
+  const isCheck = flow==="check";
+  $("outLabel").textContent = isCheck ? "Review" : "Draft";
+  $("outTitle").textContent = s.draft?.title || FLOWS[flow].name;
+  const chip = $("runChip");
+  chip.className = "chip " + (s.example ? "sample" : s.local ? "stale" : "live");
+  chip.textContent = s.example ? "Example run" : s.local ? "Rule check only" : "Live run on Claude";
+  $("jurisChip").textContent = "Checked under " + JURIS[juris].short + " rules";
+  if (s.pending){ $("scorebar").innerHTML=""; $("tabs").innerHTML=""; $("review").innerHTML=""; $("panel").innerHTML = `<p class="thinking">${esc(s.pending)}</p>`; $("reviseBox").hidden = true; return; }
+  const {flags, passed} = allFlags(s);
+  const n = l => flags.filter(x=>x.level===l).length;
+  const ph = (JSON.stringify(s.draft||{}).match(/\[(NEEDS INPUT|ATTORNEY TO CONFIRM)/g)||[]).length;
+  $("scorebar").innerHTML = `<div class="score fix"><b>${n("fix")}</b><span>to fix before publishing</span></div>
+    <div class="score verify"><b>${n("verify")}</b><span>to verify with the attorney</span></div>
+    <div class="score ph"><b>${ph}</b><span>gaps marked for input</span></div>
+    <div class="score ok"><b>${passed.length + n("ok")}</b><span>checks passed</span></div>`;
+  const secs = s.draft?.sections || [];
+  const tabs = [...secs.map(x=>x.heading), "Sign-off"];
+  if (activeTab >= tabs.length) activeTab = 0;
+  const fixIn = i => flags.filter(f=>f.sec===i && f.level==="fix").length;
+  $("tabs").innerHTML = tabs.map((t,i)=>`<button role="tab" aria-selected="${i===activeTab}" data-i="${i}">${esc(t)}${fixIn(i)?`<span class="n">${fixIn(i)}</span>`:""}</button>`).join("");
+  $("tabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{activeTab=+b.dataset.i; focusFlag=null; renderOut(current());});
+  if (activeTab === tabs.length-1) renderSignoff(s, flags);
+  else {
+    const sec = secs[activeTab];
+    $("panel").innerHTML = sec ? `<div class="section"><h3>${esc(sec.heading)}<button class="copy" id="copyBtn">Copy</button></h3><div class="prose" id="secBody">${md(sec.body)}</div></div>` : "";
+    if (sec){ copyable($("copyBtn"), ()=>plain(sec.body), $("secBody")); markHits($("secBody"), flags, activeTab); }
+  }
+  renderReview(flags, passed, s);
+  $("reviseBox").hidden = !sample || !s.draft || s.local && !isCheck;
+}
+function markHits(root, flags, secIdx){
+  flags.forEach((f,i)=>{
+    if (!f.quote || f.sec!==secIdx || f.level==="ok") return;
+    const q = plain(f.quote).trim(); if (!q) return;
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); let node;
+    while ((node = w.nextNode())){
+      if (node.parentElement.closest("mark.hit")) continue;
+      let idx = node.data.indexOf(q); if (idx < 0) idx = node.data.toLowerCase().indexOf(q.toLowerCase());
+      if (idx < 0) continue;
+      const r = document.createRange(); r.setStart(node, idx); r.setEnd(node, idx+q.length);
+      const m = document.createElement("mark"); m.className = "hit " + f.level + (focusFlag===i?" pulse":""); m.dataset.f = i; m.title = f.text;
+      try{ r.surroundContents(m); }catch{ break; }
+      m.onclick = ()=>{ focusFlag = i; renderOut(current()); document.querySelector(`.flag[data-i="${i}"]`)?.scrollIntoView({block:"nearest", behavior:"smooth"}); };
+      break;
+    }
+  });
+  if (focusFlag!=null) root.querySelector("mark.hit.pulse")?.scrollIntoView({block:"center", behavior:"smooth"});
+}
+function renderReview(flags, passed, s){
+  const secs = s.draft?.sections || [];
+  const open = flags.filter(f=>f.level!=="ok"), oks = flags.filter(f=>f.level==="ok");
+  const canFix = !!sample && !ctl && !!s.draft;
+  const label = l => l==="fix" ? "Fix" : l==="verify" ? "Verify" : "Passed";
+  $("review").innerHTML = `<div class="head"><p class="label" style="margin:0">Review · ${open.length} open</p>
+      ${canFix && open.some(f=>f.level==="fix") ? `<button class="btn ghost sm" id="fixAll">Fix all with Claude</button>` : ""}</div>
+    <div class="flags">${open.map(f=>{ const i = flags.indexOf(f); return `<div class="flag ${esc(f.level)}${focusFlag===i?" on":""}" data-i="${i}"><span class="pill">${label(f.level)}</span><div>
+      <p>${inline(f.text)}</p>${f.fix?`<small>${inline(f.fix)}</small>`:""}
+      <div class="acts">${f.rule?`<span class="cite">${esc(f.rule)}</span>`:""}<span class="by">${f.by==="rule"?"Rule check":"Claude review"}</span>
+        ${f.sec>=0?`<button class="linkbtn" data-show="${i}">Show in ${esc(secs[f.sec].heading)}</button>`:""}
+        ${canFix?`<button class="linkbtn" data-fix="${i}">Fix with Claude</button>`:""}</div></div></div>`; }).join("")}
+    </div>
+    ${(passed.length||oks.length)?`<div class="passed">${passed.map(p=>`<span>${esc(p)}</span>`).join("")}${oks.map(f=>`<span title="Claude review">${esc(f.text)}</span>`).join("")}</div>`:""}
+    ${!s.review && !s.example && !s.pending ? `<p class="hint">${sample ? (flow==="check" ? "Rule check only so far. Review with Claude for the judgment calls the rules can't catch." : "") : "Claude's review appears here when the page is open in Claude."}</p>` : ""}`;
+  $("review").querySelectorAll("[data-show]").forEach(b=>b.onclick=()=>{ const i=+b.dataset.show; focusFlag=i; activeTab=flags[i].sec; renderOut(current()); });
+  $("review").querySelectorAll("[data-fix]").forEach(b=>b.onclick=()=>fixFlags([flags[+b.dataset.fix]]));
+  const fa = $("fixAll"); if (fa) fa.onclick = ()=>fixFlags(open.filter(f=>f.level==="fix"));
+}
+function renderSignoff(s, flags){
+  const J = JURIS[juris], so = signoff[flow] ||= {approver:profile.attorney||"", date:new Date().toISOString().slice(0,10), consent:false, filed:false, label:false};
+  const fixes = flags.filter(f=>f.level==="fix").length;
+  const gaps = (JSON.stringify(s.draft||{}).match(/\[(NEEDS INPUT|ATTORNEY TO CONFIRM)/g)||[]).length;
+  const st = ok => `<span class="state ${ok?"yes":"no"}">${ok?"Done":"Open"}</span>`;
+  const needsFiling = J.filing && kindOf()!=="submission" && !(kindOf()==="website" && J.filing.website==="exempt");
+  $("panel").innerHTML = `<div class="signoff">
+    <p class="hint" style="margin:0">Nothing goes out until the responsible attorney signs off. Keep the record with the published piece.</p>
+    <div class="item">${st(!fixes)}<span>Every "Fix" item cleared (${fixes} open)</span></div>
+    <div class="item">${st(!gaps)}<span>Every gap filled (${gaps} open)</span></div>
+    <label class="item" for="so-consent"><input type="checkbox" id="so-consent" ${so.consent?"checked":""}><span>Written consent is on file for every client, matter and quote named</span></label>
+    ${J.label?`<label class="item" for="so-label"><input type="checkbox" id="so-label" ${so.label?"checked":""}><span>"Attorney Advertising" label placed where ${esc(J.label.rule)} requires</span></label>`:""}
+    ${needsFiling?`<label class="item" for="so-filed"><input type="checkbox" id="so-filed" ${so.filed?"checked":""}><span>Filing handled under ${esc(J.filing.rule)}, or an exemption noted</span></label>`:""}
+    ${J.retention?`<div class="item">${st(false)}<span>${esc(J.retention.rule)}: ${esc(J.retention.text)}</span></div>`:""}
+    <div class="fields">
+      <label for="so-approver">Approved by<input type="text" id="so-approver" value="${esc(so.approver)}" placeholder="Responsible attorney"></label>
+      <label for="so-date">Date<input type="date" id="so-date" value="${esc(so.date)}"></label>
+    </div>
+    <div class="row" style="margin-top:0">
+      ${downloads?`<button class="btn" id="dlRecord">Download approval record</button>`:""}
+      <button class="btn ${downloads?"ghost":""}" id="copyRecord">Copy approval record</button>
+    </div>
+    <p class="hint" id="recordMsg" style="margin:0"></p>
+  </div>`;
+  const bind = (id,key,prop="checked") => { const el=$(id); if (el) el.oninput = ()=>{ so[key]=el[prop]; }; };
+  bind("so-consent","consent"); bind("so-label","label"); bind("so-filed","filed"); bind("so-approver","approver","value"); bind("so-date","date","value");
+  const rec = ()=>approvalRecord(s, flags, so, needsFiling);
+  copyable($("copyRecord"), rec);
+  const dl = $("dlRecord"); if (dl) dl.onclick = async()=>{
+    try{ await downloads.save({filename:`approval-${flow}-${so.date||"undated"}.md`, data:rec()}); $("recordMsg").textContent = "Saved."; }
+    catch(e){ $("recordMsg").textContent = e?.code==="declined" ? "Download cancelled." : "Download isn't available here. Use Copy instead."; }
+  };
+}
+function approvalRecord(s, flags, so, needsFiling){
+  const J = JURIS[juris], secs = s.draft?.sections || [];
+  const line = f => `- [${f.level.toUpperCase()}] ${f.text}${f.rule?` (${f.rule})`:""}${f.fix?` -> ${f.fix}`:""}`;
+  return [`# Approval record: ${s.draft?.title||FLOWS[flow].name}`, "",
+    `- Piece: ${FLOWS[flow].name}`, `- Firm: ${profile.firm||"the firm"}`, `- Rules checked: ${J.name} (${J.checked})`,
+    `- Approved by: ${so.approver||"[not entered]"}`, `- Date: ${so.date||"[not entered]"}`,
+    `- Client consent on file: ${so.consent?"yes":"not confirmed"}`,
+    J.label?`- Attorney Advertising label: ${so.label?"placed":"not confirmed"}`:null,
+    needsFiling?`- Filing (${J.filing.rule}): ${so.filed?"handled":"not confirmed"}`:null,
+    J.retention?`- Retention: ${J.retention.text}`:null,
+    `- Draft source: ${s.example?"example run":s.local?"pasted copy, rule check only":"Claude ("+MODELS[model].name+")"}`, "",
+    "## Review at sign-off", ...flags.map(line), "",
+    "## Approved text", ...secs.flatMap(x=>["", `### ${x.heading}`, "", plain(x.body)])].filter(v=>v!==null).join("\n");
+}
+function copyable(btn, getText, selectEl){
+  if (!btn) return;
+  const label = btn.textContent;
+  btn.onclick = async()=>{ try{ await navigator.clipboard.writeText(getText()); btn.textContent="Copied"; }
+    catch{ if (selectEl){ const r=document.createRange(); r.selectNodeContents(selectEl); const sel=getSelection(); sel.removeAllRanges(); sel.addRange(r); btn.textContent="Selected, press Copy"; } else btn.textContent="Copy blocked here"; }
+    setTimeout(()=>btn.textContent=label,1800); };
+}
+
+/* ---------- Claude ---------- */
+function profilePrompt(){
+  const p = profile, L = [];
+  L.push(`Firm name: ${p.firm ? p.firm : "write \"the firm\""}.`);
+  if (p.voice) L.push(`House voice notes: ${p.voice}`);
+  if (p.banned) L.push(`Also never use: ${p.banned}.`);
+  L.push(p.cert ? `Certified specialists (only these may be called certified, naming the certifying body): ${p.cert}` : "No lawyer is a certified specialist.");
+  return L.join("\n");
+}
+const VOICE = `FIRM VOICE RULES (non-negotiable):
+- Plain English, confident, specific. Short paragraphs. Active voice. Write for a busy general counsel, city manager or business owner.
+- Show, don't claim. Never use: best, leading, premier, top, renowned, world-class, unparalleled, expert, specialist, specializing, specializes (unless the lawyer is listed as certified). Say "focuses on" or "advises on".
+- Never assume pronouns. Use pronouns only if the source gives them; otherwise write around them with the person's name.
+- Use only facts in the source. Missing facts become [NEEDS INPUT: what is missing]. Open legal questions become [ATTORNEY TO CONFIRM: question].
+- Never invent clients, matters, outcomes, dollar figures, dates, awards, rankings, referees or quotes.
+- Name a client or matter only if the source marks it public or client consented.
+- No promises of results. Past results carry the jurisdiction's disclaimer. Dates like "March 2, 2026".`;
+
+function draftPrompt(input, extra){
+  return `You are drafting marketing content for a law firm. ${VOICE}
+${profilePrompt()}
+${jurisPrompt(juris)}
+
+TASK:
+${FLOWS[flow].task}
+
+SOURCE MATERIAL (use nothing else):
+"""
+${input}
+"""
+${extra||""}
+Reply with only JSON: {"title": short title, "sections": [{"heading": string, "body": string}]}. Bodies may use simple markdown: paragraphs, "- " bullets, **bold**, *italic*, and pipe tables.`;
+}
+function reviewPrompt(input, draft){
+  return `You are a careful reviewer at a law firm checking AI-drafted marketing before publication. Compare the DRAFT to the SOURCE and to these rules:
+${VOICE}
+${jurisPrompt(juris)}
+
+A separate rule checker already catches banned words, missing disclaimers and missing labels. Focus on judgment calls: facts not supported by the source, implied outcomes, clients named without recorded consent, testimonials, wording that overstates the source, and anything the responsible attorney must approve. Also note what passed.
+
+SOURCE:
+"""
+${input}
+"""
+DRAFT:
+"""
+${JSON.stringify(draft)}
+"""
+Reply with only JSON: {"flags":[{"level":"fix"|"verify"|"ok","quote":"the exact words from the draft this is about, copied character for character, or empty","rule":"citation from the list above, or empty","text":"what you found, one sentence","fix":"what to do, one sentence, or empty"}]}. List 3 to 7 flags, most serious first.`;
+}
+function checkPrompt(copy, extra){
+  const kindName = $("kind").selectedOptions[0].textContent;
+  return `You are a careful reviewer at a law firm checking marketing copy before publication. The copy is a ${kindName}.
+${jurisPrompt(juris)}
+${profilePrompt()}
+
+COPY:
+"""
+${copy}
+"""
+${extra||""}
+1. Flag every problem under these rules, plus judgment calls: implied outcomes, unverifiable claims, testimonials, missing consent, misleading framing.
+2. Write a compliant rewrite that keeps the copy's purpose and length. Use only facts in the copy; anything that needs proof or a decision becomes [NEEDS INPUT: ...] or [ATTORNEY TO CONFIRM: ...]. Include required disclaimers and labels.
+Reply with only JSON: {"flags":[{"level":"fix"|"verify"|"ok","quote":"exact words from the COPY, character for character, or empty","rule":"citation, or empty","text":"one sentence","fix":"one sentence, or empty"}],"rewrite":"the rewritten copy in simple markdown"}. List 3 to 8 flags, most serious first.`;
+}
+function errCopy(e){
+  return ({not_granted:"Claude access was declined for this page. Example runs and the rule check still work.",rate_limited:"Claude is busy for your account right now. Try again in a minute.",
+    session_expired:"Sign in to Claude again, then retry.",refused:"Claude declined this request. Try rewording the source.",invalid_json:"The draft came back in an unexpected format. Try again.",
+    sampling_disabled:"Claude isn't available for this account here."})[e?.code] || "Something went wrong reaching Claude. Try again.";
+}
+function modelOpts(){ return {model:MODELS[model].id, modelTier:MODELS[model].tier}; }
+
+async function run(extra){
+  if (!sample || ctl) return;
+  const input = $("input").value.trim(); if (!input) return;
+  inputs[flow] = $("input").value;
+  $("err").hidden = true; ctl = new AbortController(); const myFlow = flow;
+  $("run").disabled = true; $("reviseBtn").disabled = true; $("stop").hidden = false;
+  const prev = state[myFlow];
+  try{
+    if (myFlow === "check"){
+      state[myFlow] = {draft:{title:"Your copy: review", sections:[{heading:"Your copy", body:input}]}, review:{flags:[]}, pendingNote:true};
+      activeTab = 0; renderOut(state[myFlow]);
+      $("review").insertAdjacentHTML("beforeend", `<p class="thinking">Claude is reviewing the copy under ${esc(JURIS[juris].name)} rules…</p>`);
+      const r = await sample.json(checkPrompt(input, extra), {...modelOpts(), signal:ctl.signal, cache:false});
+      if (!r || !Array.isArray(r.flags)) throw {code:"invalid_json"};
+      const secs = [{heading:"Your copy", body:input}]; if (r.rewrite) secs.push({heading:"Suggested rewrite", body:String(r.rewrite)});
+      state[myFlow] = {draft:{title:"Your copy: review", sections:secs}, review:{flags:r.flags}};
+    } else {
+      state[myFlow] = {pending:"Claude is drafting…"}; activeTab = 0; renderOut(state[myFlow]);
+      const draft = await sample.json(draftPrompt(input, extra), {...modelOpts(), signal:ctl.signal, cache:false});
+      if (!draft || !Array.isArray(draft.sections)) throw {code:"invalid_json"};
+      state[myFlow] = {draft, review:null}; if (flow===myFlow) renderOut(state[myFlow]);
+      $("review").insertAdjacentHTML("beforeend", `<p class="thinking">Claude is reviewing the draft against the source and ${esc(JURIS[juris].name)} rules…</p>`);
+      const review = await sample.json(reviewPrompt(input, draft), {...modelOpts(), signal:ctl.signal, cache:false});
+      state[myFlow].review = {flags: Array.isArray(review?.flags) ? review.flags : []};
+    }
+  }catch(e){
+    if (e?.code === "not_granted" || e?.code === "sampling_disabled"){ sample = null; setStatus(); }
+    if (!state[myFlow]?.draft || state[myFlow]?.pendingNote) state[myFlow] = prev;
+    if (e?.code !== "cancelled" && e?.name !== "AbortError"){ $("err").textContent = errCopy(e); $("err").hidden = false; }
+  }finally{
+    ctl = null; $("run").disabled = !sample; $("reviseBtn").disabled = false; $("stop").hidden = true;
+    if (flow===myFlow) renderOut(current());
+  }
+}
+function fixFlags(list){
+  if (!list.length) return;
+  const cur = current();
+  const items = list.map(f=>`- ${f.text}${f.quote?` (about: "${plain(f.quote)}")`:""}${f.fix?` Fix: ${f.fix}`:""}${f.rule?` [${f.rule}]`:""}`).join("\n");
+  if (flow === "check"){ run(`\nFIX THESE IN THE REWRITE:\n${items}\n`); return; }
+  run(`\nCURRENT DRAFT TO REVISE:\n"""\n${JSON.stringify(cur.draft)}\n"""\nFIX THESE ISSUES AND CHANGE NOTHING ELSE:\n${items}\nKeep every rule above. Return the full revised draft.\n`);
+}
+
+/* ---------- Controls ---------- */
+function setStatus(){
+  $("dot").className = "dot" + (sample ? " on" : "");
+  $("statusText").textContent = sample ? `Connected to Claude · ${MODELS[model].name}` : "Showing example runs. Open in Claude to draft live.";
+  const isCheck = flow==="check";
+  $("run").textContent = isCheck ? "Review with Claude" : "Draft with Claude";
+  $("run").disabled = !sample;
+  $("runHint").textContent = sample
+    ? `Runs on ${MODELS[model].name} on your own Claude account. If your plan cannot use that model, Claude picks the nearest one. Uses only what is in the box: no client data, no web.`
+    : isCheck ? "The rule check works right here as you type. Claude's review and rewrite need this page open in Claude." : "Live drafting needs this page open in Claude. The example run shows what it produces, and the rule check re-runs under any state you pick.";
+}
+function paintModels(){ document.querySelectorAll("#models button").forEach(b=>b.setAttribute("aria-pressed", String(b.dataset.m===model))); }
+document.querySelectorAll("#models button").forEach(b=>b.onclick=()=>{ model=b.dataset.m; try{localStorage.setItem("ms-model",model);}catch{} paintModels(); setStatus(); });
+$("juris").value = juris;
+$("juris").onchange = ()=>{ juris = $("juris").value; try{localStorage.setItem("ms-juris",juris);}catch{} renderRules(); renderOut(current()); };
+$("kind").onchange = ()=>{ kinds.check = $("kind").value; renderOut(current()); };
+let typeTimer;
+$("input").addEventListener("input", ()=>{
+  if (flow !== "check") return;
+  clearTimeout(typeTimer);
+  typeTimer = setTimeout(()=>{ inputs.check = $("input").value; state.check = {draft:{title:"Your copy", sections:[{heading:"Your copy", body:inputs.check}]}, review:null, local:true}; activeTab = 0; focusFlag = null; renderOut(state.check); }, 250);
+});
+const PF = ["firm","attorney","office","voice","banned","cert"];
+PF.forEach(k=>{ const el = $("pf-"+k); el.value = profile[k]||""; el.addEventListener("input", ()=>{ profile[k] = el.value; try{localStorage.setItem("ms-profile", JSON.stringify(profile));}catch{} paintProfileSum(); clearTimeout(typeTimer); typeTimer = setTimeout(()=>renderOut(current()), 300); }); });
+function paintProfileSum(){
+  const p = profile, bits = [p.firm||"Firm name not set", p.attorney ? "responsible attorney "+p.attorney : "no responsible attorney", p.cert ? "certified specialists listed" : "no certified specialists"];
+  $("profileSum").textContent = bits.join(" · ");
+}
+$("run").onclick = ()=>run();
+$("stop").onclick = ()=>ctl?.abort();
+$("reset").onclick = ()=>{ inputs[flow]=FLOWS[flow].input; $("input").value=inputs[flow]; delete state[flow]; activeTab=0; focusFlag=null; renderOut(current()); };
+$("reviseBtn").onclick = ()=>{
+  const ask = $("revise").value.trim(); if (!ask) return; const cur = current();
+  if (flow === "check") run(`\nREQUESTED CHANGE TO THE REWRITE: ${ask}\n`);
+  else run(`\nCURRENT DRAFT TO REVISE:\n"""\n${JSON.stringify(cur.draft)}\n"""\nREQUESTED CHANGE: ${ask}\nKeep every rule above. Return the full revised draft.\n`);
+  $("revise").value = "";
+};
+$("revise").addEventListener("keydown", e=>{ if(e.key==="Enter") $("reviseBtn").click(); });
+$("rulesAsOf").textContent = "Rule packs checked November 7, 2026 against: California Rules of Professional Conduct ch. 7 (calbar.ca.gov); Texas Disciplinary Rules Part VII; Rules Regulating The Florida Bar ch. 4 (Oct. 22, 2026 edition); ABA Model Rule 7.2. New York from 22 NYCRR 1200.7.1 before its June 1, 2026 amendments.";
+
+render(); $("statusText").textContent = "Connecting to Claude…";
+(async()=>{
+  const [s, d] = await Promise.all([
+    (async()=>{ try{ return window.claude ? await claude.use("sample") : null; }catch{ return null; } })(),
+    (async()=>{ try{ return window.claude ? await claude.use("downloads") : null; }catch{ return null; } })()
+  ]);
+  sample = s; downloads = d; setStatus(); renderOut(current());
+})();
+</script>
+
+</body></html>
