@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#fbfaf7">
+<title>Presentation — Myles Parslow</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;800&display=swap">
+<style>
+:root{--paper:#fbfaf7;--white:#fff;--ink:#16161a;--mute:#56565e;--rule:#d8d4cb;--soft:#efece4;--blue:#0019a8;--orange:#e16e39;
+  --ff:"Overpass",system-ui,-apple-system,"Segoe UI",sans-serif;--gut:clamp(16px,4vw,48px)}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{background:var(--paper);color:var(--ink);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 17px/1.55 var(--ff);overflow-x:clip}
+h1,h2,h3,p,ul{margin:0}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--ink);outline-offset:3px;border-radius:2px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 var(--gut)}
+
+/* gate */
+.gate{min-height:100vh;min-height:100dvh;display:grid;place-items:center;padding:24px var(--gut)}
+.gate__box{width:100%;max-width:400px;border:2px solid var(--ink);background:var(--white);padding:32px 28px}
+.gate__k{font-weight:800;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--blue)}
+.gate h1{font-weight:800;font-size:30px;line-height:1.1;margin-top:8px}
+.gate p{color:var(--mute);margin-top:8px}
+.gate form{display:flex;gap:8px;margin-top:20px}
+.gate input{flex:1;min-width:0;font:600 20px/1 var(--ff);letter-spacing:.3em;padding:12px 14px;border:2px solid var(--ink);border-radius:0;background:var(--paper)}
+.gate button,.btn{font:800 16px/1 var(--ff);padding:12px 18px;border:2px solid var(--ink);background:var(--ink);color:var(--white);cursor:pointer;border-radius:0}
+.gate button:hover{background:var(--blue);border-color:var(--blue)}
+.gate__err{color:#b00020!important;font-weight:600;min-height:1.55em}
+
+/* page */
+.top{border-bottom:2px solid var(--ink);background:var(--paper)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:58px}
+.top a{font-weight:800;text-decoration:none}
+.top button{font:600 14px/1 var(--ff);background:none;border:2px solid var(--ink);padding:7px 12px;cursor:pointer;border-radius:999px}
+.top button:hover{background:var(--ink);color:var(--white)}
+.hero{padding:48px 0 8px}
+.hero h1{font-weight:800;font-size:clamp(36px,5vw,60px);line-height:1.02}
+.hero p{color:var(--mute);margin-top:12px;max-width:62ch;font-size:18px}
+section{padding:40px 0 8px}
+.sh{display:flex;align-items:baseline;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:8px}
+.sh h2{font-weight:800;font-size:clamp(22px,2.4vw,30px);line-height:1.1}
+.sh span{color:var(--mute);font-weight:600;font-size:15px}
+.note{color:var(--mute);margin-top:10px;max-width:72ch;font-size:15px}
+
+.grid{display:grid;gap:12px;margin-top:16px;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr))}
+.card{display:flex;flex-direction:column;gap:6px;border:2px solid var(--ink);background:var(--white);padding:18px 18px 16px;text-decoration:none;position:relative;min-width:0}
+a.card:hover{background:var(--ink);color:var(--white)}
+a.card:hover .card__d,a.card:hover .card__m{color:#d8d8de}
+.card__k{font-weight:800;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--blue)}
+a.card:hover .card__k{color:#9fb0ff}
+.card__t{font-weight:800;font-size:21px;line-height:1.15}
+.card__d{color:var(--mute);font-size:15px;line-height:1.45}
+.card__m{color:var(--mute);font-size:13px;font-weight:600;margin-top:auto;padding-top:6px}
+.card__m b{color:var(--orange)}
+.big .card{border-width:3px;padding:22px}
+.big .card__t{font-size:26px}
+.num{position:absolute;top:14px;right:16px;font-weight:800;font-size:28px;line-height:1;color:var(--orange)}
+.sub{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:2px}
+.sub a{font-size:14px;font-weight:600}
+.group{margin-top:22px;font-weight:800;font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+footer{padding:48px 0 40px;color:var(--mute);font-size:14px}
+</style>
+</head>
+<body>
+
+<div class="gate" id="gate">
+  <div class="gate__box">
+    <p class="gate__k">Myles Parslow</p>
+    <h1>Presentation</h1>
+    <p>Enter the key to open the slides, animations and demos.</p>
+    <form id="gateForm" autocomplete="off">
+      <label for="key" style="position:absolute;left:-9999px">Key</label>
+      <input id="key" type="password" inputmode="numeric" autocomplete="off" required autofocus>
+      <button type="submit">Open</button>
+    </form>
+    <p class="gate__err" id="gateErr" aria-live="polite"></p>
+  </div>
+</div>
+
+<div id="page" hidden>
+<header class="top"><div class="wrap"><a href="/">Myles Parslow</a><button type="button" id="lock">Lock</button></div></header>
+<main class="wrap">
+  <div class="hero">
+    <h1>AI for the Firm</h1>
+    <p>The slides, the animations and every tool with a working demo. All clients, matters and people in the demos are invented.</p>
+  </div>
+
+  <section aria-labelledby="h-talk">
+    <div class="sh"><h2 id="h-talk">The presentation</h2></div>
+    <div class="grid">
+      <a class="card" href="https://claude.ai/artifact/BiFnUnseegeMdkjw2b66yJ" target="_blank" rel="noopener">
+        <p class="card__k">Slides</p><h3 class="card__t">AI for the Firm</h3>
+        <p class="card__d">The deck: what I have built, how I think about AI at the firm, and what I could build next.</p>
+        <p class="card__m">Opens in Claude</p></a>
+      <a class="card" href="https://claude.ai/artifact/T3SXrkL8sw5nyCzKdKTpWe" target="_blank" rel="noopener">
+        <p class="card__k">Animation</p><h3 class="card__t">AI for the Firm, Animated</h3>
+        <p class="card__d">The whole deck as a two-minute pixel animation, with captions.</p>
+        <p class="card__m">Opens in Claude</p></a>
+      <a class="card" href="https://claude.ai/artifact/QJCuG83RVzA6xbfuQi8HDP" target="_blank" rel="noopener">
+        <p class="card__k">Animation</p><h3 class="card__t">The Data Layer</h3>
+        <p class="card__d">A short animation on getting the firm&rsquo;s data ready for AI: one shared layer, walls built in, lawyers on top.</p>
+        <p class="card__m">Opens in Claude</p></a>
+      <a class="card" id="securityLink" href="https://claude.ai/artifact/AMM4qgVyZxqWuTJydaKVDi" target="_blank" rel="noopener">
+        <p class="card__k">Slides</p><h3 class="card__t">AI and security</h3>
+        <p class="card__d">The risks AI brings, what AI can do for defence, vendor concerns and the threats ahead.</p>
+        <p class="card__m">Opens in Claude</p></a>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-demo">
+    <div class="sh"><h2 id="h-demo">The live demo</h2><span>in running order</span></div>
+    <div class="grid big">
+      <a class="card" href="/demos/win-your-case.html" target="_blank" rel="noopener"><span class="num">1</span>
+        <p class="card__k">Litigation</p><h3 class="card__t">Win your case ASAP</h3>
+        <p class="card__d">Reads a newly filed complaint and ranks the theories that could end the case by how early they can be filed, for a lawyer to judge.</p>
+        <p class="card__m">Recorded run in the browser; reruns live when opened in Claude</p></a>
+      <a class="card" href="/demos/guideline-guard.html" target="_blank" rel="noopener"><span class="num">2</span>
+        <p class="card__k">Billing</p><h3 class="card__t">Guideline Guard</h3>
+        <p class="card__d">Checks each prebill entry against the client&rsquo;s outside counsel guidelines, quotes the rule it breaks and suggests a fix before the bill goes out.</p>
+        <p class="card__m">Recorded run in the browser; reruns live when opened in Claude</p></a>
+      <a class="card" href="/presentation/citation-gate/" target="_blank" rel="noopener"><span class="num">3</span>
+        <p class="card__k">Litigation</p><h3 class="card__t">Citation Gate</h3>
+        <p class="card__d">Looks up every case in a brief against about 256,000 real opinions, matches each quotation word for word, and judges whether the opinion says what the brief claims.</p>
+        <p class="card__m">Recorded run on a sample brief; live checks when opened in Claude</p></a>
+      <a class="card" href="/demos/conflion-rust-demo-live.html" target="_blank" rel="noopener"><span class="num">4</span>
+        <p class="card__k">Conflicts &amp; intake</p><h3 class="card__t">Conflion Rust Edition, live AI</h3>
+        <p class="card__d">The Conflion firm software on its Rust engine, with the AI features running live: hit triage, party finding and conflicts memos.</p>
+        <p class="card__m"><b>Access code needed</b> &middot; shown if asked</p></a>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-all">
+    <div class="sh"><h2 id="h-all">Every tool with a working demo</h2></div>
+    <p class="note">Each one opens in the browser on invented data. Most replay a recorded AI run; opened in Claude, they rerun live.</p>
+    <div id="all"></div>
+  </section>
+</main>
+<footer class="wrap">Built on my own time with invented clients; none of these tools is in use at the firm.</footer>
+</div>
+
+<script>
+(function(){
+  // A light lock for casual visitors only. It is not security: the page source is public.
+  var HASH = "025ac3ddef52e0aaa62896954c6fe57948a7c144cb203610499a912b832fd473";
+  var KEY = "mp-presentation-ok";
+  var TOOLS = [
+    ["Litigation", [
+      ["Testimony Check", "/demos/witness-breaker.html", "Finds every place a witness's sworn story breaks against the documents, with quotes on both sides and deposition questions."],
+      ["Case Wins Debrief", "/demos/case-wins-debrief.html", "Reads a firm's case wins for what slowed them down, groups the lessons and pairs each with a Claude tool."],
+      ["California Deadlines", "/demos/ca-deadlines/", "Works out a California civil deadline from the date and method of service, or the last day to serve a motion."],
+      ["Motion Mapper", "/demos/motion-mapper/", "How a judge or an opposing firm has fared on five kinds of motion, read from docket entries."],
+      ["Jury Lab", "/demos/jury-lab/", "Stress-tests a trial argument against a synthetic 12-person jury drawn from Census data."],
+      ["Exposure Modeler", "/demos/exposure-modeler/", "What a whole case is worth, stage by stage, as a decision tree."],
+      ["SeedShield", "/demos/seed-shield/", "Finds every copy of a privileged passage across a production and redacts it properly."]
+    ]],
+    ["Conflicts and new business", [
+      ["Conflion", "/demos/conflara-demo.html", "Full firm software built on a conflicts check and new-matter intake.", "Access code needed", [["Full-process pitch","/demos/conflion-full-process.html"],["One matter, start to finish","/demos/conflion-matter-walkthrough.html"]]],
+      ["Conflion Rust Edition", "/demos/conflion-rust-demo.html", "The same firm software on an engine rewritten in Rust, running in the browser as WebAssembly.", "Access code needed"],
+      ["Party Finder", "/demos/party-finder.html", "Reads a complaint or engagement request and builds the full list of names to run through conflicts."],
+      ["Conflion Small Firm", "/demos/conflion-small-firm-tour.html", "Conflicts and new matters for firms of 5 to 20 people.", "Guided tour"]
+    ]],
+    ["Deals and transactions", [
+      ["SNF Deal Desk", "/demos/snf-deal-desk.html", "Plans the purchase or sale of a California nursing home: every approval needed, with its source.", "Fully interactive, no AI needed"],
+      ["Synthesis", "/demos/synthesis.html", "An M&A workbench that checks disclosure schedules against the reps and the contracts."],
+      ["The Deal Desk", "https://katsdealdesk.com/", "A daily desk of the year's live deals, spreads and the law behind each one.", "Separate site"]
+    ]],
+    ["Billing, time and running the firm", [
+      ["Hour Catch", "/demos/hour-catch.html", "Reads a lawyer's day across email, Teams, documents and calls and writes the time entries they forgot."],
+      ["Matter Desk", "/demos/matter-desk.html", "One desk for the first read of a new matter in five practice areas."],
+      ["Marketing Studio", "https://claude.ai/artifact/8zgrVJrAcrKnoN9fHWH3m9", "Drafts law-firm marketing in the firm's voice and checks it against attorney-advertising rules.", "Opens in Claude"],
+      ["Crosswalk", "/demos/crosswalk/", "Watches the rule and regulation pages two of my apps depend on and flags what changed."]
+    ]],
+    ["AI on a lawyer's own computer", [
+      ["Skippy", "/demos/skippy-tour.html", "A Mac legal assistant on Claude: answers cited to the page and paragraph.", "Guided tour"],
+      ["LexAtlas", "/demos/lexatlas-tour.html", "A graph of how companies, people, matters and sources connect, for conflicts and diligence.", "Guided tour"],
+      ["Praxis", "/demos/praxis-tour.html", "A strategy studio for deciding where the firm should use AI.", "Guided tour"]
+    ]]
+  ];
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+  function render(){
+    var h="";
+    TOOLS.forEach(function(g){
+      h+='<h3 class="group">'+esc(g[0])+'</h3><div class="grid">';
+      g[1].forEach(function(t){
+        var sub=t[4]?'<p class="sub">'+t[4].map(function(s){return '<a href="'+s[1]+'" target="_blank" rel="noopener">'+esc(s[0])+'</a>'}).join("")+'</p>':"";
+        var meta=t[3]?'<p class="card__m">'+(/code/.test(t[3])?'<b>'+esc(t[3])+'</b>':esc(t[3]))+'</p>':"";
+        if(sub){
+          h+='<div class="card"><h3 class="card__t"><a href="'+t[1]+'" target="_blank" rel="noopener">'+esc(t[0])+'</a></h3><p class="card__d">'+esc(t[2])+'</p>'+sub+meta+'</div>';
+        } else {
+          h+='<a class="card" href="'+t[1]+'" target="_blank" rel="noopener"><h3 class="card__t">'+esc(t[0])+'</h3><p class="card__d">'+esc(t[2])+'</p>'+meta+'</a>';
+        }
+      });
+      h+='</div>';
+    });
+    document.getElementById("all").innerHTML=h;
+  }
+  function open(){document.getElementById("gate").hidden=true;document.getElementById("page").hidden=false;render();}
+  function ok(){try{return sessionStorage.getItem(KEY)==="1"}catch(e){return false}}
+  async function sha(s){
+    if(window.crypto&&crypto.subtle){var b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));return Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,"0")}).join("")}
+    return null;
+  }
+  if(ok()) open();
+  document.getElementById("gateForm").addEventListener("submit",async function(e){
+    e.preventDefault();
+    var v=document.getElementById("key").value.trim();
+    var h=await sha(v);
+    if(h===HASH){try{sessionStorage.setItem(KEY,"1")}catch(e){} open();}
+    else{document.getElementById("gateErr").textContent="That key didn't work.";document.getElementById("key").select();}
+  });
+  document.getElementById("lock").addEventListener("click",function(){try{sessionStorage.removeItem(KEY)}catch(e){} location.reload();});
+})();
+</script>
+</body>
+</html>
