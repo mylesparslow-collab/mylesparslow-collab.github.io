@@ -74,13 +74,21 @@
 #live-ai-note b { font-weight: 600; }
 #live-ai-note button { font: inherit; cursor: pointer; border-radius: 7px; }
 #live-ai-note .go { margin-top: 6px; color: #fff; background: #1f3b6e; border: 0; padding: 5px 10px; }
+#live-ai-note select { font: inherit; margin-left: 6px; padding: 1px 4px; border-radius: 6px; border: 1px solid #cfd8e4; background: inherit; color: inherit; }
+#live-ai-note.small { padding: 6px 10px; align-items: center; }
 #live-ai-note .x { margin-left: auto; background: none; border: 0; color: inherit; opacity: .6; padding: 0 2px; font-size: 16px; line-height: 1; }
 @media (prefers-color-scheme: dark) { #live-ai-note { background: #19222f; color: #e6ebf3; border-color: #2e3b52; } }
 </style>
 <script>
 (() => {
   const RELAY = "https://demo-ai.conflion.app/api/ai";
-  const AI_KEY = 'conflicts-desk:ai', PAUSE = 'conflion-live:paused';
+  const AI_KEY = 'conflicts-desk:ai', PAUSE = 'conflion-live:paused', PICK = 'conflion-live:model';
+  const PICKS = { auto: 'Auto', haiku: 'Haiku', sonnet: 'Sonnet', opus: 'Opus' };
+  let pick = 'auto';
+  try { const p = localStorage.getItem(PICK); if (p && PICKS[p]) pick = p; } catch (e) {}
+  const picker = (small) => '<label>' + (small ? '' : 'Model') + '<select id="live-ai-model" aria-label="Live AI model">' +
+    Object.keys(PICKS).map((k) => '<option value="' + k + '"' + (k === pick ? ' selected' : '') + '>' + PICKS[k] + (k === 'auto' ? ' (Haiku, Sonnet for bigger tasks)' : '') + '</option>').join('') +
+    '</select></label>';
   const LIVE = { enabled: true, kind: 'server', baseUrl: RELAY, model: "claude-haiku-5-5" };
   const OFF = { enabled: false, kind: 'ollama', baseUrl: 'http://localhost:11434', model: 'qwen2.5:14b-instruct' };
   let mode = 'off';
@@ -94,12 +102,15 @@
   Storage.prototype.getItem = function (k) { return this === local && k === AI_KEY ? JSON.stringify(mode === 'live' ? LIVE : OFF) : get.call(this, k); };
   Storage.prototype.setItem = function (k, v) { if (this === local && k === AI_KEY) return; return set.call(this, k, v); };
 
-  const note = (html) => {
+  const note = (html, small) => {
     const show = () => {
       let n = document.getElementById('live-ai-note');
       if (!n) { n = document.createElement('div'); n.id = 'live-ai-note'; n.setAttribute('role', 'status'); document.body.appendChild(n); }
       n.innerHTML = '<div>' + html + '</div><button type="button" class="x" aria-label="Hide this note">×</button>';
+      n.className = small ? 'small' : '';
       n.querySelector('.x').onclick = () => n.remove();
+      const sel = n.querySelector('#live-ai-model');
+      if (sel) sel.onchange = () => { pick = PICKS[sel.value] ? sel.value : 'auto'; try { localStorage.setItem(PICK, pick); } catch (e) {} };
       const go = n.querySelector('.go');
       if (go) go.onclick = () => location.reload();
     };
@@ -117,6 +128,10 @@
   window.fetch = async (input, init) => {
     const url = typeof input === 'string' ? input : input && input.url ? input.url : String(input);
     if (!url.startsWith(RELAY)) return realFetch(input, init);
+    // The visitor's model choice rides along as "pick"; the relay maps it to a model and refuses anything else.
+    if (url.endsWith('/chat') && init && typeof init.body === 'string') {
+      try { const b = JSON.parse(init.body); b.pick = pick; init = { ...init, body: JSON.stringify(b) }; } catch (e) {}
+    }
     if (paused && !url.endsWith('/status')) return new Response('Live AI is paused. Reload the page to use the demo\u2019s built-in answers.', { status: 503 });
     try {
       const r = await realFetch(input, init);
@@ -133,8 +148,13 @@
   Promise.all([ask, ready]).then(([live]) => {
     mode = live ? 'live' : 'off';
     if (live) {
-      note('<b>Live AI is on</b> for this demo (Claude Haiku). Its answers are suggestions; a person checks them and decides.');
-      setTimeout(() => { const n = document.getElementById('live-ai-note'); if (n && !paused) n.remove(); }, 12000);
+      note('<b>Live AI is on</b> for this demo (Claude). Its answers are suggestions; a person checks them and decides.<br>' + picker());
+      const shrink = () => {
+        if (paused || !document.getElementById('live-ai-note')) return;
+        if (document.activeElement && document.activeElement.id === 'live-ai-model') return setTimeout(shrink, 5000);
+        note('<b>Live AI</b> ' + picker(true), true);
+      };
+      setTimeout(shrink, 12000);
     }
     const held = document.getElementById('live-held-app');
     const app = document.createElement('script');
