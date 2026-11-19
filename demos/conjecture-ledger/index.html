@@ -1,0 +1,533 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Conjecture Ledger</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>:root{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<style>
+/* Layout: a lab ledger. Two live exhibits up top, then one entry per problem in a single reading column. */
+:root{
+  --paper:#e8e8e7; --sheet:#f5f5f4; --ink:#171717; --muted:#5b5b5b; --faint:#8c8c8c; --rule:#cfcfce; --grid:#dcdcdb;
+  --accent:#c8102e; --accent-soft:#f5d9dd; --accent-ink:#9f0c24; --warn:#9a5b00; --warn-soft:#f6ead6;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#1b1b1b; --sheet:#242424; --ink:#ededed; --muted:#a3a3a3; --faint:#767676; --rule:#3a3a3a; --grid:#2d2d2d;
+  --accent:#ff4d5a; --accent-soft:#4a1b20; --accent-ink:#ff8f97; --warn:#e2a548; --warn-soft:#3a2c14; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#1b1b1b; --sheet:#242424; --ink:#ededed; --muted:#a3a3a3; --faint:#767676; --rule:#3a3a3a; --grid:#2d2d2d;
+  --accent:#ff4d5a; --accent-soft:#4a1b20; --accent-ink:#ff8f97; --warn:#e2a548; --warn-soft:#3a2c14; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font:400 16px/1.6 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0}
+.wrap{max-width:1080px;margin:0 auto}
+a{color:var(--accent-ink);text-underline-offset:3px}
+a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+h1,h2,h3{font-family:var(--display);font-weight:700;line-height:1.08;text-wrap:balance;margin:0;letter-spacing:-.01em}
+.mono{font-family:var(--mono)}
+.eyebrow{font:500 12px/1.3 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+var{font-style:italic;font-family:var(--body)}
+
+header.top{display:grid;gap:18px;padding-block:56px 36px;border-bottom:1px solid var(--rule)}
+header.top h1{font-size:clamp(40px,7vw,76px)}
+header.top p{max-width:64ch;margin:0;color:var(--muted);font-size:18px}
+.tally{display:flex;flex-wrap:wrap;gap:8px 22px;font:500 13px/1.4 var(--mono);color:var(--muted)}
+.tally b{color:var(--ink);font-weight:500}
+
+.exhibit{display:grid;gap:22px;padding-block:44px;border-bottom:1px solid var(--rule)}
+.exhibit-head{display:grid;gap:10px;max-width:70ch}
+.exhibit-head h2{font-size:clamp(26px,3.6vw,38px)}
+.exhibit-head p{margin:0;color:var(--muted)}
+.panels{display:grid;grid-template-columns:1.25fr 1fr;gap:18px}
+@media (max-width:820px){.panels{grid-template-columns:1fr}}
+.panel{background:var(--sheet);border:1px solid var(--rule);border-radius:6px;padding:18px;display:grid;gap:12px;min-width:0;align-content:start}
+.panel h3{font:600 15px/1.3 var(--body);letter-spacing:0}
+.panel .sub{font-size:13px;color:var(--muted);margin:0}
+.ctrl{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font:500 13px var(--mono);color:var(--muted)}
+.ctrl input[type=range]{flex:1;min-width:140px;accent-color:var(--accent)}
+.ctrl output{color:var(--ink);min-width:3ch;font-variant-numeric:tabular-nums}
+svg{display:block;width:100%;height:auto;overflow:visible}
+svg text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:12.5px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.sw{width:12px;height:12px;border-radius:2px;display:inline-block}
+.sw.peak{background:var(--accent)}
+.sw.conj{border:1.5px dashed var(--ink);}
+.sw.other{background:var(--rule)}
+.sw.line{width:18px;height:0;border-top:2px solid var(--accent);border-radius:0}
+.sw.dline{width:18px;height:0;border-top:2px dashed var(--faint);border-radius:0}
+.verdict{font-size:14px;margin:0;font-variant-numeric:tabular-nums}
+.verdict b{font-weight:600}
+.tip{position:fixed;pointer-events:none;z-index:20;background:var(--ink);color:var(--paper);font:500 12px/1.45 var(--mono);padding:7px 9px;border-radius:4px;max-width:280px;font-variant-numeric:tabular-nums;word-break:break-all}
+
+.readout{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font:400 13.5px/1.45 var(--mono);font-variant-numeric:tabular-nums;margin:0}
+.readout dt{color:var(--muted)}
+.readout dd{margin:0;text-align:right}
+.ineq{display:grid;gap:8px;padding:12px;border-radius:4px;background:var(--paper)}
+.bar{display:grid;grid-template-columns:7.5em 1fr 3ch;gap:10px;align-items:center;font:400 12.5px var(--mono)}
+.bar i{display:block;height:10px;border-radius:0 3px 3px 0;background:var(--ink);transition:width .25s}
+.bar.rhs i{background:var(--accent)}
+.bar span:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.status{font:600 13px var(--body);margin:0}
+.status.fail{color:var(--accent-ink)}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap}
+button{font:500 13px var(--body);color:var(--ink);background:transparent;border:1px solid var(--rule);border-radius:4px;padding:6px 11px;cursor:pointer}
+button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-ink)}
+.g-edge{stroke:var(--faint);stroke-width:1.2}
+.g-edge.lit{stroke:var(--accent);stroke-width:3}
+.g-hit{stroke:transparent;stroke-width:12;cursor:pointer}
+.g-node{fill:var(--sheet);stroke:var(--ink);stroke-width:1.5}
+.g-node.in{fill:var(--accent);stroke:var(--accent)}
+.g-node.dom{stroke:var(--accent);stroke-width:3.5}
+.g-label{font-size:10px;fill:var(--muted);text-anchor:middle}
+
+.ledger{display:grid;gap:0;padding-block:44px 24px}
+.ledger>h2{font-size:clamp(26px,3.6vw,38px);margin-bottom:8px}
+.entry{display:grid;grid-template-columns:200px 1fr;gap:28px;padding-block:28px;border-top:1px solid var(--rule)}
+@media (max-width:760px){.entry{grid-template-columns:1fr;gap:12px}}
+.entry aside{display:grid;gap:8px;align-content:start;font:400 13px/1.45 var(--mono);color:var(--muted)}
+.entry aside b{color:var(--ink);font-weight:500}
+.chip{display:inline-block;width:max-content;font:600 11.5px/1 var(--body);letter-spacing:.04em;text-transform:uppercase;padding:5px 8px;border-radius:3px;border:1px solid currentColor}
+.chip.solved{color:var(--accent-ink);background:var(--accent-soft);border-color:transparent}
+.chip.prior-open{color:var(--muted)}
+.chip.prior-warn{color:var(--warn);background:var(--warn-soft);border-color:transparent}
+.entry-body{display:grid;gap:12px;min-width:0;max-width:70ch}
+.entry-body h3{font-size:24px}
+.entry-body p{margin:0}
+.claim{font-size:17px}
+.entry details{border-top:1px dashed var(--rule);padding-top:10px}
+.entry summary{cursor:pointer;font:500 13px var(--mono);color:var(--muted)}
+.entry details>div{display:grid;gap:10px;padding-top:10px}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;font:400 13px var(--mono);font-variant-numeric:tabular-nums;min-width:100%}
+th,td{padding:6px 10px;text-align:right;border-bottom:1px solid var(--grid)}
+th{font-weight:500;color:var(--muted)}
+th:first-child,td:first-child{text-align:left}
+.prior{font-size:14.5px;color:var(--muted)}
+.prior b{color:var(--ink);font-weight:600}
+footer{padding-block:28px 56px;color:var(--muted);font-size:13.5px;border-top:1px solid var(--rule);display:grid;gap:8px;max-width:76ch}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow">Combinatorics · Graph theory · November 2026</div>
+  <h1>Conjecture Ledger</h1>
+  <p>Six open questions from published papers, OEIS, MathOverflow and the Graffiti.pc conjecture catalogue. ChatGPT produced each proof or counterexample. Before going on this page, each result had its computer checks re-run and its argument read through. Three of the results are drawn below so you can check them with your own eyes.</p>
+  <div class="tally"><span><b>2</b> disproved</span><span><b>4</b> proved</span><span><b>0</b> peer-reviewed</span><span><b>46,233</b> permutations, <b>65,536</b> compositions, <b>82,500</b> Dyck paths and <b>131,070</b> binary words re-checked</span></div>
+</header>
+
+<section class="exhibit" id="plactic" aria-labelledby="plactic-h">
+  <div class="exhibit-head">
+    <div class="eyebrow">Exhibit A · Sagan &amp; Wilson, Conjecture 7.3(d)</div>
+    <h2 id="plactic-h">The peak was supposed to sit in the middle</h2>
+    <p>Count the words of length <var>n</var> that commute with the letter 1 in the plactic monoid, and write the count in the binomial basis. Sagan and Wilson conjectured the largest coefficient sits at index ⌈<var>n</var>/2⌉. That holds through <var>n</var> = 9. From <var>n</var> = 10 on, the peak moves right, toward 72% of <var>n</var>.</p>
+  </div>
+  <div class="panels">
+    <div class="panel">
+      <h3>One row of coefficients a<sub>n,k</sub></h3>
+      <div class="ctrl"><label for="nslider">length n</label><input id="nslider" type="range" min="4" max="30" value="10"><output id="nout" for="nslider">10</output></div>
+      <div class="legend"><span><i class="sw peak"></i>actual peak</span><span><i class="sw conj"></i>conjectured peak ⌈n/2⌉</span><span><i class="sw other"></i>other k</span></div>
+      <svg id="rowchart" viewBox="0 0 520 260" role="img" aria-label="Bar chart of coefficients for the selected length"></svg>
+      <p class="verdict" id="rowverdict"></p>
+    </div>
+    <div class="panel">
+      <h3>Where the peak sits, as a share of n</h3>
+      <p class="sub">Exact peak index divided by <var>n</var>, for every length from 2 to 30. Where the conjecture misses, a hollow dot marks what it predicted.</p>
+      <div class="legend"><span><i class="sw peak" style="border-radius:50%"></i>exact peak / n</span><span><i class="sw conj" style="border-radius:50%;border-style:solid"></i>conjecture, ⌈n/2⌉ / n</span><span><i class="sw line"></i>proved limit 1/(2 ln 2)</span></div>
+      <svg id="driftchart" viewBox="0 0 420 300" role="img" aria-label="Peak index divided by n against n"></svg>
+      <p class="sub">The ratio climbs slowly. At <var>n</var> = 30 it is 0.60. The limit 0.7213 is proved by a large-deviations argument, not read off the dots.</p>
+    </div>
+  </div>
+</section>
+
+<section class="exhibit" id="graph255" aria-labelledby="g-h">
+  <div class="exhibit-head">
+    <div class="eyebrow">Exhibit B · Written on the Wall II, Conjecture 255</div>
+    <h2 id="g-h">A graph that breaks a 2007 inequality</h2>
+    <p>Graffiti.pc proposed γ<sub>t</sub> · <var>M</var> ≥ 2|<var>C</var>| for every connected graph. Here γ<sub>t</sub> is the total domination number, <var>M</var> the largest edge neighborhood and <var>C</var> the center. Take a clique, add a hub, and join the hub to each clique vertex through its own middle vertex. Every number below is computed live in your browser by breadth-first search and brute force. Hover an edge to see its neighborhood.</p>
+  </div>
+  <div class="panels">
+    <div class="panel">
+      <div class="ctrl"><label for="kslider">clique size k</label><input id="kslider" type="range" min="3" max="10" value="5"><output id="kout" for="kslider">5</output></div>
+      <svg id="graph" viewBox="0 0 400 400" role="img" aria-label="The counterexample graph"></svg>
+      <div class="btnrow"><button id="domBtn" type="button" aria-pressed="true">Show a smallest total dominating set</button></div>
+    </div>
+    <div class="panel">
+      <h3>Both sides of the inequality</h3>
+      <dl class="readout" id="readout"></dl>
+      <div class="ineq" id="ineq"></div>
+      <p class="status" id="gstatus"></p>
+      <p class="sub" id="edgeinfo">Hover or tap an edge to see its edge neighborhood.</p>
+    </div>
+  </div>
+</section>
+
+<section class="exhibit" id="simay" aria-labelledby="s-h">
+  <div class="exhibit-head">
+    <div class="eyebrow">Exhibit C · Simay's conjecture, OEIS A208354 (2018)</div>
+    <h2 id="s-h">Two kinds of compositions, one strip of tiles</h2>
+    <p>Write <var>n</var> as an ordered sum. Simay conjectured that sums with at most one even part are exactly as common as sums whose 1s sit together in a single run. The proof turns both into the same strip of tiles of length 1, 2 and 3, with at most one 3. Pick a sum on top and follow it down. Hover any piece to see where it goes.</p>
+  </div>
+  <div class="panel">
+    <div class="ctrl"><label for="cn">size n</label><input id="cn" type="range" min="3" max="12" value="10"><output id="cnout" for="cn">10</output>
+      <span class="btnrow"><button type="button" id="cprev" aria-label="Previous composition">◀</button><button type="button" id="cnext" aria-label="Next composition">▶</button><button type="button" id="crand">Random</button></span>
+      <span id="cidx"></span></div>
+    <div class="tbl"><svg id="tiles" viewBox="0 0 640 316" role="img" aria-label="A composition, its tiling, and the matching composition" style="min-width:460px"></svg></div>
+    <div class="legend"><span><i class="sw" style="background:var(--accent-soft);outline:1.5px solid var(--accent)"></i>the one special block (even part, run of 1s, or the 3-tile)</span><span><i class="sw" style="background:var(--sheet);outline:1.5px solid var(--ink)"></i>ordinary block</span></div>
+    <p class="verdict" id="cstat"></p>
+  </div>
+</section>
+
+<section class="ledger" aria-labelledby="ledger-h">
+  <h2 id="ledger-h">The ledger</h2>
+  <article class="entry" id="e-plactic">
+    <aside>
+      <span class="chip solved">Disproved</span>
+      <span><b>Sagan &amp; Wilson</b><br>Semigroup Forum, 2025<br>Conjecture 7.3(d)</span>
+      <span>Checked: exact rows for n = 2 to 30, two independent methods</span>
+      <span class="chip prior-open">No prior work found</span>
+    </aside>
+    <div class="entry-body">
+      <h3>Where the largest plactic-centralizer coefficient sits</h3>
+      <p class="claim">The conjecture places the peak at ⌈<var>n</var>/2⌉. It first fails at <var>n</var> = 10, and the peak index divided by <var>n</var> tends to 1/(2 ln 2) ≈ 0.7213.</p>
+      <details><summary>How the proof goes</summary><div>
+        <p>A word commutes with 1 exactly when its longest weakly increasing subsequence is as long as its count of ones (Sagan and Zhao). Packing the alphabet turns the coefficient row into a weighted count of packed words. Unrestricted packed words have exponential generating function 1/(1 − t(e<sup>z</sup> − 1)), and an explicit injection shows the commuting words grow at the same exponential rate. That gives a limiting log-moment function for the peak index. Its derivative at zero is 1/(2 ln 2), and a Markov-inequality argument traps every maximizing index near that fraction of <var>n</var>.</p>
+        <p>The <var>n</var> = 10 row, 0, 1, 250, 4,917, 29,648, 75,095, <b>88,704</b>, 43,414, 4,861, 1, was recomputed here by row insertion and separately by the hook-length formula. Both gave the same row.</p>
+      </div></details>
+      <p class="prior"><b>Earlier work.</b> Sagan and Zhao (2026) proved parts (a) and (b) of the same conjecture. Defant (2026) settled two of its sibling conjectures. Neither paper addresses where the maximum sits, and they are the only two works that cite the original. OEIS has no entry for these rows.</p>
+      <p class="prior"><a href="https://doi.org/10.1007/s00233-025-10535-0">Sagan &amp; Wilson</a> · <a href="https://arxiv.org/abs/2512.21401">Sagan &amp; Zhao</a> · <a href="https://arxiv.org/abs/2605.19979">Defant</a></p>
+    </div>
+  </article>
+
+  <article class="entry" id="e-255">
+    <aside>
+      <span class="chip solved">Disproved</span>
+      <span><b>Graffiti.pc</b><br>DeLaViña, Feb 2007<br>WoWII #255</span>
+      <span>Checked: 11-vertex example, all 2,048 vertex subsets</span>
+      <span class="chip prior-open">No prior work found</span>
+    </aside>
+    <div class="entry-body">
+      <h3>Total domination, edge neighborhoods and the center</h3>
+      <p class="claim">For every <var>k</var> ≥ 5 the clique-and-hub graph on 2<var>k</var> + 1 vertices has γ<sub>t</sub> · <var>M</var> = 3(<var>k</var> + 2), which falls short of 2|<var>C</var>| = 2(2<var>k</var> + 1) by <var>k</var> − 4.</p>
+      <details><summary>How the proof goes</summary><div>
+        <p>Every vertex has eccentricity 2, so all 2<var>k</var> + 1 vertices are central. Each of the three edge types has exactly <var>k</var> + 2 vertices in its neighborhood. The hub, one middle vertex and its clique vertex form a total dominating set. Two adjacent vertices cannot do it, because their joint neighborhood has only <var>k</var> + 2 &lt; 2<var>k</var> + 1 vertices. So γ<sub>t</sub> = 3.</p>
+      </div></details>
+      <p class="prior"><b>Earlier work.</b> The catalogue, updated November 5, 2026, still lists #255 as open. Two neighbouring entries were refuted in 2009. #254 swaps the center for its neighbourhood. #257 fell to a family with 2<var>m</var> + 3 vertices and γ<sub>t</sub> = 3, built much like this one. The 2007 Graffiti.pc total-domination paper does not treat #255. Desormeaux and Henning (2016) could not be read in full, but the catalogue cites them only for #243, #251 and #253.</p><p class="prior"><a href="https://www.uhd.edu/academics/sciences/mathematics-statistics/wowii/index.html">WoWII catalogue</a></p>
+    </div>
+  </article>
+
+  <article class="entry" id="e-simay">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b>Gregory L. Simay</b><br>OEIS A208354, 2018<br>and Huang 2023, Remark 9</span>
+      <span>Checked: all 65,536 compositions of sizes 0 to 16</span>
+      <span class="chip prior-open">No prior work found</span>
+    </aside>
+    <div class="entry-body">
+      <h3>At most one even part, or ones in a single run</h3>
+      <p class="claim">For every <var>n</var>, compositions with at most one even part and compositions whose 1s form one block are equinumerous, by an explicit bijection that also keeps a size statistic. Composed with one more short map, it gives the bijective proof Jia Huang asked for in 2023.</p>
+      <details><summary>How the proof goes</summary><div>
+        <p>Both classes are lists of ordinary blocks (one <var>X</var> and some <var>Y</var>s) with at most one special block (only <var>Y</var>s). On the first side <var>X</var> has size 1 and <var>Y</var> size 2. On the second the sizes swap. The counting series (1 − <var>x</var>)(1 − <var>y</var>)/(1 − <var>x</var> − <var>y</var>)<sup>2</sup> is symmetric in <var>x</var> and <var>y</var>, so the counts agree. The bijection writes each list as a tiling of 1s and 2s, using a single 3-tile to mark where the special block sits, and reads the tiling back with the sizes swapped.</p>
+        <p>Huang's Remark 9 asks for a bijection between the even-part class and compositions with exactly one 1. The note composes the tiling map with a short second map: keep a lone 1, append a 1 if there is none, or replace a run of <var>r</var> ones by the pair (1, <var>r</var>).</p>
+      </div></details>
+      <p class="prior"><b>Earlier work.</b> OEIS A208354 still marks Simay's statement as a conjecture, and Grossman's 2024 tiling comment there gives no proof. Huang's Remark 9 is unanswered: the paper's one citing article is on another topic, and Huang's 2024 follow-up does not return to it.</p>
+      <p class="prior"><a href="https://oeis.org/A208354">A208354</a> · <a href="https://cs.uwaterloo.ca/journals/JIS/VOL26/Huang/huang8.pdf#page=11">Huang 2023, p. 11</a></p>
+    </div>
+  </article>
+
+  <article class="entry" id="e-perm">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b>Brignall, Ekhad, Smith &amp; Vatter</b><br>Discrete Math., 2009<br>Remark before Problem 10, and §2 generating function</span>
+      <span>Checked: all 46,233 permutations up to length 8, plus the symbolic identities</span>
+      <span class="chip prior-open">No prior work found</span>
+    </aside>
+    <div class="entry-body">
+      <h3>The exact gap between two almost-avoiding classes</h3>
+      <p class="claim">Permutations that become 231-avoiding after one deletion outnumber those that become 321-avoiding by exactly 1 + ½(<var>n</var> − 4)·Catalan(<var>n</var> − 1), for every <var>n</var> ≥ 4. This also proves the authors' empirically guessed generating function for the 321 class.</p>
+      <div class="tbl"><table>
+        <thead><tr><th>length n</th><th>321 class</th><th>231 class</th><th>gap</th><th>1 + ½(n−4)·C<sub>n−1</sub></th></tr></thead>
+        <tbody>
+          <tr><td>4</td><td>23</td><td>24</td><td>1</td><td>1</td></tr>
+          <tr><td>5</td><td>103</td><td>111</td><td>8</td><td>8</td></tr>
+          <tr><td>6</td><td>488</td><td>531</td><td>43</td><td>43</td></tr>
+          <tr><td>7</td><td>2,320</td><td>2,519</td><td>199</td><td>199</td></tr>
+          <tr><td>8</td><td>10,867</td><td>11,726</td><td>859</td><td>859</td></tr>
+        </tbody></table></div>
+      <details><summary>How the proof goes</summary><div>
+        <p>The paper's Robinson–Schensted sum for the 321 class reduces, through Newton's finite differences and Vandermonde's identity, to a rational multiple of the central binomial coefficient. The proved generating function for the 231 class yields another. Their difference factors as (<var>n</var> − 4)(<var>n</var> + 1)(<var>n</var> + 2) over a common denominator, and that gives the Catalan formula.</p>
+      </div></details>
+      <p class="prior"><b>Earlier work.</b> OEIS A174193 still labels the 321-class generating function as conjectured, and its recurrence is marked as a conjecture too. The gap sequence 1, 8, 43, 199, 859 is not in OEIS. The paper's one citing article is about a different question. Problem 10, which asks for a natural length-preserving injection, stays open in its combinatorial form.</p>
+      <p class="prior"><a href="https://arxiv.org/abs/2007.15111">Brignall et al.</a> · <a href="https://oeis.org/A174193">A174193</a> · <a href="https://oeis.org/A174195">A174195</a></p>
+    </div>
+  </article>
+
+  <article class="entry" id="e-dyck">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b>Kurkov · Bala</b><br>OEIS A140717, A167638 and MathOverflow, 2024</span>
+      <span>Checked: all 82,500 Dyck paths up to semilength 11; 101 coefficients of Bala's series</span>
+      <span class="chip prior-warn">Partly known</span>
+    </aside>
+    <div class="entry-body">
+      <h3>Dyck paths: a vector algorithm and a restricted-path formula</h3>
+      <p class="claim">Two 2024 conjectures about mountain-range paths. Kurkov's vector algorithm computes the peak-height polynomials of OEIS A140717, as an unanswered MathOverflow question asked. Bala's exponential formula counts paths whose runs all have length at least 2 and whose peaks all sit at odd height.</p>
+      <div class="tbl"><svg id="dyckfig" viewBox="0 0 640 106" role="img" aria-label="An ordinary path and the two restricted paths it expands to" style="min-width:520px"></svg></div>
+      <p class="sub" style="margin:0;font-size:13px;color:var(--muted)">The compression behind Bala's formula. Each valley of an ordinary path picks odd or even height in the restricted path. Here one valley gives two paths, of semilength 5 and 6.</p>
+      <details><summary>How the proofs go</summary><div>
+        <p>The vector update counts lattice paths through a grid, earning a weight at each turn. That shows the algorithm totals valley heights. The Lalanne–Kreweras involution then trades valley heights for the peak statistic Kurkov named, and a first-return decomposition handles the second variant from the original post.</p>
+        <p>For Bala's formula, peak heights 2<var>p</var> + 1 and valley heights 2<var>s</var> or 2<var>s</var> + 1 shrink a restricted path to an ordinary one, so the count is Narayana numbers weighted by parity choices. Lagrange inversion turns that into the exponential.</p>
+      </div></details>
+      <p class="prior"><b>Earlier work.</b> The MathOverflow question has no answers, and OEIS still marks Kurkov's algorithm as a conjecture. Bala's formula is partly known. An unreviewed proof posted on November 15, 2026 for the sister sequence A119370 gives the general identity, and A167638 follows from it by substitution. That proof does not claim A167638, and OEIS still lists it as a conjecture. The new part here is the path compression and its refined count.</p>
+      <p class="prior"><a href="https://mathoverflow.net/questions/477465/elegant-algorithm-for-a140717">MathOverflow 477465</a> · <a href="https://oeis.org/A140717">A140717</a> · <a href="https://oeis.org/A167638">A167638</a> · <a href="https://the-omega-institute.github.io/trureturing-mdbook/Problems/bala-a119370-exponential.html">A119370 proof</a></p>
+    </div>
+  </article>
+
+  <article class="entry" id="e-fib">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b>Kimberling · Kurkov</b><br>OEIS A344960, 2024</span>
+      <span>Checked: all 131,070 binary words of lengths 1 to 16</span>
+      <span class="chip prior-open">No prior work found</span>
+    </aside>
+    <div class="entry-body">
+      <h3>Flipping the bits of a word in the golden-ratio ordering</h3>
+      <p class="claim">Kimberling lists every binary word in an order built from the golden ratio. Flip a word's bits and it jumps to a new position <var>C</var>(<var>n</var>). Kurkov's formula for that position holds for every <var>n</var>. Most words jump forward, to roughly <var>n</var><sup>1.1708</sup>, where the exponent is (5 + 3√5)/10.</p>
+      <canvas id="fibplot" width="1280" height="640" style="width:100%;height:auto;max-width:100%;display:block;background:var(--sheet);border:1px solid var(--rule);border-radius:4px" role="img" aria-label="Log-log scatter of C(n) against n"></canvas>
+      <div class="legend"><span><i class="sw peak" style="border-radius:50%"></i>one word, n from 2 to 20,000</span><span><i class="sw line" style="border-top-color:var(--ink)"></i>typical exponent 1.1708</span><span><i class="sw dline"></i>exponents ½, 1 and 2</span></div>
+      <p class="sub" id="fibread" style="margin:0;font-size:13px;color:var(--muted)">Hover the plot to read a word and its flip.</p>
+      <details><summary>How the proof goes</summary><div>
+        <p>A word's position is a sum of Fibonacci numbers: each 0 steps the index by one and each 1 by two. Shectman's Fibonacci tree grows by the same rule, so a word's position plus one is its label in the tree. The parity recurrence A348366 walks back up the tree and writes down the opposite bit at every step, so feeding its output to the tree lands on the flipped word. That is Kurkov's formula.</p>
+        <p>A word of length <var>d</var> with <var>k</var> ones sits near φ<sup><var>d</var>+<var>k</var></sup>, and its flip near φ<sup>2<var>d</var>−<var>k</var></sup>. In a typical word the share of ones is 1/φ² ≈ 0.382. That gives the exponent (2 − 0.382)/(1 + 0.382) ≈ 1.1708. Unusual words can push the ratio anywhere from ½ to 2.</p>
+      </div></details>
+      <p class="prior"><b>Earlier work.</b> OEIS A344960 still marks Kurkov's formula as a conjecture, with no proof linked and none mentioned in its edit history. None of the four related OEIS entries, and not Shectman's Fibonacci quilt monograph, states the rank formula or anything about how far words move. Parts 1 and 3 of the monograph could not be read.</p><p class="prior"><a href="https://oeis.org/A344960">A344960</a> · <a href="https://oeis.org/A341258">A341258</a> · <a href="https://oeis.org/A345253">A345253</a> · <a href="https://oeis.org/A348366">A348366</a></p>
+    </div>
+  </article>
+
+</section>
+
+<footer>
+  <p>Proofs and counterexamples were generated by ChatGPT from prompts by Myles Parslow. Every listed check was re-run on November 18, 2026. None of these results has been peer-reviewed. A search for earlier work can show what is already public. It cannot prove a result is new.</p>
+</footer>
+</div>
+<div class="tip" id="tip" hidden></div>
+
+<script>
+const ROWS = {"2":["0","1"],"3":["0","1","1"],"4":["0","1","4","1"],"5":["0","1","8","13","1"],"6":["0","1","18","48","41","1"],"7":["0","1","33","178","262","131","1"],"8":["0","1","68","549","1480","1405","428","1"],"9":["0","1","124","1683","6842","11555","7674","1429","1"],"10":["0","1","250","4917","29648","75095","88704","43414","4861","1"],"11":["0","1","460","14325","122294","441413","778761","684922","255896","16795","1"],"12":["0","1","922","40989","489320","2430620","6017841","7909139","5384580","1570644","58785","1"],"13":["0","1","1714","117549","1915481","12764042","42744553","78449378","80286198","43407945","9998914","208011","1"],"14":["0","1","3430","335052","7410971","64880535","285263401","701324631","1003072062","824790768","360519500","65681198","742899","1"],"15":["0","1","6433","956244","28417242","322819645","1822819707","5808900676","11073021744","12778920345","8642449065","3095376724","442933792","2674439","1"],"16":["0","1","12868","2728729","108330504","1581169309","11300170876","45596977797","111771198960","171524310213","163840512436","92814191261","27542605480","3053148553","9694844","1"],"17":["0","1","24308","7798651","411621778","7654752253","68473624720","344316589143","1058957556142","2079548388303","2640037191926","2127760869201","1024369570780","254361569059","21435734506","35357669","1"],"18":["0","1","48618","22301997","1561212506","36757447095","407707226232","2523820307197","9574629207252","23450734616319","37991885417036","40725782172559","28108422756432","11633199772129","2438848032782","152866928214","129644789","1"],"19":["0","1","92376","63925579","5915500808","175511036511","2395891420202","18073277181967","83468772810078","250433997381025","504133269533236","688846006324751","633483330419112","378782876723927","135973972148371","24253895356176","1104953644300","477638699","1"],"20":["0","1","184754","183445915","22410902796","834669871755","13942013400842","127109845232391","706925178477624","2561969909932533","6287897486579140","10652834059817587","12489883118517528","9979339789376490","5217208312942087","1635351170913225","249641027923752","8081687601644","1767263189","1"],"21":["0","1","352714","527285229","84938640094","3958429775071","80526804689898","881554340333737","5852309824743580","25326043257676121","74662049770368528","153725064866570153","223253888070555759","227714551665202446","159718966654942989","73553811883511628","20228960163406636","2651526784213845","59732090988262","6564120419","1"],"22":["0","1","705430","1518240831","322150336868","18740201910085","462463434808366","6046916636611475","47581574053361176","243606766531376823","852266495056047602","2099211295943755224","3697196668564666827","4670726486138035921","4191511693507971153","2603254230051672653","1062592518355742228","257264370829291422","28962693775979442","445645514991466","24466267019","1"],"23":["0","1","1352076","4377835413","1222976555694","88633570425945","2644590227304498","41116044360936667","381272017862945816","2292234309166366479","9425197493752414999","27423451213274628092","57608614769353930492","88141618516850744573","98022095780941973885","78123406857042798876","43282545663404745872","15742717333592367271","3363125518548596691","324217227799712538","3353174448559240","91482563639","1"],"24":["0","1","2704154","12639982905","4647940002340","419014975723485","15075808691835434","277634393268136737","3019186616583887144","21184544555397836016","101579873490284090081","345638220871910347315","854736329473088852934","1556483946883732229246","2094807784222986892473","2071057951249106613115","1477596912725621926184","734926152598411480380","239323133563524359169","45191441635029420249","3707436239596483518","25425916908877378","343059613649","1"],"25":["0","1","5200298","36552537253","17685822477046","1980825713465375","85748265612678394","1864520074157896077","23678705066627916477","192897297406429509414","1071684647920842402395","4230001623520376009836","12186541335511572390023","26055977258391643606238","41674771855104555875681","49848328456277924516510","44175296757156983989854","28403212661308105538237","12753169991789572733142","3734199640560472354789","624242086573735459810","43181868530558156071","194163146506613728","1289904147323","1"],"26":["0","1","10400598","105827813673","67379805255056","9366733281164075","486952526106892974","12468327807513241902","184257584148964949567","1734952046786668532799","11106960391496018171995","50512808726669492310151","168121107877808736564683","417550450404851933855413","782621070057221869693751","1111392747974092658019885","1191685375692399286880614","953222805509798616929672","555514717825879592260572","226253248523901300297684","59800374167618508189210","8864409390962024746196","511042030958486038528","1492380590014787248","4861946401451","1"],"27":["0","1","20058298","306750690423","257028793471646","44315895377156285","2762482657206693699","83100676671183200302","1424722972221614198392","15446149109874536759379","113408420982331831443200","590871438586795976485271","2256078559370621465291028","6452527585000958399515393","14017099047822621830263471","23294220470493185186834460","29637571377869959685793044","28695987497416762948631837","20841973950511670335671582","11063247484261673019078229","4104138905570271255509290","982576431966487194423951","129383716007865951021203","6132801792488272155398","11539792216208587902","18367353072151","1"],"28":["0","1","40116598","890266695723","981706144768496","209813890330005710","15662249671776107739","552440897873785225417","10959412129267924883422","136356513314080663691154","1143556141777471200411230","6792142554853792862534006","29574689169506790304225908","96701989997468920542880168","241299352031900372204165731","463970320109868912592380015","690157052163716293090125644","792779737751834955966036632","697481792215392280799716962","462339283490450652996461854","224479162121401040895456190","76116108972557865018151596","16555661140728478680038633","1940163981256963458464369","74505690857425973707740","89728391534102113300","69533550916003","1"],"29":["0","1","77558758","2586390749103","3754226022293681","994179529033094630","88777075858358993589","3665421371370932210452","83949107813481042450502","1195272923229921582450489","11410078847288343747157490","76930662309580259468634401","380053641885588440119361283","1411955016723411895287084508","4016781943592013604611606721","8853974151368288366318131050","15218903802284135682510556124","20426721882671195504650112207","21324270142132599322084234722","17140125599836283975214082489","10415775694117644965186168575","4642577516222722562546582436","1443105184869331354780337489","285850823725149495977119508","29864455874442225436548342","915090596429178255972325","701300420889630706304","263747951750359","1"],"30":["0","1","155117518","7521154107708","14374225164892031","4715081549742874655","503218795094031005919","24285265758972468220297","640865665919849528894962","10415955509803991389128804","112834714319051621129478620","860451205322647671217981826","4801697705703237092570784693","20162221174854785787889792183","64978279468857630748899788071","162927291001462903734716613285","320538501705002050024458804044","496677829549604112127030932962","605673252178394845965106294692","577919237870735280281337596104","426416286972397695059865353485","238490219575438034997746510097","97897426734556027769723429237","27965025053947290640898126273","5053739835956078979618593898","471289798889493659559205250","11350299320740400161367070","5507662248137479365756","1002242216651367","1"]};
+const NS = "http://www.w3.org/2000/svg";
+const tip = document.getElementById("tip");
+function el(tag, attrs, parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+function showTip(html, ev){tip.innerHTML=html;tip.hidden=false;const x=Math.min(ev.clientX+14, innerWidth-tip.offsetWidth-8);tip.style.left=x+"px";tip.style.top=(ev.clientY+14)+"px"}
+function hideTip(){tip.hidden=true}
+const fmt = s => BigInt(s).toLocaleString("en-US");
+function argmax(r){let b=0;for(let i=1;i<r.length;i++)if(BigInt(r[i])>BigInt(r[b]))b=i;return b}
+
+/* Exhibit A: row chart */
+const rowSvg=document.getElementById("rowchart"), nS=document.getElementById("nslider"), nO=document.getElementById("nout");
+function drawRow(n){
+  rowSvg.innerHTML="";const r=ROWS[n], W=520,H=260,L=44,R=8,T=12,B=34, pk=argmax(r), cj=Math.ceil(n/2);
+  const max=Number(BigInt(r[pk])), pw=(W-L-R)/r.length, gap=Math.min(4,pw*.2);
+  for(const f of [0,.25,.5,.75,1]){const y=T+(H-T-B)*(1-f);
+    el("line",{x1:L,x2:W-R,y1:y,y2:y,stroke:"var(--grid)","stroke-width":1},rowSvg);
+    el("text",{x:L-8,y:y+4,"text-anchor":"end"},rowSvg).textContent=Math.round(f*100)+"%";}
+  el("text",{x:L-8,y:T-2,"text-anchor":"end"},rowSvg);
+  r.forEach((v,k)=>{
+    const f=Number(BigInt(v))/max, h=(H-T-B)*f, x=L+k*pw+gap/2, w=pw-gap, y=H-B-h;
+    const fill = k===pk?"var(--accent)":"var(--rule)";
+    if(h>0){const rr=Math.min(3,w/2,h);el("path",{d:`M${x},${H-B}V${y+rr}q0,-${rr} ${rr},-${rr}h${w-2*rr}q${rr},0 ${rr},${rr}V${H-B}Z`,fill},rowSvg)}
+    if(k===cj&&k!==pk) el("rect",{x:x-1.5,y:y-1.5,width:w+3,height:h+3,fill:"none",stroke:"var(--ink)","stroke-width":1.5,"stroke-dasharray":"4 3"},rowSvg);
+    if(pw>=13||k%2===0||k===pk||k===cj) el("text",{x:x+w/2,y:H-B+16,"text-anchor":"middle",fill:(k===pk||k===cj)?"var(--ink)":"var(--muted)"},rowSvg).textContent=k;
+    const hit=el("rect",{x:L+k*pw,y:T,width:pw,height:H-T-B,fill:"transparent"},rowSvg);
+    const lab = k===pk?" (peak)":k===cj?" (conjectured peak)":"";
+    hit.addEventListener("pointermove",ev=>showTip(`n=${n}, k=${k}${lab}<br>a = ${fmt(v)}<br>${(f*100).toFixed(1)}% of peak`,ev));
+    hit.addEventListener("pointerleave",hideTip);
+  });
+  el("line",{x1:L,x2:W-R,y1:H-B,y2:H-B,stroke:"var(--faint)","stroke-width":1},rowSvg);
+  el("text",{x:(L+W-R)/2,y:H-2,"text-anchor":"middle"},rowSvg).textContent="index k";
+  const v=document.getElementById("rowverdict");
+  if(pk===cj||BigInt(r[pk])===BigInt(r[cj])) v.innerHTML=`n = ${n}: peak at k = ${pk}, where the conjecture says. <b>Holds.</b>`;
+  else { const d=BigInt(r[pk])-BigInt(r[cj]); v.innerHTML=`n = ${n}: peak at k = <b>${pk}</b>, conjecture says k = ${cj}. The peak is larger by ${d.toLocaleString("en-US")}. <b>Fails.</b>`; }
+}
+nS.addEventListener("input",()=>{nO.value=nS.value;drawRow(+nS.value)});
+drawRow(10);
+
+/* Exhibit A: drift chart */
+(function(){
+  const s=document.getElementById("driftchart"),W=420,H=300,L=40,R=78,T=14,B=34, y0=.3,y1=.8, n0=2,n1=30;
+  const X=n=>L+(n-n0)/(n1-n0)*(W-L-R), Y=v=>T+(1-(v-y0)/(y1-y0))*(H-T-B);
+  for(const v of [.3,.4,.5,.6,.7,.8]){el("line",{x1:L,x2:W-R,y1:Y(v),y2:Y(v),stroke:"var(--grid)"},s);el("text",{x:L-8,y:Y(v)+4,"text-anchor":"end"},s).textContent=v.toFixed(1)}
+  for(const n of [2,10,20,30]) el("text",{x:X(n),y:H-B+16,"text-anchor":"middle"},s).textContent=n;
+  el("text",{x:(L+W-R)/2,y:H-2,"text-anchor":"middle"},s).textContent="length n";
+  const lim=1/(2*Math.log(2));
+  el("line",{x1:L,x2:W-R,y1:Y(lim),y2:Y(lim),stroke:"var(--accent)","stroke-width":2},s);
+  el("text",{x:W-R+6,y:Y(lim)+4,fill:"var(--accent-ink)"},s).textContent="0.7213";
+  el("line",{x1:X(9.5),x2:X(9.5),y1:T,y2:H-B,stroke:"var(--faint)","stroke-width":1,"stroke-dasharray":"2 3"},s);
+  el("text",{x:X(9.5)+4,y:T+10},s).textContent="first failure, n = 10";
+  for(let n=n0;n<=n1;n++){const c=Math.ceil(n/2);let k=argmax(ROWS[n]);
+    const tie = BigInt(ROWS[n][k])===BigInt(ROWS[n][c]); if(tie)k=c; const v=k/n;
+    if(k!==c) el("circle",{cx:X(n),cy:Y(c/n),r:4,fill:"var(--sheet)",stroke:"var(--ink)","stroke-width":1.5},s);
+    const dot=el("circle",{cx:X(n),cy:Y(v),r:4.5,fill:"var(--accent)",stroke:"var(--sheet)","stroke-width":2},s);
+    const hit=el("circle",{cx:X(n),cy:Y(v),r:11,fill:"transparent"},s);
+    hit.addEventListener("pointermove",ev=>showTip(`n=${n}: peak at k=${k}, conjecture k=${c}<br>${k===c?"matches":"misses"} · k/n = ${v.toFixed(3)}`,ev));
+    hit.addEventListener("pointerleave",hideTip);
+    hit.addEventListener("click",()=>{if(n>=4){nS.value=n;nO.value=n;drawRow(n)}});
+  }
+})();
+
+/* Exhibit B: the graph */
+const gSvg=document.getElementById("graph"), kS=document.getElementById("kslider"), kO=document.getElementById("kout"), domBtn=document.getElementById("domBtn");
+let showDom=true, G=null;
+function build(k){
+  const n=2*k+1, adj=Array.from({length:n},()=>new Set()), E=[];
+  const add=(u,v)=>{adj[u].add(v);adj[v].add(u);E.push([u,v])};
+  for(let i=0;i<k;i++)for(let j=i+1;j<k;j++)add(i,j);       // clique X = 0..k-1
+  for(let i=0;i<k;i++){add(i,k+i);add(k+i,2*k)}              // y_i = k+i, hub = 2k
+  const ecc=adj.map((_,s)=>{const d=Array(n).fill(-1);d[s]=0;const q=[s];while(q.length){const u=q.shift();for(const v of adj[u])if(d[v]<0){d[v]=d[u]+1;q.push(v)}}return Math.max(...d)});
+  const mn=Math.min(...ecc), centers=ecc.filter(e=>e===mn).length;
+  const nb=E.map(([u,v])=>new Set([...adj[u],...adj[v]]));
+  const M=Math.max(...nb.map(s=>s.size));
+  const isTD=S=>adj.every(a=>S.some(x=>a.has(x)));
+  let gamma=null, dom=null;
+  outer: for(let sz=1;sz<=n;sz++){const idx=[...Array(sz).keys()];
+    while(true){const S=idx.slice();if(isTD(S)){gamma=sz;dom=S;break outer}
+      let i=sz-1;while(i>=0&&idx[i]===n-sz+i)i--; if(i<0)break; idx[i]++; for(let j=i+1;j<sz;j++)idx[j]=idx[j-1]+1;}}
+  return {k,n,adj,E,ecc,mn,centers,nb,M,gamma,dom};
+}
+function pos(G,v){const {k}=G,c=200;if(v===2*k)return[c,c];const i=v<k?v:v-k,r=v<k?165:82,a=-Math.PI/2+i*2*Math.PI/k;return[c+r*Math.cos(a),c+r*Math.sin(a)]}
+function name(G,v){const k=G.k;return v===2*k?"h":v<k?`x${v+1}`:`y${v-k+1}`}
+function drawGraph(hl){
+  gSvg.innerHTML="";const nodes=[],lit=hl==null?null:G.nb[hl];
+  G.E.forEach(([u,v],i)=>{const [a,b]=[pos(G,u),pos(G,v)];el("line",{x1:a[0],y1:a[1],x2:b[0],y2:b[1],class:"g-edge"+(i===hl?" lit":"")},gSvg)});
+  G.E.forEach(([u,v],i)=>{const [a,b]=[pos(G,u),pos(G,v)];const h=el("line",{x1:a[0],y1:a[1],x2:b[0],y2:b[1],class:"g-hit"},gSvg);
+    const on=()=>{drawGraph(i);document.getElementById("edgeinfo").textContent=`Edge ${name(G,u)}–${name(G,v)}: its neighborhood has ${G.nb[i].size} vertices: ${[...G.nb[i]].map(x=>name(G,x)).join(", ")}.`};
+    h.addEventListener("pointerenter",on);h.addEventListener("click",on);});
+  for(let v=0;v<G.n;v++){const [x,y]=pos(G,v);
+    let cls="g-node"; if(lit&&lit.has(v))cls+=" in"; if(showDom&&!lit&&G.dom.includes(v))cls+=" dom";
+    const c=el("circle",{cx:x,cy:y,r:v===2*G.k?11:8,class:cls},gSvg);
+    c.addEventListener("pointermove",ev=>showTip(`${name(G,v)} · eccentricity ${G.ecc[v]}`,ev));c.addEventListener("pointerleave",hideTip);
+    const [lx,ly]=v===2*G.k?[x,y+26]:[200+(x-200)*(v<G.k?1.13:1.32),200+(y-200)*(v<G.k?1.13:1.32)+4];
+    el("text",{x:lx,y:ly,class:"g-label"},gSvg).textContent=name(G,v);}
+}
+gSvg.addEventListener("pointerleave",()=>{drawGraph(null);document.getElementById("edgeinfo").textContent="Hover or tap an edge to see its edge neighborhood."});
+function update(){
+  G=build(+kS.value);drawGraph(null);
+  const L=G.gamma*G.M, R=2*G.centers, mx=Math.max(L,R);
+  document.getElementById("readout").innerHTML=
+   `<dt>vertices</dt><dd>${G.n}</dd><dt>center |C| (eccentricity ${G.mn})</dt><dd>${G.centers}</dd><dt>largest edge neighborhood M</dt><dd>${G.M}</dd><dt>total domination γ<sub>t</sub></dt><dd>${G.gamma}</dd>`;
+  document.getElementById("ineq").innerHTML=
+   `<div class="bar"><span>γ<sub>t</sub>·M</span><i style="width:${L/mx*100}%"></i><span>${L}</span></div><div class="bar rhs"><span>2|C|</span><i style="width:${R/mx*100}%"></i><span>${R}</span></div>`;
+  const st=document.getElementById("gstatus");
+  st.className="status"+(L<R?" fail":"");
+  st.textContent = L>R?`k = ${G.k}: the inequality holds (${L} ≥ ${R}).`: L===R?`k = ${G.k}: equality (${L} = ${R}). One more clique vertex breaks it.`:`k = ${G.k}: the inequality fails by ${R-L} = k − 4.`;
+}
+kS.addEventListener("input",()=>{kO.value=kS.value;update()});
+domBtn.addEventListener("click",()=>{showDom=!showDom;domBtn.setAttribute("aria-pressed",showDom);drawGraph(null)});
+update();
+/* Fibonacci complement scatter */
+(function(){const cv=document.getElementById("fibplot");if(!cv)return;const ctx=cv.getContext("2d");
+  const F=[0,1,1];while(F.length<80)F.push(F[F.length-1]+F[F.length-2]);
+  const h=y=>{let i=2;while(F[i+1]<=y)i++;return i};
+  function word(n){const bits=[];let z=n+1;while(z>1){const p=z-F[h(z)-1];bits.push(h(z)-h(p)-1);z=p}return bits.reverse()}
+  const rank=w=>{let s=1,r=0;for(const b of w){s+=1+b;r+=F[s]}return r};
+  const N=20000,pts=[];for(let n=2;n<=N;n++){const w=word(n),c=rank(w.map(b=>1-b));pts.push([n,c,w])}
+  const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const W=cv.width,H=cv.height,L=130,R=30,T=30,B=96,lx0=Math.log10(2),lx1=Math.log10(N),ly0=0,ly1=Math.log10(N*N);
+  const X=n=>L+(Math.log10(n)-lx0)/(lx1-lx0)*(W-L-R),Y=c=>T+(1-(Math.log10(c)-ly0)/(ly1-ly0))*(H-T-B);
+  let hover=null;
+  function draw(){ctx.clearRect(0,0,W,H);ctx.font="30px "+css("--mono").split(",")[0].replace(/"/g,"")+", monospace";
+    ctx.fillStyle=css("--muted");ctx.strokeStyle=css("--grid");ctx.lineWidth=1.5;
+    for(let e=0;e<=8;e++){const y=Y(10**e);if(y<T-1)continue;ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(W-R,y);ctx.stroke();ctx.textAlign="right";ctx.fillText(e===0?"1":"10"+"⁰¹²³⁴⁵⁶⁷⁸"[e],L-12,y+7)}
+    for(const n of [10,100,1000,10000]){const x=X(n);ctx.textAlign="center";ctx.fillText(n.toLocaleString("en-US"),x,H-B+40)}
+    ctx.fillText("position n of the word",(L+W-R)/2,H-14);
+    ctx.save();ctx.translate(30,(T+H-B)/2);ctx.rotate(-Math.PI/2);ctx.fillText("position C(n) after flipping",0,0);ctx.restore();
+    const line=(a,col,dash,wd)=>{ctx.beginPath();ctx.setLineDash(dash);ctx.strokeStyle=col;ctx.lineWidth=wd;ctx.moveTo(X(2),Y(2**a));ctx.lineTo(X(N),Y(N**a));ctx.stroke();ctx.setLineDash([])};
+    ctx.fillStyle=css("--accent");ctx.globalAlpha=.28;for(const [n,c] of pts){ctx.fillRect(X(n)-1.5,Y(c)-1.5,3,3)}ctx.globalAlpha=1;
+    for(const a of [.5,1,2])line(a,css("--faint"),[10,8],2.5);
+    line((5+3*Math.sqrt(5))/10,css("--ink"),[],3);
+    ctx.textAlign="left";ctx.fillStyle=css("--muted");ctx.fillText("n²",X(N)-40,Y(N*N)+30);ctx.fillText("n",X(N)-24,Y(N)+30);ctx.fillText("√n",X(N)-50,Y(Math.sqrt(N))+30);
+    if(hover){const [n,c]=hover;ctx.beginPath();ctx.arc(X(n),Y(c),9,0,7);ctx.strokeStyle=css("--ink");ctx.lineWidth=3;ctx.stroke()}
+  }
+  function pick(ev){const r=cv.getBoundingClientRect(),x=(ev.clientX-r.left)*W/r.width,y=(ev.clientY-r.top)*H/r.height;
+    let best=null,bd=1e9;for(const p of pts){const dx=X(p[0])-x,dy=Y(p[1])-y,d=dx*dx+dy*dy;if(d<bd){bd=d;best=p}}
+    if(!best||bd>40*40){hover=null;draw();return}hover=best;draw();const [n,c,w]=best;
+    document.getElementById("fibread").innerHTML=`Word at position ${n.toLocaleString("en-US")}: <b>${w.join("")}</b>. Flipped: <b>${w.map(b=>1-b).join("")}</b>, at position ${c.toLocaleString("en-US")}.`}
+  cv.addEventListener("pointermove",pick);cv.addEventListener("click",pick);
+  draw();matchMedia("(prefers-color-scheme: dark)").addEventListener("change",draw);
+  new MutationObserver(draw).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+})();
+/* Exhibit C: Simay bijection, encoding taken from the note */
+(function(){
+  const svg=document.getElementById("tiles"), nS=document.getElementById("cn"), nO=document.getElementById("cnout");
+  const memo={0:[[]]};
+  function comps(n){if(memo[n])return memo[n];const o=[];for(let f=1;f<=n;f++)for(const r of comps(n-f))o.push([f,...r]);return memo[n]=o}
+  const nEven=c=>c.filter(a=>a%2===0).length, nRuns=c=>c.filter((a,i)=>a===1&&(i===0||c[i-1]!==1)).length;
+  function encode(B,x,y){const T=[],push=(v,s)=>T.push({v,src:s});
+    const right=from=>{for(let b=from;b<B.length;b++){push(x,[b]);for(let t=0;t<B[b].j;t++)push(y,[b])}};
+    const i=B.findIndex(b=>b.sp);
+    if(i<0)right(0);
+    else if(i===0){for(let t=0;t<B[0].j;t++)push(y,[0]);right(1)}
+    else{for(let b=0;b<i-1;b++){for(let t=0;t<B[b].j;t++)push(y,[b]);push(x,[b])}
+      for(let t=0;t<B[i-1].j;t++)push(y,[i-1]);push(3,[i-1,i]);for(let t=0;t<B[i].j-1;t++)push(y,[i]);right(i+1)}
+    return T}
+  const blocksE=c=>c.map((a,k)=>({sp:a%2===0,j:Math.floor(a/2),parts:[k]}));
+  function blocksR(c){const B=[];for(let k=0;k<c.length;){if(c[k]===1){const p=[];while(k<c.length&&c[k]===1)p.push(k++);B.push({sp:true,j:p.length,parts:p})}else{B.push({sp:false,j:c[k]-2,parts:[k]});k++}}return B}
+  let n=10, E=[], idx=0, hl=null, cache={};
+  function setN(m){n=m;E=comps(n).filter(c=>nEven(c)<=1);
+    const R=comps(n).filter(c=>nRuns(c)<=1);cache={};
+    for(const c of R){const B=blocksR(c);cache[encode(B,2,1).map(t=>t.v).join(",")]={c,B}}}
+  function draw(){
+    svg.innerHTML="";const c=E[idx],BE=blocksE(c),TE=encode(BE,1,2),key=TE.map(t=>t.v).join(","),{c:rc,B:BR}=cache[key],TR=encode(BR,2,1);
+    const L=2,W=636,u=W/n,g=3;
+    // provenance per tile
+    const tiles=TE.map((t,k)=>({v:t.v,e:new Set(t.src.flatMap(b=>BE[b].parts)),r:new Set(TR[k].src.flatMap(b=>BR[b].parts))}));
+    let selT=null;
+    if(hl){selT=new Set(tiles.map((t,k)=>k).filter(k=>hl.row==="t"?k===hl.i:hl.row==="e"?tiles[k].e.has(hl.i):tiles[k].r.has(hl.i)))}
+    const selE=new Set(),selR=new Set(); if(selT)for(const k of selT){tiles[k].e.forEach(p=>selE.add(p));tiles[k].r.forEach(p=>selR.add(p))}
+    const row=(y,label)=>{el("text",{x:L,y:y-8,fill:"var(--ink)","font-size":12},svg).textContent=label};
+    function box(x,y,w,h,v,special,on,kind,i){
+      const r=el("rect",{x:x+g/2,y,width:Math.max(2,w-g),height:h,rx:3,fill:special?"var(--accent-soft)":"var(--sheet)",stroke:on?"var(--accent)":special?"var(--accent)":"var(--ink)","stroke-width":on?3:1.4},svg);
+      if(selT&&!on)r.setAttribute("opacity",.35);
+      const t=el("text",{x:x+w/2,y:y+h/2+4,"text-anchor":"middle",fill:"var(--ink)","font-size":12},svg);t.textContent=v;if(selT&&!on)t.setAttribute("opacity",.35);
+      const hit=el("rect",{x,y,width:w,height:h,fill:"transparent",style:"cursor:pointer"},svg);
+      const go=()=>{hl={row:kind,i};draw()};hit.addEventListener("pointerenter",go);hit.addEventListener("click",go);}
+    row(26,"Sum with at most one even part");let x=L;c.forEach((a,k)=>{box(x,26,a*u,40,a,a%2===0,selE.has(k),"e",k);x+=a*u});
+    row(146,"Tiling with 1s, 2s and at most one 3");x=L;tiles.forEach((t,k)=>{box(x,146,t.v*u,40,t.v,t.v===3,selT&&selT.has(k),"t",k);x+=t.v*u});
+    row(266,"Sum with its 1s in one run");x=L;rc.forEach((a,k)=>{box(x,266,a*u,40,a,a===1,selR.has(k),"r",k);x+=a*u});
+    for(const y of [72,192]){el("path",{d:`M${L+W/2},${y+8}v34m-6,-8l6,8l6,-8`,fill:"none",stroke:"var(--faint)","stroke-width":1.5},svg)}
+    el("text",{x:L+W/2+14,y:104},svg).textContent="read 1 as X, 2 as Y";
+    el("text",{x:L+W/2+14,y:224},svg).textContent="read 2 as X, 1 as Y";
+    const s1=c.reduce((s,a)=>s+Math.floor(a/2),0), s2=rc.filter(a=>a>=2).length;
+    document.getElementById("cstat").innerHTML=`(${c.join(", ")}) ↦ (${rc.join(", ")}). Half-parts rounded down on top: <b>${s1}</b>. Parts of size 2 or more below: <b>${s2}</b>. The map keeps this number. At <var>n</var> = ${n} both kinds number <b>${E.length}</b>.`;
+    document.getElementById("cidx").textContent=`${idx+1} of ${E.length}`;
+  }
+  svg.addEventListener("pointerleave",()=>{hl=null;draw()});
+  nS.addEventListener("input",()=>{nO.value=nS.value;setN(+nS.value);idx=0;hl=null;draw()});
+  document.getElementById("cprev").onclick=()=>{idx=(idx-1+E.length)%E.length;hl=null;draw()};
+  document.getElementById("cnext").onclick=()=>{idx=(idx+1)%E.length;hl=null;draw()};
+  document.getElementById("crand").onclick=()=>{idx=Math.floor(Math.random()*E.length);hl=null;draw()};
+  setN(10);idx=Math.max(0,E.findIndex(c=>c.join()==="3,2,5"));draw();
+})();
+
+/* Dyck compression figure */
+(function(){const s=document.getElementById("dyckfig");if(!s)return;
+  const panels=[["UDUD","Q · semilength 2",false],["UUUDDUUDDD","odd valley → 5",true],["UUUDDDUUUDDD","even valley → 6",true]];
+  let x0=4;const u=13,base=62;
+  panels.forEach(([w,lab,big],pi)=>{let x=x0,y=base,h=0;const pts=[[x,y]];const marks=[];
+    for(let i=0;i<w.length;i++){const up=w[i]==="U";h+=up?1:-1;x+=u;y=base-h*u;pts.push([x,y]);
+      if(i<w.length-1&&w[i]!==w[i+1])marks.push([x,y,h,up])}
+    for(let k=0;k<=3;k++)el("line",{x1:x0,x2:x0+w.length*u,y1:base-k*u,y2:base-k*u,stroke:"var(--grid)"},s);
+    el("polyline",{points:pts.map(p=>p.join(",")).join(" "),fill:"none",stroke:"var(--ink)","stroke-width":2,"stroke-linejoin":"round"},s);
+    for(const [mx,my,mh,peak] of marks){el("circle",{cx:mx,cy:my,r:4,fill:peak?"var(--ink)":"var(--accent)",stroke:"var(--sheet)","stroke-width":1.5},s);
+      el("text",{x:mx,y:peak?my-8:my+16,"text-anchor":"middle",fill:peak?"var(--muted)":"var(--accent-ink)"},s).textContent=mh}
+    el("text",{x:x0,y:base+36},s).textContent=lab;
+    x0+=Math.max(w.length*u,130)+40;});
+})();
+</script>
+
+</body></html>
