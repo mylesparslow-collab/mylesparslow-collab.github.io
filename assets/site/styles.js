@@ -8,6 +8,7 @@
 
   var V = [
     { k: 'i', name: 'Transit Map', base: '/' },
+    { k: 'j', name: 'Working Drawings', base: '/mockup-j/' },
     { k: 'h', name: 'Orbit', base: '/mockup-h/' },
     { k: 'g', name: 'Sticker Wall', base: '/mockup-g/' },
     { k: 'f', name: 'Plain Web', base: '/mockup-f/' },
@@ -22,7 +23,7 @@
   var MOUNT = {
     i: ['.bar__in', 'append'], h: ['.bar__in', 'afterfirst'], g: ['header.topbar .bar', 'append'],
     f: ['#top', 'f'], e: ['header.tabrow', 'append'], d: ['nav.fkeys', 'prepend'],
-    c: ['.wf__in', 'append'], b: ['.chrome .c.tr', 'prepend']
+    c: ['.wf__in', 'append'], b: ['.chrome .c.tr', 'prepend'], j: ['.strip__theme', 'before']
   };
 
   function room() {
@@ -49,9 +50,10 @@
     '.ss--d{margin-right:8px}.ss--d select{border-radius:0;padding:.05em 1.7em .05em .5em}' +
     '.ss--f{display:inline-flex}.ss--f select{border-radius:3px}' +
     '.ss--c{margin-left:12px}.ss--g{margin-left:6px}.ss--b{margin-right:8px}' +
+    '.ss--j{align-self:center;padding:0 12px;font-size:13px}.ss--j select{border-radius:0}' +
     '.ss{position:relative}' +
     /* phones: a compact icon button that opens the same native picker */
-    '@media (max-width:640px){.ss{gap:0;margin-left:6px}.ss--i,.ss--h,.ss--e,.ss--d{margin-right:8px}' +
+    '@media (max-width:640px){.ss{gap:0;margin-left:6px}.ss--i,.ss--h,.ss--e,.ss--d,.ss--j{margin-right:8px}' +
     '.ss__l{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}' +
     '.ss select{width:36px;height:32px;padding:0;color:transparent;background-image:none;border-radius:999px}' +
     '.ss--d select{width:32px;height:24px;border-radius:0}' +
@@ -108,6 +110,7 @@
       if (para) { para.appendChild(document.createTextNode('  ·  ')); para.appendChild(node); }
       else { var q = document.createElement('p'); q.appendChild(node); el.insertBefore(q, el.firstChild); }
     } else if (m[1] === 'prepend') el.insertBefore(node, el.firstChild);
+    else if (m[1] === 'before') el.parentNode.insertBefore(node, el);
     else if (m[1] === 'afterfirst') el.insertBefore(node, el.firstElementChild ? el.firstElementChild.nextSibling : null);
     else el.appendChild(node);
   }
