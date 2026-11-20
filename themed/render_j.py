@@ -480,6 +480,9 @@ def main():
         shutil.rmtree(dst)
     shutil.copytree(os.path.join(SRC, 'fonts'), dst)
     assert sum(r['n'] for r in ROOMS) == N_CASES
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('add_switcher', os.path.join(ROOT, 'themed', 'add_switcher.py'))
+    sw = importlib.util.module_from_spec(spec); spec.loader.exec_module(sw); sw.run('j')
     print('mockup-j: cover sheet + %d rooms, %d projects, %d now-showing slides' % (len(ROOMS), N_CASES, len(slides())))
 
 

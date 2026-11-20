@@ -14,6 +14,10 @@ N_CASES = sum(1 for r in _LIVE['rooms'] for it in r['items'] if it.get('kind') =
 
 # newest first; href is relative to styles/index.html
 VERSIONS = [
+    dict(key='j', name='Working Drawings', date='Nov 2026', href='../mockup-j/index.html', family='Drawing set',
+         line='A set of working drawings: every project shown first as an ink line drawing of its own screen, then built into the real thing under the pointer.',
+         knobs=dict(ground='Drafting film, ink and one red pencil', type='National Park lettering', layout='Bordered sheets with a title strip',
+                    motion='Plot wipes and a pointer fluid', signature='The pointer builds the drawing into the real screen')),
     dict(key='i', name='Transit Map', date='Nov 2026', href='../index.html', family='Map',
          line='Five rooms as transit lines and every project a station, on an octilinear network map with real interchanges.',
          knobs=dict(ground='Map white', type='Overpass signage', layout='Network map and line strip maps',
