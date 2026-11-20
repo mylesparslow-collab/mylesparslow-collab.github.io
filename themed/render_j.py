@@ -57,6 +57,13 @@ for i, r in enumerate(ROOMS):
         it['room'] = r
 BY = {r['slug']: r for r in ROOMS}
 CASE = {it['id']: it for r in ROOMS for it in r['cases']}
+# live.json carries three lead images on the wrong project (fieldwork.jpg on rsctiktok, northfield.jpg on money,
+# aftercare.jpg on mecfs) while the projects those files are named after have none: the old extractor ran on from an
+# image-less index row into the next row. When a thumb is named after another project that has no thumb, give it back.
+for _it in list(CASE.values()):
+    _stem = os.path.splitext(os.path.basename(_it['thumb']))[0]
+    if _stem and _stem != _it['id'] and _stem in CASE and not CASE[_stem]['thumb']:
+        CASE[_stem]['thumb'], _it['thumb'] = _it['thumb'], ''
 N_CASES = len(CASE)
 SLUGS = [r['slug'] for r in ROOMS]
 ID_ROOM = {}
@@ -159,7 +166,7 @@ def strip_nav(depth, cur):
         on = r['slug'] == cur
         lis.append('<li><a href="%s%s/index.html"%s><b aria-hidden="true">%s</b><span>%s</span><i>%d<span class="vh"> projects</span></i></a></li>'
                    % (up, r['slug'], ' aria-current="page"' if on else '', r['letter'], esc(r['short']), r['n']))
-    here = ('Cover sheet &middot; %d projects' % N_CASES) if cur == 'home' else 'Sheet %d of %d &middot; %s' % (BY[cur]['i'] + 1, len(ROOMS), BY[cur]['title'])
+    here = 'Cover sheet' if cur == 'home' else 'Sheet %d of %d &middot; %s' % (BY[cur]['i'] + 1, len(ROOMS), BY[cur]['title'])
     return ('<nav class="strip" id="nav" aria-label="Site">'
             '<a class="strip__home" href="%sindex.html"%s>%s<span>Myles Parslow</span><span class="vh"> (home)</span></a>'
             '<button type="button" class="strip__menu" id="menu" aria-expanded="false" aria-controls="sheets">Rooms</button>'
@@ -178,10 +185,10 @@ def page(title, desc, depth, cls, inner, cur, head_extra='', tail=''):
             '<link rel="icon" href="%s../favicon.svg" type="image/svg+xml">\n'
             '<link rel="preload" href="%sfonts/NationalPark.woff2" as="font" type="font/woff2" crossorigin>\n'
             '%s\n%s<link rel="stylesheet" href="%sj.css">\n</head>\n<body class="%s">\n'
-            '<a class="skip" href="#main">%s</a>\n%s\n<div class="frame" aria-hidden="true"></div>\n%s\n'
+            '<a class="skip" href="%s">%s</a>\n%s\n<div class="frame" aria-hidden="true"></div>\n%s\n'
             '<script src="%sj.js" defer></script>\n%s</body>\n</html>\n') % (
         esc(title), qa(desc), up, up, HEAD_SCRIPT, head_extra, up, cls,
-        'Skip to the rooms' if depth == 0 else 'Skip to the projects', strip_nav(depth, cur), inner, up, tail)
+        '#index' if depth == 0 else '#main', 'Skip to the rooms' if depth == 0 else 'Skip to the projects', strip_nav(depth, cur), inner, up, tail)
 
 
 def contact_mail():
@@ -287,7 +294,7 @@ def home():
              '<figure class="now" id="now" aria-labelledby="now-cap">'
              '<div class="now__plate" id="plate" style="--ar:16/10"><img id="now-img" src="%s" alt="" width="%d" height="%d" decoding="async" fetchpriority="high">'
              '<canvas id="now-ink" aria-hidden="true"></canvas><canvas id="now-gl" aria-hidden="true"></canvas></div>'
-             '<figcaption class="now__cap"><p id="now-cap"><span class="lab">Now showing</span> '
+             '<figcaption class="now__cap"><p id="now-cap" aria-live="polite"><span class="lab">Now showing</span> '
              '<a id="now-link" href="%s"><span class="code" id="now-code">%s</span> <b id="now-n">%s</b> <span id="now-s">%s</span></a></p>'
              '<div class="now__ctl" id="now-ctl" hidden><button type="button" class="btn" id="now-build" aria-pressed="false">Show it built</button>'
              '<button type="button" class="btn sq" data-d="-1" aria-label="Previous project">&larr;</button>'
@@ -400,8 +407,11 @@ def dwg(r, it):
                 % (oc['room']['slug'], o, oc['title'], esc(oc['room']['short']), esc(x['why'])))
     plate = ''
     if it['thumb']:
-        plate = ('<figure class="plate" data-ink><img src="%s" alt="" width="1120" height="700" loading="lazy" decoding="async">'
-                 '<canvas aria-hidden="true"></canvas></figure>') % qa('../' + it['thumb'])
+        pw, ph = img_size(os.path.join(ROOT, it['thumb'].replace('../', '', 1)))
+        if not pw or not ph:
+            pw, ph = 1120, 700
+        plate = ('<figure class="plate%s" data-ink style="--ar:%d/%d"><img src="%s" alt="" width="%d" height="%d" loading="lazy" decoding="async">'
+                 '<canvas aria-hidden="true"></canvas></figure>') % (' plate--tall' if pw / ph < 1.05 else '', pw, ph, qa('../' + it['thumb']), pw, ph)
     return ('<article class="dwg%s" id="%s" aria-labelledby="t-%s">'
             '<header class="dwg__h"><p class="dwg__meta"><span class="code">%s</span><span class="cnt">%s</span>%s</p>'
             '%s<h2 class="dwg__t" id="t-%s">%s</h2><p class="dwg__sub">%s</p></header>'
@@ -441,7 +451,7 @@ def room(r):
     groups = sum(1 for it in r['items'] if it['kind'] == 'group')
     glance = ''
     if r['slug'] == 'legal':
-        glance = ('<p class="rhead__note">%d tools in %d groups, flagships first, then by practice area. <span class="tier tier--flagship">Flagship system</span> marks a flagship.</p>') % (r['n'], groups)
+        glance = ('<p class="rhead__note">%d tools in %d groups, flagships first, then by practice area. <span class="tier tier--flagship">Flagship system</span> marks the largest builds.</p>') % (r['n'], groups)
     head = ('<header class="rhead" id="top"><span class="rhead__mark" aria-hidden="true">%s</span>' % r['letter'] + alias_html(r['slug'], 'top') + '<p class="lab"><b class="bal" aria-hidden="true">%s</b>%s &middot; %s</p>'
             '<h1 class="rhead__t"><a href="../index.html" title="Back to the cover sheet">%s</a></h1>'
             '<p class="rhead__lede">%s</p>%s</header>') % (r['letter'], r['eyebrow'], '%d projects' % r['n'], r['title'], r['lede'], glance)

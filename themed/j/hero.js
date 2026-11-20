@@ -39,20 +39,29 @@
     now.classList.toggle('is-built', on);
     if (G) G.buildTo = on ? 1 : 0;
   }
+  var current = null;                                     // the Image now on the plate (kept for theme redraws)
   function show(i) {
-    idx = (i + S.length) % S.length; caption(); setBuilt(false);
-    var s = S[idx], im = new Image();
-    var ready = function () {
-      if (S[idx] !== s) return;
-      img.src = s.src; img.width = s.w; img.height = s.hh;
+    idx = (i + S.length) % S.length;
+    var s = S[idx], im = new Image(), done = false;
+    plate.setAttribute('aria-busy', 'true');
+    // The caption, counter and link change together with the picture, never before it. If the picture cannot
+    // load, the caption still moves on so the control is not stuck on a stale name.
+    var ready = function (ok) {
+      if (done || S[idx] !== s) return; done = true;
+      caption(); setBuilt(false); plate.removeAttribute('aria-busy');
+      if (!ok) return;
+      current = im; img.src = s.src; img.width = s.w; img.height = s.hh;
       if (mode === 'gl') G.setImage(im); else drawInk(im);
     };
+    im.onload = function () { ready(true); }; im.onerror = function () { ready(false); };
     im.src = s.src;
-    if (im.decode) im.decode().then(ready, function () { im.onload = ready; if (im.complete && im.naturalWidth) ready(); });
-    else im.onload = ready;
+    if (im.decode) im.decode().then(function () { ready(true); }, function () { if (im.complete && im.naturalWidth) ready(true); });
   }
   function drawInk(im) {
-    try { M.inkDraw(im, inkC, Math.min(im.naturalWidth, Math.round(plate.clientWidth * 2)), null, true); now.classList.add('is-ink'); }
+    try {                                                 // wide enough to cover the box at 2x whatever the picture's shape
+      var need = Math.max(plate.clientWidth, plate.clientHeight * im.naturalWidth / im.naturalHeight) * 2;
+      M.inkDraw(im, inkC, Math.min(im.naturalWidth, Math.round(need)), null, true); now.classList.add('is-ink');
+    }
     catch (e) { now.classList.remove('is-ink'); }
   }
   if (matchMedia('(pointer: coarse)').matches) hint.textContent = 'Every project here starts as a drawing of itself. Drag across this one to build it.';
@@ -61,7 +70,8 @@
     var b = e.target.closest('button'); if (!b) return;
     if (b === bBtn) setBuilt(!built); else show(idx + (+b.getAttribute('data-d')));
   });
-  plate.addEventListener('click', function () { if (!G || !G.dragged) location.href = S[idx].h; });
+  plate.addEventListener('click', function () { if (!G || !G.dragged) location.href = link.href; });
+  d.addEventListener('mpj-theme', function () { if (mode === 'ink' && current) drawInk(current); });
 
   /* ------------------------------------------------------------------ WebGL2 */
   function startGL() {
@@ -212,13 +222,15 @@
     }
     var qs = (location.search.match(/ink=([\d.,-]+)/) || [])[1];
     // fine level bias, blur level offset, stroke threshold, stroke range | rule threshold, rule gain, detail gate lo, hi
-    var INK = qs ? qs.split(',').map(Number) : [-0.4, 1.7, 0.05, 0.16, 0.045, 6, 0.02, 0.08];
+    var INK = qs ? qs.split(',').map(Number) : ((window.devicePixelRatio || 1) < 1.5
+      ? [-1.2, 0.9, 0.06, 0.12, 0.045, 6, 0.02, 0.08]          // 1x screens: a sharper level and a tighter blur keep small type readable
+      : [-0.4, 1.7, 0.05, 0.16, 0.045, 6, 0.02, 0.08]);
     var col = { paper: [1, 1, 1], ink: [0, 0, 0], red: [1, 0, 0] };
     var zoom = 1;
     function readZoom() { zoom = parseFloat(getComputedStyle(plate).getPropertyValue('--zoom')) || 1; }
     readZoom();
     function colours() { ['paper', 'ink', 'red'].forEach(function (k) { col[k] = M.rgb(M.token('--' + k)).map(function (v) { return v / 255; }); }); }
-    colours(); d.addEventListener('mpj-theme', colours);
+    colours(); d.addEventListener('mpj-theme', function () { colours(); wake(); });
     function composite() {
       run(P.comp, null, { uImg: st.tex || st.dye.read, uDye: st.dye.read, uVel: st.vel.read, uRes: [glC.width, glC.height],
         uPaper: col.paper, uInk: col.ink, uRed: col.red, uAspect: st.W / st.H, uImgAspect: st.imgAspect,
@@ -246,7 +258,7 @@
     plate.addEventListener('pointerdown', function (e) { aim(e); prev = ptr.slice(); downAt = [e.clientX, e.clientY]; st.dragged = false; });
     plate.addEventListener('pointermove', function (e) { aim(e); if (downAt && Math.abs(e.clientX - downAt[0]) + Math.abs(e.clientY - downAt[1]) > 8) st.dragged = true; });
     plate.addEventListener('pointerup', function () { setTimeout(function () { downAt = null; st.dragged = false; }, 0); });
-    if ('ResizeObserver' in window) new ResizeObserver(function () { if (st.alive && Math.abs(plate.clientWidth - st.W) + Math.abs(plate.clientHeight - st.H) > 1) alloc(); }).observe(plate);
+    if ('ResizeObserver' in window) new ResizeObserver(function () { if (st.alive && Math.abs(plate.clientWidth - st.W) + Math.abs(plate.clientHeight - st.H) > 1) { alloc(); wake(); } }).observe(plate);
     if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { visible = es[0].intersectionRatio > 0.25; if (visible) { last = performance.now(); kick(); } }, { threshold: [0, 0.25, 0.5] }).observe(plate);
     d.addEventListener('visibilitychange', function () { last = performance.now(); kick(); });
     glC.addEventListener('webglcontextlost', function (e) { e.preventDefault(); st.alive = false; fallback(); });
@@ -276,6 +288,8 @@
       window.__mpj = { mode: 'gl', sim: st.sim, passes: st.passes, canvas: [glC.width, glC.height] };
     }
     function kick() { if (!raf && st.alive) raf = requestAnimationFrame(frame); }
+    // resizing clears the canvas and a theme change alters the colours: both need a fresh frame even when asleep
+    function wake() { lastMove = performance.now(); kick(); }
     kick();
     return st;
   }

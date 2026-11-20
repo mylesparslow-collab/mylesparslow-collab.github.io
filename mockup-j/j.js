@@ -16,24 +16,29 @@
      Runs in slices of a few milliseconds so that no frame carries the whole image; done() is called when the
      canvas holds the drawing. Pass sync=true for a one-off that may block (the cover plate's fallback). */
   function inkDraw(img, canvas, W, done, sync) {
-    var H = Math.round(W * img.naturalHeight / img.naturalWidth);
+    var H = Math.round(W * img.naturalHeight / img.naturalWidth), job = (canvas._job || 0) + 1;
+    canvas._job = job;                                                // a newer call on the same canvas cancels this one
     canvas.width = W; canvas.height = H;
     var x = canvas.getContext('2d', { willReadFrequently: true });
     x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high';
-    var small = d.createElement('canvas'), k3 = 3.4;
+    var small = d.createElement('canvas'), k3 = 3.4, bl, src, s, L, D, i;
     small.width = Math.max(2, Math.round(W / k3)); small.height = Math.max(2, Math.round(H / k3));
-    small.getContext('2d').drawImage(img, 0, 0, small.width, small.height);
-    x.drawImage(small, 0, 0, W, H);                                   // the blurred copy, scaled back up
-    var bl = x.getImageData(0, 0, W, H).data;
-    x.drawImage(img, 0, 0, W, H);
-    var src = x.getImageData(0, 0, W, H), s = src.data, n = W * H, L = new Float32Array(n), D = new Float32Array(n), i;
-    var p = rgb(token('--paper')), k = rgb(token('--ink')), y = 0, stage = 0;
-    x.fillStyle = token('--paper'); x.fillRect(0, 0, W, H);          // blank sheet until the lines are ready
+    var n = W * H, p = rgb(token('--paper')), k = rgb(token('--ink')), y = 0, stage = -2;
     var sm = function (a, b, v) { v = Math.min(1, Math.max(0, (v - a) / (b - a))); return v * v * (3 - 2 * v); };
     function slice() {
+      if (canvas._job !== job) return;
       var t0 = performance.now(), X;
       while (sync || performance.now() - t0 < 5) {
-        if (stage === 0) {                                             // pass 1: brightness and its distance from the blur
+        if (stage === -2) {                                            // setup, part 1: the blurred copy, scaled back up
+          small.getContext('2d').drawImage(img, 0, 0, small.width, small.height);
+          x.drawImage(small, 0, 0, W, H); bl = x.getImageData(0, 0, W, H).data; stage = -1;
+          if (!sync) break;
+        } else if (stage === -1) {                                     // setup, part 2: the picture itself, then a blank sheet
+          x.drawImage(img, 0, 0, W, H); src = x.getImageData(0, 0, W, H); s = src.data;
+          L = new Float32Array(n); D = new Float32Array(n);
+          x.fillStyle = token('--paper'); x.fillRect(0, 0, W, H); stage = 0;
+          if (!sync) break;
+        } else if (stage === 0) {                                             // pass 1: brightness and its distance from the blur
           var end = Math.min(n, y + 50000);
           for (i = y; i < end; i++) {
             L[i] = (0.2126 * s[i * 4] + 0.7152 * s[i * 4 + 1] + 0.0722 * s[i * 4 + 2]) / 255;
@@ -109,6 +114,7 @@
           try {
             var W = Math.min(img.naturalWidth, Math.round(fig.clientWidth * 2));   // drawn at 2x and scaled down, so the lines stay fine on 1x screens
             if (W < 40) return;
+            fig._W = W;
             inkDraw(img, cv, W, function () { fig.classList.add('is-inked'); if (fig._seen) build(fig); });
           } catch (e) { /* a tainted canvas or no 2D context: the photograph simply shows */ }
         });
@@ -123,7 +129,10 @@
     var seen = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target._seen = 1; build(e.target); seen.unobserve(e.target); } }); }, { threshold: 0.55 });
     plates.forEach(function (f) { near.observe(f); seen.observe(f); });
     d.addEventListener('mpj-theme', function () {
-      plates.forEach(function (f) { if (f._ink && !f._built) { try { inkDraw(f.querySelector('img'), f.querySelector('canvas'), f.querySelector('canvas').width); } catch (e) {} } });
+      plates.forEach(function (f) {
+        if (!f._W || f._built) return;                                // not started yet (it will read the new colours) or already a photograph
+        try { inkDraw(f.querySelector('img'), f.querySelector('canvas'), f._W, function () { f.classList.add('is-inked'); if (f._seen) build(f); }); } catch (e) {}
+      });
     });
   }
 
@@ -187,7 +196,10 @@
       if (id === cur || !links[id]) return;
       if (cur && links[cur]) links[cur].removeAttribute('aria-current');
       cur = id; var a = links[id]; a.setAttribute('aria-current', 'true');
-      if (!mq.matches) { var top = a.offsetTop - list.offsetTop; if (top < list.scrollTop + 30 || top > list.scrollTop + list.clientHeight - 60) list.scrollTop = top - list.clientHeight / 2; }
+      if (!mq.matches) {                                           // keep the marked entry inside the list's own scroll area
+        var top = a.getBoundingClientRect().top - list.getBoundingClientRect().top + list.scrollTop;
+        if (top < list.scrollTop + 30 || top > list.scrollTop + list.clientHeight - 90) list.scrollTop = top - list.clientHeight / 2;
+      }
     };
     var arts = qsa('.dwg');
     var pick = function () {                       // by geometry: the last project whose top is above the reading line
