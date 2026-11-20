@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Direction C · Strandfall (rough)</title>
+<style>
+@font-face{font-family:"Mona Sans";src:url(../fonts/MonaSans.ttf);font-weight:200 900;font-stretch:75% 125%;font-display:block}
+:root{--paper:#f1efe9;--ink:#161614;--dim:#6b6962;--line:rgba(22,22,20,.28);
+  --legal:#1f6f6a;--business:#e0a31c;--creative:#d8432b;--design:#e8e4da;--research:#2c2b29}
+*{box-sizing:border-box}html,body{margin:0;background:var(--paper);color:var(--ink)}
+body{font:400 16px/1.5 "Mona Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.rail{position:fixed;inset:0 0 auto 0;z-index:5;display:flex;justify-content:flex-end;gap:34px;padding:0 40px;border-top:2px solid var(--ink);pointer-events:none}
+.rail a{pointer-events:auto;position:relative;display:block;margin-top:var(--d);padding:5px 0 0;font-size:14px;font-weight:500;text-decoration:none;white-space:nowrap;transform-origin:50% calc(-1 * var(--d));transition:transform .9s cubic-bezier(.3,1.6,.5,1)}
+.rail a::before{content:"";position:absolute;left:50%;bottom:100%;width:1px;height:var(--d);background:var(--line)}
+.rail a:hover{transform:rotate(5deg)}
+.rail a i{display:inline-block;width:9px;height:10px;border-radius:2px;background:var(--c);margin-right:7px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.25)}
+.rail a span{color:var(--dim);font-variant-numeric:tabular-nums;margin-left:5px}
+.rail .home{margin-right:auto;font-weight:650}
+.hero{position:relative;height:100vh;min-height:620px;overflow:hidden}
+.hero canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.hero__text{position:absolute;left:40px;bottom:40px;max-width:520px}
+.hero__text .tag{font-size:clamp(28px,3.1vw,46px);line-height:1.05;font-weight:400;letter-spacing:-.02em;margin:0 0 18px}
+.hero__text p{margin:0;color:#3a3935;max-width:52ch}
+.now{position:absolute;right:40px;bottom:40px;width:300px;font-size:13px}
+.now img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;border:1px solid var(--ink)}
+.now b{font-weight:600}.now .row{display:flex;justify-content:space-between;margin-top:8px}
+.now::before{content:"";position:absolute;left:50%;bottom:100%;height:60px;width:1px;background:var(--line)}
+.hang{padding:0 40px 120px;border-top:2px solid var(--ink);position:relative}
+.hang h2{position:absolute;left:40px;top:22px;margin:0;font-size:14px;font-weight:500}
+.cols{display:grid;grid-template-columns:repeat(5,1fr);gap:28px;align-items:start}
+.col{padding-top:var(--d);position:relative}
+.col::before{content:"";position:absolute;left:4px;top:0;bottom:8px;width:1px;background:var(--line)}
+.col h3{margin:0 0 14px;font-size:clamp(22px,2.2vw,32px);font-weight:500;letter-spacing:-.02em;padding-left:22px;position:relative}
+.col h3 small{display:block;font-size:13px;color:var(--dim);font-weight:400;letter-spacing:0}
+.col ul{list-style:none;margin:0;padding:0}
+.col li{position:relative;padding:3px 0 3px 22px;font-size:14.5px;line-height:1.3}
+.col li::before,.col h3::before{content:"";position:absolute;left:0;top:7px;width:9px;height:10px;border-radius:2px;background:var(--c);box-shadow:inset 0 0 0 1px rgba(0,0,0,.25)}
+.col h3::before{top:12px;height:14px;width:11px;left:-1px}
+.col li.f{font-weight:650}
+@media (max-width:800px){
+  .rail{padding:0 16px;gap:14px}.rail a{font-size:12px}.rail a span{display:none}.rail a:nth-child(n+5){display:none}
+  .hero__text{left:16px;right:16px;bottom:24px}.now{display:none}
+  .hang{padding:0 16px 60px}.hang h2{left:16px}.cols{grid-template-columns:1fr 1fr;gap:18px}.col li{font-size:13.5px}
+}
+</style></head>
+<body>
+<nav class="rail" aria-label="Rooms">
+  <a class="home" href="#" style="--d:14px">Myles Parslow</a>
+  <a href="#" style="--d:46px;--c:var(--legal)"><i></i>Legal<span>32</span></a>
+  <a href="#" style="--d:22px;--c:var(--business)"><i></i>Business<span>14</span></a>
+  <a href="#" style="--d:60px;--c:var(--creative)"><i></i>Creative<span>15</span></a>
+  <a href="#" style="--d:30px;--c:var(--design)"><i></i>Design<span>5</span></a>
+  <a href="#" style="--d:50px;--c:var(--research)"><i></i>Research<span>20</span></a>
+</nav>
+<header class="hero">
+  <canvas id="gl" aria-hidden="true"></canvas>
+  <h1 class="sr">Myles Parslow makes things with AI.</h1>
+  <div class="hero__text">
+    <p class="tag">makes things with AI.</p>
+    <p>Production software for law firms and local businesses. Novels, screenplays and games. Local-first AI agents and research tools. Every project here is real, working work, and the write-ups say what I built and which AI tools did which part.</p>
+  </div>
+  <div class="now"><img src="/assets/thumbs-hd/conflara.jpg" alt=""><div class="row"><span><b>Conflion</b> · full-function firm software</span><span>01 / 10</span></div></div>
+</header>
+<section class="hang">
+  <h2>86 projects on five strands</h2>
+  <div class="cols" id="cols"></div>
+</section>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
+<script type="module">
+import * as THREE from 'three';
+/* Rough for the contact sheet. GL starts from the skill's instanced-grass demo: one small geometry,
+   per-instance attributes, all motion in the vertex shader, pointer push, tier switch, reduced motion. */
+const PALETTE = { paper:'#f1efe9', ink:'#161614' };
+const FUSE = ['#1f6f6a','#e0a31c','#d8432b','#f4f1ea','#2c2b29','#3f8fd0'].slice(0,5);   // room colours, used as stray beads
+const raw = h => new THREE.Color().setHex(parseInt(h.slice(1),16), THREE.LinearSRGBColorSpace);
+const gl2 = document.createElement('canvas').getContext('webgl2');
+const dbg = gl2 && gl2.getExtension('WEBGL_debug_renderer_info');
+const software = !!gl2 && /swiftshader|llvmpipe|software/i.test(String(gl2.getParameter(dbg ? dbg.UNMASKED_RENDERER_WEBGL : gl2.RENDERER)));
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const narrow = innerWidth < 800;
+
+// room lists (inner section)
+const ROOMS = [['Legal','32 projects','legal',['Conflion*','Conflion Rust Edition*','simbaOS*','Golden Gate Board*','Win your case ASAP*','VigilMark*','Skippy','LexAtlas','Praxis','Citation Gate','Testimony Check','Case Wins Debrief','California Deadlines','Motion Mapper','Jury Lab','Exposure Modeler','SeedShield','Companion Reader: Legal mode','Conflion Small Firm','Party Finder','Name-match bake-off','Synthesis','SNF Deal Desk','The Deal Desk','Stemma','Guideline Guard','Hour Catch','Matter Desk','Marketing Studio','Crosswalk','Copilot Kit','Firm Facts'],46],
+ ['Business','14 projects','business',['RSC Tool*','rscrafters.com','Ad studio','TikTok on autopilot','Fieldwork*','Money Desk','Northfield Realty*','Permit Postcards','Sample sites*','Site Kit','Front Office','Back-office automations','MLP Consulting','Thrifty Vows'],110],
+ ['Creative & games','15 projects','creative',['Cat songs and music videos*','CatGPT','Clay explainers','No Ear Cut Twice','Thalweg','Horror screenwriting pipeline','Kitty Kart','Brinewake','Glyphdeep','Ozymandias in clay','Cat fairytales','SMUDGEPOT','Pet → playable character','Second Thought','Orrery'],70],
+ ['Design & 3D','5 projects','design',['Specimen Room*','Ring Studio*','Logo Studio','Strandfall','ASCII animations'],150],
+ ['AI & research','20 projects','research',['BLACKBOX*','AgentForge','AgentForge Rust Edition*','Highlight Bar','Atlas','Tab Bankruptcy','Argument X-ray','Boardroom of One','Small-model proof','Usage Flame','MORPH','Byzantium*','ME/CFS and Long COVID evidence map','Clear Aftercare','WHITE SPACE','Standing Orders','Mimic','Companion Reader','Conjecture Ledger','Trauma guideline citation audit'],86]];
+document.getElementById('cols').innerHTML = ROOMS.map(r => `<div class="col" style="--d:${narrow?60:r[4]}px;--c:var(--${r[2]})"><h3>${r[0]}<small>${r[1]}</small></h3><ul>${r[3].map(n=>`<li${n.endsWith('*')?' class="f"':''}>${n.replace('*','')}</li>`).join('')}</ul></div>`).join('');
+
+await document.fonts.load('800 100px "Mona Sans"');
+const canvas = document.getElementById('gl');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+const scene = new THREE.Scene(); scene.background = raw(PALETTE.paper);
+const camera = new THREE.PerspectiveCamera(24, 1, 1, 4000);
+
+// ---- text mask -> bead plan
+const COLS = +new URLSearchParams(location.search).get('cols') || (narrow ? 110 : 200), LAYERS = narrow ? 9 : 13;
+const lines = ['Myles','Parslow'];
+const mc = document.createElement('canvas'), mx = mc.getContext('2d', { willReadFrequently:true });
+let fs = 100; mx.font = `800 ${fs}px "Mona Sans"`;
+const wmax = Math.max(...lines.map(l => mx.measureText(l).width));
+fs = fs * (COLS * 0.985) / wmax;
+const lhp = fs * 0.86, ROWS = Math.ceil(lhp * lines.length + fs * 0.25);
+mc.width = COLS; mc.height = ROWS;
+mx.font = `800 ${fs}px "Mona Sans"`; mx.fillStyle = '#000'; mx.textBaseline = 'alphabetic';
+lines.forEach((l, i) => mx.fillText(l, 1, fs * 0.80 + i * lhp));
+const md = mx.getImageData(0, 0, COLS, ROWS).data;
+const on = new Uint8Array(COLS * ROWS); for (let i = 0; i < COLS * ROWS; i++) on[i] = md[i * 4 + 3] > 110 ? 1 : 0;
+// distance to edge (chamfer, capped) -> pillow extrusion
+const dist = new Uint8Array(COLS * ROWS), half = (LAYERS - 1) / 2;
+for (let i = 0; i < COLS * ROWS; i++) dist[i] = on[i] ? 99 : 0;
+for (let pass = 0; pass < half + 1; pass++) for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) { const i = y * COLS + x; if (!on[i]) continue;
+  let m = 99; for (const [dx, dy] of [[1,0],[-1,0],[0,1],[0,-1]]) { const xx = x + dx, yy = y + dy; m = Math.min(m, (xx < 0 || yy < 0 || xx >= COLS || yy >= ROWS) ? 0 : dist[yy * COLS + xx]); }
+  dist[i] = Math.min(dist[i], m + 1); }
+let s = 11; const rnd = () => { s = (s + 0x6d2b79f5) | 0; let x = Math.imul(s ^ (s >>> 15), 1 | s); x ^= x + Math.imul(x ^ (x >>> 7), 61 | x); return ((x ^ (x >>> 14)) >>> 0) / 4294967296; };
+const pos = [], col = [], strand = [], sPos = [], sLen = [];
+const inkA = raw('#151513'), inkB = raw('#2e2c28'), TOP = ROWS * 0.5 + 60;
+for (let x = 0; x < COLS; x++) for (let l = 0; l < LAYERS; l++) {
+  const z = (l - half), slip = rnd() < 0.035 ? (1 + (rnd() * 3 | 0)) : 0; let low = null, any = false;
+  for (let y = 0; y < ROWS; y++) { const i = y * COLS + x; if (!on[i]) continue;
+    const reach = Math.min(half, dist[i] * 0.9 - 0.2); if (Math.abs(z) > reach) continue;
+    if (rnd() < 0.025) continue;                                   // dropout
+    const wy = ROWS / 2 - y - slip;
+    pos.push(x - COLS / 2 + 0.5, wy, z);
+    const c = rnd() < 0.045 ? raw(FUSE[rnd() * FUSE.length | 0]) : inkA.clone().lerp(inkB, rnd());
+    col.push(c.r, c.g, c.b); strand.push(x - COLS / 2 + 0.5, z, rnd()); any = true; low = wy; }
+  if (any) { sPos.push(x - COLS / 2 + 0.5, z); sLen.push(TOP - low + 0.5); }
+}
+const base = pos.length / 3;
+for (let i = 0; i < base; i++) { if (rnd() < 0.5) continue;                 // afterimage: an earlier moment, strung behind in near-white
+  pos.push(pos[i*3] - 5, pos[i*3+1] + 2.5, pos[i*3+2] - (LAYERS + 5)); col.push(1.0, .99, .96); strand.push(strand[i*3] - 5, strand[i*3+1] - (LAYERS + 5), strand[i*3+2]); }
+const N = pos.length / 3;
+const bead = new THREE.CylinderGeometry(0.44, 0.44, 0.86, 8, 1, false);
+const geo = new THREE.InstancedBufferGeometry(); geo.index = bead.index;
+geo.setAttribute('position', bead.attributes.position); geo.setAttribute('normal', bead.attributes.normal);
+geo.setAttribute('aPos', new THREE.InstancedBufferAttribute(new Float32Array(pos), 3));
+geo.setAttribute('aCol', new THREE.InstancedBufferAttribute(new Float32Array(col), 3));
+geo.setAttribute('aStrand', new THREE.InstancedBufferAttribute(new Float32Array(strand), 3));
+geo.instanceCount = N;
+const SWAY = /* glsl */`
+  uniform float uTime, uTop; uniform vec3 uPointer; uniform float uPush;
+  vec2 sway(vec2 sxz, float seed, float y){
+    float k = (uTop - y) / 120.0;                                  // further below the anchor = swings further
+    vec2 drift = vec2(sin(uTime * .7 + sxz.x * .09 + seed * 6.28), cos(uTime * .53 + sxz.x * .07 + seed * 4.0)) * .16;
+    vec2 away = vec2(sxz.x - uPointer.x, 0.0); float d = length(vec2(sxz.x - uPointer.x, (y - uPointer.y) * .6));
+    vec2 push = vec2(sign(away.x + 1e-4) * .35, 1.0) * smoothstep(13.0, 0.0, d) * uPush * (2.6 + 3.0 * seed);
+    return (drift + push) * k * 1.6;
+  }`;
+const mat = new THREE.ShaderMaterial({
+  uniforms: { uTime:{value:0}, uTop:{value:TOP}, uPointer:{value:new THREE.Vector3(999,0,0)}, uPush:{value:0}, uPaper:{value:raw(PALETTE.paper)}, uHalf:{value:half} },
+  vertexShader: SWAY + /* glsl */`
+    attribute vec3 aPos, aCol, aStrand; varying vec3 vCol, vN; varying float vZ;
+    void main(){ vec2 o = sway(aStrand.xy, aStrand.z, aPos.y);
+      vec3 p = position + aPos + vec3(o.x, 0.0, o.y);
+      vCol = aCol; vN = normalMatrix * normal; vZ = aPos.z + o.y;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0); }`,
+  fragmentShader: /* glsl */`
+    uniform vec3 uPaper; uniform float uHalf; varying vec3 vCol, vN; varying float vZ;
+    void main(){ vec3 n = normalize(vN); float d = dot(n, normalize(vec3(-.5,.55,.65))) * .5 + .5;
+      vec3 c = vCol * (.6 + .7 * d) + vec3(.16) * pow(d, 8.0);
+      float back = smoothstep(uHalf, -uHalf, vZ) * step(-uHalf - 2.0, vZ);                    // rear layers fade toward the wall
+      gl_FragColor = vec4(mix(c, uPaper, back * .42), 1.0); }` });
+const beads = new THREE.Mesh(geo, mat); beads.frustumCulled = false; scene.add(beads);
+// fishing line: one instanced thin quad per strand
+const lg = new THREE.InstancedBufferGeometry(); lg.setIndex([0,1,2,1,3,2]);
+lg.setAttribute('position', new THREE.Float32BufferAttribute([-.5,0,0, .5,0,0, -.5,1,0, .5,1,0], 3));
+lg.setAttribute('aS', new THREE.InstancedBufferAttribute(new Float32Array(sPos), 2));
+lg.setAttribute('aL', new THREE.InstancedBufferAttribute(new Float32Array(sLen), 1));
+lg.instanceCount = sLen.length;
+const lmat = new THREE.ShaderMaterial({ transparent:true, depthWrite:false,
+  uniforms: Object.assign({ uInk:{value:raw(PALETTE.ink)} }, mat.uniforms),
+  vertexShader: SWAY + /* glsl */`
+    attribute vec2 aS; attribute float aL; varying float vT;
+    void main(){ float y = uTop - position.y * aL; vec2 o = sway(aS, 0.5, y);
+      vec3 p = vec3(aS.x + position.x * .09 + o.x, y, aS.y + o.y); vT = position.y;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0); }`,
+  fragmentShader: `uniform vec3 uInk; varying float vT; void main(){ gl_FragColor = vec4(uInk, .30); }` });
+const lines3 = new THREE.Mesh(lg, lmat); lines3.frustumCulled = false; scene.add(lines3);
+
+const ndc = new THREE.Vector2(0, 0), ray = new THREE.Raycaster(), plane = new THREE.Plane(new THREE.Vector3(0,0,1), 0), hit = new THREE.Vector3();
+let lastMove = -1e9, pushT = 0, mxn = 0, myn = 0;
+addEventListener('pointermove', e => { const r = canvas.getBoundingClientRect(); ndc.set((e.clientX - r.left) / r.width * 2 - 1, 1 - (e.clientY - r.top) / r.height * 2); lastMove = performance.now(); });
+function size(){ const w = canvas.clientWidth, h = canvas.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+addEventListener('resize', size); size();
+const Q = new URLSearchParams(location.search);
+function frame(t){
+  const sc = Math.min(1, scrollY / innerHeight), walk = +(Q.get('walk') || 0) || sc;
+  mxn += (ndc.x - mxn) * .06; myn += (ndc.y - myn) * .06;
+  const fit = (COLS / 2) / Math.tan(camera.fov * Math.PI / 360) / camera.aspect * (narrow ? 1.12 : 1.5);
+  const yaw = mxn * .16 + walk * 1.15, dist = fit * (1 - walk * .35);
+  const cy = narrow ? -ROWS * .38 : -ROWS * .16;                     // text sits in the upper half
+  const cx0 = narrow ? 0 : COLS * .22; camera.position.set(cx0 + Math.sin(yaw) * dist, cy + myn * 6, Math.cos(yaw) * dist); camera.lookAt(cx0, cy, 0); camera.updateMatrixWorld();
+  const idle = performance.now() - lastMove > 2500;
+  if (idle) ndc.set(.55 * Math.sin(t * .35), .25 + .1 * Math.sin(t * .5));
+  ray.setFromCamera(ndc, camera); if (ray.ray.intersectPlane(plane, hit)) mat.uniforms.uPointer.value.copy(hit);
+  pushT += ((reduced ? 0 : 1) - pushT) * .05; mat.uniforms.uPush.value = pushT;
+  mat.uniforms.uTime.value = reduced ? 0 : t;
+  renderer.render(scene, camera);
+}
+if (reduced) frame(0); else renderer.setAnimationLoop(n => frame(n / 1000));
+window.__c = { beads: N, strands: sLen.length };
+</script>
+</body></html>

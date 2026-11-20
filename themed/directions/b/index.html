@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Myles Parslow · Drawing Set</title>
+<style>
+@font-face{font-family:"Barlow Semi Condensed";font-weight:400;src:url("../fonts/BarlowSemiCondensed-Regular.ttf") format("truetype");font-display:swap}
+@font-face{font-family:"Barlow Semi Condensed";font-weight:500;src:url("../fonts/BarlowSemiCondensed-Medium.ttf") format("truetype");font-display:swap}
+@font-face{font-family:"Barlow Semi Condensed";font-weight:600;src:url("../fonts/BarlowSemiCondensed-SemiBold.ttf") format("truetype");font-display:swap}
+@font-face{font-family:"Barlow Condensed";font-weight:600;src:url("../fonts/BarlowCondensed-SemiBold.ttf") format("truetype");font-display:swap}
+:root{--paper:#ffffff;--ink:#111111;--red:#d92b1e;--inset:20px}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--ink)}
+body{font:400 16px/1.45 "Barlow Semi Condensed",sans-serif;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+.cap{font:600 13px/1.2 "Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:.09em}
+
+/* sheet */
+.sheet{position:relative;padding:var(--inset);min-height:100vh;min-height:100svh}
+.frame{position:relative;border:1px solid var(--ink);min-height:calc(100vh - 2*var(--inset));min-height:calc(100svh - 2*var(--inset))}
+.zt,.zl{position:absolute;display:flex;justify-content:space-around;align-items:center;font:600 9px/1 "Barlow Condensed",sans-serif;letter-spacing:.06em;pointer-events:none}
+.zt{left:var(--inset);right:var(--inset);top:0;height:var(--inset)}
+.zl{top:var(--inset);bottom:var(--inset);left:0;width:var(--inset);flex-direction:column}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:minmax(0,1fr) auto}
+.hl{grid-column:1;grid-row:1/span 2;padding:56px 48px 44px 48px;border-right:1px solid var(--ink);display:flex;flex-direction:column}
+h1{margin:0;font-weight:500;font-size:6.2vw;line-height:.98;letter-spacing:-.012em;max-width:9.2em}
+.lede{margin:28px 0 0;max-width:34em}
+.idx{margin-top:auto;padding-top:36px}
+.idx h2{margin:0 0 4px;padding-bottom:8px;border-bottom:1px solid var(--ink)}
+.idx ul{list-style:none;margin:0;padding:0}
+.idx li{border-bottom:1px solid var(--ink)}
+.idx a{display:grid;grid-template-columns:24px 34px 1fr auto;align-items:center;padding:7px 0;gap:0}
+.ball{width:24px;height:24px;border:1px solid var(--ink);border-radius:50%;display:grid;place-items:center;font:600 13px/1 "Barlow Condensed",sans-serif;background:var(--paper);transition:none}
+.lead{height:1px;background:var(--ink);width:34px}
+.nm{padding-left:12px;text-decoration:underline;text-decoration-color:transparent;text-underline-offset:4px;text-decoration-thickness:1px}
+.ct{font-size:14px}
+.idx a:hover .nm,.idx a:focus-visible .nm{text-decoration-color:var(--red)}
+.idx a:hover .ball,.idx a:focus-visible .ball,.ball.on{border-color:var(--red);color:var(--red)}
+.idx a:hover .lead,.idx a:focus-visible .lead{background:var(--red)}
+.idx a:focus-visible{outline:none}
+
+#stage{grid-column:2;grid-row:1;position:relative;min-height:0;overflow:hidden}
+#gl{position:absolute;inset:0;width:100%;height:100%;display:block}
+#ov{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+#ov line{stroke:var(--ink);stroke-width:1}
+#ov .ax{stroke-dasharray:10 3 2 3}
+#ov .ld.on{stroke:var(--red)}
+#ov .dot{fill:var(--ink)}
+#ov .dot.on{fill:var(--red)}
+.bl{position:absolute;left:0;top:0;width:24px;height:24px;margin:-12px 0 0 -12px;border:1px solid var(--ink);border-radius:50%;background:var(--paper);display:grid;place-items:center;font:600 13px/1 "Barlow Condensed",sans-serif;cursor:default}
+.bl.on{border-color:var(--red);color:var(--red)}
+#nogl{display:none;position:absolute;inset:0;place-items:center;font-size:14px;padding:20px;text-align:center}
+
+.tb{grid-column:2;grid-row:2;justify-self:end;width:min(100%,380px);border-top:1px solid var(--ink);border-left:1px solid var(--ink)}
+.tb .r{padding:8px 14px;border-top:1px solid var(--ink);font:600 14px/1.2 "Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:.09em;display:flex;align-items:center;gap:10px}
+.tb .r:first-child{border-top:0;font-size:22px;letter-spacing:.06em;padding:10px 14px}
+.tri{display:inline-block;width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:11px solid var(--red)}
+
+/* inner sheet */
+.inner{display:grid;grid-template-columns:1fr 1fr}
+.inner>section{padding:56px 48px 48px}
+.inner>section+section{border-left:1px solid var(--ink)}
+.inner h2{margin:0 0 6px;padding-bottom:8px;border-bottom:1px solid var(--ink)}
+.notes{list-style:none;margin:0;padding:0}
+.notes li{display:grid;grid-template-columns:44px 1fr;gap:0 8px;padding:20px 0;border-bottom:1px solid var(--ink)}
+.notes .n{font:600 20px/1.2 "Barlow Condensed",sans-serif;letter-spacing:.06em}
+.notes h3{margin:0 0 6px;font-weight:600;font-size:22px;line-height:1.2}
+.notes p{margin:0;max-width:34em}
+table{width:100%;border-collapse:collapse;margin-top:6px}
+th{font:600 12px/1.2 "Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:.09em;text-align:left;padding:8px 12px 8px 0;border-bottom:1px solid var(--ink)}
+td{vertical-align:top;padding:14px 12px 14px 0;border-bottom:1px solid var(--ink);font-size:15px;line-height:1.4}
+td:first-child{font-weight:600}
+th:last-child,td:last-child{padding-right:0}
+
+@media (max-width:760px){
+  :root{--inset:10px}
+  .zt,.zl{font-size:7px}
+  .zt span:nth-child(n+7),.zl span:nth-child(n+5){display:none}
+  .hero{display:flex;flex-direction:column}
+  #stage{order:0;height:300px;flex:none;border-bottom:1px solid var(--ink)}
+  .hl{order:1;border-right:0;padding:28px 18px 28px}
+  .tb{order:2;width:100%;border-left:0;justify-self:stretch;display:grid;grid-template-columns:1fr 1fr}
+  .tb .r{font-size:12px;padding:7px 12px}
+  .tb .r:first-child{grid-column:1/-1;border-top:0;font-size:18px}
+  .tb .r:nth-child(3){border-left:1px solid var(--ink)}
+  .tb .r:nth-child(4){grid-column:1/-1}
+  h1{font-size:12.5vw;max-width:none}
+  .lede{margin-top:20px}
+  .inner{display:block}
+  .inner>section{padding:28px 18px}
+  .inner>section+section{border-left:0;border-top:1px solid var(--ink)}
+  table,tbody,tr,td{display:block;width:100%}
+  thead{display:none}
+  tr{border-bottom:1px solid var(--ink);padding:12px 0}
+  td{border:0;padding:3px 0;font-size:15px}
+  td::before{content:attr(data-l);display:block;font:600 11px/1.2 "Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:.09em;opacity:.7}
+}
+</style></head>
+<body>
+
+<div class="sheet" id="s0">
+  <div class="zt" aria-hidden="true"></div><div class="zl" aria-hidden="true"></div>
+  <div class="frame hero">
+    <div class="hl">
+      <h1>Myles Parslow makes things with AI.</h1>
+      <p class="lede">Production software for law firms and local businesses. Novels, screenplays and games. Local-first AI agents and research tools. Every project here is real, working work, and the write-ups say what I built and which AI tools did which part: Claude, ChatGPT, Codex, Suno or models running on my own hardware.</p>
+      <nav class="idx" aria-label="Sheet index">
+        <h2 class="cap">Sheet index</h2>
+        <ul>
+          <li><a href="#legal" data-i="1"><span class="ball">1</span><span class="lead"></span><span class="nm">Legal</span><span class="ct">32 projects</span></a></li>
+          <li><a href="#business" data-i="2"><span class="ball">2</span><span class="lead"></span><span class="nm">Business</span><span class="ct">14 projects</span></a></li>
+          <li><a href="#creative" data-i="3"><span class="ball">3</span><span class="lead"></span><span class="nm">Creative &amp; games</span><span class="ct">15 projects</span></a></li>
+          <li><a href="#design" data-i="4"><span class="ball">4</span><span class="lead"></span><span class="nm">Design &amp; 3D</span><span class="ct">5 projects</span></a></li>
+          <li><a href="#research" data-i="5"><span class="ball">5</span><span class="lead"></span><span class="nm">AI &amp; research</span><span class="ct">20 projects</span></a></li>
+        </ul>
+      </nav>
+    </div>
+    <div id="stage">
+      <canvas id="gl" aria-label="Exploded line drawing of a hand-cranked orrery"></canvas>
+      <svg id="ov" aria-hidden="true"></svg>
+      <div id="nogl">This drawing needs WebGL2.</div>
+    </div>
+    <div class="tb">
+      <div class="r">Myles Parslow</div>
+      <div class="r">Sheet 0 of 5 · Index</div>
+      <div class="r">86 projects · 5 rooms</div>
+      <div class="r"><i class="tri"></i>Rev. November 2026</div>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="s1">
+  <div class="zt" aria-hidden="true"></div><div class="zl" aria-hidden="true"></div>
+  <div class="frame inner">
+    <section>
+      <h2 class="cap">General notes</h2>
+      <ol class="notes">
+        <li><span class="n">01</span><div><h3>Write the system before the thing</h3><p>A story bible before the novel, a 16-section prompt before the screenplay, a walkthrough of how the work is really done before the app. The system is what makes the result repeatable.</p></div></li>
+        <li><span class="n">02</span><div><h3>The model drafts, code decides</h3><p>In business software the AI reads and suggests, while prices, totals and matching are computed in code, and a person approves every change.</p></div></li>
+        <li><span class="n">03</span><div><h3>Ship the whole arc</h3><p>A product is not done at the demo. Tests, a walkthrough, a pilot pack, and notes for the next AI session all ship with it.</p></div></li>
+      </ol>
+    </section>
+    <section>
+      <h2 class="cap">Tool schedule</h2>
+      <table>
+        <thead><tr><th>Project</th><th>Built with</th><th>Runs on</th></tr></thead>
+        <tbody>
+          <tr><td data-l="Project">Conflion</td><td data-l="Built with">Claude Code, including the research, pilot pack, animated pitch and every firm area.</td><td data-l="Runs on">a model on the firm's own hardware through Ollama</td></tr>
+          <tr><td data-l="Project">RSC Tool</td><td data-l="Built with">Claude Code.</td><td data-l="Runs on">small local models, chosen so it runs on a modest desktop</td></tr>
+          <tr><td data-l="Project">Win your case ASAP</td><td data-l="Built with">Claude Code.</td><td data-l="Runs on">Claude, inside the user's own Claude account</td></tr>
+          <tr><td data-l="Project">Byzantium</td><td data-l="Built with">Claude Code, one long session.</td><td data-l="Runs on">no AI at runtime: it is a static site over prebuilt data.</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+</div>
+
+<script type="importmap">
+{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+</script>
+<script type="module">
+import * as THREE from 'three';
+
+/* zone marks */
+document.querySelectorAll('.sheet').forEach(s => {
+  s.querySelector('.zt').innerHTML = 'ABCDEFGHIJ'.split('').map(c => `<span>${c}</span>`).join('');
+  s.querySelector('.zl').innerHTML = [1,2,3,4,5,6].map(c => `<span>${c}</span>`).join('');
+});
+
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const stage = document.getElementById('stage'), cv = document.getElementById('gl'), ov = document.getElementById('ov');
+if (!document.createElement('canvas').getContext('webgl2')) { document.getElementById('nogl').style.display = 'grid'; throw new Error('WebGL2 unavailable'); }
+
+const INK = '#111111', PAPER = '#ffffff';
+const renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: false });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+const ink = new THREE.Color(INK), paper = new THREE.Color(PAPER);
+
+const scene = new THREE.Scene();
+scene.background = paper;
+const camera = new THREE.PerspectiveCamera(22, 1, 12, 50);
+const white = new THREE.MeshBasicMaterial({ color: 0xffffff });
+const mesh = (g, parent) => { const m = new THREE.Mesh(g, white); (parent || scene).add(m); return m; };
+
+function gearGeo(r, n, th) {
+  const s = new THREE.Shape(), step = Math.PI * 2 / n, ro = r, ri = r * 0.84;
+  const P = (rad, a) => [Math.cos(a) * rad, Math.sin(a) * rad];
+  for (let i = 0; i < n; i++) {
+    const a = i * step;
+    [[ri, 0], [ro, .14], [ro, .5], [ri, .64]].forEach(([rad, f], k) => { const [x, y] = P(rad, a + f * step); (i === 0 && k === 0) ? s.moveTo(x, y) : s.lineTo(x, y); });
+  }
+  s.closePath();
+  const h = new THREE.Path(); h.absarc(0, 0, r * 0.2, 0, Math.PI * 2, true); s.holes.push(h);
+  const g = new THREE.ExtrudeGeometry(s, { depth: th, bevelEnabled: false, curveSegments: 24 });
+  g.rotateX(-Math.PI / 2); g.translate(0, -th / 2, 0);
+  return g;
+}
+
+// base plate + ring, column, collars
+const base = mesh(new THREE.CylinderGeometry(3.1, 3.1, 0.26, 56)); base.position.y = 0;
+const ring = mesh(new THREE.TorusGeometry(2.3, 0.07, 10, 64)); ring.rotation.x = Math.PI / 2; ring.position.y = 0.16;
+const colG = new THREE.CylinderGeometry(0.17, 0.17, 1, 20); colG.translate(0, 0.5, 0);
+const col = mesh(colG); col.position.y = 0.13;
+const stub = mesh(new THREE.CylinderGeometry(0.42, 0.5, 0.3, 28)); stub.position.y = 0.28;
+
+const SPEC = [
+  { r: 1.5,  n: 20, L: 1.9, S: 1.5, sr: .20, ang: .3,  w: .14 },
+  { r: 1.1,  n: 14, L: 1.6, S: 1.9, sr: .26, ang: 1.5, w: -.18 },
+  { r: 1.32, n: 18, L: 2.0, S: 1.3, sr: .18, ang: 2.9, w: .12 },
+  { r: .85,  n: 12, L: 1.35, S: 1.7, sr: .24, ang: 4.1, w: -.16 },
+  { r: 1.2,  n: 16, L: 1.8, S: 1.45, sr: .21, ang: 5.2, w: .1 },
+];
+const levels = SPEC.map((sp, i) => {
+  const g = new THREE.Group(); scene.add(g);
+  mesh(new THREE.CylinderGeometry(0.34, 0.34, 0.3, 24), g);                       // collar
+  const arm = mesh(new THREE.BoxGeometry(sp.L, 0.14, 0.15), g); arm.position.x = sp.L / 2;
+  const gear = mesh(gearGeo(sp.r, sp.n, 0.22), g); gear.position.x = sp.L;
+  const hub = mesh(new THREE.CylinderGeometry(sp.r * 0.2 + 0.05, sp.r * 0.2 + 0.05, 0.5, 20), gear);
+  const carm = mesh(new THREE.BoxGeometry(sp.S, 0.1, 0.1), g); carm.position.x = -sp.S / 2;
+  const ball = mesh(new THREE.SphereGeometry(sp.sr, 20, 14), g); ball.position.set(-sp.S, 0.12, 0);
+  return { g, gear, sp, yA: 0.75 + i * 0.5, yE: 1.0 + i * 1.22 };
+});
+const crank = new THREE.Group(); scene.add(crank);
+mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.4, 24), crank);
+const carmA = mesh(new THREE.BoxGeometry(1.7, 0.16, 0.2), crank); carmA.position.x = 0.85;
+const knob = mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.9, 16), crank); knob.position.set(1.7, 0.4, 0);
+const knobCap = mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.14, 20), crank); knobCap.position.set(1.7, 0.9, 0);
+const crankY = [3.5, 7.0];
+
+// passes
+const colorRT = new THREE.WebGLRenderTarget(1, 1, { minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter });
+colorRT.depthTexture = new THREE.DepthTexture(1, 1);
+const normalRT = new THREE.WebGLRenderTarget(1, 1, { minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter });
+const normalMat = new THREE.MeshNormalMaterial();
+const comp = new THREE.ShaderMaterial({
+  depthTest: false, depthWrite: false,
+  uniforms: {
+    tColor: { value: colorRT.texture }, tDepth: { value: colorRT.depthTexture }, tNormal: { value: normalRT.texture },
+    uRes: { value: new THREE.Vector2() }, uNear: { value: camera.near }, uFar: { value: camera.far },
+    uThickness: { value: 1.0 }, uDepthThreshold: { value: 0.02 }, uNormalThreshold: { value: 0.5 }, uOutlineColor: { value: ink },
+  },
+  vertexShader: `varying vec2 vUv; void main(){ vUv = position.xy*0.5+0.5; gl_Position = vec4(position.xy,0.,1.); }`,
+  fragmentShader: `
+    uniform sampler2D tColor, tDepth, tNormal; uniform vec2 uRes; uniform float uNear, uFar, uThickness, uDepthThreshold, uNormalThreshold; uniform vec3 uOutlineColor;
+    varying vec2 vUv;
+    float lin(vec2 uv){ float z = texture2D(tDepth, uv).x*2.-1.; return 2.*uNear*uFar/((uFar+uNear)-z*(uFar-uNear)); }
+    vec3 nrm(vec2 uv){ return texture2D(tNormal, uv).xyz*2.-1.; }
+    void main(){
+      vec2 o = uThickness / uRes;
+      vec2 a = vUv+vec2(-o.x,-o.y), b = vUv+vec2(o.x,o.y), c = vUv+vec2(-o.x,o.y), d = vUv+vec2(o.x,-o.y);
+      float c0 = lin(vUv);
+      float de = sqrt(pow(lin(a)-lin(b),2.) + pow(lin(c)-lin(d),2.)) / c0;
+      float ne = sqrt(dot(nrm(a)-nrm(b),nrm(a)-nrm(b)) + dot(nrm(c)-nrm(d),nrm(c)-nrm(d)));
+      float e = max(smoothstep(uDepthThreshold, uDepthThreshold*1.6, de), smoothstep(uNormalThreshold, uNormalThreshold*1.4, ne));
+      vec3 col = texture2D(tColor, vUv).rgb;
+      gl_FragColor = vec4(mix(col, uOutlineColor, e), 1.);
+      #include <colorspace_fragment>
+    }`,
+});
+const tri = new THREE.Mesh(new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute([-1,-1,0, 3,-1,0, -1,3,0], 3)), comp);
+tri.frustumCulled = false;
+const quadScene = new THREE.Scene(); quadScene.add(tri);
+const quadCam = new THREE.Camera();
+
+// overlay: balloons, leaders, centre lines
+const NS = 'http://www.w3.org/2000/svg';
+const mk = (cls, attrs) => { const e = document.createElementNS(NS, 'line'); e.setAttribute('class', cls); ov.appendChild(e); return e; };
+const axis = mk('ax');
+const parts = levels.map((L, i) => {
+  const ax = mk('ax');
+  const ld = mk('ld');
+  const dot = document.createElementNS(NS, 'circle'); dot.setAttribute('r', 2.5); dot.setAttribute('class', 'dot'); ov.appendChild(dot);
+  const bl = document.createElement('div'); bl.className = 'bl'; bl.textContent = i + 1; bl.dataset.i = i + 1; stage.appendChild(bl);
+  return { ax, ld, dot, bl };
+});
+function setOn(i, on) {
+  const p = parts[i - 1]; if (!p) return;
+  p.bl.classList.toggle('on', on); p.ld.classList.toggle('on', on); p.dot.classList.toggle('on', on);
+  document.querySelectorAll(`.idx a[data-i="${i}"] .ball`).forEach(b => b.classList.toggle('on', on));
+}
+document.querySelectorAll('.idx a').forEach(a => {
+  const i = +a.dataset.i;
+  a.addEventListener('mouseenter', () => setOn(i, true)); a.addEventListener('mouseleave', () => setOn(i, false));
+  a.addEventListener('focus', () => setOn(i, true)); a.addEventListener('blur', () => setOn(i, false));
+});
+parts.forEach((p, k) => { p.bl.addEventListener('mouseenter', () => setOn(k + 1, true)); p.bl.addEventListener('mouseleave', () => setOn(k + 1, false)); });
+
+let W = 1, H = 1;
+function resize() {
+  W = stage.clientWidth; H = stage.clientHeight;
+  renderer.setSize(W, H, false);
+  const s = renderer.getDrawingBufferSize(new THREE.Vector2());
+  for (const rt of [colorRT, normalRT]) rt.setSize(s.x, s.y);
+  colorRT.depthTexture.image.width = s.x; colorRT.depthTexture.image.height = s.y;
+  comp.uniforms.uRes.value.copy(s);
+  comp.uniforms.uThickness.value = 1.0 * renderer.getPixelRatio();
+  camera.aspect = W / H; camera.updateProjectionMatrix();
+  ov.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  if (reduced) frame(0);
+}
+new ResizeObserver(resize).observe(stage);
+
+let explode = 1, target = 1;
+const hero = document.querySelector('.hero');
+if (!reduced) addEventListener('pointermove', e => {
+  const r = hero.getBoundingClientRect();
+  if (e.clientY < r.top || e.clientY > r.bottom) return;
+  target = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+});
+
+const v = new THREE.Vector3();
+const P = (x, y, z) => { v.set(x, y, z).project(camera); return [(v.x * .5 + .5) * W, (-v.y * .5 + .5) * H]; };
+const set = (l, a, b) => { l.setAttribute('x1', a[0]); l.setAttribute('y1', a[1]); l.setAttribute('x2', b[0]); l.setAttribute('y2', b[1]); };
+
+function frame(t) {
+  const sec = reduced ? 0 : t / 1000, e = explode;
+  levels.forEach(L => {
+    L.g.position.y = THREE.MathUtils.lerp(L.yA, L.yE, e);
+    L.g.rotation.y = L.sp.ang + sec * L.sp.w;
+    L.gear.rotation.y = sec * -L.sp.w * 2.2;
+  });
+  const top = THREE.MathUtils.lerp(crankY[0], crankY[1], e);
+  crank.position.y = top; crank.rotation.y = sec * .5 + .6;
+  col.scale.y = top - 0.13;
+  const aspect = W / H, dist = 28 * Math.max(1, 0.95 / aspect), el = 0.3;
+  const ly = THREE.MathUtils.lerp(2.3, 3.7, e);
+  camera.position.set(0, ly + Math.sin(el) * dist, Math.cos(el) * dist); camera.lookAt(0, ly, 0);
+  renderer.setRenderTarget(colorRT); renderer.render(scene, camera);
+  scene.overrideMaterial = normalMat; renderer.setRenderTarget(normalRT); renderer.render(scene, camera); scene.overrideMaterial = null;
+  renderer.setRenderTarget(null); renderer.render(quadScene, quadCam);
+
+  set(axis, P(0, -0.9, 0), P(0, top + 1.6, 0));
+  const bx = W - 26;
+  levels.forEach((L, i) => {
+    const gp = new THREE.Vector3(); L.gear.getWorldPosition(gp);
+    const c = P(gp.x, gp.y, gp.z), p = parts[i];
+    set(p.ax, P(gp.x, gp.y - 0.85, gp.z), P(gp.x, gp.y + 0.95, gp.z));
+    const by = P(0, L.g.position.y, 0)[1];
+    p.bl.style.transform = `translate(${bx}px,${by}px)`;
+    set(p.ld, c, [bx - 12, by]);
+    p.dot.setAttribute('cx', c[0]); p.dot.setAttribute('cy', c[1]);
+  });
+}
+
+resize();
+let raf = 0;
+function loop(t) { explode += (target - explode) * 0.07; frame(t); raf = requestAnimationFrame(loop); }
+document.addEventListener('visibilitychange', () => document.hidden ? (cancelAnimationFrame(raf), raf = 0) : (!raf && !reduced && (raf = requestAnimationFrame(loop))));
+if (reduced) frame(0); else raf = requestAnimationFrame(loop);
+</script>
+</body></html>
