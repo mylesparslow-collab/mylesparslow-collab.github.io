@@ -109,15 +109,25 @@
         // Final pass: the drawing (edges of the screenshot, as ink on paper), the built screenshot, the fluid mask
         // between them with a red pencil line on its edge, plus the two straight wipes (plot in, build).
         comp: prog('uniform sampler2D uImg, uDye, uVel; uniform vec2 uRes; uniform vec3 uPaper, uInk, uRed;\n' +
-          'uniform float uAspect, uImgAspect, uDistort, uLo, uHi, uBuild, uPlot, uReady, uLine, uBias, uGain, uTh, uZoom;\n' +
+          'uniform float uAspect, uImgAspect, uDistort, uLo, uHi, uBuild, uPlot, uReady, uZoom, uLod; uniform vec4 uInkP, uSob;\n' +
           'vec2 cover(vec2 uv){ uv = vec2(uv.x / uZoom, 1. - (1. - uv.y) / uZoom); float s = uAspect / uImgAspect; if (s > 1.) return vec2(uv.x, 1. - (1. - uv.y) / s); return vec2(uv.x * s, uv.y); }\n' +
-          'float lum(vec2 uv){ return dot(texture(uImg, uv, uBias).rgb, vec3(.2126, .7152, .0722)); }\n' +
-          'float edge(vec2 uv){ float s = uAspect / uImgAspect; vec2 px = uLine / uRes * (s > 1. ? vec2(1., 1. / s) : vec2(s, 1.));\n' +
-          '  px /= uZoom;\n  float a = lum(uv + px * vec2(-1., 1.)), b = lum(uv + px * vec2(0., 1.)), c = lum(uv + px * vec2(1., 1.));\n' +
-          '  float dd = lum(uv + px * vec2(-1., 0.)), f = lum(uv + px * vec2(1., 0.));\n' +
-          '  float g = lum(uv + px * vec2(-1., -1.)), h = lum(uv + px * vec2(0., -1.)), j = lum(uv + px * vec2(1., -1.));\n' +
-          '  float gx = (c + 2. * f + j) - (a + 2. * dd + g), gy = (a + 2. * b + c) - (g + 2. * h + j);\n' +
-          '  return clamp((length(vec2(gx, gy)) - uTh) * uGain, 0., 1.); }\n' +
+          'float lumAt(vec2 uv, float lod){ return dot(textureLod(uImg, uv, lod).rgb, vec3(.2126, .7152, .0722)); }\n' +
+          // The drawing: how far each point's brightness is from its blurred surroundings (a difference of
+          // Gaussians taken from the mip chain). Text strokes come out as single ink strokes and the borders of
+          // panels as lines; flat areas stay paper. uInkP = fine level bias, blur level offset, threshold, range.
+          'float edge(vec2 uv){ float fine = lumAt(uv, max(uLod + uInkP.x, 0.));\n' +
+          '  float bl = uLod + uInkP.y; vec2 t = exp2(bl) * .5 / vec2(textureSize(uImg, 0));\n' +
+          '  float blur = .25 * (lumAt(uv + t * vec2(1., 1.), bl) + lumAt(uv + t * vec2(-1., 1.), bl) + lumAt(uv + t * vec2(1., -1.), bl) + lumAt(uv + t * vec2(-1., -1.), bl));\n' +
+          '  float d = abs(fine - blur), strokes = smoothstep(uInkP.z, uInkP.z + uInkP.w, d);\n' +
+          // Faint rules (panel borders, dividers) are too low in contrast for that test, so a Sobel pass finds
+          // them, and is switched off wherever the first test already sees detail, which keeps type from doubling.
+          '  float l0 = max(uLod - .3, 0.); vec2 px = exp2(uLod) / vec2(textureSize(uImg, 0));\n' +
+          '  float a = lumAt(uv + px * vec2(-1., 1.), l0), b = lumAt(uv + px * vec2(0., 1.), l0), c = lumAt(uv + px * vec2(1., 1.), l0);\n' +
+          '  float e = lumAt(uv + px * vec2(-1., 0.), l0), f = lumAt(uv + px * vec2(1., 0.), l0);\n' +
+          '  float g = lumAt(uv + px * vec2(-1., -1.), l0), h = lumAt(uv + px * vec2(0., -1.), l0), j = lumAt(uv + px * vec2(1., -1.), l0);\n' +
+          '  float sob = length(vec2((c + 2. * f + j) - (a + 2. * e + g), (a + 2. * b + c) - (g + 2. * h + j)));\n' +
+          '  float rules = clamp((sob - uSob.x) * uSob.y, 0., 1.) * (1. - smoothstep(uSob.z, uSob.w, d));\n' +
+          '  return max(strokes, rules); }\n' +
           'void main(){ float m = smoothstep(uLo, uHi, texture(uDye, vUv).x);\n' +
           '  vec2 off = texture(uVel, vUv).xy * uDistort * vec2(1. / uAspect, 1.);\n' +
           '  float ax = 1.5 / uRes.x;\n' +
@@ -153,7 +163,7 @@
     function pair(w, h) { return { read: rt(w, h), write: rt(w, h), swap: function () { var x = this.read; this.read = this.write; this.write = x; } }; }
     function free(r) { if (!r) return; (r.read ? [r.read, r.write] : [r]).forEach(function (x) { gl.deleteTexture(x.t); gl.deleteFramebuffer(x.f); }); }
 
-    var st = { W: 2, H: 2, sim: null, vel: null, prs: null, dye: null, div: null, tex: null, imgAspect: 1.6, ready: 0,
+    var st = { W: 2, H: 2, sim: null, vel: null, prs: null, dye: null, div: null, tex: null, imgAspect: 1.6, imgW: 1600, ready: 0,
       build: 0, buildTo: 0, plot: 0, dragged: false, passes: 0, alive: true };
     function alloc() {
       var cw = plate.clientWidth, ch = plate.clientHeight, dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -176,6 +186,7 @@
         if (typeof v === 'number') gl.uniform1f(loc, v);
         else if (v.length === 2) gl.uniform2f(loc, v[0], v[1]);
         else if (v.length === 3) gl.uniform3f(loc, v[0], v[1], v[2]);
+        else if (v.length === 4) gl.uniform4f(loc, v[0], v[1], v[2], v[3]);
         else { gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, v.t || v); gl.uniform1i(loc, unit); unit++; }
       }
       gl.bindFramebuffer(gl.FRAMEBUFFER, target ? target.f : null);
@@ -200,9 +211,8 @@
       run(P.advect, D.write, { uVel: vel.read, uSrc: D.read, uDt: dt, uAspect: aspect, uDecay: Math.pow(DYE_DECAY, dt) }); D.swap();     // 6. dye
     }
     var qs = (location.search.match(/ink=([\d.,-]+)/) || [])[1];
-    // line offset in output pixels, mip bias, gain, threshold: finer and lighter on 1x screens so small type stays legible
-    var INK = qs ? qs.split(',').map(Number) : ((window.devicePixelRatio || 1) < 1.5 ? [0.55, -2, 2.0, 0.10] : [1.1, -0.7, 2.7, 0.07]);
-    var INK_SMALL = [0.8, -1.2, 2.1, 0.09];                       // phone-sized plates: the same picture in far fewer pixels
+    // fine level bias, blur level offset, stroke threshold, stroke range | rule threshold, rule gain, detail gate lo, hi
+    var INK = qs ? qs.split(',').map(Number) : [-0.4, 1.7, 0.05, 0.16, 0.045, 6, 0.02, 0.08];
     var col = { paper: [1, 1, 1], ink: [0, 0, 0], red: [1, 0, 0] };
     var zoom = 1;
     function readZoom() { zoom = parseFloat(getComputedStyle(plate).getPropertyValue('--zoom')) || 1; }
@@ -212,7 +222,7 @@
     function composite() {
       run(P.comp, null, { uImg: st.tex || st.dye.read, uDye: st.dye.read, uVel: st.vel.read, uRes: [glC.width, glC.height],
         uPaper: col.paper, uInk: col.ink, uRed: col.red, uAspect: st.W / st.H, uImgAspect: st.imgAspect,
-        uDistort: DISTORT, uLo: LO, uHi: HI, uBuild: st.build, uPlot: st.plot, uReady: st.tex ? 1 : 0, uLine: (qs || st.W >= 600 ? INK : INK_SMALL)[0], uBias: (qs || st.W >= 600 ? INK : INK_SMALL)[1], uGain: (qs || st.W >= 600 ? INK : INK_SMALL)[2], uTh: (qs || st.W >= 600 ? INK : INK_SMALL)[3], uZoom: zoom });
+        uDistort: DISTORT, uLo: LO, uHi: HI, uBuild: st.build, uPlot: st.plot, uReady: st.tex ? 1 : 0, uInkP: INK.slice(0, 4), uSob: INK.slice(4, 8), uLod: Math.log2(Math.max(1, st.imgW * Math.min(1, (st.W / st.H) / st.imgAspect) / (glC.width * zoom))), uZoom: zoom });
     }
     function clearSim() { [st.vel.read, st.vel.write, st.dye.read, st.dye.write, st.prs.read, st.prs.write].forEach(function (r) {
       gl.bindFramebuffer(gl.FRAMEBUFFER, r.f); gl.clearColor(0, 0, 0, 1); gl.clear(gl.COLOR_BUFFER_BIT); }); }
@@ -226,7 +236,7 @@
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
       if (aniso) gl.texParameterf(gl.TEXTURE_2D, aniso.TEXTURE_MAX_ANISOTROPY_EXT, 4);
       if (st.tex) gl.deleteTexture(st.tex);
-      st.tex = t; st.imgAspect = im.naturalWidth / im.naturalHeight;
+      st.tex = t; st.imgAspect = im.naturalWidth / im.naturalHeight; st.imgW = im.naturalWidth;
       st.plot = 0; st.build = 0; st.buildTo = 0; clearSim(); lastInput = performance.now() - IDLE_MS + 900;
     };
 

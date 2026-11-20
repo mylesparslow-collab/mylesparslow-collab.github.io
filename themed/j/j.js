@@ -9,35 +9,47 @@
   function token(name) { return getComputedStyle(root).getPropertyValue(name).trim(); }
   function rgb(hex) { hex = hex.replace('#', ''); if (hex.length === 3) hex = hex.replace(/./g, '$&$&'); var n = parseInt(hex, 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
 
-  /* ---------- the drawing of a picture: brightness, then edges, as ink on paper ----------
+  /* ---------- the drawing of a picture, as ink on paper ----------
+     Two tests per pixel, the same recipe as the cover plate's shader (hero.js):
+     1. strokes: how far its brightness is from a blurred copy, which turns type into single ink strokes;
+     2. rules: a Sobel edge for faint lines (panel borders), switched off where test 1 already sees detail.
      Runs in slices of a few milliseconds so that no frame carries the whole image; done() is called when the
      canvas holds the drawing. Pass sync=true for a one-off that may block (the cover plate's fallback). */
   function inkDraw(img, canvas, W, done, sync) {
     var H = Math.round(W * img.naturalHeight / img.naturalWidth);
     canvas.width = W; canvas.height = H;
     var x = canvas.getContext('2d', { willReadFrequently: true });
-    x.imageSmoothingQuality = 'high';
+    x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high';
+    var small = d.createElement('canvas'), k3 = 3.4;
+    small.width = Math.max(2, Math.round(W / k3)); small.height = Math.max(2, Math.round(H / k3));
+    small.getContext('2d').drawImage(img, 0, 0, small.width, small.height);
+    x.drawImage(small, 0, 0, W, H);                                   // the blurred copy, scaled back up
+    var bl = x.getImageData(0, 0, W, H).data;
     x.drawImage(img, 0, 0, W, H);
-    var src = x.getImageData(0, 0, W, H), s = src.data, n = W * H, L = new Float32Array(n), i;
+    var src = x.getImageData(0, 0, W, H), s = src.data, n = W * H, L = new Float32Array(n), D = new Float32Array(n), i;
     var p = rgb(token('--paper')), k = rgb(token('--ink')), y = 0, stage = 0;
     x.fillStyle = token('--paper'); x.fillRect(0, 0, W, H);          // blank sheet until the lines are ready
+    var sm = function (a, b, v) { v = Math.min(1, Math.max(0, (v - a) / (b - a))); return v * v * (3 - 2 * v); };
     function slice() {
       var t0 = performance.now(), X;
       while (sync || performance.now() - t0 < 5) {
-        if (stage === 0) {                                             // pass 1: brightness
-          var end = Math.min(n, y + 60000);
-          for (i = y; i < end; i++) L[i] = (0.2126 * s[i * 4] + 0.7152 * s[i * 4 + 1] + 0.0722 * s[i * 4 + 2]) / 255;
+        if (stage === 0) {                                             // pass 1: brightness and its distance from the blur
+          var end = Math.min(n, y + 50000);
+          for (i = y; i < end; i++) {
+            L[i] = (0.2126 * s[i * 4] + 0.7152 * s[i * 4 + 1] + 0.0722 * s[i * 4 + 2]) / 255;
+            D[i] = Math.abs(L[i] - (0.2126 * bl[i * 4] + 0.7152 * bl[i * 4 + 1] + 0.0722 * bl[i * 4 + 2]) / 255);
+          }
           y = end; if (y >= n) { stage = 1; y = 0; }
-        } else {                                                       // pass 2: Sobel edges, 24 rows at a time
+        } else {                                                       // pass 2: strokes and rules, 24 rows at a time
           var last = Math.min(H, y + 24);
           for (; y < last; y++) for (X = 0; X < W; X++) {
-            i = y * W + X; var e = 0;
+            i = y * W + X; var e = 0, dd = D[i];
             if (X > 0 && y > 0 && X < W - 1 && y < H - 1) {
-              var a = L[i - W - 1], b = L[i - W], c = L[i - W + 1], dd = L[i - 1], f = L[i + 1], g = L[i + W - 1], h = L[i + W], j = L[i + W + 1];
-              var gx = (c + 2 * f + j) - (a + 2 * dd + g), gy = (g + 2 * h + j) - (a + 2 * b + c);
+              var a = L[i - W - 1], b = L[i - W], c = L[i - W + 1], l = L[i - 1], f = L[i + 1], g = L[i + W - 1], h = L[i + W], j = L[i + W + 1];
+              var gx = (c + 2 * f + j) - (a + 2 * l + g), gy = (g + 2 * h + j) - (a + 2 * b + c);
               e = Math.sqrt(gx * gx + gy * gy);
             }
-            var v = Math.min(1, Math.max(0, (e - 0.06) * 3.2));
+            var v = Math.max(sm(0.05, 0.21, dd), Math.min(1, Math.max(0, (e - 0.05) * 6)) * (1 - sm(0.02, 0.08, dd)));
             s[i * 4] = p[0] + (k[0] - p[0]) * v; s[i * 4 + 1] = p[1] + (k[1] - p[1]) * v; s[i * 4 + 2] = p[2] + (k[2] - p[2]) * v; s[i * 4 + 3] = 255;
           }
           if (y >= H) { x.putImageData(src, 0, 0); if (done) done(); return; }
@@ -105,10 +117,7 @@
     };
     var build = function (fig) {
       if (fig._built || !fig.classList.contains('is-inked')) return; fig._built = 1;
-      setTimeout(function () {
-        fig.classList.add('is-plotting'); fig.offsetWidth; fig.classList.add('is-built');
-        setTimeout(function () { fig.classList.remove('is-plotting'); }, 1300);
-      }, 420);
+      setTimeout(function () { fig.classList.add('is-built'); }, 420);
     };
     var near = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { ink(e.target); near.unobserve(e.target); } }); }, { rootMargin: '500px 0px' });
     var seen = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target._seen = 1; build(e.target); seen.unobserve(e.target); } }); }, { threshold: 0.55 });

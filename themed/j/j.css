@@ -1,9 +1,9 @@
 /* Mockup J, "Working Drawings". Source: themed/j/j.css, copied to mockup-j/ by themed/render_j.py.
-   One family (National Park, a single-stroke lettering face), four text sizes, ink on bond with one red pencil.
+   One family (National Park, a single-stroke lettering face), four text sizes, ink on drafting film with one red pencil.
    Red is reserved for the plot line and build edge on plates, the current entry in a drawing list and link hover. */
 @font-face{font-family:"National Park";src:url(fonts/NationalPark.woff2) format("woff2");font-weight:200 800;font-style:normal;font-display:swap}
 :root{
-  --paper:#fafaf6;--ink:#131412;--dim:#5f615b;--hair:rgba(19,20,18,.2);--soft:rgba(19,20,18,.055);--red:#d32d1b;
+  --paper:#f1f4f1;--ink:#111413;--dim:#565b58;--hair:rgba(17,20,19,.22);--soft:rgba(17,20,19,.06);--red:#d32d1b;
   --sheet:14px;--strip:46px;--gut:clamp(16px,3.3vw,48px);
   --t-tiny:13px;--t-body:16.5px;--t-mid:clamp(25px,2.7vw,42px);--t-display:clamp(44px,6.5vw,108px);
   --plot:cubic-bezier(.65,0,.35,1);--out:cubic-bezier(.19,1,.22,1);
@@ -46,7 +46,7 @@ button{font:inherit;color:inherit}
 .strip__rooms i{font-style:normal;color:var(--dim);font-variant-numeric:tabular-nums}
 .strip__rooms a:hover i,.strip__rooms a[aria-current] i{color:inherit}
 .strip__rooms a[aria-current]{background:var(--ink);color:var(--paper)}
-.strip__here{flex:1;min-width:0;align-self:center;padding:0 16px;text-align:right;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;letter-spacing:.07em;text-transform:uppercase;font-size:12px}
+.strip__here{flex:1;min-width:0;align-self:center;padding:0 16px;text-align:right;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
 .strip__theme,.strip__menu{appearance:none;background:none;border:0;border-left:1px solid var(--ink);padding:0 14px;cursor:pointer;font-weight:650}
 .strip .strip__menu{display:none}
 
@@ -108,18 +108,21 @@ a:hover .code{color:inherit}
 .set__h{grid-column:1/5;display:grid;gap:12px;align-content:start}
 .set h3{font-size:var(--t-mid);line-height:1.06;font-weight:400;letter-spacing:-.012em}
 .set__p{color:var(--dim);max-width:30em}
-.set ol{grid-column:5/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));column-gap:clamp(16px,2vw,28px);align-content:start}
-.set ol li{border-left:1px solid var(--hair);padding:0 0 4px 12px}
-.set ol a{font-weight:650;text-decoration:none;display:grid;gap:2px}
-.set ol a:hover{text-decoration:underline}
-.why{display:block;margin-top:6px;font-size:var(--t-tiny);line-height:1.45;color:var(--dim)}
+.set ol{grid-column:5/-1;align-self:start;border-top:1px solid var(--hair)}
+.set ol li{display:grid;grid-template-columns:3.6em minmax(0,15em) minmax(0,1fr);column-gap:14px;align-items:baseline;border-bottom:1px solid var(--hair);padding:9px 0 10px}
+.set ol a{display:contents;text-decoration:none}
+.set ol a .t{font-weight:650}
+.set ol a:hover .t{text-decoration:underline}
+.why{font-size:var(--t-tiny);line-height:1.45;color:var(--dim)}
 .more{font-weight:650;font-size:var(--t-tiny);justify-self:start}
 .start__alt{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;font-size:var(--t-tiny);font-weight:600}
+.start{padding-bottom:clamp(28px,3vw,44px)}
 
 /* ---------- drawing index ---------- */
 .index__ctl{display:flex;gap:6px}
 .key{display:grid;gap:6px;font-size:var(--t-tiny);color:var(--dim);max-width:60em}
-.key li{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 10px}
+.key li{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:baseline;column-gap:10px}
+.key .tier{display:inline-block;width:9px;height:9px;padding:0;overflow:hidden;color:transparent;font-size:0;vertical-align:0;margin-right:3px}
 .key b{color:var(--ink);font-weight:650}
 .index__cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:clamp(20px,2.6vw,44px);align-items:start}
 .col{display:grid;gap:clamp(30px,3.4vw,52px);min-width:0}
@@ -133,7 +136,7 @@ a:hover .code{color:inherit}
 .ser ol li>a .t,.index__az li>a .t{font-weight:550}
 .ser ol li>a:hover .t,.index__az li>a:hover .t{text-decoration:underline}
 .ser ol .s,.ser ol .see,.index__az .s{grid-column:2/-1;justify-self:start}
-.ser ol .tier,.index__az .tier{grid-area:1/3;align-self:start;margin-top:3px}
+.ser ol .tier,.index__az .tier{grid-area:1/3;align-self:center;width:9px;height:9px;padding:0;overflow:hidden;color:transparent;font-size:0}
 .s{font-size:var(--t-tiny);line-height:1.4;color:var(--dim)}
 .see{font-size:var(--t-tiny);color:var(--dim)}
 .index__az{columns:3;column-gap:clamp(20px,2.6vw,44px)}
@@ -176,13 +179,16 @@ a:hover .code{color:inherit}
 .foot__row{display:flex;flex-wrap:wrap;gap:8px 20px;font-weight:600;font-size:15px}
 .foot__mlp{border:1px solid var(--ink);padding:14px 16px;max-width:38em;color:var(--dim)}
 .foot__mlp b{color:var(--ink)}
-.foot__sign{font-size:12px;font-weight:650;letter-spacing:.08em;text-transform:uppercase}
+.foot__sign{font-size:var(--t-tiny);font-weight:650}
 
 /* ---------- room sheets ---------- */
-.rhead{padding:clamp(28px,4.4vw,72px) 0 clamp(28px,3.6vw,56px);display:grid;gap:clamp(14px,1.6vw,22px)}
+.rhead{position:relative;overflow:hidden;margin-inline:calc(-1 * var(--gut));padding:clamp(28px,4.4vw,72px) var(--gut) clamp(28px,3.6vw,56px);display:grid;gap:clamp(14px,1.6vw,22px)}
+.rhead>*{position:relative;max-width:min(44em,62%)}
+.rhead__mark{position:absolute;right:var(--gut);top:50%;max-width:none;transform:translateY(-50%);font-size:clamp(200px,31vw,470px);line-height:1;font-weight:200;color:transparent;-webkit-text-stroke:1px var(--ink);pointer-events:none;user-select:none}
 .rhead__t{font-size:var(--t-display);line-height:.98;font-weight:300;letter-spacing:-.022em}
 .rhead__t a{text-decoration:none}
 .rhead__lede{max-width:44em}
+.rhead .lab,.rhead__t{max-width:none}
 .rhead__note{max-width:52em;font-size:var(--t-tiny);color:var(--dim)}
 .rhead__note .tier{color:var(--paper)}
 .room{display:grid;grid-template-columns:minmax(0,236px) minmax(0,1fr);column-gap:clamp(20px,3vw,52px);border-top:1px solid var(--ink);margin-inline:calc(-1 * var(--gut));padding-inline:var(--gut)}
@@ -227,9 +233,8 @@ a:hover .code{color:inherit}
 .plate.is-inked canvas{opacity:1;transition:clip-path 1.1s var(--plot)}
 .plate.is-built canvas{clip-path:inset(0 0 0 100%)}
 .plate::after{content:"";position:absolute;top:0;bottom:0;left:0;width:2px;margin-left:-1px;background:var(--red);opacity:0}
-.plate.is-inked::after{transition:left 1.1s var(--plot),opacity .2s linear 1.1s}
-.plate.is-plotting::after{opacity:1}
-.plate.is-built::after{left:100%}
+.plate.is-built::after{animation:plotline 1.1s var(--plot) both}
+@keyframes plotline{0%{left:0;opacity:1}92%{opacity:1}100%{left:100%;opacity:0}}
 .xref{font-size:var(--t-tiny);line-height:1.45;color:var(--dim);border-left:2px solid var(--red);padding-left:10px}
 .xref .lab{display:inline;color:var(--ink)}
 
@@ -319,7 +324,6 @@ a:hover .code{color:inherit}
 @media (max-width:1100px){
   .strip__here{display:none}
   .cover__lab,.cover__l{grid-column:1/7}.now{grid-column:7/-1}
-  .set ol{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:14px}
   .index__cols{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:36px}
   .index__cols .col:last-child{grid-column:1/-1;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:clamp(20px,2.6vw,44px)}
   .index__az{columns:2}
@@ -348,7 +352,7 @@ a:hover .code{color:inherit}
   .cover__lab{order:1}.cover h1{order:2}.cover__lede{order:3}.now{order:4}.dims{order:5;margin-top:0}
   .dims{grid-template-columns:1fr}
   .cross .sec__h,.notes .sec__h,.sch .sec__h,.rev .lab,.cross__l,.notes__l,.sch__w,.sch__more,.rev__p{grid-column:1/-1}
-  .set__h,.set ol{grid-column:1/-1}.set ol{grid-template-columns:1fr;row-gap:14px}
+  .set__h,.set ol{grid-column:1/-1}.set ol li{grid-template-columns:3.6em minmax(0,1fr)}.why{grid-column:2}
   .cross .sec__h,.notes .sec__h,.sch .sec__h{position:static}
   .list{-webkit-mask-image:none;mask-image:none}
   .cbody .links{display:grid;gap:0}.cbody .links a{justify-content:space-between;margin-top:-1px}
@@ -362,6 +366,7 @@ a:hover .code{color:inherit}
   .sch__l{display:block;font-size:var(--t-tiny);font-weight:650;color:var(--ink);margin-top:6px}
   .sch__none{display:none}
   .foot__l,.foot__r{grid-column:1/-1}
+  .rhead>*{max-width:none}.rhead__mark{right:-.04em;top:-.12em;transform:none;font-size:56vw;opacity:.3}
   .room{display:block}
   .list{position:static;max-height:none;overflow:visible;padding:12px 0;border-bottom:1px solid var(--ink)}
   .list summary{cursor:pointer;padding:6px 0;display:flex;justify-content:space-between;align-items:center}

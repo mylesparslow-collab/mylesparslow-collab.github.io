@@ -258,7 +258,7 @@ def routes_html():
         stops = []
         for cid, why in rt['stops']:
             it = CASE[cid]
-            stops.append('<li><a href="%s/index.html#%s"><span class="code">%s</span> <span>%s</span></a><span class="why">%s</span></li>'
+            stops.append('<li><a href="%s/index.html#%s"><span class="code">%s</span> <span class="t">%s</span></a><span class="why">%s</span></li>'
                          % (it['room']['slug'], cid, it['code'], it['title'], why))
         cards.append('<li class="set" id="route-%s"><div class="set__h"><p class="lab">Route %d</p><h3>%s</h3><p class="set__p">%s</p>'
                      '<a class="more" href="%s/index.html">Explore all %d %s builds &rarr;</a></div><ol>%s</ol></li>'
@@ -313,7 +313,7 @@ def home():
              '<h2 id="h-ix">All %d projects</h2>'
              '<p class="sec__l">Every project, listed by room. Choose any entry to jump straight to its write-up.</p>'
              '<ul class="key"><li><span class="tier tier--flagship">Flagship system</span> <span><b>Flagship system:</b> the full-scale production builds. Every guided route is made of them.</span></li>'
-             '<li><span class="tier tier--weekend">Weekend build</span> <span class="tier tier--study">Study</span> <span>Focused prototypes, creative sprints and benchmarks.</span></li></ul>'
+             '<li><span><span class="tier tier--weekend">Weekend build</span><span class="tier tier--study">Study</span></span> <span><b>Weekend build</b> and <b>Study:</b> Focused prototypes, creative sprints and benchmarks.</span></li></ul>'
              '<p class="index__ctl" id="ixctl" hidden><button type="button" class="btn" id="by-room" aria-pressed="true">By room</button>'
              '<button type="button" class="btn" id="by-az" aria-pressed="false">A to Z</button></p></div>'
              '<div class="index__cols" id="byroom">%s</div><ol class="index__az" id="byaz" hidden></ol></section>') % (N_CASES, cols)
@@ -341,8 +341,8 @@ def home():
     t_t = re.search(r'id="h-tools"[^>]*>(.*?)</h2>', th, re.S).group(1)
     t_l = re.search(r'<p class="sec-lede">(.*?)</p>', th, re.S).group(1)
     trs = re.findall(r'<article class="trow">(.*?)</article>', th, re.S)
-    # the data's summary says "Show all 48 projects", a count that went stale; the number is computed from the rows
-    t_sum = re.sub(r'\d+', str(len(trs)), re.search(r'<summary><span class="sct">(.*?)</span></summary>', th).group(1), count=1)
+    # the data's summary says "Show all 48 projects", a count that went stale; this says how many rows the disclosure holds
+    t_sum = 'Show the other %d projects' % (len(trs) - sum(1 for _ in re.finditer(r'<article class="trow">', th.split('<details')[0])))
 
     def trow(row):
         name = re.search(r'<h3>(.*?)</h3>', row, re.S).group(1)
@@ -442,7 +442,7 @@ def room(r):
     glance = ''
     if r['slug'] == 'legal':
         glance = ('<p class="rhead__note">%d tools in %d groups, flagships first, then by practice area. <span class="tier tier--flagship">Flagship system</span> marks a flagship.</p>') % (r['n'], groups)
-    head = ('<header class="rhead" id="top">' + alias_html(r['slug'], 'top') + '<p class="lab"><b class="bal" aria-hidden="true">%s</b>%s &middot; %s</p>'
+    head = ('<header class="rhead" id="top"><span class="rhead__mark" aria-hidden="true">%s</span>' % r['letter'] + alias_html(r['slug'], 'top') + '<p class="lab"><b class="bal" aria-hidden="true">%s</b>%s &middot; %s</p>'
             '<h1 class="rhead__t"><a href="../index.html" title="Back to the cover sheet">%s</a></h1>'
             '<p class="rhead__lede">%s</p>%s</header>') % (r['letter'], r['eyebrow'], '%d projects' % r['n'], r['title'], r['lede'], glance)
     listnav = ('<nav class="list" id="list" aria-label="%s projects"><details class="list__d" open><summary><span class="lab">Drawing list &middot; %d</span></summary>'
