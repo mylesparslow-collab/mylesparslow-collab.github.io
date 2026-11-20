@@ -118,8 +118,8 @@ footer{padding-block:28px 56px;color:var(--muted);font-size:13.5px;border-top:1p
 <header class="top">
   <div class="eyebrow">Combinatorics · Graph theory · November 2026</div>
   <h1>Conjecture Ledger</h1>
-  <p>Nine open questions from published papers, OEIS, MathOverflow and the Graffiti.pc conjecture catalogue. ChatGPT produced six of the proofs and counterexamples, and Claude produced the last three. Before going on this page, each result had its computer checks re-run and its argument read through. Three of the results are drawn below so you can check them with your own eyes.</p>
-  <div class="tally"><span><b>2</b> disproved</span><span><b>7</b> proved</span><span><b>0</b> peer-reviewed</span><span><b>46,233</b> permutations, <b>65,536</b> compositions, <b>82,500</b> Dyck paths and <b>131,070</b> binary words re-checked</span></div>
+  <p>Eleven open questions from published papers, OEIS, MathOverflow and the Graffiti.pc conjecture catalogue. ChatGPT produced six of the proofs and counterexamples, and Claude produced the last five. Before going on this page, each result had its computer checks re-run and its argument read through. Three of the results are drawn below so you can check them with your own eyes.</p>
+  <div class="tally"><span><b>3</b> disproved</span><span><b>8</b> proved</span><span><b>0</b> peer-reviewed</span><span><b>46,233</b> permutations, <b>65,536</b> compositions, <b>82,500</b> Dyck paths, <b>131,070</b> binary words and <b>8,075,361</b> ternary words re-checked</span></div>
 </header>
 
 <section class="exhibit" id="plactic" aria-labelledby="plactic-h">
@@ -314,7 +314,7 @@ footer{padding-block:28px 56px;color:var(--muted);font-size:13.5px;border-top:1p
 
 <section class="ledger" id="claude-solves" aria-labelledby="claude-h">
   <h2 id="claude-h">Claude's own solves</h2>
-  <p class="prior" style="max-width:68ch;margin:0 0 8px">Three more open conjectures, proved by Claude (Opus 5.5) rather than ChatGPT. Each was screened against earlier work before the proof was written. Two other candidates turned out to be solved already, and they are left out.</p>
+  <p class="prior" style="max-width:68ch;margin:0 0 8px">Five more open conjectures, settled by Claude (Opus 5.5) rather than ChatGPT: three proved, one disproved, and one proved independently after someone else got there first. Each was screened against earlier work, and three other candidates that turned out to be solved already are left out.</p>
 
   <article class="entry" id="e-a371567">
     <aside>
@@ -371,11 +371,49 @@ footer{padding-block:28px 56px;color:var(--muted);font-size:13.5px;border-top:1p
       <p class="prior"><a href="https://oeis.org/A249833">A249833</a> · <a href="https://oeis.org/A370382">A370382</a></p>
     </div>
   </article>
+
+  <article class="entry" id="e-dihedral">
+    <aside>
+      <span class="chip solved">Disproved</span>
+      <span><b>Grytczuk, Pawlik &amp; Pleszczyński</b><br>arXiv 2308.13882, 2023<br>Dihedral conjecture</span>
+      <span>Disproved by Claude. Checked on all 8,075,361 even ternary words up to length 18, with two independent programs.</span>
+      <span class="chip prior-open">No prior disproof found</span>
+    </aside>
+    <div class="entry-body">
+      <h3>Shuffle squares and the symmetries of a polygon</h3>
+      <p class="claim">The conjecture says any word in the letters 0, 1, 2, with each letter used an even number of times, splits into two halves where one half is a rotation or a reflection of the other. The eight-letter word 00011022 cannot be split that way. It is the shortest counterexample, and by length 18 about one word in six fails.</p>
+      <div class="tbl"><svg id="dihfig" viewBox="0 0 640 166" role="img" aria-label="The word 00011022 split into 0102 and 0012, drawn as two necklaces" style="min-width:460px"></svg></div>
+      <p class="sub" style="margin:0;font-size:13px;color:var(--muted)">The only possible split. In the red half the 1 and 2 sit on opposite sides of the necklace; in the black half they are neighbours. Rotating or flipping a necklace never changes which beads are neighbours, so neither half can be turned into the other.</p>
+      <details><summary>How the proof goes</summary><div>
+        <p>Both halves need the same letters: two 0s, one 1 and one 2. In 00011022 the two 2s come last and the two 1s are adjacent, so each half takes one of each, and whichever half takes the 0 after the 1s is 0102. The other half is 0012. On a circle, 0012 has its 1 and 2 adjacent and 0102 does not, which settles it. The same argument works for 0…0 11 0 22 at every length from 8 up. The paper leaves the polygon's labelling slightly open, and the conjecture also fails under the looser reading, first at length 10 with 0001110122.</p>
+      </div></details>
+      <p class="prior"><b>Earlier work.</b> Both arXiv versions still state the conjecture, and the 2024 revision adds it to the introduction. Google Scholar shows five citing works, all on shuffle squares, and none mentions it. Only the abstract of the authors&rsquo; separate 2023 paper in <i>Symmetry</i> could be read.</p>
+      <p class="prior"><a href="https://arxiv.org/abs/2308.13882">Grytczuk, Pawlik &amp; Pleszczyński</a></p>
+    </div>
+  </article>
+
+  <article class="entry" id="e-hypermatrix">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b>Koprowski &amp; Lewis</b><br>arXiv 2602.22129, 2026<br>Conjecture 3.1</span>
+      <span>Proved by Claude, independently. Checked by brute force over the two-element field.</span>
+      <span class="chip prior-warn">Proved earlier</span>
+    </aside>
+    <div class="entry-body">
+      <h3>Counting nondegenerate hypermatrices over a finite field</h3>
+      <p class="claim">Koprowski and Lewis conjectured a product formula for how many 2 × (<var>k</var>+1) × <var>k</var> hypermatrices over a finite field have nonzero hyperdeterminant while vanishing on a prescribed staircase of entries. The formula is right, with a two-page proof.</p>
+      <details><summary>How the proof goes</summary><div>
+        <p>Build the hypermatrix one column at a time. The columns chosen so far define a vector bundle on the projective line, and each new column becomes a section of it that must vanish nowhere. Because such bundles split into line bundles, the number of valid next columns turns out to be the same for every prefix. A gcd count for polynomials over a finite field supplies that number, and multiplying across columns gives the formula.</p>
+      </div></details>
+      <p class="prior"><b>Earlier work.</b> The Omega Institute&rsquo;s AI-proof project proved this first, posting a machine-checked Lean proof on October 4, 2026 by a different route. Claude&rsquo;s proof was found independently and is much shorter, but it is a re-proof, not a first resolution.</p>
+      <p class="prior"><a href="https://arxiv.org/abs/2602.22129">Koprowski &amp; Lewis</a></p>
+    </div>
+  </article>
 </section>
 
 
 <footer>
-  <p>The first six proofs and counterexamples were generated by ChatGPT from prompts by Myles Parslow. The last three were found and written by Claude (Opus 5.5). Every listed check was re-run on November 18, 2026. None of these results has been peer-reviewed. A search for earlier work can show what is already public. It cannot prove a result is new.</p>
+  <p>The first six proofs and counterexamples were generated by ChatGPT from prompts by Myles Parslow. The last five were found and written by Claude (Opus 5.5). Every listed check was re-run on November 18 or 19, 2026. None of these results has been peer-reviewed. A search for earlier work can show what is already public. It cannot prove a result is new.</p>
 </footer>
 </div>
 <div class="tip" id="tip" hidden></div>
@@ -491,6 +529,14 @@ function update(){
 kS.addEventListener("input",()=>{kO.value=kS.value;update()});
 domBtn.addEventListener("click",()=>{showDom=!showDom;domBtn.setAttribute("aria-pressed",showDom);drawGraph(null)});
 update();
+/* dihedral figure */
+(function(){const s=document.getElementById("dihfig");if(!s)return;const W="00011022",X=[0,3,5,6];
+  W.split("").forEach((ch,i)=>{const x=176+i*36,inX=X.includes(i);el("rect",{x,y:8,width:30,height:30,rx:3,fill:inX?"var(--accent-soft)":"var(--sheet)",stroke:inX?"var(--accent)":"var(--ink)","stroke-width":1.5},s);el("text",{x:x+15,y:28,"text-anchor":"middle",fill:"var(--ink)","font-size":15},s).textContent=ch});
+  const ring=(cx,word,red,label)=>{el("circle",{cx,cy:100,r:30,fill:"none",stroke:"var(--grid)","stroke-width":2},s);
+    word.split("").forEach((ch,i)=>{const a=-Math.PI/2+i*Math.PI/2,x=cx+30*Math.cos(a),y=100+30*Math.sin(a);el("circle",{cx:x,cy:y,r:11,fill:red?"var(--accent-soft)":"var(--sheet)",stroke:red?"var(--accent)":"var(--ink)","stroke-width":1.5},s);el("text",{x,y:y+5,"text-anchor":"middle",fill:"var(--ink)","font-size":13},s).textContent=ch});
+    el("text",{x:cx,y:158,"text-anchor":"middle"},s).textContent=label};
+  ring(230,"0102",true,"0102: 1 and 2 apart");ring(410,"0012",false,"0012: 1 and 2 neighbours");
+})();
 /* A371567 peak figure */
 (function(){const s=document.getElementById("peakfig");if(!s)return;const w="UUDUUDDDUD",u=26,base=104;let x=40,h=0;const pts=[[x,base]];
   for(let k=0;k<=3;k++)el("line",{x1:40,x2:40+w.length*u,y1:base-k*u,y2:base-k*u,stroke:"var(--grid)"},s);
