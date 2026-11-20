@@ -118,8 +118,8 @@ footer{padding-block:28px 56px;color:var(--muted);font-size:13.5px;border-top:1p
 <header class="top">
   <div class="eyebrow">Combinatorics · Graph theory · November 2026</div>
   <h1>Conjecture Ledger</h1>
-  <p>Twelve open questions from published papers, OEIS, MathOverflow and the Graffiti.pc conjecture catalogue. ChatGPT produced six of the proofs and counterexamples, and Claude produced the last six. Before going on this page, each result had its computer checks re-run and its argument read through. Three of the results are drawn below so you can check them with your own eyes.</p>
-  <div class="tally"><span><b>3</b> disproved</span><span><b>9</b> proved</span><span><b>0</b> peer-reviewed</span><span><b>46,233</b> permutations, <b>65,536</b> compositions, <b>82,500</b> Dyck paths, <b>131,070</b> binary words and <b>8,075,361</b> ternary words re-checked</span></div>
+  <p>Fourteen open questions from published papers, OEIS, MathOverflow and the Graffiti.pc conjecture catalogue. ChatGPT produced eight of the proofs and counterexamples, and Claude produced the last six. Before going on this page, each result had its computer checks re-run and its argument read through. Three of the results are drawn below so you can check them with your own eyes.</p>
+  <div class="tally"><span><b>3</b> disproved</span><span><b>11</b> proved</span><span><b>0</b> peer-reviewed</span><span><b>46,233</b> permutations, <b>65,536</b> compositions, <b>82,500</b> Dyck paths, <b>131,070</b> binary words, <b>8,075,361</b> ternary words and <b>2,944,272</b> Beatty gaps re-checked</span></div>
 </header>
 
 <section class="exhibit" id="plactic" aria-labelledby="plactic-h">
@@ -265,6 +265,50 @@ footer{padding-block:28px 56px;color:var(--muted);font-size:13.5px;border-top:1p
       </div></details>
       <p class="prior"><b>Earlier work.</b> OEIS A174193 still labels the 321-class generating function as conjectured, and its recurrence is marked as a conjecture too. The gap sequence 1, 8, 43, 199, 859 is not in OEIS. The paper's one citing article is about a different question. Problem 10, which asks for a natural length-preserving injection, stays open in its combinatorial form.</p>
       <p class="prior"><a href="https://arxiv.org/abs/2007.15111">Brignall et al.</a> · <a href="https://oeis.org/A174193">A174193</a> · <a href="https://oeis.org/A174195">A174195</a></p>
+    </div>
+  </article>
+
+
+  <article class="entry" id="e-beatty">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b>Clark Kimberling</b><br>OEIS A351415, 2022</span>
+      <span>Checked: all 2,944,272 gaps up to 10 million, and the proof&rsquo;s key lemma for every integer up to 200,000.</span>
+      <span class="chip prior-open">No prior proof found</span>
+    </aside>
+    <div class="entry-body">
+      <h3>Where two golden-ratio sequences meet</h3>
+      <p class="claim">List the numbers ⌊<var>n</var>φ⌋ and the numbers ⌊<var>n</var>√5⌋, and keep the ones that appear in both: 4, 6, 8, 11, 17, 22, … Kimberling conjectured that the gaps between them are always 2, 3, 4, 5 or 6, each infinitely often. That is true, and each gap has an exact long-run share.</p>
+      <div class="tbl"><table>
+        <thead><tr><th>gap</th><th>exact share</th><th>≈</th><th>observed up to 10<sup>7</sup></th></tr></thead>
+        <tbody>
+          <tr><td>2</td><td>(√5 − 1)/(4√5 − 6)</td><td>41.98%</td><td>1,236,069</td></tr>
+          <tr><td>3</td><td>(2√5 − 4)/(4√5 − 6)</td><td>16.04%</td><td>472,137</td></tr>
+          <tr><td>4</td><td>(10√5 − 22)/(4√5 − 6)</td><td>12.25%</td><td>360,679</td></tr>
+          <tr><td>5</td><td>(14 − 6√5)/(4√5 − 6)</td><td>19.82%</td><td>583,591</td></tr>
+          <tr><td>6</td><td>(7 − 3√5)/(4√5 − 6)</td><td>9.91%</td><td>291,796</td></tr>
+        </tbody></table></div>
+      <details><summary>How the proof goes</summary><div>
+        <p>With <var>t</var> = (5 + √5)/10, both membership tests can be read off a single point on a circle of circumference 10: an integer <var>m</var> lies in both sequences exactly when 10·{(<var>m</var>+1)<var>t</var>} falls in a union of four arcs. Moving to the next integer rotates the point by 5 + √5. A gap is the number of rotations needed to land back in the arcs, and cutting the arcs by their own rotations splits them into five pieces, one per gap from 2 to 6. Equidistribution of the rotation turns the piece lengths into the shares above.</p>
+      </div></details>
+      <p class="prior"><b>Earlier work.</b> OEIS still lists the gap statement as a conjecture. A 2022 MathOverflow answer by Kalmynin, on a question of Kimberling, finds how dense such intersections are but says nothing about their gaps. Older general results on gaps in Beatty intersections (Fraenkel and Holzman, 1995) predate the conjecture, but no source found derives this gap set or these shares. Google DeepMind&rsquo;s formal-conjectures repository and the Omega Institute&rsquo;s project have nothing on it.</p><p class="prior"><a href="https://oeis.org/A351415">A351415</a> · <a href="https://mathoverflow.net/questions/418749">MathOverflow 418749</a></p>
+    </div>
+  </article>
+
+  <article class="entry" id="e-primeres">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b>Clark Kimberling</b><br>OEIS A392107, 2026</span>
+      <span>Checked: first positions of all {1,2}-words up to length 11 in the residues of the primes below 3,000,000.</span>
+      <span class="chip prior-open">No prior proof found</span>
+    </aside>
+    <div class="entry-body">
+      <h3>Words hidden in the primes mod 3</h3>
+      <p class="claim">Write each prime&rsquo;s remainder mod 3 in order: 2, 0, 2, 1, 2, 1, … Kimberling recorded where each word in the letters 1 and 2 first appears, and conjectured that every position is used infinitely often. Read literally that fails at the very start, because the prime 3 puts a 0 in position 2. The real content holds: every position from 3 on is the first occurrence of infinitely many words.</p>
+      <details><summary>How the proof goes</summary><div>
+        <p>Shiu proved that the primes contain arbitrarily long runs in each residue class mod 3. So the residue sequence is never eventually periodic: a periodic tail would contain a run as long as its period and would then be constant. Hence the tail starting at any position <var>i</var> ≥ 3 differs, somewhere, from the tail at every earlier position. A long enough word read from position <var>i</var> therefore cannot appear earlier, and neither can any of its extensions. Position 1 is the first occurrence of exactly one word, &ldquo;2&rdquo;, and position 2 of none.</p>
+      </div></details>
+      <p class="prior"><b>Earlier work.</b> OEIS still lists the conjecture, posted in January 2026. The Omega Institute&rsquo;s AI-proof project reviewed it and declined to file the literal failure at positions 1 and 2 as a technicality; nobody has proved the intended statement. The key ingredient, Shiu&rsquo;s theorem on runs of congruent primes (2000), is long established.</p><p class="prior"><a href="https://oeis.org/A392107">A392107</a> · <a href="https://doi.org/10.1112/S0024610799007863">Shiu 2000</a></p>
     </div>
   </article>
 
@@ -431,7 +475,7 @@ footer{padding-block:28px 56px;color:var(--muted);font-size:13.5px;border-top:1p
 
 
 <footer>
-  <p>The first six proofs and counterexamples were generated by ChatGPT from prompts by Myles Parslow. The last six were found and written by Claude (Opus 5.5 and Fable 5.2). Every listed check was re-run between November 18 and 20, 2026. None of these results has been peer-reviewed. A search for earlier work can show what is already public. It cannot prove a result is new.</p>
+  <p>The first eight proofs and counterexamples were generated by ChatGPT from prompts by Myles Parslow. The last six were found and written by Claude (Opus 5.5 and Fable 5.2). Every listed check was re-run between November 18 and 20, 2026. None of these results has been peer-reviewed. A search for earlier work can show what is already public. It cannot prove a result is new.</p>
 </footer>
 </div>
 <div class="tip" id="tip" hidden></div>
