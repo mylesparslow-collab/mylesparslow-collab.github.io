@@ -3,7 +3,7 @@
 
     python3 -I themed/render_all.py
 
-Runs render_b, c, d, e, f, g, h, j and render_styles in order (each as a subprocess), then
+Runs render_b, c, d, e, f, g, h, j, k and render_styles in order (each as a subprocess), then
 add_switcher. Exits non-zero if any step fails. Does NOT run render_i.py or promote_i.py:
 those publish the live site (Transit Map) and are run separately.
 """
@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-STEPS = ['render_b', 'render_c', 'render_d', 'render_e', 'render_f', 'render_g', 'render_h', 'render_j',
+STEPS = ['render_b', 'render_c', 'render_d', 'render_e', 'render_f', 'render_g', 'render_h', 'render_j', 'render_k',
          'render_styles', 'add_switcher']
 
 

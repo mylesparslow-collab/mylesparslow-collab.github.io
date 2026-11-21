@@ -93,6 +93,7 @@ button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--acc
 .chip{display:inline-block;width:max-content;font:600 11.5px/1 var(--body);letter-spacing:.04em;text-transform:uppercase;padding:5px 8px;border-radius:3px;border:1px solid currentColor}
 .chip.solved{color:var(--accent-ink);background:var(--accent-soft);border-color:transparent}
 .chip.prior-open{color:var(--muted)}
+.chip.partial{color:var(--warn);background:var(--warn-soft);border-color:transparent}
 .chip.prior-warn{color:var(--warn);background:var(--warn-soft);border-color:transparent}
 .entry-body{display:grid;gap:12px;min-width:0;max-width:70ch}
 .entry-body h3{font-size:24px}
@@ -118,8 +119,8 @@ footer{padding-block:28px 56px;color:var(--muted);font-size:13.5px;border-top:1p
 <header class="top">
   <div class="eyebrow">Combinatorics · Graph theory · November 2026</div>
   <h1>Conjecture Ledger</h1>
-  <p>Fourteen open questions from published papers, OEIS, MathOverflow and the Graffiti.pc conjecture catalogue. ChatGPT produced eight of the proofs and counterexamples, and Claude produced the last six. Before going on this page, each result had its computer checks re-run and its argument read through. Three of the results are drawn below so you can check them with your own eyes.</p>
-  <div class="tally"><span><b>3</b> disproved</span><span><b>11</b> proved</span><span><b>0</b> peer-reviewed</span><span><b>46,233</b> permutations, <b>65,536</b> compositions, <b>82,500</b> Dyck paths, <b>131,070</b> binary words, <b>8,075,361</b> ternary words and <b>2,944,272</b> Beatty gaps re-checked</span></div>
+  <p>Eighteen open questions from published papers, OEIS, MathOverflow and the Graffiti.pc conjecture catalogue. ChatGPT produced twelve of the results, two of them partial, and Claude produced the last six. Before going on this page, each result had its computer checks re-run and its argument read through. Three of the results are drawn below so you can check them with your own eyes.</p>
+  <div class="tally"><span><b>3</b> disproved</span><span><b>13</b> proved</span><span><b>2</b> partial</span><span><b>0</b> peer-reviewed</span><span><b>46,233</b> permutations, <b>65,536</b> compositions, <b>82,500</b> Dyck paths, <b>131,070</b> binary words, <b>8,075,361</b> ternary words and <b>2,944,272</b> Beatty gaps re-checked</span></div>
 </header>
 
 <section class="exhibit" id="plactic" aria-labelledby="plactic-h">
@@ -312,6 +313,75 @@ footer{padding-block:28px 56px;color:var(--muted);font-size:13.5px;border-top:1p
     </div>
   </article>
 
+
+  <article class="entry" id="e-complete">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b>Václav Kotěšovec</b><br>OEIS A047909, 2016</span>
+      <span>Checked: exact counts by dynamic programming, three and four letters, up to 40 copies each.</span>
+      <span class="chip prior-warn">Partly known</span>
+    </aside>
+    <div class="entry-body">
+      <h3>Words that spell out 1, 2, …, k</h3>
+      <p class="claim">Take a word with <var>m</var> copies of each letter 1 to <var>k</var>. Kotěšovec conjectured two asymptotic formulas for how many contain 1, 2, …, <var>k</var> in order. Both hold, and the words that fail number almost exactly (<var>k</var> − 1)<sup><var>km</var></sup>: with three letters and 40 copies each, the exact count is 0.999763 × 2<sup>120</sup>.</p>
+      <details><summary>How the proof goes</summary><div>
+        <p>Read the word left to right, waiting for a 1, then a 2 after it, and so on. A published probability model describes each wait. The new step reads the ratio of failing words to (<var>k</var> − 1)<sup><var>km</var></sup> as the chance that every coordinate of a random point stays under a threshold, and a binomial tail bound shows that chance tends to 1 exponentially fast. Since the failing words are an exponentially small share of all words, Kotěšovec&rsquo;s column formula follows. The write-up also derives his second formula, for a fixed number of copies and a growing alphabet; exact counts computed here match it to within 0.03% at 150 letters, but that proof was not checked line by line.</p>
+      </div></details>
+      <p class="prior"><b>Earlier work.</b> OEIS still lists both formulas as conjectures. The probability model is El Maazouz and Pitman&rsquo;s &ldquo;Bernoulli clock&rdquo; (Combinatorics, Probability and Computing, 2024), and the column formula follows from it in a few lines nobody had written down. The sharp count of failing words is not stated anywhere found. An unrefereed AI-assisted report (ProveIt, October 2026) treats other limits but explicitly excludes this one.</p><p class="prior"><a href="https://oeis.org/A047909">A047909</a> · <a href="https://arxiv.org/abs/2210.02027">El Maazouz &amp; Pitman</a></p>
+    </div>
+  </article>
+
+  <article class="entry" id="e-recurrence">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b>Václav Kotěšovec</b><br>OEIS A261781, 2017</span>
+      <span>Checked: the reduced generating function for columns 1 to 5, against the OEIS data.</span>
+      <span class="chip prior-open">No prior proof found</span>
+    </aside>
+    <div class="entry-body">
+      <h3>The shortest recurrence for marked compositions</h3>
+      <p class="claim">Column <var>k</var> of Alois Heinz&rsquo;s triangle of marked compositions satisfies a linear recurrence with constant coefficients. Kotěšovec conjectured that the shortest such recurrence has order exactly <var>k</var>(<var>k</var>+1)/2. It does.</p>
+      <details><summary>How the proof goes</summary><div>
+        <p>Inclusion–exclusion writes the column&rsquo;s generating function as a sum of terms with denominators 2(1 − <var>x</var>)<sup><var>j</var></sup> − 1 for <var>j</var> = 1, …, <var>k</var>. The <var>j</var> roots of each factor lie on a circle around 1 whose radius, 2<sup>−1/<var>j</var></sup>, is different for every <var>j</var>. So all 1 + 2 + … + <var>k</var> poles are distinct, each has a nonzero residue, and none can cancel. The recurrence order equals the number of poles.</p>
+      </div></details>
+      <p class="prior"><b>Earlier work.</b> OEIS still lists the recurrence order as a conjecture. No proof turned up on the web, in Google DeepMind&rsquo;s formal-conjectures repository or in the Omega Institute&rsquo;s project. Kotěšovec&rsquo;s second conjecture on the same entry, about the constants <var>d</var>(<var>k</var>), is not addressed.</p><p class="prior"><a href="https://oeis.org/A261781">A261781</a></p>
+    </div>
+  </article>
+
+  <article class="entry" id="e-fibdensity">
+    <aside>
+      <span class="chip partial">Partial result</span>
+      <span><b>Charles Greathouse</b><br>OEIS A261312, 2015</span>
+      <span>Checked: the upper bound from the 37 proven Fibonacci-prime indices, and the density up to 10<sup>6</sup> (0.228904).</span>
+      <span class="chip prior-warn">Partly known</span>
+    </aside>
+    <div class="entry-body">
+      <h3>How often a Fibonacci number avoids prime Fibonacci factors</h3>
+      <p class="claim">Greathouse estimated that about 22.9% of indices <var>n</var> have <var>F<sub>n</sub></var> divisible by no prime Fibonacci number. The density exists unconditionally and equals ¾ ∏(1 − 1/<var>p</var>) over odd primes <var>p</var> with <var>F<sub>p</sub></var> prime, which is below 0.2289063. Whether it is positive is still open.</p>
+      <details><summary>How the proof goes</summary><div>
+        <p>A prime Fibonacci number <var>F<sub>q</sub></var> divides <var>F<sub>n</sub></var> exactly when <var>q</var> divides <var>n</var>, and the indices <var>q</var> with <var>F<sub>q</sub></var> prime are 4 and certain odd primes, so they are pairwise coprime. A classical theorem says the integers avoiding all multiples of a pairwise coprime set have a density equal to the product of (1 − 1/<var>q</var>). The factor ¾ comes from <var>F</var><sub>4</sub> = 3. A positive lower bound would need the reciprocals of the Fibonacci-prime indices to have a finite sum, which nobody can prove.</p>
+      </div></details>
+      <p class="prior"><b>Earlier work.</b> The existence of the density is an application of a classical theorem on sets of multiples, so this is a correct use of known theory rather than a new idea. No post or paper applying it to this sequence was found, and whether the density is positive stays open.</p><p class="prior"><a href="https://oeis.org/A261312">A261312</a> · <a href="https://www.erdosproblems.com/history/691">Erdős problem 691 notes</a></p>
+    </div>
+  </article>
+
+  <article class="entry" id="e-murthy">
+    <aside>
+      <span class="chip partial">Partial result</span>
+      <span><b>Amarnath Murthy</b><br>OEIS A090257, 2003</span>
+      <span>Proof is an analytic sieve argument; not independently checked in full here.</span>
+      <span class="chip prior-open">No prior result found</span>
+    </aside>
+    <div class="entry-body">
+      <h3>Growing a prime by appending squares</h3>
+      <p class="claim">Start from 1 and keep appending the smallest square that leaves a prime: 11, 1181, 1181729, … Murthy conjectured the process never stops. That remains open, but every prefix has many square extensions that come close. For each large digit length <var>k</var>, at least a constant times 10<sup><var>k</var>/2</sup>/<var>k</var> of the <var>k</var>-digit squares give a number with at most four prime factors.</p>
+      <details><summary>How the proof goes</summary><div>
+        <p>Appending a square <var>s</var> to a prefix <var>P</var> gives <var>P</var>·10<sup><var>k</var></sup> + <var>s</var>, a quadratic polynomial in the square root of <var>s</var>. The lower-bound linear sieve shows a positive share of its values over the <var>k</var>-digit range have no small prime factors, which caps them at four prime factors in all. What is missing is a guarantee of even one prime value, the step the conjecture actually needs.</p>
+      </div></details>
+      <p class="prior"><b>Earlier work.</b> OEIS lists only the conjecture that the sequence is infinite. No sieve or almost-prime result for it turned up. The nearest classical relative is Iwaniec&rsquo;s 1978 theorem that <var>n</var>² + 1 is often a product of at most two primes.</p><p class="prior"><a href="https://oeis.org/A090257">A090257</a></p>
+    </div>
+  </article>
+
   <article class="entry" id="e-dyck">
     <aside>
       <span class="chip solved">Proved</span>
@@ -475,7 +545,7 @@ footer{padding-block:28px 56px;color:var(--muted);font-size:13.5px;border-top:1p
 
 
 <footer>
-  <p>The first eight proofs and counterexamples were generated by ChatGPT from prompts by Myles Parslow. The last six were found and written by Claude (Opus 5.5 and Fable 5.2). Every listed check was re-run between November 18 and 20, 2026. None of these results has been peer-reviewed. A search for earlier work can show what is already public. It cannot prove a result is new.</p>
+  <p>The first twelve results were generated by ChatGPT from prompts by Myles Parslow. The last six were found and written by Claude (Opus 5.5 and Fable 5.2). Every listed check was re-run between November 18 and 20, 2026. None of these results has been peer-reviewed. A search for earlier work can show what is already public. It cannot prove a result is new.</p>
 </footer>
 </div>
 <div class="tip" id="tip" hidden></div>
