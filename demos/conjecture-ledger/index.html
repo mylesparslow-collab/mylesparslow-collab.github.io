@@ -109,6 +109,13 @@ th{font-weight:500;color:var(--muted)}
 th:first-child,td:first-child{text-align:left}
 .prior{font-size:14.5px;color:var(--muted)}
 .prior b{color:var(--ink);font-weight:600}
+.entry--brief{padding-block:18px;gap:20px}
+.entry--brief .entry-body{gap:8px}
+.entry--brief .entry-body h3{font-size:19px}
+.entry--brief .claim{font-size:15.5px}
+.batch-day{font:500 12px/1.3 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:26px 0 10px}
+.batch-tally{font:500 13px/1.5 var(--mono);color:var(--muted);margin:0 0 18px}
+.batch-tally b{color:var(--ink);font-weight:500}
 footer{padding-block:28px 56px;color:var(--muted);font-size:13.5px;border-top:1px solid var(--rule);display:grid;gap:8px;max-width:76ch}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -119,8 +126,8 @@ footer{padding-block:28px 56px;color:var(--muted);font-size:13.5px;border-top:1p
 <header class="top">
   <div class="eyebrow">Combinatorics · Graph theory · November 2026</div>
   <h1>Conjecture Ledger</h1>
-  <p>Eighteen open questions from published papers, OEIS, MathOverflow and the Graffiti.pc conjecture catalogue. ChatGPT produced twelve of the results, two of them partial, and Claude produced the last six. Before going on this page, each result had its computer checks re-run and its argument read through. Three of the results are drawn below so you can check them with your own eyes.</p>
-  <div class="tally"><span><b>3</b> disproved</span><span><b>13</b> proved</span><span><b>2</b> partial</span><span><b>0</b> peer-reviewed</span><span><b>46,233</b> permutations, <b>65,536</b> compositions, <b>82,500</b> Dyck paths, <b>131,070</b> binary words, <b>8,075,361</b> ternary words and <b>2,944,272</b> Beatty gaps re-checked</span></div>
+  <p>Eighteen open questions from published papers, OEIS, MathOverflow and the Graffiti.pc conjecture catalogue. ChatGPT produced twelve of the results, two of them partial, and Claude produced the last six. Before going on this page, each result had its computer checks re-run and its argument read through. Three of the results are drawn below so you can check them with your own eyes. Below those eighteen, <a href="#batch-nov">ninety more</a> come from a November 18&ndash;21 batch of ChatGPT notes. They are listed as reported, and only two of them have been re-checked here.</p>
+  <div class="tally"><span><b>3</b> disproved</span><span><b>13</b> proved</span><span><b>2</b> partial</span><span><b>+90</b> from the Nov 18&ndash;21 batch, 2 re-checked</span><span><b>0</b> peer-reviewed</span><span><b>46,233</b> permutations, <b>65,536</b> compositions, <b>82,500</b> Dyck paths, <b>131,070</b> binary words, <b>8,075,361</b> ternary words and <b>2,944,272</b> Beatty gaps re-checked</span></div>
 </header>
 
 <section class="exhibit" id="plactic" aria-labelledby="plactic-h">
@@ -544,8 +551,956 @@ footer{padding-block:28px 56px;color:var(--muted);font-size:13.5px;border-top:1p
 </section>
 
 
+<section class="ledger" id="batch-nov" aria-labelledby="batch-h">
+  <h2 id="batch-h">The November 18&ndash;21 batch</h2>
+  <p class="prior" style="max-width:68ch;margin:0 0 8px">90 more results from three days of ChatGPT research notes, November 18 to 21, 2026. Unlike the entries above, most have not been re-checked for this page: each is listed as the notes report it, with the earlier work they cite. Only the last two, A380944 and A080692, have had their computer checks re-run here, and they pass. Results the notes found already solved by someone else are left off: A339950 (Joshi and Rust), A119706, A037301, A374446, A133901 and A284626.</p>
+  <p class="batch-tally"><b>40</b> proved · <b>15</b> partial · <b>14</b> builds on known work · <b>10</b> disproved · <b>8</b> corrected · <b>1</b> proved and disproved · plus 1 proved and 1 disproved, re-checked</p>
+  <h3 class="batch-day">November 18</h3>
+  <article class="entry entry--brief" id="b-1">
+    <aside>
+      <span class="chip prior-warn">Builds on known work</span>
+      <span><b>Graffiti.pc · WoWII #271</b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Distance between maximum-degree vertices</h3>
+      <p class="claim">For every connected graph with at least two vertices, twice the greatest distance between two maximum-degree vertices is at most the square of the total domination number. Balanced complete bipartite graphs attain equality.</p>
+      <p class="prior"><b>Earlier work.</b> Proved earlier by Gebendorfer (Google DeepMind formal-conjectures #7235); this is an independent proof.</p>
+    </div>
+  </article>
+  <h3 class="batch-day">November 20</h3>
+  <article class="entry entry--brief" id="b-2">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b><a href="https://oeis.org/A342793">A342793</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>A permutation and its inverse</h3>
+      <p class="claim">The sequence is a permutation. The note gives an explicit inverse and corrects both published tables, for example A<sup>−1</sup>(12) = 32.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-3">
+    <aside>
+      <span class="chip prior-warn">Builds on known work</span>
+      <span><b><a href="https://oeis.org/A175498">A175498</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>A greedy sequence completes</h3>
+      <p class="claim">An elementary, effective argument shows the construction completes.</p>
+      <p class="prior"><b>Earlier work.</b> A qualitative route already existed through earlier work.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-4">
+    <aside>
+      <span class="chip solved">Disproved</span>
+      <span><b><a href="https://oeis.org/A068598">A068598</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Growth is faster than conjectured</h3>
+      <p class="claim">log a(<var>n</var>) = Θ(<var>n</var> log <var>n</var>), which rules out the proposed growth of fixed-power exponential type.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-5">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b>Devlin · <a href="https://oeis.org/A227345">A227345</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Every partition boundary size occurs</h3>
+      <p class="claim">Every boundary size from 1 through ⌊√(4<var>n</var>/3)⌋ occurs.</p>
+      <p class="prior"><b>Earlier work.</b> A companion entry already gave the maximum.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-6">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b><a href="https://oeis.org/A236383">A236383</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Square halves with a prescribed gap</h3>
+      <p class="claim">For every prescribed square gap there are infinitely many equal-width square halves.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-7">
+    <aside>
+      <span class="chip solved">Disproved</span>
+      <span><b><a href="https://oeis.org/A027615">A027615</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>A digit-sum condition fails</h3>
+      <p class="claim">The proposed condition and density both fail; the digit-sum discrepancy has density one.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-8">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b><a href="https://oeis.org/A071272">A071272</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Palindromes times 11</h3>
+      <p class="claim">An exact test on adjacent digits decides the case of a palindrome multiplied by 11.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-9">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b><a href="https://oeis.org/A232895">A232895</a> · <a href="https://oeis.org/A232896">A232896</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>First appearances of odd labels</h3>
+      <p class="claim">Explicit first-appearance positions for every odd label.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-10">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b><a href="https://oeis.org/A081693">A081693</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>A substitution-word identity</h3>
+      <p class="claim">The conjecture follows from a position identity for a substitution word.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-11">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b><a href="https://oeis.org/A294543">A294543</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Two complementary sequences</h3>
+      <p class="claim">Both complementary sequences have expansions with bounded error.</p>
+      <p class="prior"><b>Earlier work.</b> Goes beyond an earlier ratio argument.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-12">
+    <aside>
+      <span class="chip prior-warn">Builds on known work</span>
+      <span><b><a href="https://oeis.org/A127728">A127728</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>A local-limit asymptotic</h3>
+      <p class="claim">The leading term follows from a classical local limit theorem. The note adds the relative correction −431/(600<var>n</var>).</p>
+      <p class="prior"><b>Earlier work.</b> Leading term classical.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-13">
+    <aside>
+      <span class="chip solved">Disproved</span>
+      <span><b><a href="https://oeis.org/A055187">A055187</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>A pointwise band fails</h3>
+      <p class="claim">The conjectured pointwise band fails, by arbitrarily large amounts.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-14">
+    <aside>
+      <span class="chip partial">Partial</span>
+      <span><b><a href="https://oeis.org/A182372">A182372</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Reduced to one identity</h3>
+      <p class="claim">The conjecture is reduced to an explicit generating-function identity, which remains open.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-15">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b><a href="https://oeis.org/A096306">A096306</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Largest-digit orbits merge</h3>
+      <p class="claim">Orbits merge universally at the prescribed cutoffs 10<sup><var>k</var></sup> + 101, with a sharp deficit estimate.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-16">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b><a href="https://oeis.org/A268135">A268135</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Members without trailing zeros</h3>
+      <p class="claim">An explicit infinite family of members without trailing zeros.</p>
+      <p class="prior"><b>Earlier work.</b> Related digit-sum ratio theory exists.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-17">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b><a href="https://oeis.org/A096316">A096316</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>An irrational decimal</h3>
+      <p class="claim">The decimal constant is irrational.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-18">
+    <aside>
+      <span class="chip prior-warn">Builds on known work</span>
+      <span><b><a href="https://oeis.org/A047926">A047926</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Sums of three positive squares</h3>
+      <p class="claim">The count is (3<sup><var>n</var></sup> − 1 + 2<var>n</var>)/4, after an index shift.</p>
+      <p class="prior"><b>Earlier work.</b> Uses classical counting inputs.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-19">
+    <aside>
+      <span class="chip prior-warn">Builds on known work</span>
+      <span><b><a href="https://oeis.org/A083143">A083143</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Palindromes divisible by the nth prime</h3>
+      <p class="claim">For every <var>n</var> there is a palindrome of exactly <var>n</var> digits divisible by the <var>n</var>th prime.</p>
+      <p class="prior"><b>Earlier work.</b> Col's theorem already covers all large <var>n</var>; the new part is the small cases.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-20">
+    <aside>
+      <span class="chip partial">Partial</span>
+      <span><b>Shannon · <a href="https://oeis.org/A358208">A358208</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>An aliquot-sum permutation</h3>
+      <p class="claim">Every even <var>m</var> appears by index 2<var>m</var> + O(√<var>m</var>). Odd coverage is open.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-21">
+    <aside>
+      <span class="chip prior-warn">Builds on known work</span>
+      <span><b><a href="https://oeis.org/A111252">A111252</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Primes in square intervals</h3>
+      <p class="claim">The prime count is asymptotic to 4<var>X</var>/(log <var>X</var>)<sup>2</sup>.</p>
+      <p class="prior"><b>Earlier work.</b> A corollary of Bazzanella's square-interval theorem.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-22">
+    <aside>
+      <span class="chip partial">Partial</span>
+      <span><b><a href="https://oeis.org/A368748">A368748</a> · <a href="https://oeis.org/A368749">A368749</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Parity in prime gaps</h3>
+      <p class="claim">Infinitely many even values occur, with a parity-frequency asymptotic. Whether every prescribed value occurs is open.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-23">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b><a href="https://oeis.org/A119356">A119356</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>A squarefree density</h3>
+      <p class="claim">The squarefree density is 4∏<sub><var>p</var></sub>(1 − 3/<var>p</var><sup>2</sup>), with a power-saving error term.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-24">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b><a href="https://oeis.org/A269844">A269844</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Two squarefree summands</h3>
+      <p class="claim">The two squarefree summands have the stated relative prime density.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-25">
+    <aside>
+      <span class="chip partial">Partial</span>
+      <span><b>Goormaghtigh's equation</b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Equal repunits in two bases</h3>
+      <p class="claim">A restriction on the primes shared by the shifted bases. The full equation remains open.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-26">
+    <aside>
+      <span class="chip solved">Disproved</span>
+      <span><b><a href="https://oeis.org/A136809">A136809</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Roots of digit-restricted squares</h3>
+      <p class="claim">Every finite binary word occurs in a root whose digits, and whose square's digits, stay in the required alphabets. This refutes the entry's bound on runs of ones. Whether a valid root can contain a 2 or a 3 is open.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-27">
+    <aside>
+      <span class="chip prior-warn">Builds on known work</span>
+      <span><b><a href="https://oeis.org/A006154">A006154</a> · <a href="https://oeis.org/A005046">A005046</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Periodicity of ordered odd-block partitions</h3>
+      <p class="claim">Elementary proofs of eventual periodicity for every modulus, and the least eventual period modulo 2<sup><var>r</var></sup> is 2<sup><var>r</var></sup>.</p>
+      <p class="prior"><b>Earlier work.</b> Periodicity itself is covered qualitatively by earlier theory.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-28">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b><a href="https://oeis.org/A358976">A358976</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Factorial digit sums and gcds</h3>
+      <p class="claim">The density of numbers whose gcd with their factorial digit sum is <var>d</var> equals 6/(π<sup>2</sup><var>d</var><sup>2</sup>), for every <var>d</var>.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-29">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b><a href="https://oeis.org/A269870">A269870</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Odd-divisor coprimality</h3>
+      <p class="claim">The odd-divisor and ordinary-divisor coprimality densities agree, with an explicit square-root excess.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-30">
+    <aside>
+      <span class="chip prior-warn">Corrected</span>
+      <span><b><a href="https://oeis.org/A068128">A068128</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Triangular digit sums</h3>
+      <p class="claim">The complete corrected statement is proved.</p>
+      <p class="prior"><b>Earlier work.</b> Its two exceptions had already been found by Schoenfield.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-31">
+    <aside>
+      <span class="chip partial">Partial</span>
+      <span><b><a href="https://oeis.org/A251865">A251865</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Maximal multiplicative orders</h3>
+      <p class="claim">All bases outside a density-zero exceptional set occur in infinitely many rows. The fixed-base statement for every base is open.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-32">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b><a href="https://oeis.org/A291698">A291698</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Distinct parts with growing colors</h3>
+      <p class="claim">The asymptotic holds with the conjectured constant.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-33">
+    <aside>
+      <span class="chip partial">Partial</span>
+      <span><b>Lagneau · <a href="https://oeis.org/A361904">A361904</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>A class of integers</h3>
+      <p class="claim">Beyond 1 and 3, the two observed divisor patterns are the only ones, and the set has density zero. Infinitude is open.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-34">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b><a href="https://oeis.org/A060244">A060244</a> · <a href="https://oeis.org/A291596">A291596</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Singleton-free bipartite partitions</h3>
+      <p class="claim">The general fixed-column asymptotic holds, and the shared-part probability is determined.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-35">
+    <aside>
+      <span class="chip partial">Partial</span>
+      <span><b><a href="https://oeis.org/A087347">A087347</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Sampled Fibonacci sums</h3>
+      <p class="claim">Prime-power members and finite attachment obstructions are classified. The growth rate is open.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-36">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b><a href="https://oeis.org/A177258">A177258</a>–<a href="https://oeis.org/A177260">A177260</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Permutations with forbidden cycles</h3>
+      <p class="claim">One recurrence proves all three, from the earlier forbidden-cycle enumeration, with an equation for any finite set of forbidden lengths.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-37">
+    <aside>
+      <span class="chip partial">Partial</span>
+      <span><b><a href="https://oeis.org/A259776">A259776</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Bounded-displacement derangements</h3>
+      <p class="claim">The proposed recurrence dimension is an upper bound, already covered by prior work. Sublinear-bandwidth growth is quantified; the minimum order is open.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-38">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b>Stephan · <a href="https://oeis.org/A080795">A080795</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Minimax trees</h3>
+      <p class="claim">The identity holds at every even size, and the note gives an odd-size formula.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-39">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b><a href="https://oeis.org/A083137">A083137</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Greedy coprime palindromes</h3>
+      <p class="claim">The greedy sequence is infinite, with a polynomial lower bound on its counting function.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-40">
+    <aside>
+      <span class="chip solved">Proved and disproved</span>
+      <span><b><a href="https://oeis.org/A087324">A087324</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Prime signatures under the nine's complement</h3>
+      <p class="claim">There are infinitely many witnesses of equal signature, but some signatures never occur, including every all-even exponent pattern.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-41">
+    <aside>
+      <span class="chip partial">Partial</span>
+      <span><b><a href="https://oeis.org/A088618">A088618</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Composite concatenations</h3>
+      <p class="claim">The greedy rule never stops, and every legal prefix extends to a full odd permutation. Surjectivity of the greedy rule is open.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-42">
+    <aside>
+      <span class="chip partial">Partial</span>
+      <span><b><a href="https://oeis.org/A093489">A093489</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Equal-signature pairs</h3>
+      <p class="claim">A dyadic mean-order bound. The pointwise claims are open.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-43">
+    <aside>
+      <span class="chip prior-warn">Builds on known work</span>
+      <span><b><a href="https://oeis.org/A088104">A088104</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Prime prefixes</h3>
+      <p class="claim">Follows from Dusart's explicit prime-gap bound.</p>
+      <p class="prior"><b>Earlier work.</b> A corollary of known results.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-44">
+    <aside>
+      <span class="chip partial">Partial</span>
+      <span><b>Quet · <a href="https://oeis.org/A100826">A100826</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Quet's permutation</h3>
+      <p class="claim">At most one integer is omitted. The twin-prime conjecture would imply full coverage.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-45">
+    <aside>
+      <span class="chip prior-warn">Corrected</span>
+      <span><b><a href="https://oeis.org/A088226">A088226</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Square distances</h3>
+      <p class="claim">The index is corrected using a known exact formula, with a further distribution result.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-46">
+    <aside>
+      <span class="chip solved">Disproved</span>
+      <span><b><a href="https://oeis.org/A395111">A395111</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Radical partitions</h3>
+      <p class="claim">The two partition-count ranges differ (53 is a witness), and every bounded count occurs only on a density-zero set of indices.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-47">
+    <aside>
+      <span class="chip solved">Disproved</span>
+      <span><b><a href="https://oeis.org/A392819">A392819</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Prime-exponent divisibility</h3>
+      <p class="claim">The set has density zero. The proposed restriction on odd members is false: any finite nonempty set of odd prime divisors can occur.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-48">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b><a href="https://oeis.org/A395103">A395103</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Prime concatenations</h3>
+      <p class="claim">The set is infinite, with a sieve lower bound of order <var>Y</var>/(log <var>Y</var>)<sup>2</sup>.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-49">
+    <aside>
+      <span class="chip prior-warn">Corrected</span>
+      <span><b><a href="https://oeis.org/A222763">A222763</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Array compositions</h3>
+      <p class="claim">A bijection for every size under the positive-first alternating-sum convention, refined by change runs. The literal negative-first reading fails.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-50">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b><a href="https://oeis.org/A401548">A401548</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Greedy square sums</h3>
+      <p class="claim">The count of greedy-optimal cases is asymptotic to (16/525)·2<sup>17/8</sup><var>X</var><sup>15/16</sup>.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-51">
+    <aside>
+      <span class="chip solved">Disproved</span>
+      <span><b>Artico</b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Eventually positive ascending expansions</h3>
+      <p class="claim">False, with an explicit transcendental input and infinitely many examples.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-52">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b>Cloitre · <a href="https://oeis.org/A082528">A082528</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>A rounding limit</h3>
+      <p class="claim">The limit extends to every real exponent <var>m</var> &gt; 0, with an exact gamma-function constant.</p>
+      <p class="prior"><b>Earlier work.</b> The case <var>m</var> = 1 was known.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-53">
+    <aside>
+      <span class="chip prior-warn">Corrected</span>
+      <span><b>Cloitre · <a href="https://oeis.org/A072923">A072923</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>A linear asymptotic</h3>
+      <p class="claim">The sequence is linear, with constant strictly between 0.45831 and 0.46192, which corrects the published decimal estimate.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-54">
+    <aside>
+      <span class="chip prior-warn">Builds on known work</span>
+      <span><b><a href="https://oeis.org/A394454">A394454</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Prime divisors of central coefficients</h3>
+      <p class="claim">Each fixed prime divides the central coefficient on a density-one set, and the sum of distinct prime divisors is asymptotic to ζ(2)<var>n</var><sup>2</sup>/log <var>n</var>.</p>
+      <p class="prior"><b>Earlier work.</b> A classical corollary, with a new fixed-ratio extension.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-55">
+    <aside>
+      <span class="chip solved">Disproved</span>
+      <span><b><a href="https://oeis.org/A175522">A175522</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>A stronger counterexample</h3>
+      <p class="claim">A positive, strictly increasing counterexample, which goes beyond an earlier objection that used zeros.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-56">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b><a href="https://oeis.org/A232637">A232637</a> · <a href="https://oeis.org/A233419">A233419</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Multiples in the second-order odious sequence</h3>
+      <p class="claim">The fraction of multiples is 1/4, 1/6 or 0, according as the modulus is odd, 2 mod 4, or divisible by 4.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-57">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b><a href="https://oeis.org/A337479">A337479</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Primitive abundant extensions</h3>
+      <p class="claim">Proved, using extensions with arbitrarily large added primes and pairwise coprime multipliers.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-58">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b><a href="https://oeis.org/A346644">A346644</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Divisor-mean denominators</h3>
+      <p class="claim">Every denominator has infinitely many witnesses built from at most two primes.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-59">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b><a href="https://oeis.org/A393833">A393833</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Modular palindromes</h3>
+      <p class="claim">Every modulus has infinitely many proper-divisor palindrome witnesses, with an exact list of the possible second residues.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-60">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b><a href="https://oeis.org/A374853">A374853</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Prime convolution divisibility</h3>
+      <p class="claim">Every modulus divides every sufficiently late term, through arbitrarily many separate factors.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-61">
+    <aside>
+      <span class="chip partial">Partial</span>
+      <span><b><a href="https://oeis.org/A378252">A378252</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Modular record positions</h3>
+      <p class="claim">The unrestricted first-zero test, record indices and a mean asymptotic. The least-prime-power conjecture is open.</p>
+      <p class="prior"><b>Earlier work.</b> The coprime case of the test had a prior proof.</p>
+    </div>
+  </article>
+  <h3 class="batch-day">November 21</h3>
+  <article class="entry entry--brief" id="b-62">
+    <aside>
+      <span class="chip solved">Disproved</span>
+      <span><b><a href="https://oeis.org/A284364">A284364</a>–<a href="https://oeis.org/A284366">A284366</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Discrepancy of a binary substitution</h3>
+      <p class="claim">Both conjectured discrepancy upper bounds fail. The exact supremum is about 2.116515139.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-63">
+    <aside>
+      <span class="chip prior-warn">Builds on known work</span>
+      <span><b>Eldar</b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>A substitution density</h3>
+      <p class="claim">The density holds with bounded error.</p>
+      <p class="prior"><b>Earlier work.</b> Follows from classical substitution theory.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-64">
+    <aside>
+      <span class="chip partial">Partial</span>
+      <span><b><a href="https://oeis.org/A000224">A000224</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>A square-residue congruence</h3>
+      <p class="claim">True for odd primes, false for even inputs and proper prime powers. A class of odd composites is open.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-65">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b>Bala · <a href="https://oeis.org/A132303">A132303</a> · <a href="https://oeis.org/A132305">A132305</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Trinomial moment supercongruences</h3>
+      <p class="claim">The cubic and fifth-moment congruences follow from one coefficient theorem that covers every moment of degree at least two.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-66">
+    <aside>
+      <span class="chip prior-warn">Corrected</span>
+      <span><b>Kimberling · <a href="https://oeis.org/A260844">A260844</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Continued-fraction discriminants</h3>
+      <p class="claim">The divisibility holds for every odd seed. The second iterate's conflicting value is corrected to 4205 for seed 5.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-67">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b><a href="https://oeis.org/A232656">A232656</a> · <a href="https://oeis.org/A064414">A064414</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Fibonacci zero coverage</h3>
+      <p class="claim">An exact count of the moduli covered, extended to invertible second-order recurrences.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-68">
+    <aside>
+      <span class="chip partial">Partial</span>
+      <span><b><a href="https://oeis.org/A389401">A389401</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Fibonacci zeros mod prime squares</h3>
+      <p class="claim">Classified apart from an explicit prime-square obstruction; Fibonacci–Wieferich primes remain the open case.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-69">
+    <aside>
+      <span class="chip prior-warn">Corrected</span>
+      <span><b><a href="https://oeis.org/A270916">A270916</a> · <a href="https://oeis.org/A270582">A270582</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Weighted Egyptian fractions</h3>
+      <p class="claim">The two agree after scaling and dropping the first term. The floor/ceiling wording is corrected.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-70">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b><a href="https://oeis.org/A070318">A070318</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Running aliquot maxima</h3>
+      <p class="claim">The limit is <var>e</var><sup>γ</sup>/2, with a second term for the summatory function.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-71">
+    <aside>
+      <span class="chip prior-warn">Corrected</span>
+      <span><b><a href="https://oeis.org/A188571">A188571</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Biquadratic coefficient divisibility</h3>
+      <p class="claim">Infinitely many zeros, and eventual periodicity modulo every positive modulus (from the start for odd moduli). Six published gap lists are corrected.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-72">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b>CRIM, Conjectures 1, 7, 8, 9</b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Winning positions in CRIM</h3>
+      <p class="claim">A rule for every Young diagram settles four normal-play conjectures, with an executable certificate for the all-length step.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-73">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b>Independence polynomials of trees</b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Prescribed log-concavity</h3>
+      <p class="claim">A perfectly matched tree of diameter at most ten can realize any finite prescribed terminal log-concavity pattern.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-74">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b>King on staircases, Conjectures 5.1 and 5.2</b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>King placements on staircases</h3>
+      <p class="claim">Both formulas hold over their full parameter ranges (computer-assisted).</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-75">
+    <aside>
+      <span class="chip partial">Partial</span>
+      <span><b>Abelian squares, Conjecture 5.5</b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Abelian squares on a circle</h3>
+      <p class="claim">The prefix inequality fails, with unbounded deficit, even on primitive circular binary words. The total-count bound is open.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-76">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b><a href="https://oeis.org/A137432">A137432</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Cylindrical kings</h3>
+      <p class="claim">The count is asymptotic to 2<var>e</var>((<var>e</var> − 1)/(<var>e</var> − 2))<sup>2</sup><var>n</var><sup><var>n</var></sup>, with the conjectured ratio.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-77">
+    <aside>
+      <span class="chip prior-warn">Corrected</span>
+      <span><b><a href="https://oeis.org/A131937">A131937</a> · <a href="https://oeis.org/A131938">A131938</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Complement-sum iteration</h3>
+      <p class="claim">The iteration converges, but which phase comes first depends on whether the seed contains 1. The uniform cutoff is sharp.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-78">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b><a href="https://oeis.org/A370097">A370097</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>A cubic supercongruence tower</h3>
+      <p class="claim">The full tower holds for every odd prime, including 3.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-79">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b><a href="https://oeis.org/A381161">A381161</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Two supercongruence families</h3>
+      <p class="claim">Both families hold at every prime at least 5 across their integer-parameter range, and both series are integral.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-80">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b><a href="https://oeis.org/A396981">A396981</a> · <a href="https://oeis.org/A127054">A127054</a> · <a href="https://oeis.org/A156628">A156628</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Triangular deletion arrays</h3>
+      <p class="claim">Conjectures 2–4 and both cross-array identities are proved.</p>
+      <p class="prior"><b>Earlier work.</b> Conjecture 1 already had a proof for positive columns.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-81">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b><a href="https://oeis.org/A281946">A281946</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Colored-word repetitions</h3>
+      <p class="claim">Both word identities extend to every prescribed repeat count, with a two-term asymptotic and a Poisson law for unused colors.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-82">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b><a href="https://oeis.org/A369425">A369425</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Cross-polytope growth</h3>
+      <p class="claim">The convolution holds, with logarithmic asymptotics and concentration of the contributing indices.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-83">
+    <aside>
+      <span class="chip prior-warn">Builds on known work</span>
+      <span><b><a href="https://oeis.org/A375948">A375948</a> · <a href="https://oeis.org/A305404">A305404</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Negative-binomial moments</h3>
+      <p class="claim">The coupled recurrence and the identification with A305404 hold in a two-parameter family.</p>
+      <p class="prior"><b>Earlier work.</b> The A305404 moments and continued fraction follow from classical negative-binomial and Meixner formulas.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-84">
+    <aside>
+      <span class="chip prior-warn">Builds on known work</span>
+      <span><b><a href="https://oeis.org/A211337">A211337</a> · <a href="https://oeis.org/A211338">A211338</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Divisor-count residues</h3>
+      <p class="claim">A new derivation by Möbius inversion, with a criterion equivalent to the Riemann hypothesis.</p>
+      <p class="prior"><b>Earlier work.</b> The densities already follow from Sathe and Sahay.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-85">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b><a href="https://oeis.org/A112290">A112290</a> · <a href="https://oeis.org/A112291">A112291</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Reciprocal Stirling sums</h3>
+      <p class="claim">The sum tends to 2, with an expansion to all orders and two varying-power limits.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-86">
+    <aside>
+      <span class="chip solved">Disproved</span>
+      <span><b><a href="https://oeis.org/A372709">A372709</a> · <a href="https://oeis.org/A372710">A372710</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Rows of the divisor multiplication table</h3>
+      <p class="claim">The last row's share tends to zero, while the cumulative share tends to one half.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-87">
+    <aside>
+      <span class="chip prior-warn">Builds on known work</span>
+      <span><b><a href="https://oeis.org/A253974">A253974</a> · <a href="https://oeis.org/A307347">A307347</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Leaper walks</h3>
+      <p class="claim">Two explicit correction terms.</p>
+      <p class="prior"><b>Earlier work.</b> The leading term is classical lattice theory.</p>
+    </div>
+  </article>
+  <article class="entry entry--brief" id="b-88">
+    <aside>
+      <span class="chip prior-warn">Builds on known work</span>
+      <span><b><a href="https://oeis.org/A258670">A258670</a> · <a href="https://oeis.org/A258672">A258672</a></b></span>
+    </aside>
+    <div class="entry-body">
+      <h3>Partition collisions</h3>
+      <p class="claim">An exact cubic threshold and a Poisson law for values that occur twice.</p>
+      <p class="prior"><b>Earlier work.</b> Szekeres implies the partition equivalent.</p>
+    </div>
+  </article>
+  <h3 class="batch-day">November 21, late: re-checked here</h3>
+  <article class="entry" id="e-a380944">
+    <aside>
+      <span class="chip solved">Proved</span>
+      <span><b>Mikhail Kurkov</b><br>OEIS A380944, Feb 2025</span>
+      <span>Checked here: the note&rsquo;s audit re-run, 1,952 top-column values against Stirling numbers and 3,330 column values against direct convolutions</span>
+      <span class="chip prior-open">No prior derivation found</span>
+    </aside>
+    <div class="entry-body">
+      <h3>A binary recurrence that hides a coupon collector</h3>
+      <p class="claim">For <var>N</var> = <var>n</var> + 1, a(2<sup><var>m</var></sup>(2<sup><var>n</var></sup> − 1)) = <var>N</var><sup><var>m</var></sup> − <var>n</var>·<var>n</var>!·∑<sub><var>j</var>=<var>N</var></sub><sup><var>m</var></sup> S(<var>j</var>, <var>N</var>), with S the Stirling numbers of the second kind. Every column of these rows is an exact waiting-time probability.</p>
+      <details><summary>How the proof goes</summary><div>
+        <p>The row of <var>n</var> ones is Pascal&rsquo;s row. Appending zeros multiplies a comparison row <var>N</var><sup><var>m</var></sup>·C(<var>n</var>, <var>k</var>) by <var>N</var> each time, and it obeys the same update except at column zero. The deficit between the two rows has a generating function that factors column by column. At the last column it is <var>n</var>·<var>n</var>!·<var>z</var><sup><var>N</var></sup>/((1 − <var>z</var>)∏(1 − <var>jz</var>)), whose coefficients are partial sums of Stirling numbers. That is Kurkov&rsquo;s formula.</p>
+        <p>Rescaled, each column equals the chance that a sum of independent geometric waiting times exceeds <var>m</var>. At the last column this is the coupon-collector time on <var>N</var> coupons, plus one extra wait for the column-zero boundary. So with <var>m</var> = <var>N</var>(log <var>k</var> + <var>x</var>) the normalized column tends to 1 − exp(−<var>e</var><sup>−<var>x</var></sup>), the Erd&odblac;s&ndash;R&eacute;nyi limit.</p>
+      </div></details>
+      <p class="prior"><b>Earlier work.</b> The coupon-collector limit is classical (Erd&odblac;s and R&eacute;nyi, 1961). Searches by sequence, author and formula found no earlier derivation of the identity or of the probability form.</p>
+      <p class="prior"><a href="https://oeis.org/A380944">A380944</a> · <a href="https://static.renyi.hu/renyi_cikkek/1961_on_a_classical_problem_of_probability_theory.pdf">Erd&odblac;s &amp; R&eacute;nyi 1961</a></p>
+    </div>
+  </article>
+
+  <article class="entry" id="e-a080692">
+    <aside>
+      <span class="chip solved">Disproved</span>
+      <span><b>V&aacute;clav Kot&ecaron;&scaron;ovec</b><br>OEIS A080692, Aug 2024<br>Cloitre&rsquo;s determinant</span>
+      <span>Checked here: the note&rsquo;s audit re-run, 490 exact determinants for clipping bases 2 to 8</span>
+      <span class="chip prior-open">No prior formula found</span>
+    </aside>
+    <div class="entry-body">
+      <h3>A determinant constant, corrected</h3>
+      <p class="claim">The conjectured constant 1/√2 is wrong. Exactly, a(<var>n</var>)/2<sup><var>n</var>−1</sup> = log <var>n</var>/(2 log 2) + (<var>x</var> − 1 − log<sub>2</sub> <var>x</var>)/2, where <var>x</var> = <var>n</var>/2<sup>⌊log<sub>2</sub> <var>n</var>⌋</sup>. The leading constant is 1/(2 log 2), and the correction is bounded and repeats with each doubling of <var>n</var>.</p>
+      <details><summary>How the proof goes</summary><div>
+        <p>Take backward differences of the columns. The matrix becomes almost diagonal: each later column has a 2 on the diagonal and a −1 wherever the clipping rule bites, at <var>j</var> = 2<var>i</var>. A weighted sum of rows, with weight 2<sup>−&ell;</sup> on row 2<sup>&ell;</sup>, clears the first row, leaving a triangular block and a 2&times;2 determinant. The same steps give an exact formula for every clipping base <var>b</var> ≥ 2. For <var>b</var> &gt; 2 the growth is 2<sup><var>n</var></sup><var>n</var><sup>1 − log<sub><var>b</var></sub> 2</sup>, times a profile that keeps oscillating, so the normalized ratio has no limit.</p>
+        <p>There is also a short check from the recurrence already in the entry. After dividing by 2<sup><var>n</var>−1</sup>, each step adds 2<sup>−⌈log<sub>2</sub> <var>n</var>⌉</sup>, so each completed dyadic block adds exactly one half.</p>
+      </div></details>
+      <p class="prior"><b>Earlier work.</b> The leading constant follows by summing Kot&ecaron;&scaron;ovec&rsquo;s own recurrence. Searches found no earlier statement of the correction term or the clipped-matrix family.</p>
+      <p class="prior"><a href="https://oeis.org/A080692">A080692</a> · <a href="https://oeis.org/A054243">A054243</a></p>
+    </div>
+  </article>
+</section>
+
 <footer>
-  <p>The first twelve results were generated by ChatGPT from prompts by Myles Parslow. The last six were found and written by Claude (Opus 5.5 and Fable 5.2). Every listed check was re-run between November 18 and 20, 2026. None of these results has been peer-reviewed. A search for earlier work can show what is already public. It cannot prove a result is new.</p>
+  <p>The first twelve results were generated by ChatGPT from prompts by Myles Parslow. The next six were found and written by Claude (Opus 5.5 and Fable 5.2). Every check listed for those eighteen was re-run between November 18 and 20, 2026. The November 18&ndash;21 batch comes from ChatGPT research notes; its two final entries had their checks re-run on November 21, and the rest are listed as the notes report them. None of these results has been peer-reviewed. A search for earlier work can show what is already public. It cannot prove a result is new.</p>
 </footer>
 </div>
 <div class="tip" id="tip" hidden></div>
