@@ -1,0 +1,1598 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head><body>
+<title>Jurymech</title>
+<script>(function(){var q=new URLSearchParams(location.search);if(!q.has('replay')&&!q.has('mock'))location.replace('?replay=run.json'+(q.toString()?'&'+q.toString():''));})();</script>
+<script>
+(function(){try{var t=new URLSearchParams(location.search).get('theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
+</script>
+<style>
+@font-face{font-family:"Schibsted Grotesk";src:url("fonts/SchibstedGrotesk.ttf") format("truetype");font-weight:400 900;font-style:normal;font-display:swap}
+@font-face{font-family:"IBM Plex Mono";src:url("fonts/IBMPlexMono-Regular.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"IBM Plex Mono";src:url("fonts/IBMPlexMono-Medium.ttf") format("truetype");font-weight:500;font-style:normal;font-display:swap}
+
+:root{
+  --bg:#f5f1ea;--surface:#fbf8f3;--ink:#1d1a17;--muted:#6f665c;--rule:#d9d0c3;
+  --accent:#7a2a24;--brass:#9a7b3c;--on-accent:#fbf6ee;
+  --sans:"Schibsted Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#161311;--surface:#201c19;--ink:#ede6dc;--muted:#a3988b;--rule:#3a332d;
+    --accent:#c4574c;--brass:#c9a55a;--on-accent:#1a1210;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#161311;--surface:#201c19;--ink:#ede6dc;--muted:#a3988b;--rule:#3a332d;
+  --accent:#c4574c;--brass:#c9a55a;--on-accent:#1a1210;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--sans);overflow-wrap:break-word}
+.wrap{max-width:920px;margin:0 auto;padding:0 16px 64px}
+.mono{font-family:var(--mono)}
+h1,h2,h3,h4,p{margin:0}
+header{padding:28px 0 18px;border-bottom:3px double var(--brass);margin-bottom:22px}
+h1{font-size:34px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);line-height:1.1}
+.tag{margin-top:6px;color:var(--muted);font-size:15px}
+h2{font-size:13px;font-family:var(--mono);font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:6px;padding:16px;margin-bottom:18px;min-width:0}
+label{display:block;font-size:13px;font-weight:600;margin:0 0 4px}
+textarea,input[type=text],select{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--rule);border-radius:4px;padding:9px 10px;min-width:0}
+textarea{min-height:150px;resize:vertical;line-height:1.5}
+textarea:focus,input:focus,select:focus,button:focus-visible,summary:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.field{min-width:0}
+.presets{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
+.small{font-size:13px;color:var(--muted)}
+.btn{font:inherit;font-weight:600;font-size:15px;min-height:44px;padding:8px 16px;border-radius:4px;border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);cursor:pointer}
+.btn.alt{background:transparent;color:var(--accent)}
+.btn.sm{min-height:36px;padding:4px 12px;font-size:14px;font-weight:500}
+.btn:hover:not(:disabled){filter:brightness(1.08)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
+.replay #seatBtn,.replay #reseatBtn,.replay #delibBtn,.replay #rerunBtn,.replay #newJuryBtn,.replay #presets,.replay #expCard{display:none!important}
+#noclaude{border-left:4px solid var(--brass);background:var(--surface);border-radius:4px;padding:12px 14px;margin-bottom:18px;border-top:1px solid var(--rule);border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+
+.seats{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.seat{--vc:var(--muted);font:inherit;text-align:left;min-width:0;padding:8px 8px 8px 10px;border:1px solid var(--rule);border-left:4px solid var(--vc);border-radius:4px;background:color-mix(in srgb,var(--vc) 10%,var(--surface));color:var(--ink);cursor:pointer;display:flex;flex-direction:column;gap:1px;min-height:84px;position:relative}
+.seat[data-vote=P]{--vc:var(--accent)}
+.seat[data-vote=D]{--vc:var(--brass)}
+.seat.empty{cursor:default;border-style:dashed;border-left-style:dashed;background:transparent;color:var(--muted)}
+.seat.sel{outline:2px solid var(--ink);outline-offset:1px}
+.seat .sn{font:500 12px var(--mono);color:var(--muted)}
+.seat .nm{font-weight:700;font-size:14px;line-height:1.2;overflow-wrap:anywhere}
+.seat .mt{font-size:12px;color:var(--muted);line-height:1.25;overflow-wrap:anywhere}
+.seat .vt{position:absolute;top:6px;right:7px;font:500 12px var(--mono);color:var(--ink)}
+.seating .seat{animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.45}}
+@media (prefers-reduced-motion: reduce){.seating .seat,.think{animation:none}}
+
+details>summary{cursor:pointer;font-weight:600;list-style:revert}
+.room-empty{margin:0 0 10px;font-size:14px;color:var(--muted)}
+.k{font:500 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+
+#status{min-height:22px;margin-top:10px;font-size:14px;color:var(--muted)}
+#status.err{color:var(--accent);font-weight:600}
+#status.pulse{animation:pulse 1.4s ease-in-out infinite}
+
+.tally{margin-top:14px}
+.tally .nums{display:flex;flex-wrap:wrap;gap:6px 16px;font:500 14px var(--mono)}
+.tally .bar{display:flex;height:12px;border-radius:6px;overflow:hidden;background:var(--rule);margin-top:6px}
+.tally .bar i{display:block;height:100%}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:baseline}
+.sw.P{background:var(--accent)}.sw.D{background:var(--brass)}.sw.U{background:var(--muted)}
+
+.run{border:1px solid var(--rule);border-radius:6px;background:var(--surface);margin-bottom:12px;padding:10px 14px;min-width:0}
+.run>summary{font-size:15px}
+.run .rsplit{font:500 13px var(--mono);color:var(--muted);margin-left:8px}
+.round{margin-top:10px;border-top:1px solid var(--rule);padding-top:8px}
+.round>summary{font-size:14px}
+.round .st{font:500 12px var(--mono);color:var(--muted);margin-left:8px}
+.lines{margin-top:8px;display:flex;flex-direction:column;gap:8px}
+.line{--vc:var(--muted);display:flex;gap:8px;align-items:flex-start;min-width:0}
+.line[data-vote=P]{--vc:var(--accent)}.line[data-vote=D]{--vc:var(--brass)}
+.chip{flex:none;font:500 12px var(--mono);min-width:30px;text-align:center;padding:2px 5px;border:1px solid var(--vc);border-radius:4px;background:color-mix(in srgb,var(--vc) 16%,transparent);color:var(--ink);margin-top:2px}
+.line .tx{min-width:0;font-size:15px}
+.line .tx b{font-weight:700}
+.line .tx .v{font:500 12px var(--mono);color:var(--muted);margin-left:6px}
+.think{color:var(--muted);font-size:14px;animation:pulse 1.4s ease-in-out infinite}
+details.pr{margin-top:8px}
+details.pr summary{font-size:13px;font-weight:500;color:var(--muted)}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 var(--mono);background:var(--bg);border:1px solid var(--rule);border-radius:4px;padding:10px;margin:6px 0 0;max-height:320px;overflow:auto}
+
+#verdict .big{font-size:28px;font-weight:800;line-height:1.15;color:var(--accent)}
+#verdict .big.D{color:var(--brass)}
+#verdict .big.H{color:var(--muted)}
+#verdict .meta{margin-top:6px;font:500 14px var(--mono)}
+#verdict .swing{margin-top:14px;font-size:15px}
+#verdict .swing h4{font:500 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:14px 0 4px}
+#verdict .swing ul{margin:4px 0 0;padding-left:20px}
+#verdict .swing li{margin:3px 0}
+
+table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:14px}
+th,td{text-align:left;vertical-align:top;padding:8px 6px;border-bottom:1px solid var(--rule);overflow-wrap:anywhere}
+th{font:500 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+td.num{font-family:var(--mono)}
+col.c1{width:12%}col.c3{width:28%}col.c4{width:22%}
+.exp textarea{min-height:120px;font:12px/1.5 var(--mono);margin-top:8px}
+.method p{margin-top:8px;font-size:15px}
+.method ul{margin:8px 0 0;padding-left:20px;font-size:15px}
+footer{color:var(--muted);font-size:13px;margin-top:8px}
+
+@media (max-width:600px){
+  h1{font-size:28px}
+  .row{grid-template-columns:1fr}
+  .seats{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .seat{padding:6px 4px 6px 7px;min-height:78px}
+  .seat .nm{font-size:13px}
+  .seat .mt{font-size:11px}
+  .card{padding:14px 12px}
+  #verdict .big{font-size:24px}
+  th,td{padding:7px 4px;font-size:13px}
+}
+</style>
+<style>
+:root{
+  --room-wall:#e8dfd0;--room-wall-shade:#d9cebb;--room-floor:#cdbfa8;--room-plank:#b9a98f;
+  --room-wood:#6e4630;--room-wood-hi:#8a5c3e;--room-wood-dark:#3f2819;--room-chair:#5a3a28;--room-chair-hi:#744c35;
+  --room-glass:#f1e6c8;--room-paper:#fbf8f3;--room-on-brass:#1a1210;--room-ceramic:#efe9de;--room-ceramic-sh:#c9bfae;
+  --room-shadow:rgba(40,25,10,.16);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --room-wall:#2a2420;--room-wall-shade:#221d19;--room-floor:#1c1815;--room-plank:#2c2621;
+    --room-wood:#5a3a27;--room-wood-hi:#774c33;--room-wood-dark:#2a1a10;--room-chair:#463024;--room-chair-hi:#5d4030;
+    --room-glass:#4a3f2c;--room-paper:#2b2622;--room-ceramic:#cfc6b6;--room-ceramic-sh:#9a917f;
+    --room-shadow:rgba(0,0,0,.32);
+  }
+}
+:root[data-theme="dark"]{
+  --room-wall:#2a2420;--room-wall-shade:#221d19;--room-floor:#1c1815;--room-plank:#2c2621;
+  --room-wood:#5a3a27;--room-wood-hi:#774c33;--room-wood-dark:#2a1a10;--room-chair:#463024;--room-chair-hi:#5d4030;
+  --room-glass:#4a3f2c;--room-paper:#2b2622;--room-ceramic:#cfc6b6;--room-ceramic-sh:#9a917f;
+  --room-shadow:rgba(0,0,0,.32);
+}
+
+#room{margin:0 0 14px}
+.room-stage{position:relative;width:100%;border:1px solid var(--rule);border-radius:6px;overflow:hidden;background:var(--room-floor);contain:layout}
+.room-svg{display:block;width:100%;height:auto}
+.room-svg text{font-family:var(--sans)}
+
+/* scenery */
+.rm-wall{fill:var(--room-wall)}
+.rm-wall-shade{fill:var(--room-wall-shade)}
+.rm-floor{fill:var(--room-floor)}
+.rm-plank{stroke:var(--room-plank);stroke-width:1.2;opacity:.7;fill:none}
+.rm-shadow{fill:var(--room-shadow)}
+.rm-glass{fill:var(--room-glass)}
+.rm-frame{fill:var(--room-wood);stroke:var(--room-wood-dark);stroke-width:1}
+.rm-mullion{stroke:var(--room-wood);stroke-width:4}
+.rm-wood-hi{stop-color:var(--room-wood-hi)}
+.rm-wood-lo{stop-color:var(--room-wood)}
+.rm-top{fill:url(#rm-wood);stroke:var(--room-wood-dark);stroke-width:1.2;stroke-linejoin:round}
+.rm-apron{fill:var(--room-wood-dark);stroke:var(--room-wood-dark);stroke-width:1;stroke-linejoin:round}
+.rm-grain{stroke:var(--room-wood-dark);stroke-width:1.2;opacity:.22;fill:none}
+.rm-sheen{fill:#fff;opacity:.07}
+.rm-ceramic{fill:var(--room-ceramic);stroke:var(--room-ceramic-sh);stroke-width:1}
+.rm-water{fill:var(--room-glass);opacity:.8}
+
+/* figures */
+.fig{cursor:pointer;outline:none}
+.fig .ring{fill:none;stroke:var(--ink);stroke-width:2.5;stroke-dasharray:none;opacity:0;transition:opacity .2s}
+.fig.sel .ring{opacity:.85}
+.fig:focus-visible .ring{opacity:1;stroke:var(--brass);stroke-width:3.5;stroke-dasharray:7 5}
+.fig:hover .ring{opacity:.35}
+.fig.sel:hover .ring{opacity:.85}
+.fig .hit{fill:transparent}
+.fig .lift{transform-box:fill-box;transform-origin:50% 100%;transition:transform .35s cubic-bezier(.2,.8,.3,1)}
+.fig.speaking .lift{transform:translateY(-5px) scale(1.035)}
+.fig .breath{transform-box:fill-box;transform-origin:50% 100%;animation:rm-breathe 4.6s ease-in-out infinite;animation-delay:var(--bd,0s)}
+@keyframes rm-breathe{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.014)}}
+.fig .ol{stroke:rgba(0,0,0,.28);stroke-width:.9;stroke-linejoin:round;stroke-linecap:round}
+.fig .chair{fill:var(--room-chair)}
+.fig .chair-hi{fill:var(--room-chair-hi)}
+.fig .gl{fill:rgba(255,255,255,.18);stroke:#2a2420;stroke-width:1.5}
+.fig .gline{stroke:#2a2420;stroke-width:1.4;fill:none;stroke-linecap:round}
+
+/* name tents */
+.tent{--tf:var(--room-paper);--tt:var(--ink);--ts:var(--muted)}
+.tent[data-vote=P]{--tf:var(--accent);--tt:var(--on-accent);--ts:var(--accent)}
+.tent[data-vote=D]{--tf:var(--brass);--tt:var(--room-on-brass);--ts:var(--brass)}
+.tent .tf{fill:var(--tf);stroke:var(--ts);stroke-width:1.4;transition:fill .25s,stroke .25s}
+.tent .tf-top{fill:var(--tf);filter:brightness(1.12);stroke:var(--ts);stroke-width:1;opacity:.9;transition:fill .25s}
+.tent .tt{fill:var(--tt);font-size:12px;font-weight:600;text-anchor:middle;transition:fill .25s}
+.tent .tv{fill:var(--tt);font:600 11px var(--mono);text-anchor:middle;transition:fill .25s}
+.tent[data-vote=U] .tf{stroke-dasharray:3 2.5}
+.tent .tflip{transform-box:fill-box;transform-origin:50% 100%}
+.tent.flip .tflip{animation:rm-flip .55s ease-in-out}
+@keyframes rm-flip{0%{transform:scaleY(1)}45%{transform:scaleY(.08)}100%{transform:scaleY(1)}}
+.tent.glow .tf{animation:rm-glow 1.1s ease-in-out 3;filter:drop-shadow(0 0 5px var(--tf))}
+@keyframes rm-glow{0%,100%{filter:drop-shadow(0 0 2px var(--tf))}50%{filter:drop-shadow(0 0 11px var(--tf))}}
+.vtag{font:600 11px var(--mono);fill:var(--ink);text-anchor:middle;paint-order:stroke;stroke:var(--room-paper);stroke-width:3.5px;stroke-linejoin:round;pointer-events:none;animation:rm-tag 1.9s ease-out forwards}
+@keyframes rm-tag{0%{opacity:0;transform:translateY(0)}15%{opacity:1}100%{opacity:0;transform:translateY(-26px)}}
+
+/* overlays */
+.room-round{position:absolute;left:10px;top:8px;z-index:3;font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink);background:color-mix(in srgb,var(--surface) 86%,transparent);border:1px solid var(--rule);border-radius:4px;padding:3px 8px;max-width:calc(100% - 20px)}
+.room-banner{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);z-index:4;max-width:calc(100% - 20px);font:600 14px var(--sans);color:var(--ink);background:var(--surface);border:1px solid var(--rule);border-left:5px solid var(--muted);border-radius:4px;padding:6px 14px;box-shadow:0 2px 10px var(--room-shadow);text-align:center;white-space:nowrap;animation:rm-pop .5s cubic-bezier(.2,.9,.3,1.2)}
+.room-banner.P{border-left-color:var(--accent)}
+.room-banner.D{border-left-color:var(--brass)}
+.room-banner .sp{font:500 13px var(--mono);color:var(--muted);margin-left:8px}
+@keyframes rm-pop{0%{opacity:0;transform:translateX(-50%) translateY(10px) scale(.96)}100%{opacity:1;transform:translateX(-50%)}}
+.room-think-layer{position:absolute;inset:0;pointer-events:none;z-index:2}
+.room-think{position:absolute;transform:translate(-50%,-100%);font:700 15px/1 var(--sans);letter-spacing:.08em;color:var(--muted);background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:2px 8px 6px;box-shadow:0 1px 5px var(--room-shadow);animation:rm-think 1.7s ease-in-out forwards}
+.room-think::after{content:"";position:absolute;left:50%;bottom:-5px;width:8px;height:8px;margin-left:-4px;background:var(--surface);border:1px solid var(--rule);border-width:0 1px 1px 0;transform:rotate(45deg)}
+@keyframes rm-think{0%{opacity:0;margin-top:6px}20%{opacity:1}75%{opacity:1}100%{opacity:0;margin-top:-8px}}
+.room-bubble{position:absolute;z-index:5;width:max-content;max-width:290px;font:14px/1.4 var(--sans);color:var(--ink);background:var(--surface);border:1px solid var(--ink);border-radius:8px;padding:8px 11px;box-shadow:0 3px 12px var(--room-shadow);animation:rm-bin .22s ease-out;transition:opacity .6s}
+.room-bubble[hidden]{display:none}
+.room-bubble.fade{opacity:0}
+.room-bubble .who{display:block;font:500 11px var(--mono);letter-spacing:.05em;color:var(--muted);margin-bottom:2px}
+.room-bubble::after{content:"";position:absolute;left:var(--tx,50%);width:10px;height:10px;margin-left:-5px;background:var(--surface);border:1px solid var(--ink);transform:rotate(45deg)}
+.room-bubble.above::after{bottom:-6px;border-width:0 1px 1px 0}
+.room-bubble.below::after{top:-6px;border-width:1px 0 0 1px}
+@keyframes rm-bin{0%{opacity:0;transform:translateY(4px)}100%{opacity:1;transform:none}}
+.room-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+@media (max-width:600px){
+  .room-banner{font-size:13px;padding:5px 10px;top:44px;bottom:auto;white-space:nowrap}
+  .room-bubble{font-size:13px;max-width:88%}
+}
+@media (prefers-reduced-motion: reduce){
+  .fig .breath,.fig .lift,.tent .tflip,.tent .tf,.tent.glow .tf,.vtag,.room-think,.room-bubble,.room-banner{animation:none!important;transition:none!important}
+  .vtag{opacity:.9;transform:translateY(-14px)}
+  .room-think{opacity:1}
+}
+</style>
+<style>
+/* Juror card. Uses app tokens; new tokens below follow the same three-block pattern. */
+:root{--jc-on-d:#1d1a17;--jc-wash:#f1ece3}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){--jc-on-d:#1a1210;--jc-wash:#1b1816}
+}
+:root[data-theme="dark"]{--jc-on-d:#1a1210;--jc-wash:#1b1816}
+
+#jurorCard{margin:14px 0 0;border:1px solid var(--rule);border-top:3px solid var(--brass);border-radius:6px;background:var(--jc-wash);padding:14px 16px 16px;min-width:0}
+#jurorCard[hidden]{display:none}
+.jc-head{display:flex;align-items:flex-start;gap:12px;padding-bottom:12px;border-bottom:1px solid var(--rule);margin-bottom:12px}
+.jc-num{font:500 14px var(--mono);color:var(--muted);padding-top:3px}
+.jc-who{flex:1;min-width:0}
+.jc-name{font-weight:800;font-size:20px;line-height:1.2;overflow-wrap:anywhere}
+.jc-sub{font-size:14px;color:var(--muted);overflow-wrap:anywhere}
+.jc-chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;padding-top:2px}
+.jc-chip{font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--rule);border-radius:999px;padding:2px 9px;color:var(--ink);background:var(--surface);white-space:nowrap}
+.jc-chip-fp{border-color:var(--brass);color:var(--brass)}
+.jc-close{font:inherit;font-size:22px;line-height:1;width:44px;height:44px;margin:-8px -10px -8px 0;border:0;background:transparent;color:var(--muted);cursor:pointer;border-radius:4px;flex:none}
+.jc-close:hover{color:var(--ink)}
+.jc-close:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
+.jc-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px}
+.jc-col{display:flex;flex-direction:column;gap:16px;min-width:0}
+.jc-h{margin:0 0 6px;font:500 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.jc-text{margin:0;font-size:15px;line-height:1.5;overflow-wrap:anywhere}
+.jc-note{margin:4px 0 0;font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+.jc-pill{display:inline-block;font-weight:700;font-size:14px;padding:4px 14px;border-radius:999px;border:1px solid var(--muted);color:var(--ink);background:var(--surface)}
+.jc-pill[data-v=P]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.jc-pill[data-v=D]{background:var(--brass);border-color:var(--brass);color:var(--jc-on-d)}
+.jc-trail{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));position:relative}
+.jc-trail::before{content:"";position:absolute;left:12.5%;right:12.5%;top:15px;border-top:2px solid var(--rule)}
+.jc-step{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;position:relative;min-width:0}
+.jc-step-l{font-size:12px;line-height:1.2;color:var(--muted)}
+.jc-step-c{font:500 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
+.jc-dot{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;font:500 13px var(--mono);border:2px solid var(--muted);background:var(--surface);color:var(--muted);position:relative}
+.jc-dot[data-v=P]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.jc-dot[data-v=D]{background:var(--brass);border-color:var(--brass);color:var(--jc-on-d)}
+.jc-dot[data-v=U]{color:var(--ink)}
+.jc-dot.empty{border:2px dashed var(--rule);background:var(--jc-wash)}
+.jc-dot.chg{box-shadow:0 0 0 2px var(--jc-wash),0 0 0 4px var(--ink)}
+.jc-dot.sm{width:22px;height:22px;font-size:11px;flex:none}
+.jc-runs{list-style:none;margin:12px 0 0;padding:10px 0 0;border-top:1px solid var(--rule);display:flex;flex-direction:column;gap:6px}
+.jc-runs[hidden]{display:none}
+.jc-run{display:flex;align-items:center;gap:8px;min-width:0}
+.jc-run-l{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.jc-quote{margin:0;padding:2px 0 2px 12px;border-left:3px solid var(--brass);font-size:15px;line-height:1.5;overflow-wrap:anywhere;max-height:11em;overflow:auto}
+.jc-quote.empty{color:var(--muted);border-left-color:var(--rule)}
+@media (max-width:600px){
+  #jurorCard{padding:12px 12px 14px}
+  .jc-body{grid-template-columns:minmax(0,1fr);gap:16px}
+  .jc-head{flex-wrap:wrap}
+  .jc-chips{order:5;flex-basis:100%;justify-content:flex-start;padding-top:0}
+  .jc-name{font-size:18px}
+}
+</style>
+<div class="wrap">
+<header>
+  <h1>Jurymech</h1>
+  <p class="tag">Seat a simulated jury, let it deliberate on a case, then change one fact and watch the verdict move.</p>
+</header>
+
+<div id="noclaude" hidden>Open this page in Claude to run a jury. Calls use your own Claude account.</div>
+
+<section class="card" aria-labelledby="h-case">
+  <h2 id="h-case">1 · The case</h2>
+  <div class="presets" id="presets">
+    <span class="small" style="align-self:center">Try a fictional case:</span>
+  </div>
+  <label for="case">Case summary and the question for the jury</label>
+  <textarea id="case" placeholder="Describe the case in a few paragraphs, then end with the question the jury must answer."></textarea>
+  <div class="row">
+    <div class="field"><label for="std">Standard of proof</label>
+      <select id="std">
+        <option value="pre">Civil: preponderance of the evidence</option>
+        <option value="crim">Criminal: beyond a reasonable doubt</option>
+        <option value="clear">Civil: clear and convincing evidence</option>
+      </select></div>
+    <div class="field"><label for="size">Jury size</label>
+      <select id="size"><option value="12">12 jurors</option><option value="6">6 jurors</option></select></div>
+  </div>
+  <div class="field" style="margin-top:12px"><label for="pool">Jury pool</label>
+    <input type="text" id="pool" value="Adults from San Francisco County, CA, a realistic mix of ages, jobs, education and politics"></div>
+  <p class="small" style="margin-top:8px">Use fictional or anonymized facts. Text is sent to Claude on your account.</p>
+  <div class="actions"><button class="btn" id="seatBtn" disabled>Seat the jury</button><button class="btn" id="playBtn" hidden>Play the deliberation</button></div>
+</section>
+
+<section class="card" aria-labelledby="h-jury">
+  <h2 id="h-jury">2 · The jury box</h2>
+  <div id="room"><p class="room-empty">The jury room fills when the jury is seated.</p></div>
+  <div class="seats" id="seats"></div>
+  <div id="jurorCard" hidden></div>
+  <div class="tally" id="tally" hidden>
+    <div class="nums"><span><i class="sw P"></i><span id="tP">P 0</span></span><span><i class="sw U"></i><span id="tU">U 0</span></span><span><i class="sw D"></i><span id="tD">D 0</span></span></div>
+    <div class="bar" aria-hidden="true"><i id="bP" style="background:var(--accent);width:0"></i><i id="bU" style="background:var(--muted);width:100%"></i><i id="bD" style="background:var(--brass);width:0"></i></div>
+    <p class="small" id="legend" style="margin-top:6px"></p>
+  </div>
+  <div class="actions">
+    <button class="btn" id="delibBtn" disabled>Deliberate</button>
+    <button class="btn alt" id="reseatBtn" disabled hidden>Reseat</button>
+    <button class="btn alt" id="stopBtn" hidden>Stop</button>
+    <button class="btn alt" id="resumeBtn" hidden>Retry round</button>
+  </div>
+  <div id="status" role="status" aria-live="polite"></div>
+  <details class="pr" id="seatPromptBox" hidden><summary>Seating prompt</summary><pre id="seatPrompt"></pre></details>
+</section>
+
+<section aria-labelledby="h-delib" id="delibSec" hidden>
+  <h2 id="h-delib">3 · Deliberation</h2>
+  <div id="runs"></div>
+</section>
+
+<section class="card" id="verdict" aria-labelledby="h-verdict" hidden>
+  <h2 id="h-verdict">4 · Verdict</h2>
+  <div id="vBody"></div>
+</section>
+
+<section class="card" id="whatif" aria-labelledby="h-what" hidden>
+  <h2 id="h-what">5 · What if</h2>
+  <label for="whatifText">Change a fact</label>
+  <textarea id="whatifText" style="min-height:70px" placeholder="e.g. The store had put out a wet-floor sign"></textarea>
+  <div class="actions">
+    <button class="btn" id="rerunBtn" disabled>Rerun with this change</button>
+    <button class="btn alt" id="newJuryBtn" disabled>New jury, same case</button>
+  </div>
+  <p class="small" style="margin-top:8px">Rerun keeps the same jurors and adds an amended fact. New jury reseats everyone and deliberates again.</p>
+</section>
+
+<section class="card" id="compareCard" aria-labelledby="h-cmp" hidden>
+  <h2 id="h-cmp">Runs compared</h2>
+  <table>
+    <colgroup><col class="c1"><col><col class="c3"><col class="c4"></colgroup>
+    <thead><tr><th>Run</th><th>Change</th><th>Split</th><th>Verdict</th></tr></thead>
+    <tbody id="cmpBody"></tbody>
+  </table>
+</section>
+
+<section class="card exp" id="expCard" hidden>
+  <h2>Export</h2>
+  <div class="actions" style="margin-top:0"><button class="btn alt" id="copyBtn">Copy transcript</button><button class="btn alt" id="exportBtn" disabled>Export run file</button><span class="small" id="copyMsg"></span></div>
+  <textarea id="copyFall" readonly hidden></textarea>
+</section>
+
+<details class="card method">
+  <summary>Method note</summary>
+  <p>Jurymech is a simulation, not a prediction. Each juror is written by the same language model, so the jury shares one model's blind spots and habits of mind. That makes it useful for finding which facts carry weight and what would move a verdict, and a poor tool for forecasting what a real jury would do.</p>
+  <ul>
+    <li>Criminal cases need a unanimous verdict. Anything else is a hung jury.</li>
+    <li>Civil cases use the California civil rule, 3/4: 9 of 12 jurors, or 5 of 6 on a six-person jury.</li>
+    <li>Jurors may reason only from the facts you give them, and they may argue or misremember.</li>
+    <li>Up to four rounds: straw poll, discussion, a second discussion if the vote is not unanimous, then a final vote.</li>
+  </ul>
+  <p>Idea from Harlan Ellison (1957) via the Sci-Fi Idea Bank. Feedback: mzpprojects1@gmail.com</p>
+</details>
+</div>
+
+<script>
+/* JM: tiny event bus shared by the app, the room and the juror card. */
+(function(){
+'use strict';
+const L={};let stateFn=function(){return null;};
+window.JM={
+  on(type,fn){(L[type]||(L[type]=[])).push(fn);},
+  emit(type,payload){
+    (L[type]||[]).slice().forEach(function(fn){try{fn(payload);}catch(e){console.error('JM listener error ('+type+')',e);}});
+  },
+  state(){return stateFn();},
+  _setStateFn(fn){stateFn=fn;}
+};
+})();
+</script>
+<script>
+/* Jury room: little SVG jurors around a table, live vote tents, speech and thought bubbles. Listens only through window.JM. */
+(function(){
+'use strict';
+if(!window.JM)return;
+var room=document.getElementById('room');
+if(!room)return;
+
+var EMPTY_HTML='<p class="room-empty">The jury room fills when the jury is seated.</p>';
+var STAGE_NO={straw:1,disc1:2,disc2:3,final:4};
+var SHIRTS=['#a4562f','#6f7a3c','#c79a3b','#6c7076','#e3d8bd','#2f5d46','#8c3b2c','#3a3a3c','#b0825a','#7b5a45'];
+var SKINS=['#f3d2b3','#e6b88e','#cf9265','#aa6e46','#7e4c30','#523320'];
+var HAIRS=['#2a1d15','#4a3022','#6b4a2b','#b88a4a','#8a3b22','#15100d'];
+var GREYS=['#d8d4cd','#bdb9b2','#8c8984'];
+var STYLES=['short','side','long','bun','curly'];
+
+var jurors=[],votes={},tentEls={},figEls={},seats=[],dims=null;
+var sel=0,speaker=0,lastMode=null,thinkTimer=0,fadeTimer=0,glowTimer=0,bubbleN=0,bubbleText='';
+var els={};
+var mq=window.matchMedia?window.matchMedia('(max-width:600px)'):null;
+
+/* ---------- helpers ---------- */
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function hash(s){var h=2166136261>>>0;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return h>>>0;}
+function mix(h,k){var x=Math.imul(h^Math.imul(k+1,0x9e3779b1),0x85ebca6b)>>>0;x^=x>>>13;x=Math.imul(x,0xc2b2ae35)>>>0;x^=x>>>16;return x>>>0;}
+function pick(h,k,arr){return arr[mix(h,k)%arr.length];}
+function rnd(h,k){return mix(h,k)/4294967296;}
+function R(x){return Math.round(x*10)/10;}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+function std(){var s=null;try{s=window.JM.state();}catch(e){}return s&&s.standard?s.standard:'civil';}
+function sideNames(){return std()==='criminal'?{P:'the prosecution',D:'the defense'}:{P:'the plaintiff',D:'the defense'};}
+function reduced(){return !!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);}
+function firstName(n){var f=String(n||'').trim().split(/\s+/)[0]||'?';return f.length>9?f.slice(0,8)+'…':f;}
+
+/* ---------- juror look (hash only) ---------- */
+function look(j){
+  var h=hash(String(j.name||'')+'|'+j.n);
+  var age=+j.age||0;
+  var hair=pick(h,4,HAIRS);
+  if(age>=60)hair=pick(h,6,GREYS);
+  else if(age>=48&&rnd(h,5)<0.4)hair=GREYS[2];
+  return {h:h,shirt:pick(h,0,SHIRTS),skin:pick(h,1,SKINS),style:pick(h,2,STYLES),hair:hair,glasses:rnd(h,3)<0.4,delay:(-rnd(h,7)*4.6).toFixed(2)+'s'};
+}
+
+/* ---------- figure art (local coords, origin = table edge / seat anchor, y up is negative) ---------- */
+function eyes(){return '<circle cx="-6" cy="-80" r="1.8" fill="#2a1d15"/><circle cx="6" cy="-80" r="1.8" fill="#2a1d15"/><path d="M-4 -72 Q0 -69 4 -72" stroke="#7a3f33" stroke-width="1.3" fill="none" stroke-linecap="round"/>';}
+function faceHairBehind(L){return L.style==='long'?'<path class="ol" d="M-19 -80 Q-21 -105 0 -105 Q21 -105 19 -80 L22 -50 Q0 -44 -22 -50Z" fill="'+L.hair+'"/>':'';}
+function faceHairTop(L){
+  var c=L.hair;
+  if(L.style==='curly'){var s='',xs=[-13,-6.5,0,6.5,13],i;for(i=0;i<xs.length;i++)s+='<circle class="ol" cx="'+xs[i]+'" cy="'+(-97+Math.abs(xs[i])*0.35)+'" r="7" fill="'+c+'"/>';return s+'<circle class="ol" cx="-16" cy="-86" r="5.5" fill="'+c+'"/><circle class="ol" cx="16" cy="-86" r="5.5" fill="'+c+'"/>';}
+  if(L.style==='side')return '<path class="ol" d="M-17 -80 Q-19 -104 3 -103 Q19 -101 17 -80 Q13 -93 -3 -92 Q-12 -90 -17 -80Z" fill="'+c+'"/>';
+  var bun=L.style==='bun'?'<circle class="ol" cx="0" cy="-107" r="7" fill="'+c+'"/>':'';
+  return bun+'<path class="ol" d="M-17.5 -80 Q-19 -102 0 -102 Q19 -102 17.5 -80 Q11 -91 0 -91 Q-11 -91 -17.5 -80Z" fill="'+c+'"/>';
+}
+function faceArt(L){
+  var arm=function(m){return '<polyline points="'+(-30*m)+',-44 '+(-37*m)+',-6 '+(-16*m)+',18" fill="none" stroke="'+L.shirt+'" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/><polyline points="'+(-30*m)+',-44 '+(-37*m)+',-6 '+(-16*m)+',18" fill="none" stroke="rgba(0,0,0,.18)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="0 400"/><circle class="ol" cx="'+(-13*m)+'" cy="20" r="5.5" fill="'+L.skin+'"/>';};
+  return '<rect class="chair ol" x="-29" y="-108" width="58" height="62" rx="10"/>'
+   +'<path class="ol" d="M-35 4 L-35 -34 Q-35 -61 -13 -62 L13 -62 Q35 -61 35 -34 L35 4Z" fill="'+L.shirt+'"/>'
+   +'<path d="M-9 -61 L0 -50 L9 -61Z" fill="rgba(255,255,255,.35)"/>'
+   +arm(1)+arm(-1)
+   +faceHairBehind(L)
+   +'<rect class="ol" x="-6" y="-68" width="12" height="10" fill="'+L.skin+'"/>'
+   +'<ellipse class="ol" cx="0" cy="-80" rx="16" ry="18" fill="'+L.skin+'"/>'
+   +'<circle class="ol" cx="-16.5" cy="-79" r="3.2" fill="'+L.skin+'"/><circle class="ol" cx="16.5" cy="-79" r="3.2" fill="'+L.skin+'"/>'
+   +faceHairTop(L)+eyes()
+   +(L.glasses?'<circle class="gl" cx="-7" cy="-80" r="5.2"/><circle class="gl" cx="7" cy="-80" r="5.2"/><path class="gline" d="M-1.8 -80 L1.8 -80"/>':'');
+}
+function backHair(L){
+  var c=L.hair;
+  if(L.style==='long')return '<path class="ol" d="M-18 -82 Q-19 -104 0 -104 Q19 -104 18 -82 L23 -46 Q0 -38 -23 -46Z" fill="'+c+'"/>';
+  var s='<ellipse class="ol" cx="0" cy="-83" rx="17.5" ry="19.5" fill="'+c+'"/>';
+  if(L.style==='bun')s+='<circle class="ol" cx="0" cy="-105" r="7" fill="'+c+'"/>';
+  if(L.style==='curly'){var xs=[-12,-5,3,11],i;for(i=0;i<xs.length;i++)s+='<circle class="ol" cx="'+xs[i]+'" cy="-100" r="6.5" fill="'+c+'"/>';s+='<circle class="ol" cx="-17" cy="-86" r="5.5" fill="'+c+'"/><circle class="ol" cx="17" cy="-86" r="5.5" fill="'+c+'"/>';}
+  if(L.style==='side')s+='<path d="M-3 -100 Q8 -92 4 -66" stroke="rgba(255,255,255,.28)" stroke-width="1.6" fill="none"/>';
+  return s;
+}
+function backArt(L){
+  return '<ellipse class="rm-shadow" cx="0" cy="30" rx="44" ry="8"/>'
+   +'<path class="ol" d="M-36 14 L-36 -34 Q-36 -62 -14 -64 L14 -64 Q36 -62 36 -34 L36 14Z" fill="'+L.shirt+'"/>'
+   +'<path d="M-34 -52 L-40 -14" stroke="rgba(0,0,0,.16)" stroke-width="2" stroke-linecap="round"/><path d="M34 -52 L40 -14" stroke="rgba(0,0,0,.16)" stroke-width="2" stroke-linecap="round"/>'
+   +'<rect class="ol" x="-12" y="-72" width="24" height="12" fill="'+L.skin+'"/>'
+   +'<circle class="ol" cx="-17.5" cy="-80" r="3.4" fill="'+L.skin+'"/><circle class="ol" cx="17.5" cy="-80" r="3.4" fill="'+L.skin+'"/>'
+   +backHair(L)
+   +'<rect class="chair ol" x="-30" y="-36" width="60" height="64" rx="9"/><rect class="chair-hi" x="-28" y="-35" width="56" height="7" rx="3.5"/>';
+}
+function sideArt(L){
+  var c=L.hair,hairTop;
+  hairTop='<path class="ol" d="M-14 -80 A17 17 0 0 1 18 -87 Q7 -91 1 -84 Q-3 -78 -5 -70 Q-12 -69 -14 -80Z" fill="'+c+'"/>';
+  if(L.style==='long')hairTop='<path class="ol" d="M-14 -84 Q-24 -66 -20 -46 L-5 -48 Q-8 -66 -5 -76Z" fill="'+c+'"/>'+hairTop;
+  if(L.style==='bun')hairTop+='<circle class="ol" cx="-13" cy="-97" r="6.5" fill="'+c+'"/>';
+  if(L.style==='curly')hairTop+='<circle class="ol" cx="-12" cy="-92" r="6" fill="'+c+'"/><circle class="ol" cx="-4" cy="-98" r="6" fill="'+c+'"/><circle class="ol" cx="6" cy="-98" r="6" fill="'+c+'"/><circle class="ol" cx="-16" cy="-80" r="5" fill="'+c+'"/>';
+  if(L.style==='side')hairTop+='<path d="M4 -96 Q12 -90 13 -84" stroke="rgba(255,255,255,.28)" stroke-width="1.4" fill="none"/>';
+  return '<ellipse class="rm-shadow" cx="0" cy="12" rx="40" ry="7"/>'
+   +'<rect class="chair ol" x="-40" y="-94" width="15" height="104" rx="6"/><rect class="chair ol" x="-40" y="2" width="52" height="9" rx="4"/>'
+   +'<rect class="ol" x="-22" y="-62" width="38" height="66" rx="15" fill="'+L.shirt+'"/>'
+   +'<rect class="ol" x="-4" y="-70" width="10" height="11" fill="'+L.skin+'"/>'
+   +'<polyline points="-4,-52 10,-20 36,-12" fill="none" stroke="'+L.shirt+'" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>'
+   +'<circle class="ol" cx="40" cy="-11" r="5" fill="'+L.skin+'"/>'
+   +'<circle class="ol" cx="2" cy="-82" r="17" fill="'+L.skin+'"/>'
+   +'<path class="ol" d="M18 -82 L23 -79 L18 -76Z" fill="'+L.skin+'"/>'
+   +'<circle class="ol" cx="-4" cy="-80" r="3.2" fill="'+L.skin+'"/>'
+   +hairTop
+   +'<circle cx="10" cy="-84" r="1.8" fill="#2a1d15"/><path d="M12 -73 Q15 -72 17 -74" stroke="#7a3f33" stroke-width="1.3" fill="none" stroke-linecap="round"/>'
+   +(L.glasses?'<circle class="gl" cx="10" cy="-84" r="5.2"/><path class="gline" d="M5 -84 L-8 -86"/>':'');
+}
+
+/* ---------- layout ---------- */
+function xs(c,cx,span){var a=[],i;for(i=0;i<c;i++)a.push(cx+(i-(c-1)/2)*span/c);return a;}
+function layout(N,mode){
+  var out=new Array(N),ends=Math.min(N,2),Rm=Math.max(0,N-2),b=Math.ceil(Rm/2),f=Math.floor(Rm/2),i,d;
+  var rightIdx=N>=2?1+b:-1;
+  if(mode==='wide'){
+    d={mode:mode,W:1000,H:520,tableTop:200,wallH:168};
+    var bx=xs(b,500,580),fx=xs(f,500,620);
+    if(N>=1)out[0]={style:'side',dir:1,x:125,y:300,s:1,tx:205,ty:288,hx:127,hy:218,place:'above'};
+    for(i=0;i<b;i++)out[1+i]={style:'face',dir:1,x:bx[i],y:208,s:1,tx:bx[i],ty:252,hx:bx[i],hy:128,place:'above'};
+    if(rightIdx>0)out[rightIdx]={style:'side',dir:-1,x:875,y:300,s:1,tx:795,ty:288,hx:873,hy:218,place:'above'};
+    for(i=0;i<f;i++){var x=fx[f-1-i];out[rightIdx+1+i]={style:'back',dir:1,x:x,y:430,s:1,tx:x,ty:312,hx:x,hy:346,place:'below'};}
+  }else{
+    var k=Math.max(b,f,1),step=k>=4?94:118,colStart=300,colEnd=colStart+(k-1)*step;
+    var bt=colEnd+56,tb=bt+30,ba=tb+72;
+    d={mode:mode,W:400,H:ba+52,tableTop:200,tableBottom:tb,wallH:96,colStart:colStart,step:step,k:k};
+    var s=0.8,ys=function(c,idx){return colStart+(k-1)*step/2+(idx-(c-1)/2)*step;};
+    if(N>=1)out[0]={style:'face',dir:1,x:200,y:208,s:s,tx:200,ty:238,hx:200,hy:208-80*s,place:'below'};
+    for(i=0;i<b;i++){var y=ys(b,i);out[1+i]={style:'side',dir:-1,x:334,y:y+10,s:s,tx:244,ty:y,hx:332,hy:y+10-82*s,place:'above'};}
+    if(rightIdx>0)out[rightIdx]={style:'back',dir:1,x:200,y:ba,s:s,tx:200,ty:bt,hx:200,hy:ba-82*s,place:'above'};
+    for(i=0;i<f;i++){var y2=ys(f,f-1-i);out[rightIdx+1+i]={style:'side',dir:1,x:66,y:y2+10,s:s,tx:156,ty:y2,hx:68,hy:y2+10-82*s,place:'above'};}
+  }
+  return {seats:out,dims:d};
+}
+
+/* ---------- scenery ---------- */
+function scenery(d,N,b,f){
+  var s='<defs><linearGradient id="rm-wood" x1="0" y1="0" x2="0" y2="1"><stop class="rm-wood-hi" offset="0"/><stop class="rm-wood-lo" offset="1"/></linearGradient></defs>';
+  var W=d.W,H=d.H,i,t;
+  s+='<rect class="rm-floor" x="0" y="0" width="'+W+'" height="'+H+'"/>';
+  s+='<rect class="rm-wall" x="0" y="0" width="'+W+'" height="'+d.wallH+'"/><rect class="rm-wall-shade" x="0" y="'+(d.wallH-10)+'" width="'+W+'" height="10"/>';
+  if(d.mode==='wide'){
+    for(i=1;i<8;i++){var py=d.wallH+i*i*5.2;if(py<H)s+='<line class="rm-plank" x1="0" y1="'+R(py)+'" x2="'+W+'" y2="'+R(py)+'"/>';}
+    s+='<rect class="rm-frame" x="66" y="24" width="150" height="100" rx="3"/><rect class="rm-glass" x="74" y="32" width="134" height="84"/><line class="rm-mullion" x1="141" y1="32" x2="141" y2="116"/><line class="rm-mullion" x1="74" y1="74" x2="208" y2="74"/><rect class="rm-frame" x="60" y="122" width="162" height="8" rx="2"/>';
+    s+='<ellipse class="rm-shadow" cx="500" cy="392" rx="440" ry="84"/>';
+    var TL=[215,200],TR=[785,200],BR=[870,355],BL=[130,355];
+    s+='<rect class="rm-apron" x="'+(BL[0]+2)+'" y="'+(BL[1]+12)+'" width="14" height="58" rx="2"/><rect class="rm-apron" x="'+(BR[0]-16)+'" y="'+(BR[1]+12)+'" width="14" height="58" rx="2"/>';
+    s+='<polygon class="rm-apron" points="'+BL+' '+BR+' '+(BR[0]-1)+','+(BR[1]+17)+' '+(BL[0]+1)+','+(BL[1]+17)+'"/>';
+    s+='<polygon class="rm-top" points="'+TL+' '+TR+' '+BR+' '+BL+'"/>';
+    [0.14,0.3,0.46,0.62,0.78,0.92].forEach(function(t){var ax=TL[0]+(BL[0]-TL[0])*t,bx=TR[0]+(BR[0]-TR[0])*t,y=TL[1]+(BL[1]-TL[1])*t;s+='<line class="rm-grain" x1="'+R(ax+8)+'" y1="'+R(y)+'" x2="'+R(bx-8)+'" y2="'+R(y)+'"/>';});
+    s+='<polygon class="rm-sheen" points="'+TL+' '+TR+' 700,230 300,230"/>';
+    var mx=500,my=284;
+    s+=pitcher(mx,my)+cup(mx-36,my+8)+cup(mx+36,my+8);
+  }else{
+    for(i=1;i<14;i++){var y=d.wallH+i*i*5;if(y<H)s+='<line class="rm-plank" x1="0" y1="'+R(y)+'" x2="'+W+'" y2="'+R(y)+'"/>';}
+    s+='<rect class="rm-frame" x="292" y="14" width="86" height="62" rx="3"/><rect class="rm-glass" x="298" y="20" width="74" height="50"/><line class="rm-mullion" x1="335" y1="20" x2="335" y2="70"/><line class="rm-mullion" x1="298" y1="45" x2="372" y2="45"/>';
+    var tb=d.tableBottom;
+    s+='<ellipse class="rm-shadow" cx="200" cy="'+(tb+10)+'" rx="170" ry="62"/>';
+    var TL2=[122,200],TR2=[278,200],BR2=[304,tb],BL2=[96,tb];
+    s+='<polygon class="rm-apron" points="'+BL2+' '+BR2+' '+(BR2[0]-1)+','+(tb+16)+' '+(BL2[0]+1)+','+(tb+16)+'"/>';
+    s+='<polygon class="rm-top" points="'+TL2+' '+TR2+' '+BR2+' '+BL2+'"/>';
+    [0.2,0.4,0.6,0.8].forEach(function(t){var ax=TL2[0]+(TR2[0]-TL2[0])*t,bx=BL2[0]+(BR2[0]-BL2[0])*t;s+='<line class="rm-grain" x1="'+R(ax)+'" y1="206" x2="'+R(bx)+'" y2="'+(tb-6)+'"/>';});
+    s+='<polygon class="rm-sheen" points="'+TL2+' 200,200 200,'+tb+' '+BL2+'"/>';
+    var my2=(d.colStart+(d.k-1)*d.step/2)+d.step/2-8;
+    s+=pitcher(200,my2)+cup(200,my2+30);
+  }
+  return s;
+}
+function pitcher(x,y){return '<ellipse class="rm-shadow" cx="'+x+'" cy="'+(y+13)+'" rx="12" ry="3.5"/><path class="rm-ceramic" d="M'+(x-9)+' '+(y+12)+' L'+(x-7)+' '+(y-9)+' Q'+x+' '+(y-14)+' '+(x+7)+' '+(y-9)+' L'+(x+9)+' '+(y+12)+'Z"/><path class="rm-water" d="M'+(x-8)+' '+(y+11)+' L'+(x-7)+' '+(y-3)+' L'+(x+7)+' '+(y-3)+' L'+(x+8)+' '+(y+11)+'Z"/><path d="M'+(x+9)+' '+(y-4)+' Q'+(x+17)+' '+(y-2)+' '+(x+9)+' '+(y+7)+'" fill="none" stroke="var(--room-ceramic-sh)" stroke-width="2.4" stroke-linecap="round"/>';}
+function cup(x,y){return '<ellipse class="rm-shadow" cx="'+x+'" cy="'+(y+5)+'" rx="6" ry="2"/><path class="rm-ceramic" d="M'+(x-4.5)+' '+(y-5)+' L'+(x-3.5)+' '+(y+4)+' L'+(x+3.5)+' '+(y+4)+' L'+(x+4.5)+' '+(y-5)+'Z"/><ellipse class="rm-water" cx="'+x+'" cy="'+(y-4.5)+'" rx="4.3" ry="1.2"/>';}
+
+/* ---------- tent + figure markup ---------- */
+function tentMarkup(j,seat,tentS){
+  var dx=R(seat.tx-seat.x),dy=R(seat.ty-seat.y);
+  return '<g class="tent" data-vote="U" transform="translate('+dx+' '+dy+') scale('+tentS+')">'
+   +'<g class="tflip"><path class="tf-top" d="M-30 -14 L30 -14 L29 -11 L-29 -11Z"/><path class="tf" d="M-34 13 L-30 -12 L30 -12 L34 13Z"/>'
+   +'<text class="tt" x="0" y="-1.5">'+esc(firstName(j.name))+'</text><text class="tv" x="0" y="9.5">–</text></g></g>';
+}
+function ariaFor(j,v){
+  var sd=sideNames(),vs=v==='P'?'voting for '+sd.P:v==='D'?'voting for '+sd.D:'undecided';
+  return 'Juror '+j.n+', '+firstName(j.name).replace('…','')+', '+j.age+', '+j.occupation+', '+vs;
+}
+function figMarkup(j,seat,tentS){
+  var L=look(j),art=seat.style==='face'?faceArt(L):seat.style==='back'?backArt(L):sideArt(L);
+  var flip=seat.style==='side'&&seat.dir<0?'<g transform="scale(-1 1)">'+art+'</g>':art;
+  return '<g class="fig" role="button" tabindex="0" data-n="'+j.n+'" aria-label="'+esc(ariaFor(j,'U'))+'" transform="translate('+R(seat.x)+' '+R(seat.y)+')">'
+   +'<g transform="scale('+seat.s+')"><ellipse class="ring" cx="0" cy="-36" rx="50" ry="78"/>'
+   +'<rect class="hit" x="-44" y="-112" width="88" height="140"/>'
+   +'<g class="lift"><g class="breath" style="--bd:'+L.delay+'">'+flip+'</g></g></g>'
+   +tentMarkup(j,seat,tentS)+'</g>';
+}
+
+/* ---------- build ---------- */
+function build(){
+  var wasThinking=thinking;
+  stopThink();
+  var N=jurors.length;
+  if(!N){room.innerHTML=EMPTY_HTML;els={};tentEls={};figEls={};return;}
+  var mode=mq&&mq.matches?'tall':'wide';
+  lastMode=mode;
+  var lay=layout(N,mode);dims=lay.dims;
+  var fp=1;try{fp=window.JM.state().foreperson||1;}catch(e){}
+  if(fp<1||fp>N)fp=1;
+  var ord=[fp],q;for(q=1;q<=N;q++)if(q!==fp)ord.push(q);
+  seats=new Array(N);ord.forEach(function(n,k){seats[n-1]=lay.seats[k];});
+  var Rm=Math.max(0,N-2),b=Math.ceil(Rm/2),f=Math.floor(Rm/2),tentS=mode==='wide'?1:1.15;
+  var order=[],rightIdx=N>=2?1+b:-1,i;
+  /* draw back row + ends first, front row last so heads overlap the table edge */
+  for(i=0;i<N;i++)if(seats[i]&&seats[i].style!=='back')order.push(i);
+  for(i=0;i<N;i++)if(seats[i]&&seats[i].style==='back')order.push(i);
+  var svg='<svg class="room-svg" viewBox="0 0 '+dims.W+' '+dims.H+'" role="group" aria-label="Jury room: '+N+' jurors around the deliberation table" xmlns="http://www.w3.org/2000/svg">'+scenery(dims,N,b,f);
+  order.forEach(function(k){svg+=figMarkup(jurors[k],seats[k],tentS);});
+  svg+='</svg>';
+  room.innerHTML='<div class="room-stage" style="aspect-ratio:'+dims.W+'/'+dims.H+'">'+svg
+   +'<div class="room-round" hidden></div><div class="room-banner" hidden></div><div class="room-think-layer"></div><div class="room-bubble" hidden></div></div>';
+  var st=room.firstChild;
+  els={stage:st,svg:st.querySelector('svg'),round:st.querySelector('.room-round'),banner:st.querySelector('.room-banner'),think:st.querySelector('.room-think-layer'),bubble:st.querySelector('.room-bubble')};
+  tentEls={};figEls={};
+  Array.prototype.forEach.call(st.querySelectorAll('.fig'),function(g){
+    var n=+g.getAttribute('data-n');figEls[n]=g;tentEls[n]=g.querySelector('.tent');
+    g.addEventListener('click',function(){window.JM.emit('select',{n:n});});
+    g.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '||e.key==='Spacebar'){e.preventDefault();window.JM.emit('select',{n:n});}});
+  });
+  jurors.forEach(function(j){paintTent(j.n,votes[j.n]||'U',false);});
+  applySel();
+  if(speaker&&figEls[speaker])figEls[speaker].classList.add('speaking');
+  if(roundLabel)setRound(roundLabel);
+  if(bubbleN)showBubble(bubbleN,bubbleText,true);
+  if(wasThinking)startThink();
+  if(lastVerdict)showVerdict(lastVerdict,false);
+}
+
+/* ---------- state paint ---------- */
+var roundLabel='',thinking=false,lastVerdict=null;
+function paintTent(n,v,flip){
+  var t=tentEls[n];if(!t)return;
+  t.setAttribute('data-vote',v);
+  var tv=t.querySelector('.tv');if(tv)tv.textContent=v==='U'?'–':v;
+  var j=jurors[n-1];
+  if(figEls[n]&&j)figEls[n].setAttribute('aria-label',ariaFor(j,v));
+  if(flip&&!reduced()){t.classList.remove('flip');void t.getBoundingClientRect();t.classList.add('flip');setTimeout(function(){t.classList.remove('flip');},650);}
+}
+function floatTag(n,from,to){
+  var t=tentEls[n];if(!t)return;
+  var g=document.createElementNS('http://www.w3.org/2000/svg','text');
+  g.setAttribute('class','vtag');g.setAttribute('x','0');g.setAttribute('y','-18');
+  g.textContent=from+'→'+to;
+  t.appendChild(g);
+  setTimeout(function(){if(g.parentNode)g.parentNode.removeChild(g);},1900);
+}
+function applySel(){
+  Object.keys(figEls).forEach(function(k){figEls[k].classList.toggle('sel',+k===sel);});
+}
+function setRound(txt){roundLabel=txt;if(!els.round)return;els.round.textContent=txt;els.round.hidden=!txt;}
+
+/* ---------- bubbles ---------- */
+function headPx(n){
+  var s=seats[n-1],W=els.stage.clientWidth,k=W/dims.W;
+  return {x:s.hx*k,y:s.hy*k,r:20*k*s.s,place:s.place,W:W,H:els.stage.clientHeight};
+}
+function showBubble(n,text,keep){
+  if(!els.bubble||!seats[n-1])return;
+  clearTimeout(fadeTimer);
+  var b=els.bubble,j=jurors[n-1]||{},t=String(text||'');
+  if(t.length>160)t=t.slice(0,159).replace(/\s+\S*$/,'')+'…';
+  bubbleN=n;bubbleText=text;
+  b.classList.remove('fade');b.hidden=false;
+  b.innerHTML='<span class="who">Juror '+n+' · '+esc(firstName(j.name))+'</span>'+esc(t);
+  b.style.maxWidth=Math.min(290,els.stage.clientWidth*0.86)+'px';
+  b.style.left='0px';b.style.top='0px';
+  var p=headPx(n),bw=b.offsetWidth,bh=b.offsetHeight,place=p.place,top;
+  if(place==='above'){top=p.y-p.r-bh-12;if(top<4){place='below';}}
+  if(place==='below'){top=p.y+p.r+10;if(top+bh>p.H-4){var up=p.y-p.r-bh-12;if(up>=4){place='above';top=up;}}}
+  top=clamp(top,4,Math.max(4,p.H-bh-4));
+  var left=clamp(p.x-bw/2,4,Math.max(4,p.W-bw-4));
+  b.className='room-bubble '+place;
+  b.style.left=R(left)+'px';b.style.top=R(top)+'px';
+  b.style.setProperty('--tx',R(clamp(p.x-left,14,bw-14))+'px');
+  if(!keep){}
+}
+function hideBubble(fade){
+  bubbleN=0;bubbleText='';
+  clearTimeout(fadeTimer);
+  if(!els.bubble||els.bubble.hidden)return;
+  if(fade&&!reduced()){els.bubble.classList.add('fade');var b=els.bubble;fadeTimer=setTimeout(function(){b.hidden=true;b.classList.remove('fade');},650);}
+  else{els.bubble.hidden=true;els.bubble.classList.remove('fade');}
+}
+function setSpeaker(n){
+  if(speaker&&figEls[speaker])figEls[speaker].classList.remove('speaking');
+  speaker=n||0;
+  if(speaker&&figEls[speaker])figEls[speaker].classList.add('speaking');
+}
+
+/* thinking */
+function thinkTick(){
+  if(!els.think||!seats.length)return;
+  els.think.innerHTML='';
+  var N=jurors.length,c=Math.min(N,2+Math.floor(Math.random()*2)),pool=[],i;
+  for(i=1;i<=N;i++)pool.push(i);
+  for(i=0;i<c;i++){
+    var k=Math.floor(Math.random()*pool.length),n=pool.splice(k,1)[0],p=headPx(n),d=document.createElement('div');
+    d.className='room-think';d.textContent='…';d.style.left=R(p.x+10)+'px';d.style.top=R(p.y-p.r+2)+'px';
+    d.style.animationDelay=(i*0.25)+'s';
+    els.think.appendChild(d);
+  }
+}
+function startThink(){
+  thinking=true;clearInterval(thinkTimer);
+  thinkTick();thinkTimer=setInterval(thinkTick,1700);
+}
+function stopThink(){
+  thinking=false;clearInterval(thinkTimer);thinkTimer=0;
+  if(els&&els.think)els.think.innerHTML='';
+}
+
+/* ---------- events ---------- */
+function clearAll(){
+  stopThink();hideBubble(false);setSpeaker(0);setRound('');
+  clearTimeout(glowTimer);lastVerdict=null;
+  if(els.banner){els.banner.hidden=true;els.banner.innerHTML='';}
+  Object.keys(tentEls).forEach(function(k){tentEls[k].classList.remove('glow');});
+}
+var J=window.JM;
+J.on('reset',function(){jurors=[];votes={};sel=0;speaker=0;bubbleN=0;roundLabel='';thinking=false;lastVerdict=null;stopThink();room.innerHTML=EMPTY_HTML;els={};tentEls={};figEls={};seats=[];});
+J.on('jurors',function(e){
+  jurors=((e&&e.jurors)||[]).slice();votes={};sel=0;speaker=0;bubbleN=0;roundLabel='';thinking=false;lastVerdict=null;
+  build();
+});
+J.on('runStart',function(){
+  if(!jurors.length)return;
+  votes={};clearAll();
+  jurors.forEach(function(j){paintTent(j.n,'U',false);});
+});
+J.on('roundStart',function(e){
+  if(!jurors.length)return;
+  var no=STAGE_NO[e&&e.stage],title=(e&&e.title)||'';
+  setRound((no?'Round '+no+' · ':'')+title);
+  lastVerdict=null;
+  var sv=null;try{sv=J.state().votes();}catch(err){}
+  if(sv){votes={};jurors.forEach(function(j){votes[j.n]=sv[j.n]||'U';paintTent(j.n,votes[j.n],false);});}
+  if(els.banner){els.banner.hidden=true;}
+  setSpeaker(0);
+  startThink();
+});
+J.on('line',function(e){
+  if(!jurors.length||!e||!figEls[e.juror])return;
+  stopThink();
+  var n=e.juror,old=votes[n]||'U',nv=e.vote||'U';
+  setSpeaker(n);
+  showBubble(n,e.says||'');
+  if(old!==nv){votes[n]=nv;paintTent(n,nv,true);if(old!=='U')floatTag(n,old,nv);}
+});
+J.on('roundEnd',function(){stopThink();hideBubble(true);setSpeaker(0);});
+J.on('verdict',function(e){
+  if(!jurors.length||!els.banner||!e)return;
+  stopThink();lastVerdict=e;showVerdict(e,true);
+});
+function showVerdict(e,glow){
+  var sp=e.split||{},sd=sideNames(),cls,txt,P=+sp.P||0,D=+sp.D||0;
+  if(e.verdict==='P'){cls='P';txt='For '+sd.P+' <span class="sp">'+P+'–'+D+'</span>';}
+  else if(e.verdict==='D'){cls='D';txt='For '+sd.D+' <span class="sp">'+D+'–'+P+'</span>';}
+  else{cls='H';txt='Hung jury';}
+  els.banner.className='room-banner '+cls;els.banner.innerHTML=txt;els.banner.hidden=false;
+  if(glow&&cls!=='H')Object.keys(tentEls).forEach(function(k){if(votes[k]===cls)tentEls[k].classList.add('glow');});
+  if(!glow)return;
+  clearTimeout(glowTimer);
+  glowTimer=setTimeout(function(){Object.keys(tentEls).forEach(function(k){tentEls[k].classList.remove('glow');});},4000);
+}
+J.on('select',function(e){if(e&&e.n>=1){sel=e.n;applySel();}});
+
+var rzT=0;
+function onResize(){
+  clearTimeout(rzT);
+  rzT=setTimeout(function(){if(bubbleN&&els.bubble&&!els.bubble.hidden)showBubble(bubbleN,bubbleText,true);if(thinking)thinkTick();},80);
+}
+window.addEventListener('resize',onResize);
+if(mq){
+  var mqh=function(){if(jurors.length&&lastMode!==(mq.matches?'tall':'wide'))build();};
+  if(mq.addEventListener)mq.addEventListener('change',mqh);else if(mq.addListener)mq.addListener(mqh);
+}
+})();
+</script>
+<script>
+/* Juror card: info panel for the selected juror. Listens on JM, never touches app internals. */
+(function(){
+'use strict';
+const JM=window.JM,root=document.getElementById('jurorCard');
+if(!JM||!root)return;
+const STAGES=[['straw','Straw poll'],['disc1','Discussion'],['disc2','Second discussion'],['final','Final vote']];
+const STAGE_NAME={straw:'Straw poll',disc1:'Discussion',disc2:'Second discussion',final:'Final vote'};
+let sel=0,els=null,sig='';
+
+function mk(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e;}
+function sec(title,body){const s=mk('section','jc-sec');s.appendChild(mk('h3','jc-h',title));s.appendChild(body);return s;}
+
+function build(){
+  const e={};
+  const head=mk('header','jc-head');
+  e.num=mk('span','jc-num');
+  const who=mk('div','jc-who');
+  e.name=mk('div','jc-name');
+  e.sub=mk('div','jc-sub');
+  who.append(e.name,e.sub);
+  e.chips=mk('div','jc-chips');
+  e.close=mk('button','jc-close','×');
+  e.close.type='button';e.close.setAttribute('aria-label','Close juror card');
+  e.close.addEventListener('click',function(){root.hidden=true;});
+  head.append(e.num,who,e.chips,e.close);
+
+  const left=mk('div','jc-col');
+  e.bg=mk('p','jc-text');
+  e.hint=mk('p','jc-text');
+  e.hintNote=mk('p','jc-note','The model’s guess before any deliberation.');
+  const going=mk('div');going.append(e.hint,e.hintNote);
+  e.pill=mk('span','jc-pill');
+  e.stand=mk('div','jc-stand');e.stand.appendChild(e.pill);
+  left.append(sec('Who they are',e.bg),sec('Going in',going),sec('Where they stand',e.stand));
+
+  const right=mk('div','jc-col');
+  e.trail=mk('ol','jc-trail');
+  e.runs=mk('ul','jc-runs');
+  const tr=mk('div');tr.append(e.trail,e.runs);
+  e.quote=mk('blockquote','jc-quote');
+  e.said=mk('p','jc-note');
+  const last=mk('div');last.setAttribute('aria-live','polite');last.append(e.quote,e.said);
+  right.append(sec('Vote trail',tr),sec('Last said',last));
+
+  const body=mk('div','jc-body');body.append(left,right);
+  root.append(head,body);
+  els=e;
+}
+
+function voteWord(v,crim){
+  if(v==='P')return crim?'For the prosecution':'For the plaintiff';
+  if(v==='D')return 'For the defense';
+  return 'Undecided';
+}
+function dot(v,cls){
+  const d=mk('span','jc-dot '+(cls||''),v||'');
+  if(v)d.dataset.v=v;
+  return d;
+}
+
+function render(){
+  const st=JM.state();
+  const j=st&&st.jurors&&st.jurors[sel-1];
+  if(!j){root.hidden=true;return;}
+  if(!els)build();
+  const e=els,crim=st.standard==='criminal';
+  e.num.textContent='#'+sel;
+  e.name.textContent=j.name||'';
+  e.sub.textContent=[j.age,j.occupation].filter(function(x){return x!=null&&x!=='';}).join(' · ');
+  e.chips.textContent='';
+  if(j.temperament)e.chips.appendChild(mk('span','jc-chip',j.temperament));
+  if(sel===(st.foreperson||1))e.chips.appendChild(mk('span','jc-chip jc-chip-fp','Foreperson'));
+  e.bg.textContent=j.background||'No background given.';
+  e.hint.textContent=j.leaning_hint||'No leaning guessed.';
+
+  const all=st.trail(sel)||[];
+  const cur=all.filter(function(t){return t.runId===st.currentRunId;});
+  const now=cur.length?cur[cur.length-1].vote:(all.length?all[all.length-1].vote:'U');
+  e.pill.textContent=voteWord(now,crim);
+  e.pill.dataset.v=now;
+
+  e.trail.textContent='';
+  let prev=null;
+  STAGES.forEach(function(s){
+    const hit=cur.filter(function(t){return t.stage===s[0];}).pop();
+    const li=mk('li','jc-step');
+    const changed=!!(hit&&prev&&hit.vote!==prev);
+    const d=hit?dot(hit.vote,changed?'chg':''):mk('span','jc-dot empty');
+    if(changed)d.title='Changed from '+prev+' to '+hit.vote;
+    li.append(d,mk('span','jc-step-l',s[1]));
+    if(changed)li.appendChild(mk('span','jc-step-c','changed'));
+    e.trail.appendChild(li);
+    if(hit)prev=hit.vote;
+  });
+
+  e.runs.textContent='';
+  (st.runs||[]).forEach(function(r,i){
+    if(r.runId===st.currentRunId)return;
+    const rt=all.filter(function(t){return t.runId===r.runId;});
+    const li=mk('li','jc-run');
+    li.append(rt.length?dot(rt[rt.length-1].vote,'sm'):mk('span','jc-dot sm empty'),mk('span','jc-run-l',r.label||('Run '+(i+1))));
+    e.runs.appendChild(li);
+  });
+  e.runs.hidden=!e.runs.childNodes.length;
+
+  const ls=st.lastSaid(sel);
+  if(ls){
+    e.quote.textContent='“'+ls.says+'”';
+    e.quote.classList.remove('empty');
+    const n=st.linesBy(sel);
+    e.said.textContent=(STAGE_NAME[ls.stage]||ls.stage)+' · '+n+(n===1?' thing':' things')+' said this run';
+  }else{
+    e.quote.textContent='Hasn’t spoken yet.';
+    e.quote.classList.add('empty');
+    e.said.textContent='0 things said this run';
+  }
+  sig=JSON.stringify(all);
+}
+
+function open(n){sel=n;root.hidden=false;render();}
+function refresh(){if(!root.hidden&&sel)render();}
+
+JM.on('select',function(e){if(e&&e.n>=1)open(e.n);});
+JM.on('reset',function(){sel=0;sig='';root.hidden=true;});
+JM.on('line',function(l){
+  if(root.hidden||!sel)return;
+  if(l&&l.juror===sel){render();return;}
+  const st=JM.state();if(st&&JSON.stringify(st.trail(sel)||[])!==sig)render();
+});
+['roundEnd','verdict','runStart'].forEach(function(t){JM.on(t,refresh);});
+})();
+</script>
+<script>
+(function(){
+'use strict';
+const Q=new URLSearchParams(location.search);
+const MOCK=Q.get('mock')==='1', AUTO=Q.get('auto')==='1', FAST=Q.get('fast')==='1', KEEPOPEN=Q.get('open')==='1', REPLAY=Q.get('replay'), AUTOPLAY=Q.get('autoplay')==='1';
+const RP={data:null,i:0,dead:false};
+const $=id=>document.getElementById(id);
+function h(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e;}
+
+/* ---------- constants ---------- */
+const PRESETS=[
+ {label:'Slip and fall (civil)',std:'pre',text:
+"Whitfield v. Greenleaf Market. On a rainy Tuesday evening in March, Dana Whitfield, 58, slipped near the produce section of Greenleaf Market and fractured her wrist. She says the floor beside the misting rack was visibly wet and no warning sign was out. Store records show a spill in aisle 4 was cleaned about 40 minutes earlier, and the mop log has no entry for produce that day. The produce clerk, Marcus Doyle, testified he refilled the misters at 5:15 and \"wiped up what I saw.\" Security video shows Ms. Whitfield walking at a normal pace in flat-soled sneakers, carrying a full shopping bag in one arm, and glancing at her phone for a few seconds before she falls. Her medical bills total $18,400 and she missed three weeks of work as a bookkeeper. Greenleaf argues the water had been there only minutes and that Ms. Whitfield was not watching where she walked.\n\nQuestion: Was Greenleaf Market negligent, and is it responsible for Ms. Whitfield's injuries?"},
+ {label:'Unfinished remodel (civil)',std:'pre',text:
+"Okafor v. Bright Hearth Remodeling. In January, homeowner Tunde Okafor paid Bright Hearth, a small contractor run by Lena Brandt, a $12,000 deposit toward a $38,000 kitchen remodel. The signed estimate promised completion in ten weeks. Crews demolished the old cabinets and counters and finished rough-in plumbing, then work stopped in week four. Ms. Brandt says the supplier delayed the custom cabinets by three months and that Mr. Okafor changed the layout twice, which she says voided the schedule. The texts show one layout request, in week two. Mr. Okafor lived without a working kitchen for five months and paid another contractor $29,000 to finish. Ms. Brandt kept the deposit, saying it covered demolition, materials already ordered and design time, and she produced receipts totaling $7,300. The contract says nothing about supplier delays.\n\nQuestion: Did Bright Hearth breach the contract, and if so, should it return the deposit or pay Mr. Okafor's additional costs?"},
+ {label:'CCTV shoplifting (criminal)',std:'crim',text:
+"State v. Reyes. Priya Reyes is charged with petty theft after a pharmacy employee reported two cosmetics kits worth $86 missing from a shelf on a Saturday afternoon. The main evidence is grainy overhead CCTV and one eyewitness. The footage shows a person in a gray hooded jacket and dark pants lifting something from the shelf and putting a hand in a jacket pocket; the face cannot be seen. Employee Calvin Marsh testified he watched Ms. Reyes do it from about thirty feet away and picked her from a photo lineup two days later. Ms. Reyes owns a gray jacket and was in the store that day to buy allergy medicine. She has a receipt for it timed 2:41 pm. The footage timestamp for the shelf incident is 2:38 pm. Nothing was found on her when she was stopped at the door. She has no prior record.\n\nQuestion: Has the prosecution proven beyond a reasonable doubt that Ms. Reyes committed petty theft?"}
+];
+const STD={
+ pre:{name:'Preponderance of the evidence',crim:false,mean:'The claim must be more likely true than not true, a little over 50 percent. The plaintiff carries the burden.'},
+ clear:{name:'Clear and convincing evidence',crim:false,mean:'The claim must be highly probable, enough to leave a firm belief. That is more than preponderance and less than beyond a reasonable doubt. The plaintiff carries the burden.'},
+ crim:{name:'Beyond a reasonable doubt',crim:true,mean:'Jurors must be firmly convinced of guilt. If a reasonable doubt remains they must vote for the defense. The prosecution carries the burden.'}
+};
+const STAGES={straw:'Opening straw poll',disc1:'Discussion',disc2:'Second discussion',final:'Final vote'};
+const OFF_CODES=['not_granted','sampling_disabled','not_declared','capability_disabled','capability_removed'];
+
+/* ---------- state ---------- */
+let sample=null, accessOff=false, jurors=[], runs=[], busy=false, ctl=null, selected=0;
+const E={};
+['case','std','size','pool','status','seats','seatBtn','reseatBtn','delibBtn','stopBtn','resumeBtn','tally','runs','delibSec','verdict','vBody','whatif','whatifText','rerunBtn','newJuryBtn','compareCard','cmpBody','copyBtn','exportBtn','playBtn','copyMsg','copyFall','expCard','seatPrompt','seatPromptBox','noclaude','legend','presets','tP','tU','tD','bP','bU','bD'].forEach(k=>E[k]=$(k));
+
+/* ---------- helpers ---------- */
+const stdInfo=()=>STD[E.std.value]||STD.pre;
+const partyShort=()=>stdInfo().crim?'prosecution':'plaintiff';
+const needFor=n=>stdInfo().crim?n:Math.ceil(n*0.75);
+function ruleText(n){const need=needFor(n);return stdInfo().crim?`Unanimous (${n} of ${n}) required`:`California civil rule, 3/4 (${need} of ${n})`;}
+const first=n=>String(n).split(' ')[0];
+function currentRun(){return runs[runs.length-1]||null;}
+function votesOf(run){const v={};if(!run)return v;for(const r of run.rounds)for(const l of r.lines)v[l.juror]=l.vote;return v;}
+function counts(run){const v=votesOf(run),c={P:0,D:0,U:0};const n=run.jurors.length;for(let i=1;i<=n;i++)c[v[i]||'U']++;return c;}
+function say(msg,mode){E.status.textContent=msg||'';E.status.className=mode||'';}
+function errCopy(e,ctx){
+  const c=e&&e.code;
+  if(c==='cancelled')return '';
+  if(OFF_CODES.indexOf(c)>=0){accessOff=true;return 'Claude access is off for this page, so the jury cannot run.';}
+  if(c==='rate_limited')return "Claude is busy or you've hit a usage limit — try again in a minute.";
+  if(c==='session_expired')return 'Your Claude session expired. Sign in again, then reload this page.';
+  if(c==='invalid_json'&&ctx==='seat')return "The jury didn't come back in a usable form — try Reseat.";
+  return ctx==='seat'?'Seating was interrupted. Try Reseat.':'The call was interrupted. Partial text is kept above; use the retry button when you are ready.';
+}
+
+/* ---------- prompts ---------- */
+function seatPrompt(n){
+return `TASK:SEAT
+SIZE:${n}
+You are running voir dire for a jury simulation. Seat ${n} jurors drawn at random from this pool: ${E.pool.value.trim()||'Adults from San Francisco County, CA'}.
+Rules: each juror must be a plausible resident of the pool. Make the group diverse in age, work, education, politics and life experience. No caricatures or stereotypes. Use invented names. Do not decide any case yet and do not mention any case.
+Reply with only a JSON array of ${n} objects, no other text, each shaped like:
+{"n":1,"name":"Full Name","age":34,"occupation":"...","background":"1-2 sentences","temperament":"one of: leader, skeptic, follower, holdout-prone, quiet, talker","leaning_hint":"a few words on what kind of argument moves this person"}
+Number the jurors 1 to ${n}. Use a spread of temperaments and no more than two leaders.`;
+}
+function flatLines(run,upto){
+  const out=[];
+  for(let i=0;i<upto;i++)for(const l of run.rounds[i].lines){const j=run.jurors[l.juror-1];out.push(`#${l.juror} ${j?first(j.name):'?'} [${l.vote}]: ${l.says}`);}
+  return out;
+}
+function foreperson(run){const j=run.jurors.find(x=>/leader/i.test(x.temperament));return j?j.n:1;}
+function roundPrompt(run,round,idx){
+  const S=run.std;
+  const roster=JSON.stringify(run.jurors.map(j=>({n:j.n,name:j.name,age:j.age,occupation:j.occupation,background:j.background,temperament:j.temperament,leaning_hint:j.leaning_hint})));
+  const tr=flatLines(run,idx).slice(-60);
+  const v=votesOf(run),n=run.jurors.length;const cur=[];for(let i=1;i<=n;i++)cur.push(i+':'+(v[i]||'U'));
+  const party=S.crim?'the prosecution':'the plaintiff';
+  const instr={
+    straw:'Opening straw poll. Every juror, in number order, gives a first view in 1 to 3 sentences and a vote. Exactly one line per juror.',
+    disc1:`Discussion. Write 8 to 14 lines. Jurors respond to each other by name, the foreperson (juror ${foreperson(run)}) steers, and people may change their votes. Not every juror has to speak.`,
+    disc2:`Second discussion, because the jury is not unanimous. Write 8 to 14 lines. Jurors on each side answer each other's strongest points by name, the foreperson (juror ${foreperson(run)}) steers, and people may change their votes.`,
+    final:'Final vote. Every juror, in number order, gives one line with their final vote and a short reason.'
+  }[round.stage];
+  return `TASK:ROUND
+STAGE:${round.stage}
+You are simulating a jury deliberation, writing each juror in character.
+
+CASE:
+${run.caseText}
+
+STANDARD OF PROOF: ${S.name}. ${S.mean}
+Votes: P = for ${party}, D = for the defense, U = undecided.
+VERDICT RULE: ${ruleText(n)}
+ROSTER_JSON:${roster}
+VOTES SO FAR: ${cur.join(' ')}
+
+TRANSCRIPT SO FAR${tr.length?'':' (none yet)'}:
+${tr.join('\n')}
+
+THIS ROUND: ${instr}
+
+Rules for every juror: reason only from the facts in the case text and bring in no outside evidence. Jurors may misremember details, argue, or hold a view stubbornly. Stay in character according to each juror's background and temperament. Votes must follow what the juror actually says.
+OUTPUT: one JSON object per line and nothing else, no markdown, in this shape:
+{"juror":3,"says":"what the juror says","vote":"P"}
+"vote" is "P", "D" or "U".`;
+}
+function verdictPrompt(run){
+  const v=run.verdict;
+  const tr=flatLines(run,run.rounds.length).slice(-80);
+  return `TASK:VERDICT
+${run.caseText.includes('AMENDED FACT')?'AMENDED:yes\n':''}You are analysing a simulated jury deliberation.
+
+CASE:
+${run.caseText}
+
+STANDARD OF PROOF: ${run.std.name}.
+FINAL SPLIT: P ${v.split.P}, U ${v.split.U}, D ${v.split.D} (P = for ${run.std.crim?'the prosecution':'the plaintiff'}, D = for the defense). VERDICT: ${v.label}.
+
+TRANSCRIPT (latest lines):
+${tr.join('\n')}
+
+Write, in plain text with no markdown formatting:
+What swung it:
+3 to 5 bullets (start each line with "- ") naming the facts the jurors leaned on most and which jurors moved and why.
+What would change the outcome:
+2 to 3 bullets (start each line with "- ") naming facts that, if different, would likely move the jury.
+Use only what is in the case and the transcript.`;
+}
+
+/* ---------- rendering ---------- */
+function renderSeats(){
+  const run=currentRun(), show=run&&run.jurors===jurors?votesOf(run):{};
+  const n=jurors.length||(+E.size.value||12);
+  E.seats.textContent='';
+  E.seats.classList.toggle('seating',busy&&!jurors.length);
+  for(let i=1;i<=n;i++){
+    const j=jurors[i-1];
+    if(!j){const d=h('div','seat empty');d.append(h('span','sn',String(i)),h('span','nm','Empty seat'));E.seats.appendChild(d);continue;}
+    const b=h('button','seat');b.type='button';
+    b.dataset.vote=show[i]||'U';
+    if(i===selected)b.classList.add('sel');
+    b.setAttribute('aria-label',`Juror ${i}, ${j.name}, ${j.occupation}. Show bio.`);
+    b.append(h('span','sn',String(i)),h('span','nm',first(j.name)),h('span','mt',[j.age,j.occupation].filter(Boolean).join(' · ')));
+    if(show[i]&&show[i]!=='U')b.appendChild(h('span','vt',show[i]));
+    b.addEventListener('click',()=>JM.emit('select',{n:i}));
+    E.seats.appendChild(b);
+  }
+}
+function renderTally(){
+  const run=currentRun();
+  if(!run||run.jurors!==jurors||!run.rounds.length){E.tally.hidden=true;return;}
+  E.tally.hidden=false;
+  const c=counts(run),n=run.jurors.length;
+  E.tP.textContent='P '+c.P;E.tU.textContent='U '+c.U;E.tD.textContent='D '+c.D;
+  E.bP.style.width=(c.P/n*100)+'%';E.bU.style.width=(c.U/n*100)+'%';E.bD.style.width=(c.D/n*100)+'%';
+  E.legend.textContent=`P = for the ${run.std.crim?'prosecution':'plaintiff'} · D = for the defense · U = undecided`;
+}
+function renderRich(el,text){
+  el.textContent='';let ul=null;
+  for(const raw of String(text).split('\n')){
+    const l=raw.trim();
+    if(!l){ul=null;continue;}
+    const m=/^[-*•]\s+(.*)$/.exec(l);
+    const clean=s=>s.replace(/\*\*/g,'').replace(/^#+\s*/,'');
+    if(m){if(!ul){ul=h('ul');el.appendChild(ul);}ul.appendChild(h('li',null,clean(m[1])));}
+    else{ul=null;const head=/:$/.test(l)||/^#+\s/.test(l);el.appendChild(h(head?'h4':'p',null,clean(l)));}
+  }
+}
+function renderVerdict(){
+  const run=[...runs].reverse().find(r=>r.verdict);
+  E.verdict.hidden=!run;E.whatif.hidden=!run;E.expCard.hidden=!runs.length;
+  if(!run){return;}
+  const v=run.verdict;
+  E.vBody.textContent='';
+  const big=h('div','big '+(v.key==='P'?'':v.key),v.label);
+  const meta=h('div','meta',`P ${v.split.P} · U ${v.split.U} · D ${v.split.D}   (run ${run.id}: ${run.label})`);
+  const rule=h('p','small',v.rule);rule.style.marginTop='4px';
+  const sw=h('div','swing');
+  E.vBody.append(big,meta,rule,sw);
+  run.swingEl=sw;
+  if(run.swing)renderRich(sw,run.swing);
+  else if(run.swingState==='run'){sw.appendChild(h('p','think','Thinking…'));}
+  else if(run.swingState==='fail'){sw.appendChild(h('p','small','The analysis was interrupted. Use Retry analysis above.'));}
+}
+function renderCompare(){
+  const done=runs.filter(r=>r.verdict);
+  E.compareCard.hidden=!done.length;
+  E.cmpBody.textContent='';
+  for(const r of done){
+    const tr=h('tr');
+    tr.append(h('td','num',String(r.id)),h('td',null,r.label),h('td','num',`P ${r.verdict.split.P} · U ${r.verdict.split.U} · D ${r.verdict.split.D}`),h('td',null,r.verdict.label));
+    E.cmpBody.appendChild(tr);
+  }
+}
+function nextStage(run){
+  const rs=run.rounds,last=rs[rs.length-1];
+  if(!last)return 'straw';
+  if(last.status!=='done')return last.stage;
+  if(run.plan)return run.plan[rs.length]||null;
+  if(last.stage==='straw')return 'disc1';
+  if(last.stage==='disc1'){const c=counts(run),n=run.jurors.length;return (c.P===n||c.D===n)?'final':'disc2';}
+  if(last.stage==='disc2')return 'final';
+  return null;
+}
+function updateButtons(){
+  const off=!sample||accessOff||busy;
+  E.seatBtn.disabled=off;
+  E.reseatBtn.disabled=off;E.reseatBtn.hidden=!jurors.length;
+  E.delibBtn.disabled=off||!jurors.length;
+  E.rerunBtn.disabled=off||!jurors.length||!E.whatifText.value.trim();
+  E.newJuryBtn.disabled=off;
+  E.exportBtn.disabled=!runs.some(r=>r.jurors===jurors&&r.status==='done');
+  E.stopBtn.hidden=!busy;
+  const run=currentRun();
+  const can=!busy&&!accessOff&&sample&&run&&run.status==='interrupted'&&run.jurors===jurors;
+  E.resumeBtn.hidden=!can;
+  if(can)E.resumeBtn.textContent=nextStage(run)?'Retry round':'Retry analysis';
+}
+function setBusy(b){busy=b;updateButtons();renderSeats();}
+
+/* ---------- run DOM ---------- */
+function buildRunEl(run){
+  for(const r of runs){if(r!==run&&r.el)r.el.open=false;}
+  const d=h('details','run');d.open=true;
+  const s=h('summary');s.append(document.createTextNode(`Run ${run.id} · ${run.label}`));
+  run.splitEl=h('span','rsplit','');s.appendChild(run.splitEl);d.appendChild(s);
+  run.roundsEl=h('div');d.appendChild(run.roundsEl);
+  run.el=d;E.runs.appendChild(d);E.delibSec.hidden=false;
+}
+function buildRoundEl(run,round){
+  const idx=run.rounds.indexOf(round)+1;
+  const d=h('details','round');d.open=true;
+  const s=h('summary');s.append(document.createTextNode(`Round ${idx} · ${STAGES[round.stage]}`));
+  round.stateEl=h('span','st','');s.appendChild(round.stateEl);d.appendChild(s);
+  round.linesEl=h('div','lines');d.appendChild(round.linesEl);
+  const pr=h('details','pr');pr.appendChild(h('summary',null,'Prompt text'));round.promptEl=h('pre');pr.appendChild(round.promptEl);d.appendChild(pr);
+  round.el=d;
+  if(round.replace&&round.replace.parentNode)run.roundsEl.replaceChild(d,round.replace);else run.roundsEl.appendChild(d);
+}
+function lineEl(run,l){
+  const j=run.jurors[l.juror-1];
+  const d=h('div','line');d.dataset.vote=l.vote;
+  d.appendChild(h('span','chip','#'+l.juror));
+  const t=h('div','tx');t.append(h('b',null,j?first(j.name):'Juror'),h('span','v',l.vote),document.createElement('br'),document.createTextNode(l.says));
+  d.appendChild(t);return d;
+}
+
+/* ---------- seating ---------- */
+async function seatJury(){
+  if(busy||!sample)return false;
+  const n=+E.size.value||12;
+  ctl=new AbortController();
+  const prompt=seatPrompt(n);
+  E.seatPrompt.textContent=prompt;E.seatPromptBox.hidden=false;
+  jurors=[];selected=0;renderSeats();JM.emit('reset',{});
+  setBusy(true);say('Seating the jury…','pulse');
+  let ok=false;
+  try{
+    let arr=await sample.json(prompt,{modelTier:'default',cache:false,signal:ctl.signal});
+    if(arr&&!Array.isArray(arr)&&Array.isArray(arr.jurors))arr=arr.jurors;
+    if(!Array.isArray(arr)||arr.length<n)throw {code:'invalid_json',message:'short roster'};
+    jurors=arr.slice(0,n).map((j,i)=>({n:i+1,name:String((j&&j.name)||'Juror '+(i+1)),age:(j&&j.age)!=null?j.age:'',occupation:String((j&&j.occupation)||''),background:String((j&&j.background)||''),temperament:String((j&&j.temperament)||''),leaning_hint:String((j&&j.leaning_hint)||'')}));
+    say('');ok=true;
+    JM.emit('jurors',{jurors:jurors.map(j=>Object.assign({},j)),foreperson:foreperson({jurors:jurors})});
+  }catch(e){const m=errCopy(e,'seat');say(m,m?'err':'');}
+  finally{setBusy(false);}
+  renderSeats();renderTally();updateButtons();
+  return ok;
+}
+
+/* ---------- deliberation ---------- */
+function addLine(run,round,raw){
+  let s=String(raw).trim();
+  if(!s||/^```/.test(s))return;
+  s=s.replace(/,$/,'');
+  let o;try{o=JSON.parse(s);}catch(_){return;}
+  if(!o||typeof o!=='object'||o.says==null)return;
+  let n=parseInt(o.juror,10);if(isNaN(n))return;
+  n=Math.max(1,Math.min(run.jurors.length,n));
+  const v=String(o.vote||'').trim().toUpperCase();
+  const l={juror:n,says:String(o.says),vote:(v==='P'||v==='D')?v:'U'};
+  let prev=null;for(const r of run.rounds)for(const x of r.lines)if(x.juror===n)prev=x.vote;
+  round.lines.push(l);
+  if(round.thinkEl){round.thinkEl.remove();round.thinkEl=null;}
+  round.linesEl.appendChild(lineEl(run,l));
+  round.stateEl.textContent=`${round.lines.length} lines`;
+  renderSeats();renderTally();
+  JM.emit('line',{runId:run.id,stage:round.stage,juror:n,says:l.says,vote:l.vote,prevVote:prev});
+}
+async function doRound(run){
+  const stage=nextStage(run);
+  let round=run.rounds[run.rounds.length-1];
+  if(round&&round.status!=='done'&&round.stage===stage){round.replace=round.el;round.lines=[];}
+  else{round={stage:stage,lines:[],status:'running',prompt:''};run.rounds.push(round);}
+  round.status='running';
+  const idx=run.rounds.indexOf(round);
+  buildRoundEl(run,round);
+  round.prompt=roundPrompt(run,round,idx);
+  round.promptEl.textContent=round.prompt;
+  round.thinkEl=h('div','think','Thinking…');round.linesEl.appendChild(round.thinkEl);
+  round.stateEl.textContent='running';
+  renderSeats();renderTally();
+  JM.emit('roundStart',{runId:run.id,stage:stage,title:STAGES[stage]});
+  ctl=new AbortController();
+  let pending='';
+  const eat=d=>{const parts=(pending+d).split('\n');pending=parts.pop();parts.forEach(p=>addLine(run,round,p));};
+  try{
+    const res=await sample(round.prompt,{modelTier:'default',cache:false,signal:ctl.signal,onText:u=>eat(u.delta)});
+    if(pending.trim())addLine(run,round,pending);pending='';
+    if(round.thinkEl){round.thinkEl.remove();round.thinkEl=null;}
+    if(!round.lines.length)throw {code:'upstream_error',message:'no usable lines'};
+    round.raw=(res&&res.text)||'';
+    round.status='done';round.stateEl.textContent=`${round.lines.length} lines`+(res&&res.truncated?' · cut short':'');
+    JM.emit('roundEnd',{runId:run.id,stage:stage,status:'done'});
+    return true;
+  }catch(e){
+    if(pending.trim())addLine(run,round,pending);
+    if(round.thinkEl){round.thinkEl.remove();round.thinkEl=null;}
+    round.raw=(e&&e.text)||'';
+    round.status='interrupted';run.status='interrupted';
+    JM.emit('roundEnd',{runId:run.id,stage:stage,status:'interrupted'});
+    const cancelled=e&&e.code==='cancelled';
+    round.stateEl.textContent=cancelled?'stopped':'interrupted';
+    const m=errCopy(e,'round');say(cancelled?'Stopped. Retry round restarts this round.':m,m?'err':'');
+    return false;
+  }
+}
+function computeVerdict(run){
+  const c=counts(run),n=run.jurors.length,need=needFor(n),crim=run.std.crim;
+  let key='H',label='Hung jury';
+  if(c.P>=need){key='P';label=crim?'For the prosecution':'For the plaintiff';}
+  else if(c.D>=need){key='D';label='For the defense';}
+  return {key,label,split:c,need,rule:crim?`Criminal rule: unanimity needed (${n} of ${n}).`:`California civil rule, 3/4: ${need} of ${n} needed.`};
+}
+async function doVerdict(run){
+  if(!run.verdict){run.verdict=computeVerdict(run);run.splitEl.textContent=`${run.verdict.label} · P ${run.verdict.split.P} / D ${run.verdict.split.D}`;JM.emit('verdict',{runId:run.id,verdict:run.verdict.key==='H'?'hung':run.verdict.key,split:Object.assign({},run.verdict.split)});}
+  run.swing='';run.swingState='run';
+  renderVerdict();renderCompare();
+  const prompt=verdictPrompt(run);
+  ctl=new AbortController();
+  try{
+    await sample(prompt,{modelTier:'default',cache:false,signal:ctl.signal,onText:u=>{run.swing=u.text;if(run.swingEl)renderRich(run.swingEl,run.swing);}});
+    run.swingState='done';run.status='done';return true;
+  }catch(e){
+    run.swingState='fail';run.status='interrupted';
+    const cancelled=e&&e.code==='cancelled';
+    const m=errCopy(e,'verdict');say(cancelled?'Stopped. Retry analysis asks Claude again.':m,m?'err':'');
+    if(run.swingEl)renderRich(run.swingEl,run.swing||'');
+    renderVerdict();
+    return false;
+  }
+}
+async function continueRun(run){
+  setBusy(true);say('');
+  try{
+    run.status='running';
+    while(nextStage(run)){
+      const ok=await doRound(run);
+      if(!ok){return;}
+    }
+    if(run.swingState!=='done'){const ok=await doVerdict(run);if(!ok)return;}
+    run.status='done';
+    if(!KEEPOPEN)run.rounds.forEach(r=>{if(r.el)r.el.open=false;});
+    renderVerdict();renderCompare();
+  }finally{setBusy(false);renderSeats();renderTally();updateButtons();}
+}
+async function startRun(opt){
+  if(busy||!sample||!jurors.length)return false;
+  const text=E.case.value.trim();
+  if(!text){say('Write or pick a case first.','err');return false;}
+  const amend=opt&&opt.amend;
+  const run={id:runs.length+1,label:(opt&&opt.label)||(runs.length?'Same case, rerun':'Original case'),
+    caseText:text+(amend?'\n\nAMENDED FACT: '+amend:''),std:stdInfo(),plan:(opt&&opt.plan)||null,standardKey:E.std.value,pool:E.pool.value.trim(),jurors:jurors,rounds:[],status:'running',verdict:null,swing:'',swingState:''};
+  runs.push(run);buildRunEl(run);
+  JM.emit('runStart',{runId:run.id,label:run.label});
+  await continueRun(run);
+  return true;
+}
+async function resume(){const run=currentRun();if(run&&!busy)await continueRun(run);}
+
+/* ---------- export ---------- */
+function exportText(){
+  const out=['JURYMECH TRANSCRIPT','Simulation only. Not a prediction of any real verdict.','',
+    'CASE',E.case.value.trim(),'','Standard of proof: '+stdInfo().name,'Jury pool: '+E.pool.value.trim(),''];
+  const js=(runs.find(r=>r.jurors)||{}).jurors||jurors;
+  out.push('JURORS');
+  js.forEach(j=>out.push(`#${j.n} ${j.name}, ${j.age}, ${j.occupation} (${j.temperament}). ${j.background}`));
+  for(const r of runs){
+    out.push('','=== RUN '+r.id+': '+r.label+' ===');
+    if(r.jurors!==js){out.push('Jurors for this run:');r.jurors.forEach(j=>out.push(`#${j.n} ${j.name}, ${j.age}, ${j.occupation} (${j.temperament})`));}
+    if(r.label&&r.caseText.includes('AMENDED FACT'))out.push(r.caseText.slice(r.caseText.indexOf('AMENDED FACT')));
+    r.rounds.forEach((rd,i)=>{
+      out.push('','-- Round '+(i+1)+': '+STAGES[rd.stage]+(rd.status!=='done'?' (interrupted)':'')+' --');
+      rd.lines.forEach(l=>{const j=r.jurors[l.juror-1];out.push(`#${l.juror} ${j?first(j.name):''} [${l.vote}]: ${l.says}`);});
+    });
+    if(r.verdict){out.push('','VERDICT: '+r.verdict.label+` (P ${r.verdict.split.P}, U ${r.verdict.split.U}, D ${r.verdict.split.D}). ${r.verdict.rule}`);}
+    if(r.swing)out.push('',r.swing);
+  }
+  return out.join('\n');
+}
+async function copyTranscript(){
+  const t=exportText();E.copyFall.hidden=true;
+  try{await navigator.clipboard.writeText(t);E.copyMsg.textContent='Copied.';return;}catch(_){}
+  E.copyFall.value=t;E.copyFall.hidden=false;E.copyFall.focus();E.copyFall.select();
+  let ok=false;try{ok=document.execCommand('copy');}catch(_){}
+  E.copyMsg.textContent=ok?'Copied.':'Text selected. Press Ctrl or Cmd+C to copy.';
+}
+
+const RUN_SEP='\n\nAMENDED FACT: ';
+function buildRunFile(){
+  const mine=runs.filter(r=>r.jurors===jurors&&r.status==='done');
+  const r0=mine[0];
+  return {version:1,exported:new Date().toISOString(),
+    case:{text:r0.caseText.split(RUN_SEP)[0],std:r0.standardKey,size:jurors.length,pool:r0.pool},
+    jurors:jurors.map(j=>Object.assign({},j)),
+    runs:mine.map(r=>{const k=r.caseText.indexOf(RUN_SEP);return {label:r.label,amend:k>=0?r.caseText.slice(k+RUN_SEP.length):null,
+      rounds:r.rounds.filter(rd=>rd.status==='done').map(rd=>({stage:rd.stage,text:rd.raw||''})),swing:r.swing||''};})};
+}
+async function exportRunFile(){
+  if(E.exportBtn.disabled)return;
+  const json=JSON.stringify(buildRunFile(),null,2);
+  E.copyFall.hidden=true;
+  let dl=null;
+  try{if(window.claude&&typeof window.claude.use==='function')dl=await window.claude.use('downloads');}catch(_){dl=null;}
+  if(dl){
+    try{await dl.save({filename:'jurymech-run.json',data:json});E.copyMsg.textContent='Saved jurymech-run.json';return;}
+    catch(e){if(e&&e.code==='declined'){E.copyMsg.textContent='';return;}}
+  }
+  try{await navigator.clipboard.writeText(json);E.copyMsg.textContent='Copied the run file to your clipboard';return;}catch(_){}
+  E.copyFall.value=json;E.copyFall.hidden=false;E.copyFall.focus();E.copyFall.select();
+  E.copyMsg.textContent='Run file selected. Press Ctrl or Cmd+C to copy.';
+}
+
+/* ---------- replay (for ?replay=file.json) ---------- */
+function makeReplay(data){
+  const cancelled=t=>({code:'cancelled',message:'cancelled',text:t});
+  const wait=(ms,sig,t)=>new Promise((res,rej)=>{
+    if(sig&&sig.aborted)return rej(cancelled(t));
+    const ab=()=>{clearTimeout(id);rej(cancelled(t));};
+    const id=setTimeout(()=>{if(sig)sig.removeEventListener('abort',ab);res();},ms);
+    if(sig)sig.addEventListener('abort',ab,{once:true});
+  });
+  async function stream(text,opts,paced){
+    const sig=opts&&opts.signal;let acc='';
+    await wait(350,sig,'');
+    if(paced&&!FAST){
+      for(const ln of text.split('\n')){
+        const d=ln+'\n';acc+=d;
+        if(opts.onText)opts.onText({text:acc,delta:d});
+        if(ln.indexOf('{')>=0)await wait(1200+Math.random()*800,sig,acc);
+      }
+      return {text:acc,truncated:false,modelTierApplied:'default'};
+    }
+    for(let i=0;i<text.length;i+=31){
+      const d=text.slice(i,i+31);acc+=d;
+      if(opts.onText)opts.onText({text:acc,delta:d});
+      await wait(10,sig,acc);
+    }
+    return {text:acc,truncated:false,modelTierApplied:'default'};
+  }
+  const s=async function(input,opts){opts=opts||{};const p=String(input);
+    const rec=data.runs[RP.i]||{rounds:[],swing:''};
+    if(p.indexOf('TASK:ROUND')===0){
+      const st=/STAGE:(\w+)/.exec(p)[1];
+      const rd=rec.rounds.find(r=>r.stage===st);
+      if(!rd)throw {code:'upstream_error',message:'replay: no recorded round '+st};
+      return stream(rd.text,opts,true);
+    }
+    if(p.indexOf('TASK:VERDICT')===0)return stream(rec.swing||'',opts);
+    throw {code:'upstream_error',message:'replay: unknown task'};};
+  s.json=async function(input,opts){opts=opts||{};await wait(500,opts.signal,'');
+    return data.jurors.map(j=>Object.assign({},j));};
+  return s;
+}
+async function playReplay(){
+  if(RP.dead){location.reload();return;}
+  if(busy)return;
+  E.playBtn.disabled=true;
+  const fail=()=>{RP.dead=true;E.playBtn.textContent='Start over';E.playBtn.disabled=false;};
+  if(!await seatJury()){fail();return;}
+  for(let i=0;i<RP.data.runs.length;i++){
+    RP.i=i;const rec=RP.data.runs[i];
+    if(rec.amend)E.whatifText.value=rec.amend;
+    await startRun({label:rec.label,amend:rec.amend||null,plan:rec.rounds.map(r=>r.stage)});
+    const r=currentRun();
+    if(!r||r.status!=='done'){fail();return;}
+  }
+  E.playBtn.hidden=true;
+  document.documentElement.setAttribute('data-auto-done','1');
+}
+async function initReplay(){
+  document.documentElement.classList.add('replay');
+  E.noclaude.hidden=false;
+  E.noclaude.textContent="Replay of a recorded run. The jurors and their words came from Claude; nothing is being generated now.";
+  try{
+    const u=new URL(REPLAY,location.href);
+    if(u.origin!==location.origin)throw new Error('cross-origin');
+    const res=await fetch(u.href);
+    if(!res.ok)throw new Error('http '+res.status);
+    const d=await res.json();
+    if(!d||d.version!==1||!d.case||!Array.isArray(d.jurors)||!Array.isArray(d.runs)||!d.runs.length)throw new Error('bad file');
+    RP.data=d;
+  }catch(_){E.noclaude.textContent="Couldn't load the recorded run.";return;}
+  const c=RP.data.case;
+  E.case.value=c.text||'';E.std.value=c.std||'pre';E.size.value=String(c.size||RP.data.jurors.length);E.pool.value=c.pool||'';
+  E.case.readOnly=true;E.pool.readOnly=true;E.whatifText.readOnly=true;E.std.disabled=true;E.size.disabled=true;
+  sample=makeReplay(RP.data);
+  renderSeats();updateButtons();
+  E.playBtn.hidden=false;
+  E.playBtn.addEventListener('click',playReplay);
+  if(AUTOPLAY)E.playBtn.click();
+}
+
+/* ---------- mock (for ?mock=1) ---------- */
+function makeMock(){
+  const J=[
+   ['Helen Park',61,'retired high-school principal','Ran a large public school for 20 years and is used to weighing conflicting accounts.','leader','wants a clear sequence of events'],
+   ['Marcus Bell',29,'line cook','Works nights, rides the bus, careful with his own money.','quiet','concrete details over theory'],
+   ['Priya Raman',34,'ER nurse','Trained to trust what was observed rather than what was assumed.','skeptic','distrusts one-person accounts'],
+   ['Diego Alvarez',45,'Muni bus driver','Talks to strangers all day and likes to think out loud.','talker','fairness to ordinary people'],
+   ['Tamsin Cole',52,'bakery owner','Runs a small shop and worries about liability and costs.','follower','what a reasonable owner would do'],
+   ['Walter Chen',70,'retired machinist','Plain-spoken, skeptical of paperwork and of lawyers.','holdout-prone','physical evidence'],
+   ['Aisha Johnson',38,'paralegal','Reads contracts and records for a living.','skeptic','documents and timestamps'],
+   ['Evan Kowalski',26,'linguistics grad student','Enjoys picking apart wording and arguments.','talker','consistency of statements'],
+   ['Rosa Medina',49,'hotel housekeeper','Quiet, observant, has seen many spills and messes.','quiet','practical everyday experience'],
+   ['Sam Whitaker',41,'software QA lead','Looks for the edge case others missed.','follower','process failures'],
+   ['Noor Haddad',33,'pharmacist','Careful with details and with doubt.','skeptic','whether the numbers add up'],
+   ['Gus Lindqvist',57,'longshoreman','Union member, stubborn once he has made up his mind.','holdout-prone','personal responsibility']
+  ].map((a,i)=>({n:i+1,name:a[0],age:a[1],occupation:a[2],background:a[3],temperament:a[4],leaning_hint:a[5]}));
+  const VO={straw:'PPDUPDPUDPPD',disc1:'PPDPPDPPDPUD',disc2:'PPDPPDPPPPPD',final:'PPDPPDPPPPPD'};
+  const VA={straw:'DPDUDDPUDPDD',disc1:'DPDDDDPDDPDD',disc2:'DPDDDDDDDPDD',final:'DPDDDDDDDPDD'};
+  const SAY={
+   P:['The facts as given lean toward the claim, and I cannot explain them away.','The timeline fits the claim, and the other side has gaps in their story.','I keep coming back to one detail, and it favors the claim.'],
+   D:['I do not think the claim clears the standard; too much rests on one shaky detail.','The other side\'s explanation is at least as plausible as the claim.','There is a gap in the evidence here, and I cannot fill it with a guess.'],
+   U:['I am honestly torn and want to hear more before I commit.','Both sides have a point, and I have not settled yet.']
+  };
+  const cancelled=t=>({code:'cancelled',message:'cancelled',text:t});
+  const wait=(ms,sig,t)=>new Promise((res,rej)=>{
+    if(sig&&sig.aborted)return rej(cancelled(t));
+    const ab=()=>{clearTimeout(id);rej(cancelled(t));};
+    const id=setTimeout(()=>{if(sig)sig.removeEventListener('abort',ab);res();},ms);
+    if(sig)sig.addEventListener('abort',ab,{once:true});
+  });
+  async function stream(text,opts,paced){
+    const sig=opts&&opts.signal;let acc='';
+    await wait(350,sig,'');
+    if(paced&&!FAST){
+      for(const ln of text.split('\n')){
+        const d=ln+'\n';acc+=d;
+        if(opts.onText)opts.onText({text:acc,delta:d});
+        await wait(250+Math.random()*150,sig,acc);
+      }
+      return {text:acc,truncated:false,modelTierApplied:'default'};
+    }
+    for(let i=0;i<text.length;i+=31){
+      const d=text.slice(i,i+31);acc+=d;
+      if(opts.onText)opts.onText({text:acc,delta:d});
+      await wait(10,sig,acc);
+    }
+    return {text:acc,truncated:false,modelTierApplied:'default'};
+  }
+  function round(p){
+    const st=/STAGE:(\w+)/.exec(p)[1];
+    const roster=JSON.parse(/ROSTER_JSON:(.*)/.exec(p)[1]);
+    const am=p.indexOf('AMENDED FACT')>=0, V=(am?VA:VO)[st];
+    const order=(st==='straw'||st==='final')?roster.map(j=>j.n):(st==='disc1'?[1,4,6,2,8,3,12,5,9,7,10,11]:[8,9,1,4,6,11,12,2,5,10]).filter(n=>n<=roster.length);
+    const lines=order.map((n,i)=>{
+      const v=V[n-1]||'U',pool=SAY[v],base=pool[(n+i)%pool.length];
+      const other=roster[(n+2)%roster.length].name.split(' ')[0];
+      const says=st==='straw'?base:st==='final'?'Final answer: '+base.charAt(0).toLowerCase()+base.slice(1):other+', '+base.charAt(0).toLowerCase()+base.slice(1);
+      return JSON.stringify({juror:n,says:says,vote:v});
+    });
+    return '```json\n'+lines.join('\n')+'\n```';
+  }
+  function verdict(p){
+    const am=p.indexOf('AMENDED:yes')>=0;
+    return am?
+`What swung it:
+- The amended fact changed how jurors saw the owner's duty, and several jurors said it shifted the weight of the evidence.
+- Helen Park and Priya Raman moved first, arguing the claim no longer cleared the standard.
+- Walter Chen held out longest on the physical evidence, then came around.
+- Juror Evan Kowalski kept pointing to the earlier statements as consistent with the new fact.
+What would change the outcome:
+- A record showing the condition existed long before the incident.
+- Testimony that the warning was not visible from where the claimant walked.`:
+`What swung it:
+- The timeline of the cleanup and the missing log entry carried the most weight with the majority.
+- Diego Alvarez and Tamsin Cole moved from undecided to the claim after discussing what a reasonable owner would have checked.
+- Priya Raman and Aisha Johnson stayed with the defense, pointing to the video of the claimant looking at her phone.
+- Walter Chen and Gus Lindqvist weighed personal responsibility but did not hold out at the end.
+What would change the outcome:
+- Evidence that a warning sign had been placed in view.
+- Records showing a recent inspection of the area.`;
+  }
+  const s=async function(input,opts){opts=opts||{};const p=String(input);
+    if(p.indexOf('TASK:ROUND')===0)return stream(round(p),opts,true);
+    if(p.indexOf('TASK:VERDICT')===0)return stream(verdict(p),opts);
+    throw {code:'upstream_error',message:'mock: unknown task'};};
+  s.json=async function(input,opts){opts=opts||{};await wait(500,opts.signal,'');
+    const n=+(/SIZE:(\d+)/.exec(input)||[0,12])[1];
+    // a different mock pool each call so "New jury" visibly reseats
+    const off=(s._k=((s._k||0)+1))>1?1:0;
+    const base=J.map(j=>Object.assign({},j));
+    if(off)base.forEach((j,i)=>{j.name=j.name.split(' ')[0]+' '+['Nakamura','Ortiz','Fisher','Boateng','Silva','Haas','Quinn','Petrov','Dunn','Reyes-Cole','Amin','Tran'][i];});
+    return base.slice(0,n);};
+  return s;
+}
+
+/* ---------- wiring ---------- */
+PRESETS.forEach(p=>{
+  const b=h('button','btn alt sm',p.label);b.type='button';
+  b.addEventListener('click',()=>{E.case.value=p.text;E.std.value=p.std;updateButtons();});
+  E.presets.appendChild(b);
+});
+E.seatBtn.addEventListener('click',seatJury);
+E.reseatBtn.addEventListener('click',seatJury);
+E.delibBtn.addEventListener('click',()=>startRun({}));
+E.stopBtn.addEventListener('click',()=>{if(ctl)ctl.abort();});
+E.resumeBtn.addEventListener('click',resume);
+E.rerunBtn.addEventListener('click',async()=>{const a=E.whatifText.value.trim();if(!a)return;await startRun({label:a,amend:a});});
+E.newJuryBtn.addEventListener('click',async()=>{if(await seatJury())await startRun({label:'New jury, same case'});});
+E.whatifText.addEventListener('input',updateButtons);
+E.size.addEventListener('change',()=>{if(!jurors.length)renderSeats();else if(jurors.length!==+E.size.value)say('Reseat to apply the new jury size.');});
+E.copyBtn.addEventListener('click',copyTranscript);
+E.exportBtn.addEventListener('click',exportRunFile);
+JM.on('select',e=>{if(e&&e.n>=1&&e.n<=jurors.length){selected=e.n;renderSeats();}});
+JM._setStateFn(()=>{
+  const lastOf=(rd,n)=>{let v=null;for(const l of rd.lines)if(l.juror===n)v=l.vote;return v;};
+  const mine=runs.filter(r=>r.jurors===jurors);
+  const cur=mine[mine.length-1]||null;
+  return {
+    jurors:jurors.map(j=>Object.assign({},j)),
+    foreperson:foreperson({jurors:jurors}),
+    standard:cur&&cur.standardKey?({pre:'civil',crim:'criminal',clear:'clear'})[cur.standardKey]||'civil':({pre:'civil',crim:'criminal',clear:'clear'})[E.std.value]||'civil',
+    currentRunId:cur?cur.id:null,
+    runs:mine.map(r=>({runId:r.id,label:r.label,verdict:r.verdict?(r.verdict.key==='H'?'hung':r.verdict.key):null})),
+    trail(n){const out=[];for(const r of mine)for(const rd of r.rounds){const v=lastOf(rd,n);if(v)out.push({runId:r.id,stage:rd.stage,vote:v});}return out;},
+    votes(){const o={};jurors.forEach(j=>{o[j.n]='U';});if(cur)for(const rd of cur.rounds)for(const l of rd.lines)o[l.juror]=l.vote;return o;},
+    lastSaid(n){for(let i=mine.length-1;i>=0;i--){const rs=mine[i].rounds;for(let k=rs.length-1;k>=0;k--){const ls=rs[k].lines;for(let m=ls.length-1;m>=0;m--)if(ls[m].juror===n)return {says:ls[m].says,stage:rs[k].stage,runId:mine[i].id};}}return null;},
+    linesBy(n){let c=0;if(cur)for(const rd of cur.rounds)for(const l of rd.lines)if(l.juror===n)c++;return c;}
+  };
+});
+if(Q.get('debugevents')==='1'){
+  const cnt={};
+  ['jurors','runStart','roundStart','line','roundEnd','verdict','select','reset'].forEach(t=>{cnt[t]=0;JM.on(t,()=>{cnt[t]++;document.documentElement.setAttribute('data-events',JSON.stringify(cnt));});});
+}
+
+async function auto(){
+  if(!E.case.value.trim())E.presets.querySelector('button').click();
+  if(!await seatJury())return;
+  if(Q.get('debugevents')==='1')JM.emit('select',{n:1});
+  await startRun({});
+  E.whatifText.value='The store had put out a wet-floor sign';updateButtons();
+  await startRun({label:E.whatifText.value,amend:E.whatifText.value});
+  if(Q.get('debugevents')==='1'){if(await seatJury())JM.emit('select',{n:3});}
+  if(Q.get('debugexport')==='1'){const sc=document.createElement('script');sc.type='application/json';sc.id='debugExport';sc.textContent=JSON.stringify(buildRunFile());document.body.appendChild(sc);}
+  document.documentElement.setAttribute('data-auto-done','1');
+}
+
+async function init(){
+  renderSeats();updateButtons();
+  if(REPLAY){await initReplay();return;}
+  if(MOCK){sample=makeMock();}
+  else{
+    if(!(window.claude&&typeof window.claude.use==='function')){E.noclaude.hidden=false;}
+    else{try{sample=await window.claude.use('sample');}catch(_){sample=null;}}
+  }
+  if(!sample)E.noclaude.hidden=false;
+  updateButtons();
+  if(MOCK&&AUTO)auto();
+}
+init();
+})();
+</script>
+
+</body></html>
