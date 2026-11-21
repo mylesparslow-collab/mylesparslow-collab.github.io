@@ -1,0 +1,596 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net; worker-src 'self' blob: https://cdn.jsdelivr.net; connect-src 'self' blob: data: https://cdn.jsdelivr.net https://huggingface.co https://*.huggingface.co https://*.hf.co; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self'; form-action 'none'; base-uri 'none'">
+<meta name="referrer" content="no-referrer">
+<title>Closed Room</title>
+<meta name="description" content="On-device meeting notes for privileged conversations. Speech-to-text runs in your browser; audio and transcripts never leave your computer.">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<script>(function(){try{var t=new URLSearchParams(location.search).get('theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<style>
+:root{
+  --bg:#f4f0e8;--surface:#fbf9f4;--sunk:#ece6db;--ink:#1c1916;--muted:#6b6258;--rule:#d8cfc1;
+  --accent:#6e2a22;--accent-ink:#fbf6ee;--ok:#2f6b3a;--ok-bg:#e3eedf;--warn:#8a5a00;--warn-bg:#f6ecd2;--bad:#a12a1f;--bad-bg:#f6e0dc;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#151311;--surface:#1e1b18;--sunk:#262220;--ink:#ece5da;--muted:#a59a8d;--rule:#38312b;
+  --accent:#d0665a;--accent-ink:#1a1210;--ok:#8cc796;--ok-bg:#1f2d21;--warn:#e0b25a;--warn-bg:#2f2717;--bad:#ef8a7e;--bad-bg:#3a1f1b;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#151311;--surface:#1e1b18;--sunk:#262220;--ink:#ece5da;--muted:#a59a8d;--rule:#38312b;
+  --accent:#d0665a;--accent-ink:#1a1210;--ok:#8cc796;--ok-bg:#1f2d21;--warn:#e0b25a;--warn-bg:#2f2717;--bad:#ef8a7e;--bad-bg:#3a1f1b;color-scheme:dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--sans);overflow-wrap:break-word}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px 72px}
+h1,h2,h3,p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--accent)}
+.mono{font-family:var(--mono)}
+.muted{color:var(--muted)}
+.small{font-size:13.5px}
+
+/* header */
+.top{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-end;justify-content:space-between;padding:28px 0 18px;border-bottom:1px solid var(--rule);margin-bottom:22px}
+.brand{display:flex;gap:14px;align-items:center}
+.brand img{width:40px;height:40px}
+h1{font-family:var(--serif);font-size:34px;font-weight:600;letter-spacing:-.01em;line-height:1.05}
+.lede{color:var(--muted);max-width:56ch;margin-top:4px}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--rule);background:var(--surface);border-radius:999px;padding:5px 11px;font-size:13px;white-space:nowrap}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:none}
+.pill.ok .dot{background:var(--ok)} .pill.warn .dot{background:var(--warn)} .pill.bad .dot{background:var(--bad)}
+
+/* layout */
+.grid{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:18px;margin-bottom:20px;min-width:0}
+.card h2{font-family:var(--serif);font-size:19px;font-weight:600;margin-bottom:4px}
+.card .sub{color:var(--muted);font-size:14px;margin-bottom:14px}
+.step{font:600 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+label.f{display:block;font-size:13px;font-weight:600;margin:12px 0 5px}
+input[type=text],select,textarea{width:100%;background:var(--bg);border:1px solid var(--rule);border-radius:7px;padding:9px 10px;min-width:0}
+textarea{resize:vertical;min-height:64px}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,[contenteditable]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--rule);background:var(--bg);border-radius:8px;padding:9px 14px;cursor:pointer;font-weight:600;font-size:14.5px;min-height:40px}
+.btn:hover:not(:disabled){border-color:var(--muted)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.rec{background:var(--bad);border-color:var(--bad);color:#fff}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.bar{height:6px;background:var(--sunk);border-radius:4px;overflow:hidden;margin-top:10px}
+.bar>i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
+.note{font-size:13.5px;color:var(--muted);margin-top:10px}
+
+/* checklist */
+.checks{list-style:none;margin:6px 0 0;padding:0}
+.checks li{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--rule);font-size:14.5px}
+.checks li:first-child{border-top:0}
+.checks input{margin-top:4px;width:17px;height:17px;accent-color:var(--accent);flex:none}
+.checks small{display:block;color:var(--muted);font-size:13px}
+.verdict{margin-top:12px;border-radius:8px;padding:10px 12px;font-size:14px}
+.verdict.ok{background:var(--ok-bg);color:var(--ok)} .verdict.warn{background:var(--warn-bg);color:var(--warn)}
+
+/* recorder */
+.recbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.clock{font:600 28px/1 var(--mono);letter-spacing:.02em;min-width:5.2ch}
+.meter{flex:1 1 120px;height:10px;background:var(--sunk);border-radius:6px;overflow:hidden;min-width:100px}
+.meter>i{display:block;height:100%;width:0;background:var(--ok);transition:width 80ms linear}
+.queue{font-size:13px;color:var(--muted)}
+
+/* document */
+.doc{background:var(--surface);border:1px solid var(--rule);border-radius:10px;min-width:0}
+.stamp{border-bottom:1px solid var(--rule);padding:16px 20px;text-align:center}
+.stamp b{display:block;font:700 12.5px/1.5 var(--mono);letter-spacing:.14em;color:var(--accent);text-transform:uppercase}
+.stamp span{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+.docmeta{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:4px 18px;padding:14px 20px;border-bottom:1px solid var(--rule);font-size:14px}
+.docmeta dt{font-size:11.5px;font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.docmeta dd{margin:0 0 6px}
+.tabs{display:flex;gap:2px;padding:10px 14px 0;border-bottom:1px solid var(--rule);overflow-x:auto}
+.tab{border:0;background:none;padding:9px 12px;border-bottom:2px solid transparent;cursor:pointer;font-weight:600;font-size:14.5px;color:var(--muted);white-space:nowrap}
+.tab[aria-selected=true]{color:var(--ink);border-color:var(--accent)}
+.pane{padding:16px 20px;min-height:260px}
+.seg{display:grid;grid-template-columns:52px minmax(0,1fr);gap:12px;padding:7px 0;border-top:1px dashed var(--rule)}
+.seg:first-child{border-top:0}
+.seg time{font:13px/1.9 var(--mono);color:var(--muted)}
+.seg p{font-family:var(--serif);font-size:17px;line-height:1.6}
+.seg p[contenteditable]:hover{background:var(--sunk);border-radius:4px}
+.seg.pending p{color:var(--muted);font-style:italic;font-family:var(--sans);font-size:14px}
+.empty{color:var(--muted);text-align:center;padding:50px 10px;font-size:15px}
+#summary{white-space:pre-wrap;font-family:var(--serif);font-size:16.5px;line-height:1.6;min-height:120px}
+.ledger{width:100%;border-collapse:collapse;font-size:13.5px}
+.ledger th,.ledger td{text-align:left;padding:6px 8px;border-top:1px solid var(--rule);vertical-align:top}
+.ledger th{font:600 11.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-top:0}
+.ledger td.mono{white-space:nowrap}
+.ledger td.u{font-family:var(--mono);font-size:12.5px;word-break:break-all}
+.tag{display:inline-block;font:600 11px/1.6 var(--mono);padding:0 6px;border-radius:4px;background:var(--sunk);color:var(--muted)}
+.tag.ok{background:var(--ok-bg);color:var(--ok)} .tag.bad{background:var(--bad-bg);color:var(--bad)}
+.big{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.big div{background:var(--bg);border:1px solid var(--rule);border-radius:8px;padding:10px 12px}
+.big b{display:block;font:600 24px/1.1 var(--mono)}
+.big span{font-size:12.5px;color:var(--muted)}
+.foot{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center;padding:12px 20px;border-top:1px solid var(--rule)}
+.saved{list-style:none;margin:0;padding:0}
+.saved li{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--rule);font-size:14px}
+.saved li:first-child{border-top:0}
+.saved button{font-size:13px;min-height:32px;padding:5px 10px}
+.fine{margin-top:28px;border-top:1px solid var(--rule);padding-top:18px;color:var(--muted);font-size:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+.fine h3{font-family:var(--serif);color:var(--ink);font-size:16px;font-weight:600;margin-bottom:4px}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:calc(100% - 32px)}
+.toast.on{opacity:1}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media print{
+  body{background:#fff;color:#000}
+  .top,.grid>aside,.tabs,.foot,.fine,.recwrap,.toast{display:none!important}
+  .grid{display:block}.doc{border:0}.pane[hidden]{display:none}
+  #pane-transcript{display:block!important}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="brand"><img src="icon.svg" alt=""><h1>Closed Room</h1></div>
+      <p class="lede">Meeting notes for privileged conversations. Speech-to-text runs inside this browser tab, so audio and transcripts never reach a third party.</p>
+    </div>
+    <div class="pills" aria-live="polite">
+      <span class="pill ok" id="p-audio"><span class="dot"></span>Audio stays on this device</span>
+      <span class="pill" id="p-model"><span class="dot"></span>Model not loaded</span>
+      <span class="pill" id="p-net"><span class="dot"></span>Online</span>
+    </div>
+  </header>
+
+  <div class="grid">
+    <aside>
+      <section class="card" aria-labelledby="h-setup">
+        <p class="step">Step 1</p>
+        <h2 id="h-setup">Load the speech model</h2>
+        <p class="sub">Downloads once, then runs offline. You can turn off Wi-Fi after this step.</p>
+        <label class="f" for="model">Model</label>
+        <select id="model">
+          <option value="onnx-community/whisper-tiny.en">Whisper Tiny (English) · ~45 MB · fastest</option>
+          <option value="onnx-community/whisper-base.en" selected>Whisper Base (English) · ~80 MB · balanced</option>
+          <option value="onnx-community/whisper-small.en">Whisper Small (English) · ~250 MB · most accurate</option>
+          <option value="onnx-community/whisper-base">Whisper Base (multilingual) · ~80 MB</option>
+        </select>
+        <label class="small" style="display:flex;gap:8px;align-items:flex-start;margin-top:10px"><input type="checkbox" id="gpu" checked style="margin-top:3px;accent-color:var(--accent)"> Use the graphics card (WebGPU) when available</label>
+        <div class="row" style="margin-top:14px"><button class="btn primary" id="load">Load model</button></div>
+        <div class="bar" aria-hidden="true"><i id="loadbar"></i></div>
+        <p class="note" id="loadnote">Nothing is downloaded until you press Load.</p>
+      </section>
+
+      <section class="card" aria-labelledby="h-priv">
+        <p class="step">Step 2</p>
+        <h2 id="h-priv">Privilege check</h2>
+        <p class="sub">The tool keeps the recording private. Whether the conversation is privileged depends on these facts.</p>
+        <label class="f" for="matter">Matter</label>
+        <input type="text" id="matter" placeholder="e.g. Rivera v. Halcyon Logistics" autocomplete="off">
+        <label class="f" for="people">Participants and roles</label>
+        <textarea id="people" placeholder="e.g. J. Rivera (client); A. Chen (counsel); M. Ortiz (paralegal)"></textarea>
+        <ul class="checks" id="checks">
+          <li><input type="checkbox" id="c1"><label for="c1">A lawyer is taking part<small>Or acting through an agent at a lawyer's direction.</small></label></li>
+          <li><input type="checkbox" id="c2"><label for="c2">The purpose is legal advice<small>Not business advice that happens to include a lawyer.</small></label></li>
+          <li><input type="checkbox" id="c3"><label for="c3">No one outside the privilege is present<small>Only client, counsel and agents needed for the advice.</small></label></li>
+          <li><input type="checkbox" id="c4"><label for="c4">Everyone has agreed to be recorded<small>Required in all-party consent states such as California, Florida, Illinois and Washington.</small></label></li>
+        </ul>
+        <div class="verdict warn" id="verdict" role="status">Confirm all four before recording.</div>
+      </section>
+
+      <section class="card" aria-labelledby="h-saved">
+        <h2 id="h-saved">Saved on this device</h2>
+        <p class="sub">Kept in this browser only. Audio is never saved.</p>
+        <ul class="saved" id="saved"></ul>
+      </section>
+    </aside>
+
+    <main>
+      <section class="card recwrap" aria-labelledby="h-rec">
+        <p class="step">Step 3</p>
+        <h2 id="h-rec">Record or transcribe a file</h2>
+        <div class="recbar" style="margin-top:12px">
+          <div class="row">
+            <button class="btn rec" id="rec" disabled>● Record</button>
+            <button class="btn" id="stop" disabled>■ Stop</button>
+            <label class="btn" id="filebtn" aria-disabled="true">Transcribe a file<input type="file" id="file" accept="audio/*,video/*" class="sr" disabled></label>
+          </div>
+          <span class="clock" id="clock" aria-label="Recording time">00:00</span>
+        </div>
+        <div class="row" style="margin-top:12px;gap:12px">
+          <div class="meter" aria-hidden="true"><i id="level"></i></div>
+          <span class="queue" id="queue" aria-live="polite">Idle</span>
+        </div>
+      </section>
+
+      <article class="doc" id="doc" aria-label="Meeting record">
+        <div class="stamp"><b>Privileged &amp; Confidential</b><b>Attorney-Client Communication · Attorney Work Product</b><span>Transcribed on this device. No audio or text was sent to any outside service.</span></div>
+        <dl class="docmeta">
+          <div><dt>Matter</dt><dd id="m-matter">—</dd></div>
+          <div><dt>Date</dt><dd id="m-date">—</dd></div>
+          <div><dt>Duration</dt><dd id="m-dur">—</dd></div>
+          <div><dt>Participants</dt><dd id="m-people">—</dd></div>
+        </dl>
+        <div class="tabs" role="tablist">
+          <button class="tab" role="tab" aria-selected="true" aria-controls="pane-transcript" id="t-transcript">Transcript</button>
+          <button class="tab" role="tab" aria-selected="false" aria-controls="pane-notes" id="t-notes">Notes</button>
+          <button class="tab" role="tab" aria-selected="false" aria-controls="pane-net" id="t-net">Network ledger <span class="tag" id="netcount">0</span></button>
+        </div>
+        <div class="pane" id="pane-transcript" role="tabpanel" aria-labelledby="t-transcript">
+          <div id="segs"><p class="empty">The transcript appears here as you talk, in short passages. Click any passage to correct it.</p></div>
+        </div>
+        <div class="pane" id="pane-notes" role="tabpanel" aria-labelledby="t-notes" hidden>
+          <p class="muted small" style="margin-bottom:12px">Optional. A small language model (Llama 3.2 1B, ~1.2 GB) writes draft notes from the transcript on this device. Needs WebGPU. Check every line against the transcript: small models make mistakes.</p>
+          <div class="row" style="margin-bottom:14px"><button class="btn" id="summ" disabled>Draft notes on this device</button><span class="queue" id="summnote"></span></div>
+          <div class="bar" aria-hidden="true" style="margin:-4px 0 14px"><i id="llmbar"></i></div>
+          <div id="summary" contenteditable="true" aria-label="Notes" spellcheck="true"></div>
+        </div>
+        <div class="pane" id="pane-net" role="tabpanel" aria-labelledby="t-net" hidden>
+          <div class="big">
+            <div><b id="n-up">0 B</b><span>audio or text uploaded</span></div>
+            <div><b id="n-after">0</b><span>requests since the model loaded</span></div>
+            <div><b id="n-total">0</b><span>requests since the page opened</span></div>
+          </div>
+          <p class="muted small" style="margin-bottom:10px">Every request this page and its worker make, as the browser reports it. Allowed hosts are fixed by the page's security policy: the app itself, the pinned code library (cdn.jsdelivr.net) and the model files (huggingface.co). All are downloads. The browser blocks any other destination.</p>
+          <div style="overflow-x:auto"><table class="ledger"><thead><tr><th>When</th><th>From</th><th>Request</th></tr></thead><tbody id="ledger"></tbody></table></div>
+        </div>
+        <div class="foot">
+          <span class="queue" id="words">0 words</span>
+          <div class="row">
+            <button class="btn" id="save" disabled>Save on device</button>
+            <button class="btn" id="md" disabled>Export .md</button>
+            <button class="btn" id="print" disabled>Print / PDF</button>
+            <button class="btn" id="clear" disabled>New meeting</button>
+          </div>
+        </div>
+      </article>
+    </main>
+  </div>
+
+  <section class="fine" aria-label="About privilege">
+    <div><h3>Why on-device matters</h3><p>Privilege can be lost when a confidential conversation is disclosed to a third party. Here no third party receives it: the speech model runs in your browser, and the page's security policy blocks uploads to any outside server.</p></div>
+    <div><h3>What it can't fix</h3><p>A transcript is protected only if the conversation itself was privileged. A verbatim record can be ordered produced if privilege is challenged or waived. Keep only what you need, and follow your firm's retention and litigation-hold rules.</p></div>
+    <div><h3>Keep it local</h3><p>Exported files go wherever you save them. A folder synced to iCloud, OneDrive or Google Drive puts them back in the cloud. This is general information, not legal advice.</p></div>
+  </section>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(() => {
+"use strict";
+const $ = (id) => document.getElementById(id);
+const SR = 16000;
+const LLM_MODEL = "onnx-community/Llama-3.2-1B-Instruct-q4f16";
+
+/* ---------- state ---------- */
+const S = {
+  modelReady: false, recording: false, busy: false,
+  segs: [], queue: [], nextId: 1, elapsed: 0, startedAt: null,
+  meetingDate: null, loadedAt: null, docId: null,
+  net: [], uploaded: 0,
+};
+
+/* ---------- toast ---------- */
+let tt; function toast(t){ const el=$("toast"); el.textContent=t; el.classList.add("on"); clearTimeout(tt); tt=setTimeout(()=>el.classList.remove("on"),2600); }
+
+/* ---------- service worker (offline) ---------- */
+if ("serviceWorker" in navigator && location.protocol !== "file:") {
+  navigator.serviceWorker.register("sw.js").catch(()=>{});
+}
+function netPill(){
+  const p=$("p-net"); const on=navigator.onLine;
+  p.className="pill "+(on?"":"ok"); p.lastChild.textContent = on ? "Online" : "Offline: fully local";
+}
+addEventListener("online",netPill); addEventListener("offline",netPill); netPill();
+
+/* ---------- network ledger ---------- */
+function fmtBytes(n){ if(!n) return "—"; if(n<1024) return n+" B"; if(n<1048576) return (n/1024).toFixed(0)+" KB"; return (n/1048576).toFixed(1)+" MB"; }
+function shortUrl(u){ try{ const x=new URL(u); let p=x.pathname; if(p.length>64) p="…"+p.slice(-60); return x.host+p; }catch{ return u; } }
+const seenNet=new Set();
+function logNet(url, bytes, from){
+  if (url.startsWith("blob:") || url.startsWith("data:")) return;
+  const key=from+"|"+url; if(seenNet.has(key)) return; seenNet.add(key);
+  const e={url,bytes,from,t:new Date(),afterLoad:S.modelReady};
+  S.net.push(e);
+  const tr=document.createElement("tr");
+  const host=(()=>{try{return new URL(url).host}catch{return""}})();
+  tr.innerHTML=`<td class="mono">${e.t.toLocaleTimeString()}</td><td>${from}</td><td class="u"></td>`;
+  tr.children[2].textContent="GET "+shortUrl(url);
+  $("ledger").prepend(tr);
+  $("netcount").textContent=S.net.length; $("n-total").textContent=S.net.length;
+  $("n-after").textContent=S.net.filter(x=>x.afterLoad && !x.url.startsWith(location.origin)).length;
+}
+try{ new PerformanceObserver(l=>{ for(const en of l.getEntries()) logNet(en.name,en.transferSize||0,"page"); }).observe({type:"resource",buffered:true}); }catch{}
+// Any POST/PUT from this page would be counted here. The app never makes one.
+const _fetch=window.fetch; window.fetch=function(input,init){ const m=(init&&init.method||"GET").toUpperCase(); if(m!=="GET"&&m!=="HEAD"){ const b=init&&init.body; S.uploaded+= b? (b.byteLength||b.size||String(b).length):0; $("n-up").textContent=fmtBytes(S.uploaded)||"0 B"; } return _fetch.apply(this,arguments); };
+
+/* ---------- worker (created from a blob so the page's security policy applies to it) ---------- */
+const workerUrl = new URL("worker.js", location.href).href;
+const worker = new Worker(URL.createObjectURL(new Blob([`import ${JSON.stringify(workerUrl)};`],{type:"text/javascript"})),{type:"module"});
+worker.onerror = (e) => { $("loadnote").textContent = "The worker failed to start: " + (e.message||"unknown error") + ". Try a current Chrome, Edge, Safari or Firefox."; };
+worker.onmessage = (e) => {
+  const m=e.data;
+  if (m.type==="net") return logNet(m.url,m.bytes,"worker");
+  if (m.type==="progress"){
+    const pct = m.total ? Math.min(100, m.loaded/m.total*100) : 0;
+    if (m.kind==="asr"){ $("loadbar").style.width=pct+"%"; $("loadnote").textContent=`Downloading ${fmtBytes(m.loaded)} of ${fmtBytes(m.total)}…`; }
+    else { $("llmbar").style.width=pct+"%"; $("summnote").textContent=`Downloading summary model ${fmtBytes(m.loaded)} of ${fmtBytes(m.total)}…`; }
+    return;
+  }
+  if (m.type==="status"){ if(m.kind==="asr") $("loadnote").textContent=m.text+"…"; else $("summnote").textContent=m.text+"…"; return; }
+  if (m.type==="ready" && m.kind==="asr"){
+    S.modelReady=true; S.loadedAt=Date.now();
+    $("loadbar").style.width="100%";
+    $("loadnote").textContent=`Ready on ${m.device}. Cached for offline use.`;
+    const p=$("p-model"); p.className="pill ok"; p.lastChild.textContent="Model ready: "+m.device;
+    $("load").disabled=false; $("load").textContent="Reload model";
+    refresh(); return;
+  }
+  if (m.type==="segment"){ onSegment(m); return; }
+  if (m.type==="summary-token"){ $("summary").textContent=m.text; return; }
+  if (m.type==="summary-done"){ $("summary").textContent=m.text; $("summnote").textContent="Draft ready. Check it against the transcript."; $("llmbar").style.width="0"; $("summ").disabled=false; refresh(); return; }
+  if (m.type==="error"){
+    if (m.kind==="load-asr"){ $("loadnote").textContent="Could not load the model: "+m.message; $("load").disabled=false; const p=$("p-model"); p.className="pill bad"; p.lastChild.textContent="Model failed"; }
+    else if (m.kind==="summarize"||m.kind==="load-llm"){ $("summnote").textContent=m.message; $("summ").disabled=false; }
+    else { toast("Transcription error: "+m.message); S.busy=false; pump(); }
+  }
+};
+
+$("load").onclick=()=>{
+  $("load").disabled=true; S.modelReady=false; $("loadbar").style.width="0";
+  const p=$("p-model"); p.className="pill warn"; p.lastChild.textContent="Loading model";
+  worker.postMessage({type:"load-asr",model:$("model").value,gpu:$("gpu").checked});
+  refresh();
+};
+
+/* ---------- privilege checklist ---------- */
+function checksOk(){ return ["c1","c2","c3","c4"].every(id=>$(id).checked); }
+function updateVerdict(){
+  const v=$("verdict"), n=["c1","c2","c3","c4"].filter(id=>$(id).checked).length;
+  if(n===4){ v.className="verdict ok"; v.textContent="All four confirmed. Recorded in the export."; }
+  else { v.className="verdict warn"; v.textContent=`${n} of 4 confirmed. You can still record, but the export will note what wasn't confirmed.`; }
+}
+["c1","c2","c3","c4"].forEach(id=>$(id).addEventListener("change",updateVerdict));
+["matter","people"].forEach(id=>$(id).addEventListener("input",updateMeta));
+function updateMeta(){
+  $("m-matter").textContent=$("matter").value.trim()||"—";
+  $("m-people").textContent=$("people").value.trim()||"—";
+  $("m-date").textContent=S.meetingDate? S.meetingDate.toLocaleString([], {dateStyle:"medium",timeStyle:"short"}) : "—";
+  $("m-dur").textContent=S.elapsed? fmtClock(S.elapsed) : "—";
+}
+updateVerdict();
+
+/* ---------- transcript ---------- */
+function fmtClock(s){ s=Math.max(0,Math.round(s)); const h=Math.floor(s/3600), m=Math.floor(s%3600/60), x=s%60; return (h?h+":":"")+String(m).padStart(2,"0")+":"+String(x).padStart(2,"0"); }
+function renderSegs(){
+  const box=$("segs");
+  if(!S.segs.length){ box.innerHTML='<p class="empty">The transcript appears here as you talk, in short passages. Click any passage to correct it.</p>'; return; }
+  box.innerHTML="";
+  for(const s of S.segs){
+    const d=document.createElement("div"); d.className="seg"+(s.pending?" pending":"");
+    const t=document.createElement("time"); t.textContent=fmtClock(s.start);
+    const p=document.createElement("p");
+    if(s.pending){ p.textContent="Transcribing…"; }
+    else { p.textContent=s.text||"[no speech]"; p.contentEditable="true"; p.spellcheck=true;
+      p.addEventListener("input",()=>{ s.text=p.textContent; countWords(); }); }
+    d.append(t,p); box.append(d);
+  }
+}
+function countWords(){ const n=S.segs.reduce((a,s)=>a+(s.text?s.text.trim().split(/\s+/).filter(Boolean).length:0),0); $("words").textContent=n+" words"; return n; }
+function enqueue(audio,start,end){
+  const id=S.nextId++; S.segs.push({id,start,end,text:"",pending:true}); renderSegs();
+  S.queue.push({id,audio,start,end}); pump();
+}
+function pump(){
+  updateQueue();
+  if(S.busy||!S.queue.length) return;
+  const job=S.queue.shift(); S.busy=true; updateQueue();
+  worker.postMessage({type:"transcribe",id:job.id,audio:job.audio,start:job.start,end:job.end},[job.audio.buffer]);
+}
+function onSegment(m){
+  const s=S.segs.find(x=>x.id===m.id); if(s){ s.text=cleanText(m.text); s.pending=false; }
+  S.busy=false; renderSegs(); countWords(); refresh(); pump();
+  const pane=$("pane-transcript"); pane.scrollTop=pane.scrollHeight;
+}
+function cleanText(t){
+  t=(t||"").trim();
+  // Whisper hallucinates these on silence.
+  if(/^\[?(blank_audio|silence|music|inaudible)\]?$/i.test(t) || /^(thank you\.?|thanks for watching!?|you)$/i.test(t)) return "";
+  return t;
+}
+function updateQueue(){
+  const waiting=S.queue.length+(S.busy?1:0);
+  $("queue").textContent = S.recording ? (waiting? `Listening · ${waiting} passage${waiting>1?"s":""} transcribing` : "Listening") : (waiting? `Transcribing ${waiting} passage${waiting>1?"s":""}…` : "Idle");
+}
+
+/* ---------- recording ---------- */
+let ctx, src, node, stream, tick;
+let buf=[], bufLen=0, segStart=0, totalSamples=0, quietRun=0, noise=0.004;
+const worklet = `
+class Tap extends AudioWorkletProcessor{process(i){const c=i[0];if(c&&c[0])this.port.postMessage(c[0].slice(0));return true}}
+registerProcessor("tap",Tap);`;
+function resampleChunk(input, fromRate){
+  if(fromRate===SR) return input;
+  const ratio=fromRate/SR, outLen=Math.floor(input.length/ratio), out=new Float32Array(outLen);
+  for(let i=0;i<outLen;i++){ const a=Math.floor(i*ratio), b=Math.min(input.length, Math.floor((i+1)*ratio)); let sum=0; for(let j=a;j<b;j++) sum+=input[j]; out[i]=sum/Math.max(1,b-a); }
+  return out;
+}
+let carry=new Float32Array(0);
+function onAudio(chunk){
+  // stitch and resample to 16 kHz
+  const joined=new Float32Array(carry.length+chunk.length); joined.set(carry); joined.set(chunk,carry.length);
+  const ratio=ctx.sampleRate/SR;
+  const consumed=Math.floor(Math.floor(joined.length/ratio)*ratio);
+  const pcm=resampleChunk(joined.subarray(0,consumed), ctx.sampleRate);
+  carry=joined.slice(consumed);
+  if(!pcm.length) return;
+  let rms=0; for(let i=0;i<pcm.length;i++) rms+=pcm[i]*pcm[i]; rms=Math.sqrt(rms/pcm.length);
+  $("level").style.width=Math.min(100,rms*600)+"%";
+  noise = rms<noise*3 ? noise*0.995+rms*0.005 : noise; // slow noise-floor tracker
+  const quiet = rms < Math.max(0.006, noise*2.2);
+  quietRun = quiet ? quietRun+pcm.length : 0;
+  buf.push(pcm); bufLen+=pcm.length; totalSamples+=pcm.length;
+  const secs=bufLen/SR;
+  if ((secs>=7 && quietRun>=SR*0.6) || secs>=24) flushSegment();
+}
+function flushSegment(){
+  if(!bufLen) return;
+  const out=new Float32Array(bufLen); let o=0; for(const b of buf){ out.set(b,o); o+=b.length; }
+  const start=segStart/SR, end=(segStart+bufLen)/SR;
+  segStart+=bufLen; buf=[]; bufLen=0; quietRun=0;
+  // skip passages that are entirely silence
+  let peak=0; for(let i=0;i<out.length;i+=64) peak=Math.max(peak,Math.abs(out[i]));
+  if(peak<0.01) return;
+  enqueue(out,start,end);
+}
+$("rec").onclick=async()=>{
+  if(!checksOk() && !confirm("Not every privilege item is confirmed. Record anyway? The export will note which items were not confirmed.")) return;
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({audio:{channelCount:1,echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
+  }catch(err){ toast("Microphone blocked: "+err.message); return; }
+  ctx=new AudioContext();
+  await ctx.audioWorklet.addModule(URL.createObjectURL(new Blob([worklet],{type:"text/javascript"})));
+  src=ctx.createMediaStreamSource(stream);
+  node=new AudioWorkletNode(ctx,"tap");
+  node.port.onmessage=(e)=>onAudio(e.data);
+  const mute=ctx.createGain(); mute.gain.value=0;
+  src.connect(node).connect(mute).connect(ctx.destination);
+  if(!S.meetingDate) S.meetingDate=new Date();
+  segStart=totalSamples; carry=new Float32Array(0);
+  S.recording=true; S.startedAt=performance.now()-S.elapsed*1000;
+  tick=setInterval(()=>{ S.elapsed=(performance.now()-S.startedAt)/1000; $("clock").textContent=fmtClock(S.elapsed); },250);
+  updateMeta(); refresh(); updateQueue();
+};
+$("stop").onclick=()=>{
+  if(!S.recording) return;
+  S.recording=false; clearInterval(tick);
+  flushSegment();
+  try{ node.disconnect(); src.disconnect(); stream.getTracks().forEach(t=>t.stop()); ctx.close(); }catch{}
+  $("level").style.width="0"; updateMeta(); refresh(); updateQueue();
+};
+
+/* ---------- file ---------- */
+$("file").onchange=async(e)=>{
+  const f=e.target.files[0]; e.target.value=""; if(!f) return;
+  if(!checksOk() && !confirm("Not every privilege item is confirmed. Transcribe anyway?")) return;
+  $("queue").textContent="Decoding audio…";
+  try{
+    const ab=await f.arrayBuffer();
+    const tmp=new AudioContext(); const dec=await tmp.decodeAudioData(ab); tmp.close();
+    const off=new OfflineAudioContext(1, Math.ceil(dec.duration*SR), SR);
+    const s=off.createBufferSource(); s.buffer=dec; s.connect(off.destination); s.start();
+    const pcm=(await off.startRendering()).getChannelData(0);
+    if(!S.meetingDate) S.meetingDate=new Date(f.lastModified||Date.now());
+    const base=totalSamples; const step=SR*25;
+    for(let i=0;i<pcm.length;i+=step){ enqueue(pcm.slice(i,Math.min(pcm.length,i+step)), (base+i)/SR, (base+Math.min(pcm.length,i+step))/SR); }
+    totalSamples+=pcm.length; segStart=totalSamples; S.elapsed+=dec.duration;
+    $("clock").textContent=fmtClock(S.elapsed); updateMeta();
+  }catch(err){ toast("Couldn't read that file: "+err.message); updateQueue(); }
+};
+
+/* ---------- notes (optional local LLM) ---------- */
+$("summ").onclick=()=>{
+  const transcript=S.segs.filter(s=>s.text).map(s=>`[${fmtClock(s.start)}] ${s.text}`).join("\n");
+  if(!transcript){ toast("Nothing to summarize yet."); return; }
+  $("summ").disabled=true; $("summary").textContent=""; $("summnote").textContent="Starting…";
+  worker.postMessage({type:"summarize",model:LLM_MODEL,matter:$("matter").value.trim(),transcript:transcript.slice(-24000)});
+};
+if(!navigator.gpu){ $("summnote").textContent="This browser has no WebGPU, so drafting notes is unavailable. Transcription still works."; }
+
+/* ---------- tabs ---------- */
+const tabs=[["t-transcript","pane-transcript"],["t-notes","pane-notes"],["t-net","pane-net"]];
+tabs.forEach(([t,p])=>$(t).addEventListener("click",()=>{ tabs.forEach(([t2,p2])=>{ $(t2).setAttribute("aria-selected",t2===t); $(p2).hidden=p2!==p; }); }));
+
+/* ---------- export ---------- */
+function checklistLines(){
+  const labels={c1:"A lawyer took part",c2:"Purpose was legal advice",c3:"No one outside the privilege was present",c4:"All participants agreed to be recorded"};
+  return Object.entries(labels).map(([id,l])=>`- [${$(id).checked?"x":" "}] ${l}`).join("\n");
+}
+function toMarkdown(){
+  const lines=[
+    "**PRIVILEGED & CONFIDENTIAL**  ",
+    "**ATTORNEY-CLIENT COMMUNICATION / ATTORNEY WORK PRODUCT**","",
+    `# ${$("matter").value.trim()||"Meeting notes"}`,"",
+    `- Date: ${S.meetingDate?S.meetingDate.toLocaleString():"—"}`,
+    `- Duration: ${fmtClock(S.elapsed)}`,
+    `- Participants: ${$("people").value.trim()||"—"}`,"",
+    "## Privilege check (confirmed by the note-taker)", checklistLines(),"",
+  ];
+  const notes=$("summary").textContent.trim();
+  if(notes) lines.push("## Notes (AI draft, reviewed by the note-taker)","",notes,"");
+  lines.push("## Transcript","");
+  for(const s of S.segs) if(s.text) lines.push(`**[${fmtClock(s.start)}]** ${s.text}`,"");
+  lines.push("---",`_Transcribed on-device with Closed Room (${$("model").value.split("/").pop()}). No audio or text was sent to any outside service. Machine transcription may contain errors; check against your recollection before relying on it._`);
+  return lines.join("\n");
+}
+function slug(s){ return (s||"meeting").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,50)||"meeting"; }
+$("md").onclick=()=>{
+  const blob=new Blob([toMarkdown()],{type:"text/markdown"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+  a.download=`PRIVILEGED-${slug($("matter").value)}-${(S.meetingDate||new Date()).toISOString().slice(0,10)}.md`;
+  a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+};
+$("print").onclick=()=>window.print();
+
+/* ---------- local storage (IndexedDB, this browser only) ---------- */
+let dbp=null;
+function db(){ if(dbp) return dbp; dbp=new Promise((res,rej)=>{ const r=indexedDB.open("closed-room",1); r.onupgradeneeded=()=>r.result.createObjectStore("notes",{keyPath:"id"}); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); }); return dbp; }
+async function store(mode,fn){ const d=await db(); return new Promise((res,rej)=>{ const tx=d.transaction("notes",mode); const r=fn(tx.objectStore("notes")); tx.oncomplete=()=>res(r&&r.result); tx.onerror=()=>rej(tx.error); }); }
+async function listSaved(){
+  let all=[]; try{ all=await store("readonly",s=>s.getAll()); }catch{ $("saved").innerHTML='<li class="muted">Storage unavailable in this window.</li>'; return; }
+  all.sort((a,b)=>b.saved-a.saved);
+  const ul=$("saved"); ul.innerHTML="";
+  if(!all.length){ ul.innerHTML='<li class="muted">Nothing saved yet.</li>'; return; }
+  for(const n of all){
+    const li=document.createElement("li");
+    const t=document.createElement("span"); t.textContent=`${n.matter||"Untitled"} · ${new Date(n.date||n.saved).toLocaleDateString()}`;
+    const r=document.createElement("span"); r.className="row";
+    const o=document.createElement("button"); o.className="btn"; o.textContent="Open"; o.onclick=()=>openSaved(n);
+    const d=document.createElement("button"); d.className="btn"; d.textContent="Delete"; d.onclick=async()=>{ if(!confirm("Delete this saved meeting from this device? This can't be undone.")) return; await store("readwrite",s=>s.delete(n.id)); if(S.docId===n.id) S.docId=null; listSaved(); toast("Deleted from this device."); };
+    r.append(o,d); li.append(t,r); ul.append(li);
+  }
+}
+$("save").onclick=async()=>{
+  if(!S.docId) S.docId=Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+  const rec={id:S.docId,saved:Date.now(),date:S.meetingDate?S.meetingDate.getTime():Date.now(),matter:$("matter").value.trim(),people:$("people").value.trim(),
+    checks:["c1","c2","c3","c4"].map(id=>$(id).checked),elapsed:S.elapsed,segs:S.segs.filter(s=>!s.pending).map(({start,end,text})=>({start,end,text})),notes:$("summary").textContent,model:$("model").value};
+  try{ await store("readwrite",s=>s.put(rec)); toast("Saved in this browser only."); listSaved(); }catch(e){ toast("Couldn't save: "+e.message); }
+};
+function openSaved(n){
+  if(S.recording) return toast("Stop recording first.");
+  resetMeeting(true);
+  S.docId=n.id; S.meetingDate=new Date(n.date); S.elapsed=n.elapsed||0;
+  $("matter").value=n.matter||""; $("people").value=n.people||"";
+  ["c1","c2","c3","c4"].forEach((id,i)=>$(id).checked=!!(n.checks&&n.checks[i])); updateVerdict();
+  S.segs=(n.segs||[]).map(s=>({...s,id:S.nextId++,pending:false}));
+  $("summary").textContent=n.notes||""; $("clock").textContent=fmtClock(S.elapsed);
+  renderSegs(); countWords(); updateMeta(); refresh();
+}
+function resetMeeting(silent){
+  S.segs=[]; S.queue=[]; S.elapsed=0; S.meetingDate=null; S.docId=null;
+  buf=[]; bufLen=0; totalSamples=0; segStart=0;
+  $("summary").textContent=""; $("clock").textContent="00:00";
+  renderSegs(); countWords(); updateMeta(); refresh(); updateQueue();
+}
+$("clear").onclick=()=>{ if(S.recording) return toast("Stop recording first."); if(!confirm("Start a new meeting? Unsaved transcript text will be discarded.")) return; resetMeeting(); ["c1","c2","c3","c4"].forEach(id=>$(id).checked=false); $("matter").value=""; $("people").value=""; updateVerdict(); updateMeta(); };
+
+/* ---------- button states ---------- */
+function refresh(){
+  const has=S.segs.some(s=>s.text);
+  $("rec").disabled=!S.modelReady||S.recording;
+  $("stop").disabled=!S.recording;
+  $("file").disabled=!S.modelReady||S.recording;
+  $("filebtn").setAttribute("aria-disabled", String($("file").disabled));
+  $("filebtn").style.opacity=$("file").disabled?.45:1; $("filebtn").style.cursor=$("file").disabled?"not-allowed":"pointer";
+  ["save","md","print","clear"].forEach(id=>$(id).disabled=!has||S.recording);
+  $("summ").disabled=!has||!navigator.gpu||S.recording;
+}
+refresh(); listSaved();
+})();
+</script>
+</body>
+</html>
