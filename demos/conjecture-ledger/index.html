@@ -126,8 +126,8 @@ footer{padding-block:28px 56px;color:var(--muted);font-size:13.5px;border-top:1p
 <header class="top">
   <div class="eyebrow">Combinatorics · Graph theory · November 2026</div>
   <h1>Conjecture Ledger</h1>
-  <p>Eighteen open questions from published papers, OEIS, MathOverflow and the Graffiti.pc conjecture catalogue. ChatGPT produced twelve of the results, two of them partial, and Claude produced the last six. Before going on this page, each result had its computer checks re-run and its argument read through. Three of the results are drawn below so you can check them with your own eyes. Below those eighteen, <a href="#batch-nov">ninety more</a> come from a November 18&ndash;21 batch of ChatGPT notes. They are listed as reported, and only two of them have been re-checked here.</p>
-  <div class="tally"><span><b>3</b> disproved</span><span><b>13</b> proved</span><span><b>2</b> partial</span><span><b>+90</b> from the Nov 18&ndash;21 batch, 2 re-checked</span><span><b>0</b> peer-reviewed</span><span><b>46,233</b> permutations, <b>65,536</b> compositions, <b>82,500</b> Dyck paths, <b>131,070</b> binary words, <b>8,075,361</b> ternary words and <b>2,944,272</b> Beatty gaps re-checked</span></div>
+  <p>Eighteen open questions from published papers, OEIS, MathOverflow and the Graffiti.pc conjecture catalogue. ChatGPT produced twelve of the results, two of them partial, and Claude produced the last six. Before going on this page, each result had its computer checks re-run and its argument read through. Three of the results are drawn below so you can check them with your own eyes. Below those eighteen, <a href="#batch-nov">ninety more</a> come from a November 18&ndash;21 batch of ChatGPT notes. They are listed as reported, and only three of them have been re-checked here, each drawn as a live exhibit.</p>
+  <div class="tally"><span><b>3</b> disproved</span><span><b>13</b> proved</span><span><b>2</b> partial</span><span><b>+90</b> from the Nov 18&ndash;21 batch, 3 re-checked</span><span><b>0</b> peer-reviewed</span><span><b>46,233</b> permutations, <b>65,536</b> compositions, <b>82,500</b> Dyck paths, <b>131,070</b> binary words, <b>8,075,361</b> ternary words and <b>2,944,272</b> Beatty gaps re-checked</span></div>
 </header>
 
 <section class="exhibit" id="plactic" aria-labelledby="plactic-h">
@@ -551,9 +551,59 @@ footer{padding-block:28px 56px;color:var(--muted);font-size:13.5px;border-top:1p
 </section>
 
 
+<section class="exhibit" id="det" aria-labelledby="det-h">
+  <div class="exhibit-head">
+    <div class="eyebrow">Exhibit D · Kotěšovec, OEIS A080692 (2024)</div>
+    <h2 id="det-h">A constant that was close, but not right</h2>
+    <p>Cloitre&rsquo;s determinant grows like 2<sup><var>n</var>−1</sup> times a logarithm. Kotěšovec conjectured the logarithm&rsquo;s constant is 1/√2 ≈ 0.7071. It is actually 1/(2 ln 2) ≈ 0.7213. The gap is under 2%, so it only shows when <var>n</var> is huge. The proved formula is exact, so the chart can run out to <var>n</var> = 2<sup>1,000,000</sup>.</p>
+  </div>
+  <div class="panels">
+    <div class="panel">
+      <h3>The true value divided by the conjectured formula</h3>
+      <p class="sub">If the conjecture were right, the black line would settle at 1. It levels off at 1.0201 instead. With the corrected constant, the red line does reach 1, though only for astronomically large <var>n</var>.</p>
+      <div class="legend"><span><i class="sw" style="background:var(--ink)"></i>c = 1/√2, conjectured</span><span><i class="sw peak"></i>c = 1/(2 ln 2), proved</span><span><i class="sw dline"></i>ratio 1</span></div>
+      <svg id="detratio" viewBox="0 0 520 280" role="img" aria-label="Ratio of the exact value to the conjectured asymptotic formula, for n up to 2 to the millionth power"></svg>
+    </div>
+    <div class="panel">
+      <h3>What&rsquo;s left after the main term</h3>
+      <p class="sub">a(<var>n</var>)/2<sup><var>n</var>−1</sup> − log<sub>2</sub> <var>n</var>/2. The leftover is a dip that repeats each time <var>n</var> doubles, so no single constant can absorb it. Its lowest point is ≈ −0.0430. Filled dots are exact determinants computed in your browser.</p>
+      <svg id="detsaw" viewBox="0 0 420 280" role="img" aria-label="The bounded correction term, repeating between powers of two"></svg>
+      <p class="verdict" id="detcheck">Computing determinants…</p>
+    </div>
+  </div>
+</section>
+
+<section class="exhibit" id="coupon" aria-labelledby="coupon-h">
+  <div class="exhibit-head">
+    <div class="eyebrow">Exhibit E · Kurkov, OEIS A380944 (2025)</div>
+    <h2 id="coupon-h">A binary recurrence that collects coupons</h2>
+    <p>Kurkov&rsquo;s array is built by reading a number&rsquo;s binary digits. The proof shows that one corner of it is the coupon collector&rsquo;s problem in disguise. Divide an entry by (<var>n</var> + 1)<sup><var>m</var></sup> and you get the chance that collecting <var>n</var> + 1 coupons takes more than <var>m</var> extra draws, with one extra wait added. As <var>n</var> grows, every curve settles onto the same classical limit.</p>
+  </div>
+  <div class="panel">
+    <div class="ctrl"><label for="cpn">n</label><input id="cpn" type="range" min="1" max="80" value="6"><output id="cpnout" for="cpn">6</output></div>
+    <div class="legend"><span><i class="sw peak" style="border-radius:50%"></i>Kurkov&rsquo;s array, rescaled</span><span><i class="sw dline"></i>limit 1 − exp(−e<sup>−x</sup>)</span></div>
+    <svg id="coupchart" viewBox="0 0 640 280" role="img" aria-label="Rescaled column of the array against the Gumbel limit"></svg>
+    <p class="verdict" id="coupcheck"></p>
+  </div>
+</section>
+
+<section class="exhibit" id="disc" aria-labelledby="disc-h">
+  <div class="exhibit-head">
+    <div class="eyebrow">Exhibit F · Kimberling, OEIS A284364–A284366 (2017)</div>
+    <h2 id="disc-h">A bound of 2 that holds for three million steps</h2>
+    <p>Start from 1 and keep replacing every 1 with 101010 and every 0 with 1. Count how far the <var>n</var>th 1 (or 0) sits from where an even spread would put it. The conjecture says this gap always stays below 2. It does for the first 2,977,770 ones, then fails. The exact ceiling is 2.1165…. Your browser builds the word and plots the gap live.</p>
+  </div>
+  <div class="panel">
+    <div class="ctrl"><span class="btnrow"><button type="button" id="discones" aria-pressed="true">Positions of 1s (A284366)</button><button type="button" id="disczeros" aria-pressed="false">Positions of 0s (A284365)</button></span></div>
+    <div class="legend"><span><i class="sw peak"></i>gap, highest and lowest in each slice of n</span><span><i class="sw dline"></i>conjectured bound 2</span><span><i class="sw line"></i>proved ceiling 2.11651…</span></div>
+    <svg id="discchart" viewBox="0 0 640 300" role="img" aria-label="Discrepancy against n on a log scale, crossing the conjectured bound of 2"></svg>
+    <p class="verdict" id="discverdict">Building the word…</p>
+  </div>
+</section>
+
 <section class="ledger" id="batch-nov" aria-labelledby="batch-h">
   <h2 id="batch-h">The November 18&ndash;21 batch</h2>
-  <p class="prior" style="max-width:68ch;margin:0 0 8px">90 more results from three days of ChatGPT research notes, November 18 to 21, 2026. Unlike the entries above, most have not been re-checked for this page: each is listed as the notes report it, with the earlier work they cite. Only the last two, A380944 and A080692, have had their computer checks re-run here, and they pass. Results the notes found already solved by someone else are left off: A339950 (Joshi and Rust), A119706, A037301, A374446, A133901 and A284626.</p>
+  <p class="prior" style="max-width:68ch;margin:0 0 8px">90 more results from three days of ChatGPT research notes, November 18 to 21, 2026. Unlike the entries above, most have not been re-checked for this page: each is listed as the notes report it, with the earlier work they cite. Three have had their computer checks re-run here, and they pass: A284364&ndash;A284366, A380944 and A080692 (Exhibits D to F). Results the notes found already solved by someone else are left off: A339950 (Joshi and Rust), A119706, A037301, A374446, A133901 and A284626.</p>
   <p class="batch-tally"><b>40</b> proved · <b>15</b> partial · <b>14</b> builds on known work · <b>10</b> disproved · <b>8</b> corrected · <b>1</b> proved and disproved · plus 1 proved and 1 disproved, re-checked</p>
   <h3 class="batch-day">November 18</h3>
   <article class="entry entry--brief" id="b-1">
@@ -1187,6 +1237,7 @@ footer{padding-block:28px 56px;color:var(--muted);font-size:13.5px;border-top:1p
     <aside>
       <span class="chip solved">Disproved</span>
       <span><b><a href="https://oeis.org/A284364">A284364</a>–<a href="https://oeis.org/A284366">A284366</a></b></span>
+      <span>Checked here: exact supremum recomputed, and the first crossings found at n = 2,977,771 (1s) and 8,933,313 (0s). See <a href="#disc">Exhibit F</a>.</span>
     </aside>
     <div class="entry-body">
       <h3>Discrepancy of a binary substitution</h3>
@@ -1500,7 +1551,7 @@ footer{padding-block:28px 56px;color:var(--muted);font-size:13.5px;border-top:1p
 </section>
 
 <footer>
-  <p>The first twelve results were generated by ChatGPT from prompts by Myles Parslow. The next six were found and written by Claude (Opus 5.5 and Fable 5.2). Every check listed for those eighteen was re-run between November 18 and 20, 2026. The November 18&ndash;21 batch comes from ChatGPT research notes; its two final entries had their checks re-run on November 21, and the rest are listed as the notes report them. None of these results has been peer-reviewed. A search for earlier work can show what is already public. It cannot prove a result is new.</p>
+  <p>The first twelve results were generated by ChatGPT from prompts by Myles Parslow. The next six were found and written by Claude (Opus 5.5 and Fable 5.2). Every check listed for those eighteen was re-run between November 18 and 20, 2026. The November 18&ndash;21 batch comes from ChatGPT research notes; three of its entries (A284364&ndash;A284366, A380944, A080692) had their checks re-run on November 21, and the rest are listed as the notes report them. None of these results has been peer-reviewed. A search for earlier work can show what is already public. It cannot prove a result is new.</p>
 </footer>
 </div>
 <div class="tip" id="tip" hidden></div>
@@ -1730,6 +1781,156 @@ update();
       el("text",{x:mx,y:peak?my-8:my+16,"text-anchor":"middle",fill:peak?"var(--muted)":"var(--accent-ink)"},s).textContent=mh}
     el("text",{x:x0,y:base+36},s).textContent=lab;
     x0+=Math.max(w.length*u,130)+40;});
+})();
+
+/* Exhibits D–F. Reuses el(), showTip(), hideTip() from the script above. */
+function axes(s,o){ // o: W,H,L,R,T,B,xt:[[v,label]],yt:[[v,label]],X,Y,xl,yl
+  for(const [v,lab] of o.yt){el("line",{x1:o.L,x2:o.W-o.R,y1:o.Y(v),y2:o.Y(v),stroke:"var(--grid)"},s);el("text",{x:o.L-8,y:o.Y(v)+4,"text-anchor":"end"},s).textContent=lab}
+  for(const [v,lab] of o.xt){el("line",{x1:o.X(v),x2:o.X(v),y1:o.T,y2:o.H-o.B,stroke:"var(--grid)"},s);el("text",{x:o.X(v),y:o.H-o.B+16,"text-anchor":"middle"},s).textContent=lab}
+  el("line",{x1:o.L,x2:o.W-o.R,y1:o.H-o.B,y2:o.H-o.B,stroke:"var(--faint)"},s);
+  if(o.xl)el("text",{x:(o.L+o.W-o.R)/2,y:o.H-2,"text-anchor":"middle"},s).textContent=o.xl;
+}
+function poly(pts){return pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+","+p[1].toFixed(1)).join("")}
+
+/* ---------- Exhibit D: A080692 ---------- */
+(function(){
+  const LN2=Math.log(2), G=0.5772156649015329;
+  // exact: a(n)/2^(n-1) = ln n/(2 ln 2) + (x-1-log2 x)/2, x = n/2^floor(log2 n)
+  function f(n){const j=Math.floor(Math.log2(n)+1e-12);let x=n/Math.pow(2,j);if(x>=2){x/=2}return Math.log(n)/(2*LN2)+(x-1-Math.log2(x))/2}
+  // ratio chart: x = log10 of log2 n, so n runs from 2^4 to 2^(10^6); f uses t = log2 n directly
+  function ft(tt){const x=Math.pow(2,tt-Math.floor(tt));return tt/2+(x-1-Math.log2(x))/2}
+  const s=document.getElementById("detratio"),W=520,H=280,L=46,R=14,T=12,B=34,q0=Math.log10(4),q1=6,y0=.98,y1=1.12;
+  const X=u=>L+(u-q0)/(q1-q0)*(W-L-R), Y=v=>T+(1-(v-y0)/(y1-y0))*(H-T-B);
+  axes(s,{W,H,L,R,T,B,X,Y,xt:[[1,"2¹⁰"],[2,"2¹⁰⁰"],[3,"2¹⁰⁰⁰"],[4,"2^10⁴"],[5,"2^10⁵"],[6,"2^10⁶"]],yt:[[1,"1.00"],[1.02,"1.02"],[1.04,"1.04"],[1.06,"1.06"],[1.08,"1.08"],[1.1,"1.10"]],xl:"n (log of log scale)"});
+  el("line",{x1:L,x2:W-R,y1:Y(1),y2:Y(1),stroke:"var(--faint)","stroke-width":1.5,"stroke-dasharray":"5 4"},s);
+  const cs=[[1/Math.SQRT2,"var(--ink)"],[1/(2*LN2),"var(--accent)"]];
+  const data=cs.map(()=>[]);
+  for(let u=q0;u<=q1+1e-9;u+=0.004){const tt=Math.pow(10,u),v=ft(tt),ln=tt*LN2;
+    cs.forEach(([c],i)=>data[i].push([u,tt,v/(c*(ln+G)-1)]));}
+  cs.forEach(([c,col],i)=>el("path",{d:poly(data[i].map(p=>[X(p[0]),Y(Math.max(y0,Math.min(y1,p[2])))])),fill:"none",stroke:col,"stroke-width":2},s));
+  const lim=Math.SQRT2/(2*LN2);
+  el("line",{x1:L,x2:W-R,y1:Y(lim),y2:Y(lim),stroke:"var(--ink)","stroke-width":1,"stroke-dasharray":"2 3"},s);
+  el("text",{x:W-R-4,y:Y(lim)-6,"text-anchor":"end"},s).textContent="limit "+lim.toFixed(4)+", not 1";
+  const hit=el("rect",{x:L,y:T,width:W-L-R,height:H-T-B,fill:"transparent"},s);
+  hit.addEventListener("pointermove",ev=>{const r=s.getBoundingClientRect(),u=q0+((ev.clientX-r.left)/r.width*W-L)/(W-L-R)*(q1-q0);
+    const k=Math.max(0,Math.min(data[0].length-1,Math.round((u-q0)/0.004)));const a=data[0][k],b=data[1][k];
+    showTip(`n ≈ 2^${Math.round(a[1]).toLocaleString("en-US")}<br>c = 1/√2: ratio ${a[2].toFixed(5)}<br>c = 1/(2 ln 2): ratio ${b[2].toFixed(5)}`,ev)});
+  hit.addEventListener("pointerleave",hideTip);
+
+  // sawtooth chart with exact determinants
+  const s2=document.getElementById("detsaw"),W2=420,H2=280,L2=54,R2=10,T2=12,B2=34,u0=0,u1=10,v0=-.05,v1=.005;
+  const X2=u=>L2+(u-u0)/(u1-u0)*(W2-L2-R2), Y2=v=>T2+(1-(v-v0)/(v1-v0))*(H2-T2-B2);
+  axes(s2,{W:W2,H:H2,L:L2,R:R2,T:T2,B:B2,X:X2,Y:Y2,xt:[[0,"1"],[2,"4"],[4,"16"],[6,"64"],[8,"256"],[10,"1024"]],yt:[[0,"0"],[-.01,"−0.01"],[-.02,"−0.02"],[-.03,"−0.03"],[-.04,"−0.04"],[-.05,"−0.05"]],xl:"n (log scale)"});
+  const line=[];for(let u=0;u<=u1;u+=0.005){const n=Math.pow(2,u);let x=n/Math.pow(2,Math.floor(u+1e-12));if(x>=2)x/=2;line.push([X2(u),Y2((x-1-Math.log2(x))/2)])}
+  el("path",{d:poly(line),fill:"none",stroke:"var(--faint)","stroke-width":1.2},s2);
+  const mn=(1/LN2-1-Math.log2(1/LN2))/2;
+  el("line",{x1:L2,x2:W2-R2,y1:Y2(mn),y2:Y2(mn),stroke:"var(--accent)","stroke-width":1,"stroke-dasharray":"3 3"},s2);
+  // exact determinants by fraction-free elimination, BigInt
+  function det(n){const M=[];for(let i=1;i<=n;i++){const r=[];for(let j=1;j<=n;j++)r.push(BigInt(j<=i?i-j:Math.min(j-i,i)));M.push(r)}
+    let sign=1n,prev=1n;for(let k=0;k<n-1;k++){let p=k;while(p<n&&M[p][k]===0n)p++;if(p===n)return 0n;if(p!==k){[M[k],M[p]]=[M[p],M[k]];sign=-sign}
+      const pv=M[k][k];for(let i=k+1;i<n;i++){for(let j=k+1;j<n;j++)M[i][j]=(M[i][j]*pv-M[i][k]*M[k][j])/prev;M[i][k]=0n}prev=pv}return sign*M[n-1][n-1]}
+  const NMAX=64;let ok=0,bad=[];
+  function formula(n){if(n===1)return 0n;const j=BigInt(n.toString(2).length-1),N=BigInt(n);return (2n**(N-1n-j))*(j*2n**j+N-2n**j)/2n}
+  let n=1;
+  function step(){const t=performance.now();
+    while(n<=NMAX&&performance.now()-t<12){const a=(n%2===0?-1n:1n)*det(n);if(a===formula(n))ok++;else bad.push(n);
+      if(n>=2){const v=Number(a)/Math.pow(2,n-1)-Math.log2(n)/2;
+        const c=el("circle",{cx:X2(Math.log2(n)),cy:Y2(v),r:3.6,fill:"var(--accent)",stroke:"var(--sheet)","stroke-width":1.5},s2);
+        const nn=n,aa=a;c.addEventListener("pointermove",ev=>showTip(`n = ${nn}<br>a(n) = ${aa.toLocaleString("en-US")}<br>leftover ${v.toFixed(5)}`,ev));c.addEventListener("pointerleave",hideTip)}
+      n++}
+    const out=document.getElementById("detcheck");
+    if(n<=NMAX){out.textContent=`Computing determinants… ${n-1} of ${NMAX}`;setTimeout(step,0)}
+    else out.innerHTML=bad.length?`<b>Mismatch</b> at n = ${bad.join(", ")}.`:`Exact determinants for n = 1 to ${NMAX}, computed just now: <b>all ${ok} match the formula.</b> The dashed line marks the lowest point, (1/ln 2 − 1 − log<sub>2</sub>(1/ln 2))/2.`}
+  if("IntersectionObserver" in window){const io=new IntersectionObserver(e=>{if(e[0].isIntersecting){io.disconnect();step()}});io.observe(s2)}else step();
+})();
+
+/* ---------- Exhibit E: A380944 ---------- */
+(function(){
+  const s=document.getElementById("coupchart"),sl=document.getElementById("cpn"),out=document.getElementById("cpnout"),W=640,H=280,L=40,R=14,T=12,B=34,x0=-3,x1=6;
+  const X=x=>L+(x-x0)/(x1-x0)*(W-L-R), Y=v=>T+(1-v)*(H-T-B);
+  // exact array value by the published recursion (BigInt)
+  function makeB(){const memo=new Map();
+    function pc(v){let c=0;while(v>0n){c+=Number(v&1n);v>>=1n}return c}
+    function b(v,c){if(c===0)return 1n;if(v===0n)return 0n;const key=v+"|"+c;if(memo.has(key))return memo.get(key);
+      let r;if(v&1n)r=b(v>>1n,c)+b(v>>1n,c-1);else r=BigInt(pc(v>>1n)-c+1)*b(v+1n,c);memo.set(key,r);return r}
+    return b}
+  function draw(n){
+    s.innerHTML="";const N=n+1;
+    axes(s,{W,H,L,R,T,B,X,Y,xt:[[-2,"−2"],[0,"0"],[2,"2"],[4,"4"],[6,"6"]],yt:[[0,"0"],[.25,"0.25"],[.5,"0.5"],[.75,"0.75"],[1,"1"]],xl:"x = m/(n + 1) − ln n"});
+    // limit curve
+    const lim=[];for(let x=x0;x<=x1;x+=0.02)lim.push([X(x),Y(1-Math.exp(-Math.exp(-x)))]);
+    el("path",{d:poly(lim),fill:"none",stroke:"var(--faint)","stroke-width":2,"stroke-dasharray":"6 4"},s);
+    // exact tail probability: geometric waits with success n/N and i/N, i = 1..n
+    const mMax=Math.ceil(N*(Math.log(n)+x1))+2;
+    let f=new Float64Array(mMax+1);f[0]=1;
+    const rates=[n];for(let i=1;i<=n;i++)rates.push(i);
+    for(const k of rates){const p=k/N,h=new Float64Array(mMax+1);for(let m=1;m<=mMax;m++)h[m]=p*f[m-1]+(1-p)*h[m-1];f=h}
+    const pts=[];let cdf=0,gap=0;
+    for(let m=0;m<=mMax;m++){cdf+=f[m];const tail=Math.max(0,1-cdf),x=m/N-Math.log(n);
+      if(x>=x0&&x<=x1){pts.push([m,x,tail]);gap=Math.max(gap,Math.abs(tail-(1-Math.exp(-Math.exp(-x)))))}}
+    const step=Math.max(1,Math.ceil(pts.length/160));
+    pts.forEach((p,i)=>{if(i%step)return;const c=el("circle",{cx:X(p[1]),cy:Y(p[2]),r:3.2,fill:"var(--accent)"},s);
+      c.addEventListener("pointermove",ev=>showTip(`n = ${n}, m = ${p[0]}<br>array, rescaled: ${p[2].toFixed(4)}<br>limit: ${(1-Math.exp(-Math.exp(-p[1]))).toFixed(4)}`,ev));c.addEventListener("pointerleave",hideTip)});
+    // integer check of Kurkov's formula for this n
+    let msg=`n = ${n}: the largest gap from the limit is ${gap.toFixed(3)}.`;
+    if(n<=16){const b=makeB(),Nb=BigInt(N),word=(1n<<BigInt(n))-1n;
+      let fact=1n;for(let i=2n;i<=BigInt(n);i++)fact*=i;
+      // Stirling2(j,N) for j up to 40
+      let row=[1n];const S=[];for(let j=1;j<=40;j++){const nr=[0n];for(let k=1;k<=j;k++)nr.push((row[k-1]??0n)+BigInt(k)*(row[k]??0n));row=nr;S.push(row[N]??0n)}
+      let ok=0,cum=0n;for(let m=0;m<=40;m++){if(m>=1)cum+=S[m-1]??0n; if(m===0)cum=0n;
+        const lhs=b(word<<BigInt(m),n),rhs=Nb**BigInt(m)-BigInt(n)*fact*cum;if(lhs===rhs)ok++}
+      msg+=ok===41?` Kurkov&rsquo;s formula checked against the array itself for m = 0 to 40: <b>all 41 values match.</b>`:` <b>Formula check: only ${ok} of 41 match.</b>`}
+    document.getElementById("coupcheck").innerHTML=msg;
+  }
+  sl.addEventListener("input",()=>{out.value=sl.value;draw(+sl.value)});
+  draw(+sl.value);
+})();
+
+/* ---------- Exhibit F: A284364–A284366 ---------- */
+(function(){
+  const s=document.getElementById("discchart"),W=640,H=300,L=46,R=70,T=12,B=34,SUP=2.1165151389898;
+  const r0=(9+Math.sqrt(21))/6, s0=(-1+Math.sqrt(21))/2;
+  const cfg={ones:{len:5400000,coef:s0,letter:1,first:2977771,lab:"1s"},zeros:{len:20300000,coef:r0,letter:0,first:8933313,lab:"0s"}};
+  const cache={};let word=null,wordLen=0;
+  function build(len){if(word&&wordLen>=len)return;const w=new Uint8Array(len);w[0]=1;let i=0,j=1;
+    while(j<len){if(w[i]===1){for(const c of (i===0?[0,1,0,1,0]:[1,0,1,0,1,0])){if(j<len)w[j++]=c}}else w[j++]=1;i++}word=w;wordLen=len}
+  function series(key){if(cache[key])return cache[key];const c=cfg[key];build(c.len);
+    const bins=260,lmax=Math.log10(c.first*1.15),hi=new Float64Array(bins).fill(-9),lo=new Float64Array(bins).fill(9);
+    let n=0,best=-9,bestN=0,first=0;
+    for(let pos=1;pos<=c.len;pos++){if(word[pos-1]!==c.letter)continue;n++;const d=n*c.coef-pos;
+      if(d>best){best=d;bestN=n}if(!first&&d>2)first=n;
+      const b=Math.min(bins-1,Math.floor(Math.log10(n)/lmax*bins));if(d>hi[b])hi[b]=d;if(d<lo[b])lo[b]=d}
+    return cache[key]={hi,lo,bins,lmax,best,bestN,first,n,c}}
+  function draw(key){
+    const d=series(key);s.innerHTML="";const y0=key==="ones"?-1.2:-1.6,y1=2.25;
+    const X=v=>L+v/d.lmax*(W-L-R), Y=v=>T+(1-(v-y0)/(y1-y0))*(H-T-B);
+    const xt=[];for(let e=0;e<=7;e++)if(e<=d.lmax)xt.push([e,e===0?"1":"10"+"⁰¹²³⁴⁵⁶⁷"[e]]);
+    axes(s,{W,H,L,R,T,B,X,Y,xt,yt:[[-1,"−1"],[0,"0"],[1,"1"],[2,"2"]],xl:`n, the index of the ${d.c.lab} (log scale)`});
+    const top=[],bot=[];for(let b=0;b<d.bins;b++){if(d.hi[b]<-8)continue;const xm=(b+.5)/d.bins*d.lmax;top.push([X(xm),Y(d.hi[b])]);bot.push([X(xm),Y(d.lo[b])])}
+    el("path",{d:poly(top)+poly(bot.slice().reverse()).replace(/^M/,"L")+"Z",fill:"var(--accent-soft)",stroke:"none"},s);
+    el("path",{d:poly(top),fill:"none",stroke:"var(--accent)","stroke-width":1.6},s);
+    el("path",{d:poly(bot),fill:"none",stroke:"var(--accent)","stroke-width":1,opacity:.6},s);
+    el("line",{x1:L,x2:W-R,y1:Y(2),y2:Y(2),stroke:"var(--ink)","stroke-width":1.5,"stroke-dasharray":"6 4"},s);
+    el("text",{x:W-R+6,y:Y(2)+4},s).textContent="bound 2";
+    el("line",{x1:L,x2:W-R,y1:Y(SUP),y2:Y(SUP),stroke:"var(--accent)","stroke-width":2},s);
+    el("text",{x:W-R+6,y:Y(SUP)+2,fill:"var(--accent-ink)"},s).textContent="2.1165…";
+    if(d.first){const fx=X(Math.log10(d.first));el("line",{x1:fx,x2:fx,y1:T,y2:H-B,stroke:"var(--faint)","stroke-dasharray":"2 3"},s);
+      el("circle",{cx:fx,cy:Y(2.0049),r:5,fill:"var(--accent)",stroke:"var(--sheet)","stroke-width":2},s);
+      el("text",{x:fx-8,y:H-B-10,"text-anchor":"end"},s).textContent=`first crossing, n = ${d.first.toLocaleString("en-US")}`}
+    const hit=el("rect",{x:L,y:T,width:W-L-R,height:H-T-B,fill:"transparent"},s);
+    hit.addEventListener("pointermove",ev=>{const r=s.getBoundingClientRect(),xv=((ev.clientX-r.left)/r.width*W-L)/(W-L-R)*d.lmax;
+      const b=Math.max(0,Math.min(d.bins-1,Math.floor(xv/d.lmax*d.bins)));if(d.hi[b]<-8)return;
+      showTip(`n ≈ ${Math.round(Math.pow(10,xv)).toLocaleString("en-US")}<br>highest gap here ${d.hi[b].toFixed(4)}<br>lowest ${d.lo[b].toFixed(4)}`,ev)});
+    hit.addEventListener("pointerleave",hideTip);
+    document.getElementById("discverdict").innerHTML=d.first===d.c.first
+      ?`Built ${d.n.toLocaleString("en-US")} ${d.c.lab} just now. The gap first passes 2 at n = <b>${d.first.toLocaleString("en-US")}</b>, where it is ${(d.first*d.c.coef).toFixed(0)&&""}2.0049. <b>The bound fails.</b> The highest gap so far is ${d.best.toFixed(4)}; the proved ceiling, 2.11651…, is approached but never reached.`
+      :`Unexpected result: first crossing at ${d.first}.`;
+  }
+  const bo=document.getElementById("discones"),bz=document.getElementById("disczeros");let cur="ones";
+  function pick(k){cur=k;bo.setAttribute("aria-pressed",k==="ones");bz.setAttribute("aria-pressed",k==="zeros");
+    document.getElementById("discverdict").textContent="Building the word…";setTimeout(()=>draw(k),30)}
+  bo.addEventListener("click",()=>pick("ones"));bz.addEventListener("click",()=>pick("zeros"));
+  if("IntersectionObserver" in window){const io=new IntersectionObserver(e=>{if(e[0].isIntersecting){io.disconnect();pick("ones")}});io.observe(s)}else pick("ones");
 })();
 </script>
 
