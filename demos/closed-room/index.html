@@ -157,7 +157,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
   <section class="demo" id="demo" aria-labelledby="h-demo">
     <div>
       <h2 id="h-demo">Try it with a sample meeting</h2>
-      <p>Plays a 90-second client intake out loud and transcribes it live, on your computer. The voices are synthetic and the people and case are invented. The first run downloads the speech model (about 80 MB); after that it starts at once. No microphone needed.</p>
+      <p>Plays a 90-second client intake out loud and transcribes it live, on your computer. The voices are synthetic and the people and case are invented. The first run downloads the speech model (about 200 MB on the graphics card, 80 MB without it); after that it starts at once. No microphone needed.</p>
     </div>
     <button class="btn primary" id="demobtn">▶ Play sample meeting</button>
   </section>
@@ -170,10 +170,10 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
         <p class="sub">Downloads once, then runs offline. You can turn off Wi-Fi after this step.</p>
         <label class="f" for="model">Model</label>
         <select id="model">
-          <option value="onnx-community/whisper-tiny.en">Whisper Tiny (English) · ~45 MB · fastest</option>
-          <option value="onnx-community/whisper-base.en" selected>Whisper Base (English) · ~80 MB · balanced</option>
-          <option value="onnx-community/whisper-small.en">Whisper Small (English) · ~250 MB · most accurate</option>
-          <option value="onnx-community/whisper-base">Whisper Base (multilingual) · ~80 MB</option>
+          <option value="onnx-community/whisper-tiny.en">Whisper Tiny (English) · ~120 MB GPU / ~40 MB CPU · fastest</option>
+          <option value="onnx-community/whisper-base.en" selected>Whisper Base (English) · ~200 MB GPU / ~80 MB CPU · balanced</option>
+          <option value="onnx-community/whisper-small.en">Whisper Small (English) · ~590 MB GPU / ~250 MB CPU · most accurate</option>
+          <option value="onnx-community/whisper-base">Whisper Base (multilingual) · ~200 MB GPU / ~80 MB CPU</option>
         </select>
         <label class="small" style="display:flex;gap:8px;align-items:flex-start;margin-top:10px"><input type="checkbox" id="gpu" checked style="margin-top:3px;accent-color:var(--accent)"> Use the graphics card (WebGPU) when available</label>
         <div class="row" style="margin-top:14px"><button class="btn primary" id="load">Load model</button></div>
@@ -247,11 +247,11 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
         </div>
         <div class="pane" id="pane-net" role="tabpanel" aria-labelledby="t-net" hidden>
           <div class="big">
-            <div><b id="n-up">0 B</b><span>audio or text uploaded</span></div>
+            <div><b id="n-up">0 B</b><span>uploaded by the page</span></div>
             <div><b id="n-after">0</b><span>requests since the model loaded</span></div>
             <div><b id="n-total">0</b><span>requests since the page opened</span></div>
           </div>
-          <p class="muted small" style="margin-bottom:10px">Every request this page and its worker make, as the browser reports it. Allowed hosts are fixed by the page's security policy: the app itself, the pinned code library (cdn.jsdelivr.net) and the model files (huggingface.co). All are downloads. The browser blocks any other destination.</p>
+          <p class="muted small" style="margin-bottom:10px">Every request this page and its worker make, as the browser reports it. Allowed hosts are fixed by the page's security policy: the app itself, the pinned code library (cdn.jsdelivr.net) and the model files (huggingface.co). All are downloads. The browser blocks any other destination. The upload counter watches requests the page itself makes; the worker's requests are listed in the table.</p>
           <div style="overflow-x:auto"><table class="ledger"><thead><tr><th>When</th><th>From</th><th>Request</th></tr></thead><tbody id="ledger"></tbody></table></div>
         </div>
         <div class="foot">
@@ -268,7 +268,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
   </div>
 
   <section class="fine" aria-label="About privilege">
-    <div><h3>Why on-device matters</h3><p>Privilege can be lost when a confidential conversation is disclosed to a third party. Here no third party receives it: the speech model runs in your browser, and the page's security policy blocks uploads to any outside server.</p></div>
+    <div><h3>Why on-device matters</h3><p>Privilege can be lost when a confidential conversation is disclosed to a third party. Here no third party receives it: the speech model runs in your browser, and the page's security policy only lets it reach the app itself, its pinned code library and the model download site. Nothing is sent to any of them.</p></div>
     <div><h3>What it can't fix</h3><p>A transcript is protected only if the conversation itself was privileged. A verbatim record can be ordered produced if privilege is challenged or waived. Keep only what you need, and follow your firm's retention and litigation-hold rules.</p></div>
     <div><h3>Keep it local</h3><p>Exported files go wherever you save them. A folder synced to iCloud, OneDrive or Google Drive puts them back in the cloud. This is general information, not legal advice.</p></div>
   </section>
