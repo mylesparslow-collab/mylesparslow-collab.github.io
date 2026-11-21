@@ -14,6 +14,10 @@ N_CASES = sum(1 for r in _LIVE['rooms'] for it in r['items'] if it.get('kind') =
 
 # newest first; href is relative to styles/index.html
 VERSIONS = [
+    dict(key='k', name='Liner Notes', date='Nov 2026', href='../mockup-k/index.html', family='Record label',
+         line='Five rooms pressed as five records: flip through a crate of sleeves, then play each one, with every project a numbered track and "How it was built" as its credits.',
+         knobs=dict(ground='Vinyl black and sleeve grey, one label colour per record', type='Anybody (width axis) + Instrument Sans', layout='Record crate, catalogue, sides and tracklists',
+                    motion='Sleeves flip, records slide out and spin', signature='A 3D crate of sleeves you flip through')),
     dict(key='j', name='Working Drawings', date='Nov 2026', href='../mockup-j/index.html', family='Drawing set',
          line='A set of working drawings: every project shown first as an ink line drawing of its own screen, then built into the real thing under the pointer.',
          knobs=dict(ground='Drafting film, ink and one red pencil', type='National Park lettering', layout='Bordered sheets with a title strip',

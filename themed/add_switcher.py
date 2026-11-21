@@ -6,7 +6,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 PAGES = ['index.html'] + [f'{r}/index.html' for r in ['legal', 'business', 'creative', 'design', 'research']]
-DIRS = {k: ROOT / f'mockup-{k}' for k in 'bcdefghij'}
+DIRS = {k: ROOT / f'mockup-{k}' for k in 'bcdefghijk'}
 
 
 def tag(k):
