@@ -46,6 +46,14 @@ h1{font-family:var(--serif);font-size:34px;font-weight:600;letter-spacing:-.01em
 .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:none}
 .pill.ok .dot{background:var(--ok)} .pill.warn .dot{background:var(--warn)} .pill.bad .dot{background:var(--bad)}
 
+/* demo banner */
+.demo{display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:10px;padding:16px 18px;margin-bottom:20px}
+.demo>div{flex:1 1 420px;min-width:0}
+.demo h2{font-family:var(--serif);font-size:19px;font-weight:600;margin-bottom:3px}
+.demo p{color:var(--muted);font-size:14.5px;max-width:70ch}
+.demo.hl{box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 30%,transparent)}
+.demo .btn{min-height:46px;padding:10px 18px;font-size:15.5px}
+
 /* layout */
 .grid{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:20px;align-items:start}
 @media (max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}}
@@ -126,7 +134,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 @media print{
   body{background:#fff;color:#000}
-  .top,.grid>aside,.tabs,.foot,.fine,.recwrap,.toast{display:none!important}
+  .top,.demo,.grid>aside,.tabs,.foot,.fine,.recwrap,.toast{display:none!important}
   .grid{display:block}.doc{border:0}.pane[hidden]{display:none}
   #pane-transcript{display:block!important}
 }
@@ -145,6 +153,14 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
       <span class="pill" id="p-net"><span class="dot"></span>Online</span>
     </div>
   </header>
+
+  <section class="demo" id="demo" aria-labelledby="h-demo">
+    <div>
+      <h2 id="h-demo">Try it with a sample meeting</h2>
+      <p>Plays a 90-second client intake out loud and transcribes it live, on your computer. The voices are synthetic and the people and case are invented. The first run downloads the speech model (about 80 MB); after that it starts at once. No microphone needed.</p>
+    </div>
+    <button class="btn primary" id="demobtn">▶ Play sample meeting</button>
+  </section>
 
   <div class="grid">
     <aside>
@@ -324,6 +340,7 @@ worker.onmessage = (e) => {
   if (m.type==="status"){ if(m.kind==="asr") $("loadnote").textContent=m.text+"…"; else $("summnote").textContent=m.text+"…"; return; }
   if (m.type==="ready" && m.kind==="asr"){
     S.modelReady=true; S.loadedAt=Date.now();
+    if (readyWait) { readyWait.res(); readyWait=null; }
     $("loadbar").style.width="100%";
     $("loadnote").textContent=`Ready on ${m.device}. Cached for offline use.`;
     const p=$("p-model"); p.className="pill ok"; p.lastChild.textContent="Model ready: "+m.device;
@@ -334,12 +351,16 @@ worker.onmessage = (e) => {
   if (m.type==="summary-token"){ $("summary").textContent=m.text; return; }
   if (m.type==="summary-done"){ $("summary").textContent=m.text; $("summnote").textContent="Draft ready. Check it against the transcript."; $("llmbar").style.width="0"; $("summ").disabled=false; refresh(); return; }
   if (m.type==="error"){
-    if (m.kind==="load-asr"){ $("loadnote").textContent="Could not load the model: "+m.message; $("load").disabled=false; const p=$("p-model"); p.className="pill bad"; p.lastChild.textContent="Model failed"; }
+    if (m.kind==="load-asr"){ if(readyWait){ readyWait.rej(new Error(m.message)); readyWait=null; } $("loadnote").textContent="Could not load the model: "+m.message; $("load").disabled=false; const p=$("p-model"); p.className="pill bad"; p.lastChild.textContent="Model failed"; }
     else if (m.kind==="summarize"||m.kind==="load-llm"){ $("summnote").textContent=m.message; $("summ").disabled=false; }
     else { toast("Transcription error: "+m.message); S.busy=false; pump(); }
   }
 };
 
+let readyWait=null;
+function loadModel(){
+  return new Promise((res,rej)=>{ readyWait={res,rej}; $("load").onclick(); });
+}
 $("load").onclick=()=>{
   $("load").disabled=true; S.modelReady=false; $("loadbar").style.width="0";
   const p=$("p-model"); p.className="pill warn"; p.lastChild.textContent="Loading model";
@@ -435,7 +456,7 @@ function onAudio(chunk){
   quietRun = quiet ? quietRun+pcm.length : 0;
   buf.push(pcm); bufLen+=pcm.length; totalSamples+=pcm.length;
   const secs=bufLen/SR;
-  if ((secs>=7 && quietRun>=SR*0.6) || secs>=24) flushSegment();
+  if ((secs>=3 && quietRun>=SR*0.5) || (secs>=1 && quietRun>=SR*0.8) || secs>=24) flushSegment();
 }
 function flushSegment(){
   if(!bufLen) return;
@@ -447,31 +468,73 @@ function flushSegment(){
   if(peak<0.01) return;
   enqueue(out,start,end);
 }
+let sampleSrc=null;
+async function startCapture(kind){
+  // One pipeline for both: the microphone, or the sample meeting played through the speakers.
+  if(!ctx || ctx.state==="closed") ctx=new AudioContext();
+  if(ctx.state==="suspended") await ctx.resume();
+  await ctx.audioWorklet.addModule(URL.createObjectURL(new Blob([worklet],{type:"text/javascript"})));
+  node=new AudioWorkletNode(ctx,"tap");
+  node.port.onmessage=(e)=>onAudio(e.data);
+  const mute=ctx.createGain(); mute.gain.value=0;
+  node.connect(mute).connect(ctx.destination);
+  if(kind==="mic"){
+    src=ctx.createMediaStreamSource(stream);
+    src.connect(node);
+  } else {
+    const ab=await (await fetch("sample-meeting.mp3")).arrayBuffer();
+    const buf=await ctx.decodeAudioData(ab);
+    src=ctx.createBufferSource(); src.buffer=buf;
+    src.connect(node); src.connect(ctx.destination);
+    src.onended=()=>{ if(S.recording) $("stop").onclick(); };
+    sampleSrc=src; src.start();
+  }
+  if(!S.meetingDate) S.meetingDate=new Date();
+  segStart=totalSamples; carry=new Float32Array(0);
+  S.recording=true; S.startedAt=performance.now()-S.elapsed*1000;
+  tick=setInterval(()=>{ S.elapsed=(performance.now()-S.startedAt)/1000; $("clock").textContent=fmtClock(S.elapsed); $("m-dur").textContent=fmtClock(S.elapsed); },250);
+  updateMeta(); refresh(); updateQueue();
+}
 $("rec").onclick=async()=>{
   if(!checksOk() && !confirm("Not every privilege item is confirmed. Record anyway? The export will note which items were not confirmed.")) return;
   try{
     stream=await navigator.mediaDevices.getUserMedia({audio:{channelCount:1,echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
   }catch(err){ toast("Microphone blocked: "+err.message); return; }
   ctx=new AudioContext();
-  await ctx.audioWorklet.addModule(URL.createObjectURL(new Blob([worklet],{type:"text/javascript"})));
-  src=ctx.createMediaStreamSource(stream);
-  node=new AudioWorkletNode(ctx,"tap");
-  node.port.onmessage=(e)=>onAudio(e.data);
-  const mute=ctx.createGain(); mute.gain.value=0;
-  src.connect(node).connect(mute).connect(ctx.destination);
-  if(!S.meetingDate) S.meetingDate=new Date();
-  segStart=totalSamples; carry=new Float32Array(0);
-  S.recording=true; S.startedAt=performance.now()-S.elapsed*1000;
-  tick=setInterval(()=>{ S.elapsed=(performance.now()-S.startedAt)/1000; $("clock").textContent=fmtClock(S.elapsed); },250);
-  updateMeta(); refresh(); updateQueue();
+  await startCapture("mic");
 };
 $("stop").onclick=()=>{
   if(!S.recording) return;
   S.recording=false; clearInterval(tick);
   flushSegment();
-  try{ node.disconnect(); src.disconnect(); stream.getTracks().forEach(t=>t.stop()); ctx.close(); }catch{}
-  $("level").style.width="0"; updateMeta(); refresh(); updateQueue();
+  try{ if(sampleSrc){ sampleSrc.onended=null; sampleSrc.stop(); sampleSrc=null; } }catch{}
+  try{ node.disconnect(); src.disconnect(); if(stream) stream.getTracks().forEach(t=>t.stop()); stream=null; ctx.close(); }catch{}
+  $("level").style.width="0"; $("demobtn").disabled=false; updateMeta(); refresh(); updateQueue();
 };
+
+/* ---------- sample meeting (demo) ---------- */
+$("demobtn").onclick=async()=>{
+  if(S.recording) return;
+  if(S.segs.some(s=>s.text) && !confirm("Start the sample meeting? The current transcript will be cleared unless you've saved it.")) return;
+  // Create the audio context inside the click so the browser lets it play sound later.
+  ctx=new AudioContext();
+  $("demobtn").disabled=true;
+  resetMeeting(true);
+  $("matter").value="Okafor v. Brightline Freight (sample, invented)";
+  $("people").value="D. Okafor (client); R. Lindqvist (counsel); T. Amari (paralegal, not speaking)";
+  ["c1","c2","c3","c4"].forEach(id=>$(id).checked=true); updateVerdict(); updateMeta();
+  try{
+    if(!S.modelReady){
+      $("queue").textContent="Loading the speech model…";
+      document.getElementById("h-setup").scrollIntoView({behavior:"smooth",block:"center"});
+      await loadModel();
+    }
+    $("queue").textContent="Playing the sample meeting…";
+    document.querySelector(".recwrap").scrollIntoView({behavior:"smooth",block:"start"});
+    await startCapture("sample");
+  }catch(err){ toast("Couldn't start the sample: "+err.message); $("demobtn").disabled=false; try{ctx.close();}catch{} }
+};
+if(new URLSearchParams(location.search).has("demo")){ $("demo").classList.add("hl"); }
 
 /* ---------- file ---------- */
 $("file").onchange=async(e)=>{
@@ -583,6 +646,7 @@ function refresh(){
   const has=S.segs.some(s=>s.text);
   $("rec").disabled=!S.modelReady||S.recording;
   $("stop").disabled=!S.recording;
+  $("demobtn").disabled=S.recording||$("load").disabled&&!S.modelReady;
   $("file").disabled=!S.modelReady||S.recording;
   $("filebtn").setAttribute("aria-disabled", String($("file").disabled));
   $("filebtn").style.opacity=$("file").disabled?.45:1; $("filebtn").style.cursor=$("file").disabled?"not-allowed":"pointer";

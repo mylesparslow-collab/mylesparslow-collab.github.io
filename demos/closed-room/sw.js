@@ -2,9 +2,9 @@
 // offline, so a meeting can be transcribed with the network switched off.
 // Model weights are cached separately by the library (Cache Storage
 // "transformers-cache"). Nothing is ever uploaded from here.
-const SHELL = "closed-room-shell-v1";
+const SHELL = "closed-room-shell-v2";
 const CODE = "closed-room-code-v1";
-const SHELL_FILES = ["./", "./index.html", "./worker.js", "./icon.svg"];
+const SHELL_FILES = ["./", "./index.html", "./worker.js", "./icon.svg", "./sample-meeting.mp3"];
 
 const LIB = "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1/dist/";
 const CODE_FILES = ["transformers.min.js", "ort-wasm-simd-threaded.jsep.mjs", "ort-wasm-simd-threaded.jsep.wasm"].map((f) => LIB + f);
