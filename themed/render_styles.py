@@ -14,6 +14,18 @@ N_CASES = sum(1 for r in _LIVE['rooms'] for it in r['items'] if it.get('kind') =
 
 # newest first; href is relative to styles/index.html
 VERSIONS = [
+    dict(key='m', name='Redline', date='Nov 2026', href='../mockup-m/index.html', family='Document under review',
+         line='The portfolio as a legal draft in review: rooms are Articles, projects are Sections, and Track Changes marks which sentences of each build note are his and which are the AI’s.',
+         knobs=dict(ground='White page on a grey desk', type='Tinos document serif + Atkinson Hyperlegible Next', layout='One document page with a comment margin',
+                    motion='None; markup switches on and off', signature='All markup / No markup, filtered by author')),
+    dict(key='l', name='Tesserae', date='Nov 2026', href='../mockup-l/index.html', family='Mosaic wall',
+         line='Five panels of glass tesserae set in one wall, every project a larger tile and every flagship in gold leaf, with the pointer as a raking light.',
+         knobs=dict(ground='Grout and smalti glass, gold leaf', type='Clash Display + Switzer', layout='A mosaic wall, then a plain index',
+                    motion='Light rakes across the glass', signature='Point at a tile to lift it and see its project')),
+    dict(key='n', name='Flipbook', date='Nov 2026', href='../mockup-n/index.html', family='Stop-motion exposure sheet',
+         line='All 87 projects as 87 frames of a stop-motion film: an exposure sheet beside a light-box viewer with onion skin, and a Play button that runs the portfolio in seven seconds.',
+         knobs=dict(ground='Light box on a grey desk, green and pink onion skin', type='Sofia Sans Condensed', layout='Exposure sheet and light-box viewer',
+                    motion='Stepped at 12 frames a second', signature='Play the whole portfolio as a film')),
     dict(key='k', name='Liner Notes', date='Nov 2026', href='../mockup-k/index.html', family='Record label',
          line='Five rooms pressed as five records: flip through a crate of sleeves, then play each one, with every project a numbered track and "How it was built" as its credits.',
          knobs=dict(ground='Vinyl black and sleeve grey, one label colour per record', type='Anybody (width axis) + Instrument Sans', layout='Record crate, catalogue, sides and tracklists',
