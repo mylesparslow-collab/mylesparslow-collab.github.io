@@ -1,0 +1,31 @@
+# Mockup L: "Tesserae" (jury sheet)
+
+Written 2026-11-21 before the build. Shared rules: `themed/v4/BRIEF.md`.
+
+**Concept sentence.** A portfolio set like a mosaic wall: the layout is five panels of glass tesserae set into one wall, one panel per room; every project is one larger tessera set into its panel; the colour comes from smalti (coloured glass and gold leaf); the motion behaves like light raking across uneven glass, so tiles catch it and lose it as the pointer moves.
+
+**Why it is his.** Byzantium, his mosaic atlas of the Eastern Roman Empire (a flagship research build: "every tile is a tessera"), and the mosaic as a picture made of many small finished pieces, which is what 87 projects are.
+
+**Tier / family.** Tier B: real DOM for all content, one WebGL signature. Family: exhibition index (02) crossed with own (mosaic).
+
+**References and moves.** (1) Byzantine wall mosaics (Ravenna, Hagia Sophia): gold ground, tesserae set at slightly different angles so the wall glitters as you walk past, panels framed by borders of contrasting tiles. Structure only: no saints, no Byzantine lettering, no fake-old texture. (2) Igloo Inc (gl-techniques §5): many instances of one small geometry, all motion in the vertex shader, finished by a short post chain.
+
+**Signature.** The homepage hero is the wall: about 9,000 small tiles (desktop; about 3,000 on phones and software GL) in five colour fields, one per room, separated by grout, with each room's projects set as larger tesserae (flagships in gold leaf, the rest in their room's glass) inside its field. The pointer is a raking light: each tile has a small random tilt, so as the light moves the specular highlight jumps from tile to tile and the gold flares. Hovering or focusing a project's tessera lifts it slightly out of the wall and shows its code, title and subtitle in a DOM label; clicking it opens the project. Without a pointer, the light drifts slowly on its own.
+
+**GL technique** (`~/.claude/skills/websiteoftheyear/references/gl-techniques.md`). §5 instancing, started from `assets/gl-demos/instanced-grass.html` (instanced attribute layout, all motion in the vertex shader, TIER switch, pause when hidden, reduced-motion single frame, `renderer.info` reset once per frame). One tile geometry (a thin bevelled box or a quad with a normal-mapped bevel in the shader), per-instance attributes: position, size, rotation, tilt normal, colour, kind (field tile / project tessera / gold / grout-border), project index. Lighting in the shader: Blinn-Phong with a moving point light (the pointer), a fresnel term, and for gold a two-stop ramp plus a tight highlight. Post: the no-library path from §1 and `assets/gl-demos/post-chain.html` as the guide: render to a target, a half-resolution bright-pass + two blur passes for bloom (only gold and the brightest glints bloom), then one full-screen composite with bloom add, a mild grade, vignette and grain. Pixel ratio capped at 1.5. Budget: under 10 draw calls, under 10 render passes. Three.js r180: copy `~/.hermes/hermes-agent/node_modules/three/build/three.module.min.js` and `three.core.min.js` plus its `LICENSE` into `themed/l/vendor/` and load it with an import map pointing at the copied files. Picking: compute which project tessera is under the pointer on the CPU from the known layout (no GPU read-back).
+
+**Type.** Display: Clash Display (Fontshare, ITF licence: `~/Desktop/ClaudeStuff/fonts/fontshare/clash-display/…/ClashDisplay-Variable.woff2`), weight 500, sentence case. Text and UI: Switzer (Fontshare, `…/Switzer-Variable.woff2`), 400 and 600. Four sizes: 13 px (labels), 17 px body, clamp(26px, 2.8vw, 44px) middle, clamp(48px, 7vw, 120px) display.
+
+**Palette.** Dark (default for this style): grout `#161513` ground, text `#ecebe6`, dim `#a6a39b`, gold `#d4af37` (used only for flagship tesserae, focus rings and the active state). Room glass, used for tiles and for one small chip beside each room name: Legal verdigris `#2f7a64`, Business terracotta `#b9572f`, Creative carmine `#b3172f`, Design ochre `#c99a2a`, Research lead white `#cfc9bb`. Light theme: lime plaster `#e8e5de` ground, text `#1a1916`, the same glass colours slightly darker, gold `#a8841f`. No blue or purple.
+
+**Layout.** Homepage: the wall fills the first screen with the name and lede set in a solid "inscription" panel cut into the left side of the wall (DOM text on a plain panel, not on top of tiles); below the wall, the page continues as plain DOM on the grout ground: routes, the full index (each entry with a small tessera chip in its room colour, gold for flagships), cross-references, rules, tool schedule, archive notice, footer. Room pages: a band of that room's mosaic field across the top (the same renderer, a lower tile count) behind the room title, then the cases in a single readable column (max about 760 px for text, figures wider), each case opening with a tessera chip, its code and title. Grout lines (2 px, a shade off the ground) are the only rules.
+
+**Motion.** Light drift and lift only. Curves: `cubic-bezier(.2,.8,.2,1)` 400–600 ms for the lift; no scroll reveals, no smooth scroll.
+
+**Chrome.** A slim top bar on the grout: "Myles Parslow" (home) at left, the five rooms as tessera chips with counts, the theme switch at right. The Style dropdown will be inserted before the theme switch.
+
+**Mobile.** The wall becomes a shorter band (about 60 vh) above the name; tap a project tessera to show its label, tap the label to open. The DOM index is the main way in.
+
+**A11y.** Canvas `aria-hidden`; every project reachable as a real link in the DOM index; the hover label is also shown on keyboard focus of the matching index link (light moves to that tessera). Reduced motion or no WebGL: a static CSS version of the wall (a grid of coloured squares in the room fields with gold flagships), no animation.
+
+**Sameness check.** vs Working Drawings: ground (dark grout vs film grey), type (geometric display vs lettering), layout (wall vs sheet), imagery (glass tiles vs line drawings), chrome, motion, signature all differ. vs Liner Notes (record label, dark vinyl, 3D crate of sleeves): type, layout, imagery, chrome, motion, signature differ. vs the award defaults: layout, imagery, chrome and signature differ.
