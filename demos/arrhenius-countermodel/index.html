@@ -1,0 +1,326 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Debt-first countermodel</title>
+<meta name="description" content="A countermodel to Arrhenius's 2011 Sixth Impossibility Theorem as printed, with WQA in its printed quantifier order, checked in Lean 4.">
+<style>
+@font-face{font-family:"Instrument Sans";src:url(fonts/InstrumentSans.woff2) format("woff2");font-weight:400 700;font-stretch:75% 100%;font-display:swap}
+@font-face{font-family:"IBM Plex Mono";src:url(fonts/IBMPlexMono-Regular.woff2) format("woff2");font-weight:400;font-display:swap}
+:root{
+  --paper:#f3f1ec; --sheet:#fbfaf7; --ink:#1c1b19; --muted:#5d5a54; --faint:#8d8981; --rule:#d9d5cc;
+  --paid:#1f6b48; --paid-soft:#dcebe2; --debt:#a23b26; --debt-soft:#f3ddd6; --lo:#8a6a12; --lo-soft:#f1e7c9;
+  --sans:"Instrument Sans",ui-sans-serif,system-ui,-apple-system,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#171615; --sheet:#201f1d; --ink:#ecebe7; --muted:#aaa69e; --faint:#7a766f; --rule:#37342f;
+  --paid:#6cc79a; --paid-soft:#173226; --debt:#f08a73; --debt-soft:#3b1f18; --lo:#e0bd5c; --lo-soft:#3a2f12; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#171615; --sheet:#201f1d; --ink:#ecebe7; --muted:#aaa69e; --faint:#7a766f; --rule:#37342f;
+  --paid:#6cc79a; --paid-soft:#173226; --debt:#f08a73; --debt-soft:#3b1f18; --lo:#e0bd5c; --lo-soft:#3a2f12; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 16.5px/1.6 var(--sans);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1000px;margin:0 auto}
+a{color:var(--paid);text-underline-offset:3px}
+:focus-visible{outline:2px solid var(--paid);outline-offset:2px;border-radius:3px}
+h1,h2,h3{line-height:1.12;text-wrap:balance;margin:0;font-weight:650;letter-spacing:-.012em}
+p{margin:0}
+.mono,code,var{font-family:var(--mono);font-style:normal;font-size:.92em}
+.eyebrow{font:500 12.5px/1.3 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+
+header.top{display:grid;gap:18px;padding-block:56px 40px;border-bottom:1px solid var(--rule)}
+header.top h1{font-size:clamp(34px,6vw,62px);font-stretch:88%}
+header.top .lede{max-width:66ch;color:var(--muted);font-size:18.5px}
+.facts{display:flex;flex-wrap:wrap;gap:8px 24px;font:400 13px/1.4 var(--mono);color:var(--muted)}
+.facts b{color:var(--ink);font-weight:400}
+
+section.part{display:grid;gap:20px;padding-block:44px;border-bottom:1px solid var(--rule)}
+section.part > .head{display:grid;gap:10px;max-width:68ch}
+section.part h2{font-size:clamp(24px,3.4vw,34px)}
+section.part .head p{color:var(--muted)}
+.prose{display:grid;gap:14px;max-width:68ch}
+
+.formula{background:var(--sheet);border:1px solid var(--rule);border-radius:6px;padding:22px;display:grid;gap:14px}
+.formula .eq{font:400 clamp(19px,2.6vw,26px)/1.3 var(--mono);text-align:center}
+.keys{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:700px){.keys{grid-template-columns:1fr}}
+.key{border-radius:4px;padding:10px 12px;font-size:14.5px}
+.key b{font-family:var(--mono);font-weight:400;font-size:17px;margin-right:6px}
+.key.h{background:var(--paid-soft)} .key.h b{color:var(--paid)}
+.key.d{background:var(--debt-soft)} .key.d b{color:var(--debt)}
+.key.l{background:var(--lo-soft)} .key.l b{color:var(--lo)}
+
+.conds{display:grid;gap:0;border-top:1px solid var(--rule)}
+.cond{display:grid;grid-template-columns:5.5em 1fr;gap:14px;padding:12px 0;border-bottom:1px solid var(--rule);font-size:15.5px}
+.cond .tag{font:400 13px/1.6 var(--mono);color:var(--muted)}
+.cond .tag b{display:block;color:var(--ink);font-weight:400;font-size:14px}
+.cond.gap{background:var(--debt-soft);margin-inline:-12px;padding-inline:12px;border-radius:4px}
+
+.panel{background:var(--sheet);border:1px solid var(--rule);border-radius:6px;padding:18px;display:grid;gap:14px;min-width:0;align-content:start}
+.panel h3{font-size:16px;font-weight:600;letter-spacing:0}
+.panel .sub{font-size:14px;color:var(--muted)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:760px){.two{grid-template-columns:1fr}}
+
+.palette{display:flex;flex-wrap:wrap;gap:5px}
+.palette button,.chip{font:400 13px/1 var(--mono);min-width:34px;height:30px;padding:0 6px;border-radius:4px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);cursor:pointer}
+.palette button.neg{color:var(--debt)} .palette button.low{color:var(--lo)} .palette button.high{color:var(--paid)}
+.lives{display:flex;flex-wrap:wrap;gap:5px;min-height:34px;align-content:flex-start;padding:2px 0}
+.chip{cursor:pointer;border:none}
+.chip.neg{background:var(--debt-soft);color:var(--debt)}
+.chip.low{background:var(--lo-soft);color:var(--lo)}
+.chip.high{background:var(--paid-soft);color:var(--paid)}
+.chip.zero{background:var(--paper);color:var(--muted);border:1px solid var(--rule)}
+.empty{font-size:13.5px;color:var(--faint);align-self:center}
+.readout{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font:400 13.5px/1.5 var(--mono);margin:0;font-variant-numeric:tabular-nums}
+.readout dt{color:var(--muted)} .readout dd{margin:0;text-align:right}
+.readout .v{font-size:17px;color:var(--ink)}
+.state{font:500 13px/1 var(--sans);padding:5px 8px;border-radius:3px;justify-self:end}
+.state.paid{background:var(--paid-soft);color:var(--paid)}
+.state.unpaid{background:var(--debt-soft);color:var(--debt)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{font:500 13.5px var(--sans);color:var(--ink);background:transparent;border:1px solid var(--rule);border-radius:4px;padding:6px 11px;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--paid-soft);border-color:var(--paid);color:var(--paid)}
+.verdict{font-size:16px;padding:12px 14px;border-radius:4px;background:var(--paper)}
+.verdict b{font-weight:600}
+
+.ctrl{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font:400 13.5px var(--mono);color:var(--muted)}
+.ctrl input[type=range]{flex:1;min-width:160px;accent-color:var(--paid)}
+.ctrl output{color:var(--ink);min-width:3ch;font-variant-numeric:tabular-nums}
+.bars{display:grid;gap:10px}
+.bar{display:grid;grid-template-columns:minmax(0,13em) 1fr 4ch;gap:12px;align-items:center;font:400 13px var(--mono)}
+.bar .lbl{color:var(--muted);overflow-wrap:anywhere}
+.bar .track{height:14px;background:var(--paper);border-radius:2px;position:relative;overflow:hidden}
+.bar i{position:absolute;left:0;top:0;bottom:0;border-radius:0 2px 2px 0;transition:width .2s}
+.bar.lhs i{background:var(--ink)} .bar.rhs i{background:var(--lo)} .bar.rhs.unpaid i{background:var(--debt)}
+.bar span:last-child{text-align:right;font-variant-numeric:tabular-nums;color:var(--ink)}
+.status{font-weight:600;font-size:15px}
+.status.ok{color:var(--paid)} .status.fail{color:var(--debt)}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+
+pre{margin:0;background:var(--sheet);border:1px solid var(--rule);border-radius:6px;padding:16px;overflow-x:auto;font:400 13.5px/1.55 var(--mono)}
+pre .c{color:var(--faint)} pre .k{color:var(--paid)}
+.dl{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+.dl a.btn{text-decoration:none;color:var(--ink)}
+
+.note{border-left:3px solid var(--rule);padding:4px 0 4px 16px;color:var(--muted);max-width:68ch}
+footer{padding-block:36px 56px;color:var(--muted);font-size:14px;display:grid;gap:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <p class="eyebrow">Population ethics · countermodel · checked in Lean 4</p>
+  <h1>Arrhenius’s 2011 impossibility theorem, as printed, has a countermodel</h1>
+  <p class="lede">Gustaf Arrhenius’s Sixth Impossibility Theorem says no ranking of populations can meet five plausible conditions at once. Its proof needs one condition to be read more strongly than it is printed. Two later papers noticed the gap. This page gives a ranking that meets all five conditions as printed, so the statement as printed is false.</p>
+  <div class="facts">
+    <span><b>Source</b> Arrhenius 2011, pp. 7–9</span>
+    <span><b>Gap noted by</b> Thomas 2016 · Thornley 2022</span>
+    <span><b>Checked</b> Lean 4, no sorry, standard axioms</span>
+    <span><b>Status</b> not peer-reviewed</span>
+  </div>
+</header>
+
+<section class="part" id="theorem">
+  <div class="head">
+    <p class="eyebrow">The theorem</p>
+    <h2>Five conditions, and the one that is printed weaker than the proof uses</h2>
+    <p>Populations are lists of lives, each at a whole-number welfare level: negative means not worth living, 1 to 3 is barely worth living, high levels go well. A ranking says which populations are at least as good as which.</p>
+  </div>
+  <div class="conds">
+    <div class="cond"><div class="tag"><b>ED</b>Egalitarian Dominance</div><p>A perfectly equal population is better than a same-size population where everyone is worse off.</p></div>
+    <div class="cond"><div class="tag"><b>GNEP</b>Non-Extreme Priority</div><p>Some number of very good lives, plus one life at a level, is at least as good as the same number of barely positive lives plus one life a step better.</p></div>
+    <div class="cond"><div class="tag"><b>NE</b>Non-Elitism</div><p>Slightly lowering one life can be outweighed by raising enough lower lives.</p></div>
+    <div class="cond"><div class="tag"><b>WNS</b>Weak Non-Sadism</div><p>Adding lives worth living is at least as good as adding lives not worth living.</p></div>
+    <div class="cond gap"><div class="tag"><b>WQA</b>Weak Quality Addition</div><p>As printed: <em>for every</em> background population there <em>exist</em> a negative level and a number m such that a few very good lives beat any number of barely positive lives plus m lives at that negative level. The proof needs the negative level and m chosen <em>before</em> the background, once for all backgrounds.</p></div>
+  </div>
+  <p class="note">Teruji Thomas (2016, §9) and Elliott Thornley (2022, fn. 7) point out that the proof fails at this quantifier order. Neither says whether the statement as printed is still true. The ranking below shows it is not.</p>
+</section>
+
+<section class="part" id="model">
+  <div class="head">
+    <p class="eyebrow">The countermodel</p>
+    <h2>Barely positive lives count only once the debt is paid</h2>
+    <p>Score each population with one number and rank by it. Suffering is a debt. Lives that go very well pay it down. Lives barely worth living add nothing until the debt is covered, and then they count in full.</p>
+  </div>
+  <div class="formula">
+    <div class="eq">V = H − D + [H ≥ D] · L</div>
+    <div class="keys">
+      <div class="key h"><b>H</b>total welfare of lives at level 4 or above</div>
+      <div class="key d"><b>D</b>total size of the negative welfare, the debt</div>
+      <div class="key l"><b>L</b>total welfare of lives at levels 1 to 3</div>
+    </div>
+  </div>
+  <div class="prose">
+    <p>When the high lives cover the debt, V is plain total welfare. When they don’t, the barely positive lives drop out. That is the whole trick. For WQA as printed, the negative level can depend on the background, so it can always be picked deep enough to leave the debt unpaid, and then no number of barely positive lives helps. If the negative level has to be fixed first, a background with enough high lives covers it, and enough barely positive lives win.</p>
+  </div>
+
+  <div class="two" id="builder">
+    <div class="panel" data-pop="A">
+      <h3>Population A</h3>
+      <div class="palette" aria-label="Add a life to A"></div>
+      <div class="lives" aria-live="polite"></div>
+      <dl class="readout"></dl>
+    </div>
+    <div class="panel" data-pop="B">
+      <h3>Population B</h3>
+      <div class="palette" aria-label="Add a life to B"></div>
+      <div class="lives" aria-live="polite"></div>
+      <dl class="readout"></dl>
+    </div>
+  </div>
+  <div class="row">
+    <span class="eyebrow">Try</span>
+    <button class="btn" data-preset="step12">Step (12), q = 12</button>
+    <button class="btn" data-preset="witness">The real witness for {8}</button>
+    <button class="btn" data-preset="paid">Debt paid</button>
+    <button class="btn" data-preset="clear">Clear both</button>
+  </div>
+  <p class="verdict" id="verdict" aria-live="polite"></p>
+  <p class="sub" style="color:var(--muted);font-size:14px">Click a number to add a life at that level. Click a life to remove it.</p>
+</section>
+
+<section class="part" id="step12">
+  <div class="head">
+    <p class="eyebrow">Where the proof breaks</p>
+    <h2>Step (12) of Lemma 1.3, with the background empty</h2>
+    <p>With X empty, WQA gives the negative level −1 and m = 1, and the trade-off condition gives n = 1. Step (12) then claims {8, 8} is at least as good as {8, −1} plus q lives at level 1, for every q. Here one 8 covers the debt of 1, so the barely positive lives count.</p>
+  </div>
+  <div class="panel">
+    <div class="ctrl"><label for="q">q, lives at level 1</label><input type="range" id="q" min="0" max="30" value="12"><output id="qv" for="q">12</output></div>
+    <div class="ctrl"><label for="a">negative level a</label><input type="range" id="a" min="-12" max="-1" value="-1"><output id="av" for="a">−1</output></div>
+    <div class="bars">
+      <div class="bar lhs"><span class="lbl">{8, 8}</span><span class="track"><i id="bl"></i></span><span id="vl">16</span></div>
+      <div class="bar rhs" id="rrow"><span class="lbl" id="rl">{8, −1} + 12 × 1</span><span class="track"><i id="br"></i></span><span id="vr">19</span></div>
+    </div>
+    <p class="status" id="st12" aria-live="polite"></p>
+    <p class="sub">WQA’s witness for the background {8} alone is −9, not −1. Slide a down to −9 and the debt stops being paid. The proof reuses the level it got for the empty background on a different background, which the printed order does not allow.</p>
+  </div>
+</section>
+
+<section class="part" id="lean">
+  <div class="head">
+    <p class="eyebrow">The check</p>
+    <h2>Machine-checked in Lean 4</h2>
+    <p>The five conditions are written out from pp. 7–9 of the 2011 chapter in a specification file. A second file defines V and proves it meets each condition, for every population and every welfare level, not a sample.</p>
+  </div>
+<pre><span class="c">-- Statements.lean: the theorem as printed</span>
+<span class="k">def</span> ArrheniusTheorem2011 : Prop :=
+  ∀ R : Pop → Pop → Prop, IsQuasiOrder R →
+    ¬ (ED R ∧ GNEP R ∧ NE R ∧ WNS R ∧ WQA R)
+
+<span class="c">-- Proof.lean: the debt-first ranking</span>
+<span class="k">def</span> V (p : Pop) : Int := H p - D p + (if D p ≤ H p then L p else 0)
+
+<span class="k">theorem</span> refutation : Refutation :=
+  ⟨Rv, rv_quasi, rv_perm, rv_ED, rv_GNEP, rv_NE, rv_WNS, rv_WQA, rv_not_strong⟩
+
+<span class="k">theorem</span> arrhenius2011_false : ¬ ArrheniusTheorem2011</pre>
+  <div class="prose">
+    <p>The build has no <code>sorry</code>, and <code>#print axioms</code> lists only Lean’s standard three. The refutation also proves the ranking fails the stronger WQA, so it does not contradict the version of the theorem Thomas and Thornley repair.</p>
+    <p>Two choices in the formal statement differ from the literal text. Egalitarian Dominance is read for non-empty populations, because with zero lives it would demand that the empty population be better than itself. Weak Non-Sadism requires at least one added negative life, which only makes the condition harder to meet.</p>
+  </div>
+  <div class="dl">
+    <a class="btn" href="arrhenius2011-countermodel-lean.zip" download>Download the Lean project (17 KB)</a>
+    <span class="mono" style="color:var(--muted);font-size:13px">lake build ArrheniusLean · Lean 4, core only</span>
+  </div>
+</section>
+
+<section class="part" id="status">
+  <div class="head">
+    <p class="eyebrow">Status</p>
+    <h2>What this is and isn’t</h2>
+  </div>
+  <div class="prose">
+    <p>I’m not a philosopher. I enjoyed philosophy of economics in college and use AI to keep learning, so I pointed Claude at open problems in the area. Claude proposed this ranking. Separate Claude instances checked the case analysis by hand and with 200,000 random trials per condition, compared the Lean statement line by line against Arrhenius’s text, and searched for earlier work. The search found no countermodel in print.</p>
+    <p>None of that is peer review. Arrhenius’s book manuscript was not checked and may already address the point.</p>
+  </div>
+</section>
+
+<footer>
+  <p>Sources: G. Arrhenius, “The Impossibility of a Satisfactory Population Ethics,” in Dzhafarov &amp; Perry (eds.), <em>Descriptive and Normative Approaches to Human Behavior</em> (2011). T. Thomas, “Reconstructing Arrhenius’s Impossibility Theorems” (2016). E. Thornley, <em>Philosophical Studies</em> (2022), fn. 7.</p>
+  <p><a href="/research/#arrhenius">Back to the portfolio</a></p>
+</footer>
+</div>
+
+<script>
+(function(){
+  const lvl = w => w < 0 ? 'neg' : w === 0 ? 'zero' : w <= 3 ? 'low' : 'high';
+  function score(p){
+    let H=0,D=0,L=0;
+    for(const w of p){ if(w>=4) H+=w; else if(w<0) D+=-w; else L+=w; }
+    const paid = H>=D;
+    return {H,D,L,paid,V:H-D+(paid?L:0)};
+  }
+  const fmt = n => n<0 ? '−'+(-n) : String(n);
+  const pops = {A:[8,8], B:[8,-1,1,1,1,1,1,1,1,1,1,1,1,1]};
+  const LEVELS = [-9,-5,-3,-1,0,1,2,3,4,5,8,10];
+
+  document.querySelectorAll('#builder .panel').forEach(panel=>{
+    const k = panel.dataset.pop, pal = panel.querySelector('.palette');
+    for(const w of LEVELS){
+      const b=document.createElement('button'); b.type='button'; b.className=lvl(w); b.textContent=fmt(w);
+      b.setAttribute('aria-label','Add a life at level '+fmt(w)+' to '+k);
+      b.onclick=()=>{ if(pops[k].length<40){ pops[k].push(w); draw(); } };
+      pal.appendChild(b);
+    }
+  });
+
+  function drawPanel(k){
+    const panel=document.querySelector('#builder .panel[data-pop="'+k+'"]');
+    const lives=panel.querySelector('.lives'); lives.textContent='';
+    const p=pops[k].slice().sort((a,b)=>b-a); pops[k]=p;
+    if(!p.length){ const e=document.createElement('span'); e.className='empty'; e.textContent='No lives yet'; lives.appendChild(e); }
+    p.forEach((w,i)=>{
+      const c=document.createElement('button'); c.type='button'; c.className='chip '+lvl(w); c.textContent=fmt(w);
+      c.setAttribute('aria-label','Remove a life at level '+fmt(w)+' from '+k);
+      c.onclick=()=>{ pops[k].splice(i,1); draw(); };
+      lives.appendChild(c);
+    });
+    const s=score(p);
+    panel.querySelector('.readout').innerHTML =
+      '<dt>H, high</dt><dd>'+fmt(s.H)+'</dd><dt>D, debt</dt><dd>'+fmt(s.D)+'</dd>'+
+      '<dt>L, barely positive</dt><dd>'+fmt(s.L)+(s.paid?'':' <span style="color:var(--debt)">(not counted)</span>')+'</dd>'+
+      '<dt>debt</dt><dd><span class="state '+(s.paid?'paid':'unpaid')+'">'+(s.paid?'paid':'unpaid')+'</span></dd>'+
+      '<dt>V</dt><dd class="v">'+fmt(s.V)+'</dd>';
+    return s;
+  }
+  function draw(){
+    const a=drawPanel('A'), b=drawPanel('B');
+    const v=document.getElementById('verdict');
+    v.innerHTML = a.V>b.V ? '<b>A is better than B</b>, '+fmt(a.V)+' to '+fmt(b.V)+'.'
+                : a.V<b.V ? '<b>B is better than A</b>, '+fmt(b.V)+' to '+fmt(a.V)+'.'
+                : '<b>A and B are equally good</b>, '+fmt(a.V)+' each.';
+  }
+  const ones = n => Array(n).fill(1);
+  const presets = {
+    step12: ()=>{ pops.A=[8,8]; pops.B=[8,-1,...ones(12)]; },
+    witness:()=>{ pops.A=[8,4]; pops.B=[8,-9,...ones(30)]; },
+    paid:   ()=>{ pops.A=[8,8,4]; pops.B=[8,8,-9,...ones(30)]; },
+    clear:  ()=>{ pops.A=[]; pops.B=[]; }
+  };
+  document.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>{ presets[b.dataset.preset](); draw(); });
+  draw();
+
+  const q=document.getElementById('q'), a=document.getElementById('a');
+  function step(){
+    const qn=+q.value, an=+a.value;
+    document.getElementById('qv').textContent=qn;
+    document.getElementById('av').textContent=fmt(an);
+    const L=score([8,8]).V, R=score([8,an,...ones(qn)]);
+    const max=Math.max(16,8+30);
+    document.getElementById('bl').style.width=(Math.max(L,0)/max*100)+'%';
+    document.getElementById('br').style.width=(Math.max(R.V,0)/max*100)+'%';
+    document.getElementById('vl').textContent=fmt(L);
+    document.getElementById('vr').textContent=fmt(R.V);
+    document.getElementById('rl').textContent='{8, '+fmt(an)+'} + '+qn+' × 1';
+    document.getElementById('rrow').classList.toggle('unpaid',!R.paid);
+    const st=document.getElementById('st12');
+    if(L>=R.V){ st.className='status ok'; st.textContent = R.paid ? 'Step (12) holds here: '+fmt(L)+' ≥ '+fmt(R.V)+'.' : 'Debt unpaid, so the level-1 lives count for nothing: '+fmt(L)+' ≥ '+fmt(R.V)+'.'; }
+    else { st.className='status fail'; st.textContent='Step (12) fails: '+fmt(L)+' < '+fmt(R.V)+'. The debt of '+(-an)+' is paid, so every level-1 life counts.'; }
+  }
+  q.oninput=step; a.oninput=step; step();
+})();
+</script>
+</body></html>
