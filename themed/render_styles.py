@@ -14,6 +14,10 @@ N_CASES = sum(1 for r in _LIVE['rooms'] for it in r['items'] if it.get('kind') =
 
 # newest first; href is relative to styles/index.html
 VERSIONS = [
+    dict(key='o', name='Civitas', date='Nov 2026', href='../mockup-o/index.html', family='Medieval city view',
+         line='A walled medieval city drawn like a 1575 city view, every section of the site a building you can enter, and every page a manuscript leaf with illuminated initials and margin drawings.',
+         knobs=dict(ground='Vellum, iron-gall ink, vermilion and gold', type='Cardo + UnifrakturMaguntia + Alegreya Sans', layout='A city map, then manuscript leaves',
+                    motion='Buildings lift when you point at them', signature='Every great building is a door')),
     dict(key='m', name='Redline', date='Nov 2026', href='../mockup-m/index.html', family='Document under review',
          line='The portfolio as a legal draft in review: rooms are Articles, projects are Sections, and Track Changes marks which sentences of each build note are his and which are the AI’s.',
          knobs=dict(ground='White page on a grey desk', type='Tinos document serif + Atkinson Hyperlegible Next', layout='One document page with a comment margin',

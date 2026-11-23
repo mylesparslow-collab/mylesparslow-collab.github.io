@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-STEPS = ['render_b', 'render_c', 'render_d', 'render_e', 'render_f', 'render_g', 'render_h', 'render_j', 'render_l', 'render_m', 'render_n', 'render_k',
+STEPS = ['render_b', 'render_c', 'render_d', 'render_e', 'render_f', 'render_g', 'render_h', 'render_j', 'render_l', 'render_m', 'render_n', 'render_o', 'render_k',
          'render_styles', 'add_switcher']
 
 
