@@ -8,6 +8,7 @@
 
   var V = [
     { k: 'i', name: 'Transit Map', base: '/' },
+    { k: 'o', name: 'Civitas', base: '/mockup-o/' },
     { k: 'm', name: 'Redline', base: '/mockup-m/' },
     { k: 'l', name: 'Tesserae', base: '/mockup-l/' },
     { k: 'n', name: 'Flipbook', base: '/mockup-n/' },
@@ -28,7 +29,7 @@
     i: ['.bar__in', 'append'], h: ['.bar__in', 'afterfirst'], g: ['header.topbar .bar', 'append'],
     f: ['#top', 'f'], e: ['header.tabrow', 'append'], d: ['nav.fkeys', 'prepend'],
     c: ['.wf__in', 'append'], b: ['.chrome .c.tr', 'prepend'], j: ['.strip__theme', 'before'], k: ['.top__theme', 'before'],
-    l: ['#theme', 'before'], m: ['#theme', 'before'], n: ['#theme', 'before']
+    l: ['#theme', 'before'], m: ['#theme', 'before'], n: ['#theme', 'before'], o: ['#theme', 'before']
   };
 
   function room() {
