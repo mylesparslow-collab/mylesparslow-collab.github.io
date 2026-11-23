@@ -172,7 +172,7 @@ SIDES['research'] = ['W', 'W'] + ['E'] * 20
 
 # Business over Creative run east out of the hub, meeting at B03/C03 (the Blender clay kit).
 B0, C0 = P(CX, CY - h), P(CX, CY + h)
-BC_x = CX + 330
+BC_x = CX + 420
 b_turn = P(BC_x + 60, B0[1])
 b_end = along(b_turn, 'NE', (b_turn[1] - 70) / S2)
 ROUTE['business'] = [B0, b_turn, b_end]
@@ -184,8 +184,8 @@ C_low = CY + 150
 c_down = along(c_turn, 'SE', (C_low - C0[1]) / S2)
 C_end = 1890
 ROUTE['creative'] = [C0, c_turn, c_down, P(C_end, C_low)]
-PINS['creative'] = {0: P(CX + 120, C0[1]), 2: P(BC_x, C0[1]), 3: P(c_down[0] + 70, C_low), 15: P(C_end, C_low)}
-SIDES['creative'] = ['S', 'S', 'S', 'N', 'S', 'N', 'S', 'N', 'S', 'N', 'S', 'N', 'S', 'N', 'S', 'N']
+PINS['creative'] = {0: P(CX + 120, C0[1]), 3: P(BC_x, C0[1]), 4: P(c_down[0] + 70, C_low), 15: P(C_end, C_low)}
+SIDES['creative'] = ['S', 'N', 'S', 'N', 'S', 'N', 'S', 'N', 'S', 'N', 'S', 'N', 'S', 'N', 'S', 'N']
 
 D_low = CY + 245
 d_bend = along(P(CX, CY), 'SE', (D_low - CY) / S2)
