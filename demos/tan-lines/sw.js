@@ -1,5 +1,5 @@
-// Tan Lines offline shell. Page: network first, so new builds arrive. Fonts and history files: cache first.
-const C = 'tanlines-20261119T213422Z';
+// Tan Lines offline shell. Page: network first, so new builds arrive. Fonts and history files: cache first (history URLs carry ?v=<build stamp>, so a new build never reads an old file).
+const C = 'tanlines-20261123T040834Z';
 self.addEventListener('install', e => { e.waitUntil(caches.open(C).then(c => c.addAll(['./', 'fonts/Anybody.ttf', 'fonts/InstrumentSans.ttf', 'fonts/GeistMono.ttf'])).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith('tanlines-') && k !== C).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', e => {
