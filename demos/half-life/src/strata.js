@@ -285,6 +285,7 @@ export function mountStrata(el, data) {
       ctx.strokeStyle = colors.ink;
       ctx.lineWidth = 1;
       ctx.beginPath();
+      if (k < y0) { ctx.globalAlpha = 0.35; ctx.setLineDash([3, 3]); }
       for (let j = y0; j < NY; j++) {
         const x = X(Y0 + j), y = Y(logy[j * N + selected]);
         if (j === y0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
@@ -434,4 +435,5 @@ export function mountStrata(el, data) {
   resize();
   syncScrub();
   setPlaying(playing);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { dirty = true; kick(); });
 }

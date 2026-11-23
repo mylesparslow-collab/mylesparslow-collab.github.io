@@ -80,7 +80,6 @@ function drawDecades(host, rows) {
   rows.forEach(([dec, med, n], i) => {
     const h = (med / yMax) * plotH;
     const r = svg_('rect', { x: left + i * colW + (colW - barW) / 2, y: base - h, width: barW, height: h, fill: 'var(--ember)' });
-    if (n < 30) r.setAttribute('fill-opacity', '.4');
     r.append(svg_('title', {}, `${dec}s: median ${med} years, n=${n}`));
     s.append(r);
     const cx = left + i * colW + colW / 2;
@@ -150,7 +149,7 @@ export function mountLedger(el, data) {
   el.append(root);
 
   // 1. byDecade
-  const b1 = block(root, 'Is precedent dying faster?', 'It did, then stopped. Counting only each ruling\u2019s first 30 years of citations, the Court cited 1860s rulings a median of about 21 years after they came down. By the 1900s that had fallen to about 9, and it has stayed between 7 and 12 since.');
+  const b1 = block(root, 'Is precedent dying faster?', 'Counting only each ruling\u2019s first 30 years of citations, the typical citation was about 21 years old for rulings from the 1860s and has been 7 to 12 years since 1900. Part of that drop reflects how fast the Court\u2019s own output grew, so read it as a trend, not a clean measure.');
   const chart = el_('div');
   b1.append(chart);
   const lg = el_('div', 'legend');
@@ -158,16 +157,13 @@ export function mountLedger(el, data) {
   const i1 = el_('i');
   i1.style.background = 'var(--ember)';
   k1.append(i1, 'Median age of citations in a ruling\u2019s first 30 years (n = rulings, under each column)');
-  const k2 = el_('span');
-  const i2 = el_('i');
-  i2.style.background = 'var(--ember)';
-  i2.style.opacity = '.4';
-  k2.append(i2, 'Fewer than 30 rulings that decade');
-  lg.append(k1, k2);
-  b1.append(lg, el_('p', 'note', ledger.notes));
+  lg.append(k1);
+  b1.append(lg);
+  if (ledger.byDecadeNote) b1.append(el_('p', 'note', ledger.byDecadeNote));
+  b1.append(el_('p', 'note', ledger.notes));
 
   // 2. sudden deaths
-  const b2 = block(root, 'Sudden deaths', 'Cited steadily, then never again; often a sign the ruling was overruled or overtaken.');
+  const b2 = block(root, 'Sudden deaths', 'At least 30 citations over 30+ years, cited in most of its last ten years, then never again in the 25 years to 2014. That can mean it was overruled, or just overtaken.');
   const list2 = el_('div');
   ledger.suddenDeaths.forEach(([id, name, year, total, last]) => {
     const row = el_('div', 'row sd');
@@ -186,12 +182,12 @@ export function mountLedger(el, data) {
   b3.append(host3);
 
   // 4. order cites
-  const b4 = block(root, 'Cited mostly by one-page orders', 'These rulings are cited in one-page orders, such as routine denials of fee waivers for repeat filers (Martin v. District of Columbia Court of Appeals). Those orders are excluded from every total on this page; the counts below are what was left out.');
+  const b4 = block(root, 'Cited mostly by short entries', 'These are short entries (orders and cert denials under 400 words), such as routine denials of fee waivers for repeat filers (Martin v. District of Columbia Court of Appeals). They are excluded from every total on this page; the counts below are what was left out.');
   const list4 = el_('div');
   ledger.orderCites.forEach(([id, name, n]) => {
     const row = el_('div', 'row oc');
     row.append(el_('div', 'nm', name), el_('div', 'n num', String(n)));
-    row.setAttribute('aria-label', `${name}, ${n} citations from one-page orders`);
+    row.setAttribute('aria-label', `${name}, ${n} citations from short entries`);
     rowButton(row, id);
     list4.append(row);
   });

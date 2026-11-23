@@ -67,6 +67,7 @@ export function mountAutopsy(el, data) {
   const input = h('input', {
     type: 'search', placeholder: 'Search a case by name', 'aria-label': 'Search cases by name',
     autocomplete: 'off', role: 'combobox', 'aria-expanded': 'false', 'aria-controls': 'au-results',
+    'aria-autocomplete': 'list',
   });
   const list = h('ul', { class: 'au-list', id: 'au-results', role: 'listbox' });
   const search = h('div', { class: 'au-search' }, input, list);
@@ -80,12 +81,14 @@ export function mountAutopsy(el, data) {
   function paintList() {
     list.replaceChildren();
     results.forEach((r, i) => {
-      const li = h('li', { role: 'option', 'aria-selected': String(i === active) },
+      const li = h('li', { role: 'option', id: `au-opt-${i}`, 'aria-selected': String(i === active) },
         h('span', {}, r[1]), h('span', {}, `${r[2]} · ${fmt(r[4])}`));
       li.addEventListener('mousedown', (e) => { e.preventDefault(); choose(r); });
       list.append(li);
     });
     input.setAttribute('aria-expanded', String(results.length > 0));
+    if (active >= 0 && results[active]) input.setAttribute('aria-activedescendant', `au-opt-${active}`);
+    else input.removeAttribute('aria-activedescendant');
   }
   function choose(r) {
     results = []; active = -1; paintList();
@@ -149,7 +152,7 @@ export function mountAutopsy(el, data) {
         svg.append(s('line', { x1: mx, x2: mx, y1: m.t - 6, y2: m.t + ih, stroke: 'var(--accent)', 'stroke-width': 1.5, 'stroke-dasharray': '4 3' }));
         const right = mx - m.l > W - m.r - mx;
         const lab = s('text', { x: right ? mx - 6 : mx + 6, y: m.t + 4, 'text-anchor': right ? 'end' : 'start', 'font-size': 11, style: 'fill:var(--ink)' });
-        const l1 = s('tspan', { x: right ? mx - 6 : mx + 6 }, `${year + hl}`);
+        const l1 = s('tspan', { x: right ? mx - 6 : mx + 6 }, `${Math.round(year + hl)}`);
         const l2 = s('tspan', { x: right ? mx - 6 : mx + 6, dy: 13 }, 'half of its citations');
         const l3 = s('tspan', { x: right ? mx - 6 : mx + 6, dy: 13 }, 'came before this');
         lab.append(l1, l2, l3);
@@ -203,8 +206,8 @@ export function mountAutopsy(el, data) {
     for (let r = 0; r < nRows; r++) {
       const y = top + r * rh;
       const page = first + r;
-      if (r % every === 0 && rh >= 5) {
-        svg.append(s('text', { x: labW - 6, y: y + Math.min(rh, 10) - 1, 'text-anchor': 'end', 'font-size': Math.min(10, rh + 2) }, `p. ${page}`));
+      if (rh >= 5 ? r % every === 0 : r % 10 === 0) {
+        svg.append(s('text', { x: labW - 6, y: y + Math.min(rh, 10) - 1, 'text-anchor': 'end', 'font-size': rh >= 5 ? Math.min(10, rh + 2) : 8 }, `p. ${page}`));
       }
       for (let j = 0; j < nCols; j++) {
         const d = dMin + j * 10;
@@ -250,7 +253,7 @@ export function mountAutopsy(el, data) {
       pre.textContent = items[i][1];
     }
     show(0);
-    host.append(h('h3', {}, 'The hottest pages'), h('p', { class: 'au-cap' }, 'The pages of this opinion that later opinions pin-cited most, as the Court wrote them.'), tabs, pre);
+    host.append(h('h3', {}, 'The hottest pages'), h('p', { class: 'au-cap' }, 'Excerpts of the pages later opinions pin-cited most, from scanned volumes (older pages carry OCR errors).'), tabs, pre);
   }
 
   /* ---------- render ---------- */
@@ -279,7 +282,7 @@ export function mountAutopsy(el, data) {
     const pg = data.pages && data.pages[c[0]];
     const b = h('div', { class: 'au-block' }, h('h3', {}, 'Which pages became law'));
     if (pg && !pg.pins.length) {
-      b.append(h('p', { class: 'au-none' }, 'Later opinions cite this ruling by its original reporter (Cranch, Wheaton and the like), whose page numbers differ from U.S. Reports, so no page map.'));
+      b.append(h('p', { class: 'au-none' }, 'No later opinion pin-cited a specific page of this ruling.'));
     } else if (pg) {
       b.append(
         h('p', { class: 'au-cap' }, 'A pin cite points a later opinion at one page of the ruling. Each row is a page, each column a decade; empty rows were never pin-cited.'),
@@ -292,7 +295,7 @@ export function mountAutopsy(el, data) {
     const tb = h('div', { class: 'au-block' });
     tb.hidden = true;
     body.append(tb);
-    Promise.resolve(data.loadText(c[0])).then((t) => {
+    Promise.resolve(data.textIds && !data.textIds.has(c[0]) ? null : data.loadText(c[0])).then((t) => {
       if (my === token) fillText(tb, c, t);
     }).catch(() => {});
   }
