@@ -111,21 +111,21 @@ details summary{cursor:pointer;color:var(--ink2);font-size:13px;margin-top:10px}
 <div class="tip" id="tip" role="tooltip"></div>
 
 <header class="hero wrap">
-  <div class="kicker">Research · Caselaw Access Project · 1806–2018</div>
+  <div class="kicker">Research · Caselaw Access Project · citations through 2018</div>
   <h1>Zombie <span class="dead">Precedent</span></h1>
-  <p class="lede">When the Supreme Court overrules one of its decisions, the old case keeps getting cited. I traced every citation to the 280 cases the Court has overruled, across every American court in Harvard's Caselaw Access Project, and had Claude models read 16,050 of them to see what the citing court was doing with a dead case.</p>
+  <p class="lede">When the Supreme Court overrules one of its decisions, the old case keeps getting cited. I traced the citations to the 280 overruled cases in the Constitution Annotated table, across every American court in Harvard's Caselaw Access Project, and had Claude models read 16,050 of them to see what the citing court was doing with a dead case.</p>
   <div class="byline">Myles Parslow · November 2026 · data through about 2018</div>
 </header>
 
 <section class="wrap" style="border-top:0;padding-top:24px">
   <div class="prose">
     <h2>Every overruled case, <em>and its afterlife</em></h2>
-    <p>Each row is one overruled decision, oldest overruling at the top. Pale dots are citations while the case was good law. The red tick is the year it was overruled. Green dots are the citations that came after.</p>
+    <p>Each row is one overruled decision, oldest overruling at the top. Pale dots are citations before the overruling. The red tick is the year it was overruled. Green dots are the citations that came after. Dates follow the Constitution Annotated table and use its earliest listed overruling, even when that one was only in part; Plessy v. Ferguson, for one, is dated to Bob Jones University (1983), not Brown.</p>
   </div>
-  <div class="find"><input id="find" type="search" placeholder="Find a case: Lochner, Plessy, Roe…" aria-label="Find a case" list="caseList"><datalist id="caseList"></datalist></div>
+  <div class="find"><input id="find" type="search" placeholder="Find a case: Plessy, Roe, Chevron…" aria-label="Find a case" list="caseList"><datalist id="caseList"></datalist></div>
   <div class="yard" id="yard"><canvas id="yardCanvas" aria-label="Chart: 280 overruled Supreme Court cases, citations by year before and after each overruling"></canvas><canvas id="yardOver"></canvas></div>
   <div class="yard-legend">
-    <span class="key"><i class="sw dot" style="background:var(--life)"></i>citation while good law</span>
+    <span class="key"><i class="sw dot" style="background:var(--life)"></i>citation before the overruling</span>
     <span class="key"><i class="sw tick" style="background:var(--death)"></i>overruled</span>
     <span class="key"><i class="sw dot" style="background:var(--ghost);box-shadow:0 0 6px var(--ghost)"></i>citation after the overruling</span>
     <span class="key" style="color:var(--ink3)">hover a row for the case</span>
@@ -140,19 +140,19 @@ details summary{cursor:pointer;color:var(--ink2);font-size:13px;margin-top:10px}
 
 <section class="wrap">
   <div class="prose">
-    <h2>The tail runs <em>for centuries</em></h2>
+    <h2>The tail runs <em>past a century</em></h2>
     <p>Half of the citations come within ten years of the overruling. The rest thin out slowly: 29% come more than 20 years after, and 7.6% more than 50. Of the 140 cases overruled at least 50 years before 2017, 113 were still being cited 50 or more years later.</p>
-    <p>The long end is mostly a few old cases cited for the part that survived. Strawbridge v. Curtiss (1806) was overruled in 1844 and was still being cited 175 years later, nearly always for its complete-diversity rule, which outlived the overruling.</p>
+    <p>The 1,861 citations at 100 years or more come from just 22 cases. Strawbridge v. Curtiss (1806) was overruled in 1844 and was still being cited 175 years later, nearly always for its complete-diversity rule, which outlived the overruling.</p>
   </div>
   <div class="chart" id="tail"></div>
-  <p class="note">Citations by years since the overruling, all courts. Count from CAP citation metadata, no model labels involved.</p>
+  <p class="note">Citations by years since the overruling, all courts. The dashed bar at the end pools everything from 150 to 208 years. Count from CAP citation metadata, no model labels involved.</p>
 </section>
 
 <section class="wrap">
   <div class="prose">
     <h2>Overruled cases <em>fade faster</em> than their peers</h2>
-    <p>Old cases get cited less as they age whether or not anyone overrules them. So I matched 218 overruled cases to 1,944 Supreme Court cases of the same age and a similar citation rate that were never overruled, and indexed each to its own rate before the overruling year.</p>
-    <p>The two groups keep pace for the first few years. From about year 6 the overruled cases fall behind and stay behind for decades: at 11–40 years an overruled case gets roughly 40–70% of the citations its match gets. How much depends on the baseline. Overruled cases spike in the years just before they fall, while the fight over them is going on, so a baseline that ends at the overruling makes the drop look bigger. The toggle switches to an earlier baseline that skips the spike.</p>
+    <p>Old cases get cited less as they age whether or not anyone overrules them. So I matched 218 overruled cases to 1,944 Supreme Court cases of the same age and a similar citation rate that are not on the overruled list, and indexed each to its own rate before the overruling year.</p>
+    <p>The two groups keep pace for the first few years. From about year 6 the overruled cases fall behind and stay behind for decades: at 11–40 years an overruled case gets roughly 40–70% of the citations its match gets. How much depends on the baseline. Overruled cases spike in the years just before they fall, while the fight over them is going on, so a baseline that ends at the overruling makes the drop look bigger. The toggle switches to an earlier baseline that skips the spike. Neither baseline gives a clean comparison: on the earlier one the overruled cases were already running above their matches beforehand.</p>
   </div>
   <div class="toggle" role="group" aria-label="Baseline">
     <button id="b5" aria-pressed="true">Baseline: 5 years before</button>
@@ -161,7 +161,7 @@ details summary{cursor:pointer;color:var(--ink2);font-size:13px;margin-top:10px}
   <div class="chart" id="decay"></div>
   <div class="legend">
     <span class="key"><i class="sw" style="background:var(--ghost);height:3px;width:18px"></i>overruled cases</span>
-    <span class="key"><i class="sw" style="background:var(--ink2);height:3px;width:18px"></i>matched cases never overruled</span>
+    <span class="key"><i class="sw" style="background:var(--ink2);height:3px;width:18px"></i>matched cases not on the overruled list</span>
   </div>
   <p class="note">Mean citations per year as a share of each case's own baseline average. This shows an association: the matching can't rule out that some cases were overruled because they were already fading.</p>
 </section>
@@ -181,22 +181,22 @@ details summary{cursor:pointer;color:var(--ink2);font-size:13px;margin-top:10px}
   <div class="relies">
     <div class="prose">
       <h2>The <em>real</em> zombies are rare</h2>
-      <p>A zombie citation uses the overruled rule as law with no sign of knowing it is dead. That label went through three or four reads: Sonnet, a second Sonnet read with a wider cut of the opinion and a stricter test, then a blind Opus review. The blind review agreed with 58% of the surviving calls. A sample of the citations the second read threw out found a few real ones it had wrongly dropped.</p>
+      <p>A zombie citation uses the overruled rule as law with no sign of knowing it is dead. That label went through two Sonnet reads, the second with a wider cut of the opinion and a stricter test. A blind Opus review of a sample of the survivors agreed with 58% of them. A sample of the citations the second read threw out turned up a few the reviewer judged real.</p>
       <p>Putting those together: about <b>390 citations</b> (95% interval 270–515) rely on a dead rule, <b>0.72%</b> of the 54,488 citations whose passage could be found. That rate shows no clear trend over time.</p>
       <p class="note">The interval leaves out one thing. The blind review found no zombies among 151 sampled "surviving point", "acknowledges", "other grounds" and "historical" labels, but that sample is too small to rule out a much larger number hiding there.</p>
     </div>
     <div>
       <div class="big">0.72%<small>of located post-overruling citations rely on the dead rule</small></div>
-      <div class="note">One square is one citation in a thousand. Solid: the estimate (about 7 per 1,000). Outlined: the top of the interval (9.5).</div>
-      <div class="waffle" id="waffle" aria-label="1,000 squares, 7 red"></div>
+      <div class="note">One square is one citation in a thousand. Solid: the estimate (about 7 per 1,000). Outlined: up to the top of the interval (about 9). The bottom of the interval is 5.</div>
+      <div class="waffle" id="waffle" aria-label="1,000 squares: 7 solid red, 2 outlined"></div>
     </div>
   </div>
 </section>
 
 <section class="wrap">
   <div class="prose">
-    <h2>Seven <em>zombies</em></h2>
-    <p>Each was labelled "relies" by Sonnet, by the stricter second read and by the blind Opus review, and I read each passage. Cites are as CAP gives them.</p>
+    <h2>Seven <em>zombies</em>, as the models saw them</h2>
+    <p>Each was labelled "relies" by Sonnet, by the stricter second read and by the blind Opus review, and Opus re-read each passage. No lawyer has checked them, and a lawyer could argue some of these calls. Cites are as CAP gives them.</p>
   </div>
   <div class="graves" id="graves"></div>
 </section>
@@ -204,13 +204,13 @@ details summary{cursor:pointer;color:var(--ink2);font-size:13px;margin-top:10px}
 <section class="wrap">
   <div class="prose">
     <h2>Who cites the dead</h2>
-    <p>The Supreme Court cites its own overruled cases far more than any other court does, usually to discuss them. Below it, federal courts cite them about twice as often as state high courts. Estimated reliance comes out lowest at the Supreme Court and the federal courts of appeals, though the intervals are wide and the other four types can't be ranked.</p>
+    <p>The Supreme Court cites its own overruled cases far more than any other court does, usually to discuss them. Below it, federal courts cite them about twice as often as state high courts. Estimated reliance comes out lowest at the Supreme Court and the federal courts of appeals, weakly: the intervals are wide and nearly touch the others', and the other four types can't be ranked.</p>
   </div>
   <div class="two">
     <div><div class="kicker" style="margin-top:20px">Citations to overruled cases per 1,000 opinions, 1950–2017</div><div class="chart" id="rate"></div></div>
     <div><div class="kicker" style="margin-top:20px">Estimated share that relies on the dead rule</div><div class="chart" id="rshare"></div></div>
   </div>
-  <p class="note">Bars and dots show the estimate; lines show 95% intervals (a bootstrap over overruled cases for rates; sampling, precision and recall for reliance). Federal Appendix left out of the rates.</p>
+  <p class="note">Bars and dots show the estimate; lines show 95% intervals (a bootstrap over overruled cases for rates; sampling, precision and recall for reliance). Federal Appendix left out of the rates. The reliance estimates assume the models are equally accurate in every court type, which was not tested.</p>
 </section>
 
 <section class="wrap">
@@ -220,7 +220,7 @@ details summary{cursor:pointer;color:var(--ink2);font-size:13px;margin-top:10px}
   </div>
   <div class="limits">
     <div><b>Only Supreme Court overrulings</b>State courts and federal circuits overruling their own precedents are not covered, and that is probably where most zombie citations live.</div>
-    <div><b>No lawyer has read the labels</b>Every reader was a Claude model, and they can share blind spots. A New York state-law trap fooled two of them.</div>
+    <div><b>No lawyer has read the labels</b>Every label was assigned by a Claude model, and the models can share blind spots. A New York state-law trap fooled both Sonnet reads and the Opus reviewer.</div>
     <div><b>Data ends around 2018</b>Recent overrulings have short tails, and anything after CAP's coverage is missing.</div>
     <div><b>A sample, not a census, for labels</b>About 29% of the located citations were labelled. Counts, timing and court rates are a full census.</div>
     <div><b>"Relies" is the weakest label</b>Blind precision is 58%, and the zero found in the large classes bounds the hidden zombies only loosely.</div>
@@ -265,7 +265,7 @@ fetch('data.json').then(r => r.json()).then(D => {
 function graveyard(D) {
   const cases = D.cases, n = cases.length;
   const c = $('#yardCanvas'), o = $('#yardOver'), box = $('#yard');
-  const Y0 = 1790, Y1 = 2021, L = 8, Rm = 8, T = 22, B = 26;
+  const Y0 = 1790, Y1 = 2026, L = 8, Rm = 8, T = 22, B = 26;
   let W, H, rowH, dpr, sx, dots, hover = -1, pinned = -1;
   // seeded jitter so redraws are stable
   let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
@@ -320,8 +320,9 @@ function graveyard(D) {
     ctx.shadowBlur = 0; ctx.globalAlpha = 1; ctx.fillStyle = css('--death'); ctx.fillRect(sx(k.died) - 1, y - 7, 2.5, rowH + 14);
   }
   function caseHtml(k) {
-    const last = k.last ? `last in ${k.last}, ${k.last - k.died} years later` : 'never cited again';
-    return `<b>${k.name}</b>, <span class="m">${k.cite} (${k.year})</span><br>Overruled ${k.died}${k.partial === '1' ? ' in part' : ''} by ${k.by}<br><span class="num">${fmt(k.n_after)}</span> citations after the overruling <span class="m">· ${last}</span>`;
+    const last = k.last ? `last in ${k.last}, ${k.last - k.died} years later` : k.died >= 2018 ? 'overruled after the data ends' : 'not cited again';
+    const ev = k.events.length ? k.events.map(e => `Overruled${e[2] === '1' ? ' in part' : ''} ${e[0]} by ${e[1]}`).join('<br>') : `Overruled ${k.died} by ${k.by}`;
+    return `<b>${k.name}</b>, <span class="m">${k.cite} (${k.year})</span><br>${ev}<br><span class="num">${fmt(k.n_after)}</span> citations after the overruling <span class="m">· ${last}</span>`;
   }
   function rowAt(ev) { const r = c.getBoundingClientRect(); const i = Math.floor((ev.clientY - r.top - T) / rowH); return i >= 0 && i < n ? i : -1; }
   box.addEventListener('pointermove', ev => { const i = rowAt(ev); if (i !== hover) { hover = i; overlay(); } if (i >= 0) showTip(caseHtml(cases[i]), ev); else hideTip(); });
@@ -330,7 +331,7 @@ function graveyard(D) {
   const dl = $('#caseList'); cases.forEach(k => { const op = document.createElement('option'); op.value = k.name; dl.appendChild(op); });
   $('#find').addEventListener('input', e => {
     const q = e.target.value.trim().toLowerCase(); pinned = -1;
-    if (q.length > 2) pinned = cases.findIndex(k => k.name.toLowerCase().includes(q));
+    if (q.length > 2) { const nm = k => k.name.toLowerCase(); pinned = cases.findIndex(k => nm(k) === q); if (pinned < 0) pinned = cases.findIndex(k => nm(k).startsWith(q)); if (pinned < 0) pinned = cases.findIndex(k => nm(k).includes(q)); }
     overlay();
     if (pinned >= 0) { const r = c.getBoundingClientRect(); const y = r.top + T + pinned * rowH; showTip(caseHtml(cases[pinned]), { clientX: r.left + sx(cases[pinned].died), clientY: y }); } else hideTip();
   });
@@ -364,12 +365,15 @@ function tail(D) {
     hit.addEventListener('pointerleave', () => { r.setAttribute('fill', t >= 100 ? css('--ghost') : t >= 20 ? '#6ea957' : '#4f7d40'); hideTip(); });
   });
   const ob = L + 150 * bw;
-  el('rect', { x: ob + .5, y: y(over), width: bw - 1, height: y(0) - y(over), fill: css('--ghost'), rx: 1 }, s);
+  const obar = el('rect', { x: ob + .5, y: y(over), width: bw - 1, height: y(0) - y(over), fill: 'none', stroke: css('--ghost'), 'stroke-dasharray': '2 2', rx: 1 }, s);
+  const ohit = el('rect', { x: ob - 4, y: T, width: bw + 8, height: H - T - B, fill: 'transparent' }, s);
+  ohit.addEventListener('pointermove', ev => showTip(`<b>150 to 208 years after</b>, pooled<br><span class="num">${fmt(over)}</span> citations`, ev));
+  ohit.addEventListener('pointerleave', hideTip);
   [0, 25, 50, 75, 100, 125, 150].forEach(t => { el('text', { x: L + t * bw + bw / 2, y: H - 12, 'text-anchor': 'middle', class: 'lab' }, s).textContent = t === 150 ? '150+' : t; });
   el('text', { x: W - R, y: H, 'text-anchor': 'end', class: 'lab' }, s).textContent = 'years after the overruling';
   const ann = (t, label, yy) => { const x = L + t * bw + bw / 2; el('line', { x1: x, x2: x, y1: y(0), y2: yy + 6, stroke: css('--ink2'), 'stroke-dasharray': '2 3' }, s); el('text', { x: x + 6, y: yy + 4, class: 'lab', style: 'fill:var(--ink)' }, s).textContent = label; };
   ann(10, 'median: 10 years', y(3300));
-  ann(20, '29% come after 20 years', y(2300));
+  ann(21, '29% come after 20 years', y(2300));
   ann(100, '1,861 citations at 100+ years', y(1000));
 }
 
@@ -377,9 +381,9 @@ function tail(D) {
 function decay(D) {
   const host = $('#decay'); const W = 1060, H = 360, L = 50, R = 20, T = 14, B = 36;
   const s = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'Line chart: citations of overruled cases versus matched controls, as a share of baseline' }, host);
-  const X0 = -20, X1 = 60, YM = 150;
+  const X0 = -20, X1 = 60, YM = 180;
   const x = t => L + (t - X0) / (X1 - X0) * (W - L - R), y = v => T + (1 - v / YM) * (H - T - B);
-  for (let v = 0; v <= 150; v += 25) { el('line', { x1: L, x2: W - R, y1: y(v), y2: y(v), class: 'gridl' }, s); el('text', { x: L - 8, y: y(v) + 4, 'text-anchor': 'end', class: 'lab' }, s).textContent = v + '%'; }
+  for (let v = 0; v <= 175; v += 25) { el('line', { x1: L, x2: W - R, y1: y(v), y2: y(v), class: 'gridl' }, s); el('text', { x: L - 8, y: y(v) + 4, 'text-anchor': 'end', class: 'lab' }, s).textContent = v + '%'; }
   for (let t = -20; t <= 60; t += 10) el('text', { x: x(t), y: H - 14, 'text-anchor': 'middle', class: 'lab' }, s).textContent = t === 0 ? 'overruled' : (t > 0 ? '+' : '') + t;
   el('line', { x1: x(0), x2: x(0), y1: T, y2: H - B, stroke: css('--death'), 'stroke-width': 1.5 }, s);
   el('text', { x: W - R, y: H, 'text-anchor': 'end', class: 'lab' }, s).textContent = 'years from the overruling';
@@ -395,7 +399,7 @@ function decay(D) {
     po.setAttribute('d', path(cur.over)); pc.setAttribute('d', path(cur.ctrl));
     const lastO = cur.over.filter(p => p.tau <= X1).at(-1), lastC = cur.ctrl.filter(p => p.tau <= X1).at(-1);
     lo.setAttribute('x', x(lastO.tau) - 4); lo.setAttribute('y', y(lastO.v) + 18); lo.setAttribute('text-anchor', 'end'); lo.textContent = 'overruled';
-    lc.setAttribute('x', x(lastC.tau) - 4); lc.setAttribute('y', y(lastC.v) - 10); lc.setAttribute('text-anchor', 'end'); lc.textContent = 'never overruled';
+    lc.setAttribute('x', x(lastC.tau) - 4); lc.setAttribute('y', y(lastC.v) - 10); lc.setAttribute('text-anchor', 'end'); lc.textContent = 'matched cases';
     $('#b5').setAttribute('aria-pressed', key === 'b5'); $('#b10').setAttribute('aria-pressed', key === 'b10');
     if (!reduce) for (const p of [po, pc]) { const len = p.getTotalLength(); p.style.transition = 'none'; p.style.strokeDasharray = p === pc ? '5 4' : len; if (p === po) { p.style.strokeDashoffset = len; p.getBoundingClientRect(); p.style.transition = 'stroke-dashoffset 1.2s cubic-bezier(.3,0,.2,1)'; p.style.strokeDashoffset = 0; } }
   }
@@ -408,7 +412,7 @@ function decay(D) {
     cross.setAttribute('x1', x(t)); cross.setAttribute('x2', x(t)); cross.setAttribute('opacity', 1);
     mo.setAttribute('cx', x(t)); mo.setAttribute('cy', y(Math.min(YM, a.v))); mo.setAttribute('opacity', 1);
     mc.setAttribute('cx', x(t)); mc.setAttribute('cy', y(Math.min(YM, b.v))); mc.setAttribute('opacity', 1);
-    showTip(`<b>${t === 0 ? 'Year of the overruling' : (t > 0 ? t + ' years after' : -t + ' years before')}</b><br><span style="color:var(--ghost)">●</span> overruled <span class="num">${Math.round(a.v)}%</span> <span class="m">(${a.n} cases)</span><br><span style="color:var(--ink2)">●</span> never overruled <span class="num">${Math.round(b.v)}%</span>`, ev);
+    showTip(`<b>${t === 0 ? 'Year of the overruling' : (t > 0 ? t + ' years after' : -t + ' years before')}</b><br><span style="color:var(--ghost)">●</span> overruled <span class="num">${Math.round(a.v)}%</span> <span class="m">(${a.n} cases)</span><br><span style="color:var(--ink2)">●</span> matched cases <span class="num">${Math.round(b.v)}%</span>`, ev);
   });
   hit.addEventListener('pointerleave', () => { hideTip(); for (const e of [cross, mo, mc]) e.setAttribute('opacity', 0); });
   set('b5');
@@ -452,19 +456,20 @@ function waffle(D) {
 /* ---------- graves ---------- */
 function graves() {
   const G = [
-    ['Grady v. Corbin', '495 U.S. 508 (1990)', 'United States v. Dixon', 1993, 'Commonwealth v. Charles', '81 Mass. App. Ct. 901 (2012)', 2012, 'The basic rule is that a defendant who has been prosecuted for a lesser offense based on conduct that must be proved to convict him of a greater offense cannot subsequently be prosecuted for the latter.', 'Quotes Grady\'s same-conduct double jeopardy test.', 'https://static.case.law/mass-app-ct/81/cases/0901-01.json'],
-    ['Bryan v. United States', '338 U.S. 552 (1950)', 'Burks v. United States', 1978, 'United States v. Lopac', '411 F. Supp. 2d 350 (S.D.N.Y. 2006)', 2006, 'the court has the power to direct a new trial rather than enter a judgment of acquittal.', 'Cites Bryan for ordering a new trial instead of an acquittal after finding the evidence insufficient.', 'https://static.case.law/f-supp-2d/411/cases/0350-01.json'],
+    ['Grady v. Corbin', '495 U.S. 508 (1990)', 'United States v. Dixon', 1993, 'Commonwealth v. Charles', '81 Mass. App. Ct. 901 (2012)', 2012, 'The basic rule is that a defendant who has been prosecuted for a lesser offense based on conduct that must be proved to convict him of a greater offense cannot subsequently be prosecuted for the latter.', 'Cites Grady for a successive-prosecution bar. A lawyer could read the quoted rule as Brown v. Ohio\'s, which Dixon left standing.', 'https://static.case.law/mass-app-ct/81/cases/0901-01.json'],
+    ['Bryan v. United States', '338 U.S. 552 (1950)', 'Burks v. United States', '1978 in part', 'United States v. Lopac', '411 F. Supp. 2d 350 (S.D.N.Y. 2006)', 2006, 'the court has the power to direct a new trial rather than enter a judgment of acquittal.', 'Cites Bryan for ordering a new trial instead of an acquittal after finding the evidence insufficient.', 'https://static.case.law/f-supp-2d/411/cases/0350-01.json'],
     ['National League of Cities v. Usery', '426 U.S. 833 (1976)', 'Garcia v. San Antonio Metropolitan Transit Authority', 1985, "O'Donnell v. Village of Downers Grove", '656 F. Supp. 562 (N.D. Ill. 1987)', 1987, 'The Tenth Amendment serves as an affirmative external limitation on federal legislation.', 'Cites Usery for the Tenth Amendment limit Garcia threw out.', 'https://static.case.law/f-supp/656/cases/0562-01.json'],
-    ['Monroe v. Pape', '365 U.S. 167 (1961)', 'Monell v. Department of Social Services', 1978, 'Toscano v. County of Los Angeles', '92 Cal. App. 3d 775 (1979)', 1979, 'United States Code section 1983 actions can only be brought against individuals.', 'Monell had just held that local governments can be sued under § 1983.', 'https://static.case.law/cal-app-3d/92/cases/0775-01.json'],
-    ['Gouled v. United States', '255 U.S. 298 (1921)', 'Warden v. Hayden', 1967, 'In re Bernstein', '425 F. Supp. 37 (S.D. Fla. 1977)', 1977, 'Private papers taken from the taxpayer, like other "mere evidence" cannot be used against the accused over his Fourth and Fifth Amendment objections.', 'Relies on the "mere evidence" rule Warden v. Hayden abolished.', 'https://static.case.law/f-supp/425/cases/0037-01.json'],
+    ['Monroe v. Pape', '365 U.S. 167 (1961)', 'Monell v. Department of Social Services', '1978 in part', 'Toscano v. County of Los Angeles', '92 Cal. App. 3d 775 (1979)', 1979, 'United States Code section 1983 actions can only be brought against individuals.', 'Monell had just held that local governments can be sued under § 1983.', 'https://static.case.law/cal-app-3d/92/cases/0775-01.json'],
+    ['Gouled v. United States', '255 U.S. 298 (1921)', 'Warden v. Hayden', 1967, 'In re Bernstein', '425 F. Supp. 37 (S.D. Fla. 1977)', 1977, 'Private papers taken from the taxpayer, like other "mere evidence" cannot be used against the accused over his Fourth and Fifth Amendment objections.', 'Cites Gouled for the "mere evidence" rule Hayden rejected. Hayden left private, testimonial papers open, so this one is arguable.', 'https://static.case.law/f-supp/425/cases/0037-01.json'],
     ['United States v. Reid', '53 U.S. (12 How.) 361 (1851)', 'Rosen v. United States', 1918, 'Neal v. United States', '1 F.2d 637 (8th Cir. 1924)', 1924, 'The rules of evidence governing federal courts in criminal cases arising in that district are those which were in force in Oklahoma Territory', 'Applies Reid\'s rule that federal criminal trials use the evidence law in force at statehood.', 'https://static.case.law/f2d/1/cases/0637-01.json'],
-    ['Hooven & Allison Co. v. Evatt', '324 U.S. 652 (1945)', 'Limbach v. Hooven & Allison Co.', 1984, 'Deer Park v. Harris County Appraisal District', '963 F. Supp. 605 (S.D. Tex. 1997)', 1997, 'goods in foreign commerce although present in the territory of the United States are free of local taxes.', 'Cites Hooven for an import-tax immunity Limbach overruled.', 'https://static.case.law/f-supp/963/cases/0605-01.json'],
+    ['Hooven & Allison Co. v. Evatt', '324 U.S. 652 (1945)', 'Limbach v. Hooven & Allison Co.', 1984, 'Deer Park v. Harris County Appraisal District', '963 F. Supp. 605 (S.D. Tex. 1997)', 1997, 'goods in foreign commerce although present in the territory of the United States are free of local taxes.', 'Limbach overruled Hooven for imports no longer in transit. The quote speaks of goods in foreign commerce, so this is the weakest of the seven.', 'https://static.case.law/f-supp/963/cases/0605-01.json'],
   ];
   const host = $('#graves');
   G.forEach(([t, tc, by, died, c, cc, cy, q, note, url]) => {
+    const dy = parseInt(died);
     host.insertAdjacentHTML('beforeend', `<article class="grave">
       <div><div class="t"><s>${t}</s></div><div class="d">${tc} · overruled ${died} by ${by}</div></div>
-      <div class="gap">↓ ${cy - died} year${cy - died === 1 ? '' : 's'} later</div>
+      <div class="gap">↓ ${cy - dy} year${cy - dy === 1 ? '' : 's'} later</div>
       <div><div class="t" style="font-size:16px">${c}</div><div class="d">${cc}</div></div>
       <blockquote>“${q}”</blockquote>
       <div class="c">${note} <a href="${url}" target="_blank" rel="noopener">Opinion (CAP)</a></div>
@@ -496,7 +501,7 @@ function courts(D) {
     });
   }
   const P = D.per_1000;
-  bars($('#rate'), k => ({ v: P[k].rate, lo: P[k].lo, hi: P[k].hi }), 310, [0, 100, 200, 300], v => v >= 100 ? Math.round(v) : v.toFixed(1), false);
+  bars($('#rate'), k => ({ v: P[k].rate, lo: P[k].lo, hi: P[k].hi }), 310, [0, 100, 200, 300], v => v >= 100 || v === 0 ? Math.round(v) : v.toFixed(1), false);
   const Q = D.relies_by_court;
   bars($('#rshare'), k => ({ v: Q[k].share, lo: Q[k].share_lo, hi: Q[k].share_hi }), .016, [0, .005, .01, .015], v => pct(v, 2).replace('.00%', '%'), true);
 }
