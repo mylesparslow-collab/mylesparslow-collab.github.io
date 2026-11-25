@@ -1,0 +1,673 @@
+<title>SB 706 Design-Build Validator</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap">
+<style>
+/* Layout: a working audit sheet. Controls and three gauges on top, then the
+   findings as dense tables grouped by statute area, then sources. */
+:root {
+  --bg: #f3f5f8; --surface: #ffffff; --ink: #18222e; --muted: #5a6878; --line: #d5dbe3;
+  --accent: #1f5f8b; --accent-ink: #ffffff; --track: #e3e8ee;
+  --pass: #1d6b45; --pass-bg: #dff1e6; --fail: #a3261d; --fail-bg: #f9dfdc;
+  --review: #855a00; --review-bg: #f8ebc8; --info: #2c5c86; --info-bg: #dde9f4; --na: #5a6878; --na-bg: #e6eaef;
+  --display: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif;
+  --body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #10161d; --surface: #18212b; --ink: #e6ebf1; --muted: #9aa8b8; --line: #2d3a48;
+  --accent: #6db3e0; --accent-ink: #0c1620; --track: #263240;
+  --pass: #7fd3a4; --pass-bg: #163626; --fail: #f29a91; --fail-bg: #45201c;
+  --review: #ecc569; --review-bg: #3d3011; --info: #9cc6ea; --info-bg: #1b3144; --na: #9aa8b8; --na-bg: #263240;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #10161d; --surface: #18212b; --ink: #e6ebf1; --muted: #9aa8b8; --line: #2d3a48;
+  --accent: #6db3e0; --accent-ink: #0c1620; --track: #263240;
+  --pass: #7fd3a4; --pass-bg: #163626; --fail: #f29a91; --fail-bg: #45201c;
+  --review: #ecc569; --review-bg: #3d3011; --info: #9cc6ea; --info-bg: #1b3144; --na: #9aa8b8; --na-bg: #263240;
+  color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font: 15px/1.55 var(--body); padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+.wrap { max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px }
+h1 { font: 600 28px/1.15 var(--display); margin: 0; text-wrap: balance }
+h2 { font: 600 18px/1.25 var(--display); margin: 0; text-wrap: balance }
+p { margin: 0; max-width: 68ch }
+.lede { color: var(--muted) }
+.notice { border-left: 3px solid var(--review); background: var(--review-bg); padding: 10px 14px; font-size: 14px; max-width: none }
+header { display: flex; flex-direction: column; gap: 10px }
+.controls { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: end }
+.field { display: flex; flex-direction: column; gap: 4px; min-width: 0 }
+label, .cap { font-size: 12px; letter-spacing: .05em; text-transform: uppercase; color: var(--muted) }
+select, input[type=date], textarea, button { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 7px 10px }
+button { cursor: pointer; background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 500 }
+button.quiet { background: var(--surface); color: var(--ink); border-color: var(--line); font-weight: 400 }
+button[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent) }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+details summary { cursor: pointer; color: var(--accent); font-size: 14px }
+textarea { width: 100%; min-height: 260px; font: 12.5px/1.5 var(--mono); margin-top: 8px; resize: vertical }
+.err { color: var(--fail); font-size: 14px }
+.gauges { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 20px 32px; padding: 18px 0; border-block: 1px solid var(--line) }
+.gauge { display: flex; flex-direction: column; gap: 6px; min-width: 0 }
+.gauge .big { font: 600 22px/1.2 var(--display); font-variant-numeric: tabular-nums }
+.gauge .sub { font-size: 13px; color: var(--muted) }
+.slots { display: flex; gap: 3px }
+.slots i { flex: 1; height: 10px; background: var(--track); border-radius: 1px }
+.slots i.used { background: var(--muted) } .slots i.this { background: var(--accent) } .slots i.over { background: var(--fail) }
+.bar { height: 10px; background: var(--track); border-radius: 1px; position: relative; overflow: hidden }
+.bar b { position: absolute; inset: 0 auto 0 0; background: var(--accent) }
+.summary { display: flex; flex-wrap: wrap; gap: 8px; align-items: center }
+.pill { font: 500 12px/1 var(--mono); padding: 5px 7px; border-radius: 3px; white-space: nowrap; display: inline-block }
+.PASS { color: var(--pass); background: var(--pass-bg) } .FAIL { color: var(--fail); background: var(--fail-bg) }
+.REVIEW { color: var(--review); background: var(--review-bg) } .INFO { color: var(--info); background: var(--info-bg) } .NA { color: var(--na); background: var(--na-bg) }
+.outcome { font-weight: 600 }
+section { display: flex; flex-direction: column; gap: 10px; min-width: 0 }
+.scroll { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 4px }
+table { border-collapse: collapse; width: 100%; font-size: 14px }
+th { text-align: left; font: 500 12px/1.3 var(--body); letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding: 9px 12px; border-bottom: 1px solid var(--line); white-space: nowrap }
+td { padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top }
+tr:last-child td { border-bottom: 0 }
+td.id, td.cite { font: 12.5px/1.5 var(--mono); white-space: nowrap; color: var(--muted) }
+td.cite { white-space: normal; min-width: 150px }
+td.check { min-width: 200px; font-weight: 500 } td.detail { min-width: 280px }
+td.q { min-width: 300px; color: var(--muted); font-size: 13px }
+.empty { padding: 14px; color: var(--muted) }
+footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); padding-top: 16px }
+a { color: var(--accent) }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>SB 706 Design-Build Validator</h1>
+    <p class="lede">Checks a progressive design-build procurement record against California Public Contract Code chapter 4.7 (§§ 22185–22185.11) and the skilled and trained workforce rules in chapter 2.9. Each row names the section it rests on.</p>
+    <p class="notice">Portfolio demo. The agencies, firms, and figures are fictional. Built by a non-attorney; not legal advice and not reviewed by a lawyer. Statute text was read on leginfo on <span id="verified"></span>.</p>
+  </header>
+
+  <div>
+    <div class="controls">
+      <div class="field"><label for="sample">Sample record</label>
+        <select id="sample"><option value="bad">Ostrander Valley: record with defects</option><option value="good">Marlowe Ridge: clean record</option></select></div>
+      <div class="field"><label for="asof">As-of date</label><input type="date" id="asof"></div>
+      <button id="run" type="button">Run checks</button>
+    </div>
+    <details style="margin-top:12px"><summary>View or edit the record (JSON)</summary>
+      <textarea id="json" spellcheck="false" aria-label="Procurement record as JSON"></textarea></details>
+    <p class="err" id="err" hidden></p>
+  </div>
+
+  <div class="gauges" id="gauges"></div>
+
+  <section>
+    <h2>Findings</h2>
+    <div class="summary" id="summary"></div>
+    <div class="summary" id="filters" role="group" aria-label="Filter by status"></div>
+    <div id="findings" style="display:flex;flex-direction:column;gap:22px"></div>
+  </section>
+
+  <section>
+    <h2>Corrections to the research report</h2>
+    <p class="lede">The report this tool came from cites §§ 22170–22174 for SB 706. Those sections belong to a different bill. Each row compares the report with the statute text.</p>
+    <div class="scroll"><table><thead><tr><th>Topic</th><th>Report says</th><th>Primary text</th><th>Effect</th></tr></thead><tbody id="corr"></tbody></table></div>
+  </section>
+
+  <section>
+    <h2>Rules and sources</h2>
+    <p class="lede">Every number the checks use is held as data with its citation, the statutory wording, and whether it was read in primary text.</p>
+    <div class="scroll"><table><thead><tr><th>Rule</th><th>Value</th><th>Citation</th><th>Status</th><th>Statute wording or note</th></tr></thead><tbody id="rules"></tbody></table></div>
+  </section>
+
+  <footer>What this does not do: it does not read contracts or RFQs for you (the command-line version has a keyword screen only), does not model the pre-1995 apprenticeship credit in § 2601(d)(3) or the § 7201(b)(4) complex-project exception, and does not apply Gov. Code § 1090 or CCP § 860.</footer>
+</div>
+
+<script>
+// SB 706 progressive design-build validator: deterministic checks.
+// Pure functions, no imports, no I/O. Every legal number comes from the rules
+// object (data/rules.json), never from a literal in this file.
+//
+// Statuses:
+//   PASS   - the record satisfies the check as the engine reads the statute
+//   FAIL   - the record does not satisfy it
+//   REVIEW - the statute is silent or ambiguous, or a needed input is missing
+//   INFO   - a computed number or reminder, not a pass/fail judgment
+//   N/A    - the check does not apply to this record
+
+const STATUS = Object.freeze({ PASS: 'PASS', FAIL: 'FAIL', REVIEW: 'REVIEW', INFO: 'INFO', NA: 'N/A' });
+
+const money = (n) => '$' + Number(n).toLocaleString('en-US', { maximumFractionDigits: 2 });
+const pct = (f) => (Math.round(f * 10000) / 100) + '%';
+const isNum = (v) => typeof v === 'number' && Number.isFinite(v);
+const isDate = (v) => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v);
+const avg = (a) => a.reduce((s, x) => s + x, 0) / a.length;
+const daysBetween = (a, b) => Math.round((Date.parse(b + 'T00:00:00Z') - Date.parse(a + 'T00:00:00Z')) / 86400000);
+
+function rule(rules, key) {
+  const r = rules.rules[key];
+  if (!r) throw new Error(`Unknown rule key: ${key}`);
+  return r;
+}
+
+function mk(rules, id, section, title, status, ruleKeys, detail, citationOverride) {
+  const keys = [].concat(ruleKeys || []);
+  const rs = keys.map((k) => rule(rules, k));
+  return {
+    id, section, title, status,
+    citation: citationOverride || [...new Set(rs.map((r) => r.citation))].join('; '),
+    verification: rs.some((r) => r.status !== 'primary-text') ? 'not-verified' : 'primary-text',
+    rule_keys: keys,
+    detail,
+  };
+}
+
+// ---------------------------------------------------------------- authority
+
+function checkAuthority(rec, rules, asOf) {
+  const out = [];
+  const S = 'Authority';
+  const a = rec.agency || {};
+  const p = rec.project || {};
+
+  const types = rule(rules, 'eligible_agency_types').value;
+  if (!a.type) {
+    out.push(mk(rules, 'AUTH-1', S, 'Agency is a local agency', STATUS.REVIEW, 'eligible_agency_types', 'Agency type is missing from the record.'));
+  } else if (!types.includes(a.type)) {
+    out.push(mk(rules, 'AUTH-1', S, 'Agency is a local agency', a.type === 'other' ? STATUS.REVIEW : STATUS.FAIL, 'eligible_agency_types',
+      `Agency type “${a.type}” is not a city, county, city and county, or special district.` + (a.type === 'other' ? ' Recorded as “other”; needs a legal determination.' : '')));
+  } else if (a.type === 'special_district') {
+    out.push(mk(rules, 'AUTH-1', S, 'Agency is a local agency', STATUS.REVIEW, 'eligible_agency_types',
+      `Recorded as a special district${a.type_detail ? ` (${a.type_detail})` : ''}. The chapter does not define “special district”, so confirm this entity qualifies.`));
+  } else {
+    out.push(mk(rules, 'AUTH-1', S, 'Agency is a local agency', STATUS.PASS, 'eligible_agency_types', `Agency type is ${a.type.replaceAll('_', ' ')}.`));
+  }
+
+  if (typeof p.state_owned_or_operated_facility !== 'boolean') {
+    out.push(mk(rules, 'AUTH-2', S, 'Not a state-owned or state-operated facility', STATUS.REVIEW, 'state_facility_exclusion', 'The record does not say whether the facility is state-owned or state-operated.'));
+  } else {
+    out.push(mk(rules, 'AUTH-2', S, 'Not a state-owned or state-operated facility', p.state_owned_or_operated_facility ? STATUS.FAIL : STATUS.PASS, 'state_facility_exclusion',
+      p.state_owned_or_operated_facility ? 'The project is on a state-owned or state-operated facility, which the chapter excludes.' : 'The project is not on a state-owned or state-operated facility.'));
+  }
+
+  const min = rule(rules, 'min_project_value_exclusive').value;
+  if (!isNum(p.estimated_cost)) {
+    out.push(mk(rules, 'AUTH-3', S, `Project value exceeds ${money(min)}`, STATUS.REVIEW, 'min_project_value_exclusive', 'No estimated project cost in the record.'));
+  } else {
+    const ok = p.estimated_cost > min;
+    out.push(mk(rules, 'AUTH-3', S, `Project value exceeds ${money(min)}`, ok ? STATUS.PASS : STATUS.FAIL, 'min_project_value_exclusive',
+      `Estimated cost is ${money(p.estimated_cost)}; the statute requires more than ${money(min)}` + (p.estimated_cost === min ? ' (exactly the threshold is not “in excess of” it).' : '.')));
+  }
+
+  const cap = rule(rules, 'max_projects_per_agency').value;
+  if (!Number.isInteger(a.prior_ch47_projects) || a.prior_ch47_projects < 0) {
+    out.push(mk(rules, 'AUTH-4', S, `Agency project count stays within ${cap}`, STATUS.REVIEW, 'max_projects_per_agency', 'The count of the agency’s earlier chapter 4.7 projects is missing.'));
+  } else {
+    const n = a.prior_ch47_projects + 1;
+    out.push(mk(rules, 'AUTH-4', S, `Agency project count stays within ${cap}`, n <= cap ? STATUS.PASS : STATUS.FAIL, 'max_projects_per_agency',
+      `This would be project ${n} of ${cap} (${a.prior_ch47_projects} earlier). ${n <= cap ? `${cap - n} remain after this one.` : 'The cap is exceeded.'}` +
+      (a.ch41_water_projects ? ` The agency also reports ${a.ch41_water_projects} project(s) under the separate water-agency chapter 4.1 (SB 991); the engine does not count those here.` : '')));
+  }
+
+  const from = rule(rules, 'chapter_operative_from').value;
+  const repeal = rule(rules, 'chapter_repeal_date').value;
+  const d = rec.dates || {};
+  const steps = [['RFQ issue', d.rfq_issue], ['contract award', d.contract_award]].filter(([, v]) => isDate(v));
+  const late = [['phase 2 amendment', d.phase2_amendment], ['expected completion', d.expected_completion]].filter(([, v]) => isDate(v));
+  const badSteps = steps.filter(([, v]) => v >= repeal || v < from);
+  if (asOf >= repeal) {
+    out.push(mk(rules, 'AUTH-5', S, 'Procurement falls inside the chapter’s life', STATUS.FAIL, ['chapter_operative_from', 'chapter_repeal_date'], `As of ${asOf} the chapter has been repealed (${repeal}).`));
+  } else if (badSteps.length) {
+    out.push(mk(rules, 'AUTH-5', S, 'Procurement falls inside the chapter’s life', STATUS.FAIL, ['chapter_operative_from', 'chapter_repeal_date'],
+      badSteps.map(([k, v]) => `${k} dated ${v}`).join('; ') + ` falls outside ${from} to ${repeal}.`));
+  } else if (!steps.length) {
+    out.push(mk(rules, 'AUTH-5', S, 'Procurement falls inside the chapter’s life', STATUS.REVIEW, ['chapter_operative_from', 'chapter_repeal_date'], 'No RFQ or award date in the record.'));
+  } else {
+    const after = late.filter(([, v]) => v >= repeal);
+    out.push(mk(rules, 'AUTH-5', S, 'Procurement falls inside the chapter’s life', after.length ? STATUS.REVIEW : STATUS.PASS, ['chapter_operative_from', 'chapter_repeal_date'],
+      steps.map(([k, v]) => `${k} ${v}`).join(', ') + ` fall before the ${repeal} repeal (${daysBetween(asOf, repeal)} days from ${asOf}).` +
+      (after.length ? ` But ${after.map(([k, v]) => `${k} (${v})`).join(' and ')} would come on or after repeal, and the chapter does not address contracts in progress at that date.` : '')));
+  }
+
+  if (typeof a.coi_guidelines_adopted !== 'boolean') {
+    out.push(mk(rules, 'AUTH-6', S, 'Organizational conflict-of-interest guidelines developed', STATUS.REVIEW, 'coi_guidelines_required', 'The record does not say whether the agency has developed the guidelines.'));
+  } else {
+    out.push(mk(rules, 'AUTH-6', S, 'Organizational conflict-of-interest guidelines developed', a.coi_guidelines_adopted ? STATUS.PASS : STATUS.FAIL, 'coi_guidelines_required',
+      a.coi_guidelines_adopted ? 'Agency reports guidelines are in place.' : 'Agency has not developed the required guidelines.'));
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------- RFQ
+
+function checkRfq(rec, rules) {
+  const out = [];
+  const S = 'Request for qualifications';
+  const rfq = rec.rfq;
+  if (!rfq) return [mk(rules, 'RFQ-0', S, 'RFQ contents', STATUS.NA, 'rfq_elements', 'No RFQ in the record.')];
+
+  const el = rfq.elements || {};
+  rule(rules, 'rfq_elements').value.forEach((e, i) => {
+    const v = el[e.key];
+    out.push(mk(rules, `RFQ-${i + 1}`, S, e.label, v === true ? STATUS.PASS : v === false ? STATUS.FAIL : STATUS.REVIEW, 'rfq_elements',
+      v === true ? 'Present.' : v === false ? 'Missing from the RFQ.' : 'Not recorded.', 'Pub. Cont. Code ' + e.citation));
+  });
+
+  const ti = rfq.template_items || {};
+  rule(rules, 'template_items').value.forEach((e, i) => {
+    const v = ti[e.key];
+    out.push(mk(rules, `TPL-${String.fromCharCode(65 + i)}`, S, 'Template asks for: ' + e.label, v === true ? STATUS.PASS : v === false ? STATUS.FAIL : STATUS.REVIEW, 'template_items',
+      v === true ? 'Present.' : v === false ? 'Missing from the template.' : 'Not recorded.', 'Pub. Cont. Code ' + e.citation));
+  });
+
+  if (Array.isArray(rfq.factors) && rfq.factors.length) {
+    const unweighted = rfq.factors.filter((f) => !isNum(f.weight));
+    const total = rfq.factors.reduce((s, f) => s + (isNum(f.weight) ? f.weight : 0), 0);
+    const nonPrice = rfq.factors.filter((f) => !f.price_related && isNum(f.weight) && f.weight > 0);
+    if (unweighted.length) {
+      out.push(mk(rules, 'RFQ-W1', S, 'Every listed factor has a weight', STATUS.FAIL, 'rfq_elements', `No weight for: ${unweighted.map((f) => f.name).join(', ')}.`, 'Pub. Cont. Code § 22185.3(a)(3)'));
+    } else {
+      out.push(mk(rules, 'RFQ-W1', S, 'Every listed factor has a weight', STATUS.PASS, 'rfq_elements', `${rfq.factors.length} factors, each weighted.`, 'Pub. Cont. Code § 22185.3(a)(3)'));
+      if (Math.abs(total - 100) > 1e-9) {
+        out.push(mk(rules, 'RFQ-W2', S, 'Weights add up', STATUS.INFO, 'rfq_elements', `Weights total ${total}, not 100. The statute does not require a 100-point scale; this is an arithmetic note only.`, 'Arithmetic check (no statutory rule)'));
+      }
+    }
+    out.push(mk(rules, 'RFQ-W3', S, 'Price is not the sole basis of award', nonPrice.length ? STATUS.PASS : STATUS.FAIL, 'qbs_definition',
+      nonPrice.length ? `${nonPrice.length} weighted non-price factor(s).` : 'Every weighted factor is price-related, which is not a qualifications-based selection.', 'Pub. Cont. Code § 22185(i)'));
+  }
+
+  if (typeof rfq.stw_notice_in_bid_documents === 'boolean') {
+    out.push(mk(rules, 'RFQ-N', S, 'Bid documents give notice of the skilled and trained workforce requirement', rfq.stw_notice_in_bid_documents ? STATUS.PASS : STATUS.FAIL, 'stw_notice',
+      rfq.stw_notice_in_bid_documents ? 'Notice is included.' : 'Notice is missing. Under § 2600.5 the omission does not excuse the requirement.', 'Pub. Cont. Code §§ 2600(c), 2600.5'));
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------- proposers
+
+function checkProposer(pr, rules, idx = 0) {
+  const out = [];
+  const S = `Proposer: ${pr.name || 'unnamed #' + (idx + 1)}`;
+  const id = (s) => `SOQ${idx + 1}-${s}`;
+
+  // Safety record, § 22185.3(a)(4)(G)
+  const sf = pr.safety || {};
+  const emrMax = rule(rules, 'safety_emr_max_avg').value;
+  const haveEmr = Array.isArray(sf.emr_last_3_years) && sf.emr_last_3_years.length === 3 && sf.emr_last_3_years.every(isNum);
+  const haveRates = [sf.trir_avg, sf.trir_standard, sf.lost_work_rate_avg, sf.lost_work_rate_standard].every(isNum);
+  if (haveEmr && haveRates) {
+    const e = avg(sf.emr_last_3_years);
+    const emrOk = e <= emrMax + 1e-12;
+    const ratesOk = sf.trir_avg <= sf.trir_standard && sf.lost_work_rate_avg <= sf.lost_work_rate_standard;
+    const desc = `Three-year average EMR ${e.toFixed(3)} (limit ${emrMax.toFixed(2)}); recordable rate ${sf.trir_avg} vs standard ${sf.trir_standard}; lost work rate ${sf.lost_work_rate_avg} vs standard ${sf.lost_work_rate_standard}.`;
+    if (emrOk && ratesOk) out.push(mk(rules, id('SAFE'), S, 'Acceptable safety record', STATUS.PASS, 'safety_emr_max_avg', desc));
+    else if (sf.adr_party_labor_code_3201_5) out.push(mk(rules, id('SAFE'), S, 'Acceptable safety record', STATUS.REVIEW, 'safety_emr_max_avg', desc + ' The rate tests are not met; the proposer relies on being party to a Labor Code § 3201.5 alternative dispute resolution system. Confirm that reading of the “or” clause.'));
+    else out.push(mk(rules, id('SAFE'), S, 'Acceptable safety record', STATUS.FAIL, 'safety_emr_max_avg', desc));
+  } else if (sf.adr_party_labor_code_3201_5) {
+    out.push(mk(rules, id('SAFE'), S, 'Acceptable safety record', STATUS.REVIEW, 'safety_emr_max_avg', 'Rate data incomplete; proposer relies on a Labor Code § 3201.5 alternative dispute resolution system. Confirm that reading of the “or” clause.'));
+  } else {
+    out.push(mk(rules, id('SAFE'), S, 'Acceptable safety record', STATUS.REVIEW, 'safety_emr_max_avg', 'Safety data incomplete: need three years of EMR, average recordable and lost work rates, and the standards for the business category.'));
+  }
+
+  // Perjury certification, § 22185.3(a)(5)
+  const c = pr.certification || {};
+  const partnersOk = !pr.has_general_partners_or_jv_members || c.by_all_general_partners_or_jv_members === true;
+  const certOk = c.by_entity === true && partnersOk;
+  out.push(mk(rules, id('CERT'), S, 'Information certified under penalty of perjury', certOk ? STATUS.PASS : STATUS.FAIL, 'rfq_elements',
+    certOk ? 'Certified by the entity' + (pr.has_general_partners_or_jv_members ? ' and its general partners or joint venture members.' : '.') :
+      (c.by_entity === true ? 'Entity certified, but not all general partners or joint venture members did.' : 'No certification by the entity.'), 'Pub. Cont. Code § 22185.3(a)(5)'));
+
+  // Skilled and trained workforce, § 22185.3(b)
+  const w = pr.workforce || {};
+  const cutoff = rule(rules, 'pla_renewal_cutoff').value;
+  let st, det;
+  if (w.enforceable_stw_commitment === true) { st = STATUS.PASS; det = 'Enforceable skilled and trained workforce commitment provided (§ 22185.3(b)(1)).'; }
+  else if (w.pla_exception === 'agency_pla') { st = w.entity_agrees_to_agency_pla === true ? STATUS.PASS : STATUS.FAIL; det = st === STATUS.PASS ? 'Agency project labor agreement binds all contractors and the entity agrees to be bound (§ 22185.3(b)(2)(A)).' : 'Agency project labor agreement claimed, but the entity has not agreed to be bound.'; }
+  else if (w.pla_exception === 'agency_pla_renewal') {
+    if (!isDate(w.original_pla_date)) { st = STATUS.REVIEW; det = 'Renewal exception claimed but the original agreement date is missing.'; }
+    else { st = w.original_pla_date < cutoff ? STATUS.PASS : STATUS.FAIL; det = `Renewal of an agency project labor agreement first entered ${w.original_pla_date}; the exception needs a date before ${cutoff} (§ 22185.3(b)(2)(B)).`; }
+  } else if (w.pla_exception === 'entity_pla') { st = STATUS.PASS; det = 'Entity’s own project labor agreement binds it and all subcontractors at every tier (§ 22185.3(b)(2)(C)).'; }
+  else { st = STATUS.FAIL; det = 'No enforceable commitment and no project labor agreement exception. The entity “shall not be evaluated for selection”.'; }
+  out.push(mk(rules, id('STW'), S, 'Skilled and trained workforce commitment or exception', st, ['stw_commitment', 'pla_renewal_cutoff'], det, 'Pub. Cont. Code § 22185.3(b)'));
+
+  // Organizational conflict of interest, § 22185.2
+  if (pr.performed_solicitation_services_for_agency === true || (pr.team_members || []).some((m) => m.performed_solicitation_services_for_agency)) {
+    const who = [pr.performed_solicitation_services_for_agency ? pr.name : null, ...(pr.team_members || []).filter((m) => m.performed_solicitation_services_for_agency).map((m) => m.name)].filter(Boolean);
+    out.push(mk(rules, id('COI'), S, 'Organizational conflict of interest', STATUS.REVIEW, ['coi_guidelines_required', 'gov_code_1090'],
+      `${who.join(', ')} performed services for the agency relating to this solicitation. Apply the agency’s § 22185.2 guidelines. The research report also points to Gov. Code § 1090; that statute was not read for this build.`));
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------- award, bonds
+
+function checkAwardAndBonds(rec, rules) {
+  const out = [];
+  const S = 'Award, bonds, and insurance';
+  const aw = rec.award;
+  if (aw && aw.issued) {
+    out.push(mk(rules, 'AWD-1', S, 'Award publicly announced with the awardee named', aw.publicly_announced === true ? STATUS.PASS : STATUS.FAIL, 'award_announcement', aw.publicly_announced === true ? 'Announced.' : 'No public announcement recorded.', 'Pub. Cont. Code § 22185.3(d)'));
+    out.push(mk(rules, 'AWD-2', S, 'Statement of the basis of the award', aw.basis_statement === true ? STATUS.PASS : STATUS.FAIL, 'award_announcement', aw.basis_statement === true ? 'Statement on file.' : 'No basis-of-award statement recorded. The statement and contract file must be enough to satisfy an external audit.', 'Pub. Cont. Code § 22185.3(d)'));
+  }
+  const b = rec.bonds;
+  if (b) {
+    if (isNum(b.payment_bond_amount) && isNum(b.performance_bond_amount)) {
+      const ok = b.payment_bond_amount >= b.performance_bond_amount * rule(rules, 'payment_bond_min_ratio_to_performance').value;
+      out.push(mk(rules, 'BND-1', S, 'Payment bond is at least the performance bond', ok ? STATUS.PASS : STATUS.FAIL, 'payment_bond_min_ratio_to_performance',
+        `Payment bond ${money(b.payment_bond_amount)}; performance bond ${money(b.performance_bond_amount)}.` + (ok ? '' : ` Short by ${money(b.performance_bond_amount - b.payment_bond_amount)}.`)));
+    } else out.push(mk(rules, 'BND-1', S, 'Payment bond is at least the performance bond', STATUS.REVIEW, 'payment_bond_min_ratio_to_performance', 'Bond amounts missing.'));
+    out.push(mk(rules, 'BND-2', S, 'Bonds issued by a California admitted surety', b.surety_california_admitted === true ? STATUS.PASS : b.surety_california_admitted === false ? STATUS.FAIL : STATUS.REVIEW, 'bond_and_insurance_terms', b.surety_california_admitted === true ? 'Surety recorded as California admitted.' : b.surety_california_admitted === false ? 'Surety is not California admitted.' : 'Surety status not recorded.', 'Pub. Cont. Code § 22185.4(a)'));
+    out.push(mk(rules, 'BND-3', S, 'Contract requires errors and omissions insurance for design', b.eo_insurance_required_in_contract === true ? STATUS.PASS : STATUS.FAIL, 'bond_and_insurance_terms', b.eo_insurance_required_in_contract === true ? 'Required.' : 'Not required in the contract.', 'Pub. Cont. Code § 22185.4(b)'));
+    out.push(mk(rules, 'BND-4', S, 'Agency has a standard bond form for design-build projects', b.agency_standard_bond_form === true ? STATUS.PASS : STATUS.FAIL, 'bond_and_insurance_terms', b.agency_standard_bond_form === true ? 'Standard form exists.' : 'No standard form recorded.', 'Pub. Cont. Code § 22185.4(c)'));
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------- GMP, retention
+
+function checkGmpAndRetention(rec, rules) {
+  const out = [];
+  const S = 'Guaranteed maximum price and retention';
+  const g = rec.gmp;
+  if (g) {
+    if (g.agreed === true && isNum(g.amount)) {
+      if (isNum(g.projected_cost_to_complete)) {
+        const diff = g.projected_cost_to_complete - g.amount;
+        if (diff > 0) {
+          out.push(mk(rules, 'GMP-1', S, 'Cost against the guaranteed maximum price', STATUS.INFO, 'gmp_terms', `Projected cost ${money(g.projected_cost_to_complete)} exceeds the guaranteed maximum price ${money(g.amount)} by ${money(diff)}. That excess is the design-build entity’s responsibility.`, 'Pub. Cont. Code § 22185.5(b)(2)'));
+        } else {
+          const share = isNum(g.savings_share_to_entity) ? g.savings_share_to_entity : 0;
+          const hasAgr = g.written_savings_agreement === true;
+          out.push(mk(rules, 'GMP-1', S, 'Cost against the guaranteed maximum price', STATUS.INFO, 'gmp_terms',
+            `Projected cost ${money(g.projected_cost_to_complete)} is ${money(-diff)} under the guaranteed maximum price ${money(g.amount)}. ` +
+            (hasAgr ? `Under the prior written agreement the entity’s share is ${pct(share)} = ${money(-diff * share)}; the agency keeps ${money(-diff * (1 - share))}.` : 'With no prior written sharing agreement, the entity is not entitled to any of the difference.'), 'Pub. Cont. Code § 22185.5(b)(2)'));
+        }
+      }
+      if (isNum(g.savings_share_to_entity) && g.savings_share_to_entity > 0) {
+        out.push(mk(rules, 'GMP-2', S, 'Shared savings rest on a prior written agreement', g.written_savings_agreement === true ? STATUS.PASS : STATUS.FAIL, 'gmp_terms',
+          g.written_savings_agreement === true ? 'Written agreement on file.' : `The contract gives the entity ${pct(g.savings_share_to_entity)} of savings without a prior written agreement.`, 'Pub. Cont. Code § 22185.5(b)(2)'));
+      }
+      if (typeof g.contract_shifts_overrun_to_agency === 'boolean') {
+        out.push(mk(rules, 'GMP-3', S, 'Overruns above the guaranteed maximum price stay with the entity', g.contract_shifts_overrun_to_agency ? STATUS.FAIL : STATUS.PASS, 'gmp_terms',
+          g.contract_shifts_overrun_to_agency ? 'A contract clause moves overruns to the agency. The statute allows an amendment for unforeseen site conditions; anything broader conflicts with it.' : 'No clause shifts overruns to the agency.', 'Pub. Cont. Code § 22185.5(b)'));
+      }
+    } else if (g.agreed === false || g.agency_elected_not_to_proceed === true) {
+      const o = g.offramp || {};
+      if (!o.solicited_from) {
+        out.push(mk(rules, 'GMP-4', S, 'Path after no guaranteed maximum price agreement', STATUS.INFO, 'gmp_terms', 'No agreement on price. The agency may solicit proposals from firms that submitted statements of qualifications, or, on a written best-interest determination, from other design-build entities, with award on a best value basis.', 'Pub. Cont. Code § 22185.5(c)(1)'));
+      } else {
+        if (o.solicited_from === 'other_entities') {
+          out.push(mk(rules, 'GMP-4', S, 'Written best-interest determination before soliciting other entities', o.written_best_interest_determination === true ? STATUS.PASS : STATUS.FAIL, 'gmp_terms', o.written_best_interest_determination === true ? 'Determination on file.' : 'Other design-build entities were solicited without the written determination.', 'Pub. Cont. Code § 22185.5(c)(1)'));
+          out.push(mk(rules, 'GMP-5', S, 'Replacement award made on a best value basis', o.award_basis === 'best_value' ? STATUS.PASS : STATUS.FAIL, 'gmp_terms', `Award basis recorded as “${o.award_basis || 'not recorded'}”.`, 'Pub. Cont. Code § 22185.5(c)(1)'));
+        } else {
+          out.push(mk(rules, 'GMP-4', S, 'Proposals solicited from firms that submitted statements of qualifications', STATUS.PASS, 'gmp_terms', 'Solicited from the original responders.', 'Pub. Cont. Code § 22185.5(c)(1)'));
+        }
+        if (o.agency_using_prior_stamped_designs === true) {
+          out.push(mk(rules, 'GMP-6', S, 'Use of the replaced entity’s designs', STATUS.INFO, 'gmp_terms', 'The agency is using the replaced entity’s complete and stamped designs. Its design professionals keep sole liability for their design errors and omissions.', 'Pub. Cont. Code § 22185.5(c)(2)'));
+        }
+      }
+    }
+  }
+
+  const r = rec.retention;
+  if (r) {
+    const cap = rule(rules, 'retention_cap').value;
+    if (isNum(r.phase1_rate)) {
+      out.push(mk(rules, 'RET-1', S, 'No retention on work to establish the guaranteed maximum price', r.phase1_rate === 0 ? STATUS.PASS : STATUS.FAIL, 'retention_cap', r.phase1_rate === 0 ? 'Phase 1 retention is zero.' : `Phase 1 retention is ${pct(r.phase1_rate)}; it must be zero.`));
+    }
+    if (isNum(r.prime_rate)) {
+      if (r.bonds_required_in_solicitation === true) {
+        out.push(mk(rules, 'RET-2', S, `Retention from the design-build entity is at most ${pct(cap)}`, r.prime_rate <= cap ? STATUS.PASS : STATUS.FAIL, 'retention_cap', `Rate is ${pct(r.prime_rate)}; cap is ${pct(cap)} because bonds are required in the solicitation.`));
+      } else {
+        const gcap = rule(rules, 'general_retention_cap').value;
+        out.push(mk(rules, 'RET-2', S, `Retention from the design-build entity is at most ${pct(gcap)}`, STATUS.REVIEW, ['retention_cap', 'general_retention_cap'],
+          `Rate is ${pct(r.prime_rate)}. The chapter’s cap is conditioned on bonds being required in the solicitation, which is not recorded here. The general ${pct(gcap)} cap in § 7201 may still apply` + (r.prime_rate > gcap ? ', and this rate is above it.' : '.')));
+      }
+      (r.subcontract_rates || []).forEach((s, i) => {
+        if (!isNum(s.rate)) return;
+        const over = s.rate > r.prime_rate;
+        const excused = over && s.bond_notice_given === true && s.sub_failed_to_furnish_bond === true;
+        out.push(mk(rules, `RET-S${i + 1}`, S, `Subcontract retention does not exceed the prime rate: ${s.name}`, !over ? STATUS.PASS : excused ? STATUS.PASS : STATUS.FAIL, 'retention_cap',
+          `Subcontract rate ${pct(s.rate)}; prime rate ${pct(r.prime_rate)}.` + (excused ? ' Higher rate allowed: written bond notice was given at or before bid request and the subcontractor did not furnish a bond.' : over ? ' No bond-notice exception recorded.' : ''), 'Pub. Cont. Code § 22185.7(b)'));
+      });
+    }
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------- subcontracts
+
+function subcontractThreshold(contract, rules) {
+  const frac = rule(rules, 'subcontract_threshold_fraction').value;
+  const minVal = rule(rules, 'subcontract_rule_min_contract_value').value;
+  if (!contract || !isNum(contract.total_value)) return { applies: null, threshold: null, reason: 'Contract value missing.' };
+  if (contract.total_value < minVal) return { applies: false, threshold: null, reason: `Contract value ${money(contract.total_value)} is below ${money(minVal)}, so § 22185.6(b) does not apply.` };
+  if (!isNum(contract.construction_allocable_price)) return { applies: true, threshold: null, reason: 'Contract price allocable to construction work is missing.' };
+  return { applies: true, threshold: contract.construction_allocable_price * frac, reason: `${pct(frac)} of ${money(contract.construction_allocable_price)} allocable to construction.` };
+}
+
+function checkSubcontracts(rec, rules) {
+  const out = [];
+  const S = 'Construction subcontracts';
+  const subs = rec.subcontracts;
+  if (!Array.isArray(subs) || !subs.length) return out;
+  const t = subcontractThreshold(rec.contract, rules);
+  if (t.applies === null || (t.applies && t.threshold === null)) {
+    return [mk(rules, 'SUB-0', S, 'Subcontract award threshold', STATUS.REVIEW, ['subcontract_threshold_fraction', 'subcontract_rule_min_contract_value'], t.reason)];
+  }
+  if (t.applies === false) {
+    return [mk(rules, 'SUB-0', S, 'Subcontract award threshold', STATUS.NA, ['subcontract_threshold_fraction', 'subcontract_rule_min_contract_value'], t.reason)];
+  }
+  out.push(mk(rules, 'SUB-0', S, 'Subcontract award threshold', STATUS.INFO, ['subcontract_threshold_fraction', 'subcontract_rule_min_contract_value'], `Threshold is ${money(t.threshold)} (${t.reason}) Subcontracts above it, other than those listed in the statement of qualifications, need the § 22185.6(b) process.`));
+  subs.forEach((s, i) => {
+    const title = `${s.name || 'Subcontract ' + (i + 1)} (${isNum(s.value) ? money(s.value) : 'value missing'})`;
+    const id = `SUB-${i + 1}`;
+    const keys = ['subcontract_threshold_fraction', 'subcontract_rule_min_contract_value'];
+    if (!isNum(s.value)) return out.push(mk(rules, id, S, title, STATUS.REVIEW, keys, 'Subcontract value missing.'));
+    if (s.listed_in_soq === true) return out.push(mk(rules, id, S, title, STATUS.NA, keys, 'Listed in the statement of qualifications, so excepted from § 22185.6(b). Subletting protections (§ 4100 et seq.) apply.'));
+    if (!(s.value > t.threshold)) return out.push(mk(rules, id, S, title, STATUS.NA, keys, `At or below the ${money(t.threshold)} threshold.`));
+    const miss = [];
+    if (s.public_notice !== true) miss.push('public notice of the work');
+    if (s.fixed_due_date_time !== true) miss.push('a fixed date and time for submissions');
+    if (s.qualification_criteria !== true) miss.push('reasonable qualification criteria and standards');
+    if (s.award_basis !== 'best_value') miss.push(`award on a best value basis (recorded: ${s.award_basis || 'none'})`);
+    out.push(mk(rules, id, S, title, miss.length ? STATUS.FAIL : STATUS.PASS, keys,
+      `Above the ${money(t.threshold)} threshold by ${money(s.value - t.threshold)}. ` + (miss.length ? `Missing: ${miss.join('; ')}.` : 'Public notice, criteria, and best value award are recorded.')));
+  });
+  return out;
+}
+
+// ---------------------------------------------------------------- workforce months
+
+function requiredGraduatePct(occupation, rules) {
+  const occ = String(occupation || '').trim().toLowerCase();
+  if (rule(rules, 'stw_exempt_occupations').value.includes(occ)) return null;
+  if (rule(rules, 'stw_listed_occupations').value.includes(occ)) return rule(rules, 'stw_graduate_pct_listed_occupations').value;
+  return rule(rules, 'stw_graduate_pct_default').value;
+}
+
+function checkWorkforceMonths(rec, rules) {
+  const out = [];
+  const S = 'Skilled and trained workforce, monthly';
+  const rows = rec.workforce_months;
+  if (!Array.isArray(rows) || !rows.length) return out;
+  const prime = rec.contract && isNum(rec.contract.total_value) ? rec.contract.total_value : null;
+  const smallFrac = rule(rules, 'stw_small_sub_fraction').value;
+  const minHrs = rule(rules, 'stw_min_monthly_hours').value;
+  const mult = rule(rules, 'stw_withhold_multiplier').value;
+  rows.forEach((m, i) => {
+    const id = `STW-${i + 1}`;
+    const title = `${m.contractor} · ${m.occupation} · ${m.month}`;
+    if (m.report_submitted === false) {
+      return out.push(mk(rules, id, S, title, STATUS.FAIL, 'stw_withhold_multiplier', 'No complete monthly report. The agency must withhold further payments until one is provided' + (isNum(m.monthly_billing) ? `; where a subcontractor caused the gap, the withholding is ${money(m.monthly_billing * mult)} (${mult * 100}% of its ${money(m.monthly_billing)} billing).` : '.'), 'Pub. Cont. Code § 2602(b)'));
+    }
+    const req = requiredGraduatePct(m.occupation, rules);
+    if (req === null) return out.push(mk(rules, id, S, title, STATUS.NA, 'stw_exempt_occupations', 'The graduation percentage does not apply to teamster work.'));
+    if (m.is_subcontractor && m.listed_subcontractor === false && prime !== null && isNum(m.subcontract_value) && m.subcontract_value <= prime * smallFrac) {
+      return out.push(mk(rules, id, S, title, STATUS.NA, 'stw_small_sub_fraction', `Unlisted subcontract of ${money(m.subcontract_value)} does not exceed ${pct(smallFrac)} of the ${money(prime)} prime contract (${money(prime * smallFrac)}).`));
+    }
+    if (isNum(m.journeyperson_hours) && m.journeyperson_hours < minHrs) {
+      return out.push(mk(rules, id, S, title, STATUS.NA, 'stw_min_monthly_hours', `${m.journeyperson_hours} journeyperson hours this month, under the ${minHrs}-hour floor.`));
+    }
+    const haveHead = isNum(m.journeypersons) && isNum(m.graduate_journeypersons) && m.journeypersons > 0;
+    const haveHrs = isNum(m.journeyperson_hours) && isNum(m.graduate_hours) && m.journeyperson_hours > 0;
+    if (!haveHead && !haveHrs) return out.push(mk(rules, id, S, title, STATUS.REVIEW, 'stw_graduate_pct_default', 'No headcount or hours data.'));
+    const headPct = haveHead ? (m.graduate_journeypersons / m.journeypersons) * 100 : null;
+    const hrsPct = haveHrs ? (m.graduate_hours / m.journeyperson_hours) * 100 : null;
+    const ok = (headPct !== null && headPct >= req) || (hrsPct !== null && hrsPct >= req);
+    const keys = req === rule(rules, 'stw_graduate_pct_default').value ? ['stw_graduate_pct_default'] : ['stw_graduate_pct_listed_occupations', 'stw_listed_occupations'];
+    out.push(mk(rules, id, S, title, ok ? STATUS.PASS : STATUS.FAIL, keys,
+      `Required ${req}% graduates. ` + (headPct !== null ? `By headcount ${m.graduate_journeypersons}/${m.journeypersons} = ${headPct.toFixed(1)}%. ` : '') + (hrsPct !== null ? `By hours ${m.graduate_hours}/${m.journeyperson_hours} = ${hrsPct.toFixed(1)}%. ` : '') +
+      (ok ? 'Either test is enough (§ 2601(d)(4)).' : 'Neither test is met. The agency must withhold' + (isNum(m.monthly_billing) ? ` ${money(m.monthly_billing * mult)} (${mult * 100}% of the ${money(m.monthly_billing)} monthly billing)` : ` ${mult * 100}% of the monthly billing`) + ' until a compliance plan is provided, and forward the report to the Labor Commissioner (§ 2602(c)).')));
+  });
+  return out;
+}
+
+// ---------------------------------------------------------------- Legislature report
+
+function checkLegislatureReport(rec, rules, asOf) {
+  const out = [];
+  const S = 'Report to the Legislature';
+  const due = rule(rules, 'legislature_report_due').value;
+  const lr = rec.legislature_report || {};
+  const awardDate = rec.dates && rec.dates.contract_award;
+  if (lr.submitted === true) {
+    const onTime = !isDate(lr.submitted_on) || lr.submitted_on <= due;
+    out.push(mk(rules, 'LEG-1', S, `Report submitted by ${due}`, onTime ? STATUS.PASS : STATUS.FAIL, 'legislature_report_due', isDate(lr.submitted_on) ? `Submitted ${lr.submitted_on}.` : 'Recorded as submitted (no date).'));
+  } else if (asOf > due) {
+    out.push(mk(rules, 'LEG-1', S, `Report submitted by ${due}`, STATUS.FAIL, 'legislature_report_due', `As of ${asOf} the deadline has passed (${daysBetween(due, asOf)} days ago) and no report is recorded.`));
+  } else {
+    out.push(mk(rules, 'LEG-1', S, `Report submitted by ${due}`, STATUS.INFO, 'legislature_report_due', `Not yet submitted. ${daysBetween(asOf, due)} days remain from ${asOf}. It must go to the appropriate policy and fiscal committees, in compliance with Gov. Code § 9795.`));
+  }
+  if (isDate(awardDate) && awardDate > due) {
+    out.push(mk(rules, 'LEG-2', S, 'Award after the report deadline', STATUS.REVIEW, 'legislature_report_due', `The award (${awardDate}) comes after the ${due} deadline. The statute sets a single report date and does not say how later projects are reported.`));
+  }
+  if (lr.contents) {
+    const items = rule(rules, 'legislature_report_contents').value;
+    const missing = items.filter((it) => lr.contents[it.key] !== true);
+    out.push(mk(rules, 'LEG-3', S, 'Report covers all ten required items', missing.length ? STATUS.FAIL : STATUS.PASS, 'legislature_report_contents',
+      missing.length ? `Missing ${missing.length} of ${items.length}: ` + missing.map((it) => `${it.label} (${it.citation})`).join('; ') + '.' : `All ${items.length} items are covered.`));
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------- top level
+
+function validate(rec, rules, opts = {}) {
+  const asOf = opts.asOf || rec.as_of;
+  if (!isDate(asOf)) throw new Error('An as-of date (YYYY-MM-DD) is required: pass opts.asOf or set as_of in the record.');
+  const findings = [
+    ...checkAuthority(rec, rules, asOf),
+    ...checkRfq(rec, rules),
+    ...(rec.proposers || []).flatMap((p, i) => checkProposer(p, rules, i)),
+    ...checkAwardAndBonds(rec, rules),
+    ...checkGmpAndRetention(rec, rules),
+    ...checkSubcontracts(rec, rules),
+    ...checkWorkforceMonths(rec, rules),
+    ...checkLegislatureReport(rec, rules, asOf),
+  ];
+  const counts = { PASS: 0, FAIL: 0, REVIEW: 0, INFO: 0, 'N/A': 0 };
+  findings.forEach((f) => { counts[f.status] += 1; });
+  return {
+    as_of: asOf,
+    agency: rec.agency && rec.agency.name,
+    project: rec.project && rec.project.name,
+    rules_verified_on: rules.meta.verified_on,
+    counts,
+    outcome: counts.FAIL ? 'gaps-found' : counts.REVIEW ? 'needs-review' : 'no-gaps-found',
+    findings,
+  };
+}
+
+const RULES = {"meta":{"title":"SB 706 progressive design-build rules (Pub. Cont. Code, Div. 2, Pt. 3, Ch. 4.7)","verified_on":"2026-11-25","verified_how":"Read on leginfo.legislature.ca.gov: the chaptered bill text of SB 706 (Stats. 2023, ch. 500) and the current code display for PCC ch. 4.7, ch. 2.9, and section 7201.","status_values":{"primary-text":"Value and citation read in the primary statutory text on the verified_on date.","not-verified":"Cited by the research report or by general knowledge. Not read in primary text for this build. Do not rely on it."},"sources":{"sb706_bill":"https://leginfo.legislature.ca.gov/faces/billTextClient.xhtml?bill_id=202320240SB706","pcc_ch_4_7":"https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?lawCode=PCC&division=2.&title=&part=3.&chapter=4.7.&article=","pcc_ch_4_1":"https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?lawCode=PCC&division=2.&title=&part=3.&chapter=4.1.&article=","pcc_ch_2_9":"https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?lawCode=PCC&division=2.&title=&part=1.&chapter=2.9.&article=","pcc_7201":"https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=PCC&sectionNum=7201."}},"rules":{"eligible_agency_types":{"value":["city","county","city_and_county","special_district"],"citation":"Pub. Cont. Code § 22185(g)","quote":"“Local agency” means a city, county, city and county, or special district.","source":"pcc_ch_4_7","status":"primary-text","note":"The chapter does not define “special district”. Whether a particular district (transit, healthcare, school, joint powers authority) qualifies is a legal question the engine sends to review."},"state_facility_exclusion":{"value":true,"citation":"Pub. Cont. Code §§ 22185(d), 22185.9","quote":"Nothing in this chapter authorizes a local agency to perform work on a state-owned or state-operated facility.","source":"pcc_ch_4_7","status":"primary-text"},"min_project_value_exclusive":{"value":5000000,"unit":"USD","citation":"Pub. Cont. Code § 22185.1","quote":"for up to 10 public works projects in excess of five million dollars ($5,000,000) for each project","source":"pcc_ch_4_7","status":"primary-text","note":"“In excess of” is read as strictly greater than. The statute does not say which figure (estimate, guaranteed maximum price, final cost) is measured."},"max_projects_per_agency":{"value":10,"unit":"projects","citation":"Pub. Cont. Code § 22185.1","quote":"for up to 10 public works projects","source":"pcc_ch_4_7","status":"primary-text","note":"The statute does not say which event uses up a slot (RFQ issued, contract awarded, or phase 2 amendment)."},"chapter_operative_from":{"value":"2024-01-01","citation":"Stats. 2023, ch. 500, § 1 (SB 706)","quote":"Added by Stats. 2023, Ch. 500, Sec. 1. (SB 706) Effective January 1, 2024.","source":"pcc_ch_4_7","status":"primary-text"},"chapter_repeal_date":{"value":"2030-01-01","citation":"Pub. Cont. Code § 22185.11","quote":"This chapter shall remain in effect only until January 1, 2030, and as of that date is repealed.","source":"pcc_ch_4_7","status":"primary-text","note":"The chapter text does not address contracts still in progress on the repeal date."},"coi_guidelines_required":{"value":true,"citation":"Pub. Cont. Code § 22185.2","quote":"shall develop guidelines for a standard organizational conflict-of-interest policy, consistent with applicable law","source":"pcc_ch_4_7","status":"primary-text"},"rfq_elements":{"value":[{"key":"project_description","label":"Size, type, and desired design character of the project","citation":"§ 22185.3(a)(1)"},{"key":"expected_cost_range","label":"Expected cost range","citation":"§ 22185.3(a)(1)"},{"key":"evaluation_methodology","label":"Methodology for evaluating qualifications","citation":"§ 22185.3(a)(1)"},{"key":"final_selection_procedure","label":"Procedure for final selection","citation":"§ 22185.3(a)(1)"},{"key":"significant_factors","label":"Significant factors the agency expects to consider, including technical design and construction expertise","citation":"§ 22185.3(a)(2)"},{"key":"factor_weights","label":"Relative importance or weight of each factor","citation":"§ 22185.3(a)(3)"},{"key":"standard_template","label":"Standard template request for statements of qualifications","citation":"§ 22185.3(a)(4)"},{"key":"perjury_certification","label":"Certification under penalty of perjury by the design-build entity and its general partners or joint venture members","citation":"§ 22185.3(a)(5)"}],"citation":"Pub. Cont. Code § 22185.3(a)(1)-(5)","source":"pcc_ch_4_7","status":"primary-text"},"template_items":{"value":[{"key":"owners_listing","label":"Listing of shareholders, partners, or members who will perform work (privately held entities)","citation":"§ 22185.3(a)(4)(A)"},{"key":"experience_and_financial","label":"Evidence of experience and capacity, key personnel, and a financial statement","citation":"§ 22185.3(a)(4)(B)"},{"key":"licenses","label":"Licenses, registration, and credentials, including any revocation or suspension","citation":"§ 22185.3(a)(4)(C)"},{"key":"bonding_insurance_capacity","label":"Capacity to obtain payment and performance bonds, liability insurance, and errors and omissions insurance","citation":"§ 22185.3(a)(4)(D)"},{"key":"workers_comp_safety_program","label":"Workers’ compensation experience history and worker safety program","citation":"§ 22185.3(a)(4)(E)"},{"key":"org_documents","label":"Organizational documents or agreement committing to form the organization","citation":"§ 22185.3(a)(4)(F)"},{"key":"safety_record","label":"An acceptable safety record","citation":"§ 22185.3(a)(4)(G)"}],"citation":"Pub. Cont. Code § 22185.3(a)(4)(A)-(G)","source":"pcc_ch_4_7","status":"primary-text"},"safety_emr_max_avg":{"value":1,"unit":"experience modification rate, average of most recent three-year period","citation":"Pub. Cont. Code § 22185.3(a)(4)(G)","quote":"its experience modification rate for the most recent three-year period is an average of 1.00 or less, and its average total recordable injury or illness rate and average lost work rate for the most recent three-year period does not exceed the applicable statistical standards for its business category or if the proposer is a party to an alternative dispute resolution system as provided for in Section 3201.5 of the Labor Code","source":"pcc_ch_4_7","status":"primary-text","note":"The engine reads the Labor Code § 3201.5 alternative as a complete substitute for the rate tests. Another reading is possible; flagged for review whenever the alternative is the only basis."},"pla_renewal_cutoff":{"value":"2023-01-01","citation":"Pub. Cont. Code § 22185.3(b)(2)(B)","quote":"the extension or renewal of a project labor agreement that was entered into by the local agency before January 1, 2023","source":"pcc_ch_4_7","status":"primary-text"},"payment_bond_min_ratio_to_performance":{"value":1,"citation":"Pub. Cont. Code § 22185.4(a)","quote":"The amount of the payment bond shall not be less than the amount of the performance bond.","source":"pcc_ch_4_7","status":"primary-text"},"subcontract_threshold_fraction":{"value":0.005,"unit":"fraction of the contract price allocable to construction work","citation":"Pub. Cont. Code § 22185.6(b)","quote":"construction subcontracts with a value exceeding one-half of 1 percent of the contract price allocable to construction work for projects with a contract value of greater than or equal to ten million dollars ($10,000,000)","source":"pcc_ch_4_7","status":"primary-text"},"subcontract_rule_min_contract_value":{"value":10000000,"unit":"USD","citation":"Pub. Cont. Code § 22185.6(b)","quote":"for projects with a contract value of greater than or equal to ten million dollars ($10,000,000)","source":"pcc_ch_4_7","status":"primary-text"},"retention_cap":{"value":0.05,"unit":"fraction of payment","citation":"Pub. Cont. Code § 22185.7(a)","quote":"retention proceeds withheld by the local agency from the design-build entity shall not exceed 5 percent if a performance and payment bond, issued by an admitted surety insurer, is required in the solicitation. Work performed to establish the guaranteed maximum price shall not be subject to retention.","source":"pcc_ch_4_7","status":"primary-text"},"general_retention_cap":{"value":0.05,"unit":"fraction of payment and of contract price","citation":"Pub. Cont. Code § 7201(b)(1)","quote":"shall not exceed 5 percent of the payment. In no event shall the total retention proceeds withheld exceed 5 percent of the contract price.","source":"pcc_7201","status":"primary-text","note":"Section 7201(b)(4) lets a local governing body exceed 5 percent on a project found substantially complex at a noticed public hearing before bid. The engine does not model that exception."},"legislature_report_due":{"value":"2028-12-31","citation":"Pub. Cont. Code § 22185.8(a)","quote":"no later than December 31, 2028, a local agency that uses the progressive design-build process pursuant to this chapter shall submit, to the appropriate policy and fiscal committees of the Legislature, a report","source":"pcc_ch_4_7","status":"primary-text"},"legislature_report_contents":{"value":[{"key":"project_descriptions","label":"Description of the project or projects awarded","citation":"§ 22185.8(b)(1)"},{"key":"award_amounts","label":"Contract award amounts","citation":"§ 22185.8(b)(2)"},{"key":"awardees","label":"Design-build entities awarded the projects","citation":"§ 22185.8(b)(3)"},{"key":"protests","label":"Written protests and their resolution","citation":"§ 22185.8(b)(4)"},{"key":"prequalification_process","label":"Description of the prequalification process","citation":"§ 22185.8(b)(5)"},{"key":"design_only_specialty_subs","label":"Specialty subcontractors, by trade, that provided design services but did not meet the target price and did not build","citation":"§ 22185.8(b)(6)"},{"key":"unused_sub_design_use","label":"Whether any design by such a subcontractor was used by the agency","citation":"§ 22185.8(b)(7)"},{"key":"small_business_subs","label":"Specialty subcontractors, by trade, that are small businesses (Gov. Code § 14837(d)(1))","citation":"§ 22185.8(b)(8)"},{"key":"microbusiness_subs","label":"Specialty subcontractors, by trade, that are microbusinesses (Gov. Code § 14837(d)(2))","citation":"§ 22185.8(b)(9)"},{"key":"performance_assessment","label":"For completed projects, a performance assessment including delays and cost increases","citation":"§ 22185.8(b)(10)"}],"citation":"Pub. Cont. Code § 22185.8(b)(1)-(10)","source":"pcc_ch_4_7","status":"primary-text"},"stw_graduate_pct_default":{"value":60,"unit":"percent of skilled journeypersons who are apprenticeship graduates","citation":"Pub. Cont. Code § 2601(d)(2)(D)","quote":"For work performed on or after January 1, 2020, at least 60 percent of the skilled journeypersons employed to perform work on the contract or project by every contractor and each of its subcontractors at every tier are graduates of an apprenticeship program for the applicable occupation","source":"pcc_ch_2_9","status":"primary-text"},"stw_graduate_pct_listed_occupations":{"value":30,"unit":"percent","citation":"Pub. Cont. Code § 2601(d)(2)(A), (D)","quote":"except that the requirements of subparagraph (A) shall continue to apply to work performed in the following occupations","source":"pcc_ch_2_9","status":"primary-text"},"stw_listed_occupations":{"value":["acoustical installer","bricklayer","carpenter","cement mason","drywall installer or lather","marble mason, finisher, or setter","modular furniture or systems installer","operating engineer","pile driver","plasterer","roofer or waterproofer","stone mason","surveyor","terrazzo worker or finisher","tile layer, setter, or finisher"],"citation":"Pub. Cont. Code § 2601(d)(2)(D)","source":"pcc_ch_2_9","status":"primary-text","note":"Teamster also appears in the list, but subparagraph (A) itself says the percentage does not apply to teamster work, so the engine treats teamster as exempt."},"stw_exempt_occupations":{"value":["teamster"],"citation":"Pub. Cont. Code § 2601(d)(2)(A)","quote":"This requirement shall not apply to work performed in the occupation of teamster.","source":"pcc_ch_2_9","status":"primary-text"},"stw_min_monthly_hours":{"value":10,"unit":"hours of skilled journeyperson work in the calendar month","citation":"Pub. Cont. Code § 2601(d)(5)","quote":"employs skilled journeypersons to perform fewer than 10 hours of work on the contract or project","source":"pcc_ch_2_9","status":"primary-text"},"stw_small_sub_fraction":{"value":0.005,"unit":"fraction of the price of the prime contract","citation":"Pub. Cont. Code § 2601(d)(6)","quote":"The subcontractor was not a listed subcontractor under Section 4104 or a substitute for a listed subcontractor. … The subcontract does not exceed one-half of 1 percent of the price of the prime contract.","source":"pcc_ch_2_9","status":"primary-text"},"stw_withhold_multiplier":{"value":1.5,"unit":"multiple of the relevant monthly billing","citation":"Pub. Cont. Code § 2602(b), (c)(1)(A)","quote":"shall withhold an amount equal to 150 percent of the value of the monthly billing","source":"pcc_ch_2_9","status":"primary-text"},"gov_code_1090":{"value":null,"citation":"Gov. Code § 1090; People v. Superior Court (Sahlolbei)","source":null,"status":"not-verified","note":"Cited by the research report for consultant conflicts. Chapter 4.7 does not cite it. Not read for this build; the engine only flags the fact pattern for attorney review."},"ccp_860":{"value":null,"citation":"Code Civ. Proc. § 860","source":null,"status":"not-verified","note":"Cited by the research report for validation challenges. Not read for this build and not used by any check."},"qbs_definition":{"value":true,"citation":"Pub. Cont. Code § 22185(i)","quote":"“Qualifications-based selection” means the process by which the local agency solicits for services from the design-build entities and that price is not the sole factor as the basis of award.","source":"pcc_ch_4_7","status":"primary-text"},"stw_commitment":{"value":true,"citation":"Pub. Cont. Code § 22185.3(b)","quote":"A design-build entity shall not be evaluated for selection unless the entity provides an enforceable commitment to the local agency that the entity and its subcontractors at every tier will use a skilled and trained workforce to perform all work on the project or contract that falls within an apprenticeable occupation in the building and construction trades","source":"pcc_ch_4_7","status":"primary-text","note":"Three project labor agreement exceptions are in § 22185.3(b)(2)(A)-(C)."},"stw_notice":{"value":true,"citation":"Pub. Cont. Code §§ 2600(c), 2600.5","quote":"the public entity shall include in all bid documents and construction contracts a notice that the project is subject to the skilled and trained workforce requirement","source":"pcc_ch_2_9","status":"primary-text"},"award_announcement":{"value":true,"citation":"Pub. Cont. Code § 22185.3(d)","quote":"upon issuance of a contract award, the local agency shall publicly announce its award, identifying the design-build entity to which the award is made, along with a statement regarding the basis of the award","source":"pcc_ch_4_7","status":"primary-text"},"bond_and_insurance_terms":{"value":true,"citation":"Pub. Cont. Code § 22185.4","quote":"issued by a California admitted surety … The design-build contract shall require errors and omissions insurance coverage for the design elements of the project. … The local agency shall develop a standard form of payment and performance bond for its design-build projects.","source":"pcc_ch_4_7","status":"primary-text"},"gmp_terms":{"value":true,"citation":"Pub. Cont. Code § 22185.5","quote":"the costs exceeding the guaranteed maximum price shall be the responsibility of the design-build entity. If the cost for these activities are less than the guaranteed maximum price, the design-build entity shall not be entitled to the difference between the cost and the guaranteed maximum price unless there is a prior written agreement concerning the sharing of these funds.","source":"pcc_ch_4_7","status":"primary-text","note":"Subdivision (c) covers the path when no price is agreed: solicit the original responders, or other entities on a written best-interest determination, with a best value award. Amended by Stats. 2024, ch. 80 (SB 1525), technical changes only."}}};
+const CORRECTIONS = [{"topic":"Code sections for SB 706","report":"Pub. Cont. Code §§ 22170–22174","primary":"SB 706 (Stats. 2023, ch. 500) added chapter 4.7, §§ 22185–22185.11. Sections 22170–22174 are chapter 4.1, added by SB 991 (Stats. 2022, ch. 243), which covers water agencies only, allows 15 projects, and is repealed January 1, 2029.","effect":"Every section cite in the report's Tool 5 entry points at the wrong chapter."},{"topic":"Ten-project cap","report":"§ 22171","primary":"§ 22185.1. Section 22171 is the 15-project cap for water agencies.","effect":"Wrong section; the number 10 is right."},{"topic":"Skilled and trained workforce","report":"§§ 22172.5, 2600","primary":"§ 22185.3(b), which points to chapter 2.9 (§ 2600 et seq.). Section 22172.5 is SB 991's reporting section.","effect":"Wrong section. The report also leaves out the three project labor agreement exceptions in § 22185.3(b)(2)."},{"topic":"Phase 2 off-ramp","report":"“GMP off-ramp IP clauses (PCC § 22173)”","primary":"The off-ramp is § 22185.5(c). It has no intellectual property clause. It says the replaced entity's design professionals keep sole liability for their errors and omissions if the agency uses their complete and stamped designs. Section 22173 is SB 991's savings clause.","effect":"Wrong section and a clause the statute does not contain."},{"topic":"Subcontract threshold","report":"Competitive bidding for subcontracts over 0.5% of design-build contract value, § 22172(c)","primary":"§ 22185.6(b): applies only when the contract value is $10,000,000 or more; the base is the contract price allocable to construction work; the process is public notice, qualification criteria, and a best value award, which may include prequalification or short-listing. Subcontractors listed in the statement of qualifications are excepted.","effect":"Wrong section, missing the $10M trigger, wrong base, and “competitive bidding” overstates the required process."},{"topic":"Report to the Legislature","report":"§ 22174","primary":"§ 22185.8, due no later than December 31, 2028, with ten listed items. Section 22174 is SB 991's repeal clause.","effect":"Wrong section; the report gives no due date."},{"topic":"Retention","report":"5% cap under § 7201","primary":"Chapter 4.7 has its own rule in § 22185.7: 5% cap if payment and performance bonds are required in the solicitation, no retention on work to establish the guaranteed maximum price, and subcontract retention may not exceed the prime rate except after a bond notice. Section 7201 is the general 5% rule and has a substantially-complex-project exception.","effect":"Right number, incomplete source; the no-retention rule for phase 1 is missing."},{"topic":"“Apprenticeship ratios (§ 2601)”","report":"DIR skilled-and-trained apprenticeship ratios","primary":"§ 2601(d)(2) sets the share of skilled journeypersons who must be apprenticeship graduates: 60%, or 30% for fifteen listed trades, with teamster work exempt. It is tested monthly by headcount or by hours (§ 2601(d)(4)).","effect":"Right section, loose description. These are graduate percentages, not apprentice-to-journeyperson ratios."},{"topic":"Scope","report":"“any public-works project exceeding $5,000,000”","primary":"Projects on state-owned or state-operated facilities are excluded (§§ 22185(d), 22185.9). “Special district” is not defined in the chapter.","effect":"Overbroad. Whether a given transit or healthcare district qualifies needs a legal answer."},{"topic":"“RFQ best-value rubrics”","report":"Best value selection at the RFQ stage","primary":"The design-build entity is chosen by qualifications-based selection, where price is not the sole factor (§§ 22185(h), (i), 22185.3). Best value is the standard for subcontract awards (§ 22185.6(b)(3)) and for a replacement award after the off-ramp (§ 22185.5(c)(1)).","effect":"Mislabels the selection standard."},{"topic":"Gov. Code § 1090 / Sahlolbei and CCP § 860","report":"Cited as conflict-of-interest disqualifiers and as the validation challenge route","primary":"Chapter 4.7 cites neither. Its own conflict rule is § 22185.2 (the agency must develop organizational conflict-of-interest guidelines).","effect":"Not verified in this build. The engine flags the fact pattern for attorney review and applies no rule from those sources."},{"topic":"Effective dates","report":"Effective January 1, 2024 through January 1, 2030","primary":"Confirmed: effective January 1, 2024; repealed as of January 1, 2030 (§ 22185.11).","effect":"Correct. The chapter does not say what happens to contracts in progress on the repeal date."}];
+const SAMPLES = { good: {"_note":"Fictional record. The agency, project, firms, and figures are invented for this demo.","as_of":"2026-11-25","agency":{"name":"City of Marlowe Ridge (fictional)","type":"city","prior_ch47_projects":2,"coi_guidelines_adopted":true},"project":{"name":"Corporation Yard Replacement","estimated_cost":48500000,"state_owned_or_operated_facility":false},"dates":{"rfq_issue":"2026-08-03","contract_award":"2026-11-10","phase2_amendment":"2027-09-15","expected_completion":"2029-06-30"},"rfq":{"elements":{"project_description":true,"expected_cost_range":true,"evaluation_methodology":true,"final_selection_procedure":true,"significant_factors":true,"factor_weights":true,"standard_template":true,"perjury_certification":true},"template_items":{"owners_listing":true,"experience_and_financial":true,"licenses":true,"bonding_insurance_capacity":true,"workers_comp_safety_program":true,"org_documents":true,"safety_record":true},"factors":[{"name":"Team experience on similar projects","weight":35,"price_related":false},{"name":"Key personnel","weight":25,"price_related":false},{"name":"Technical approach","weight":25,"price_related":false},{"name":"Preliminary cost estimate","weight":15,"price_related":true}],"stw_notice_in_bid_documents":true},"proposers":[{"name":"Kestrel Row Design-Build, Inc.","has_general_partners_or_jv_members":false,"safety":{"emr_last_3_years":[0.82,0.88,0.91],"trir_avg":2.1,"trir_standard":2.8,"lost_work_rate_avg":0.9,"lost_work_rate_standard":1.4},"certification":{"by_entity":true},"workforce":{"enforceable_stw_commitment":true}},{"name":"Tidewater & Finch Builders JV","has_general_partners_or_jv_members":true,"safety":{"emr_last_3_years":[0.97,1.02,0.99],"trir_avg":2.6,"trir_standard":2.8,"lost_work_rate_avg":1.3,"lost_work_rate_standard":1.4},"certification":{"by_entity":true,"by_all_general_partners_or_jv_members":true},"workforce":{"pla_exception":"entity_pla"}}],"award":{"issued":true,"publicly_announced":true,"basis_statement":true},"contract":{"total_value":46200000,"construction_allocable_price":40000000},"bonds":{"payment_bond_amount":40000000,"performance_bond_amount":40000000,"surety_california_admitted":true,"eo_insurance_required_in_contract":true,"agency_standard_bond_form":true},"gmp":{"agreed":true,"amount":46200000,"projected_cost_to_complete":45400000,"savings_share_to_entity":0.25,"written_savings_agreement":true,"contract_shifts_overrun_to_agency":false},"retention":{"bonds_required_in_solicitation":true,"phase1_rate":0,"prime_rate":0.05,"subcontract_rates":[{"name":"Halvorsen Electric","rate":0.05}]},"subcontracts":[{"name":"Halvorsen Electric","value":3900000,"listed_in_soq":true},{"name":"Brightwater Paving","value":1250000,"listed_in_soq":false,"public_notice":true,"fixed_due_date_time":true,"qualification_criteria":true,"award_basis":"best_value"},{"name":"Sorrel Fence Co.","value":140000,"listed_in_soq":false}],"workforce_months":[{"contractor":"Kestrel Row Design-Build, Inc.","occupation":"electrician","month":"2028-03","report_submitted":true,"journeypersons":10,"graduate_journeypersons":7,"journeyperson_hours":1600,"graduate_hours":1120,"monthly_billing":410000},{"contractor":"Kestrel Row Design-Build, Inc.","occupation":"carpenter","month":"2028-03","report_submitted":true,"journeypersons":12,"graduate_journeypersons":4,"journeyperson_hours":1900,"graduate_hours":640,"monthly_billing":380000},{"contractor":"Sorrel Fence Co.","occupation":"ironworker","month":"2028-03","report_submitted":true,"is_subcontractor":true,"listed_subcontractor":false,"subcontract_value":140000,"journeypersons":3,"graduate_journeypersons":0,"journeyperson_hours":240,"graduate_hours":0}],"legislature_report":{"submitted":false}}, bad: {"_note":"Fictional record with deliberate defects. The agency, project, firms, and figures are invented for this demo.","as_of":"2026-11-25","agency":{"name":"Ostrander Valley Recreation and Park District (fictional)","type":"special_district","type_detail":"recreation and park district","prior_ch47_projects":10,"ch41_water_projects":1,"coi_guidelines_adopted":false},"project":{"name":"Aquatic Center and Fieldhouse","estimated_cost":5000000,"state_owned_or_operated_facility":false},"dates":{"rfq_issue":"2028-10-02","contract_award":"2029-02-12","phase2_amendment":"2030-03-01","expected_completion":"2031-08-30"},"rfq":{"elements":{"project_description":true,"expected_cost_range":false,"evaluation_methodology":true,"final_selection_procedure":true,"significant_factors":true,"factor_weights":false,"standard_template":true,"perjury_certification":false},"template_items":{"owners_listing":true,"experience_and_financial":true,"licenses":true,"bonding_insurance_capacity":true,"workers_comp_safety_program":false,"org_documents":true,"safety_record":false},"factors":[{"name":"Team experience","weight":40,"price_related":false},{"name":"Technical approach","price_related":false},{"name":"Preliminary cost estimate","weight":30,"price_related":true}],"stw_notice_in_bid_documents":false},"proposers":[{"name":"Pallister Crane Constructors LLC","has_general_partners_or_jv_members":true,"safety":{"emr_last_3_years":[1.12,1.05,1.04],"trir_avg":3.4,"trir_standard":2.8,"lost_work_rate_avg":1.2,"lost_work_rate_standard":1.4},"certification":{"by_entity":true,"by_all_general_partners_or_jv_members":false},"workforce":{},"team_members":[{"name":"Quillfeather Program Advisors","performed_solicitation_services_for_agency":true}]},{"name":"Dunmore & Asher Design-Build","has_general_partners_or_jv_members":false,"safety":{"emr_last_3_years":[0.95,0.9,0.93],"trir_avg":2,"trir_standard":2.8,"lost_work_rate_avg":1,"lost_work_rate_standard":1.4},"certification":{"by_entity":true},"workforce":{"pla_exception":"agency_pla_renewal","original_pla_date":"2023-06-15"}}],"award":{"issued":true,"publicly_announced":true,"basis_statement":false},"contract":{"total_value":12400000,"construction_allocable_price":10800000},"bonds":{"payment_bond_amount":5400000,"performance_bond_amount":10800000,"surety_california_admitted":true,"eo_insurance_required_in_contract":false,"agency_standard_bond_form":false},"gmp":{"agreed":true,"amount":12400000,"projected_cost_to_complete":13150000,"savings_share_to_entity":0.5,"written_savings_agreement":false,"contract_shifts_overrun_to_agency":true},"retention":{"bonds_required_in_solicitation":true,"phase1_rate":0.05,"prime_rate":0.1,"subcontract_rates":[{"name":"Varga Mechanical","rate":0.15}]},"subcontracts":[{"name":"Varga Mechanical","value":1900000,"listed_in_soq":false,"public_notice":false,"fixed_due_date_time":false,"qualification_criteria":true,"award_basis":"low_bid"},{"name":"Lindqvist Pool Systems","value":54000,"listed_in_soq":false},{"name":"Corbel Glass","value":54001,"listed_in_soq":false,"public_notice":true,"fixed_due_date_time":true,"qualification_criteria":true,"award_basis":"best_value"}],"workforce_months":[{"contractor":"Pallister Crane Constructors LLC","occupation":"plumber","month":"2029-09","report_submitted":true,"journeypersons":10,"graduate_journeypersons":5,"journeyperson_hours":1500,"graduate_hours":800,"monthly_billing":220000},{"contractor":"Varga Mechanical","occupation":"sheet metal worker","month":"2029-09","report_submitted":false,"is_subcontractor":true,"listed_subcontractor":false,"subcontract_value":1900000,"monthly_billing":96000},{"contractor":"Pallister Crane Constructors LLC","occupation":"teamster","month":"2029-09","report_submitted":true,"journeypersons":4,"graduate_journeypersons":0,"journeyperson_hours":600,"graduate_hours":0}],"legislature_report":{"submitted":false,"contents":{"project_descriptions":true,"award_amounts":true,"awardees":true,"protests":false,"prequalification_process":true,"design_only_specialty_subs":false,"unused_sub_design_use":false,"small_business_subs":true,"microbusiness_subs":true,"performance_assessment":true}}} };
+
+const $ = (id) => document.getElementById(id);
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; };
+const cls = (s) => (s === 'N/A' ? 'NA' : s);
+let filter = 'ALL';
+let last = null;
+
+function loadSample() {
+  const rec = SAMPLES[$('sample').value];
+  $('json').value = JSON.stringify(rec, null, 2);
+  $('asof').value = rec.as_of;
+  run();
+}
+
+function run() {
+  $('err').hidden = true;
+  let rec;
+  try { rec = JSON.parse($('json').value); } catch (e) { $('err').textContent = 'The record is not valid JSON: ' + e.message; $('err').hidden = false; return; }
+  try { last = { rec, result: validate(rec, RULES, { asOf: $('asof').value || rec.as_of }) }; }
+  catch (e) { $('err').textContent = e.message; $('err').hidden = false; return; }
+  render();
+}
+
+function gauge(cap, big, sub, visual) {
+  const g = el('div', 'gauge'); g.append(el('span', 'cap', cap), el('span', 'big', big));
+  if (visual) g.append(visual); g.append(el('span', 'sub', sub)); return g;
+}
+
+function render() {
+  const { rec, result } = last;
+  const R = RULES.rules;
+  const G = $('gauges'); G.replaceChildren();
+  const capN = R.max_projects_per_agency.value;
+  const prior = rec.agency && Number.isInteger(rec.agency.prior_ch47_projects) ? rec.agency.prior_ch47_projects : null;
+  const slots = el('div', 'slots');
+  for (let i = 1; i <= capN; i++) { const s = el('i'); if (prior !== null) { if (i <= Math.min(prior, capN)) s.className = 'used'; else if (i === prior + 1) s.className = 'this'; } slots.append(s); }
+  if (prior !== null && prior + 1 > capN) slots.lastChild.className = 'over';
+  G.append(gauge('Project slots, § 22185.1', prior === null ? 'Not recorded' : `Project ${prior + 1} of ${capN}`, prior === null ? '' : (prior + 1 > capN ? 'Over the cap.' : `${capN - prior - 1} left after this one.`), slots));
+
+  const from = Date.parse(R.chapter_operative_from.value), to = Date.parse(R.chapter_repeal_date.value), now = Date.parse(result.as_of);
+  const bar = el('div', 'bar'); const b = el('b'); b.style.width = Math.max(0, Math.min(100, (now - from) / (to - from) * 100)) + '%'; bar.append(b);
+  const dLeft = Math.round((to - now) / 86400000);
+  G.append(gauge('Chapter repeal, § 22185.11', dLeft > 0 ? `${dLeft.toLocaleString()} days left` : 'Repealed', `Runs ${R.chapter_operative_from.value} to ${R.chapter_repeal_date.value}. Report to the Legislature due ${R.legislature_report_due.value}.`, bar));
+
+  const t = subcontractThreshold(rec.contract, RULES);
+  G.append(gauge('Subcontract threshold, § 22185.6(b)', t.threshold !== null ? '$' + t.threshold.toLocaleString() : (t.applies === false ? 'Does not apply' : 'Not computable'), t.reason));
+
+  const S = $('summary'); S.replaceChildren();
+  const text = { 'gaps-found': 'One or more checks failed.', 'needs-review': 'No check failed; some items need attorney review.', 'no-gaps-found': 'These checks found no gaps. That is not a finding of legal compliance.' }[result.outcome];
+  S.append(el('span', 'outcome', `${result.agency || 'Agency'} · ${result.project || 'Project'}: ${text}`));
+
+  const F = $('filters'); F.replaceChildren();
+  [['ALL', result.findings.length], ['FAIL', result.counts.FAIL], ['REVIEW', result.counts.REVIEW], ['PASS', result.counts.PASS], ['INFO', result.counts.INFO], ['N/A', result.counts['N/A']]].forEach(([k, n]) => {
+    const btn = el('button', 'quiet', `${k === 'ALL' ? 'All' : k} ${n}`); btn.type = 'button'; btn.setAttribute('aria-pressed', String(filter === k));
+    btn.addEventListener('click', () => { filter = k; render(); }); F.append(btn);
+  });
+
+  const out = $('findings'); out.replaceChildren();
+  const shown = result.findings.filter((f) => filter === 'ALL' || f.status === filter);
+  if (!shown.length) out.append(el('p', 'empty', 'No findings with this status.'));
+  [...new Set(shown.map((f) => f.section))].forEach((sec) => {
+    const box = el('div'); box.style.cssText = 'display:flex;flex-direction:column;gap:8px;min-width:0';
+    box.append(el('span', 'cap', sec));
+    const sc = el('div', 'scroll'); const tb = el('table'); const body = el('tbody');
+    shown.filter((f) => f.section === sec).forEach((f) => {
+      const tr = el('tr');
+      const st = el('td'); st.append(el('span', 'pill ' + cls(f.status), f.status));
+      tr.append(el('td', 'id', f.id), st, el('td', 'check', f.title), el('td', 'detail', f.detail), el('td', 'cite', f.citation + (f.verification === 'primary-text' ? '' : ' (not verified)')));
+      body.append(tr);
+    });
+    tb.append(body); sc.append(tb); box.append(sc); out.append(box);
+  });
+}
+
+function renderStatic() {
+  $('verified').textContent = RULES.meta.verified_on;
+  const C = $('corr');
+  CORRECTIONS.forEach((c) => { const tr = el('tr'); tr.append(el('td', 'check', c.topic), el('td', 'detail', c.report), el('td', 'detail', c.primary), el('td', 'detail', c.effect)); C.append(tr); });
+  const T = $('rules');
+  Object.entries(RULES.rules).forEach(([k, r]) => {
+    const tr = el('tr');
+    const v = Array.isArray(r.value) ? `${r.value.length} items` : r.value === null ? 'none' : typeof r.value === 'number' && r.value >= 1000 ? '$' + r.value.toLocaleString() : String(r.value);
+    const st = el('td'); st.append(el('span', 'pill ' + (r.status === 'primary-text' ? 'PASS' : 'REVIEW'), r.status === 'primary-text' ? 'read in primary text' : 'not verified'));
+    tr.append(el('td', 'id', k), el('td', 'id', v), el('td', 'cite', r.citation), st, el('td', 'q', [r.quote ? (r.quote.startsWith('“') ? r.quote : '“' + r.quote + '”') : '', r.note || ''].filter(Boolean).join(' ')));
+    T.append(tr);
+  });
+}
+
+$('sample').addEventListener('change', loadSample);
+$('run').addEventListener('click', run);
+$('asof').addEventListener('change', run);
+renderStatic();
+loadSample();
+</script>
