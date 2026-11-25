@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zombie Precedent: courts citing overruled Supreme Court cases</title>
+<meta name="description" content="55,642 citations to 280 overruled Supreme Court decisions, traced through the Caselaw Access Project and read by Claude models.">
+<style>
+@font-face{font-family:"Newsreader";src:url(fonts/Newsreader.ttf) format("truetype");font-weight:200 800;font-display:swap}
+@font-face{font-family:"Newsreader";src:url(fonts/Newsreader-Italic.ttf) format("truetype");font-weight:200 800;font-style:italic;font-display:swap}
+@font-face{font-family:"Geist";src:url(fonts/Geist.ttf) format("truetype");font-weight:100 900;font-display:swap}
+@font-face{font-family:"Geist Mono";src:url(fonts/GeistMono.ttf) format("truetype");font-weight:100 900;font-display:swap}
+:root{
+  color-scheme:dark;
+  --bg:#12110f; --bg2:#1a1916; --line:#2c2a25; --grid:#24221e;
+  --ink:#ece6d8; --ink2:#a9a294; --ink3:#77716a;
+  --life:#cfc6b2; --ghost:#86d468; --death:#ef5b55;
+  --S:#5aa843; --G:#a35a14; --A:#b07cbf; --H:#0074a0; --R:#ef5b55;
+  --serif:"Newsreader",Georgia,serif; --sans:"Geist",system-ui,sans-serif; --mono:"Geist Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink)}
+body{font:16px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--ink);text-decoration-color:var(--ink3);text-underline-offset:3px}
+a:hover{text-decoration-color:var(--ghost)}
+.wrap{max-width:1120px;margin:0 auto;padding:0 28px}
+.prose{max-width:680px}
+header.hero{padding:96px 0 40px}
+.kicker{font:500 12px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink2)}
+h1{font:400 clamp(56px,10vw,128px)/.92 var(--serif);letter-spacing:-.02em;margin:22px 0 28px}
+h1 .dead{position:relative;font-style:italic;color:var(--ink2)}
+h1 .dead::after{content:"";position:absolute;left:-2%;right:-2%;top:54%;height:.06em;background:var(--death);transform:scaleX(0);transform-origin:left;animation:strike 1.1s .5s cubic-bezier(.7,0,.2,1) forwards}
+@keyframes strike{to{transform:scaleX(1)}}
+.lede{font:400 clamp(20px,2.2vw,25px)/1.45 var(--serif);color:var(--ink);max-width:760px;margin:0}
+.byline{margin-top:28px;font:400 13px/1.5 var(--mono);color:var(--ink3)}
+h2{font:400 clamp(32px,4vw,46px)/1.08 var(--serif);letter-spacing:-.01em;margin:0 0 18px}
+h2 em{color:var(--ghost);font-style:italic}
+section{padding:72px 0;border-top:1px solid var(--line)}
+p{margin:0 0 16px;color:#d9d3c5}
+.note{font-size:14px;color:var(--ink2)}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* graveyard */
+.yard{position:relative;margin:26px 0 0}
+.yard canvas{display:block;width:100%}
+.yard #yardOver{position:absolute;inset:0;pointer-events:none}
+.yard-legend{display:flex;flex-wrap:wrap;gap:8px 22px;font:13px/1.3 var(--sans);color:var(--ink2);margin:14px 0 0}
+.key{display:inline-flex;align-items:center;gap:8px}
+.sw{width:10px;height:10px;border-radius:2px;display:inline-block}
+.sw.dot{border-radius:50%;width:8px;height:8px}
+.sw.tick{width:2px;height:12px;border-radius:1px}
+.find{display:flex;gap:10px;align-items:center;margin:20px 0 0}
+.find input{background:var(--bg2);border:1px solid var(--line);color:var(--ink);font:14px var(--sans);padding:9px 12px;border-radius:6px;width:min(360px,100%)}
+.find input:focus{outline:1px solid var(--ghost);border-color:var(--ghost)}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin:40px 0 0}
+.stat{background:var(--bg);padding:22px 20px}
+.stat b{display:block;font:400 clamp(34px,4vw,48px)/1 var(--serif);color:var(--ink);margin-bottom:10px}
+.stat span{font-size:14px;color:var(--ink2);line-height:1.4;display:block}
+
+/* charts */
+.chart{position:relative;margin:28px 0 8px}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.axis text,.lab{font:12px var(--sans);fill:var(--ink2)}
+.axis line,.axis path{stroke:var(--line)}
+.gridl{stroke:var(--grid);stroke-width:1}
+.toggle{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;margin:6px 0 0}
+.toggle button{background:none;border:0;color:var(--ink2);font:13px var(--sans);padding:8px 14px;cursor:pointer}
+.toggle button[aria-pressed=true]{background:var(--bg2);color:var(--ink)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--ink2);margin:10px 0 0}
+.tip{position:fixed;z-index:9;pointer-events:none;background:#0c0b0a;border:1px solid #3a372f;border-radius:8px;padding:10px 12px;font:13px/1.45 var(--sans);color:var(--ink);max-width:320px;box-shadow:0 8px 30px #0008;opacity:0;transition:opacity .12s}
+.tip b{font-weight:600}
+.tip .m{color:var(--ink2)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:48px}
+
+/* waffle */
+.relies{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:48px;align-items:start}
+.relies>*,.two>*{min-width:0}
+.waffle{display:grid;grid-template-columns:repeat(40,1fr);gap:2px;margin-top:10px}
+.waffle i{aspect-ratio:1;border-radius:1.5px;background:#2a2823}
+.waffle i.r{background:var(--R);box-shadow:0 0 10px #ef5b5588}
+.waffle i.rr{background:transparent;outline:1px solid var(--R);outline-offset:-1px}
+.big{font:400 clamp(60px,7vw,92px)/1 var(--serif);color:var(--R);margin:0 0 10px;white-space:nowrap}
+.big small{display:block;font-size:14px;color:var(--ink2);font-family:var(--sans);margin-top:8px;white-space:normal}
+
+/* zombies */
+.graves{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px;margin-top:30px}
+.grave{background:var(--bg2);border:1px solid var(--line);border-radius:14px 14px 4px 4px;padding:22px 22px 20px;display:flex;flex-direction:column;gap:12px}
+.grave .t{font:500 19px/1.25 var(--serif)}
+.grave .t s{text-decoration-color:var(--death);text-decoration-thickness:2px}
+.grave .d{font:12px/1.4 var(--mono);color:var(--ink3);letter-spacing:.02em}
+.grave blockquote{margin:0;font:italic 400 17px/1.45 var(--serif);color:var(--ink);border-left:2px solid var(--ghost);padding-left:14px}
+.grave .c{font-size:13.5px;color:var(--ink2);line-height:1.45}
+.gap{font:500 13px var(--mono);color:var(--ghost)}
+
+.limits{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px 36px;margin-top:22px}
+.limits div{font-size:15px;color:#d0cabd;border-top:1px solid var(--line);padding-top:12px}
+.limits b{display:block;color:var(--ink);font-weight:600;margin-bottom:4px}
+footer{border-top:1px solid var(--line);padding:40px 0 70px;font-size:13px;color:var(--ink3)}
+footer p{color:var(--ink3)}
+table.data{border-collapse:collapse;font-size:13px;margin-top:10px;width:100%}
+table.data td,table.data th{border-bottom:1px solid var(--line);padding:6px 8px;text-align:right}
+table.data th:first-child,table.data td:first-child{text-align:left}
+details summary{cursor:pointer;color:var(--ink2);font-size:13px;margin-top:10px}
+@media (max-width:820px){.stats{grid-template-columns:1fr 1fr}.two,.relies{grid-template-columns:1fr}header.hero{padding-top:64px}}
+@media (prefers-reduced-motion:reduce){h1 .dead::after{animation:none;transform:none}}
+</style>
+</head>
+<body>
+<div class="tip" id="tip" role="tooltip"></div>
+
+<header class="hero wrap">
+  <div class="kicker">Research · Caselaw Access Project · 1806–2018</div>
+  <h1>Zombie <span class="dead">Precedent</span></h1>
+  <p class="lede">When the Supreme Court overrules one of its decisions, the old case keeps getting cited. I traced every citation to the 280 cases the Court has overruled, across every American court in Harvard's Caselaw Access Project, and had Claude models read 16,050 of them to see what the citing court was doing with a dead case.</p>
+  <div class="byline">Myles Parslow · November 2026 · data through about 2018</div>
+</header>
+
+<section class="wrap" style="border-top:0;padding-top:24px">
+  <div class="prose">
+    <h2>Every overruled case, <em>and its afterlife</em></h2>
+    <p>Each row is one overruled decision, oldest overruling at the top. Pale dots are citations while the case was good law. The red tick is the year it was overruled. Green dots are the citations that came after.</p>
+  </div>
+  <div class="find"><input id="find" type="search" placeholder="Find a case: Lochner, Plessy, Roe…" aria-label="Find a case" list="caseList"><datalist id="caseList"></datalist></div>
+  <div class="yard" id="yard"><canvas id="yardCanvas" aria-label="Chart: 280 overruled Supreme Court cases, citations by year before and after each overruling"></canvas><canvas id="yardOver"></canvas></div>
+  <div class="yard-legend">
+    <span class="key"><i class="sw dot" style="background:var(--life)"></i>citation while good law</span>
+    <span class="key"><i class="sw tick" style="background:var(--death)"></i>overruled</span>
+    <span class="key"><i class="sw dot" style="background:var(--ghost);box-shadow:0 0 6px var(--ghost)"></i>citation after the overruling</span>
+    <span class="key" style="color:var(--ink3)">hover a row for the case</span>
+  </div>
+  <div class="stats">
+    <div class="stat"><b class="num" data-count="55642">55,642</b><span>citations to overruled cases, from real opinions decided after the overruling</span></div>
+    <div class="stat"><b>273 <small style="font-size:.45em;color:var(--ink2)">of 280</small></b><span>overruled cases were cited again after they were overruled</span></div>
+    <div class="stat"><b>10 yrs</b><span>median time from the overruling to the citation</span></div>
+    <div class="stat"><b>1,861</b><span>citations came 100 years or more after the overruling</span></div>
+  </div>
+</section>
+
+<section class="wrap">
+  <div class="prose">
+    <h2>The tail runs <em>for centuries</em></h2>
+    <p>Half of the citations come within ten years of the overruling. The rest thin out slowly: 29% come more than 20 years after, and 7.6% more than 50. Of the 140 cases overruled at least 50 years before 2017, 113 were still being cited 50 or more years later.</p>
+    <p>The long end is mostly a few old cases cited for the part that survived. Strawbridge v. Curtiss (1806) was overruled in 1844 and was still being cited 175 years later, nearly always for its complete-diversity rule, which outlived the overruling.</p>
+  </div>
+  <div class="chart" id="tail"></div>
+  <p class="note">Citations by years since the overruling, all courts. Count from CAP citation metadata, no model labels involved.</p>
+</section>
+
+<section class="wrap">
+  <div class="prose">
+    <h2>Overruled cases <em>fade faster</em> than their peers</h2>
+    <p>Old cases get cited less as they age whether or not anyone overrules them. So I matched 218 overruled cases to 1,944 Supreme Court cases of the same age and a similar citation rate that were never overruled, and indexed each to its own rate before the overruling year.</p>
+    <p>The two groups keep pace for the first few years. From about year 6 the overruled cases fall behind and stay behind for decades: at 11–40 years an overruled case gets roughly 40–70% of the citations its match gets. How much depends on the baseline. Overruled cases spike in the years just before they fall, while the fight over them is going on, so a baseline that ends at the overruling makes the drop look bigger. The toggle switches to an earlier baseline that skips the spike.</p>
+  </div>
+  <div class="toggle" role="group" aria-label="Baseline">
+    <button id="b5" aria-pressed="true">Baseline: 5 years before</button>
+    <button id="b10" aria-pressed="false">Baseline: 10 to 6 years before</button>
+  </div>
+  <div class="chart" id="decay"></div>
+  <div class="legend">
+    <span class="key"><i class="sw" style="background:var(--ghost);height:3px;width:18px"></i>overruled cases</span>
+    <span class="key"><i class="sw" style="background:var(--ink2);height:3px;width:18px"></i>matched cases never overruled</span>
+  </div>
+  <p class="note">Mean citations per year as a share of each case's own baseline average. This shows an association: the matching can't rule out that some cases were overruled because they were already fading.</p>
+</section>
+
+<section class="wrap">
+  <div class="prose">
+    <h2>What the citing courts <em>use them for</em></h2>
+    <p>Claude Haiku labelled a stratified sample of 16,050 citations, Sonnet re-read the hard ones, and a blind Opus review checked 245. Most citations to a dead case are fine. Nearly half cite it for a point the overruling left alone. Another 29% say the case was overruled.</p>
+    <p>That second habit fades. In the first two years half the citations mention the overruling. After 40 years one in eight does, and more than two thirds use the case for something that survived.</p>
+  </div>
+  <div class="legend" id="classLegend"></div>
+  <div class="chart" id="classes"></div>
+  <p class="note">Weighted shares of model labels, by years since the overruling. Blind review agreed with the S and A labels 91–95% of the time; the R slice here is the raw label, and the corrected estimate is below. U/X (unclear or wrong case, under 1%) is the empty end of each bar.</p>
+</section>
+
+<section class="wrap">
+  <div class="relies">
+    <div class="prose">
+      <h2>The <em>real</em> zombies are rare</h2>
+      <p>A zombie citation uses the overruled rule as law with no sign of knowing it is dead. That label went through three or four reads: Sonnet, a second Sonnet read with a wider cut of the opinion and a stricter test, then a blind Opus review. The blind review agreed with 58% of the surviving calls. A sample of the citations the second read threw out found a few real ones it had wrongly dropped.</p>
+      <p>Putting those together: about <b>390 citations</b> (95% interval 270–515) rely on a dead rule, <b>0.72%</b> of the 54,488 citations whose passage could be found. That rate shows no clear trend over time.</p>
+      <p class="note">The interval leaves out one thing. The blind review found no zombies among 151 sampled "surviving point", "acknowledges", "other grounds" and "historical" labels, but that sample is too small to rule out a much larger number hiding there.</p>
+    </div>
+    <div>
+      <div class="big">0.72%<small>of located post-overruling citations rely on the dead rule</small></div>
+      <div class="note">One square is one citation in a thousand. Solid: the estimate (about 7 per 1,000). Outlined: the top of the interval (9.5).</div>
+      <div class="waffle" id="waffle" aria-label="1,000 squares, 7 red"></div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap">
+  <div class="prose">
+    <h2>Seven <em>zombies</em></h2>
+    <p>Each was labelled "relies" by Sonnet, by the stricter second read and by the blind Opus review, and I read each passage. Cites are as CAP gives them.</p>
+  </div>
+  <div class="graves" id="graves"></div>
+</section>
+
+<section class="wrap">
+  <div class="prose">
+    <h2>Who cites the dead</h2>
+    <p>The Supreme Court cites its own overruled cases far more than any other court does, usually to discuss them. Below it, federal courts cite them about twice as often as state high courts. Estimated reliance comes out lowest at the Supreme Court and the federal courts of appeals, though the intervals are wide and the other four types can't be ranked.</p>
+  </div>
+  <div class="two">
+    <div><div class="kicker" style="margin-top:20px">Citations to overruled cases per 1,000 opinions, 1950–2017</div><div class="chart" id="rate"></div></div>
+    <div><div class="kicker" style="margin-top:20px">Estimated share that relies on the dead rule</div><div class="chart" id="rshare"></div></div>
+  </div>
+  <p class="note">Bars and dots show the estimate; lines show 95% intervals (a bootstrap over overruled cases for rates; sampling, precision and recall for reliance). Federal Appendix left out of the rates.</p>
+</section>
+
+<section class="wrap">
+  <div class="prose">
+    <h2>How it was made, and what it can't tell you</h2>
+    <p>The list of overruled cases is the Constitution Annotated table of Supreme Court decisions overruled by later decisions (292 overrulings, 280 distinct cases). Citations come from a scan of all 40,622 volumes of the Caselaw Access Project (6.9 million case records, CC0), using only real opinions of 400 words or more, de-duplicated across reporters. The labels came from Claude Haiku 5.5 and Sonnet 5.5, checked by a blind Claude Opus 5.5 review. Logged model cost: $78.</p>
+  </div>
+  <div class="limits">
+    <div><b>Only Supreme Court overrulings</b>State courts and federal circuits overruling their own precedents are not covered, and that is probably where most zombie citations live.</div>
+    <div><b>No lawyer has read the labels</b>Every reader was a Claude model, and they can share blind spots. A New York state-law trap fooled two of them.</div>
+    <div><b>Data ends around 2018</b>Recent overrulings have short tails, and anything after CAP's coverage is missing.</div>
+    <div><b>A sample, not a census, for labels</b>About 29% of the located citations were labelled. Counts, timing and court rates are a full census.</div>
+    <div><b>"Relies" is the weakest label</b>Blind precision is 58%, and the zero found in the large classes bounds the hidden zombies only loosely.</div>
+    <div><b>Partial overrulings are a definition</b>A case overruled on one point and cited for another counts as a surviving point, even if that other point later eroded.</div>
+  </div>
+</section>
+
+<footer class="wrap">
+  <p>Data: Harvard Law School Library, Caselaw Access Project (static.case.law, CC0). Overruling list: Congress.gov, Constitution Annotated, "Table of Supreme Court Decisions Overruled by Subsequent Decisions". Type: Newsreader and Geist (SIL Open Font License). Model labels are estimates; read the opinion before relying on any of this.</p>
+</footer>
+
+<script>
+const $ = s => document.querySelector(s);
+const tip = $('#tip');
+const fmt = n => Math.round(n).toLocaleString('en-US');
+const pct = (x, d = 1) => (x * 100).toFixed(d) + '%';
+function showTip(html, ev) {
+  tip.innerHTML = html; tip.style.opacity = 1;
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  let x = ev.clientX + 16, y = ev.clientY + 16;
+  if (x + w > innerWidth - 8) x = ev.clientX - w - 16;
+  if (y + h > innerHeight - 8) y = ev.clientY - h - 16;
+  tip.style.left = x + 'px'; tip.style.top = y + 'px';
+}
+const hideTip = () => tip.style.opacity = 0;
+addEventListener('scroll', hideTip, { passive: true });
+const NS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs = {}, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+fetch('data.json').then(r => r.json()).then(D => {
+  graveyard(D); tail(D); decay(D); classes(D); waffle(D); graves(); courts(D);
+});
+
+/* ---------- graveyard ---------- */
+function graveyard(D) {
+  const cases = D.cases, n = cases.length;
+  const c = $('#yardCanvas'), o = $('#yardOver'), box = $('#yard');
+  const Y0 = 1790, Y1 = 2021, L = 8, Rm = 8, T = 22, B = 26;
+  let W, H, rowH, dpr, sx, dots, hover = -1, pinned = -1;
+  // seeded jitter so redraws are stable
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  function layout() {
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    W = box.clientWidth; rowH = W < 640 ? 2 : 2.6; H = T + n * rowH + B;
+    for (const cv of [c, o]) { cv.width = W * dpr; cv.height = H * dpr; cv.style.height = H + 'px'; }
+    sx = y => L + (y - Y0) / (Y1 - Y0) * (W - L - Rm);
+    seed = 7; dots = [];
+    cases.forEach((k, i) => {
+      for (const [y, m] of k.life) for (let j = 0; j < m; j++) dots.push([y + rnd(), i, 0, rnd()]);
+      for (const [y, m] of k.after) for (let j = 0; j < m; j++) dots.push([y + rnd(), i, 1, rnd()]);
+    });
+    dots.sort((a, b) => a[0] - b[0]);
+  }
+  function axis(ctx) {
+    ctx.font = '11px Geist, sans-serif'; ctx.fillStyle = css('--ink3'); ctx.strokeStyle = css('--grid'); ctx.lineWidth = 1;
+    for (let y = 1800; y <= 2020; y += W < 640 ? 40 : 20) {
+      const x = Math.round(sx(y)) + .5;
+      ctx.beginPath(); ctx.moveTo(x, T - 6); ctx.lineTo(x, H - B + 4); ctx.stroke();
+      ctx.textAlign = 'center'; ctx.fillText(y, x, H - 8); ctx.fillText(y, x, 12);
+    }
+  }
+  function drawRow(ctx, i, k) {
+    const y = T + i * rowH;
+    ctx.fillStyle = css('--death'); ctx.fillRect(sx(k.died) - .5, y - .5, 2, rowH + 1);
+  }
+  function draw(upto) {
+    const ctx = c.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, W, H); axis(ctx);
+    // life spans
+    ctx.fillStyle = '#2a2823';
+    cases.forEach((k, i) => { const x0 = sx(k.year), x1 = sx(Math.min(k.died, upto)); if (x1 > x0) ctx.fillRect(x0, T + i * rowH + rowH * .35, x1 - x0, Math.max(.6, rowH * .3)); });
+    const r = rowH < 2.5 ? 1 : 1.3;
+    ctx.globalAlpha = .38; ctx.fillStyle = css('--life');
+    for (const d of dots) { if (d[0] > upto) break; if (!d[2]) ctx.fillRect(sx(d[0]), T + d[1] * rowH + d[3] * (rowH - r), r, r); }
+    ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = .55; ctx.fillStyle = css('--ghost');
+    for (const d of dots) { if (d[0] > upto) break; if (d[2]) ctx.fillRect(sx(d[0]), T + d[1] * rowH + d[3] * (rowH - r), r, r); }
+    ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+    cases.forEach((k, i) => { if (k.died <= upto) drawRow(ctx, i, k); });
+  }
+  function overlay() {
+    const ctx = o.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+    const i = hover >= 0 ? hover : pinned; if (i < 0) return;
+    const k = cases[i], y = T + i * rowH;
+    ctx.fillStyle = 'rgba(18,17,15,.55)'; ctx.fillRect(0, T, W, n * rowH);
+    ctx.fillStyle = 'rgba(236,230,216,.08)'; ctx.fillRect(0, y - 6, W, rowH + 12);
+    ctx.fillStyle = css('--life'); ctx.globalAlpha = .9;
+    for (const [yr, m] of k.life) ctx.fillRect(sx(yr), y - 3, Math.max(1.5, sx(yr + 1) - sx(yr) - .3), rowH + 6);
+    ctx.fillStyle = css('--ghost'); ctx.shadowColor = css('--ghost'); ctx.shadowBlur = 8;
+    for (const [yr, m] of k.after) ctx.fillRect(sx(yr), y - 3, Math.max(1.5, sx(yr + 1) - sx(yr) - .3), rowH + 6);
+    ctx.shadowBlur = 0; ctx.globalAlpha = 1; ctx.fillStyle = css('--death'); ctx.fillRect(sx(k.died) - 1, y - 7, 2.5, rowH + 14);
+  }
+  function caseHtml(k) {
+    const last = k.last ? `last in ${k.last}, ${k.last - k.died} years later` : 'never cited again';
+    return `<b>${k.name}</b>, <span class="m">${k.cite} (${k.year})</span><br>Overruled ${k.died}${k.partial === '1' ? ' in part' : ''} by ${k.by}<br><span class="num">${fmt(k.n_after)}</span> citations after the overruling <span class="m">· ${last}</span>`;
+  }
+  function rowAt(ev) { const r = c.getBoundingClientRect(); const i = Math.floor((ev.clientY - r.top - T) / rowH); return i >= 0 && i < n ? i : -1; }
+  box.addEventListener('pointermove', ev => { const i = rowAt(ev); if (i !== hover) { hover = i; overlay(); } if (i >= 0) showTip(caseHtml(cases[i]), ev); else hideTip(); });
+  box.addEventListener('pointerleave', () => { hover = -1; overlay(); hideTip(); });
+  // search
+  const dl = $('#caseList'); cases.forEach(k => { const op = document.createElement('option'); op.value = k.name; dl.appendChild(op); });
+  $('#find').addEventListener('input', e => {
+    const q = e.target.value.trim().toLowerCase(); pinned = -1;
+    if (q.length > 2) pinned = cases.findIndex(k => k.name.toLowerCase().includes(q));
+    overlay();
+    if (pinned >= 0) { const r = c.getBoundingClientRect(); const y = r.top + T + pinned * rowH; showTip(caseHtml(cases[pinned]), { clientX: r.left + sx(cases[pinned].died), clientY: y }); } else hideTip();
+  });
+  layout();
+  let started = false;
+  function run() {
+    if (started) return; started = true;
+    if (reduce) { draw(Y1); return; }
+    const t0 = performance.now(), dur = 3200;
+    (function f(t) { const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 2.2); draw(Y0 + e * (Y1 - Y0)); if (p < 1) requestAnimationFrame(f); })(t0);
+  }
+  draw(Y0);
+  new IntersectionObserver((es, ob) => { if (es[0].isIntersecting) { run(); ob.disconnect(); } }, { threshold: .15 }).observe(box);
+  let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { layout(); draw(started ? Y1 : Y0); overlay(); }, 150); });
+}
+
+/* ---------- tail histogram ---------- */
+function tail(D) {
+  const host = $('#tail'); const W = 1060, H = 300, L = 44, R = 10, T = 16, B = 34;
+  const vals = []; for (let t = 0; t < 150; t++) vals.push(D.post_by_tau[t] || 0);
+  const over = D.post_by_tau['150'] || 0;
+  const max = 4200, bw = (W - L - R) / 151;
+  const s = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'Histogram of citations by years since overruling' }, host);
+  const y = v => T + (1 - v / max) * (H - T - B);
+  for (let v = 0; v <= 4000; v += 1000) { el('line', { x1: L, x2: W - R, y1: y(v), y2: y(v), class: 'gridl' }, s); el('text', { x: L - 8, y: y(v) + 4, 'text-anchor': 'end', class: 'lab' }, s).textContent = v ? fmt(v) : '0'; }
+  vals.forEach((v, t) => {
+    const x = L + t * bw, h = y(0) - y(v);
+    const r = el('rect', { x: x + .5, y: y(v), width: Math.max(1, bw - 1.2), height: h, rx: Math.min(2, bw / 3), fill: t >= 100 ? css('--ghost') : t >= 20 ? '#6ea957' : '#4f7d40' }, s);
+    const hit = el('rect', { x, y: T, width: bw, height: H - T - B, fill: 'transparent' }, s);
+    hit.addEventListener('pointermove', ev => { r.setAttribute('fill', css('--ink')); showTip(`<b>${t} year${t === 1 ? '' : 's'} after</b><br><span class="num">${fmt(v)}</span> citations`, ev); });
+    hit.addEventListener('pointerleave', () => { r.setAttribute('fill', t >= 100 ? css('--ghost') : t >= 20 ? '#6ea957' : '#4f7d40'); hideTip(); });
+  });
+  const ob = L + 150 * bw;
+  el('rect', { x: ob + .5, y: y(over), width: bw - 1, height: y(0) - y(over), fill: css('--ghost'), rx: 1 }, s);
+  [0, 25, 50, 75, 100, 125, 150].forEach(t => { el('text', { x: L + t * bw + bw / 2, y: H - 12, 'text-anchor': 'middle', class: 'lab' }, s).textContent = t === 150 ? '150+' : t; });
+  el('text', { x: W - R, y: H, 'text-anchor': 'end', class: 'lab' }, s).textContent = 'years after the overruling';
+  const ann = (t, label, yy) => { const x = L + t * bw + bw / 2; el('line', { x1: x, x2: x, y1: y(0), y2: yy + 6, stroke: css('--ink2'), 'stroke-dasharray': '2 3' }, s); el('text', { x: x + 6, y: yy + 4, class: 'lab', style: 'fill:var(--ink)' }, s).textContent = label; };
+  ann(10, 'median: 10 years', y(3300));
+  ann(20, '29% come after 20 years', y(2300));
+  ann(100, '1,861 citations at 100+ years', y(1000));
+}
+
+/* ---------- decay vs controls ---------- */
+function decay(D) {
+  const host = $('#decay'); const W = 1060, H = 360, L = 50, R = 20, T = 14, B = 36;
+  const s = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'Line chart: citations of overruled cases versus matched controls, as a share of baseline' }, host);
+  const X0 = -20, X1 = 60, YM = 150;
+  const x = t => L + (t - X0) / (X1 - X0) * (W - L - R), y = v => T + (1 - v / YM) * (H - T - B);
+  for (let v = 0; v <= 150; v += 25) { el('line', { x1: L, x2: W - R, y1: y(v), y2: y(v), class: 'gridl' }, s); el('text', { x: L - 8, y: y(v) + 4, 'text-anchor': 'end', class: 'lab' }, s).textContent = v + '%'; }
+  for (let t = -20; t <= 60; t += 10) el('text', { x: x(t), y: H - 14, 'text-anchor': 'middle', class: 'lab' }, s).textContent = t === 0 ? 'overruled' : (t > 0 ? '+' : '') + t;
+  el('line', { x1: x(0), x2: x(0), y1: T, y2: H - B, stroke: css('--death'), 'stroke-width': 1.5 }, s);
+  el('text', { x: W - R, y: H, 'text-anchor': 'end', class: 'lab' }, s).textContent = 'years from the overruling';
+  const pc = el('path', { fill: 'none', stroke: css('--ink2'), 'stroke-width': 2, 'stroke-dasharray': '5 4' }, s);
+  const po = el('path', { fill: 'none', stroke: css('--ghost'), 'stroke-width': 2.2 }, s);
+  const lo = el('text', { class: 'lab', style: 'fill:var(--ink)' }, s), lc = el('text', { class: 'lab', style: 'fill:var(--ink)' }, s);
+  const cross = el('line', { y1: T, y2: H - B, stroke: css('--ink3'), opacity: 0 }, s);
+  const mo = el('circle', { r: 4, fill: css('--ghost'), stroke: css('--bg'), 'stroke-width': 2, opacity: 0 }, s), mc = el('circle', { r: 4, fill: css('--ink2'), stroke: css('--bg'), 'stroke-width': 2, opacity: 0 }, s);
+  let cur;
+  const path = arr => arr.filter(p => p.tau >= X0 && p.tau <= X1).map((p, i) => (i ? 'L' : 'M') + x(p.tau).toFixed(1) + ',' + y(Math.min(YM, p.v)).toFixed(1)).join('');
+  function set(key) {
+    cur = D.control[key];
+    po.setAttribute('d', path(cur.over)); pc.setAttribute('d', path(cur.ctrl));
+    const lastO = cur.over.filter(p => p.tau <= X1).at(-1), lastC = cur.ctrl.filter(p => p.tau <= X1).at(-1);
+    lo.setAttribute('x', x(lastO.tau) - 4); lo.setAttribute('y', y(lastO.v) + 18); lo.setAttribute('text-anchor', 'end'); lo.textContent = 'overruled';
+    lc.setAttribute('x', x(lastC.tau) - 4); lc.setAttribute('y', y(lastC.v) - 10); lc.setAttribute('text-anchor', 'end'); lc.textContent = 'never overruled';
+    $('#b5').setAttribute('aria-pressed', key === 'b5'); $('#b10').setAttribute('aria-pressed', key === 'b10');
+    if (!reduce) for (const p of [po, pc]) { const len = p.getTotalLength(); p.style.transition = 'none'; p.style.strokeDasharray = p === pc ? '5 4' : len; if (p === po) { p.style.strokeDashoffset = len; p.getBoundingClientRect(); p.style.transition = 'stroke-dashoffset 1.2s cubic-bezier(.3,0,.2,1)'; p.style.strokeDashoffset = 0; } }
+  }
+  $('#b5').onclick = () => set('b5'); $('#b10').onclick = () => set('b10');
+  const hit = el('rect', { x: L, y: T, width: W - L - R, height: H - T - B, fill: 'transparent' }, s);
+  hit.addEventListener('pointermove', ev => {
+    const pt = s.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY; const p = pt.matrixTransform(s.getScreenCTM().inverse());
+    const t = Math.round(X0 + (p.x - L) / (W - L - R) * (X1 - X0));
+    const a = cur.over.find(q => q.tau === t), b = cur.ctrl.find(q => q.tau === t); if (!a || !b) return;
+    cross.setAttribute('x1', x(t)); cross.setAttribute('x2', x(t)); cross.setAttribute('opacity', 1);
+    mo.setAttribute('cx', x(t)); mo.setAttribute('cy', y(Math.min(YM, a.v))); mo.setAttribute('opacity', 1);
+    mc.setAttribute('cx', x(t)); mc.setAttribute('cy', y(Math.min(YM, b.v))); mc.setAttribute('opacity', 1);
+    showTip(`<b>${t === 0 ? 'Year of the overruling' : (t > 0 ? t + ' years after' : -t + ' years before')}</b><br><span style="color:var(--ghost)">●</span> overruled <span class="num">${Math.round(a.v)}%</span> <span class="m">(${a.n} cases)</span><br><span style="color:var(--ink2)">●</span> never overruled <span class="num">${Math.round(b.v)}%</span>`, ev);
+  });
+  hit.addEventListener('pointerleave', () => { hideTip(); for (const e of [cross, mo, mc]) e.setAttribute('opacity', 0); });
+  set('b5');
+}
+
+/* ---------- label classes ---------- */
+function classes(D) {
+  const K = [['S', 'cites a point that survived'], ['G', 'flags "other grounds"'], ['A', 'says it was overruled'], ['H', 'history or argument'], ['R', 'relies on the dead rule']];
+  const lg = $('#classLegend'); K.forEach(([k, t]) => lg.insertAdjacentHTML('beforeend', `<span class="key"><i class="sw" style="background:var(--${k})"></i>${t}</span>`));
+  const bins = ['0-2', '3-5', '6-10', '11-20', '21-40', '41+'], names = { '0-2': '0–2 years', '3-5': '3–5', '6-10': '6–10', '11-20': '11–20', '21-40': '21–40', '41+': '41+' };
+  const host = $('#classes'); const W = 1060, rh = 34, gap = 12, L = 92, R = 4, H = bins.length * (rh + gap);
+  const s = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'Stacked bars: label shares by years since overruling' }, host);
+  const sw = W - L - R;
+  bins.forEach((b, i) => {
+    const sh = D.labels_by_bin[b], rb = D.relies_by_bin[b], y = i * (rh + gap);
+    el('text', { x: 0, y: y + rh / 2 + 4, class: 'lab', style: 'fill:var(--ink)' }, s).textContent = names[b];
+    el('rect', { x: L, y, width: sw, height: rh, rx: 4, fill: 'none', stroke: css('--line') }, s);
+    let x = L;
+    K.forEach(([k, t]) => {
+      const w = sh[k] * sw; if (w <= 0) return;
+      const r = el('rect', { x: x + 1, y, width: Math.max(1.5, w - 2), height: rh, rx: 3, fill: css('--' + k) }, s);
+      if (w > 54) el('text', { x: x + 10, y: y + rh / 2 + 4, class: 'lab', style: 'fill:#fff;pointer-events:none;font-weight:500' }, s).textContent = pct(sh[k], 0);
+      const extra = k === 'R' ? `<br><span class="m">Corrected estimate ${pct(rb.share)} (${pct(rb.share_lo)}–${pct(rb.share_hi)})</span>` : '';
+      r.addEventListener('pointermove', ev => showTip(`<b>${names[b]}${b === '0-2' ? '' : ' years'} after</b><br>${t}: <span class="num">${pct(sh[k])}</span>${extra}`, ev));
+      r.addEventListener('pointerleave', hideTip);
+      x += w;
+    });
+  });
+}
+
+/* ---------- waffle ---------- */
+function waffle(D) {
+  const w = $('#waffle'); const est = Math.round(D.relies.share * 1000), hi = Math.round(D.relies.share_hi * 1000);
+  // scatter the red squares so they read as rare, with a fixed pattern
+  let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const idx = new Set(); while (idx.size < hi) idx.add(Math.floor(rnd() * 1000));
+  const arr = [...idx];
+  for (let i = 0; i < 1000; i++) { const e = document.createElement('i'); const k = arr.indexOf(i); if (k >= 0) e.className = k < est ? 'r' : 'rr'; w.appendChild(e); }
+}
+
+/* ---------- graves ---------- */
+function graves() {
+  const G = [
+    ['Grady v. Corbin', '495 U.S. 508 (1990)', 'United States v. Dixon', 1993, 'Commonwealth v. Charles', '81 Mass. App. Ct. 901 (2012)', 2012, 'The basic rule is that a defendant who has been prosecuted for a lesser offense based on conduct that must be proved to convict him of a greater offense cannot subsequently be prosecuted for the latter.', 'Quotes Grady\'s same-conduct double jeopardy test.', 'https://static.case.law/mass-app-ct/81/cases/0901-01.json'],
+    ['Bryan v. United States', '338 U.S. 552 (1950)', 'Burks v. United States', 1978, 'United States v. Lopac', '411 F. Supp. 2d 350 (S.D.N.Y. 2006)', 2006, 'the court has the power to direct a new trial rather than enter a judgment of acquittal.', 'Cites Bryan for ordering a new trial instead of an acquittal after finding the evidence insufficient.', 'https://static.case.law/f-supp-2d/411/cases/0350-01.json'],
+    ['National League of Cities v. Usery', '426 U.S. 833 (1976)', 'Garcia v. San Antonio Metropolitan Transit Authority', 1985, "O'Donnell v. Village of Downers Grove", '656 F. Supp. 562 (N.D. Ill. 1987)', 1987, 'The Tenth Amendment serves as an affirmative external limitation on federal legislation.', 'Cites Usery for the Tenth Amendment limit Garcia threw out.', 'https://static.case.law/f-supp/656/cases/0562-01.json'],
+    ['Monroe v. Pape', '365 U.S. 167 (1961)', 'Monell v. Department of Social Services', 1978, 'Toscano v. County of Los Angeles', '92 Cal. App. 3d 775 (1979)', 1979, 'United States Code section 1983 actions can only be brought against individuals.', 'Monell had just held that local governments can be sued under § 1983.', 'https://static.case.law/cal-app-3d/92/cases/0775-01.json'],
+    ['Gouled v. United States', '255 U.S. 298 (1921)', 'Warden v. Hayden', 1967, 'In re Bernstein', '425 F. Supp. 37 (S.D. Fla. 1977)', 1977, 'Private papers taken from the taxpayer, like other "mere evidence" cannot be used against the accused over his Fourth and Fifth Amendment objections.', 'Relies on the "mere evidence" rule Warden v. Hayden abolished.', 'https://static.case.law/f-supp/425/cases/0037-01.json'],
+    ['United States v. Reid', '53 U.S. (12 How.) 361 (1851)', 'Rosen v. United States', 1918, 'Neal v. United States', '1 F.2d 637 (8th Cir. 1924)', 1924, 'The rules of evidence governing federal courts in criminal cases arising in that district are those which were in force in Oklahoma Territory', 'Applies Reid\'s rule that federal criminal trials use the evidence law in force at statehood.', 'https://static.case.law/f2d/1/cases/0637-01.json'],
+    ['Hooven & Allison Co. v. Evatt', '324 U.S. 652 (1945)', 'Limbach v. Hooven & Allison Co.', 1984, 'Deer Park v. Harris County Appraisal District', '963 F. Supp. 605 (S.D. Tex. 1997)', 1997, 'goods in foreign commerce although present in the territory of the United States are free of local taxes.', 'Cites Hooven for an import-tax immunity Limbach overruled.', 'https://static.case.law/f-supp/963/cases/0605-01.json'],
+  ];
+  const host = $('#graves');
+  G.forEach(([t, tc, by, died, c, cc, cy, q, note, url]) => {
+    host.insertAdjacentHTML('beforeend', `<article class="grave">
+      <div><div class="t"><s>${t}</s></div><div class="d">${tc} · overruled ${died} by ${by}</div></div>
+      <div class="gap">↓ ${cy - died} year${cy - died === 1 ? '' : 's'} later</div>
+      <div><div class="t" style="font-size:16px">${c}</div><div class="d">${cc}</div></div>
+      <blockquote>“${q}”</blockquote>
+      <div class="c">${note} <a href="${url}" target="_blank" rel="noopener">Opinion (CAP)</a></div>
+    </article>`);
+  });
+}
+
+/* ---------- courts ---------- */
+function courts(D) {
+  const order = ['SCOTUS', 'Fed. appeals', 'Fed. district', 'State high', 'State lower', 'Fed. other'];
+  const names = { 'SCOTUS': 'Supreme Court', 'Fed. appeals': 'Federal appeals', 'Fed. district': 'Federal district', 'State high': 'State high courts', 'State lower': 'State lower courts', 'Fed. other': 'Federal other' };
+  function bars(host, get, max, ticks, fmtv, dot) {
+    const W = 520, rh = 26, gap = 14, L = 132, R = 56, H = order.length * (rh + gap) + 24;
+    const s = el('svg', { viewBox: `0 0 ${W} ${H}` }, host);
+    const x = v => L + v / max * (W - L - R);
+    ticks.forEach(v => { el('line', { x1: x(v), x2: x(v), y1: 0, y2: H - 22, class: 'gridl' }, s); el('text', { x: x(v), y: H - 6, 'text-anchor': 'middle', class: 'lab' }, s).textContent = fmtv(v); });
+    order.forEach((k, i) => {
+      const d = get(k), y = i * (rh + gap);
+      el('text', { x: 0, y: y + rh / 2 + 4, class: 'lab', style: 'fill:var(--ink)' }, s).textContent = names[k];
+      let m;
+      if (dot) m = el('circle', { cx: x(d.v), cy: y + rh / 2, r: 5, fill: css('--R') }, s);
+      else m = el('rect', { x: L, y: y + 5, width: Math.max(2, x(d.v) - L), height: rh - 10, rx: 3, fill: '#6ea957' }, s);
+      el('line', { x1: x(d.lo), x2: x(d.hi), y1: y + rh / 2, y2: y + rh / 2, stroke: css('--ink'), 'stroke-width': 1.5 }, s);
+      for (const e of [d.lo, d.hi]) el('line', { x1: x(e), x2: x(e), y1: y + rh / 2 - 5, y2: y + rh / 2 + 5, stroke: css('--ink'), 'stroke-width': 1.5 }, s);
+      el('text', { x: Math.min(x(d.hi) + 8, W - R + 6), y: y + rh / 2 + 4, class: 'lab', style: 'fill:var(--ink)' }, s).textContent = fmtv(d.v);
+      const hit = el('rect', { x: 0, y, width: W, height: rh, fill: 'transparent' }, s);
+      hit.addEventListener('pointermove', ev => showTip(`<b>${names[k]}</b><br><span class="num">${fmtv(d.v)}</span> <span class="m">(95%: ${fmtv(d.lo)}–${fmtv(d.hi)})</span>`, ev));
+      hit.addEventListener('pointerleave', hideTip);
+    });
+  }
+  const P = D.per_1000;
+  bars($('#rate'), k => ({ v: P[k].rate, lo: P[k].lo, hi: P[k].hi }), 310, [0, 100, 200, 300], v => v >= 100 ? Math.round(v) : v.toFixed(1), false);
+  const Q = D.relies_by_court;
+  bars($('#rshare'), k => ({ v: Q[k].share, lo: Q[k].share_lo, hi: Q[k].share_hi }), .016, [0, .005, .01, .015], v => pct(v, 2).replace('.00%', '%'), true);
+}
+</script>
+</body>
+</html>
