@@ -163,7 +163,7 @@ Y2 = 76                # Citation Gate L11 / citation audit R16
 TOP = 30               # Legal's run along the top
 LX = 185               # Legal's west column
 ROUTE['legal'] = [P(LW, CY), P(LW, TOP + 30), P(LW - 30, TOP), P(LX + 30, TOP), P(LX, TOP + 30), P(LX, 905)]
-PINS['legal'] = {0: P(LW, CY - 55), 6: P(LW, Y1), 10: P(LW, Y2), 11: P(LX, 105), 34: P(LX, 905)}
+PINS['legal'] = {0: P(LW, CY - 55), 5: P(LW, Y1), 9: P(LW, Y2), 10: P(LX, 105), 33: P(LX, 905)}
 SIDES['legal'] = ['W'] * 11 + ['E'] * 24
 
 ROUTE['research'] = [P(RE, CY + 175), P(RE, Y2), P(RE, Y2 - 23)]
